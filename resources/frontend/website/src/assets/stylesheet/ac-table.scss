@@ -1,0 +1,7 @@
+@include b(table) {
+    .el-table {
+        th.el-table__cell {
+            background-color: theme('backgroundColor.zinc.50');
+        }
+    }
+}

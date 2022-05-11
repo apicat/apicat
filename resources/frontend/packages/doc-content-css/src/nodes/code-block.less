@@ -1,0 +1,32 @@
+.ProseMirror.@{readonlyClass}{
+  .code-block {
+    position: relative;
+    button {
+      cursor: pointer;
+      background: @table-thead-bg;
+      color: @text-primary;
+      border: 1px solid #cecccc;
+      font-size: 13px;
+      display: none;
+      position: absolute;
+      border-radius: 4px;
+      padding: 0 6px;
+      z-index: 1;
+      top: 4px;
+      right: 4px;
+      line-height: 1.5;
+    }
+
+    &:hover button{
+      display: inline-block;
+    }
+
+  }
+}
+
+.hljs{
+  background:rgba(250,250,250,1);
+  border-radius:2px;
+  border:1px solid rgba(0,0,0,0.15);
+  padding: 12px 16px;
+}

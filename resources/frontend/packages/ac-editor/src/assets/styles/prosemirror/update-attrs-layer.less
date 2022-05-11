@@ -1,0 +1,54 @@
+.url-list {
+    width: 100%;
+    line-height: 33px;
+    margin-top: 10px;
+    max-height: 200px;
+    overflow: scroll;
+
+    .el-form-item__content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &-item {
+        display: flex;
+        align-items: center;
+        cursor: pointer;
+        padding: 0 10px;
+        width: 100%;
+
+        &:hover {
+            background: @url-list-item-hover;
+        }
+
+        &.selected {
+            background: @url-list-item-selected;
+        }
+    }
+
+    &-content {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        flex: 1;
+    }
+}
+
+.update-attr-layer {
+    .el-form-item--mini.el-form-item,
+    .el-form-item--small.el-form-item {
+        margin-bottom: 6px;
+    }
+}
+
+.update-api-url-attrs {
+    .el-form-item--mini.el-form-item,
+    .el-form-item--small.el-form-item {
+        margin-bottom: 0;
+    }
+}
+
+.update-api-url-attrs,
+.update-http-url-attrs {
+    min-width: 400px;
+}

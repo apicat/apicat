@@ -1,0 +1,84 @@
+@import "codemirror/codemirror";
+@import "codemirror/idle";
+
+.ProseMirror{
+  .codemirror-container {
+    position: relative;
+
+    select,
+    button {
+      background: @table-thead-bg;
+      color: @text-primary;
+      border: 1px solid #cecccc;
+      font-size: 13px;
+      display: none;
+      position: absolute;
+      border-radius: 4px;
+      padding: 2px;
+      z-index: 3;
+      top: 4px;
+      right: 4px;
+      line-height: 1.5;
+    }
+
+    button {
+      padding: 0 6px;
+    }
+
+    &:hover {
+      select {
+        display: inline;
+      }
+    }
+
+    select:focus,
+    select:active {
+      display: inline;
+    }
+
+    .CodeMirror {
+      border: 1px solid #eee;
+      height: auto;
+
+      //todo fixed ProseMirror 拖拽代码块时 dom 计算width，height问题
+      .CodeMirror-scroll{
+        padding: 0;
+        margin-bottom: 0;
+        overflow: hidden !important;
+      }
+
+      .CodeMirror-sizer + div{
+        display: none;
+      }
+
+    }
+    .CodeMirror pre { white-space: pre !important }
+  }
+
+  //&.@{readonlyClass} .codemirror-container{
+  //  .CodeMirror-cursor{
+  //    display:none;
+  //  }
+  //
+  //  .CodeMirror-scroll{
+  //    margin-bottom: -50px;
+  //    margin-right: -50px;
+  //    padding-bottom: 50px;
+  //    height: auto;
+  //  }
+  //
+  //  .CodeMirror-sizer + div{
+  //    display: block;
+  //  }
+  //
+  //  &:hover{
+  //    select{
+  //      display: none;
+  //    }
+  //
+  //    button{
+  //      display: inline-block;
+  //    }
+  //  }
+  //}
+}

@@ -1,0 +1,48 @@
+.http-url {
+    display: flex;
+    background-color: darken(#fff, 3%);
+    height: 30px;
+    line-height: 30px;
+    border-radius: @btn-border-radius-big;
+
+    > * {
+        padding: 0 10px;
+    }
+
+    > div:first-child {
+        border-bottom-left-radius: @btn-border-radius-big;
+        border-top-left-radius: @btn-border-radius-big;
+    }
+
+    > div:last-child {
+        border-bottom-right-radius: @btn-border-radius-big;
+        border-top-right-radius: @btn-border-radius-big;
+    }
+
+    &--method {
+        color: @white;
+    }
+
+    &--type {
+        background-color: darken(#fff, 10%);
+    }
+
+    &--url {
+        background-color: darken(#fff, 5%);
+    }
+
+    &--path {
+        flex: 1;
+    }
+}
+
+.btn-copy-all {
+    color: #939292;
+    background-color: darken(#fff, 10%);
+    font-size: 12px;
+}
+
+.http-method {
+    margin-bottom: 16px;
+    line-height: 1;
+}

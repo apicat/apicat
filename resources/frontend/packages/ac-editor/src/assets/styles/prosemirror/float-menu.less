@@ -1,0 +1,46 @@
+.float-menu {
+  display: flex;
+  align-items: center;
+}
+
+.float-menu-separator {
+  height: 15px;
+  width: 1px;
+  background: #e4e3e3;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.float-menu-item {
+  display: inline-block;
+  flex: 1;
+  cursor: pointer;
+  border: none;
+  background: none;
+  transition: opacity 100ms ease-in-out;
+  padding: 2px;
+  outline: none;
+  border-radius: 4px;
+  margin: 0 2px;
+  line-height: 1;
+
+  i {
+    font-size: 15px;
+    padding: 4px;
+    display: block;
+    border-radius: 4px;
+  }
+
+  &:hover {
+    background: #dad9d9;
+  }
+
+  &.active {
+    background: #dad9d9;
+  }
+
+  &.disable{
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+}

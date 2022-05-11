@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8">
+    <title>文档HTML结构</title>
+
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+    <script src="https://unpkg.com/tippy.js@6"></script>
+
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@11.1.0/styles/default.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/@highlightjs/cdn-assets@11.1.0/styles/atom-one-light.min.css">
+
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.1.0/highlight.min.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.1.0/languages/go.min.js"></script>
+    <script src="https://unpkg.com/@highlightjs/cdn-assets@11.1.0/languages/json.min.js"></script>
+
+    <script src="https://unpkg.com/medium-zoom@1.0.6/dist/medium-zoom.min.js"></script>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
+
+    <!-- import css -->
+    <link href="https://cdn.jsdelivr.net/npm/siiimple-toast/dist/style.css" rel="stylesheet">
+    <!-- import js -->
+    <script src="https://cdn.jsdelivr.net/npm/siiimple-toast/dist/siiimple-toast.min.js"></script>
+
+    <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.6.14/vue.min.js"></script>
+
+    <link rel="stylesheet"
+      href="https://at.alicdn.com/t/font_1854534_yfr4s6red27.css?spm=a313x.7781069.1998910419.63&file=font_1854534_yfr4s6red27.css" />
+
+    <script type="text/javascript">
+
+      function toggleClass(el, className) {
+        el && el.classList && el.classList.toggle(className)
+      }
+
+      function hasClass(element, cls) {
+        return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
+      }
+
+      function getAttr(el, attr) {
+        return el && el.getAttribute(attr)
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        tippy('[data-tippy-content]', { theme: 'light', appendTo: document.querySelector('.ProseMirror') });
+
+        hljs.highlightAll()
+
+        mediumZoom('.image-view img')
+
+        // document.querySelectorAll('pre code').forEach((el) => {
+        //     hljs.highlightElement(el,{language:'json'});
+        // });
+
+        var clipboard = new ClipboardJS('.copy_text', {
+          text: function (trigger) {
+            return trigger.getAttribute('data-text') || trigger.innerText || "";
+          }
+        });
+
+        clipboard.on('success', function () {
+          siiimpleToast.success('复制成功！', { duration: 1000, style: { backgroundColor: '#fff', color: '#000', minWidth: 'auto', padding: '9px 18px', fontSize: '14px', } });
+        })
+
+        document.querySelectorAll(".ac-param-table .editor-arrow-right").forEach(function (el) {
+          el.onclick = function () {
+            expand(getAttr(this, "data-id"), !hasClass(this, "expand"))
+            toggleClass(this, "expand")
+          }
+        })
+
+        function expand(pid, isExpand) {
+          document.querySelectorAll('[data-pid="' + pid + '"]').forEach(function (el) {
+            var arrow = el.querySelector('i.editor-arrow-right');
+
+            if (arrow && !hasClass(arrow, 'expand')) {
+              toggleClass(arrow, "expand");
+            }
+
+            var id = getAttr(el, "data-id")
+            el.style.display = isExpand ? null : 'none';
+            id && expand(id, isExpand)
+          })
+        }
+
+        document.querySelectorAll('div.collapse-title .response_body_title').forEach(function (el) {
+          el.onclick = function () {
+            var h3 = this.parentElement;
+            var parent = h3.parentElement;
+            var isShow = hasClass(parent, "close")
+            showOrHide(h3.nextElementSibling, isShow)
+            showOrHide(parent.nextElementSibling, isShow)
+            toggleClass(parent, "close");
+          }
+        })
+
+        document.querySelectorAll('h3.collapse-title >span').forEach(function (el) {
+          el.onclick = function () {
+            var parent = this.parentElement;
+            var isShow = hasClass(parent, "close")
+            showOrHide(parent.nextElementSibling, isShow)
+            toggleClass(parent, "close");
+          }
+        })
+
+        function showOrHide(el, isShow) {
+          if (!el) {
+            return;
+          }
+          el.style.display = isShow ? null : 'none';
+        }
+
+      });
+
+
+    </script>
+  </head>
+
+  <body style="margin: 0 10%;">
+
+    <div class="ProseMirror readonly">
+
+      <h1>h1 返回参数示例
+        <mark style="background-color: rgb(255,233,40);">1</mark>
+        <mark style="background-color: rgb(98,210,86);color: rgb(220,155,4);">文字高亮和颜色</mark>
+      </h1>
+      <h2>h2 返回参数示例</h2>
+      <h3>h3 返回参数示例</h3>
+      <h4>h4 返回参数示例</h4>
+      <h4>h4 返回参数示例</h4>
+      <h6>h6 返回参数示例</h6>
+
+      <p>
+        段落
+        <a href="123213123123123" target="_blank" ref="nofollow noopener noreferrer">链接</a>
+        <code>行内代码</code>
+      </p>
+
+      <!--无序列表-->
+      <ul class="ac-ul">
+        <li>
+          <p>123</p>
+        </li>
+        <li>
+          <p>123</p>
+        </li>
+        <li>
+          <p>123</p>
+        </li>
+        <li>
+          <p>123</p>
+        </li>
+      </ul>
+
+      <!--有序列表-->
+      <ol class="ac-ol">
+        <li>
+          <p>123</p>
+        </li>
+        <li>
+          <p>123</p>
+        </li>
+        <li>
+          <p>123</p>
+        </li>
+        <li>
+          <p>234</p>
+        </li>
+        <li>
+          <p>234</p>
+        </li>
+        <li><strong><em><u><s>234</s></u></em></strong></li>
+      </ol>
+
+      <!--代码块-->
+      <div class="code-block">
+        <button class="copy_text" data-text="要复制的代码字符串">复制</button>
+        <pre><code>{
+    "code": 40004,
+    "msg": "subscribe failed",
+    "data": {
+        "topic_id": 10001,
+        "topic_title": "hello world"
+    }
+}</code></pre>
+      </div>
+
+      <!-- 分割线 -->
+      <hr />
+
+      <!-- 图片  image-view--center  image-view--left  image-view--right -->
+      <div class="image-view image-view--center">
+        <div class="image-view__body">
+          <img alt="" src="https://apicat.net/static/image/bannerchatu@2x.png" title="" width="344"
+            height="256.76555023923447" class="image-view__body__image" />
+        </div>
+      </div>
+
+      <!-- 代码块 -->
+      <blockquote>
+        <p>123123</p>
+        <p>123123</p>
+      </blockquote>
+
+      <!-- 表格 -->
+      <div class="scrollable-wrapper original-table">
+        <div class="scrollable">
+          <table class="rme-table">
+            <tbody>
+              <tr>
+                <th style="text-align: center">
+                  <p>123</p>
+                </th>
+                <th>
+                  <p>123</p>
+                </th>
+                <th>
+                  <p>123</p>
+                </th>
+              </tr>
+              <tr>
+                <td>
+                  <p><br></p>
+                </td>
+                <td>
+                  <p><br></p>
+                </td>
+                <td>
+                  <p><br></p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p><br></p>
+                </td>
+                <td>
+                  <p><br></p>
+                </td>
+                <td>
+                  <p><br></p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- http-url -->
+      <div class="http-url">
+        <div class="http-url--method" style="background: rgb(102, 190, 116);">GET</div>
+        <div class="http-url--type">form-data</div>
+        <div class="http-url--url copy_text">http://www.baidu.com</div>
+        <div class="http-url--path"><span class="copy_text">/get_user_name</span></div>
+        <div class="btn-copy-all copy_text" data-text="http://www.baidu.com/get_user_name">复制完整URL</div>
+      </div>
+
+      <!-- api-url -->
+      <div class="http-url">
+        <div class="http-url--url copy_text">http://www.baidu.com</div>
+        <div class="http-url--path"><span class="copy_text">/get_user_name</span></div>
+        <div class="btn-copy-all copy_text" data-text="http://www.baidu.com/get_user_name">复制完整URL</div>
+      </div>
+
+      <!-- http-code -->
+      <div class="http-code">
+        <span class="intro">Response Status Code:</span>
+        <span class="code" data-tippy-content="OK" style="background: rgb(102, 190, 116);">200</span>
+      </div>
+
+      <!-- 返回参数表格-->
+      <h3 class="ac-param-group-title">返回参数表格</h3>
+
+      <!-- 返回参数 折叠icon -->
+      <div class="collapse-title">
+        <h3><span class="response_body_title"><i class="iconfont iconIconCaretDown"></i>返回参数</span></h3>
+        <div class="http-url">
+          <div class="http-url--url mock-tag">Mock</div>
+          <div class="http-url--path mock-url"><a target="_blank"
+              href="http://mock.apicat.net/xxxx">http://mock.apicat.net/xxxx</a></div>
+        </div>
+      </div>
+      <div class="ac-param-table">
+        <div class="ac-param-table--border-line"></div>
+        <table>
+          <colgroup>
+            <col width="32%" />
+            <col width="10%" />
+            <col width="7%" />
+            <col width="15%" />
+            <col width="" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>参数名称</th>
+              <th>参数类型</th>
+              <th class="text-center">必传</th>
+              <th>默认值</th>
+              <th>参数说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="copy_text">username</span></td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>用户名</td>
+            </tr>
+            <tr>
+              <td><span class="copy_text">password</span></td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>密码</td>
+            </tr>
+            <tr>
+              <td><span class="copy_text">email</span></td>
+              <td>String</td>
+              <td class="text-center">否</td>
+              <td></td>
+              <td>邮箱</td>
+            </tr>
+            <tr data-id="1">
+              <td>
+                <i class="editor-font editor-arrow-right expand" data-id="1"></i>
+                <span
+                  class="copy_text">datadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadata</span>
+              </td>
+              <td>Object</td>
+              <td class="text-center">否</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr data-id="10" data-pid="1">
+              <td style="padding-left: 25px">
+                <span class="copy_text">username</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>用户名</td>
+            </tr>
+            <tr data-id="20" data-pid="1">
+              <td style="padding-left: 25px">
+                <span class="copy_text">password</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>密码</td>
+            </tr>
+            <tr data-id="30" data-pid="1">
+              <td style="padding-left: 25px">
+                <i class="editor-font editor-arrow-right expand" data-id="30"></i><span class="copy_text">email</span>
+              </td>
+              <td>Array</td>
+              <td class="text-center">否</td>
+              <td></td>
+              <td>邮箱</td>
+            </tr>
+            <tr data-id="40" data-pid="30">
+              <td style="padding-left: 40px">
+                <span class="copy_text">username</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>用户名</td>
+            </tr>
+            <tr data-id="50" data-pid="30">
+              <td style="padding-left: 40px">
+                <span class="copy_text">daadaa</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>密码</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 参数表格-->
+      <h3 class="ac-param-group-title">请求参数</h3>
+
+      <!-- 请求参数 折叠icon -->
+      <h3 class="collapse-title"><span><i class="iconfont iconIconCaretDown"></i>Header 参数</span></h3>
+      <div class="ac-param-table">
+        <div class="ac-param-table--border-line"></div>
+        <table>
+          <colgroup>
+            <col width="32%" />
+            <col width="10%" />
+            <col width="7%" />
+            <col width="15%" />
+            <col width="" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>参数名称</th>
+              <th>参数类型</th>
+              <th class="text-center">必传</th>
+              <th>默认值</th>
+              <th>参数说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="copy_text">username</span></td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>用户名</td>
+            </tr>
+            <tr>
+              <td><span class="copy_text">password</span></td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>密码</td>
+            </tr>
+            <tr>
+              <td><span class="copy_text">email</span></td>
+              <td>String</td>
+              <td class="text-center">否</td>
+              <td></td>
+              <td>邮箱</td>
+            </tr>
+            <tr data-id="1">
+              <td>
+                <i class="editor-font editor-arrow-right expand" data-id="1"></i>
+                <span
+                  class="copy_text">datadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadata</span>
+              </td>
+              <td>Object</td>
+              <td class="text-center">否</td>
+              <td></td>
+              <td></td>
+            </tr>
+            <tr data-id="10" data-pid="1">
+              <td style="padding-left: 25px">
+                <span class="copy_text">username</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>用户名</td>
+            </tr>
+            <tr data-id="20" data-pid="1">
+              <td style="padding-left: 25px">
+                <span class="copy_text">password</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>密码</td>
+            </tr>
+            <tr data-id="30" data-pid="1">
+              <td style="padding-left: 25px">
+                <i class="editor-font editor-arrow-right expand" data-id="30"></i><span class="copy_text">email</span>
+              </td>
+              <td>Array</td>
+              <td class="text-center">否</td>
+              <td></td>
+              <td>邮箱</td>
+            </tr>
+            <tr data-id="40" data-pid="30">
+              <td style="padding-left: 40px">
+                <span class="copy_text">username</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>用户名</td>
+            </tr>
+            <tr data-id="50" data-pid="30">
+              <td style="padding-left: 40px">
+                <span class="copy_text">daadaa</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>密码</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- 折叠icon -->
+      <h3 class="collapse-title"><span><i class="iconfont iconIconCaretDown"></i>Body 参数</span></h3>
+      <div class="ac-param-table">
+        <div class="ac-param-table--border-line"></div>
+        <table>
+          <colgroup>
+            <col width="32%" />
+            <col width="10%" />
+            <col width="7%" />
+            <col width="15%" />
+            <col width="" />
+            <col width="100px" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>参数名称</th>
+              <th>参数类型</th>
+              <th class="text-center">必传</th>
+              <th>默认值</th>
+              <th>参数说明</th>
+              <th>Mock</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="copy_text">username</span></td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>用户名</td>
+              <td>
+                <div class="mock" title="很长的mock文字">很长的mock文字</div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="copy_text">password</span></td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>密码</td>
+              <td>
+                <div class="mock" title="很长的mock文字">很长的mock文字</div>
+              </td>
+            </tr>
+            <tr>
+              <td><span class="copy_text">email</span></td>
+              <td>String</td>
+              <td class="text-center">否</td>
+              <td></td>
+              <td>邮箱</td>
+              <td>
+                <div class="mock" title="很长的mock文字">很长的mock文字</div>
+              </td>
+            </tr>
+            <tr data-id="1">
+              <td>
+                <i class="editor-font editor-arrow-right expand" data-id="1"></i>
+                <span
+                  class="copy_text">datadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadatadata</span>
+              </td>
+              <td>Object</td>
+              <td class="text-center">否</td>
+              <td></td>
+              <td></td>
+              <td>
+                <div class="mock" title="很长的mock文字">很长的mock文字</div>
+              </td>
+            </tr>
+            <tr data-id="10" data-pid="1">
+              <td style="padding-left: 25px">
+                <span class="copy_text">username</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>用户名</td>
+              <td>
+                <div class="mock" title="很长的mock文字">很长的mock文字</div>
+              </td>
+            </tr>
+            <tr data-id="20" data-pid="1">
+              <td style="padding-left: 25px">
+                <span class="copy_text">password</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>密码</td>
+              <td>
+                <div class="mock" title="很长的mock文字">很长的mock文字</div>
+              </td>
+            </tr>
+            <tr data-id="30" data-pid="1">
+              <td style="padding-left: 25px">
+                <i class="editor-font editor-arrow-right expand" data-id="30"></i><span class="copy_text">email</span>
+              </td>
+              <td>Array</td>
+              <td class="text-center">否</td>
+              <td></td>
+              <td>邮箱</td>
+              <td>
+                <div class="mock" title="很长的mock文字">很长的mock文字</div>
+              </td>
+            </tr>
+            <tr data-id="40" data-pid="30">
+              <td style="padding-left: 40px">
+                <span class="copy_text">username</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>用户名</td>
+              <td>
+                <div class="mock" title="很长的mock文字">很长的mock文字</div>
+              </td>
+            </tr>
+            <tr data-id="50" data-pid="30">
+              <td style="padding-left: 40px">
+                <span class="copy_text">daadaa</span>
+              </td>
+              <td>String</td>
+              <td class="text-center">是</td>
+              <td></td>
+              <td>密码</td>
+              <td>
+                <div class="mock" title="很长的mock文字">很长的mock文字</div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+
+    <div id="app"></div>
+    <script type="module" src="/main.js"></script>
+  </body>
+
+</html>

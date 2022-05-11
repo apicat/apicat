@@ -1,0 +1,54 @@
+ul.checkbox_list {
+    list-style: none;
+    padding: 0;
+}
+
+ul.checkbox_list li {
+    display: flex;
+}
+
+ul.checkbox_list li.checked > div > p {
+    color: @text-color-secondary;
+    text-decoration: line-through;
+}
+
+ul li.ProseMirror-selectednode::after,
+ol li.ProseMirror-selectednode::after {
+    display: none;
+}
+
+ul.checkbox_list li input {
+    pointer-events: initial;
+    opacity: 1;
+    margin: 0.5em 0.5em 0 0;
+    width: 14px;
+    height: 14px;
+}
+
+.checkbox_list,
+.ac-ul,
+.ac-ol {
+    padding: 0;
+
+    li.hovering::before {
+        opacity: 0.5;
+    }
+
+    li p:first-child {
+        margin: 0;
+        word-break: break-word;
+    }
+
+    li.ProseMirror-selectednode::after {
+        display: none;
+    }
+}
+
+.ac-ul,
+.ac-ol {
+    padding-left: 20px;
+
+    li::before {
+        left: -46px;
+    }
+}

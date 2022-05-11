@@ -1,0 +1,76 @@
+@use 'function' as *;
+@forward 'config';
+@use 'config' as *;
+
+// BEM
+@mixin b($block) {
+    $B: $namespace + '-' + $block !global;
+
+    .#{$B} {
+        @content;
+    }
+}
+
+@mixin e($element) {
+    $E: $element !global;
+    $selector: &;
+    $currentSelector: '';
+    @each $unit in $element {
+        $currentSelector: #{$currentSelector + '.' + $B + $element-separator + $unit + ','};
+    }
+
+    @if hitAllSpecialNestRule($selector) {
+        @at-root {
+            #{$selector} {
+                #{$currentSelector} {
+                    @content;
+                }
+            }
+        }
+    } @else {
+        @at-root {
+            #{$currentSelector} {
+                @content;
+            }
+        }
+    }
+}
+
+@mixin m($modifier) {
+    $selector: &;
+    $currentSelector: '';
+    @each $unit in $modifier {
+        $currentSelector: #{$currentSelector + $selector + $modifier-separator + $unit + ','};
+    }
+
+    @at-root {
+        #{$currentSelector} {
+            @content;
+        }
+    }
+}
+
+@mixin meb($modifier: false, $element: $E, $block: $B) {
+    $selector: &;
+    $modifierCombo: '';
+
+    @if $modifier {
+        $modifierCombo: $modifier-separator + $modifier;
+    }
+
+    @at-root {
+        #{$selector} {
+            .#{$block + $element-separator + $element + $modifierCombo} {
+                @content;
+            }
+        }
+    }
+}
+
+@mixin when($state) {
+    @at-root {
+        &.#{$state-prefix + $state} {
+            @content;
+        }
+    }
+}

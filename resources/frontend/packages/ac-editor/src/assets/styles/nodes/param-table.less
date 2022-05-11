@@ -1,0 +1,270 @@
+.SortableTreeTable .SortableTreeTableHeader .flex-row,
+.SortableTreeTable .SortableTreeTableRow .flex-row {
+    display: flex;
+    min-height: 40px;
+}
+
+.SortableTreeTable {
+    .SortableTreeTableHeader,
+    .SortableTreeTableBody {
+        border-left: 1px solid @ac-table-border-color;
+    }
+
+    &::selection input[type='text']::placeholder {
+        color: red !important;
+    }
+}
+
+.SortableTreeTable .SortableTreeTableRow {
+    position: relative;
+}
+
+.SortableTreeTable .SortableTreeTableRow .flex-row {
+    &:hover {
+        background: @body-bg;
+    }
+}
+
+.SortableTreeTable .SortableTreeTableHeader .flex-row .th {
+    background: rgba(0, 0, 0, 0.02);
+    margin-bottom: -1px;
+}
+
+.SortableTreeTable {
+    min-width: 950px;
+
+    .SortableTreeGap {
+        width: 16px;
+        min-height: 1px;
+    }
+
+    .sortable-fallback,
+    .sortable-ghost {
+        background: #fff;
+        box-shadow: 0 0 10px -5px #000000;
+    }
+
+    .SortableTreeTableHeader,
+    .SortableTreeTableRow {
+        .flex-row .flex-center {
+            justify-content: center;
+        }
+
+        .flex-row .td {
+            padding: 0 10px;
+            margin-bottom: -1px;
+        }
+
+        .flex-row .th {
+            padding: 10px;
+            font-weight: 500;
+            color: @title-color;
+        }
+
+        .flex-row .td:last-child {
+            margin-right: 0;
+        }
+
+        .flex-row .td,
+        .flex-row .th {
+            border-top: 1px solid @ac-table-border-color;
+            border-bottom: 1px solid @ac-table-border-color;
+            border-right: 1px solid @ac-table-border-color;
+            display: flex;
+            align-items: center;
+            flex-direction: row;
+            word-break: break-all;
+
+            .handle_expand {
+                font-size: 16px;
+                cursor: pointer;
+            }
+
+            input[type='text'],
+            select,
+            .ivu-select-selection,
+            .el-autocomplete {
+                width: 100%;
+                height: 40px;
+                flex: 1;
+                background: rgba(0, 0, 0, 0);
+                border: none;
+                outline: none;
+                color: @text-color;
+                appearance: none;
+                -webkit-appearance: none;
+                padding: 0;
+                box-shadow: none;
+            }
+
+            input[type='text']:focus {
+                box-shadow: none;
+            }
+
+            ::placeholder {
+                /* Chrome, Firefox, Opera, Safari 10.1+ */
+                color: @border-color-base;
+                opacity: 1; /* Firefox */
+            }
+
+            :-ms-input-placeholder {
+                /* Internet Explorer 10-11 */
+                color: @border-color-base;
+            }
+
+            ::-ms-input-placeholder {
+                /* Microsoft Edge */
+                color: @border-color-base;
+            }
+
+            .ivu-input:focus {
+                box-shadow: none;
+            }
+
+            &.drag {
+                width: 20px;
+            }
+
+            &.expand {
+                width: 1px;
+                padding: 0 12px 0 0;
+
+                .ivu-icon {
+                    cursor: pointer;
+                    color: rgba(0, 0, 0, 0.45);
+                }
+            }
+
+            &.name {
+                width: 300px;
+
+                .editor-font {
+                    font-size: 12px;
+                    margin-top: 3px;
+                    margin-right: 3px;
+                    cursor: pointer;
+                }
+            }
+
+            &.type {
+                width: 98px;
+            }
+
+            &.must {
+                width: 60px;
+            }
+
+            &.value {
+                width: 200px;
+            }
+
+            &.desc {
+                flex: 1;
+            }
+
+            &.mock {
+                width: 102px;
+                cursor: pointer;
+
+                span {
+                    overflow: hidden;
+                    word-break: normal;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+            }
+
+            &.operations {
+                width: 90px;
+
+                i,
+                .editor-font {
+                    cursor: pointer;
+                    color: rgba(0, 0, 0, 0.65);
+                    margin-left: 10px;
+
+                    &:first-child {
+                        margin-left: 0;
+                    }
+
+                    &.icon-disable {
+                        cursor: not-allowed;
+                        color: rgb(197, 197, 197);
+                    }
+                }
+            }
+
+            .drag_btn {
+                cursor: all-scroll;
+            }
+        }
+    }
+}
+
+@media only screen and (max-width: 1024px) {
+    .SortableTreeTable-scroll {
+        .SortableTreeTable {
+            padding: 1px;
+        }
+    }
+}
+
+@media only screen and (max-width: 1200px) {
+    .SortableTreeTable-scroll {
+        .SortableTreeTable {
+            min-width: 770px;
+            .SortableTreeTableRow,
+            .SortableTreeTableHeader {
+                .flex-row .td,
+                .flex-row .th {
+                    &.name {
+                        width: 200px;
+                    }
+                    &.type {
+                        width: 77px;
+                    }
+                    &.must {
+                        width: 50px;
+                    }
+                    &.value {
+                        width: 150px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.SortableTreeTable-scroll {
+    overflow-x: auto;
+}
+
+.add-root-param {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+    border: 1px dashed @border-color-base;
+    border-radius: 2px;
+    color: @text-color;
+    background: #fff;
+    height: 30px;
+    outline: none;
+    cursor: pointer;
+}
+
+.ac-complete {
+    width: 100%;
+    line-height: 33px;
+}
+
+.ac-complete-item {
+    display: flex;
+    align-items: center;
+
+    &-content {
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        flex: 1;
+    }
+}

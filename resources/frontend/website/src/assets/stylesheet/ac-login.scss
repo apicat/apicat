@@ -1,0 +1,53 @@
+@include b(login) {
+    @apply flex justify-center items-center w-full py-11;
+    background-image: url(@/assets/image/login-bg.png);
+    background-repeat: no-repeat;
+    background-position: center top;
+    background-size: cover;
+
+    @include e(box) {
+        width: 480px;
+        background: #ffffff;
+        border-radius: 16px;
+        opacity: 0.94;
+        padding: 50px;
+
+        @include e(logo) {
+            height: 47px;
+            line-height: 47px;
+            margin-bottom: 42px;
+
+            img {
+                height: 45px;
+            }
+
+            .logo-apicat {
+                margin-top: 5px !important;
+                font-size: 24px !important;
+                font-weight: normal !important;
+                margin-left: 7px;
+            }
+        }
+
+        .el-form-item {
+            margin-bottom: 20px;
+        }
+
+        .el-form-item__label {
+            margin-bottom: 8px !important;
+        }
+
+        .el-input__inner {
+            border-radius: 4px !important;
+        }
+    }
+
+    @include e(label) {
+        font-size: 16px;
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        color: $title-color;
+        line-height: 22px;
+        margin-bottom: 8px;
+    }
+}

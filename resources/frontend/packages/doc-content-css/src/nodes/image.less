@@ -1,0 +1,60 @@
+.image-view {
+    line-height: 0;
+    margin: 12px 0;
+    max-width: 100%;
+    user-select: none;
+    vertical-align: baseline;
+    display: block;
+
+    &--center {
+        text-align: center;
+    }
+
+    &--left {
+        text-align: left;
+    }
+
+    &--right {
+        text-align: right;
+    }
+
+    &--placeholder {
+        opacity: 0.5;
+    }
+
+    &[contenteditable='false'] &__body {
+        &__image {
+            cursor: default;
+        }
+    }
+
+    &__body {
+        clear: both;
+        display: inline-block;
+        max-width: 100%;
+        outline-color: transparent;
+        outline-style: solid;
+        outline-width: 2px;
+        transition: all 0.2s ease-in;
+        position: relative;
+
+        &--focused:hover,
+        &--resizing:hover {
+            outline-color: transparent;
+        }
+
+        &__placeholder {
+            height: 100%;
+            left: 0;
+            position: absolute;
+            top: 0;
+            width: 100%;
+            z-index: -1;
+        }
+
+        &__image {
+            cursor: pointer;
+            margin: 0;
+        }
+    }
+}

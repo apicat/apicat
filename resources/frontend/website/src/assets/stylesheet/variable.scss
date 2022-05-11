@@ -1,0 +1,22 @@
+:root {
+    --el-color-primary: #006bff !important;
+    --el-border-radius-base: 2px !important;
+    --el-border-radius-small: 0px !important;
+
+    --bg-color: #fafafa;
+    --primary-color: var(--el-color-primary);
+}
+
+$min-width: 1440px;
+$max-width: 1900px;
+
+$header-height: 48px;
+$doc-layout-padding: 24px;
+
+$doc-layout-left-width: 280px;
+$doc-layout-left-padding-right: 16px;
+$doc-content-padding-left: $doc-layout-left-width + $doc-layout-left-padding-right;
+
+$title-color: fade(#000, 85%);
+$text-color: fade(#000, 65%);
+$text-color-secondary: fade(#000, 45%);
