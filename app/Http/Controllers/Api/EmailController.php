@@ -153,7 +153,7 @@ class EmailController extends Controller
     protected function sendFailedLoginResponse()
     {
         throw ValidationException::withMessages([
-            'email' => [trans('auth.email')],
+            'email' => [trans('auth.failed')],
         ]);
     }
 
