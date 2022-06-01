@@ -8,7 +8,7 @@
   "main": "./dist/editor.umd.js",
   "module": "./dist/editor.es.js",
   "scripts": {
-    "dev": "pnpm dev --dir ./demo",
+    "dev": "pnpm -C ./demo dev",
     "build": "vite build",
     "preview": "vite preview"
   },
