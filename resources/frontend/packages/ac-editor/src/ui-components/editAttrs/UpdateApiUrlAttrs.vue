@@ -75,6 +75,17 @@
         },
 
         methods: {
+            onHide(cb) {
+                this.$refs['updateApiUrlAttrs'].validate((valid) => {
+                    if (!(this.attrs.url || '').trim() && !(this.attrs.path || '').trim()) {
+                        return
+                    }
+
+                    if (valid && this.node && cb) {
+                        cb(this.isCreate, this.node, { ...this.attrs })
+                    }
+                })
+            },
             onSubmit() {
                 this.$refs['updateApiUrlAttrs'].validate((valid) => {
                     if (!(this.attrs.url || '').trim() && !(this.attrs.path || '').trim()) {
