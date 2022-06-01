@@ -88,10 +88,6 @@
                     this.mark = this.range.mark
                     this.isLink = isLink
 
-                    setTimeout(() => {
-                        this.$refs.linkEditor && this.$refs.linkEditor.focus()
-                    }, 0)
-
                     return []
                 }
 
