@@ -123,7 +123,7 @@
             },
 
             isAllowAppendSubParams: function () {
-                return !((this.node.type !== 4 && this.node.type !== 5) || this.level >= 10)
+                return !((this.node.type !== 4 && this.node.type !== 5 && this.node.type !== 8) || this.level >= 10)
             },
 
             allowAddParamClass() {

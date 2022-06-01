@@ -127,6 +127,7 @@ export const PARAM_TYPES = {
         { text: 'String', value: 3 },
         { text: 'Array', value: 4 },
         { text: 'Object', value: 5 },
+        { text: 'ArrayObject', value: 8 },
         { text: 'Boolean', value: 6 },
         { text: 'File', value: 7 },
     ],

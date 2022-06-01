@@ -61,7 +61,7 @@ var Diff = {
     validate: function (inputRule, result) {
         var length = result.length
         if (this.currentMockRule) {
-            const { allow } = this.currentMockRule
+            const { allow, alias } = this.currentMockRule
 
             // 精准匹配的类型
             if (allow === undefined) {
@@ -69,7 +69,7 @@ var Diff = {
             } else {
                 const regexp = allow.regexp
                 const range = allow.range
-                const validate = this[`validate${this.mockType.replace(/^\S/, (s) => s.toUpperCase())}`]
+                const validate = this[`validate${(alias || this.mockType).replace(/^\S/, (s) => s.toUpperCase())}`]
                 // 有正则 || 有范围
                 if (regexp && regexp.test(inputRule)) {
                     validate && validate.call(this, inputRule, allow, result)
@@ -159,6 +159,10 @@ var Diff = {
     },
 
     validateString: function (inputRule, allow, result) {
+        this.validateRange(inputRule, allow, result)
+    },
+
+    validateArrayObject: function (inputRule, allow, result) {
         this.validateRange(inputRule, allow, result)
     },
 
