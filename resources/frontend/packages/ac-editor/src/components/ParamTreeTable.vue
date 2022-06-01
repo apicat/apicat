@@ -56,7 +56,8 @@
     import { Delete } from '@element-plus/icons-vue'
     import shortid from 'shortid'
     import Sortable from 'sortablejs'
-    import { removeNode, insertNodeAt } from './utils'
+    import { insertNodeAt, removeNode, generateArray } from './utils'
+    import { PARAM_TYPES } from '../common/constants'
     import TreeTableRow from './ParamTreeTableRow.vue'
     import TreeTableStore from './TreeTableStore'
     import { $emit } from '@ac/shared'
@@ -141,9 +142,7 @@
                     const nodePath = parentPath.concat(ind)
 
                     nodeModel._id = nodeModel._id || shortid()
-
                     nodeModel['expand'] = nodeModel.expand !== undefined ? nodeModel.expand : this.expand
-                    // this.$set(nodeModel, 'expand', nodeModel.expand !== undefined ? nodeModel.expand : this.expand)
 
                     return this.getNode(nodePath, nodeModel, parent)
                 })
@@ -173,6 +172,7 @@
             },
 
             onAddRootParamBtnClick() {
+                // eslint-disable-next-line vue/no-mutating-props
                 this.data.push(this.generateSubParam())
             },
 
@@ -181,7 +181,7 @@
                 if (!node.sub_params) {
                     node.sub_params = []
                 }
-                node.sub_params.push(this.generateSubParam())
+                node.sub_params.push(this.generateSubParam(model))
 
                 $emit(this, 'add-param', node)
             },
@@ -197,9 +197,15 @@
                 $emit(this, 'remove-param', node)
             },
 
-            generateSubParam() {
+            generateSubParam(parentModel) {
+                let name = ''
+
+                if (parentModel && parentModel.node.type === PARAM_TYPES.VALUES.ARRAY && parentModel.node.name) {
+                    name = parentModel.node.name + generateArray(1)
+                }
+
                 return {
-                    name: '',
+                    name,
                     type: 1,
                     is_must: false,
                     default_value: '',

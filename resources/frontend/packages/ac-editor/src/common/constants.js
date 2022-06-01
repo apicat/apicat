@@ -49,6 +49,9 @@ export const PARAM_TYPES = {
     valueOf(value) {
         return (this.TYPES.find((item) => item.value === value) || { text: '' }).text
     },
+    VALUES: {
+        ARRAY: 4,
+    },
 }
 
 export const REQUEST_DATA_TYPES = {

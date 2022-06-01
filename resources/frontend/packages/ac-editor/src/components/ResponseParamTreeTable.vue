@@ -62,7 +62,7 @@
     import TreeTableStore from './TreeTableStore'
     import { ElAutocomplete, ElIcon } from 'element-plus'
     import { Delete } from '@element-plus/icons-vue'
-    import { insertNodeAt, removeNode } from './utils'
+    import { insertNodeAt, removeNode, generateArray } from './utils'
     import { $emit } from '@ac/shared'
 
     import { getMockRules, PARAM_TYPES } from '../common/constants'
@@ -152,9 +152,6 @@
                     nodeModel['expand'] = nodeModel.expand !== undefined ? nodeModel.expand : this.expand
                     nodeModel['mock_rule'] = nodeModel.mock_rule !== undefined ? nodeModel.mock_rule : ''
 
-                    // this.$set(nodeModel, 'expand', nodeModel.expand !== undefined ? nodeModel.expand : this.expand)
-                    // this.$set(nodeModel, 'mock_rule', nodeModel.mock_rule !== undefined ? nodeModel.mock_rule : '')
-
                     return this.getNode(nodePath, nodeModel, parent)
                 })
             },
@@ -187,6 +184,7 @@
             },
 
             onAddRootParamBtnClick() {
+                // eslint-disable-next-line vue/no-mutating-props
                 this.data.push(this.generateSubParam())
             },
 
@@ -195,7 +193,7 @@
                 if (!node.sub_params) {
                     node.sub_params = []
                 }
-                node.sub_params.push(this.generateSubParam())
+                node.sub_params.push(this.generateSubParam(model))
 
                 $emit(this, 'add-param', node)
             },
@@ -211,9 +209,15 @@
                 $emit(this, 'remove-param', node)
             },
 
-            generateSubParam() {
+            generateSubParam(parentModel) {
+                let name = ''
+
+                if (parentModel && parentModel.node.type === PARAM_TYPES.VALUES.ARRAY && parentModel.node.name) {
+                    name = parentModel.node.name + generateArray(1)
+                }
+
                 const node = {
-                    name: '',
+                    name,
                     type: 1,
                     is_must: false,
                     mock_rule: '',
