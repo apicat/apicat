@@ -5,7 +5,6 @@ namespace App\Repositories\Import;
 use Illuminate\Support\Facades\File;
 use App\Repositories\Project\ApiDocRepository;
 use App\Modules\EditorJsonToHtml\Register as NodeRegister;
-
 /**
  * ApiCat Json文件导入
  */
@@ -65,6 +64,10 @@ class ApiCatRepository extends BaseRepository
     protected function import($docs, $parentID = 0)
     {
         foreach ($docs as $doc) {
+            if (array_key_exists('name', $doc) and !array_key_exists('title', $doc)) {
+                $doc['title'] = $doc['name'];
+            }
+
             if (!array_key_exists('title', $doc) or !array_key_exists('content', $doc)) {
                 continue;
             }
