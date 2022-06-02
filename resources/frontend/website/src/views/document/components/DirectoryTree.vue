@@ -292,6 +292,7 @@
             })
 
             return {
+                $router,
                 index,
                 oldDraggingNodeInfo,
 

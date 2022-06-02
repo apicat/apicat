@@ -20,6 +20,7 @@
     import { loadImage } from '@/api/upload'
     import { debounce, isEmpty } from 'lodash-es'
     import { hideLoading } from '@/hooks/useLoading'
+    import { useRoute, useRouter } from 'vue-router'
 
     export default defineComponent({
         components: {
@@ -28,7 +29,14 @@
 
         setup() {
             const updateTreeNode: any = inject('updateTreeNode')
+            const $route: any = useRoute()
+            const $router: any = useRouter()
+
             return {
+                project_id: $route.params.project_id,
+                node_id: parseInt($route.params.node_id as string, 10),
+                $route,
+                $router,
                 updateTreeNode,
             }
         },
@@ -44,8 +52,8 @@
                     deleteUrl: (id: any) => this.deleteUrl(id),
                     openNotification: () => this.openNotification(),
                 },
-                project_id: this.$route.params.project_id,
-                node_id: parseInt(this.$route.params.node_id as string, 10),
+                // project_id: this.$route.params.project_id,
+                // node_id: parseInt(this.$route.params.node_id as string, 10),
                 document: {} as any,
                 isLoading: false,
                 isDocumentLoading: false,
