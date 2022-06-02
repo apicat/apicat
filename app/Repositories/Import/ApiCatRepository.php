@@ -4,6 +4,7 @@ namespace App\Repositories\Import;
 
 use Illuminate\Support\Facades\File;
 use App\Repositories\Project\ApiDocRepository;
+use App\Repositories\ApiDoc\MockPathRepository;
 use App\Modules\EditorJsonToHtml\Register as NodeRegister;
 /**
  * ApiCat Json文件导入
@@ -81,9 +82,22 @@ class ApiCatRepository extends BaseRepository
                 $doc['content'] = $finalContent;
             }
 
+            $httpApiUrlFinded = $responseParamFinded = false;
+            $httpApiUrlData = $responseParamData = [];
+
             foreach ($doc['content']['content'] as $node) {
                 if (!isset(NodeRegister::$nodes[$node['type']])) {
                     continue;
+                }
+
+                if ($node['type'] == 'http_api_url') {
+                    $httpApiUrlFinded = true;
+                    $httpApiUrlData = $node;
+                }
+
+                if ($node['type'] == 'http_api_response_parameter') {
+                    $responseParamFinded = true;
+                    $responseParamData = $node;
                 }
 
                 $finalContent['content'][] = $node;
@@ -98,6 +112,12 @@ class ApiCatRepository extends BaseRepository
             if ($doc['type']) {
                 // 文档
                 $record = ApiDocRepository::addDoc($this->projectID, $parentID, $doc['title'], json_encode($finalContent), $this->userID);
+
+                if ($httpApiUrlFinded and $responseParamFinded) {
+                    if ($httpApiUrlData['attrs']['path'] and ($responseParamData['attrs']['response_header']['params'] or $responseParamData['attrs']['response_body']['params'])) {
+                        MockPathRepository::updatePath($this->projectID, $record->id, $httpApiUrlData['attrs']['path'], $httpApiUrlData['attrs']['method']);
+                    }
+                }
             } else {
                 // 分类
                 $record = ApiDocRepository::addDirToFoot($this->projectID, $doc['title'], $parentID, $this->userID);
