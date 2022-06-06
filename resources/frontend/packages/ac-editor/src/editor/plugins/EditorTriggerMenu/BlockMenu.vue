@@ -259,7 +259,7 @@
                         index = total
                     }
 
-                    if (!isPrev && index >= total) {
+                    if (!isPrev && index > total) {
                         index = 0
                     }
 
