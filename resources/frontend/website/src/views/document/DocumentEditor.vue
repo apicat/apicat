@@ -1,5 +1,5 @@
 <template>
-    <div class="ac-document is-edit" v-loading="isDocumentLoading">
+    <div class="ac-document is-edit" v-loading="isDocumentLoading" @click="intoEditor">
         <input class="ac-document__title" type="text" maxlength="255" ref="title" v-model="document.title" placeholder="请输入文档标题" />
 
         <AcEditor v-if="document.content" ref="editor" :document="document.content" :options="editorOptions" @on-change="onDocumentChange" />
@@ -77,7 +77,11 @@
                 ;(this.$refs['notice'] as any).show()
             },
 
-            intoEditor() {
+            intoEditor(e: any) {
+                if (e.target.nodeName === 'INPUT') {
+                    return
+                }
+
                 setTimeout(() => this.$refs.editor && (this.$refs['editor'] as any).editor.focus(), 200)
             },
 
