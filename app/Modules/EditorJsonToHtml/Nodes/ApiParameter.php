@@ -13,7 +13,7 @@ class ApiParameter extends Node
         ]
     ];
 
-    protected $types = ['', 'Int', 'Float', 'String', 'Array', 'Object', 'Boolean', 'File'];
+    protected $types = ['', 'Int', 'Float', 'String', 'Array', 'Object', 'Boolean', 'File', 'ArrayObject'];
 
     public function text()
     {

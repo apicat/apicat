@@ -8,7 +8,7 @@ class HttpApiResponseParameter extends Node
 {
     protected $tagName = [];
 
-    protected $types = ['', 'Int', 'Float', 'String', 'Array', 'Object', 'Boolean', 'File'];
+    protected $types = ['', 'Int', 'Float', 'String', 'Array', 'Object', 'Boolean', 'File', 'ArrayObject'];
 
     protected $projectId = '';
 
