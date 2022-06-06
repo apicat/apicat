@@ -161,11 +161,11 @@
                     return true
                 }
 
-                if (!this.editor.commonParamsManager) {
+                if (!this.editor.commonParamsPopper) {
                     return false
                 }
 
-                return this.editor.commonParamsManager.hasParam(node.name)
+                return this.editor.commonParamsPopper.hasParam(node.name)
             },
 
             onToggleIconClick() {
@@ -230,7 +230,7 @@
         mounted() {
             this.isShowChild && this.initSortable()
             this.isAllowAddParam = this.isAllowAddCommonParam(this.node)
-            this.editor.commonParamsManager.on(() => {
+            this.editor.commonParamsPopper.on(() => {
                 this.isAllowAddParam = this.isAllowAddCommonParam(this.node)
             })
         },

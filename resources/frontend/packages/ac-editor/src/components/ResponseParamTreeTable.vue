@@ -28,23 +28,13 @@
                     @add-api-param="onAddCommonParam"
                 >
                     <template #paramName="{ row }">
-                        <el-autocomplete
-                            ref="autocomplete"
-                            :fetch-suggestions="querySuggestionsList"
-                            @select="(val) => onParamItemClick(row, val)"
+                        <el-input
                             v-model="row.name"
                             placeholder="参数名称"
                             :maxlength="100"
-                        >
-                            <template #default="{ item }">
-                                <div class="ac-complete-item">
-                                    <div class="ac-complete-item-content">
-                                        {{ item.value }}
-                                    </div>
-                                    <el-icon @click.stop="onDeleteParamBtnClick($event, item.value)"><delete></delete></el-icon>
-                                </div>
-                            </template>
-                        </el-autocomplete>
+                            @input="onParamNameChange"
+                            @focus="onParamNameInputFocus($event, row)"
+                        />
                     </template>
                 </TreeTableRow>
             </div>
@@ -60,7 +50,7 @@
 
     import TreeTableRow from './ResponseParamTreeTableRow.vue'
     import TreeTableStore from './TreeTableStore'
-    import { ElAutocomplete, ElIcon } from 'element-plus'
+    import { ElInput, ElIcon } from 'element-plus'
     import { Delete } from '@element-plus/icons-vue'
     import { insertNodeAt, removeNode, generateArray } from './utils'
     import { $emit } from '@ac/shared'
@@ -73,7 +63,7 @@
         name: 'ResponseParamTreeTable',
         components: {
             TreeTableRow,
-            ElAutocomplete,
+            ElInput,
             ElIcon,
             Delete,
         },
@@ -140,6 +130,19 @@
         },
 
         methods: {
+            onParamNameChange(val) {
+                this.editor.commonParamsPopper && this.editor.commonParamsPopper.queryParams(val)
+            },
+
+            onParamNameInputFocus($event, node) {
+                this.editor.commonParamsPopper &&
+                    this.editor.commonParamsPopper.show({
+                        inputDom: $event.target,
+                        node,
+                        onParamItemClick: (node, paramKey) => this.onParamItemClick(node, { value: paramKey }),
+                    })
+            },
+
             createNodes(data) {
                 return this.getNodes(data)
             },
@@ -287,15 +290,15 @@
             },
 
             querySuggestionsList(queryString, cb) {
-                if (!this.editor || !this.editor.commonParamsManager) {
+                if (!this.editor || !this.editor.commonParamsPopper) {
                     return cb([])
                 }
-                cb(this.editor.commonParamsManager.queryParams(queryString))
+                cb(this.editor.commonParamsPopper.queryParams(queryString))
             },
 
             onParamItemClick(row, { value }) {
                 let newNode = null
-                if (this.editor.commonParamsManager && (newNode = this.editor.commonParamsManager.getParamByKey(value))) {
+                if (this.editor.commonParamsPopper && (newNode = this.editor.commonParamsPopper.getParamByKey(value))) {
                     row.name = newNode.name
                     row.type = newNode.type
                     row.default_value = newNode.default_value
@@ -304,29 +307,8 @@
                 }
             },
 
-            onDeleteParamBtnClick(e, key) {
-                this.editor.commonParamsManager && this.editor.commonParamsManager.deleteParam(key)
-
-                let target = e.target
-                let result = null
-                while (target) {
-                    if (target.tagName !== 'UL') {
-                        target = target.parentElement
-                    } else {
-                        result = target
-                        target = null
-                    }
-                }
-
-                if (result) {
-                    const input = document.querySelector(`[aria-owns="${result.getAttribute('id')}"] input`)
-
-                    input && input.focus()
-                }
-            },
-
             onAddCommonParam({ node }) {
-                this.editor.commonParamsManager && this.editor.commonParamsManager.addParam(node)
+                this.editor.commonParamsPopper && this.editor.commonParamsPopper.addParam(node)
             },
 
             getDefaultMockRule(node, oldType) {
