@@ -46,7 +46,7 @@ class ProjectParameterController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:100'],
-            'type' => ['required', 'int', 'in:1,2,3,4,5,6,7'],
+            'type' => ['required', 'int', 'in:1,2,3,4,5,6,7,8'],
             'is_must' => ['required', 'boolean'],
             'default_value' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:255']
@@ -95,7 +95,7 @@ class ProjectParameterController extends Controller
         $request->validate([
             'param_id' => ['required', 'integer', 'min:1'],
             'name' => ['required', 'string', 'max:100'],
-            'type' => ['required', 'int', 'in:1,2,3,4,5,6,7'],
+            'type' => ['required', 'int', 'in:1,2,3,4,5,6,7,8'],
             'is_must' => ['required', 'boolean'],
             'default_value' => ['nullable', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:255']
