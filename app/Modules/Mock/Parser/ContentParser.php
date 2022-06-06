@@ -19,7 +19,7 @@ class ContentParser
 
         if ($content->response_header->params) {
             foreach ($content->response_header->params as $param) {
-                if (!$param->name or in_array($param->type, [4, 5, 6, 7])) {
+                if (!$param->name or in_array($param->type, [4, 5, 6, 7, 8])) {
                     continue;
                 }
                 $responseHeader[$param->name] = ParamParser::parse($param);

@@ -17,13 +17,14 @@ class ParamParser
      */
     public static $types = [
         '',
-        'int',     // 整型
-        'float',   // 浮点型
-        'string',  // 字符串
-        'array',   // 数组
-        'object',  // 对象
-        'boolean', // 布尔型
-        'file',    // 文件
+        'int',          // 整型
+        'float',        // 浮点型
+        'string',       // 字符串
+        'array',        // 数组
+        'object',       // 对象
+        'boolean',      // 布尔型
+        'file',         // 文件
+        'array_object', // 数组对象
     ];
 
     /**
@@ -41,10 +42,11 @@ class ParamParser
             'province_city_district', 'zipcode', 'date', 'time', 'datetime',
             'timestamp', 'dataimage', 'imageurl', 'fileurl'
         ],
-        'array' => ['array', 'array_object'],
+        'array' => ['array'],
         'object' => ['object'],
         'boolean' => ['boolean'],
         'file' => ['image', 'file'],
+        'array_object' => ['array_object']
     ];
 
     /**
@@ -63,7 +65,7 @@ class ParamParser
             throw new ParamErrorException;
         }
 
-        if ($param->type < 1 or $param->type > 7) {
+        if ($param->type < 1 or $param->type > 8) {
             throw new ParamErrorException;
         }
 
@@ -148,15 +150,8 @@ class ParamParser
                 // 数组
                 if (count($subParams) == 0) {
                     return 'array|0';
-                } elseif (count($subParams) == 1) {
-                    if ($subParams[0]->type == 5) {
-                        // 数组里装对象
-                        return 'array_object';
-                    } else {
-                        return 'array';
-                    }
                 } else {
-                    return 'array_object';
+                    return 'array';
                 }
             case 5:
                 // 对象
@@ -167,6 +162,9 @@ class ParamParser
             case 7:
                 // 文件
                 return 'file';
+            case 8:
+                // 数组对象
+                return 'array_object';
         }
     }
 
