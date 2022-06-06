@@ -2,7 +2,12 @@
     <div :class="wrapperClass" ref="wrapper">
         <ol ref="menus">
             <template v-for="(menu, index) in menus" :key="menu.uid">
-                <li v-if="menu.name !== 'separator'" :class="menuItemClass(index)" @click="onMenuItemClick(menu)">
+                <li
+                    v-if="menu.name !== 'separator'"
+                    :class="menuItemClass(index)"
+                    @click="onMenuItemClick(menu)"
+                    @mousemove="onMouseOverMenuItem($event, index)"
+                >
                     <img :src="menu.img" alt="" />
                     <div class="menu-item">
                         <p>{{ menu.title }}</p>
@@ -62,6 +67,7 @@
         },
         data() {
             return {
+                mouseHoverInfo: { x: -1, y: -1 },
                 allMenus: this.getMenus().concat([]),
                 view: null,
                 commands: null,
@@ -137,9 +143,16 @@
         },
 
         methods: {
-            // onMouseOverMenuItem(index) {
-            //     this.selectedIndex = index
-            // },
+            onMouseOverMenuItem(e, index) {
+                const { x, y } = this.mouseHoverInfo
+
+                if (e.clientX !== x && e.clientY !== y) {
+                    this.selectedIndex = index
+
+                    this.mouseHoverInfo.x = e.clientX
+                    this.mouseHoverInfo.y = e.clientY
+                }
+            },
 
             getMenus() {
                 let menus = getMenuItems(this.dictionary)
@@ -287,38 +300,12 @@
                     event.preventDefault()
                     event.stopPropagation()
                     this.changeSelectIndex(true)
-                    // if (this.menus.length) {
-                    //     const total = this.menus.length - 1
-                    //     const prevIndex = this.selectedIndex - 1
-                    //     const prev = this.menus[prevIndex]
-
-                    //     if (this.selectedIndex === 0) {
-                    //         this.selectedIndex = total
-                    //     } else {
-                    //         this.selectedIndex = Math.max(0, prev && prev.name === 'separator' ? prevIndex - 1 : prevIndex)
-                    //     }
-                    // } else {
-                    //     this.close()
-                    // }
                 }
 
                 if (event.key === 'ArrowDown' || event.key === 'Tab') {
                     event.preventDefault()
                     event.stopPropagation()
                     this.changeSelectIndex(false)
-                    // if (this.menus.length) {
-                    //     const total = this.menus.length - 1
-                    //     const nextIndex = this.selectedIndex + 1
-                    //     const next = this.menus[nextIndex]
-
-                    //     if (this.selectedIndex === total) {
-                    //         this.selectedIndex = 0
-                    //     } else {
-                    //         this.selectedIndex = Math.min(next && next.name === 'separator' ? nextIndex + 1 : nextIndex, total)
-                    //     }
-                    // } else {
-                    //     this.close()
-                    // }
                 }
 
                 if (event.key === 'Escape') {
