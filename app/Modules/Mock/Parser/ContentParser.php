@@ -2,6 +2,8 @@
 
 namespace App\Modules\Mock\Parser;
 
+use Spatie\ArrayToXml\ArrayToXml;
+
 /**
  * 解析API文档内容
  */
@@ -65,6 +67,7 @@ class ContentParser
             return $result;
         } else {
             // xml待实现
+            return ArrayToXml::convert($result);
         }
     }
 
