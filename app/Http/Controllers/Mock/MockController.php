@@ -68,6 +68,10 @@ class MockController extends Controller
 
     protected function resp($header, $body, $format)
     {
+        if (!$body and $format == 'json') {
+            $body = '{}';
+        }
+        
         $response = response($body);
 
         if ($header) {
