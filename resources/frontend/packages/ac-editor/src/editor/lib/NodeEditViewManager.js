@@ -41,21 +41,16 @@ export default class NodeEditViewManager {
 
         const vm = this.$app.mount(dom)
 
-        $once(vm, 'on-update-attr', (node, attrs) => {
+        $once(vm, 'on-update-attr', () => {
             this.tippy.hide()
-            this._updateAttrs(node, attrs)
-            this.hide()
         })
 
-        $once(vm, 'on-create', (node, attrs) => {
+        $once(vm, 'on-create', () => {
             this.tippy.hide()
-            this.createNode(node, attrs)
-            this.hide()
         })
 
         $once(vm, 'on-close', () => {
             this.tippy.hide()
-            this.hide()
         })
 
         return vm
@@ -88,7 +83,7 @@ export default class NodeEditViewManager {
         }
     }
 
-    _updateAttrs(node, attrs) {
+    updateNodeAttrs(node, attrs) {
         if (!this.view.editable) {
             return
         }
@@ -161,10 +156,12 @@ export default class NodeEditViewManager {
     }
 
     hide() {
-        setTimeout(() => this.view.focus(), 0)
+        this.$vm.onHide && this.$vm.onHide((isCreate, node, attrs) => (isCreate ? this.createNode(node, attrs) : this.updateNodeAttrs(node, attrs)))
         this.$app && this.$app.unmount()
         this.$vm = null
         this.$app = null
+
+        setTimeout(() => this.view.focus(), 0)
     }
 
     destroy() {

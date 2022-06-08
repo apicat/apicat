@@ -2,6 +2,8 @@
 
 namespace App\Modules\Mock\Parser;
 
+use Spatie\ArrayToXml\ArrayToXml;
+
 /**
  * 解析API文档内容
  */
@@ -19,7 +21,7 @@ class ContentParser
 
         if ($content->response_header->params) {
             foreach ($content->response_header->params as $param) {
-                if (!$param->name or in_array($param->type, [4, 5, 6, 7])) {
+                if (!$param->name or in_array($param->type, [4, 5, 6, 7, 8])) {
                     continue;
                 }
                 $responseHeader[$param->name] = ParamParser::parse($param);
@@ -65,6 +67,7 @@ class ContentParser
             return $result;
         } else {
             // xml待实现
+            return ArrayToXml::convert($result);
         }
     }
 

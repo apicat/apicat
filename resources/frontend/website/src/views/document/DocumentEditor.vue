@@ -1,5 +1,5 @@
 <template>
-    <div class="ac-document is-edit" v-loading="isDocumentLoading">
+    <div class="ac-document is-edit" v-loading="isDocumentLoading" ref="docuemntContainer" @click="intoEditor">
         <input class="ac-document__title" type="text" maxlength="255" ref="title" v-model="document.title" placeholder="请输入文档标题" />
 
         <AcEditor v-if="document.content" ref="editor" :document="document.content" :options="editorOptions" @on-change="onDocumentChange" />
@@ -12,7 +12,7 @@
     </div>
 </template>
 <script lang="ts">
-    import { defineComponent, defineAsyncComponent, inject } from 'vue'
+    import { defineComponent, defineAsyncComponent, inject, ref } from 'vue'
     import { ElMessage as $Message } from 'element-plus'
     import { updateDoc, getDocumentDetail, getUrlTipList, deleteUrlTip, renameDoc } from '@/api/document'
     import { getApiParamList, addApiParam, deleteApiParam } from '@/api/params'
@@ -20,6 +20,7 @@
     import { loadImage } from '@/api/upload'
     import { debounce, isEmpty } from 'lodash-es'
     import { hideLoading } from '@/hooks/useLoading'
+    import { useRoute, useRouter } from 'vue-router'
 
     export default defineComponent({
         components: {
@@ -28,7 +29,15 @@
 
         setup() {
             const updateTreeNode: any = inject('updateTreeNode')
+            const $route: any = useRoute()
+            const $router: any = useRouter()
+            const docuemntContainer = ref(null)
             return {
+                docuemntContainer,
+                project_id: $route.params.project_id,
+                node_id: parseInt($route.params.node_id as string, 10),
+                $route,
+                $router,
                 updateTreeNode,
             }
         },
@@ -44,8 +53,8 @@
                     deleteUrl: (id: any) => this.deleteUrl(id),
                     openNotification: () => this.openNotification(),
                 },
-                project_id: this.$route.params.project_id,
-                node_id: parseInt(this.$route.params.node_id as string, 10),
+                // project_id: this.$route.params.project_id,
+                // node_id: parseInt(this.$route.params.node_id as string, 10),
                 document: {} as any,
                 isLoading: false,
                 isDocumentLoading: false,
@@ -69,8 +78,10 @@
                 ;(this.$refs['notice'] as any).show()
             },
 
-            intoEditor() {
-                setTimeout(() => this.$refs.editor && (this.$refs['editor'] as any).editor.focus(), 200)
+            intoEditor(e: any) {
+                if (e.target === this.docuemntContainer) {
+                    setTimeout(() => this.$refs.editor && (this.$refs['editor'] as any).editor.focus(), 200)
+                }
             },
 
             uploadImage(file: any) {

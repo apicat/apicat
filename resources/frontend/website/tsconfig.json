@@ -2,7 +2,7 @@
   "extends": "../tsconfig.json",
   "compilerOptions": {
     "skipLibCheck": true,
-    "module": "es2020",
+    "module": "esnext",
     "baseUrl": ".",
     "paths": {
       "@/*": [
@@ -11,10 +11,7 @@
       "~/*": [
         "types/*"
       ]
-    },
-    "types": [
-      "element-plus/global",
-    ]
+    }
   },
   "include": [
     "src/**/*.ts",

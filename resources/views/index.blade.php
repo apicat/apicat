@@ -7,11 +7,11 @@
     <meta name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ApiCat</title>
-    <script type="module" crossorigin src="/assets/index.6adbff9a.js"></script>
-    <link rel="modulepreload" href="/assets/vendor.2ee35ec0.js">
-    <link rel="modulepreload" href="/assets/element-plus.5b1d6711.js">
-    <link rel="stylesheet" href="/assets/element-plus.898dbfba.css">
-    <link rel="stylesheet" href="/assets/index.6a63fb9c.css">
+    <script type="module" crossorigin src="/assets/index.0747997f.js"></script>
+    <link rel="modulepreload" href="/assets/vendor.1b70e788.js">
+    <link rel="modulepreload" href="/assets/element-plus.33434d3d.js">
+    <link rel="stylesheet" href="/assets/element-plus.07fbf481.css">
+    <link rel="stylesheet" href="/assets/index.0ea8bad7.css">
   </head>
 
   <body>

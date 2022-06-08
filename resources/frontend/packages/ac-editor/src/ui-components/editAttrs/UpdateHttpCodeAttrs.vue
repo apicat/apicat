@@ -58,6 +58,15 @@
         },
 
         methods: {
+            onHide(cb) {
+                this.$refs['updateHttpCodeAttrs'].validate((valid) => {
+                    if (valid && this.node) {
+                        const attrs = { ...this.attrs }
+                        attrs.codeDesc = (this.httpCodeList.find((item) => item.code === this.attrs.code) || { desc: '' }).desc
+                        cb(this.isCreate, this.node, { ...this.attrs })
+                    }
+                })
+            },
             onSubmit() {
                 this.$refs['updateHttpCodeAttrs'].validate((valid) => {
                     if (valid && this.node) {
