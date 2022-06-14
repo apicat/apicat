@@ -43,9 +43,9 @@
             }, 3000)
         })
 
+    const deleteUrl = (id) => Promise.resolve(id)
     const addCommonParam = (param) => Promise.resolve(param)
     const deleteCommonParam = (param) => Promise.resolve(param)
-
     const getUrlList = () => {
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -67,16 +67,12 @@
         })
     }
 
-    const deleteUrl = (id) => {
-        return Promise.resolve(id)
-    }
-
     onMounted(async () => {})
 </script>
 
 <template>
     <button @click="getDetail">获取文档详情</button>
-    <div class="editor-container" @click="editor.focus()">
+    <div class="editor-container">
         <AcEditor ref="editor" :document="document" :options="options" />
     </div>
 </template>
