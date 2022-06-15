@@ -286,7 +286,7 @@
 
             const getDocTreeList = async () => {
                 const tree = await documentStore.getApiDocTree(project_id as string)
-                !tree.length && hideLoading()
+                hideLoading()
             }
 
             onMounted(async () => {
@@ -389,8 +389,9 @@
                 createDir(data)
                     .then((res) => {
                         const data = extendDocTreeFeild(res.data, DOCUMENT_TYPES.DIR)
+
                         // root
-                        if (node.id === 0) {
+                        if (!node.parent && node.level === 0) {
                             source.unshift(data)
                         } else {
                             if (!source.sub_nodes || !source.sub_nodes.length) {
