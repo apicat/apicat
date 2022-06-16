@@ -7,11 +7,11 @@
 
             <div v-if="document.content" class="ProseMirror readonly" v-html="document.content" />
 
-            <div class="ac-document__operate" v-show="!isLoading">
+            <!-- <div class="ac-document__operate" v-show="!isLoading">
                 <div class="ac-document__operate-inner text-right">
                     <el-button type="primary" @click="onEditBtnClick"> 编辑 </el-button>
                 </div>
-            </div>
+            </div> -->
         </div>
 
         <div v-if="!hasDocument">

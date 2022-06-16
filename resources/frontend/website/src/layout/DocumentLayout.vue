@@ -1,12 +1,12 @@
 <template>
-    <DocumentHeader />
+    <!-- <DocumentHeader /> -->
 
     <main class="ac-doc-layout">
         <div class="ac-doc-layout--left">
             <DirectoryTree ref="directoryTree" />
         </div>
         <div class="ac-doc-layout--right">
-            <div class="ac-doc-layout__gap"></div>
+            <!-- <div class="ac-doc-layout__gap"></div> -->
             <router-view />
         </div>
     </main>
@@ -15,7 +15,7 @@
     <DocumentImportModal ref="documentImportModal" />
 </template>
 <script setup lang="ts">
-    import DocumentHeader from '../views/document/components/DocumentHeader.vue'
+    // import DocumentHeader from '../views/document/components/DocumentHeader.vue'
     import DirectoryTree from '../views/document/components/DirectoryTree.vue'
     import DocumentImportModal from '../views/document/components/DocumentImportModal.vue'
     import { ref, provide } from 'vue'
