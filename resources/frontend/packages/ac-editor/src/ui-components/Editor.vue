@@ -39,8 +39,8 @@
         },
 
         methods: {
-            focus() {
-                this.editor.view.focus()
+            focus(isLast) {
+                this.editor.focus(isLast)
             },
         },
 

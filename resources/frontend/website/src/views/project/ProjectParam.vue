@@ -9,7 +9,7 @@
 
         <el-table :data="list" empty-text="暂无数据">
             <el-table-column prop="name" label="参数名称" show-overflow-tooltip />
-            <el-table-column prop="type_name" label="参数类型" width="100" />
+            <el-table-column prop="type_name" label="参数类型" width="120" />
             <el-table-column prop="is_must" label="必传" width="70">
                 <template #default="scope">
                     <span>{{ scope.is_must ? '是' : '否' }}</span>

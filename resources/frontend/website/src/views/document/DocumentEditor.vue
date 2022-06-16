@@ -1,6 +1,14 @@
 <template>
-    <div class="ac-document is-edit" v-loading="isDocumentLoading" ref="docuemntContainer" @click="intoEditor">
-        <input class="ac-document__title" type="text" maxlength="255" ref="title" v-model="document.title" placeholder="请输入文档标题" />
+    <div class="ac-document is-edit" v-loading="isDocumentLoading" ref="docuemntContainer" @click="editorFocus">
+        <input
+            class="ac-document__title"
+            type="text"
+            maxlength="255"
+            ref="title"
+            v-model="document.title"
+            @keydown.enter="intoEditor"
+            placeholder="请输入文档标题"
+        />
 
         <AcEditor v-if="document.content" ref="editor" :document="document.content" :options="editorOptions" @on-change="onDocumentChange" />
 
@@ -78,9 +86,13 @@
                 ;(this.$refs['notice'] as any).show()
             },
 
-            intoEditor(e: any) {
-                if (e.target === this.docuemntContainer) {
-                    setTimeout(() => this.$refs.editor && (this.$refs['editor'] as any).editor.focus(), 200)
+            intoEditor() {
+                setTimeout(() => this.$refs.editor && (this.$refs['editor'] as any).editor.focus(), 200)
+            },
+
+            editorFocus(e?: any) {
+                if (!e || e.target === this.docuemntContainer) {
+                    setTimeout(() => this.$refs.editor && (this.$refs['editor'] as any).editor.focus(true), 200)
                 }
             },
 
