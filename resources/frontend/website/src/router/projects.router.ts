@@ -9,7 +9,7 @@ export const ProjectListRoute = { path: '', name: 'projects.index', meta: { titl
 export const ProjectRoutes: RouteRecordRaw[] = [ProjectListRoute]
 
 export default {
-    path: '/projects',
+    path: '/home',
     name: 'projects',
     redirect: { name: 'projects.index' },
     component: ProjectsNav,

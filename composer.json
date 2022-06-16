@@ -13,7 +13,8 @@
         "laravel/sanctum": "^2.14.1",
         "laravel/tinker": "^2.7",
         "laravel/ui": "^3.4",
-        "league/commonmark": "^2.3"
+        "league/commonmark": "^2.3",
+        "spatie/array-to-xml": "^3.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

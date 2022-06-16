@@ -1,7 +1,7 @@
 import { Plugin } from 'prosemirror-state'
 import { toggleMark } from 'prosemirror-commands'
 import Extension from '../lib/Extension'
-import { isUrl, isInCode } from '../utils'
+import { isUrl } from '../utils'
 
 export default class MarkdownPaste extends Extension {
     get name() {
@@ -31,23 +31,6 @@ export default class MarkdownPaste extends Extension {
                                 return true
                             }
 
-                            // Is this link embeddable? Create an embed!
-                            const { embeds } = this.editor.props
-
-                            if (embeds) {
-                                for (const embed of embeds) {
-                                    const matches = embed.matcher(text)
-                                    if (matches) {
-                                        this.editor.commands.embed({
-                                            href: text,
-                                            component: embed.component,
-                                            matches,
-                                        })
-                                        return true
-                                    }
-                                }
-                            }
-
                             // well, it's not an embed and there is no text selected – so just
                             // go ahead and insert the link directly
                             const transaction = view.state.tr
@@ -67,18 +50,7 @@ export default class MarkdownPaste extends Extension {
 
                         // If the users selection is currently in a code block then paste
                         // as plain text, ignore all formatting.
-                        if (isInCode(view.state)) {
-                            view.dispatch(view.state.tr.insertText(text))
-                            return true
-                        }
-
-                        // If we've gotten this far then treat the plain text content of the
-                        // clipboard as possible markdown and use the parser
-                        const paste = this.editor.parser.parse(text)
-                        const slice = paste.slice(0)
-
-                        const transaction = view.state.tr.replaceSelection(slice)
-                        view.dispatch(transaction)
+                        view.dispatch(view.state.tr.insertText(text))
                         return true
                     },
                 },

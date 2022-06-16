@@ -60,10 +60,12 @@ import MockRules from './plugins/MockRules'
 import ScrollView from './plugins/ScrollView'
 
 import NodeEditViewManager from './lib/NodeEditViewManager'
-import CommonParamsManager from './lib/CommonParamsManager'
+import CommonParamsPopper from './lib/CommonParamsPopper'
 import CommonUrlManager from './lib/CommonUrlManager'
 import checkContent from './utils/checkContent'
 import checkAllNode from './utils/checkAllNode'
+
+window['TextSelection'] = TextSelection
 
 export const EDITOR_EVENTS = {
     Init: 'onInit',
@@ -135,7 +137,6 @@ class AcEditor extends Emitter {
     init(options) {
         this.mergeOptions(options)
 
-        this.commonParamsManager = new CommonParamsManager(this)
         this.commonUrlManager = new CommonUrlManager(this)
         this.mockModel = new MockRules(this)
 
@@ -154,6 +155,7 @@ class AcEditor extends Emitter {
 
         // extend editor plugin
         this.nodeEditViewManager = this.createNodeEditViewManager()
+        this.commonParamsPopper = new CommonParamsPopper(this)
         this.blockMenu = new BlockMenu(this, this.options)
         this.floatingToolbar = new FloatingToolbar(this, this.options)
         this.linkToolbar = new LinkToolbar(this, this.options)
@@ -486,7 +488,14 @@ class AcEditor extends Emitter {
         this.setContent(this.options.emptyDocument)
     }
 
-    focus() {
+    focus(isLast) {
+        if (isLast) {
+            const { doc, tr } = this.state
+            const selection = TextSelection.atEnd(doc)
+            const transaction = tr.setSelection(selection)
+            this.view.dispatch(transaction)
+        }
+
         this.view && this.view.focus()
     }
 

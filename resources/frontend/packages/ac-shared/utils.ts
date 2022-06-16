@@ -40,12 +40,26 @@ export function toggleClass(el: any, className: any) {
     el && el.classList && el.classList.toggle(className)
 }
 
-export function hasClass(element: any, cls: any) {
-    return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1
-}
-
 export function getAttr(el: any, attr: any) {
     return el && el.getAttribute(attr)
+}
+
+export const classNameToArray = (cls = '') => cls.split(' ').filter((item) => !!item.trim())
+
+export const hasClass = (el: Element, cls: string): boolean => {
+    if (!el || !cls) return false
+    if (cls.includes(' ')) throw new Error('className should not contain space.')
+    return el.classList.contains(cls)
+}
+
+export const addClass = (el: Element, cls: string) => {
+    if (!el || !cls.trim()) return
+    el.classList.add(...classNameToArray(cls))
+}
+
+export const removeClass = (el: Element, cls: string) => {
+    if (!el || !cls.trim()) return
+    el.classList.remove(...classNameToArray(cls))
 }
 
 export function showOrHide(el: any, isShow: any) {

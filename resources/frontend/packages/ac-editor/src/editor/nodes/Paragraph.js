@@ -1,5 +1,6 @@
 import { setBlockType } from '../commands'
 import Node from '../lib/Node'
+import { NodeSelection } from 'prosemirror-state'
 
 export default class Paragraph extends Node {
     get name() {
@@ -28,10 +29,12 @@ export default class Paragraph extends Node {
         return {
             // 删除第一个段落
             Backspace: (state, dispatch) => {
-                const { $from, $to, empty } = state.selection
+                const { empty } = state.selection
                 const node = state.selection.$anchor.node()
                 if (empty && node.type === type && !node.textContent && state.selection.anchor === 1) {
-                    dispatch(state.tr.delete($from.before(), $to.after()))
+                    const tr = state.tr
+                    tr.setSelection(NodeSelection.create(state.doc, 0))
+                    dispatch(tr)
                 }
                 return false
             },

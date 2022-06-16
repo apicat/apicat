@@ -127,6 +127,7 @@ export const PARAM_TYPES = {
         { text: 'String', value: 3 },
         { text: 'Array', value: 4 },
         { text: 'Object', value: 5 },
+        { text: 'ArrayObject', value: 8 },
         { text: 'Boolean', value: 6 },
         { text: 'File', value: 7 },
     ],
@@ -217,4 +218,22 @@ export const DOCUMENT_TYPES = {
     HTTP: 1,
     OTHER: 2,
     MARKDOWN: 3,
+}
+
+export const EVENT_CODE = {
+    tab: 'Tab',
+    enter: 'Enter',
+    space: 'Space',
+    left: 'ArrowLeft', // 37
+    up: 'ArrowUp', // 38
+    right: 'ArrowRight', // 39
+    down: 'ArrowDown', // 40
+    esc: 'Escape',
+    delete: 'Delete',
+    backspace: 'Backspace',
+    numpadEnter: 'NumpadEnter',
+    pageUp: 'PageUp',
+    pageDown: 'PageDown',
+    home: 'Home',
+    end: 'End',
 }

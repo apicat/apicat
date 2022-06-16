@@ -1,9 +1,10 @@
 <script setup>
-    import { onMounted, markRaw } from 'vue'
+    import { onMounted, markRaw, ref } from 'vue'
     import AcEditor from '@ac/editor'
     import { onlyTable as doc } from './doc'
 
     const document = markRaw(doc)
+    const editor = ref(null)
 
     const options = {
         getAllCommonParams: () => getAllCommonParams(),
@@ -42,9 +43,9 @@
             }, 3000)
         })
 
+    const deleteUrl = (id) => Promise.resolve(id)
     const addCommonParam = (param) => Promise.resolve(param)
     const deleteCommonParam = (param) => Promise.resolve(param)
-
     const getUrlList = () => {
         return new Promise((resolve) => {
             setTimeout(() => {
@@ -66,18 +67,14 @@
         })
     }
 
-    const deleteUrl = (id) => {
-        return Promise.resolve(id)
-    }
-
-    onMounted(async () => {
-        // getDetail()
-    })
+    onMounted(async () => {})
 </script>
 
 <template>
     <button @click="getDetail">获取文档详情</button>
-    <AcEditor :document="document" :options="options" />
+    <div class="editor-container">
+        <AcEditor ref="editor" :document="document" :options="options" />
+    </div>
 </template>
 
 <style>
@@ -86,5 +83,9 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         margin: 40px 200px;
+    }
+
+    .editor-container {
+        min-height: 100vh;
     }
 </style>

@@ -74,7 +74,7 @@ class ApiCommonParamRepository
 
         $records = ApiCommonParam::where('project_id', $projectID)->get();
         if ($records->count() > 0) {
-            $paramTypes = ['', 'Int', 'Float', 'String', 'Array', 'Object', 'Boolean', 'File'];
+            $paramTypes = ['', 'Int', 'Float', 'String', 'Array', 'Object', 'Boolean', 'File', 'ArrayObject'];
 
             foreach ($records as $record) {
                 $param = [

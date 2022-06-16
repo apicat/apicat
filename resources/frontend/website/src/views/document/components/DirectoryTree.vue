@@ -5,7 +5,7 @@
             <el-icon class="cursor-pointer text-zinc-500" @click="onRootMoreIconClick"><plus /></el-icon>
         </div>
 
-        <el-tree
+        <ac-tree
             :data="apiDocTree"
             class="bg-transparent"
             node-key="id"
@@ -13,7 +13,7 @@
             draggable
             ref="treeIns"
             :expand-on-click-node="false"
-            :props="{ children: 'sub_nodes', label: 'title', class: customNodeClass }"
+            :props="{ children: 'sub_nodes', label: 'title', class: customNodeClass, isLeaf: customNodeLeaf }"
             :allow-drop="allowDrop"
             @node-drag-start="onMoveNodeStart"
             @node-drop="onMoveNode"
@@ -47,7 +47,7 @@
                     </div>
                 </div>
             </template>
-        </el-tree>
+        </ac-tree>
     </div>
 
     <DocumentShareModal ref="documentShareModal" :share-data="shareData" />
@@ -71,9 +71,11 @@
     import { AsyncMsgBox } from '@/components/AsyncMessageBox'
     import { API_SINGLE_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
     import { hideLoading } from '@/hooks/useLoading'
+    import AcTree from './AcTree'
 
     export default defineComponent({
         components: {
+            AcTree,
             DocumentShareModal,
             Plus,
             MoreFilled,
@@ -176,6 +178,7 @@
 
             const customNodeClass = (data: any) => (data.isLeaf ? 'is-doc' : 'is-dir')
 
+            const customNodeLeaf = (data: any) => data.type === DOCUMENT_TYPES.DOC
             // 重命名功能
             const inputFocus = async () => {
                 await nextTick()
@@ -283,7 +286,7 @@
 
             const getDocTreeList = async () => {
                 const tree = await documentStore.getApiDocTree(project_id as string)
-                !tree.length && hideLoading()
+                hideLoading()
             }
 
             onMounted(async () => {
@@ -292,6 +295,7 @@
             })
 
             return {
+                $router,
                 index,
                 oldDraggingNodeInfo,
 
@@ -313,6 +317,7 @@
                 onMoreIconClick,
                 allowDrop,
                 customNodeClass,
+                customNodeLeaf,
 
                 onEnterKeyUp,
                 setUnEditable,
@@ -384,8 +389,9 @@
                 createDir(data)
                     .then((res) => {
                         const data = extendDocTreeFeild(res.data, DOCUMENT_TYPES.DIR)
+
                         // root
-                        if (node.id === 0) {
+                        if (!node.parent && node.level === 0) {
                             source.unshift(data)
                         } else {
                             if (!source.sub_nodes || !source.sub_nodes.length) {

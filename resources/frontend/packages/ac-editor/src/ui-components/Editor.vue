@@ -38,7 +38,11 @@
             }
         },
 
-        methods: {},
+        methods: {
+            focus(isLast) {
+                this.editor.focus(isLast)
+            },
+        },
 
         mounted() {
             this.editor = markRaw(

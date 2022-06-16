@@ -2,7 +2,12 @@
     <div :class="wrapperClass" ref="wrapper">
         <ol ref="menus">
             <template v-for="(menu, index) in menus" :key="menu.uid">
-                <li v-if="menu.name !== 'separator'" :class="menuItemClass(index)" @click="onMenuItemClick(menu)">
+                <li
+                    v-if="menu.name !== 'separator'"
+                    :class="menuItemClass(index)"
+                    @click="onMenuItemClick(menu)"
+                    @mousemove="onMouseOverMenuItem($event, index)"
+                >
                     <img :src="menu.img" alt="" />
                     <div class="menu-item">
                         <p>{{ menu.title }}</p>
@@ -10,7 +15,7 @@
                     </div>
                 </li>
 
-                <li v-else class="hr">
+                <li v-else class="hr" :data-idx="index">
                     {{ menu.title || '' }}
                 </li>
             </template>
@@ -62,10 +67,11 @@
         },
         data() {
             return {
+                mouseHoverInfo: { x: -1, y: -1 },
                 allMenus: this.getMenus().concat([]),
                 view: null,
                 commands: null,
-                selectedIndex: 0,
+                selectedIndex: -1,
             }
         },
         computed: {
@@ -117,9 +123,17 @@
         },
 
         watch: {
+            searchKeyword: function () {
+                if (this.isActive) {
+                    this.selectedIndex = 0
+                    this.changeSelectIndex(false)
+                }
+            },
+
             isActive: function () {
                 if (this.isActive) {
                     this.selectedIndex = 0
+                    this.changeSelectIndex(false)
                 }
             },
 
@@ -129,6 +143,17 @@
         },
 
         methods: {
+            onMouseOverMenuItem(e, index) {
+                const { x, y } = this.mouseHoverInfo
+
+                if (e.clientX !== x && e.clientY !== y) {
+                    this.selectedIndex = index
+
+                    this.mouseHoverInfo.x = e.clientX
+                    this.mouseHoverInfo.y = e.clientY
+                }
+            },
+
             getMenus() {
                 let menus = getMenuItems(this.dictionary)
                 menus.map((item) => {
@@ -175,8 +200,7 @@
                             const fn = this.editor.options[menuItem.name.split('_')[1]] || noop
                             fn && fn()
                         } catch (e) {
-                            console.log(e)
-                            //do something
+                            //
                         }
                         return
                     }
@@ -189,9 +213,6 @@
             clearSearch() {
                 const { state, dispatch } = this.view
                 const parent = findParentNode((node) => !!node)(state.selection)
-                window.parent = parent
-                window.dispatch = dispatch
-                window.state = state
 
                 if (parent) {
                     dispatch(state.tr.insertText('', parent.start, parent.start + parent.node.textContent.length))
@@ -242,6 +263,31 @@
                 this.close()
             },
 
+            changeSelectIndex(isPrev) {
+                if (this.menus.length) {
+                    const total = this.menus.length - 1
+                    let index = this.selectedIndex - (isPrev ? 1 : -1)
+
+                    if (isPrev && index <= 0) {
+                        index = total
+                    }
+
+                    if (!isPrev && index > total) {
+                        index = 0
+                    }
+
+                    const menuItem = this.menus[index]
+
+                    if (menuItem && menuItem.name === 'separator') {
+                        index = index - (isPrev ? 1 : -1)
+                    }
+
+                    this.selectedIndex = isPrev ? Math.max(0, index) : Math.min(index, total)
+                } else {
+                    this.close()
+                }
+            },
+
             handleKeyDown(event) {
                 if (!this.isActive) return
 
@@ -253,39 +299,13 @@
                 if (event.key === 'ArrowUp') {
                     event.preventDefault()
                     event.stopPropagation()
-
-                    if (this.menus.length) {
-                        const prevIndex = this.selectedIndex - 1
-                        const prev = this.menus[prevIndex]
-                        const total = this.menus.length - 1
-
-                        if (this.selectedIndex === 0) {
-                            this.selectedIndex = total
-                        } else {
-                            this.selectedIndex = Math.max(0, prev && prev.name === 'separator' ? prevIndex - 1 : prevIndex)
-                        }
-                    } else {
-                        this.close()
-                    }
+                    this.changeSelectIndex(true)
                 }
 
                 if (event.key === 'ArrowDown' || event.key === 'Tab') {
                     event.preventDefault()
                     event.stopPropagation()
-
-                    if (this.menus.length) {
-                        const total = this.menus.length - 1
-                        const nextIndex = this.selectedIndex + 1
-                        const next = this.menus[nextIndex]
-
-                        if (this.selectedIndex === total) {
-                            this.selectedIndex = 0
-                        } else {
-                            this.selectedIndex = Math.min(next && next.name === 'separator' ? nextIndex + 1 : nextIndex, total)
-                        }
-                    } else {
-                        this.close()
-                    }
+                    this.changeSelectIndex(false)
                 }
 
                 if (event.key === 'Escape') {
