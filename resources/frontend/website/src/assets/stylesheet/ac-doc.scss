@@ -1,3 +1,9 @@
+$doc-layout-padding: 25px;
+
+$doc-layout-left-width: 315px - $doc-layout-padding;
+$doc-layout-left-padding-right: 30px;
+$doc-content-padding-left: $doc-layout-left-width + $doc-layout-left-padding-right;
+
 $operate-height: 60px;
 
 @include b(doc-header) {
@@ -10,22 +16,20 @@ $operate-height: 60px;
 
 @include b(doc-layout) {
     padding: 0 $doc-layout-padding;
-    height: calc(100vh - $header-height - $operate-height);
+    height: 100vh;
     overflow: hidden;
+    display: flex;
+    flex-direction: row;
 
     @include m(left) {
         width: $doc-layout-left-width;
-        position: fixed;
-        top: $header-height;
-        bottom: 30px;
-        padding-top: $doc-layout-padding;
-        z-index: 30;
     }
 
     @include m(right) {
         height: 100%;
+        flex: 1;
         overflow: scroll;
-        padding-left: $doc-content-padding-left;
+        padding-left: $doc-layout-left-padding-right;
     }
 
     @include e(gap) {
@@ -35,7 +39,7 @@ $operate-height: 60px;
 
 @include b(document) {
     position: relative;
-    min-height: calc(100vh - $header-height - $doc-layout-padding - $operate-height);
+    min-height: 100vh;
     background-color: #fff;
     padding: 24px 40px;
 

@@ -12,11 +12,11 @@
 
         <AcEditor v-if="document.content" ref="editor" :document="document.content" :options="editorOptions" @on-change="onDocumentChange" />
 
-        <div class="ac-document__operate">
+        <!-- <div class="ac-document__operate">
             <div class="ac-document__operate-inner text-right">
                 <el-button :loading="isLoading" type="primary" @click="onSaveBtnClick"> 保存 </el-button>
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 <script lang="ts">
