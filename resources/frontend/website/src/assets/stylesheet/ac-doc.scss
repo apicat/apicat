@@ -102,3 +102,11 @@ $operate-height: 60px;
         margin-top: 0;
     }
 }
+
+@include b(doc-catalog) {
+    @apply flex justify-between items-center;
+    padding: 0 1px;
+    h3 {
+        line-height: 40px;
+    }
+}
