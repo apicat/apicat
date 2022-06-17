@@ -1,7 +1,35 @@
 <template>
     <header class="ac-doc-header is-vertical">
         <div class="ac-doc-header-inner">
-            <div class="ac-doc-header--left">left</div>
+            <div class="ac-doc-header--left">
+                <div class="ac-project-info">
+                    <el-popover placement="bottom" popper-class="ac-popper-menu ac-popper-menu--large" width="250px">
+                        <template #reference>
+                            <div class="ac-project-info__img">
+                                <img :src="project.icon" :alt="project.name" />
+                                <el-icon class="ac-project-info__back"><ArrowLeftBold /></el-icon>
+                            </div>
+                        </template>
+
+                        <ul>
+                            <li
+                                v-for="menu in popperMenus"
+                                :key="menu.icon"
+                                class="ac-popper-menu__item"
+                                :class="{ 'border-t': menu.divided }"
+                                @click="menu.onClick ? menu.onClick(menu) : onPopperItemClick(menu)"
+                            >
+                                <i class="icon iconfont mr-1" :class="menu.icon" />{{ menu.text }}
+                            </li>
+                        </ul>
+                    </el-popover>
+
+                    <div class="ac-project-info__title">{{ project.name }}</div>
+                    <el-tooltip effect="dark" content="私有项目" placement="bottom">
+                        <el-icon class="ac-project-info__icon"><Lock /></el-icon>
+                    </el-tooltip>
+                </div>
+            </div>
             <div class="ac-doc-header--right">right</div>
         </div>
     </header>
@@ -9,7 +37,7 @@
     <ProjectShareModal ref="projectShareModal" />
 </template>
 <script setup lang="ts">
-    import { ArrowLeftBold, ArrowDownBold, Search, View, Share } from '@element-plus/icons-vue'
+    import { ArrowLeftBold, Lock } from '@element-plus/icons-vue'
     import { ref, inject, watch } from 'vue'
     import { useRouter } from 'vue-router'
     import { storeToRefs } from 'pinia'
@@ -46,10 +74,11 @@
     }
 
     const allMenus = [
-        { text: '公共参数', icon: 'iconIconPopoverConfig', href: '/project/{project_id}/params' },
         { text: '项目设置', icon: 'iconIconPopoverSetting', href: '/project/{project_id}/setting' },
-        { text: '项目成员', icon: 'iconIconPopoverUser', href: '/project/{project_id}/members' },
-        { text: '导出项目', icon: 'iconIconPopoverUpload', onClick: (menu?: any) => onExportBtnClick(), divided: true },
+        { text: '公共参数', icon: 'iconIconPopoverConfig', href: '/project/{project_id}/params' },
+        { text: '成员管理', icon: 'iconIconPopoverUser', href: '/project/{project_id}/members' },
+        { text: '分享项目', icon: 'iconshare2', onClick: (menu?: any) => onShareProjectBtnClick() },
+        { text: '导出项目', icon: 'iconIconPopoverUpload', onClick: (menu?: any) => onExportBtnClick() },
         { text: '回收站', icon: 'icontrash', href: '/project/{project_id}/trash' },
     ]
 

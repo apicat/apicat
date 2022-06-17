@@ -23,7 +23,52 @@ $operate-height: 60px;
         @apply flex-auto bg-white;
     }
 }
+// 项目信息
+@include b(project-info) {
+    @apply flex items-center h-full;
 
+    @include e(img) {
+        height: 32px;
+        width: 32px;
+        margin-right: 10px;
+        cursor: pointer;
+
+        img {
+            border-radius: 100%;
+            overflow: hidden;
+        }
+
+        &:hover {
+            img {
+                display: none;
+            }
+            @include e(back) {
+                display: inline-flex;
+            }
+        }
+
+        @include e(back) {
+            height: 32px;
+            width: 32px;
+            background-color: #dddddd;
+            border-radius: 4px;
+            display: none;
+        }
+    }
+
+    @include e(title) {
+        font-size: 16px;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        overflow: hidden;
+        @apply flex-1;
+    }
+
+    @include e(icon) {
+    }
+}
+
+// 文档主体布局
 @include b(doc-layout) {
     height: calc(100vh - $doc-header-height);
     overflow: hidden;
@@ -47,6 +92,7 @@ $operate-height: 60px;
     }
 }
 
+// 文档编辑
 @include b(document) {
     position: relative;
     min-height: calc(100vh - $doc-header-height);
@@ -103,10 +149,13 @@ $operate-height: 60px;
     }
 }
 
+// 项目目录
 @include b(doc-catalog) {
     @apply flex justify-between items-center;
     padding: 0 1px;
-    h3 {
-        line-height: 40px;
-    }
+    margin-bottom: 20px;
+
+    // h3 {
+    //     line-height: 40px;
+    // }
 }

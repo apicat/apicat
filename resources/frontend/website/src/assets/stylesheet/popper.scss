@@ -38,16 +38,22 @@
     min-width: auto !important;
     margin: -5px -9px;
 
+    @include m(thin) {
+        padding: 4px 0 !important;
+        @include e(item) {
+            padding: 5px 16px !important;
+        }
+    }
     @include m(small) {
         @include e(item) {
             padding: 5px 24px !important;
         }
     }
 
-    @include m(thin) {
-        padding: 4px 0 !important;
+    @include m(large) {
+        padding: 10px 0 !important;
         @include e(item) {
-            padding: 5px 16px !important;
+            padding: 9px 34px !important;
         }
     }
 

@@ -31,6 +31,7 @@ declare module '@vue/runtime-core' {
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
+    ElTooltip: typeof import('element-plus/es')['ElTooltip']
     Feedback: typeof import('./src/components/Feedback/Feedback.vue')['default']
     ImageCorp: typeof import('./src/components/ImageCorp.vue')['default']
     ImagePreview: typeof import('./src/components/ImagePreview.vue')['default']
