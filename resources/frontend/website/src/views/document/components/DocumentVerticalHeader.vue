@@ -32,7 +32,15 @@
                     </el-tooltip>
                 </div>
             </div>
-            <div class="ac-doc-header--right">right</div>
+            <div class="ac-doc-header--right">
+                <div class="ac-document__operate">
+                    <div class="ac-document__fixed_title">{{ project.name }}</div>
+
+                    <div class="ac-document__btns">
+                        <el-button type="primary"> 保存 </el-button>
+                    </div>
+                </div>
+            </div>
         </div>
     </header>
 
