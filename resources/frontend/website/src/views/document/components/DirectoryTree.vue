@@ -1,53 +1,54 @@
 <template>
-    <div class="h-full overflow-x-scroll scroll-content" ref="dir">
-        <div class="flex justify-between items-center mb-7 px-1">
+    <div class="h-full flex flex-col" ref="dir">
+        <div class="flex justify-between items-center px-1 h-10">
             <h3 class="text-base font-medium">目录</h3>
             <el-icon class="cursor-pointer text-zinc-500" @click="onRootMoreIconClick"><plus /></el-icon>
         </div>
+        <div class="overflow-x-scroll scroll-content flex-auto">
+            <ac-tree
+                :data="apiDocTree"
+                class="bg-transparent"
+                node-key="id"
+                empty-text=""
+                draggable
+                ref="treeIns"
+                :expand-on-click-node="false"
+                :props="{ children: 'sub_nodes', label: 'title', class: customNodeClass, isLeaf: customNodeLeaf }"
+                :allow-drop="allowDrop"
+                @node-drag-start="onMoveNodeStart"
+                @node-drop="onMoveNode"
+            >
+                <template #default="{ node, data }">
+                    <div class="el-tree-node__bg"></div>
 
-        <ac-tree
-            :data="apiDocTree"
-            class="bg-transparent"
-            node-key="id"
-            empty-text=""
-            draggable
-            ref="treeIns"
-            :expand-on-click-node="false"
-            :props="{ children: 'sub_nodes', label: 'title', class: customNodeClass, isLeaf: customNodeLeaf }"
-            :allow-drop="allowDrop"
-            @node-drag-start="onMoveNodeStart"
-            @node-drop="onMoveNode"
-        >
-            <template #default="{ node, data }">
-                <div class="el-tree-node__bg"></div>
-
-                <div class="flex justify-between ac-tree-node" :class="{ 'is-editable': data.isEditable }">
-                    <div class="ac-tree-node__main" @click="handleTreeNodeClick(node, data, $event)">
-                        <div class="ac-doc-node" :class="{ 'is-active': data.isCurrent }">
-                            <img v-if="data.isLeaf" class="ac-doc-node__icon" :src="createDocIcon" />
-                            <span class="ac-doc-node__label" v-show="!data.isEditable" :title="data.title">{{ data.title }}</span>
-                            <input
-                                type="text"
-                                ref="renameInput"
-                                class="ac-doc-node__input el-input el-input__inner"
-                                :id="'tree_input_' + data.id"
-                                v-if="data.isEditable"
-                                v-model="data.title"
-                                @keyup.enter="onEnterKeyUp"
-                                :maxlength="data.isLeaf ? 255 : 50"
-                                @blur="setUnEditable($event, data)"
-                            />
+                    <div class="flex justify-between ac-tree-node" :class="{ 'is-editable': data.isEditable }">
+                        <div class="ac-tree-node__main" @click="handleTreeNodeClick(node, data, $event)">
+                            <div class="ac-doc-node" :class="{ 'is-active': data.isCurrent }">
+                                <img v-if="data.isLeaf" class="ac-doc-node__icon" :src="createDocIcon" />
+                                <span class="ac-doc-node__label" v-show="!data.isEditable" :title="data.title">{{ data.title }}</span>
+                                <input
+                                    type="text"
+                                    ref="renameInput"
+                                    class="ac-doc-node__input el-input el-input__inner"
+                                    :id="'tree_input_' + data.id"
+                                    v-if="data.isEditable"
+                                    v-model="data.title"
+                                    @keyup.enter="onEnterKeyUp"
+                                    :maxlength="data.isLeaf ? 255 : 50"
+                                    @blur="setUnEditable($event, data)"
+                                />
+                            </div>
+                        </div>
+                        <div class="ac-tree-node__more" :class="{ active: data.id === activeMoreNodeId }">
+                            <el-icon v-show="!data.isLeaf" @click="onMoreIconClick($event, node, data, 'DIR_NEW_TYPE')"><plus /></el-icon>
+                            <span class="mx-1" />
+                            <el-icon v-show="!data.isLeaf" @click="onMoreIconClick($event, node, data, 'DIR_OPERATE_TYPE')"><more-filled /></el-icon>
+                            <el-icon v-show="data.isLeaf" @click="onMoreIconClick($event, node, data, 'DOC_OPERATE_TYPE')"><more-filled /></el-icon>
                         </div>
                     </div>
-                    <div class="ac-tree-node__more" :class="{ active: data.id === activeMoreNodeId }">
-                        <el-icon v-show="!data.isLeaf" @click="onMoreIconClick($event, node, data, 'DIR_NEW_TYPE')"><plus /></el-icon>
-                        <span class="mx-1" />
-                        <el-icon v-show="!data.isLeaf" @click="onMoreIconClick($event, node, data, 'DIR_OPERATE_TYPE')"><more-filled /></el-icon>
-                        <el-icon v-show="data.isLeaf" @click="onMoreIconClick($event, node, data, 'DOC_OPERATE_TYPE')"><more-filled /></el-icon>
-                    </div>
-                </div>
-            </template>
-        </ac-tree>
+                </template>
+            </ac-tree>
+        </div>
     </div>
 
     <DocumentShareModal ref="documentShareModal" :share-data="shareData" />

@@ -1,35 +1,45 @@
 $doc-layout-padding: 25px;
-
-$doc-layout-left-width: 315px - $doc-layout-padding;
+$doc-header-height: 60px;
+$doc-layout-left-width: 315px;
 $doc-layout-left-padding-right: 30px;
 $doc-content-padding-left: $doc-layout-left-width + $doc-layout-left-padding-right;
 
 $operate-height: 60px;
 
 @include b(doc-header) {
-    height: $header-height;
+    height: $doc-header-height;
+
     &-inner {
-        height: $header-height;
-        @apply fixed top-0 w-full px-5 bg-white shadow z-50;
+        height: $doc-header-height;
+        @apply fixed top-0 w-full z-50 flex;
+    }
+
+    @include m(left) {
+        width: $doc-layout-left-width;
+        padding: 0 $doc-layout-padding;
+    }
+
+    @include m(right) {
+        @apply flex-auto bg-white;
     }
 }
 
 @include b(doc-layout) {
-    padding: 0 $doc-layout-padding;
-    height: 100vh;
+    height: calc(100vh - $doc-header-height);
     overflow: hidden;
     display: flex;
     flex-direction: row;
 
     @include m(left) {
         width: $doc-layout-left-width;
+        padding: 0 $doc-layout-padding;
+        padding-bottom: $doc-layout-padding;
     }
 
     @include m(right) {
         height: 100%;
-        flex: 1;
         overflow: scroll;
-        padding-left: $doc-layout-left-padding-right;
+        @apply flex-auto bg-white;
     }
 
     @include e(gap) {
@@ -39,9 +49,8 @@ $operate-height: 60px;
 
 @include b(document) {
     position: relative;
-    min-height: 100vh;
-    background-color: #fff;
-    padding: 24px 40px;
+    min-height: calc(100vh - $doc-header-height);
+    padding: 0 40px;
 
     @include e(title) {
         font-size: 32px;
