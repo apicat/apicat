@@ -2,7 +2,10 @@
     <div class="h-full flex flex-col">
         <div class="ac-doc-catalog">
             <h3 class="text-base font-medium">目录</h3>
-            <el-icon class="cursor-pointer text-zinc-500" @click="onRootMoreIconClick"><plus /></el-icon>
+            <div>
+                <el-icon class="cursor-pointer text-zinc-500 mr-5" @click="onSearchIconClick"><Search /></el-icon>
+                <el-icon class="cursor-pointer text-zinc-500" @click="onRootMoreIconClick"><Plus /></el-icon>
+            </div>
         </div>
         <div class="overflow-x-scroll scroll-content flex-auto" ref="dir">
             <ac-tree
@@ -52,10 +55,11 @@
     </div>
 
     <DocumentShareModal ref="documentShareModal" :share-data="shareData" />
+    <SearchDocumentPopover ref="searchDocumentPopoverRef" />
 </template>
 
 <script lang="tsx">
-    import { Plus, MoreFilled } from '@element-plus/icons-vue'
+    import { Plus, MoreFilled, Search } from '@element-plus/icons-vue'
     import DirectoryPopper, { NEW_MENUS } from './DirectoryPopper'
     import DocumentShareModal from './DocumentShareModal.vue'
     import { useRoute, useRouter } from 'vue-router'
@@ -73,13 +77,16 @@
     import { API_SINGLE_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
     import { hideLoading } from '@/hooks/useLoading'
     import AcTree from './AcTree'
+    import SearchDocumentPopover from './SearchDocumentPopover.vue'
 
     export default defineComponent({
         components: {
             AcTree,
             DocumentShareModal,
             Plus,
+            Search,
             MoreFilled,
+            SearchDocumentPopover,
         },
 
         setup() {
@@ -99,6 +106,7 @@
             const renameInput: any = ref(null)
             const treeIns: any = ref(null)
             const documentShareModal: any = ref(null)
+            const searchDocumentPopoverRef: any = ref(null)
             const dir: any = ref(null)
             const shareData: any = ref({
                 docType: null,
@@ -290,6 +298,11 @@
                 hideLoading()
             }
 
+            const onSearchIconClick = (e: any) => {
+                // console.log(searchDocumentPopoverRef)
+                searchDocumentPopoverRef.value?.show(e.currentTarget)
+            }
+
             onMounted(async () => {
                 await getDocTreeList()
                 currentRoute.value.params.node_id ? activeNode() : reactiveNode()
@@ -316,6 +329,7 @@
                 handleTreeNodeClick,
                 onRootMoreIconClick,
                 onMoreIconClick,
+                onSearchIconClick,
                 allowDrop,
                 customNodeClass,
                 customNodeLeaf,
@@ -329,6 +343,7 @@
 
                 documentImportModal,
                 projectExportModal,
+                searchDocumentPopoverRef,
             }
         },
 

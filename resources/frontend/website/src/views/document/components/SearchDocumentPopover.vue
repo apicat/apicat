@@ -122,7 +122,7 @@
 </script>
 <style lang="scss" scoped>
     .search-poptip {
-        width: 384px;
+        width: 300px;
         margin: -12px;
         padding: 14px 24px;
         .search-result {
