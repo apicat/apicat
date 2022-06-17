@@ -7,7 +7,9 @@
                         <template #reference>
                             <div class="ac-project-info__img">
                                 <img :src="project.icon" :alt="project.name" />
-                                <el-icon class="ac-project-info__back"><ArrowLeftBold /></el-icon>
+                                <router-link :to="{ name: 'projects' }">
+                                    <el-icon class="ac-project-info__back"><ArrowLeftBold /></el-icon>
+                                </router-link>
                             </div>
                         </template>
 
