@@ -1,10 +1,10 @@
 <template>
-    <div class="h-full flex flex-col" ref="dir">
-        <div class="flex justify-between items-center px-1 h-10">
+    <div class="h-full flex flex-col">
+        <div class="ac-doc-catalog">
             <h3 class="text-base font-medium">目录</h3>
             <el-icon class="cursor-pointer text-zinc-500" @click="onRootMoreIconClick"><plus /></el-icon>
         </div>
-        <div class="overflow-x-scroll scroll-content flex-auto">
+        <div class="overflow-x-scroll scroll-content flex-auto" ref="dir">
             <ac-tree
                 :data="apiDocTree"
                 class="bg-transparent"
@@ -138,7 +138,7 @@
             const onMoreIconClick = (e: any, node: any, source: any, type: any) => {
                 e.stopPropagation()
                 activeMoreNodeId.value = source.id
-                DirectoryPopper.show(type, e.target, { node, source, isDetailPage: isDetailPage.value })
+                DirectoryPopper.show(type, e.target, { node, source, isDetailPage: isDetailPage.value }, dir.value)
             }
 
             const onRootMoreIconClick = (e: any) => {

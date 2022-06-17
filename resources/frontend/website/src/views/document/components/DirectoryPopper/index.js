@@ -17,7 +17,7 @@ export default {
         theme: 'light',
     }),
 
-    show(type, el, props) {
+    show(type, el, props, appendToEl) {
         const menuConfig = MENU_TYPES[type]
 
         if (!menuConfig) {
@@ -32,6 +32,7 @@ export default {
         })
 
         this.popper.setProps({
+            appendTo: () => appendToEl || document.body,
             getReferenceClientRect: () => el.getBoundingClientRect(),
             content: this.$vm.el,
             onHide: () => {
