@@ -1,6 +1,6 @@
 <template>
     <main class="ac-doc-layout">
-        <DocumentOperateHeader />
+        <DocumentOperateHeader :title="title" />
         <ProjectInfoHeader />
         <div class="ac-doc-layout__left">
             <DirectoryTree ref="directoryTree" />
@@ -26,9 +26,13 @@
     const documentImportModal = ref()
     const documentShareModal = ref()
     const directoryTree = ref()
+    const title = ref('')
 
     provide('documentShareModal', documentShareModal)
     provide('projectExportModal', projectExportModal)
     provide('documentImportModal', documentImportModal)
     provide('updateTreeNode', (id: any, node: any) => directoryTree.value && directoryTree.value.updateTreeNode(id, node))
+    provide('setDocumentTitle', (t: string) => {
+        title.value = t
+    })
 </script>

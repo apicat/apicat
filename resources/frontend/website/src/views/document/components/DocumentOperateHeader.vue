@@ -1,7 +1,7 @@
 <template>
     <div class="ac-header-operate">
         <div class="ac-header-operate__main">
-            <p v-if="!isEdit" :class="titleClass">13123</p>
+            <p v-if="!isEdit" :class="titleClass">{{ title }}</p>
             <p v-else><i class="iconfont" :class="isSaving ? 'iconcloud-upload' : 'iconcloud'"></i> {{ isSaving ? '保存中...' : '已保存在云端' }}</p>
         </div>
 
@@ -19,6 +19,13 @@
     import { useRouter } from 'vue-router'
     import { DOCUMENT_EDIT_NAME } from '@/router/constant'
     import { API_SINGLE_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
+
+    defineProps({
+        title: {
+            type: String,
+            default: '',
+        },
+    })
 
     const documentShareModal: any = inject('documentShareModal')
     const projectExportModal: any = inject('projectExportModal')

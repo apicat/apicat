@@ -79,11 +79,13 @@
 
             const { initHighlight } = useHighlight()
             const documentImportModal = inject('documentImportModal')
+            const setDocumentTitle = inject('setDocumentTitle')
 
             return {
                 title,
                 initHighlight,
                 documentImportModal,
+                setDocumentTitle,
             }
         },
 
@@ -191,6 +193,7 @@
                 getDocumentDetail(this.project_id, this.doc_id, 'html')
                     .then((res) => {
                         this.document = this.transferDoc(res.data || {})
+                        this.setDocumentTitle(this.document.title)
                         this.initStaticDocInteractive()
                     })
                     .catch((e) => {
