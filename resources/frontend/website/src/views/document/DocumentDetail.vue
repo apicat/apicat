@@ -1,17 +1,9 @@
 <template>
     <div class="ac-document is-detail" v-loading="isLoading">
         <div v-show="hasDocument && document.id">
-            <h1 class="ac-document__title">
-                {{ document.title }}
-            </h1>
+            <h1 class="ac-document__title" ref="title">{{ document.title }} {{ top }}</h1>
 
             <div v-if="document.content" class="ProseMirror readonly" v-html="document.content" />
-
-            <!-- <div class="ac-document__operate" v-show="!isLoading">
-                <div class="ac-document__operate-inner text-right">
-                    <el-button type="primary" @click="onEditBtnClick"> 编辑 </el-button>
-                </div>
-            </div> -->
         </div>
 
         <div v-if="!hasDocument">
@@ -34,13 +26,16 @@
     </div>
 </template>
 <script>
-    import { getDocumentDetail, API_DOCUMENT_IMPORT_ACTION_MAPPING } from '@/api/document'
     import mediumZoom from 'medium-zoom'
     import tippy from 'tippy.js'
+    import { getDocumentDetail, API_DOCUMENT_IMPORT_ACTION_MAPPING } from '@/api/document'
     import { toggleClass, getAttr, hasClass, showOrHide, DOCUMENT_TYPES } from '@ac/shared'
     import { useHighlight } from '@/hooks/useHighlight'
-    import { inject } from 'vue'
+    import { inject, ref, watch } from 'vue'
     import { hideLoading } from '@/hooks/useLoading'
+    import { useElementBounding } from '@vueuse/core'
+    import { debounce } from 'lodash-es'
+    import emitter, { IS_SHOW_DOCUMENT_TITLE } from '@/common/emitter'
 
     function expand(pid, isExpand) {
         document.querySelectorAll('[data-pid="' + pid + '"]').forEach(function (el) {
@@ -62,10 +57,22 @@
         },
 
         setup() {
+            const title = ref(null)
+            const { top } = useElementBounding(title)
+
+            watch(
+                top,
+                debounce(() => {
+                    emitter.emit(IS_SHOW_DOCUMENT_TITLE, top.value < 15 ? true : false)
+                }, 200)
+            )
+
             const { initHighlight } = useHighlight()
             const documentImportModal = inject('documentImportModal')
 
             return {
+                title,
+
                 initHighlight,
                 documentImportModal,
             }

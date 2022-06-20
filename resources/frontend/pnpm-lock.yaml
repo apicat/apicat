@@ -164,6 +164,7 @@ importers:
       '@types/sortablejs': ^1.10.7
       '@vueuse/core': ^7.7.1
       '@vueuse/integrations': ^7.7.1
+      animate.css: ^4.1.1
       autoprefixer: ^10.4.4
       axios: ^0.26.1
       clipboard: ^2.0.10
@@ -173,6 +174,7 @@ importers:
       highlight.js: ^11.5.0
       lodash-es: ^4.17.21
       medium-zoom: ^1.0.6
+      mitt: ^3.0.0
       nprogress: ^0.2.0
       path-to-regexp: ^6.2.0
       pinia: ^2.0.12
@@ -193,6 +195,7 @@ importers:
       '@element-plus/icons-vue': 1.1.4_vue@3.2.31
       '@vueuse/core': 7.7.1_vue@3.2.31
       '@vueuse/integrations': 7.7.1_idgfuus3cqhr4gj7lsobl6drre
+      animate.css: 4.1.1
       axios: 0.26.1
       clipboard: 2.0.10
       cropperjs: 1.5.12
@@ -201,6 +204,7 @@ importers:
       highlight.js: 11.5.0
       lodash-es: 4.17.21
       medium-zoom: 1.0.6
+      mitt: 3.0.0
       nprogress: 0.2.0
       path-to-regexp: 6.2.0
       pinia: 2.0.12_vue@3.2.31
@@ -1413,6 +1417,10 @@ packages:
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
     dev: true
+
+  /animate.css/4.1.1:
+    resolution: {integrity: sha512-+mRmCTv6SbCmtYJCN4faJMNFVNN5EuCTTprDTAo7YzIGji2KADmakjVA3+8mVDkZ2Bf09vayB35lSQIex2+QaQ==}
+    dev: false
 
   /ansi-escapes/4.3.2:
     resolution: {integrity: sha512-gKXj5ALrKWQLsYG9jlTRmR/xKluxHV+Z9QEwNIgCfM1/uwPMCuzVVnh5mwTd+OuBZcwSIMbqssNWRm1lE51QaQ==}
@@ -3584,6 +3592,10 @@ packages:
   /minimist/1.2.6:
     resolution: {integrity: sha512-Jsjnk4bw3YJqYzbdyBiNsPWHPfO++UGG749Cxs6peCu5Xg4nrena6OVxOYxrQTqww0Jmwt+Ref8rggumkTLz9Q==}
     dev: true
+
+  /mitt/3.0.0:
+    resolution: {integrity: sha512-7dX2/10ITVyqh4aOSVI9gdape+t9l2/8QxHrFmUXu4EEUpdlxl6RudZUPZoc+zuY2hk1j7XxVroIVIan/pD/SQ==}
+    dev: false
 
   /mlly/0.3.19:
     resolution: {integrity: sha512-zMq5n3cOf4fOzA4WoeulxagbAgMChdev3MgP6K51k7M0u2whTXxupfIY4VVzws4vxkiWhwH1rVQcsw7zDGfRhA==}
