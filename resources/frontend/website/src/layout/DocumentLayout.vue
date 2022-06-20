@@ -1,10 +1,10 @@
 <template>
     <main class="ac-doc-layout">
-        <div class="ac-doc-layout--left">
+        <div class="ac-doc-layout__left">
             <ProjectInfoHeader />
             <DirectoryTree ref="directoryTree" />
         </div>
-        <div class="ac-doc-layout--right">
+        <div class="ac-doc-layout__right">
             <DocumentOperateHeader />
             <div class="ac-doc-layout__gap"></div>
             <router-view />
