@@ -52,14 +52,6 @@
     import { useRouter } from 'vue-router'
 
     export default {
-        props: {
-            shareData: {
-                type: Object,
-                default: () => ({
-                    docId: -1,
-                }),
-            },
-        },
         watch: {
             shareData() {
                 if (this.shareData.docId !== -1) {
@@ -82,6 +74,10 @@
                 password: '',
                 copyText: '',
                 copyTextEl: ref(),
+
+                shareData: {
+                    docId: -1,
+                },
             })
 
             return {
@@ -121,7 +117,8 @@
                 }, 2000)
             },
 
-            show() {
+            show(shareData) {
+                this.shareData = shareData || { docId: -1 }
                 this.isShow = true
             },
 

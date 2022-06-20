@@ -7,17 +7,21 @@
 
         <div class="ac-header-operate__btns">
             <el-button type="primary" @click="onSaveOrEditBtnClick"> {{ isEdit ? '预览' : '编辑' }}</el-button>
-            <i class="iconfont iconshare2"></i>
-            <i class="iconfont iconIconPopoverUpload"></i>
+            <i class="iconfont iconshare2" @click="onShareBtnClick"></i>
+            <i class="iconfont iconIconPopoverUpload" @click="onExportBtnClick"></i>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-    import { ref, computed } from 'vue'
+    import { ref, computed, inject } from 'vue'
     import emitter, * as EVENT from '@/common/emitter'
     import { useRouter } from 'vue-router'
     import { DOCUMENT_EDIT_NAME } from '@/router/constant'
+    import { API_SINGLE_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
+
+    const documentShareModal: any = inject('documentShareModal')
+    const projectExportModal: any = inject('projectExportModal')
 
     const { currentRoute, push } = useRouter()
 
@@ -37,16 +41,37 @@
 
     const isEdit = computed(() => currentRoute.value.name === DOCUMENT_EDIT_NAME)
 
-    const onSaveOrEditBtnClick = () => {
+    const getCommonParams = () => {
         const { params } = currentRoute.value
         const project_id = params.project_id
         const node_id = parseInt(params.node_id as string, 10)
+        return {
+            project_id,
+            node_id,
+        }
+    }
+    const onSaveOrEditBtnClick = () => {
+        const { project_id, node_id } = getCommonParams()
 
         if (isEdit.value) {
             push({ name: 'document.api.detail', params: { project_id, node_id } })
             return
         }
         push({ name: 'document.api.edit', params: { project_id, node_id } })
+    }
+
+    const onShareBtnClick = () => {
+        const { node_id } = getCommonParams()
+        documentShareModal.value?.show({
+            docId: node_id,
+            nodeId: node_id,
+        })
+    }
+
+    const onExportBtnClick = () => {
+        const { project_id, node_id } = getCommonParams()
+        projectExportModal.value.title = '导出文档'
+        projectExportModal.value.show({ project_id, doc_id: node_id }, API_SINGLE_EXPORT_ACTION_MAPPING)
     }
 
     const saveDocumentDone = () => {

@@ -13,8 +13,10 @@
 
     <ProjectExportModal ref="projectExportModal" />
     <DocumentImportModal ref="documentImportModal" />
+    <DocumentShareModal ref="documentShareModal" />
 </template>
 <script setup lang="ts">
+    import DocumentShareModal from '../views/document/components/DocumentShareModal.vue'
     import ProjectInfoHeader from '../views/document/components/ProjectInfoHeader.vue'
     import DocumentOperateHeader from '../views/document/components/DocumentOperateHeader.vue'
     import DirectoryTree from '../views/document/components/DirectoryTree.vue'
@@ -23,8 +25,10 @@
 
     const projectExportModal = ref()
     const documentImportModal = ref()
+    const documentShareModal = ref()
     const directoryTree = ref()
 
+    provide('documentShareModal', documentShareModal)
     provide('projectExportModal', projectExportModal)
     provide('documentImportModal', documentImportModal)
     provide('updateTreeNode', (id: any, node: any) => directoryTree.value && directoryTree.value.updateTreeNode(id, node))

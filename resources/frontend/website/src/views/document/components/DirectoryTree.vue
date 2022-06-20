@@ -54,14 +54,12 @@
         </div>
     </div>
 
-    <DocumentShareModal ref="documentShareModal" :share-data="shareData" />
     <SearchDocumentPopover ref="searchDocumentPopoverRef" />
 </template>
 
 <script lang="tsx">
     import { Plus, MoreFilled, Search } from '@element-plus/icons-vue'
     import DirectoryPopper, { NEW_MENUS } from './DirectoryPopper'
-    import DocumentShareModal from './DocumentShareModal.vue'
     import { useRoute, useRouter } from 'vue-router'
     import { computed, nextTick, onMounted, ref, defineComponent, inject } from 'vue'
     import { useDocumentStore, extendDocTreeFeild } from '@/stores/document'
@@ -82,7 +80,6 @@
     export default defineComponent({
         components: {
             AcTree,
-            DocumentShareModal,
             Plus,
             Search,
             MoreFilled,
@@ -90,6 +87,7 @@
         },
 
         setup() {
+            const documentShareModal: any = inject('documentShareModal')
             const documentImportModal: any = inject('documentImportModal')
             const projectExportModal: any = inject('projectExportModal')
 
@@ -105,13 +103,9 @@
             const activeMoreNodeId = ref(null)
             const renameInput: any = ref(null)
             const treeIns: any = ref(null)
-            const documentShareModal: any = ref(null)
+
             const searchDocumentPopoverRef: any = ref(null)
             const dir: any = ref(null)
-            const shareData: any = ref({
-                docType: null,
-                dicId: null,
-            })
 
             let index = 1
             const oldDraggingNodeInfo: any = null
@@ -299,7 +293,6 @@
             }
 
             const onSearchIconClick = (e: any) => {
-                // console.log(searchDocumentPopoverRef)
                 searchDocumentPopoverRef.value?.show(e.currentTarget)
             }
 
@@ -322,7 +315,6 @@
                 treeIns,
                 newMenus,
                 documentShareModal,
-                shareData,
 
                 createDocIcon,
 
@@ -510,11 +502,10 @@
             },
 
             onShareBtnClick(node: any, source: any) {
-                this.shareData = {
+                this.documentShareModal.show({
                     docId: source.id,
                     nodeId: source.id,
-                }
-                this.documentShareModal.show()
+                })
             },
 
             onImportBtnClick(node: any, source: any) {
