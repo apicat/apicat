@@ -23,7 +23,7 @@
             </ul>
         </el-popover>
 
-        <div class="ac-project-info__title">{{ project.name }}</div>
+        <div class="ac-project-info__title" :title="project.name">{{ project.name }}</div>
         <el-tooltip effect="dark" content="私有项目" placement="bottom">
             <el-icon class="ac-project-info__icon"><Lock /></el-icon>
         </el-tooltip>
@@ -35,7 +35,6 @@
     import { ref, inject, watch } from 'vue'
     import { useRouter } from 'vue-router'
     import { storeToRefs } from 'pinia'
-
     import { useProjectStore } from '@/stores/project'
     import { API_PROJECT_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
 
