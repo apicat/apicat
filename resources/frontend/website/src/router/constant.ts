@@ -11,3 +11,5 @@ export const PREVIEW_PROJECT_SECRET = `${PREVIEW_PROJECT}.verification`
 
 export const PREVIEW_DOCUMENT = 'preview.document'
 export const PREVIEW_DOCUMENT_SECRET = `${PREVIEW_DOCUMENT}.verification`
+
+export const DOCUMENT_EDIT_NAME = 'document.api.edit'

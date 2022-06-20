@@ -23,6 +23,7 @@
     import { debounce, isEmpty } from 'lodash-es'
     import { hideLoading } from '@/hooks/useLoading'
     import { useRoute, useRouter } from 'vue-router'
+    import emitter, { DOCUMENT_SAVE_DONE, DOCUMENT_SAVE_ING, DOCUMENT_SAVE_ERROR } from '@/common/emitter'
 
     export default defineComponent({
         components: {
@@ -71,7 +72,7 @@
                 },
             },
             'document.title': function () {
-                this.onDocumentTitleChange()
+                this.onDocumentChange()
             },
         },
 
@@ -217,9 +218,15 @@
             },
 
             onDocumentChange: debounce(function (this: any) {
-                updateDoc(this.getDocumentContent()).then((res: any) => {
-                    this.updateTreeNodeTitle(res.data)
-                })
+                emitter.emit(DOCUMENT_SAVE_ING)
+                updateDoc(this.getDocumentContent())
+                    .then((res: any) => {
+                        emitter.emit(DOCUMENT_SAVE_DONE)
+                        this.updateTreeNodeTitle(res.data)
+                    })
+                    .catch(() => {
+                        emitter.emit(DOCUMENT_SAVE_ERROR)
+                    })
             }, 500),
 
             onDocumentTitleChange: debounce(function (this: any) {

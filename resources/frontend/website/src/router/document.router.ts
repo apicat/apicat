@@ -1,6 +1,6 @@
 import { compile } from 'path-to-regexp'
 import DocumentLayout from '@/layout/DocumentLayout.vue'
-import { DOCUMENT_ROUTE_NAME } from './constant'
+import { DOCUMENT_ROUTE_NAME, DOCUMENT_EDIT_NAME } from './constant'
 
 const DocumentDetail = () => import('@/views/document/DocumentDetail.vue')
 const DocumentEditor = () => import('@/views/document/DocumentEditor.vue')
@@ -21,7 +21,7 @@ export default {
         },
         {
             path: '/editor/:project_id/doc/:node_id/edit',
-            name: 'document.api.edit',
+            name: DOCUMENT_EDIT_NAME,
             component: DocumentEditor,
         },
     ],

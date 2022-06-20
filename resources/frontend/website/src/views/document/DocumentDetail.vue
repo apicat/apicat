@@ -71,7 +71,10 @@
                 top,
                 debounce(() => {
                     emitter.emit(IS_SHOW_DOCUMENT_TITLE, top.value < 15 ? true : false)
-                }, 200)
+                }, 200),
+                {
+                    immediate: true,
+                }
             )
 
             const { initHighlight } = useHighlight()
@@ -208,6 +211,7 @@
         },
 
         mounted() {
+            emitter.emit(IS_SHOW_DOCUMENT_TITLE, false)
             this.getDocumentDetail()
         },
 
