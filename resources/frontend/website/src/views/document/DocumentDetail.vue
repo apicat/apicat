@@ -70,7 +70,7 @@
             watch(
                 top,
                 debounce(() => {
-                    emitter.emit(IS_SHOW_DOCUMENT_TITLE, top.value < 15 ? true : false)
+                    emitter.emit(IS_SHOW_DOCUMENT_TITLE, top.value < 25 ? true : false)
                 }, 200),
                 {
                     immediate: true,

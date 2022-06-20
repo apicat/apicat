@@ -26,8 +26,10 @@ $operate-height: 60px;
 }
 // 项目信息
 @include b(project-info) {
-    @apply flex items-center;
+    @apply flex items-center fixed left-0 top-0;
     height: $doc-header-height;
+    width: $doc-layout-left-width;
+    padding: 0 $doc-layout-padding;
 
     @include e(img) {
         height: 32px;
@@ -71,20 +73,23 @@ $operate-height: 60px;
 // 文档主体布局
 @include b(doc-layout) {
     height: 100vh;
-    overflow: hidden;
     display: flex;
     flex-direction: row;
 
     @include e(left) {
         width: $doc-layout-left-width;
-        padding: 0 $doc-layout-padding;
-        padding-bottom: $doc-layout-padding;
+        padding: $doc-header-height $doc-layout-padding 0 $doc-layout-padding;
     }
 
     @include e(right) {
-        height: 100%;
+        position: fixed;
+        right: 0;
+        left: $doc-layout-left-width;
+        top: $doc-header-height;
+        bottom: 0;
         overflow: scroll;
-        @apply flex-auto bg-white;
+        padding-bottom: $document-padding;
+        @apply bg-white;
     }
 
     @include e(gap) {

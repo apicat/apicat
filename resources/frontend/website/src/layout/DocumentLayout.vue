@@ -1,12 +1,11 @@
 <template>
     <main class="ac-doc-layout">
+        <DocumentOperateHeader />
+        <ProjectInfoHeader />
         <div class="ac-doc-layout__left">
-            <ProjectInfoHeader />
             <DirectoryTree ref="directoryTree" />
         </div>
-        <div class="ac-doc-layout__right">
-            <DocumentOperateHeader />
-            <div class="ac-doc-layout__gap"></div>
+        <div class="ac-doc-layout__right scroll-content">
             <router-view />
         </div>
     </main>
