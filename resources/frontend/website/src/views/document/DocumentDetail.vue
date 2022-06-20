@@ -1,8 +1,15 @@
 <template>
     <div class="ac-document is-detail" v-loading="isLoading">
         <div v-show="hasDocument && document.id">
-            <h1 class="ac-document__title" ref="title">{{ document.title }} {{ top }}</h1>
-
+            <h1 class="ac-document__title" ref="title">{{ document.title }}</h1>
+            <p class="ac-document__desc">
+                <el-tooltip effect="dark" :content="document.updated_time + ' 最后编辑'" placement="bottom">
+                    <span><i class="iconfont iconIconPopoverUser"></i>{{ document.updated_time }}</span>
+                </el-tooltip>
+                <el-tooltip effect="dark" :content="'更新于 ' + document.updated_time" placement="bottom">
+                    <span><i class="iconfont icontime"></i>{{ document.updated_time }}</span>
+                </el-tooltip>
+            </p>
             <div v-if="document.content" class="ProseMirror readonly" v-html="document.content" />
         </div>
 
@@ -72,7 +79,6 @@
 
             return {
                 title,
-
                 initHighlight,
                 documentImportModal,
             }

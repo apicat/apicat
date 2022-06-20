@@ -75,13 +75,13 @@ $operate-height: 60px;
     display: flex;
     flex-direction: row;
 
-    @include m(left) {
+    @include e(left) {
         width: $doc-layout-left-width;
         padding: 0 $doc-layout-padding;
         padding-bottom: $doc-layout-padding;
     }
 
-    @include m(right) {
+    @include e(right) {
         height: 100%;
         overflow: scroll;
         @apply flex-auto bg-white;
@@ -106,6 +106,20 @@ $operate-height: 60px;
         border: 1px solid transparent;
         outline: none;
         width: 100%;
+    }
+
+    @include e(desc) {
+        vertical-align: center;
+        font-size: 12px;
+        color: #8a8f8d;
+        > * {
+            margin-right: 15px;
+        }
+
+        i {
+            font-size: 12px;
+            margin-right: 4px;
+        }
     }
 
     @include when(detail) {
@@ -182,6 +196,7 @@ $operate-height: 60px;
 
         .iconfont {
             font-size: 24px;
+            @apply cursor-pointer;
         }
 
         > * {

@@ -6,6 +6,13 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "29950",
+      "name": "time",
+      "font_class": "time",
+      "unicode": "e660",
+      "unicode_decimal": 58976
+    },
+    {
       "icon_id": "1015499",
       "name": "联系人管理",
       "font_class": "discuss",
