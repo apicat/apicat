@@ -15,6 +15,7 @@ export default {
         placement: 'bottom',
         interactive: true,
         theme: 'light',
+        zIndex: 10,
     }),
 
     show(type, el, props, appendToEl) {

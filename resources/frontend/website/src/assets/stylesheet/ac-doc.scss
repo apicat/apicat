@@ -26,7 +26,8 @@ $operate-height: 60px;
 }
 // 项目信息
 @include b(project-info) {
-    @apply flex items-center fixed left-0 top-0;
+    background-color: var(--bg-color);
+    @apply flex items-center fixed left-0 top-0 z-50;
     height: $doc-header-height;
     width: $doc-layout-left-width;
     padding: 0 $doc-layout-padding;
@@ -78,7 +79,8 @@ $operate-height: 60px;
 
     @include e(left) {
         width: $doc-layout-left-width;
-        padding: $doc-header-height $doc-layout-padding 0 $doc-layout-padding;
+        padding: $doc-layout-padding;
+        padding-top: $doc-header-height;
     }
 
     @include e(right) {
