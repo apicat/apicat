@@ -309,7 +309,7 @@
             })
 
             return {
-                $router,
+                router: $router,
                 index,
                 oldDraggingNodeInfo,
 
@@ -441,7 +441,7 @@
                             const parentNode = this.treeIns.getNode(source)
                             parentNode && (parentNode.expanded = true)
 
-                            this.$router.push({
+                            this.router.push({
                                 name: 'document.api.edit',
                                 params: { project_id: this.project_id, node_id: data.id },
                                 query: { isNew: true } as any,
@@ -502,7 +502,7 @@
                 })
                     .then(({ data }) => {
                         this.treeIns.insertAfter(extendDocTreeFeild(data), node)
-                        this.$router.push({ name: 'document.api.edit', params: { project_id: this.project_id, node_id: data.id } })
+                        this.router.push({ name: 'document.api.edit', params: { project_id: this.project_id, node_id: data.id } })
                     })
                     .finally(() => {
                         NProgress.done()
@@ -550,7 +550,7 @@
                             const parentNode = this.treeIns.getNode(source)
                             parentNode && (parentNode.expanded = true)
 
-                            this.$router.push({
+                            this.router.push({
                                 name: 'document.api.edit',
                                 params: { project_id: this.project_id, node_id: data.id },
                                 query: { isNew: true } as any,
