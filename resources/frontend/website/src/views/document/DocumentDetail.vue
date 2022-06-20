@@ -1,5 +1,5 @@
 <template>
-    <div class="ac-document is-detail" v-loading="isLoading">
+    <div class="ac-document" v-loading="isLoading">
         <div v-show="hasDocument && document.id">
             <h1 class="ac-document__title" ref="title">{{ document.title }}</h1>
             <p class="ac-document__desc">

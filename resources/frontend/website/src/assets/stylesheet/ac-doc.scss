@@ -90,7 +90,6 @@ $operate-height: 60px;
         top: $doc-header-height;
         bottom: 0;
         overflow: scroll;
-        padding-bottom: $document-padding;
         @apply bg-white;
     }
 
@@ -104,6 +103,7 @@ $operate-height: 60px;
     position: relative;
     min-height: calc(100vh - $doc-header-height);
     padding: 0 $document-padding;
+    padding-bottom: $document-padding;
 
     @include e(title) {
         font-size: 32px;
