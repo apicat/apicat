@@ -62,6 +62,7 @@
     }
 
     const onShareProjectBtnClick = () => {
+        projectShareModal.value.title = '导出项目'
         projectShareModal.value?.show(project.value)
     }
 
