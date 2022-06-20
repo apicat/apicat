@@ -53,6 +53,7 @@
     }
 
     const onExportBtnClick = () => {
+        projectExportModal.value.title = '导出项目'
         projectExportModal.value?.show(
             {
                 project_id: project.value.id,
@@ -62,7 +63,6 @@
     }
 
     const onShareProjectBtnClick = () => {
-        projectShareModal.value.title = '导出项目'
         projectShareModal.value?.show(project.value)
     }
 
