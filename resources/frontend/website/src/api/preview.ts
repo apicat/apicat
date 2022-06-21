@@ -13,7 +13,7 @@ export const getProjectInfo = (project_id: any) => Ajax.get('/preview/project', 
 
 export const getProjectCatalog = (token: any, project_id: any) => Ajax.get('/preview/api_nodes', { params: { project_id, token } })
 
-export const checkProjectSecretKey = (data: any) => Ajax.post('/preview/check', data)
+export const checkProjectSecretKey = (data: any) => Ajax.post('/project/secretkey_check', data)
 
 export const getApiDocumentDetail = (token: any, project_id: any, node_id: any) => Ajax.get('/preview/api_doc', { params: { project_id, node_id, token } })
 
