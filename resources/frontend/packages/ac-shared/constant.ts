@@ -1,90 +1,5 @@
-// API请求前缀
-export const API_URL = '/api'
-
-// 请求超时
-export const REQUEST_TIMEOUT = 1000 * 10
-
-// 分页大小
-export const PAGE_SIZE = 15
-
-// 状态码
-export const enum HTTP_STATUS {
-    OK = 0, //成功
-    FAIL = -1, //失败
-    NO_LOGIN = -2, //未登录
-    NO_PARENT_DIR = -102, //恢复文档，没有父级目录
-    NO_EXIST_TEAM = -100, //被移除，或者切换团队
-    INVALID_PREVIEW_SECRET = -103, //访问秘钥失效
-    NOT_FOUND = -404, //资源不存在
-}
-
-export const SEND_CODE_DURATION = 60 // 秒
-export const RELOAD_PAGE_DURATION = 0.5 // 秒
-export const POLL_NOTIFICATION_DURATION = 10 * 1 // 秒
-
-// 团队角色
-export const TEAM_ROLE = {
-    ADMIN: 0,
-    MANAGER: 1,
-    NORMAL: 2,
-}
-
-export const TEAM_ROLE_LIST = [
-    { text: '管理员', value: TEAM_ROLE.MANAGER },
-    { text: '普通成员', value: TEAM_ROLE.NORMAL },
-]
-
-export const TEAM_ALL_ROLE_LIST = [{ text: '超级管理员', value: TEAM_ROLE.ADMIN }, ...TEAM_ROLE_LIST]
-
-// 项目角色
-export const PROJECT_ROLES_KEYS = {
-    ADMIN: 'admin',
-    MANAGER: 'manager',
-    DEVELOPER: 'developer',
-    READER: 'reader',
-}
-
-export const PROJECT_ROLES_MAP = {
-    MANAGER: 0,
-    DEVELOPER: 1,
-    READER: 2,
-}
-
-export const PROJECT_ALL_ROLE_LIST = [
-    { text: '团队管理员', value: 999, key: PROJECT_ROLES_KEYS.ADMIN },
-    { text: '管理者', value: 0, key: PROJECT_ROLES_KEYS.MANAGER },
-    { text: '维护者', value: 1, key: PROJECT_ROLES_KEYS.DEVELOPER },
-    { text: '阅读者', value: 2, key: PROJECT_ROLES_KEYS.READER },
-]
-
-export const PROJECT_ROLE_LIST = PROJECT_ALL_ROLE_LIST.filter((item: any) => item.key !== 'admin' && item.key !== 'manager')
-
-export const IMPORT_EXPORT_STATE = {
-    WAIT: 'wait',
-    FINISH: 'finish',
-    FAIL: 'fail',
-}
-
-// all, close, email, wecaht
-export const NOTIFICATION_TYPE = [
-    { text: '不通知', value: 'close' },
-    { text: '邮件', value: 'email' },
-]
 // 默认值
 export const DEFAULT_VAL = '--'
-
-export const DISPLAY_MODE = {
-    LIST: 0,
-    CARD: 1,
-    iconOf(mode: number) {
-        switch (mode) {
-            case 0:
-                return 'bars'
-            default:
-                return 'appstore'
-        }
-    },
-}
 
 // 默认图片集合
 export const DEFAULT_IMAGE = {}
@@ -105,7 +20,7 @@ export const HTTP_METHODS = {
     },
 }
 
-// 请求体数据格式 0.none 1.form-data 2.x-www-form-urlencoded 3.raw 4.binary
+// 请求体数据格式
 export const REQUEST_BODY_DATA_TYPES = {
     TYPES: [
         { text: 'none', value: 0, tip: '无参数' },
@@ -119,7 +34,7 @@ export const REQUEST_BODY_DATA_TYPES = {
     },
 }
 
-// form data 基础类型，mock数据类型 1.int 2.float 3.string 4.array 5.object 6.boolean 7.file
+// mock数据类型
 export const PARAM_TYPES = {
     TYPES: [
         { text: 'Int', value: 1 },
@@ -144,20 +59,6 @@ export const REQUEST_DATA_TYPES = {
 
     valueOf(value: number) {
         return (this.TYPES.find((item) => item.value === value) || { text: DEFAULT_VAL }).text
-    },
-}
-
-// 文档类型
-export const DOCUMENT_TYPE = {
-    API: {
-        text: '接口文档',
-        key: 'api.doc',
-        value: 1,
-    },
-    DB: {
-        text: '数据库文档',
-        key: 'db.doc',
-        value: 2,
     },
 }
 
@@ -212,14 +113,7 @@ export const MOCK_DATA_TYPES = [
     { name: '协议', mock: '@protocol' },
 ]
 
-export const DOCUMENT_TYPES = {
-    DIR: 0,
-    DOC: 1,
-    HTTP: 1,
-    OTHER: 2,
-    MARKDOWN: 3,
-}
-
+// 事件KEY_MAP
 export const EVENT_CODE = {
     tab: 'Tab',
     enter: 'Enter',

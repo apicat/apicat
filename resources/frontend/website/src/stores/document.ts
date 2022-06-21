@@ -1,4 +1,5 @@
-import { traverseTree, DOCUMENT_TYPES } from '@ac/shared'
+import { traverseTree } from '@ac/shared'
+import { DOCUMENT_TYPES } from '@/common/constant'
 import { defineStore } from 'pinia'
 import { treeList } from '@/api/dir'
 

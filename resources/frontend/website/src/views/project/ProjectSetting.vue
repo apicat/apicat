@@ -41,8 +41,8 @@
 </template>
 
 <script>
-    import { DOCUMENT_TYPE } from '@ac/shared'
-    import { settingProject, uploadProjectIcon } from '@/api/project'
+    import { DOCUMENT_TYPE } from '@/common/constant'
+    import { uploadProjectIcon } from '@/api/project'
     import { Lock, View, Upload } from '@element-plus/icons-vue'
     import PROJECT_DEFAULT_ICON from '@/assets/image/icon-project.png'
     import { useProjectStore } from '@/stores/project'

@@ -38,7 +38,7 @@
     import { defineComponent, reactive, toRefs, ref, watch } from 'vue'
     import { storeToRefs } from 'pinia'
     import { modifyMember, addMember } from '@/api/team'
-    import { TEAM_ROLE, TEAM_ROLE_LIST } from '@ac/shared'
+    import { TEAM_ROLE, TEAM_ROLE_LIST } from '@/common/constant'
     import { ElMessage as $Message } from 'element-plus'
     import { useUserStore } from '@/stores/user'
 

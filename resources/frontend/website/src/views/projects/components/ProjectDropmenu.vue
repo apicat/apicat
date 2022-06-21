@@ -20,7 +20,7 @@
     import { deleteProject, quitProject } from '@/api/project'
     import { API_PROJECT_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
     import { useRouter } from 'vue-router'
-    import { PROJECT_ALL_ROLE_LIST, PROJECT_ROLES_KEYS } from '@ac/shared'
+    import { PROJECT_ALL_ROLE_LIST, PROJECT_ROLES_KEYS } from '@/common/constant'
 
     const props = withDefaults(defineProps<{ ignoreEle: any }>(), {
         ignoreEle: [],

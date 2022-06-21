@@ -49,7 +49,7 @@
     import { useApi } from '@/hooks/useApi'
     import { toDocumentDetailPath } from '@/router/document.router'
     import { toPreviewProjectPath } from '@/router/preview.router'
-    import { PROJECT_ROLES_MAP } from '@ac/shared'
+    import { PROJECT_ROLES_MAP } from '@/common/constant'
 
     const [isLoading, getProjectListWithState] = useApi(getProjectList, { isShowMessage: false })
 

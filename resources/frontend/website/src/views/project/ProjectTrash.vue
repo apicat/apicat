@@ -26,7 +26,9 @@
     import { ElMessage as $Message } from 'element-plus'
     import NProgress from 'nprogress'
     import { getProjectTrashList, restoreApiDocument } from '@/api/project'
-    import { HTTP_STATUS, timestampFormat } from '@ac/shared'
+    import { timestampFormat } from '@ac/shared'
+    import { HTTP_STATUS } from '@/common/constant'
+
     import { useProjectStore } from '@/stores/project'
     import { toPreviewTrashDocumentPath } from '@/router/preview.router'
 

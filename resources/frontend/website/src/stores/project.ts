@@ -1,8 +1,11 @@
 import { getProjectDetail, settingProject } from '@/api/project'
-import { PROJECT_ROLES_MAP } from '@ac/shared'
+import { PROJECT_ROLES_MAP } from '@/common/constant'
 import { defineStore } from 'pinia'
+import delay from 'delay'
+
 interface ProjectState {
     projectInfo: any
+    projectAuthInfo: any
 }
 
 export const useProjectStore = defineStore({
@@ -10,6 +13,7 @@ export const useProjectStore = defineStore({
 
     state: (): ProjectState => ({
         projectInfo: null,
+        projectAuthInfo: {},
     }),
 
     getters: {
@@ -23,6 +27,17 @@ export const useProjectStore = defineStore({
             const { data } = await getProjectDetail(project_id)
             this.projectInfo = data || null
             return this.projectInfo
+        },
+
+        async getProjectAuth(project_id: number) {
+            // const { data } = await getProjectDetail(project_id)
+            // this.projectInfo = data || null
+            console.log('获取项目权限信息：', project_id)
+            await delay(2000)
+            this.projectAuthInfo = {
+                id: project_id,
+            }
+            return this.projectAuthInfo
         },
 
         async updateProjectInfo(project: any) {

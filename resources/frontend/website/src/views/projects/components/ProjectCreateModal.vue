@@ -48,7 +48,9 @@
 </template>
 
 <script>
-    import { DOCUMENT_TYPES, DOCUMENT_TYPE, $emit } from '@ac/shared'
+    import { $emit } from '@ac/shared'
+    import { DOCUMENT_TYPES, DOCUMENT_TYPE } from '@/common/constant'
+
     import { PROJECT_DEFAULT_ICON } from '@/common/constant'
     import { createProject, uploadProjectIcon } from '@/api/project'
     import { Lock, View, Upload } from '@element-plus/icons-vue'

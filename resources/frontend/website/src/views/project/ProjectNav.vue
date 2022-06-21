@@ -27,7 +27,8 @@
     import SidebarLayout from '@/layout/SidebarLayout.vue'
     import { ProjectRoutes } from '@/router/project.router'
     import { useProjectStore } from '@/stores/project'
-    import { PROJECT_ROLES_MAP } from '@ac/shared'
+    import { PROJECT_ROLES_MAP } from '@/common/constant'
+
     import { toDocumentDetailPath } from '@/router/document.router'
 
     const route = useRoute()
