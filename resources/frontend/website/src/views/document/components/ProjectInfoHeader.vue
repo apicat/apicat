@@ -70,8 +70,8 @@
         { text: '项目设置', icon: 'iconIconPopoverSetting', href: '/project/{project_id}/setting' },
         { text: '公共参数', icon: 'iconIconPopoverConfig', href: '/project/{project_id}/params' },
         { text: '成员管理', icon: 'iconIconPopoverUser', href: '/project/{project_id}/members' },
-        { text: '分享项目', icon: 'iconshare2', onClick: (menu?: any) => onShareProjectBtnClick() },
-        { text: '导出项目', icon: 'iconIconPopoverUpload', onClick: (menu?: any) => onExportBtnClick() },
+        { text: '分享项目', icon: 'iconshare2', onClick: () => onShareProjectBtnClick() },
+        { text: '导出项目', icon: 'iconIconPopoverUpload', onClick: () => onExportBtnClick() },
         { text: '回收站', icon: 'icontrash', href: '/project/{project_id}/trash' },
     ]
 
