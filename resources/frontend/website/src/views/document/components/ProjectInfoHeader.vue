@@ -24,7 +24,7 @@
         </el-popover>
 
         <div class="ac-project-info__title" :title="project.name">{{ project.name }}</div>
-        <el-tooltip effect="dark" content="私有项目" placement="bottom">
+        <el-tooltip effect="dark" content="私有项目" placement="bottom" v-if="isPrivate">
             <el-icon class="ac-project-info__icon"><Lock /></el-icon>
         </el-tooltip>
     </div>
@@ -40,7 +40,7 @@
 
     const { push, currentRoute } = useRouter()
     const projectStore = useProjectStore()
-    const { projectInfo: project, isManager } = storeToRefs(projectStore)
+    const { projectInfo: project, isManager, isPrivate } = storeToRefs(projectStore)
 
     const projectShareModal = ref()
     const projectExportModal: any = inject('projectExportModal')

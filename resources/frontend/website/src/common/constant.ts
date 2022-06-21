@@ -65,9 +65,9 @@ export const PROJECT_ROLES_MAP = {
 
 export const PROJECT_ALL_ROLE_LIST = [
     { text: '团队管理员', value: 999, key: PROJECT_ROLES_KEYS.ADMIN },
-    { text: '管理者', value: 0, key: PROJECT_ROLES_KEYS.MANAGER },
-    { text: '维护者', value: 1, key: PROJECT_ROLES_KEYS.DEVELOPER },
-    { text: '阅读者', value: 2, key: PROJECT_ROLES_KEYS.READER },
+    { text: '管理者', value: PROJECT_ROLES_MAP.MANAGER, key: PROJECT_ROLES_KEYS.MANAGER },
+    { text: '维护者', value: PROJECT_ROLES_MAP.DEVELOPER, key: PROJECT_ROLES_KEYS.DEVELOPER },
+    { text: '阅读者', value: PROJECT_ROLES_MAP.READER, key: PROJECT_ROLES_KEYS.READER },
 ]
 
 // 团队角色

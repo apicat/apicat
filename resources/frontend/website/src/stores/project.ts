@@ -1,5 +1,5 @@
 import { getProjectDetail, settingProject } from '@/api/project'
-import { PROJECT_ROLES_KEYS, PROJECT_ROLES_MAP, PROJECT_VISIBLE_TYPES } from '@/common/constant'
+import { PROJECT_ROLES_KEYS, PROJECT_VISIBLE_TYPES } from '@/common/constant'
 import { defineStore } from 'pinia'
 import delay from 'delay'
 
@@ -17,9 +17,11 @@ export const useProjectStore = defineStore({
     }),
 
     getters: {
-        isManager: (state) => state.projectInfo && state.projectInfo.authority === PROJECT_ROLES_MAP.MANAGER,
-        isDeveloper: (state) => state.projectInfo && state.projectInfo.authority === PROJECT_ROLES_MAP.DEVELOPER,
-        isReader: (state) => state.projectInfo && state.projectInfo.authority === PROJECT_ROLES_MAP.READER,
+        isManager: (state) => state.projectAuthInfo && state.projectAuthInfo.authority === PROJECT_ROLES_KEYS.MANAGER,
+        isDeveloper: (state) => state.projectAuthInfo && state.projectAuthInfo.authority === PROJECT_ROLES_KEYS.DEVELOPER,
+        isReader: (state) => state.projectAuthInfo && state.projectAuthInfo.authority === PROJECT_ROLES_KEYS.READER,
+        isGuest: (state) => state.projectAuthInfo && state.projectAuthInfo.authority === PROJECT_ROLES_KEYS.NONE,
+        isPrivate: (state) => state.projectAuthInfo && state.projectAuthInfo.visibility === PROJECT_VISIBLE_TYPES.PRIVATE,
     },
 
     actions: {
