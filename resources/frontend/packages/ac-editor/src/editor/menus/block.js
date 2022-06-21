@@ -187,13 +187,13 @@ export default function blockMenuItems() {
             title: '团队协作',
         },
 
-        {
-            name: 'trigger_openNotification',
-            title: '提醒成员(@)',
-            keywords: '@',
-            icon: 'icon-block-notification',
-            img: iconBlockNotification,
-            desc: '提醒成员关注文档变化',
-        },
+        // {
+        //     name: 'trigger_openNotification',
+        //     title: '提醒成员(@)',
+        //     keywords: '@',
+        //     icon: 'icon-block-notification',
+        //     img: iconBlockNotification,
+        //     desc: '提醒成员关注文档变化',
+        // },
     ]
 }
