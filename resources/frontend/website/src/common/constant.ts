@@ -54,6 +54,7 @@ export const PROJECT_ROLES_KEYS = {
     MANAGER: 'manager',
     DEVELOPER: 'developer',
     READER: 'reader',
+    NONE: 'none',
 }
 
 export const PROJECT_ROLES_MAP = {
@@ -83,8 +84,17 @@ export const TEAM_ROLE_LIST = [
 
 export const TEAM_ALL_ROLE_LIST = [{ text: '超级管理员', value: TEAM_ROLE.ADMIN }, ...TEAM_ROLE_LIST]
 
-export const PROJECT_ROLE_LIST = PROJECT_ALL_ROLE_LIST.filter((item: any) => item.key !== 'admin' && item.key !== 'manager')
+export const PROJECT_ROLE_LIST = PROJECT_ALL_ROLE_LIST.filter((item: any) => [PROJECT_ROLES_KEYS.DEVELOPER, PROJECT_ROLES_KEYS.READER].indexOf(item.key))
 
 export const PROJECT_DEFAULT_ICON = '/static/icon-project.png'
 
-export const PROJECT_AUTH_TYPE = {}
+// 项目可见性类型
+export const PROJECT_VISIBLE_TYPES = {
+    PRIVATE: 'private',
+    PUBLIC: 'public',
+}
+
+export const PROJECT_VISIBLE_LIST = [
+    { text: '私有', value: 0, key: PROJECT_VISIBLE_TYPES.PRIVATE },
+    { text: '公开', value: 1, key: PROJECT_VISIBLE_TYPES.PUBLIC },
+]
