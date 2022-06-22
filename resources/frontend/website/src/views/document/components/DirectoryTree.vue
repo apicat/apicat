@@ -3,8 +3,8 @@
         <div class="ac-doc-catalog">
             <h3 class="text-base font-medium">目录</h3>
             <div>
-                <el-icon class="cursor-pointer text-zinc-500 mr-5" @click="onSearchIconClick"><Search /></el-icon>
-                <el-icon class="cursor-pointer text-zinc-500" @click="onRootMoreIconClick"><Plus /></el-icon>
+                <el-icon class="cursor-pointer text-zinc-500" :class="{ 'mr-5': !isGuest }" @click="onSearchIconClick"><Search /></el-icon>
+                <el-icon v-if="!isGuest" class="cursor-pointer text-zinc-500" @click="onRootMoreIconClick"><Plus /></el-icon>
             </div>
         </div>
         <div class="overflow-x-scroll scroll-content flex-auto" ref="dir">
@@ -13,7 +13,7 @@
                 class="bg-transparent"
                 node-key="id"
                 empty-text=""
-                draggable
+                :draggable="!isGuest"
                 ref="treeIns"
                 :expand-on-click-node="false"
                 :props="{ children: 'sub_nodes', label: 'title', class: customNodeClass, isLeaf: customNodeLeaf }"
@@ -42,7 +42,7 @@
                                 />
                             </div>
                         </div>
-                        <div class="ac-tree-node__more" :class="{ active: data.id === activeMoreNodeId }">
+                        <div class="ac-tree-node__more" :class="{ active: data.id === activeMoreNodeId }" v-if="!isGuest">
                             <el-icon v-show="!data.isLeaf" @click="onMoreIconClick($event, node, data, 'DIR_NEW_TYPE')"><plus /></el-icon>
                             <span class="mx-1" />
                             <el-icon v-show="!data.isLeaf" @click="onMoreIconClick($event, node, data, 'DIR_OPERATE_TYPE')"><more-filled /></el-icon>
@@ -77,6 +77,7 @@
     import { hideLoading } from '@/hooks/useLoading'
     import AcTree from './AcTree'
     import SearchDocumentPopover from './SearchDocumentPopover.vue'
+    import { useProjectStore } from '@/stores/project'
 
     export default defineComponent({
         components: {
@@ -99,6 +100,8 @@
             const { project_id } = params
             const documentStore = useDocumentStore()
             const { apiDocTree } = storeToRefs(documentStore)
+            const projectStore = useProjectStore()
+            const { isGuest } = storeToRefs(projectStore)
 
             const newMenus: any = NEW_MENUS
             const activeMoreNodeId = ref(null)
@@ -303,6 +306,7 @@
             })
 
             return {
+                isGuest,
                 router: $router,
                 index,
                 oldDraggingNodeInfo,

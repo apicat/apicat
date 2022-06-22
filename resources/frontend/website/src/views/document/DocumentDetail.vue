@@ -19,10 +19,11 @@
                     <img src="@/assets/image/icon-empty.png" alt="" />
                 </template>
                 <template #title>
-                    <div style="width: 470px; display: block; margin: auto">
+                    <div style="width: 470px; display: block; margin: auto" v-if="!isGuest">
                         您当前尚未创建文档，请从左侧目录栏点击添加，开始在线维护 API 文档。您还可以将本地项目
                         <a class="text-blue-600" href="javascript:void(0);" @click="onImportBtnCLick">导入</a>
                     </div>
+                    <div style="width: 470px; display: block; margin: auto" v-else>您当前尚未创建文档</div>
                 </template>
             </Result>
         </div>
@@ -44,6 +45,8 @@
     import { useElementBounding } from '@vueuse/core'
     import { debounce } from 'lodash-es'
     import emitter, { IS_SHOW_DOCUMENT_TITLE } from '@/common/emitter'
+    import { storeToRefs } from 'pinia'
+    import { useProjectStore } from '@/stores/project'
 
     function expand(pid, isExpand) {
         document.querySelectorAll('[data-pid="' + pid + '"]').forEach(function (el) {
@@ -67,6 +70,8 @@
         setup() {
             const title = ref(null)
             const { top } = useElementBounding(title)
+            const projectStore = useProjectStore()
+            const { isGuest } = storeToRefs(projectStore)
 
             watch(
                 top,
@@ -83,6 +88,7 @@
             const setDocumentTitle = inject('setDocumentTitle')
 
             return {
+                isGuest,
                 title,
                 initHighlight,
                 documentImportModal,

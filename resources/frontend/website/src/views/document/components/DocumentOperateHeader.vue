@@ -5,7 +5,7 @@
             <p v-else><i class="iconfont" :class="isSaving ? 'iconcloud-upload' : 'iconcloud'"></i> {{ isSaving ? '保存中...' : '已保存在云端' }}</p>
         </div>
 
-        <div class="ac-header-operate__btns">
+        <div class="ac-header-operate__btns" v-if="!isGuest">
             <el-button type="primary" @click="onSaveOrEditBtnClick"> {{ isEdit ? '预览' : '编辑' }}</el-button>
             <i class="iconfont iconshare2" @click="onShareBtnClick"></i>
             <i class="iconfont iconIconPopoverUpload" @click="onExportBtnClick"></i>
@@ -19,6 +19,8 @@
     import { useRouter } from 'vue-router'
     import { DOCUMENT_EDIT_NAME } from '@/router/constant'
     import { API_SINGLE_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
+    import { storeToRefs } from 'pinia'
+    import { useProjectStore } from '@/stores/project'
 
     defineProps({
         title: {
@@ -31,6 +33,8 @@
     const projectExportModal: any = inject('projectExportModal')
 
     const { currentRoute, push } = useRouter()
+    const projectStore = useProjectStore()
+    const { isGuest } = storeToRefs(projectStore)
 
     const isSaving = ref(false)
 
