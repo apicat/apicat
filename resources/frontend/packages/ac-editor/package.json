@@ -56,5 +56,18 @@
     "sortablejs": "^1.14.0",
     "tippy.js": "^6.3.7",
     "vue": "3.2.31"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NatosoftCN/ApiCat_Open.git"
+  },
+  "keywords": [
+    "markdown",
+    "api",
+    "mock"
+  ],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NatosoftCN/ApiCat_Open/issues"
   }
 }
