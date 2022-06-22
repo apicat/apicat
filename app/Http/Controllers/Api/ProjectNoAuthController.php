@@ -136,42 +136,45 @@ class ProjectNoAuthController extends Controller
      * @param Request $request
      * @return Project
      * @throws SecretKeyExpiredException
-     * @throws ValidationException|SecretKeyExpiredException
+     * @throws ValidationException
      */
     protected function getProject($request)
     {
-        $project = ProjectRepository::get($request->input('project_id'));
+        if (!$project = ProjectRepository::get($request->input('project_id'))) {
+            throw ValidationException::withMessages([
+                'project_id' => '您访问的项目不存在',
+            ]);
+        }
+
+        if (Auth::guard('api')->check() and ProjectMemberRepository::inThisProject($project->id, Auth::guard('api')->id())) {
+            // 登录状态，且属于此项目
+            return $project;
+        }
 
         if ($project->visibility == 0) {
             // 私有项目
-            if ($request->input('token')) {
-                $storageKey = hash('sha256', $request->input('token'));
-                if (!$cacheData = Cache::get($storageKey)) {
-                    throw new SecretKeyExpiredException;
-                }
-
-                if ($project->id != $cacheData['project_id']) {
-                    // 秘钥对应的项目id应该和请求的项目id一致
-                    Cache::forget($storageKey);
-
-                    throw ValidationException::withMessages([
-                        'project_id' => '请求失败，您传递的信息有误。',
-                    ]);
-                }
-
-                // 更新缓存时间
-                Cache::put($storageKey, $cacheData, 7200);
-            } elseif (Auth::guard('api')->check()) {
-                if (!ProjectMemberRepository::inThisProject($project->id, Auth::guard('api')->id())) {
-                    throw ValidationException::withMessages([
-                        'project_id' => '请求失败，您传递的信息有误。'
-                    ]);
-                }
-            } else {
+            if (!$request->input('token')) {
                 throw ValidationException::withMessages([
                     'project_id' => '您访问的项目不存在',
                 ]);
             }
+
+            $storageKey = hash('sha256', $request->input('token'));
+            if (!$cacheData = Cache::get($storageKey)) {
+                throw new SecretKeyExpiredException;
+            }
+
+            if (!isset($cacheData['project_id']) or $project->id != $cacheData['project_id']) {
+                // 秘钥对应的项目id应该和请求的项目id一致
+                Cache::forget($storageKey);
+
+                throw ValidationException::withMessages([
+                    'project_id' => '请求失败，您传递的信息有误。',
+                ]);
+            }
+
+            // 更新缓存时间
+            Cache::put($storageKey, $cacheData, 7200);
         }
 
         return $project;
