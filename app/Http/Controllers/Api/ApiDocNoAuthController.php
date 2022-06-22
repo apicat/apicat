@@ -16,43 +16,26 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
-class DocPreviewController extends Controller
+class ApiDocNoAuthController extends Controller
 {
     /**
-     * 文档信息
+     * 文档分享状态
      * @param Request $request
      * @return array
      * @throws NotFoundException
      */
-    public function docInfo(Request $request)
+    public function hasShared(Request $request)
     {
         $request->validate([
             'doc_id' => 'required|integer|min:1'
         ]);
 
         $docShare = DocShareRepository::getByDocId($request->input('doc_id'));
-        if (!$docShare) {
-            throw new NotFoundException;
-        }
-
-        if (!ProjectRepository::get($docShare->project_id)) {
-            throw new NotFoundException;
-        }
-
-        if (Auth::guard('api')->check()) {
-            // 用户处于登录状态
-            $inThisProject = ProjectMemberRepository::inThisProject($docShare->project_id, Auth::guard('api')->id());
-        } else {
-            $inThisProject = false;
-        }
 
         return [
             'status' => 0,
             'msg' => '',
-            'data' => [
-                'id' => $docShare->doc_id,
-                'in_this' => $inThisProject
-            ]
+            'data' => (bool)$docShare
         ];
     }
 

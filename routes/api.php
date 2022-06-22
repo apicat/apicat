@@ -5,14 +5,13 @@ use App\Http\Controllers\Api\ApiDocController;
 use App\Http\Controllers\Api\ApiDocTreeController;
 use App\Http\Controllers\Api\ApiUrlController;
 use App\Http\Controllers\Api\DirectoryController;
-use App\Http\Controllers\Api\DocPreviewController;
+use App\Http\Controllers\Api\ApiDocNoAuthController;
 use App\Http\Controllers\Api\DocTrashController;
 use App\Http\Controllers\Api\EmailController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ProjectGroupController;
 use App\Http\Controllers\Api\ProjectMemberController;
 use App\Http\Controllers\Api\ProjectParameterController;
-use App\Http\Controllers\Api\ProjectPreviewController;
 use App\Http\Controllers\Api\ProjectsController;
 use App\Http\Controllers\Api\ProjectNoAuthController;
 use App\Http\Controllers\Api\TeamController;
@@ -143,21 +142,17 @@ Route::prefix('project')->group(function () {
 // 项目和单篇文档预览
 Route::prefix('preview')->group(function () {
     // 项目信息
-    Route::get('project', [ProjectPreviewController::class, 'projectInfo']);
+    // Route::get('project', [ProjectPreviewController::class, 'projectInfo']);
     // 获取api文档树
-    Route::get('api_nodes', [ProjectPreviewController::class, 'apiNodes']);
+    // Route::get('api_nodes', [ProjectPreviewController::class, 'apiNodes']);
     // api文档详情
-    Route::get('api_doc', [ProjectPreviewController::class, 'apiDoc']);
+    // Route::get('api_doc', [ProjectPreviewController::class, 'apiDoc']);
     // 文档搜索
-    Route::get('search', [ProjectPreviewController::class, 'search']);
+    // Route::get('search', [ProjectPreviewController::class, 'search']);
     // 私有项目秘钥校验
-    Route::post('check', [ProjectPreviewController::class, 'checkSecretKey']);
-    // 文档信息
-    Route::get('doc_info', [DocPreviewController::class, 'docInfo']);
+    // Route::post('check', [ProjectPreviewController::class, 'checkSecretKey']);
     // 文档详情
-    Route::get('single_doc', [DocPreviewController::class, 'doc']);
-    // 文档秘钥校验
-    Route::post('single_check', [DocPreviewController::class, 'checkSecretKey']);
+    // Route::get('single_doc', [DocPreviewController::class, 'doc']);
 });
 
 // 回收站
@@ -220,6 +215,10 @@ Route::prefix('api_doc')->group(function () {
     Route::post('share', [ApiDocController::class, 'share']);
     // 重置分享文档的访问密码
     Route::post('share_secretkey', [ApiDocController::class, 'shareSecretKey']);
+    // 文档分享状态
+    Route::get('has_shared', [ApiDocNoAuthController::class, 'hasShared']);
+    // 文档秘钥校验
+    Route::post('secretkey_check', [ApiDocNoAuthController::class, 'checkSecretKey']);
     // 文档导入
     Route::post('import', [ApiDocController::class, 'import']);
     // 文档导入结果查询
