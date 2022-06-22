@@ -25,7 +25,7 @@
 <script>
     import { ElForm, ElFormItem, ElInput, ElSelect, ElOption } from 'element-plus'
     import setNode from './mixins/setNode'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
     import HttpCodeMap from '../../common/HttpCodeMap'
 
     export default {

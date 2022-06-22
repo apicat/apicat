@@ -1,7 +1,7 @@
 import { h, render } from 'vue'
 import tippy from 'tippy.js'
 import Component from './LinkEditor.vue'
-import { $on } from '@ac/shared'
+import { $on } from '@natosoft/shared'
 
 export default class LinkToolbar {
     constructor(editor) {

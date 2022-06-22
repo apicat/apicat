@@ -53,7 +53,7 @@
     import { ElInput, ElIcon } from 'element-plus'
     import { Delete } from '@element-plus/icons-vue'
     import { insertNodeAt, removeNode, generateArray } from './utils'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
 
     import { getMockRules, PARAM_TYPES } from '../common/constants'
 

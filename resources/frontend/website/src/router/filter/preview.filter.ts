@@ -2,7 +2,7 @@ import type { Router } from 'vue-router'
 import { usePreviewStore } from '@/stores/preview'
 import { useUserStore } from '@/stores/user'
 import { showLoading, hideLoading } from '@/hooks/useLoading'
-import { Storage } from '@ac/shared'
+import { Storage } from '@natosoft/shared'
 import { PREVIEW_DOCUMENT, PREVIEW_DOCUMENT_SECRET, PREVIEW_PROJECT, PREVIEW_PROJECT_SECRET, NOT_FOUND } from '../constant'
 import { storeToRefs } from 'pinia'
 /**

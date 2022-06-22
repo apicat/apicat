@@ -2,7 +2,7 @@ import tippy from 'tippy.js'
 import { h, render } from 'vue'
 import ParamList from './ParamList.vue'
 import noop from 'lodash/noop'
-import { $on } from '@ac/shared'
+import { $on } from '@natosoft/shared'
 
 export default class CommonParamsPopper {
     constructor(editor) {

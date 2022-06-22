@@ -1,6 +1,6 @@
 import { createApp } from 'vue'
 import tippy from 'tippy.js'
-import { $once } from '@ac/shared'
+import { $once } from '@natosoft/shared'
 
 export default class NodeEditViewManager {
     constructor(extensions, editor) {

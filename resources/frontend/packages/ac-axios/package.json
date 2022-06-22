@@ -1,9 +1,9 @@
 {
   "private": true,
-  "name": "@ac/axios",
+  "name": "@natosoft/axios",
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
-    "@ac/shared": "workspace:*"
+    "@natosoft/shared": "1.0.0"
   }
 }

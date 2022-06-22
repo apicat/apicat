@@ -1,5 +1,5 @@
 import tippy from 'tippy.js'
-import { $on } from '@ac/shared'
+import { $on } from '@natosoft/shared'
 import { h, render } from 'vue'
 
 export default class FloatMenuPopper {

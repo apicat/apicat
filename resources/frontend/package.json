@@ -6,16 +6,16 @@
     "node": ">= 16"
   },
   "scripts": {
-    "build:editor": "pnpm run -r --filter @ac/editor build",
-    "build:doc-css": "pnpm run -r --filter @ac/doc-content-css build",
-    "build:website": "pnpm run -r --filter @ac/website deploy",
+    "build:editor": "pnpm run -r --filter @natosoft/editor build",
+    "build:doc-css": "pnpm run -r --filter @natosoft/doc-content-css build",
+    "build:website": "pnpm run -r --filter @natosoft/website deploy",
     "build": "pnpm run -r build",
-    "dev:editor": "pnpm run -r --filter @ac/editor dev",
-    "dev:website": "pnpm run -r --filter @ac/website dev",
+    "dev:editor": "pnpm run -r --filter @natosoft/editor dev",
+    "dev:website": "pnpm run -r --filter @natosoft/website dev",
     "dev": "pnpm dev:website",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "clean:packages": "rm -rf ./packages/*/dist",
-    "reset": "pnpm clean:packages && rm -rf ./node_modules && rm -rf ./packages/*/node_modules && pnpm install",
+    "reset": "pnpm clean:packages && rm -rf ./node_modules && rm -rf ./website/node_modules && rm -rf ./packages/*/node_modules && pnpm install",
     "release": "node scripts/release.js"
   },
   "devDependencies": {

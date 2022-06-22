@@ -31,7 +31,7 @@
     import { getDataTransferFiles } from '../../utils'
     import { insertFiles } from '../../commands'
     import getMenuItems from '../../menus/block'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
     import { markRaw } from 'vue'
 
     export default {

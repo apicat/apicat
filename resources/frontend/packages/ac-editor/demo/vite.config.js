@@ -6,6 +6,6 @@ import { resolve } from 'path'
 export default defineConfig({
     plugins: [vue()],
     resolve: {
-        alias: [{ find: '@ac/editor', replacement: resolve('../src/index.js') }],
+        alias: [{ find: '@natosoft/editor', replacement: resolve('../src/index.js') }],
     },
 })

@@ -46,7 +46,7 @@
     import { reactive, ref } from 'vue'
     import { useApi } from '@/hooks/useApi'
     import { useUserStore } from '@/stores/user'
-    import { isEmail } from '@ac/shared'
+    import { isEmail } from '@natosoft/shared'
 
     const authForm = ref()
 

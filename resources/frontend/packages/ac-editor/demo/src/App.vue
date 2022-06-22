@@ -1,6 +1,6 @@
 <script setup>
     import { onMounted, markRaw, ref } from 'vue'
-    import AcEditor from '@ac/editor'
+    import AcEditor from '@natosoft/editor'
     import { onlyTable as doc } from './doc'
 
     const document = markRaw(doc)

@@ -5,7 +5,7 @@ import Component from './SelectionMenus.vue'
 import { isNodeSelection } from 'prosemirror-utils'
 import { isNodeActive, isTextSelection } from '../../utils'
 import posToDOMRect from '../../utils/posToDOMRect'
-import { $once } from '@ac/shared'
+import { $once } from '@natosoft/shared'
 
 export const FloatingToolbarPluginKey = new PluginKey('FloatingToolbarPluginKey')
 

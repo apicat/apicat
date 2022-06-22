@@ -16,7 +16,7 @@
 
 <script>
     import { NEW_MENUS } from './menus'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
 
     export default {
         emits: ['on-menu-item-click'],

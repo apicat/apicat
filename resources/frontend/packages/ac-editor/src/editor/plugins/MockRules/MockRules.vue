@@ -61,7 +61,7 @@
     import MockValidator from './valid'
     import { debounce } from 'lodash-es'
     import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
     import { markRaw } from 'vue'
 
     const MOCK_RULES = getMockRules()

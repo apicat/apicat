@@ -27,7 +27,7 @@
     import { ElCol, ElForm, ElFormItem, ElInput, ElRow, ElIcon } from 'element-plus'
     import { Delete } from '@element-plus/icons-vue'
     import setNode from './mixins/setNode'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
 
     const protocolReg = /(\w+):\/\/([^/:]+)(:\d*)?/
 

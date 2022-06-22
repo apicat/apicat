@@ -1,7 +1,7 @@
 import { getProjectInfo, getSingleApiDocumentDetail } from '@/api/preview'
 import { defineStore } from 'pinia'
 import { router } from '@/router'
-import { Storage } from '@ac/shared'
+import { Storage } from '@natosoft/shared'
 import { PREVIEW_PROJECT, PREVIEW_PROJECT_SECRET, PREVIEW_DOCUMENT, PREVIEW_DOCUMENT_SECRET } from '@/router/constant'
 
 interface ProjectState {

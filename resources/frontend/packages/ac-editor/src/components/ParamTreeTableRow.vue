@@ -64,7 +64,7 @@
     import { ElCheckbox, ElIcon } from 'element-plus'
     import { Plus, Tickets, Delete } from '@element-plus/icons-vue'
     import { PARAM_TYPES } from '../common/constants'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
 
     export default {
         name: 'ParamTreeTableRow',

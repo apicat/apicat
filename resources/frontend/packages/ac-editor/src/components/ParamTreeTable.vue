@@ -50,7 +50,7 @@
     import { PARAM_TYPES } from '../common/constants'
     import TreeTableRow from './ParamTreeTableRow.vue'
     import TreeTableStore from './TreeTableStore'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
 
     export default {
         name: 'ParamTreeTable',

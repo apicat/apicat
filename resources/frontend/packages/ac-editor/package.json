@@ -1,5 +1,5 @@
 {
-  "name": "@ac/editor",
+  "name": "@natosoft/editor",
   "version": "1.0.0",
   "files": [
     "./dist"
@@ -33,7 +33,7 @@
     "smooth-scroll-into-view-if-needed": "^1.1.33"
   },
   "devDependencies": {
-    "@ac/shared": "workspace:*",
+    "@natosoft/shared": "workspace:*",
     "@element-plus/icons-vue": "^1.1.4",
     "@types/lodash": "^4.14.181",
     "@types/lodash-es": "^4.17.6",
@@ -48,7 +48,7 @@
     "vue": "3.2.31"
   },
   "peerDependencies": {
-    "@ac/shared": "workspace:*",
+    "@natosoft/shared": "1.0.0",
     "@element-plus/icons-vue": "^1.1.4",
     "element-plus": "2.1.7",
     "lodash-es": "^4.17.21",

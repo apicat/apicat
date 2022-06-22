@@ -48,7 +48,7 @@
 </template>
 
 <script>
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
     import { DOCUMENT_TYPES, DOCUMENT_TYPE } from '@/common/constant'
 
     import { PROJECT_DEFAULT_ICON } from '@/common/constant'

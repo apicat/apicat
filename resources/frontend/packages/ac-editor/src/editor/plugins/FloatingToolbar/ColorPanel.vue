@@ -26,7 +26,7 @@
 
 <script>
     import { FONT_COLOR, HIGHLIGHT_COLOR } from '../../../common/constants'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
 
     export default {
         name: 'ColorPanel',

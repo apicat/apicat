@@ -3,7 +3,7 @@ import type { Router } from 'vue-router'
 import { useProjectStore } from '@/stores/project'
 import { DOCUMENT_DETAIL_NAME, NOT_FOUND, PREVIEW_PROJECT_SECRET } from '../constant'
 import { useUserStore } from '@/stores/user'
-import { Storage } from '@ac/shared'
+import { Storage } from '@natosoft/shared'
 /**
  * 文档详情(预览)权限拦截
  */

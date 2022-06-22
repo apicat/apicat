@@ -1,6 +1,6 @@
 import { h, render } from 'vue'
 import tippy from 'tippy.js'
-import { $on } from '@ac/shared'
+import { $on } from '@natosoft/shared'
 import { deleteSelection } from 'prosemirror-commands'
 import NodeMenu from '../menus/NodeMenu.vue'
 

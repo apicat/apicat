@@ -1,5 +1,5 @@
 import { userEmailLogin, userRegister, getUserInfo, logout, updateUserProfile } from '@/api/user'
-import { getFirstChar, Storage } from '@ac/shared'
+import { getFirstChar, Storage } from '@natosoft/shared'
 import { TEAM_ROLE } from '@/common/constant'
 import { defineStore } from 'pinia'
 import { UserInfo } from '~/store'

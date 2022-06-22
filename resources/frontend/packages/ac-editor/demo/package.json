@@ -7,7 +7,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ac/doc-content-css": "workspace:^1.0.0",
+    "@natosoft/doc-content-css": "workspace:*",
     "delay": "^5.0.0",
     "element-plus": "^2.1.2",
     "vue": "^3.2.25"

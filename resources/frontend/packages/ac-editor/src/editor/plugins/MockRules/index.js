@@ -1,6 +1,6 @@
 import { h, render } from 'vue'
 import Component from './MockRules.vue'
-import { $on } from '@ac/shared'
+import { $on } from '@natosoft/shared'
 
 export default class MockRules {
     constructor(editor) {

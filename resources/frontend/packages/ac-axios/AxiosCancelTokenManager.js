@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { isFunction } from '@ac/shared'
+import { isFunction } from '@natosoft/shared'
 
 export default class AxiosPendingManager {
     constructor() {

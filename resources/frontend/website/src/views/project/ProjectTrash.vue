@@ -26,7 +26,7 @@
     import { ElMessage as $Message } from 'element-plus'
     import NProgress from 'nprogress'
     import { getProjectTrashList, restoreApiDocument } from '@/api/project'
-    import { timestampFormat } from '@ac/shared'
+    import { timestampFormat } from '@natosoft/shared'
     import { HTTP_STATUS } from '@/common/constant'
 
     import { useProjectStore } from '@/stores/project'

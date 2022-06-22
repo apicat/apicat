@@ -1,7 +1,7 @@
 import tippy from 'tippy.js'
 import MENU_TYPES from './menus'
 import { noop } from 'lodash-es'
-import { $once } from '@ac/shared'
+import { $once } from '@natosoft/shared'
 
 export { NEW_MENUS } from './menus'
 

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { provide, ref } from 'vue'
-import { addClass, removeClass } from '@ac/shared'
+import { addClass, removeClass } from '@natosoft/shared'
 import { useNamespace } from '@/hooks/useNamespace'
 import type { InjectionKey } from 'vue'
 import type Node from './node'

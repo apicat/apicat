@@ -13,7 +13,7 @@
 <script>
     import tippy from 'tippy.js'
     import mediumZoom from 'medium-zoom'
-    import { toggleClass, getAttr, hasClass, showOrHide } from '@ac/shared'
+    import { toggleClass, getAttr, hasClass, showOrHide } from '@natosoft/shared'
     import { useHighlight } from '@/hooks/useHighlight'
 
     function expand(pid, isExpand) {

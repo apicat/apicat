@@ -27,7 +27,7 @@
 
     export default defineComponent({
         components: {
-            AcEditor: defineAsyncComponent(() => import('@ac/editor')),
+            AcEditor: defineAsyncComponent(() => import('@natosoft/editor')),
         },
 
         setup() {

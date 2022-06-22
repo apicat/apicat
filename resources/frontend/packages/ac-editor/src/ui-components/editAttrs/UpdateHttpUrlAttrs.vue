@@ -53,7 +53,7 @@
     import { Delete } from '@element-plus/icons-vue'
     import { HTTP_METHODS, REQUEST_BODY_DATA_TYPES } from '../../common/constants'
     import setNode from './mixins/setNode'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
 
     export default {
         name: 'UpdateHttpUrlAttrs',

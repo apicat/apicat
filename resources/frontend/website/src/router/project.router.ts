@@ -1,5 +1,5 @@
 import { RouteRecordRaw } from 'vue-router'
-import { getRouteNormalInfo } from '@ac/shared'
+import { getRouteNormalInfo } from '@natosoft/shared'
 import { PROJECT_ROLES_MAP } from '@/common/constant'
 
 const ProjectNav = () => import('@/views/project/ProjectNav.vue')

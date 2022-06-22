@@ -10,7 +10,7 @@
 <script>
     import { ElIcon } from 'element-plus'
     import { Delete } from '@element-plus/icons-vue'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
 
     export default {
         name: 'ParamList',

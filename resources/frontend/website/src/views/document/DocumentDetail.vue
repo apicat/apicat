@@ -37,7 +37,7 @@
     import mediumZoom from 'medium-zoom'
     import tippy from 'tippy.js'
     import { getDocumentDetail, API_DOCUMENT_IMPORT_ACTION_MAPPING } from '@/api/document'
-    import { toggleClass, getAttr, hasClass, showOrHide } from '@ac/shared'
+    import { toggleClass, getAttr, hasClass, showOrHide } from '@natosoft/shared'
     import { DOCUMENT_TYPES } from '@/common/constant'
     import { useHighlight } from '@/hooks/useHighlight'
     import { inject, ref, watch } from 'vue'

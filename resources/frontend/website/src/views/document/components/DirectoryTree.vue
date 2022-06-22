@@ -66,7 +66,7 @@
     import { storeToRefs } from 'pinia'
     import createDocIcon from '@/assets/image/doc-common@2x.png'
     import { memoize, debounce } from 'lodash-es'
-    import { traverseTree } from '@ac/shared'
+    import { traverseTree } from '@natosoft/shared'
     import { DOCUMENT_TYPES } from '@/common/constant'
     import { renameDir, deleteDir, createDir, sortTree } from '@/api/dir'
     import { createDoc, createHttpDoc, renameDoc, deleteDoc, copyDoc, API_DOCUMENT_IMPORT_ACTION_MAPPING } from '@/api/document'
