@@ -2,5 +2,11 @@
   "name": "@ac/shared",
   "private": true,
   "version": "1.0.0",
-  "main": "index.ts"
+  "main": "dist/index.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc"
+  }
 }
