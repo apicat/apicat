@@ -132,6 +132,22 @@ class ProjectNoAuthController extends Controller
         return ['status' => 0, 'msg' => '', 'data' => $token];
     }
 
+    public function docTree(Request $request)
+    {
+        $request->validate([
+            'project_id' => 'required|integer|min:1',
+            'token' => 'nullable|string|size:60'
+        ]);
+
+        $project = $this->getProject($request);
+
+        return [
+            'status' => 0,
+            'msg' => '',
+            'data' => ApiDocRepository::getTree($project->id)
+        ];
+    }
+
     public function docSearch(Request $request)
     {
         $request->validate([

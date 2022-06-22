@@ -17,21 +17,6 @@ class ApiDocTreeController extends Controller
     }
 
     /**
-     * 所有分类和文档列表
-     * @param Request $request
-     * @return array
-     * @throws InvalidArgumentException
-     */
-    public function index(Request $request)
-    {
-        return [
-            'status' => 0,
-            'msg' => '',
-            'data' => ApiDocRepository::getTree($request->input('project_id'))
-        ];
-    }
-
-    /**
      * 节点排序
      * @param Request $request
      * @return array

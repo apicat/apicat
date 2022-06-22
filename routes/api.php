@@ -141,20 +141,6 @@ Route::prefix('project')->group(function () {
     Route::post('remove_param', [ProjectParameterController::class, 'remove']);
 });
 
-// 项目和单篇文档预览
-Route::prefix('preview')->group(function () {
-    // 项目信息
-    // Route::get('project', [ProjectPreviewController::class, 'projectInfo']);
-    // 获取api文档树
-    // Route::get('api_nodes', [ProjectPreviewController::class, 'apiNodes']);
-    // api文档详情
-    // Route::get('api_doc', [ProjectPreviewController::class, 'apiDoc']);
-    // 文档搜索
-    // Route::get('search', [ProjectPreviewController::class, 'search']);
-    // 文档详情
-    // Route::get('single_doc', [DocPreviewController::class, 'doc']);
-});
-
 // 回收站
 Route::prefix('doc')->group(function () {
     // 文档列表
@@ -166,7 +152,7 @@ Route::prefix('doc')->group(function () {
 // API文档树
 Route::prefix('api_tree')->group(function () {
     // 所有分类和文档列表
-    Route::get('/', [ApiDocTreeController::class, 'index']);
+    Route::get('/', [ProjectNoAuthController::class, 'docTree']);
     // 节点排序
     Route::post('sort', [ApiDocTreeController::class, 'sort']);
 });
