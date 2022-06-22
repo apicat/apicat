@@ -2,7 +2,7 @@ import Ajax from './Ajax'
 
 export const getDocumentInfo = (doc_id: any) => Ajax.get('/preview/doc_info', { params: { doc_id } })
 
-export const checkDocumentSecretKey = (data: any) => Ajax.post('/preview/single_check', data)
+export const checkDocumentSecretKey = (data: any) => Ajax.post('/api_doc/secretkey_check', data)
 
 export const getSingleApiDocumentDetail = (token: any, doc_id: any) => Ajax.get('/preview/single_doc', { params: { doc_id, token } })
 
