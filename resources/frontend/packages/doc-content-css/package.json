@@ -1,6 +1,5 @@
 {
   "name": "@ac/doc-content-css",
-  "private": true,
   "version": "1.0.0",
   "main": "dist/style.css",
   "files": [
