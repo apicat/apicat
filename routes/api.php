@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\ProjectMemberController;
 use App\Http\Controllers\Api\ProjectParameterController;
 use App\Http\Controllers\Api\ProjectPreviewController;
 use App\Http\Controllers\Api\ProjectsController;
+use App\Http\Controllers\Api\ProjectNoAuthController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\LogoutController;
@@ -93,6 +94,8 @@ Route::prefix('projects')->group(function () {
 Route::prefix('project')->group(function () {
     // 项目详情
     Route::get('/', [ProjectController::class, 'index']);
+    // 项目状态
+    Route::get('/status', [ProjectNoAuthController::class, 'status']);
     // 创建项目
     Route::post('create', [ProjectsController::class, 'create']);
     // 上传项目图标
