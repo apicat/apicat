@@ -92,7 +92,7 @@ Route::prefix('projects')->group(function () {
 // 项目
 Route::prefix('project')->group(function () {
     // 项目详情
-    Route::get('/', [ProjectController::class, 'index']);
+    Route::get('/', [ProjectNoAuthController::class, 'detail']);
     // 项目状态
     Route::get('/status', [ProjectNoAuthController::class, 'status']);
     // 创建项目
@@ -103,6 +103,8 @@ Route::prefix('project')->group(function () {
     Route::post('share', [ProjectController::class, 'share']);
     // 重置分享项目访问秘钥
     Route::post('reset_share_secretkey', [ProjectController::class, 'resetShareSecretKey']);
+    // 私有项目秘钥校验
+    Route::post('secretkey_check', [ProjectNoAuthController::class, 'checkSecretKey']);
     // 项目设置
     Route::post('setting', [ProjectController::class, 'storeSetting']);
     // 项目分组
@@ -149,8 +151,6 @@ Route::prefix('preview')->group(function () {
     // Route::get('api_doc', [ProjectPreviewController::class, 'apiDoc']);
     // 文档搜索
     // Route::get('search', [ProjectPreviewController::class, 'search']);
-    // 私有项目秘钥校验
-    // Route::post('check', [ProjectPreviewController::class, 'checkSecretKey']);
     // 文档详情
     // Route::get('single_doc', [DocPreviewController::class, 'doc']);
 });
