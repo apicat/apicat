@@ -12,6 +12,7 @@ use App\Exceptions\SecretKeyExpiredException;
 use App\Repositories\Project\ProjectRepository;
 use App\Repositories\Project\ProjectMemberRepository;
 use App\Repositories\Project\ProjectShareRepository;
+use App\Repositories\Project\ApiDocRepository;
 
 /**
  * 非必需登录访问的API
@@ -129,6 +130,27 @@ class ProjectNoAuthController extends Controller
         }
 
         return ['status' => 0, 'msg' => '', 'data' => $token];
+    }
+
+    public function docSearch(Request $request)
+    {
+        $request->validate([
+            'project_id' => 'required|integer|min:1',
+            'token' => 'nullable|string|size:60',
+            'keywords' => 'required|string|max:255'
+        ]);
+
+        $project = $this->getProject($request);
+
+        if (mb_strlen($request->input('keywords')) < 2) {
+            return ['status' => 0, 'msg' => '', 'data' => []];
+        }
+
+        return [
+            'status' => 0,
+            'msg' => '',
+            'data' => ApiDocRepository::searchNode($project->id, $request->input('keywords'))
+        ];
     }
 
     /**

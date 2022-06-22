@@ -208,7 +208,7 @@ Route::prefix('api_doc')->group(function () {
     // 删除文档
     Route::post('remove', [ApiDocController::class, 'remove']);
     // 文档搜索
-    Route::get('search', [ApiDocController::class, 'search']);
+    Route::get('search', [ProjectNoAuthController::class, 'docSearch']);
     // 文档分享详情
     Route::post('share_detail', [ApiDocController::class, 'shareDetail']);
     // 分享文档
