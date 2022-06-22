@@ -19,7 +19,6 @@ const skippedPackages = []
 const versionIncrements = ['patch', 'minor', 'major', ...(preId ? ['prepatch', 'preminor', 'premajor', 'prerelease'] : [])]
 
 const inc = (i) => semver.inc(currentVersion, i, preId)
-// const bin = (name) => path.resolve(__dirname, '../node_modules/.bin/' + name)
 const run = (bin, args, opts = {}) => execa(bin, args, { stdio: 'inherit', ...opts })
 const dryRun = (bin, args, opts = {}) => console.log(chalk.blue(`[dryrun] ${bin} ${args.join(' ')}`), opts)
 const runIfNotDry = isDryRun ? dryRun : run
@@ -82,32 +81,17 @@ async function main() {
     step('\nUpdating lockfile...')
     await run(`pnpm`, ['install', '--prefer-offline'])
 
-    // const { stdout } = await run('git', ['diff'], { stdio: 'pipe' })
-    // if (stdout) {
-    //     step('\nCommitting changes...')
-    //     await runIfNotDry('git', ['add', '-A'])
-    //     await runIfNotDry('git', ['commit', '-m', `release: v${targetVersion}`])
-    // } else {
-    //     console.log('No changes to commit.')
-    // }
-
     // publish packages
     step('\nPublishing packages...')
     for (const pkg of packages) {
         await publishPackage(pkg, targetVersion, runIfNotDry)
     }
-
-    // // push to GitHub
-    // step('\nPushing to GitHub...')
-    // await runIfNotDry('git', ['tag', `v${targetVersion}`])
-    // await runIfNotDry('git', ['push', 'origin', `refs/tags/v${targetVersion}`])
-    // await runIfNotDry('git', ['push'])
 }
 
 function updateVersions(version) {
-    // 1. update root package.json
-    updatePackage(path.resolve(__dirname, '..'), version)
-    // 2. update all packages
+    // update website package.json
+    updatePackage(path.resolve(__dirname, '../website'), version)
+    // update all packages
     packages.forEach((p) => updatePackage(getPkgRoot(p), version))
 }
 
@@ -124,7 +108,7 @@ function updateDeps(pkg, depType, version) {
     const deps = pkg[depType]
     if (!deps) return
     Object.keys(deps).forEach((dep) => {
-        if (dep.startsWith('@ac') && packages.includes(dep.replace(/^@ac\//, ''))) {
+        if (dep.startsWith('@natosoft')) {
             console.log(chalk.yellow(`${pkg.name} -> ${depType} -> ${dep}@${version}`))
             deps[dep] = version
         }
@@ -158,8 +142,8 @@ async function publishPackage(pkgName, version, runIfNotDry) {
         await runIfNotDry(
             // note: use of yarn is intentional here as we rely on its publishing
             // behavior.
-            'yarn',
-            ['publish', '--new-version', version, ...(releaseTag ? ['--tag', releaseTag] : []), '--access', 'public'],
+            'pnpm',
+            ['publish', ...(releaseTag ? ['--tag', releaseTag] : []), '--access', 'public'],
             {
                 cwd: pkgRoot,
                 stdio: 'pipe',
@@ -176,6 +160,7 @@ async function publishPackage(pkgName, version, runIfNotDry) {
 }
 
 main().catch((err) => {
+    // 回滚
     updateVersions(currentVersion)
     console.error(err)
 })
