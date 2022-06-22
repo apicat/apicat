@@ -268,4 +268,20 @@ class UserRepository
     {
         return User::pluck('id')->toArray();
     }
+
+    /**
+     * 通过id获取用户名称
+     *
+     * @param int $id 用户id
+     * @param boolean $deleted 是否包含已删除用户
+     * @return string
+     */
+    public static function name($id, $deleted = false)
+    {
+        if ($deleted) {
+            return User::withTrashed()->where('id', $id)->value('name');
+        }
+
+        return User::where('id', $id)->value('name');
+    }
 }

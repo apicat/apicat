@@ -6,6 +6,7 @@ use App\Exceptions\NotFoundException;
 use App\Exceptions\SecretKeyExpiredException;
 use App\Http\Controllers\Controller;
 use App\Modules\EditorJsonToHtml\Parser;
+use App\Repositories\User\UserRepository;
 use App\Repositories\Project\ApiDocRepository;
 use App\Repositories\Project\DocShareRepository;
 use App\Repositories\Project\ProjectMemberRepository;
@@ -47,41 +48,25 @@ class ApiDocNoAuthController extends Controller
      * @throws SecretKeyExpiredException
      * @throws ValidationException
      */
-    public function doc(Request $request)
+    public function detail(Request $request)
     {
         $request->validate([
-            'token' => 'required|string|size:60',
-            'doc_id' => 'required|integer|min:1'
+            'project_id' => 'nullable|integer|min:1',
+            'doc_id' => 'required|integer|min:1',
+            'token' => 'nullable|string|size:60',
+            'format' => 'nullable|string|in:json,html',
+            'deleted' => 'nullable|boolean'
         ]);
 
-        $docShare = DocShareRepository::getByDocId($request->input('doc_id'));
-        if (!$docShare) {
-            throw new NotFoundException;
-        }
+        $format = $request->input('format') ? $request->input('format') : 'json';
+        $deleted = $request->input('deleted') ? $request->input('deleted') : false;
 
-        if (!ProjectRepository::get($docShare->project_id)) {
-            throw new NotFoundException;
-        }
+        $doc= $this->getDoc($request, $deleted);
 
-        $storageKey = hash('sha256', $request->input('token'));
-        if (!$cacheData = Cache::get($storageKey)) {
-            throw new SecretKeyExpiredException;
-        }
-
-        if ($docShare->doc_id != $cacheData['doc_id']) {
-            // 秘钥对应的文档id应该和请求的文档id一致
-            Cache::forget($storageKey);
-
-            throw ValidationException::withMessages([
-                'doc_id' => '请求失败，您传递的信息有误。',
-            ]);
-        }
-
-        // 更新缓存时间
-        Cache::put($storageKey, $cacheData, 7200);
-
-        if (!$doc = ApiDocRepository::getNode($docShare->doc_id)) {
-            throw new NotFoundException;
+        if ($format == 'json') {
+            $content = $doc->content;
+        } else {
+            $content = $doc->content ? Parser::parse($doc->content, $doc->project_id, $doc->id) : '';
         }
 
         return [
@@ -90,8 +75,9 @@ class ApiDocNoAuthController extends Controller
             'data' => [
                 'id' => $doc->id,
                 'title' => $doc->title,
-                'content' => $doc->content ? Parser::parse($doc->content, $doc->project_id, $doc->id) : '',
-                'updated_time' => $doc->updated_at->format('Y-m-d H:i')
+                'content' => $content,
+                'updated_time' => $doc->updated_at->format('Y-m-d H:i'),
+                'last_updated_by' => UserRepository::name($doc->updated_user_id, true)
             ]
         ];
     }
@@ -132,5 +118,92 @@ class ApiDocNoAuthController extends Controller
         }
 
         return ['status' => 0, 'msg' => '', 'data' => $token];
+    }
+
+    /**
+     * 获取文档
+     * 
+     * @param Request $request
+     * @param boolean $deleted — 是否已删除
+     * @return Project
+     * @throws SecretKeyExpiredException
+     * @throws ValidationException
+     */
+    protected function getDoc($request, $deleted)
+    {
+        if (!$doc = ApiDocRepository::getNode($request->input('doc_id'), $deleted)) {
+            throw ValidationException::withMessages([
+                'doc_id' => '您访问的文档不存在',
+            ]);
+        }
+
+        // project_id参数优先
+        $projectID = $request->input('project_id') ? $request->input('project_id') : $doc->project_id;
+        if (!$project = ProjectRepository::get($projectID)) {
+            throw ValidationException::withMessages([
+                'project_id' => '您访问的项目不存在',
+            ]);
+        }
+
+        if (Auth::guard('api')->check() and ProjectMemberRepository::inThisProject($project->id, Auth::guard('api')->id())) {
+            // 登录状态，且属于此项目
+            return $doc;
+        }
+
+        if ($project->visibility == 0) {
+            // 私有项目
+            if (!$request->input('token')) {
+                throw ValidationException::withMessages([
+                    'doc_id' => '您访问的文档不存在',
+                ]);
+            }
+
+            $storageKey = hash('sha256', $request->input('token'));
+            if (!$cacheData = Cache::get($storageKey)) {
+                throw new SecretKeyExpiredException;
+            }
+
+            if (isset($cacheData['project_id'])) {
+                // 整个项目分享
+                if ($project->id != $cacheData['project_id']) {
+                    // 秘钥对应的项目id应该和请求的项目id一致
+                    Cache::forget($storageKey);
+
+                    throw ValidationException::withMessages([
+                        'project_id' => '请求失败，您传递的信息有误。',
+                    ]);
+                }
+            } elseif (isset($cacheData['doc_id'])) {
+                // 单篇文档分享
+                if ($doc->id != $cacheData['doc_id']) {
+                    // 秘钥对应的文档id应该和请求的文档id一致
+                    Cache::forget($storageKey);
+
+                    throw ValidationException::withMessages([
+                        'doc_id' => '请求失败，您传递的信息有误。',
+                    ]);
+                }
+
+                $docShare = DocShareRepository::getByDocId($doc->id);
+                if (!$docShare) {
+                    Cache::forget($storageKey);
+
+                    throw ValidationException::withMessages([
+                        'doc_id' => '您访问的文档不存在',
+                    ]);
+                }
+            } else {
+                Cache::forget($storageKey);
+
+                throw ValidationException::withMessages([
+                    'doc_id' => '请求失败，您传递的信息有误。',
+                ]);
+            }
+
+            // 更新缓存时间
+            Cache::put($storageKey, $cacheData, 7200);
+        }
+
+        return $doc;
     }
 }

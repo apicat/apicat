@@ -193,14 +193,14 @@ Route::prefix('dir')->group(function () {
 
 // API文档
 Route::prefix('api_doc')->group(function () {
+    // 文档详情
+    Route::get('/', [ApiDocNoAuthController::class, 'detail']);
     // 创建文档
     Route::post('create', [ApiDocController::class, 'create']);
     // 创建HTTP API文档
     Route::post('http_template', [ApiDocController::class, 'httpTemplate']);
     // 编辑文档
     Route::post('update', [ApiDocController::class, 'update']);
-    // 文档详情
-    Route::get('/', [ApiDocController::class, 'detail']);
     // 文档重命名
     Route::post('rename', [ApiDocController::class, 'rename']);
     // 复制文档
