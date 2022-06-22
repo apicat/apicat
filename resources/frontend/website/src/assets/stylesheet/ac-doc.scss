@@ -77,6 +77,12 @@ $operate-height: 60px;
     display: flex;
     flex-direction: row;
 
+    @include when(preview) {
+        @include e(right) {
+            top: 0;
+        }
+    }
+
     @include e(left) {
         width: $doc-layout-left-width;
         padding: $doc-layout-padding;

@@ -1,9 +1,9 @@
 <template>
-    <main class="ac-doc-layout">
-        <DocumentOperateHeader :title="title" />
-
+    <main :class="layoutClass">
         <GuestProjectInfoHeader v-if="isGuest" />
         <ProjectInfoHeader v-else />
+
+        <DocumentOperateHeader :title="title" v-if="!isGuest" />
 
         <div class="ac-doc-layout__left">
             <DirectoryTree ref="directoryTree" />
@@ -24,7 +24,7 @@
     import DocumentOperateHeader from '../views/document/components/DocumentOperateHeader.vue'
     import DirectoryTree from '../views/document/components/DirectoryTree.vue'
     import DocumentImportModal from '../views/document/components/DocumentImportModal.vue'
-    import { ref, provide } from 'vue'
+    import { ref, provide, computed } from 'vue'
     import { storeToRefs } from 'pinia'
     import { useProjectStore } from '@/stores/project'
 
@@ -36,6 +36,7 @@
     const documentShareModal = ref()
     const directoryTree = ref()
     const title = ref('')
+    const layoutClass = computed(() => ['ac-doc-layout', { 'is-preview': isGuest }])
 
     provide('documentShareModal', documentShareModal)
     provide('projectExportModal', projectExportModal)

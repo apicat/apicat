@@ -22,12 +22,9 @@
 </template>
 <script setup lang="ts">
     import { Lock } from '@element-plus/icons-vue'
-    // import { ref, watch } from 'vue'
-    // import { useRouter } from 'vue-router'
     import { storeToRefs } from 'pinia'
     import { useProjectStore } from '@/stores/project'
 
-    // const { push, currentRoute } = useRouter()
     const projectStore = useProjectStore()
     const { projectInfo: project, isPrivate } = storeToRefs(projectStore)
 
