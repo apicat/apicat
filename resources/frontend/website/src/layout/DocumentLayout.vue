@@ -3,7 +3,7 @@
         <GuestProjectInfoHeader v-if="isGuest" />
         <ProjectInfoHeader v-else />
 
-        <DocumentOperateHeader :title="title" v-if="!isGuest" />
+        <DocumentOperateHeader :title="title" v-if="!isGuest && hasDocument" />
 
         <div class="ac-doc-layout__left">
             <DirectoryTree ref="directoryTree" />
@@ -25,9 +25,11 @@
     import DirectoryTree from '../views/document/components/DirectoryTree.vue'
     import DocumentImportModal from '../views/document/components/DocumentImportModal.vue'
     import { ref, provide, computed } from 'vue'
+    import { useRouter } from 'vue-router'
     import { storeToRefs } from 'pinia'
     import { useProjectStore } from '@/stores/project'
 
+    const { currentRoute } = useRouter()
     const projectStore = useProjectStore()
     const { isGuest } = storeToRefs(projectStore)
 
@@ -36,7 +38,8 @@
     const documentShareModal = ref()
     const directoryTree = ref()
     const title = ref('')
-    const layoutClass = computed(() => ['ac-doc-layout', { 'is-preview': isGuest }])
+    const layoutClass = computed(() => ['ac-doc-layout', { 'is-preview': isGuest.value }])
+    const hasDocument = computed(() => !isNaN(parseInt(currentRoute.value.params.node_id as string, 10)))
 
     provide('documentShareModal', documentShareModal)
     provide('projectExportModal', projectExportModal)
