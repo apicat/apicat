@@ -1,28 +1,38 @@
 <template>
-    <div class="ac-project-info">
-        <el-popover placement="bottom" popper-class="ac-popper-menu ac-popper-menu--large" width="250px">
-            <template #reference>
-                <div class="ac-project-info__img">
-                    <img :src="project.icon" :alt="project.name" />
-                    <router-link :to="{ name: 'projects' }">
-                        <el-icon class="ac-project-info__back"><ArrowLeftBold /></el-icon>
-                    </router-link>
-                </div>
-            </template>
+    <div class="ac-project-info ac-project-info--hover">
+        <template v-if="isManager || isDeveloper">
+            <el-popover placement="bottom" popper-class="ac-popper-menu ac-popper-menu--large" width="250px">
+                <template #reference>
+                    <div class="ac-project-info__img">
+                        <img :src="project.icon" :alt="project.name" />
+                        <router-link :to="{ name: 'projects' }">
+                            <el-icon class="ac-project-info__back"><ArrowLeftBold /></el-icon>
+                        </router-link>
+                    </div>
+                </template>
 
-            <ul>
-                <li
-                    v-for="menu in popperMenus"
-                    :key="menu.icon"
-                    class="ac-popper-menu__item"
-                    :class="{ 'border-t': menu.divided }"
-                    @click="menu.onClick ? menu.onClick(menu) : onPopperItemClick(menu)"
-                >
-                    <i class="icon iconfont mr-1" :class="menu.icon" />{{ menu.text }}
-                </li>
-            </ul>
-        </el-popover>
+                <ul>
+                    <li
+                        v-for="menu in popperMenus"
+                        :key="menu.icon"
+                        class="ac-popper-menu__item"
+                        :class="{ 'border-t': menu.divided }"
+                        @click="menu.onClick ? menu.onClick(menu) : onPopperItemClick(menu)"
+                    >
+                        <i class="icon iconfont mr-1" :class="menu.icon" />{{ menu.text }}
+                    </li>
+                </ul>
+            </el-popover>
+        </template>
 
+        <template v-else>
+            <div class="ac-project-info__img">
+                <img :src="project.icon" :alt="project.name" />
+                <router-link :to="{ name: 'projects' }">
+                    <el-icon class="ac-project-info__back"><ArrowLeftBold /></el-icon>
+                </router-link>
+            </div>
+        </template>
         <div class="ac-project-info__title" :title="project.name">{{ project.name }}</div>
         <el-tooltip effect="dark" content="私有项目" placement="bottom" v-if="isPrivate">
             <el-icon class="ac-project-info__icon"><Lock /></el-icon>
@@ -40,7 +50,7 @@
 
     const { push, currentRoute } = useRouter()
     const projectStore = useProjectStore()
-    const { projectInfo: project, isManager, isPrivate } = storeToRefs(projectStore)
+    const { projectInfo: project, isManager, isPrivate, isDeveloper } = storeToRefs(projectStore)
 
     const projectShareModal = ref()
     const projectExportModal: any = inject('projectExportModal')

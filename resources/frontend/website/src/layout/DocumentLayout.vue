@@ -3,7 +3,9 @@
         <GuestProjectInfoHeader v-if="isGuest" />
         <ProjectInfoHeader v-else />
 
-        <DocumentOperateHeader :title="title" v-if="!isGuest && hasDocument" />
+        <template v-if="hasDocument">
+            <DocumentOperateHeader :title="title" v-if="isManager || isDeveloper" />
+        </template>
 
         <div class="ac-doc-layout__left">
             <DirectoryTree ref="directoryTree" />
@@ -31,14 +33,14 @@
 
     const { currentRoute } = useRouter()
     const projectStore = useProjectStore()
-    const { isGuest } = storeToRefs(projectStore)
+    const { isGuest, isReader, isManager, isDeveloper } = storeToRefs(projectStore)
 
     const projectExportModal = ref()
     const documentImportModal = ref()
     const documentShareModal = ref()
     const directoryTree = ref()
     const title = ref('')
-    const layoutClass = computed(() => ['ac-doc-layout', { 'is-preview': isGuest.value }])
+    const layoutClass = computed(() => ['ac-doc-layout', { readonly: isGuest.value || isReader.value }])
     const hasDocument = computed(() => !isNaN(parseInt(currentRoute.value.params.node_id as string, 10)))
 
     provide('documentShareModal', documentShareModal)

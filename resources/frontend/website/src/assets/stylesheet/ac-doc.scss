@@ -32,6 +32,19 @@ $operate-height: 60px;
     width: $doc-layout-left-width;
     padding: 0 $doc-layout-padding;
 
+    @include m(hover) {
+        @include e(img) {
+            &:hover {
+                img {
+                    display: none;
+                }
+                @include e(back) {
+                    display: inline-flex;
+                }
+            }
+        }
+    }
+
     @include e(img) {
         height: 32px;
         width: 32px;
@@ -41,15 +54,6 @@ $operate-height: 60px;
         img {
             border-radius: 100%;
             overflow: hidden;
-        }
-
-        &:hover {
-            img {
-                display: none;
-            }
-            @include e(back) {
-                display: inline-flex;
-            }
         }
 
         @include e(back) {
@@ -77,9 +81,9 @@ $operate-height: 60px;
     display: flex;
     flex-direction: row;
 
-    @include when(preview) {
-        @include e(right) {
-            top: 0;
+    &.readonly {
+        .ac-document {
+            padding-top: 15px;
         }
     }
 
@@ -93,7 +97,7 @@ $operate-height: 60px;
         position: fixed;
         right: 0;
         left: $doc-layout-left-width;
-        top: $doc-header-height;
+        top: 0;
         bottom: 0;
         overflow: scroll;
         @apply bg-white;
@@ -107,18 +111,20 @@ $operate-height: 60px;
 // 文档编辑
 @include b(document) {
     position: relative;
-    min-height: calc(100vh - $doc-header-height);
+    min-height: 100vh;
     padding: 0 $document-padding;
     padding-bottom: $document-padding;
+    padding-top: $doc-header-height;
 
     @include e(title) {
         font-size: 32px;
         font-weight: 500;
         word-break: break-all;
         color: theme('colors.zinc.800');
-        border: 1px solid transparent;
+        // border: 1px solid transparent;
         outline: none;
         width: 100%;
+        line-height: 45px;
     }
 
     @include e(desc) {

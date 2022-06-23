@@ -29,7 +29,6 @@ export const useProjectStore = defineStore({
             const { data } = await getProjectDetail(project_id)
             // todo temp code
             this.projectInfo = { ...(data || {}), visible: PROJECT_VISIBLE_LIST.find((item) => item.key === data.visibility)?.value }
-            console.log('getProjectDetail', this.projectInfo)
             return this.projectInfo
         },
 
