@@ -78,6 +78,7 @@
     import AcTree from './AcTree'
     import SearchDocumentPopover from './SearchDocumentPopover.vue'
     import { useProjectStore } from '@/stores/project'
+    import { DOCUMENT_DETAIL_NAME } from '@/router/constant'
 
     export default defineComponent({
         components: {
@@ -115,7 +116,7 @@
             const oldDraggingNodeInfo: any = null
 
             // 是否为详情页
-            const isDetailPage = computed(() => currentRoute.value.name === 'document.api.detail')
+            const isDetailPage = computed(() => currentRoute.value.name === DOCUMENT_DETAIL_NAME)
 
             const handleTreeNodeClick = (node: any, source: any, e: any) => {
                 if (e.target.tagName === 'INPUT') {
@@ -138,7 +139,7 @@
                     return
                 }
                 activeNode(source.id)
-                $router.push({ name: 'document.api.detail', params: { ...params, node_id: source.id } })
+                $router.push({ name: DOCUMENT_DETAIL_NAME, params: { ...params, node_id: source.id } })
             }
 
             const onMoreIconClick = (e: any, node: any, source: any, type: any) => {
@@ -287,7 +288,7 @@
 
                     const dirDom = dir.value as any
                     dirDom?.scrollTo(0, 0)
-                    $router.replace({ name: 'document.api.detail', params })
+                    $router.replace({ name: DOCUMENT_DETAIL_NAME, params })
                 }
             }
 

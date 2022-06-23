@@ -24,6 +24,7 @@
     import { hideLoading } from '@/hooks/useLoading'
     import { useRoute, useRouter } from 'vue-router'
     import emitter, { DOCUMENT_SAVE_DONE, DOCUMENT_SAVE_ING, DOCUMENT_SAVE_ERROR } from '@/common/emitter'
+    import { DOCUMENT_DETAIL_NAME } from '@/router/constant'
 
     export default defineComponent({
         components: {
@@ -199,7 +200,7 @@
                     .then((res: any) => {
                         $Message.success(res.message || '保存成功')
                         this.updateTreeNodeTitle(res.data)
-                        this.$router.push({ name: 'document.api.detail', params: { project_id: this.project_id, node_id: this.node_id } })
+                        this.$router.push({ name: DOCUMENT_DETAIL_NAME, params: { project_id: this.project_id, node_id: this.node_id } })
                     })
                     .catch((e) => e)
                     .finally(() => {

@@ -17,7 +17,7 @@
     import { ref, computed, inject } from 'vue'
     import emitter, * as EVENT from '@/common/emitter'
     import { useRouter } from 'vue-router'
-    import { DOCUMENT_EDIT_NAME } from '@/router/constant'
+    import { DOCUMENT_EDIT_NAME, DOCUMENT_DETAIL_NAME } from '@/router/constant'
     import { API_SINGLE_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
     import { storeToRefs } from 'pinia'
     import { useProjectStore } from '@/stores/project'
@@ -65,10 +65,10 @@
         const { project_id, node_id } = getCommonParams()
 
         if (isEdit.value) {
-            push({ name: 'document.api.detail', params: { project_id, node_id } })
+            push({ name: DOCUMENT_DETAIL_NAME, params: { project_id, node_id } })
             return
         }
-        push({ name: 'document.api.edit', params: { project_id, node_id } })
+        push({ name: DOCUMENT_EDIT_NAME, params: { project_id, node_id } })
     }
 
     const onShareBtnClick = () => {
