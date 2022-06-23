@@ -215,7 +215,6 @@
             },
 
             transferDoc(doc) {
-                // doc.content = JSON.parse(doc.content || "{}")
                 return doc
             },
         },
