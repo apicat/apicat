@@ -85,8 +85,6 @@ Route::prefix('project_group')->group(function () {
 Route::prefix('projects')->group(function () {
     // 项目分组下的详细列表
     Route::get('/', [ProjectsController::class, 'index']);
-    // 权限下的项目列表，只返回项目基本信息
-    Route::get('/base', [ProjectsController::class, 'base']);
 });
 
 // 项目
