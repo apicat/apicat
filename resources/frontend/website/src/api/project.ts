@@ -1,4 +1,6 @@
 import Ajax from './Ajax'
+import { compile } from 'path-to-regexp'
+import { PROJECT_PREVIEW_PATH } from '@/router/constant'
 
 export const createProject = (project = {}) => Ajax.post('/project/create', project)
 
@@ -74,3 +76,6 @@ export const getProjectTrashList = (project_id: unknown) => Ajax.get('/doc/trash
 
 // 不在此项目中的成员
 export const getWithoutProjectMemberList = (project_id: unknown) => Ajax.get('/project/without_members', { params: { project_id } })
+
+// 生成预览链接地址
+export const generateProjectPreviewUrl = (project_id: string) => window['origin'] + compile(PROJECT_PREVIEW_PATH)({ project_id })

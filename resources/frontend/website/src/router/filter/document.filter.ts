@@ -12,6 +12,7 @@ const initDocumentFilter = (route: Router) => {
 
         // 不在文档模块内，忽略
         if (!to.matched.find((route) => route.name === DOCUMENT_ROUTE_NAME)) {
+            projectStore.$reset()
             return next()
         }
 

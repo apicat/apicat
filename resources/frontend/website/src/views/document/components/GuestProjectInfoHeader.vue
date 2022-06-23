@@ -1,7 +1,7 @@
 <template>
     <div class="ac-project-info">
         <div class="ac-project-info__img">
-            <img :src="project.icon" :alt="project.name" />
+            <a href="/"> <img :src="project.icon" :alt="project.name" /></a>
         </div>
 
         <div class="ac-project-info__title" :title="project.name">{{ project.name }}</div>

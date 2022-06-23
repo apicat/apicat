@@ -17,6 +17,7 @@
 
 <script>
     import { checkProjectSecretKey } from '@/api/preview'
+    import { generateProjectPreviewUrl } from '@/api/project'
     import { Storage } from '@natosoft/shared'
     import { inject } from 'vue'
 
@@ -38,7 +39,7 @@
                 checkProjectSecretKey(this.form)
                     .then((res) => {
                         Storage.set(Storage.KEYS.SECRET_PROJECT_TOKEN + this.form.project_id, res.data || '', true)
-                        location.href = `/app/${this.form.project_id}`
+                        location.href = generateProjectPreviewUrl(this.form.project_id)
                     })
                     .finally(() => {
                         this.isLoading = false

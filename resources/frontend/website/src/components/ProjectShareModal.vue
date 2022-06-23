@@ -46,7 +46,7 @@
 </template>
 
 <script>
-    import { share, resetSecretkey } from '@/api/project'
+    import { share, resetSecretkey, generateProjectPreviewUrl } from '@/api/project'
     import { toRefs, reactive, ref } from 'vue'
     import { PROJECT_VISIBLE_TYPES } from '@/common/constant'
 
@@ -78,7 +78,7 @@
                         .then(({ msg, data }) => {
                             data = data || {}
                             this.$Message.success(msg || '操作成功')
-                            this.updateLinkAndPassword(data.link, data.secret_key)
+                            this.updateLinkAndPassword(generateProjectPreviewUrl(this.project.id), data.secret_key)
                             if (status) {
                                 this.project.secret_key = data.secret_key
                             } else {
@@ -115,7 +115,7 @@
                     this.isShare = false
                 }
 
-                this.updateLinkAndPassword(project.preview_link, project.secret_key)
+                this.updateLinkAndPassword(generateProjectPreviewUrl(project.id), project.secret_key)
             },
 
             updateLinkAndPassword(link, secret_key) {

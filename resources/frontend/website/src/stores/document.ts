@@ -1,4 +1,4 @@
-import { traverseTree } from '@natosoft/shared'
+import { traverseTree, Storage } from '@natosoft/shared'
 import { DOCUMENT_TYPES } from '@/common/constant'
 import { defineStore } from 'pinia'
 import { treeList } from '@/api/dir'
@@ -31,7 +31,8 @@ export const useDocumentStore = defineStore({
             }
 
             try {
-                const { data } = await treeList(project_id)
+                const token = Storage.get(Storage.KEYS.SECRET_PROJECT_TOKEN + project_id || '', true)
+                const { data } = await treeList(project_id, token)
                 this.apiDocTree = traverseTree(
                     (item: any) => {
                         item.isLeaf = item.type === DOCUMENT_TYPES.DOC

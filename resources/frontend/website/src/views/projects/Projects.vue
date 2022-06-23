@@ -48,8 +48,6 @@
     import { storeToRefs } from 'pinia'
     import { useApi } from '@/hooks/useApi'
     import { toDocumentDetailPath } from '@/router/document.router'
-    import { toPreviewProjectPath } from '@/router/preview.router'
-    import { PROJECT_ROLES_KEYS } from '@/common/constant'
 
     const [isLoading, getProjectListWithState] = useApi(getProjectList, { isShowMessage: false })
 

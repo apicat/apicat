@@ -6,6 +6,8 @@ export const MAIN_PATH = '/main'
 export const NOT_FOUND = { path: '/404' }
 export const DOCUMENT_ROUTE_NAME = 'document'
 
+export const PROJECT_PREVIEW_PATH = '/editor/:project_id'
+
 export const PREVIEW_PROJECT = 'preview.project'
 export const PREVIEW_PROJECT_SECRET = `${PREVIEW_PROJECT}.verification`
 

@@ -1,5 +1,5 @@
 <template>
-    <main :class="layoutClass">
+    <main :class="layoutClass" v-if="projectInfo">
         <GuestProjectInfoHeader v-if="isGuest" />
         <ProjectInfoHeader v-else />
 
@@ -33,7 +33,7 @@
 
     const { currentRoute } = useRouter()
     const projectStore = useProjectStore()
-    const { isGuest, isReader, isManager, isDeveloper } = storeToRefs(projectStore)
+    const { isGuest, isReader, isManager, isDeveloper, projectInfo } = storeToRefs(projectStore)
 
     const projectExportModal = ref()
     const documentImportModal = ref()
