@@ -2,18 +2,13 @@
     <el-card shadow="never" :body-style="{ padding: 0 }">
         <template #header>
             <span>成员列表{{ totalMembers ? `(${totalMembers})` : '' }}</span>
-            <div class="absolute right-2" style="top: 7px" v-if="project && project.authority === 0">
+            <div class="absolute right-2" style="top: 7px" v-if="isManager">
                 <el-button @click="onAddMemberBtnClick" type="primary">添加成员</el-button>
             </div>
         </template>
 
-        <ProjectMembersManage
-            ref="projectMembersManage"
-            v-if="project && project.authority === 0"
-            @on-remove="onRemoveMemberSuccess"
-            @on-success="onGetMemberListSuccess"
-        />
-        <ProjectMembersDeveloper v-if="project && project.authority !== 0" @on-success="onGetMemberListSuccess" />
+        <ProjectMembersManage ref="projectMembersManage" v-if="project && isManager" @on-remove="onRemoveMemberSuccess" @on-success="onGetMemberListSuccess" />
+        <ProjectMembersDeveloper v-if="project && !isManager" @on-success="onGetMemberListSuccess" />
     </el-card>
 
     <AddProjectMemberModal :members="withoutProjectMemberList" ref="addProjectMemberModal" @on-ok="onAddMemberSuccess" />
@@ -30,7 +25,7 @@
     import { watch, ref } from 'vue'
 
     const projectStore = useProjectStore()
-    const { projectInfo: project } = storeToRefs(projectStore)
+    const { projectInfo: project, isManager } = storeToRefs(projectStore)
     const withoutProjectMemberList = ref([])
     const addProjectMemberModal = ref()
     const projectMembersManage = ref()
@@ -54,9 +49,9 @@
     }
 
     const loadWithoutProjectMemberList = async () => {
-        const { authority, id } = project.value || {}
+        const { id } = project.value || {}
 
-        if (authority !== 0) {
+        if (!isManager) {
             return
         }
 

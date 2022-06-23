@@ -27,7 +27,7 @@
     import SidebarLayout from '@/layout/SidebarLayout.vue'
     import { ProjectRoutes } from '@/router/project.router'
     import { useProjectStore } from '@/stores/project'
-    import { PROJECT_ROLES_MAP } from '@/common/constant'
+    import { PROJECT_ROLES_KEYS } from '@/common/constant'
 
     import { toDocumentDetailPath } from '@/router/document.router'
 
@@ -42,7 +42,7 @@
         navs.value = ProjectRoutes
         // developer navs
         if (isDeveloper) {
-            navs.value = ProjectRoutes.filter((item) => item.meta.role.indexOf(PROJECT_ROLES_MAP.DEVELOPER) !== -1)
+            navs.value = ProjectRoutes.filter((item) => item.meta.role.indexOf(PROJECT_ROLES_KEYS.DEVELOPER) !== -1)
         }
     }
 </script>

@@ -36,8 +36,6 @@ export const restoreApiDocument = (data = {}) => Ajax.post('/doc/restore_api_doc
 // 根据角色获取项目列表
 export const getProjectListByRole = (authority: unknown) => Ajax.get('/projects/json', { params: { authority } })
 
-export const getProjectListByRole2 = (authority: unknown) => Ajax.get('/projects/base', { params: { authority } })
-
 // 获取项目列表
 export const getProjectList = (group_id: number) => Ajax.get('/projects', { params: { group_id: group_id == 0 ? '' : group_id } })
 
@@ -57,7 +55,10 @@ export const renameProjectGroup = (data: unknown) => Ajax.post('/project_group/r
 export const sortProjectGroup = (ids: unknown) => Ajax.post('/project_group/change_order', { ids })
 
 // 获取项目详情
-export const getProjectDetail = (project_id: unknown) => Ajax.get('/project', { params: { project_id } })
+export const getProjectDetail = (project_id: unknown, token?: unknown) => Ajax.get('/project', { params: { project_id, token } })
+
+// 获取项目状态
+export const getProjectStatus = (project_id: unknown) => Ajax.get('/project/status', { params: { project_id } })
 
 // 更换项目分组
 export const changeProjectGroup = (data: unknown) => Ajax.post('/project/change_group', data)

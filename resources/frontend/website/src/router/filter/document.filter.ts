@@ -15,7 +15,7 @@ const initDocumentFilter = (route: Router) => {
             return next()
         }
 
-        console.log('文档模块拦截,检查项目权限')
+        console.log('1.检查项目权限')
 
         const pid = parseInt(to.params.project_id as string, 10)
 
@@ -54,11 +54,11 @@ export const initProjectDetail = (route: Router) => {
             return next()
         }
 
-        console.log('文档模块预拦截,获取项目详情')
+        console.log('2.获取项目详情')
 
         const pid = parseInt(to.params.project_id as string, 10)
 
-        // 同一个项目，无需再次获取权限信息
+        // 同一个项目，无需再次获取详情信息
         if (projectStore.projectInfo && projectStore.projectInfo.id === pid) {
             return next()
         }

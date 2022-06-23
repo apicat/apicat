@@ -19,7 +19,7 @@
             </el-form-item>
 
             <el-form-item label="权限">
-                <el-radio-group v-model="form.visibility">
+                <el-radio-group v-model="form.visible">
                     <el-radio-button :label="0">
                         <el-icon class="mr-1"><Lock /></el-icon>私有
                     </el-radio-button>
@@ -62,7 +62,7 @@
                 form: {
                     icon_link: PROJECT_DEFAULT_ICON,
                     name: '',
-                    visibility: 0,
+                    visible: 0,
                     description: '',
                 },
                 rules: {
@@ -108,7 +108,7 @@
                     icon_link: PROJECT_DEFAULT_ICON,
                     name: '',
                     type: DOCUMENT_TYPE.API.value,
-                    visibility: 0,
+                    visible: 0,
                     description: '',
                 }
             },
@@ -132,7 +132,8 @@
                         data.icon_link = this.form.icon_link
                         data.icon = this.form.icon_link
                         data.name = this.form.name
-                        data.visibility = this.form.visibility
+                        data.visibility = this.form.visible
+                        data.visible = this.form.visible
                         data.description = this.form.description
 
                         this.updateProjectInfo(data)

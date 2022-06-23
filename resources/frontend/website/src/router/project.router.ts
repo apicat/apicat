@@ -1,6 +1,6 @@
 import { RouteRecordRaw } from 'vue-router'
 import { getRouteNormalInfo } from '@natosoft/shared'
-import { PROJECT_ROLES_MAP } from '@/common/constant'
+import { PROJECT_ROLES_KEYS } from '@/common/constant'
 
 const ProjectNav = () => import('@/views/project/ProjectNav.vue')
 const ProjectSetting = () => import('@/views/project/ProjectSetting.vue')
@@ -13,25 +13,25 @@ const ProjectRouteList: RouteRecordRaw[] = [
         path: 'setting',
         name: 'project.setting',
         component: ProjectSetting,
-        meta: { title: '项目设置', role: [PROJECT_ROLES_MAP.MANAGER] },
+        meta: { title: '项目设置', role: [PROJECT_ROLES_KEYS.MANAGER] },
     },
     {
         path: 'members',
         name: 'project.members',
         component: ProjectMembers,
-        meta: { title: '项目成员', role: [PROJECT_ROLES_MAP.MANAGER, PROJECT_ROLES_MAP.DEVELOPER, PROJECT_ROLES_MAP.READER] },
+        meta: { title: '项目成员', role: [PROJECT_ROLES_KEYS.MANAGER, PROJECT_ROLES_KEYS.DEVELOPER, PROJECT_ROLES_KEYS.READER] },
     },
     {
         path: 'params',
         name: 'project.params',
         component: ProjectParam,
-        meta: { title: '公共参数', role: [PROJECT_ROLES_MAP.MANAGER, PROJECT_ROLES_MAP.DEVELOPER] },
+        meta: { title: '公共参数', role: [PROJECT_ROLES_KEYS.MANAGER, PROJECT_ROLES_KEYS.DEVELOPER] },
     },
     {
         path: 'trash',
         name: 'project.trash',
         component: ProjectTrash,
-        meta: { title: '回收站', role: [PROJECT_ROLES_MAP.MANAGER, PROJECT_ROLES_MAP.DEVELOPER] },
+        meta: { title: '回收站', role: [PROJECT_ROLES_KEYS.MANAGER, PROJECT_ROLES_KEYS.DEVELOPER] },
     },
 ]
 

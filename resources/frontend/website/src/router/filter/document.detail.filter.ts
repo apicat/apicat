@@ -19,10 +19,10 @@ export default function initDocumentEditFilter(route: Router) {
             const { has_shared, visibility, in_this } = projectStore.projectAuthInfo
 
             console.log(
-                '文档详情权限拦截：',
-                `\n\r 是否分享:${has_shared ? '已分享' : '未分享'}`,
-                `\n\r 是否公开:${visibility ? '私有' : '公开'}`,
-                `\n\r 是否在项目中:${in_this ? '在' : '不在'}`
+                '项目权限拦截：',
+                `\n\r是否分享:${has_shared ? '已分享' : '未分享'}`,
+                `\n\r是否公开:${visibility ? '私有' : '公开'}`,
+                `\n\r是否在项目中:${in_this ? '在' : '不在'}`
             )
 
             // 公开项目

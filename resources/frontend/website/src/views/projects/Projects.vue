@@ -49,7 +49,7 @@
     import { useApi } from '@/hooks/useApi'
     import { toDocumentDetailPath } from '@/router/document.router'
     import { toPreviewProjectPath } from '@/router/preview.router'
-    import { PROJECT_ROLES_MAP } from '@/common/constant'
+    import { PROJECT_ROLES_KEYS } from '@/common/constant'
 
     const [isLoading, getProjectListWithState] = useApi(getProjectList, { isShowMessage: false })
 
@@ -87,7 +87,7 @@
                 project.publicHref = toDocumentDetailPath({ project_id: project.id })
 
                 // 阅读者路由
-                if (project.authority === PROJECT_ROLES_MAP.READER) {
+                if (project.authority === PROJECT_ROLES_KEYS.READER) {
                     project.isBlank = true
                     project.publicHref = toPreviewProjectPath({ project_id: project.id })
                 }

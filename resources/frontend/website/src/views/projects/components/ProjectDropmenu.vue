@@ -20,7 +20,7 @@
     import { deleteProject, quitProject } from '@/api/project'
     import { API_PROJECT_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
     import { useRouter } from 'vue-router'
-    import { PROJECT_ALL_ROLE_LIST, PROJECT_ROLES_KEYS } from '@/common/constant'
+    import { PROJECT_ALL_ROLE_LIST, PROJECT_ROLES_KEYS, PROJECT_VISIBLE_TYPES } from '@/common/constant'
 
     const props = withDefaults(defineProps<{ ignoreEle: any }>(), {
         ignoreEle: [],
@@ -185,13 +185,13 @@
 
     // 生成下拉菜单项
     const generateActionsByProject = () => {
-        const roleInfo = PROJECT_ALL_ROLE_LIST.find((item: any) => item.value === projectInfo.value.authority) as any
+        const roleInfo = PROJECT_ALL_ROLE_LIST.find((item: any) => item.key === projectInfo.value.authority) as any
         let key = (roleInfo || {}).key
 
         let actionArray = ACTIONS_MAPPING[key] || []
 
         // 阅读者&私有项目不能分享
-        if (key === PROJECT_ROLES_KEYS.READER && !projectInfo.value.visibility) {
+        if (key === PROJECT_ROLES_KEYS.READER && projectInfo.value.visibility === PROJECT_VISIBLE_TYPES.PRIVATE) {
             actionArray = actionArray.filter((item: any) => item.selector !== 'project_share')
         }
 

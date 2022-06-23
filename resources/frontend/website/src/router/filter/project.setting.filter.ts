@@ -12,7 +12,7 @@ export default function initProjectNavFilter(router: Router) {
     router.beforeEach(async (to, from, next) => {
         const projectStore = useProjectStore()
 
-        // 不在project模块内
+        // 不在project 设置模块内
         if (!ProjectRoutes.some((route) => route.name === to.name)) {
             return next()
         }
@@ -26,12 +26,14 @@ export default function initProjectNavFilter(router: Router) {
 
         showLoading()
         try {
-            const projectInfo = await projectStore.getProjectDetail(parseInt(to.params.project_id as string))
+            const pid = parseInt(to.params.project_id as string)
+            const projectInfo = await projectStore.getProjectDetail(pid)
             const authRouters = ProjectRoutes.filter((item) => item.meta.role.indexOf(projectInfo.authority) !== -1)
             const hasAuth = authRouters.some((route) => route.name === to.name)
             if (!hasAuth) {
                 nextRoute = NOT_FOUND
             }
+            await projectStore.getProjectAuth(pid)
         } catch (error) {
             nextRoute = NOT_FOUND
         } finally {
