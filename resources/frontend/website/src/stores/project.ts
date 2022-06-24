@@ -39,9 +39,7 @@ export const useProjectStore = defineStore({
             this.projectAuthInfo.id = project_id
             // 是否在项目中
             this.projectAuthInfo.in_this = this.projectAuthInfo.authority !== PROJECT_ROLES_KEYS.NONE
-
-            console.log('获取项目权限信息：', JSON.stringify(this.projectAuthInfo))
-
+            // console.log('获取项目权限信息：', JSON.stringify(this.projectAuthInfo))
             return this.projectAuthInfo
         },
 

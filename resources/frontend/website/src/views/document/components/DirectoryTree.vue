@@ -74,12 +74,12 @@
     import { ElMessage as $Message } from 'element-plus'
     import { AsyncMsgBox } from '@/components/AsyncMessageBox'
     import { API_SINGLE_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
-    import { hideLoading } from '@/hooks/useLoading'
     import AcTree from './AcTree'
     import SearchDocumentPopover from './SearchDocumentPopover.vue'
     import { useProjectStore } from '@/stores/project'
     import { DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME } from '@/router/constant'
     import scrollIntoView from 'smooth-scroll-into-view-if-needed'
+    import { showLoading, hideLoading } from '@/hooks/useLoading'
 
     export default defineComponent({
         components: {
@@ -306,7 +306,8 @@
             }
 
             const getDocTreeList = async () => {
-                const tree = await documentStore.getApiDocTree(project_id as string)
+                showLoading()
+                await documentStore.getApiDocTree(project_id as string)
                 hideLoading()
             }
 
