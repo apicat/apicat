@@ -5,7 +5,7 @@ import initDocumentFilter, { initProjectDetail } from './document.filter'
 import initDocumentEditFilter from './document.edit.filter'
 import initDocumentDetailFilter from './document.detail.filter'
 import initProjectSettingFilter from './project.setting.filter'
-// import initPreviewFilter from './preview.filter'
+import initPreviewFilter from './preview.filter'
 
 export const setupRouterFilter = (router: Router) => {
     initPermissionsFilter(router)
@@ -15,5 +15,5 @@ export const setupRouterFilter = (router: Router) => {
     initProjectSettingFilter(router)
 
     initProjectDetail(router)
-    // initPreviewFilter(router)
+    initPreviewFilter(router)
 }

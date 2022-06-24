@@ -28,7 +28,7 @@ export const usePreviewStore = defineStore({
 
         async getDocumentInfo(doc_id: any) {
             const token = Storage.get(Storage.KEYS.SECRET_DOCUMENT_TOKEN + doc_id, true) || ''
-            const { data } = await getSingleApiDocumentDetail(token, doc_id)
+            const { data } = await getSingleApiDocumentDetail(doc_id, token)
             this.documentInfo = data || null
             return this.documentInfo
         },
