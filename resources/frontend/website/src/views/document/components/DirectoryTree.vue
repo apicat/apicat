@@ -61,7 +61,7 @@
     import { Plus, MoreFilled, Search } from '@element-plus/icons-vue'
     import DirectoryPopper, { NEW_MENUS } from './DirectoryPopper'
     import { useRoute, useRouter } from 'vue-router'
-    import { computed, nextTick, onMounted, ref, defineComponent, inject } from 'vue'
+    import { computed, nextTick, onMounted, ref, defineComponent, inject, watch } from 'vue'
     import { useDocumentStore, extendDocTreeFeild } from '@/stores/document'
     import { storeToRefs } from 'pinia'
     import createDocIcon from '@/assets/image/doc-common@2x.png'
@@ -117,6 +117,12 @@
 
             // 是否为详情页
             const isDetailPage = computed(() => currentRoute.value.name === DOCUMENT_DETAIL_NAME)
+
+            // 启动切换文档选中
+            watch(
+                () => $route.params.node_id,
+                () => activeNode()
+            )
 
             const handleTreeNodeClick = (node: any, source: any, e: any) => {
                 if (e.target.tagName === 'INPUT') {
