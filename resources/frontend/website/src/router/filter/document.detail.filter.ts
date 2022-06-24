@@ -23,12 +23,12 @@ export default function initDocumentEditFilter(route: Router) {
             const { has_shared, in_this } = unref(projectAuthInfo)
             const isPrivate = unref(isPrivateRef)
 
-            console.log(
-                '项目权限拦截：',
-                `\n\r是否分享:${has_shared ? '已分享' : '未分享'}`,
-                `\n\r是否公开:${isPrivate ? '私有' : '公开'}`,
-                `\n\r是否在项目中:${in_this ? '在' : '不在'}`
-            )
+            // console.log(
+            //     '项目权限拦截：',
+            //     `\n\r是否分享:${has_shared ? '已分享' : '未分享'}`,
+            //     `\n\r是否公开:${isPrivate ? '私有' : '公开'}`,
+            //     `\n\r是否在项目中:${in_this ? '在' : '不在'}`
+            // )
 
             // 公开项目
             if (!isPrivate) {

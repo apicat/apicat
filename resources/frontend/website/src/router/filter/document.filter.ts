@@ -12,11 +12,11 @@ const initDocumentFilter = (route: Router) => {
 
         // 不在文档模块内，忽略
         if (!to.matched.find((route) => route.name === DOCUMENT_ROUTE_NAME)) {
-            projectStore.$reset()
+            // projectStore.$reset()
             return next()
         }
 
-        console.log('1.检查项目权限')
+        // console.log('1.检查项目权限')
 
         const pid = parseInt(to.params.project_id as string, 10)
 
@@ -55,7 +55,7 @@ export const initProjectDetail = (route: Router) => {
             return next()
         }
 
-        console.log('2.获取项目详情')
+        // console.log('2.获取项目详情')
 
         const pid = parseInt(to.params.project_id as string, 10)
 
