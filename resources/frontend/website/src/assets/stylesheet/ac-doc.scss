@@ -147,10 +147,6 @@ $operate-height: 60px;
         }
     }
 
-    @include when(detail) {
-        padding-bottom: $document-padding;
-    }
-
     @include when(edit) {
         @include e(title) {
             font-weight: 400;
