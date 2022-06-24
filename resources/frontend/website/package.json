@@ -10,11 +10,11 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^1.1.4",
     "@natosoft/axios": "1.0.0",
     "@natosoft/doc-content-css": "1.0.0",
     "@natosoft/editor": "1.0.0",
     "@natosoft/shared": "1.0.0",
-    "@element-plus/icons-vue": "^1.1.4",
     "@vueuse/core": "^7.7.1",
     "@vueuse/integrations": "^7.7.1",
     "animate.css": "^4.1.1",
@@ -30,6 +30,7 @@
     "nprogress": "^0.2.0",
     "path-to-regexp": "^6.2.0",
     "pinia": "^2.0.12",
+    "smooth-scroll-into-view-if-needed": "^1.1.33",
     "sortablejs": "^1.15.0",
     "tippy.js": "^6.3.7",
     "vue": "^3.2.31",

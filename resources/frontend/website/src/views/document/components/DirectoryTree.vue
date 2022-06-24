@@ -26,7 +26,7 @@
 
                     <div class="flex justify-between ac-tree-node" :class="{ 'is-editable': data.isEditable }">
                         <div class="ac-tree-node__main" @click="handleTreeNodeClick(node, data, $event)">
-                            <div class="ac-doc-node" :class="{ 'is-active': data.isCurrent }">
+                            <div class="ac-doc-node" :class="{ 'is-active': data.isCurrent }" :id="'tree_node_' + data.id">
                                 <img v-if="data.isLeaf" class="ac-doc-node__icon" :src="createDocIcon" />
                                 <span class="ac-doc-node__label" v-show="!data.isEditable" :title="data.title">{{ data.title }}</span>
                                 <input
@@ -78,7 +78,8 @@
     import AcTree from './AcTree'
     import SearchDocumentPopover from './SearchDocumentPopover.vue'
     import { useProjectStore } from '@/stores/project'
-    import { DOCUMENT_DETAIL_NAME } from '@/router/constant'
+    import { DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME } from '@/router/constant'
+    import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 
     export default defineComponent({
         components: {
@@ -196,8 +197,11 @@
             // 重命名功能
             const inputFocus = async () => {
                 await nextTick()
-                renameInput.value?.focus()
-                renameInput.value?.setSelectionRange(0, renameInput.value?.value.length)
+                if (renameInput.value) {
+                    scrollIntoView(renameInput.value, { scrollMode: 'if-needed' })
+                    renameInput.value.focus()
+                    renameInput.value.setSelectionRange(0, renameInput.value?.value.length)
+                }
             }
 
             const onEnterKeyUp = (e: any) => {
@@ -250,6 +254,9 @@
                     node.data.isCurrent = true
                     treeIns.value?.setCurrentKey(id)
                 }
+                // scrollIntoView
+                const el = document.querySelector('#tree_node_' + id)
+                el && scrollIntoView(el, { scrollMode: 'if-needed' })
             }
 
             const reactiveNode = () => {
@@ -447,7 +454,7 @@
                             parentNode && (parentNode.expanded = true)
 
                             this.router.push({
-                                name: 'document.api.edit',
+                                name: DOCUMENT_EDIT_NAME,
                                 params: { project_id: this.project_id, node_id: data.id },
                                 query: { isNew: true } as any,
                             })
@@ -507,7 +514,7 @@
                 })
                     .then(({ data }) => {
                         this.treeIns.insertAfter(extendDocTreeFeild(data), node)
-                        this.router.push({ name: 'document.api.edit', params: { project_id: this.project_id, node_id: data.id } })
+                        this.router.push({ name: DOCUMENT_EDIT_NAME, params: { project_id: this.project_id, node_id: data.id } })
                     })
                     .finally(() => {
                         NProgress.done()
@@ -555,7 +562,7 @@
                             parentNode && (parentNode.expanded = true)
 
                             this.router.push({
-                                name: 'document.api.edit',
+                                name: DOCUMENT_EDIT_NAME,
                                 params: { project_id: this.project_id, node_id: data.id },
                                 query: { isNew: true } as any,
                             })
