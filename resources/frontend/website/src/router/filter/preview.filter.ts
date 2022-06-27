@@ -1,7 +1,7 @@
 import type { Router } from 'vue-router'
-import { usePreviewStore } from '@/stores/preview'
+import { getDocumentStatus } from '@/api/preview'
 import { showLoading, hideLoading } from '@/hooks/useLoading'
-import { Storage } from '@natosoft/shared'
+import { Storage, isNumber } from '@natosoft/shared'
 import { PREVIEW_DOCUMENT, PREVIEW_DOCUMENT_SECRET, NOT_FOUND } from '../constant'
 /**
  * 预览页面拦截
@@ -10,44 +10,40 @@ import { PREVIEW_DOCUMENT, PREVIEW_DOCUMENT_SECRET, NOT_FOUND } from '../constan
  */
 export default function initPreviewFilter(router: Router) {
     router.beforeEach(async (to, from, next) => {
-        const previewStore = usePreviewStore()
         const { name, params } = to
 
         const hasDocumentSecretKey = !!(Storage.get(Storage.KEYS.SECRET_DOCUMENT_TOKEN + params.doc_id, true) || '')
 
         // 预览文档
         if (String(name).startsWith(PREVIEW_DOCUMENT)) {
-            if (name === PREVIEW_DOCUMENT_SECRET) {
-                next()
-                return
-            }
-
-            if (!hasDocumentSecretKey) {
-                next({
-                    name: PREVIEW_DOCUMENT_SECRET,
-                    params: { doc_id: params.doc_id },
-                })
-                return
+            if (!isNumber(params.doc_id as string)) {
+                return next(NOT_FOUND)
             }
 
             showLoading()
-            try {
-                const documentInfo = await previewStore.getDocumentInfo(params.doc_id)
 
-                // 无文档信息
-                if (!documentInfo || !documentInfo.id) {
-                    return next(NOT_FOUND)
-                }
+            const { data: hasShared } = await getDocumentStatus(params.doc_id)
 
-                return next()
-            } catch (error) {
-                //
-            } finally {
+            // 未被分享 | 不存在
+            if (!hasShared) {
                 hideLoading()
+                return next(NOT_FOUND)
             }
 
-            next(NOT_FOUND)
-            return
+            if (name === PREVIEW_DOCUMENT_SECRET) {
+                hideLoading()
+                return next()
+            }
+
+            if (!hasDocumentSecretKey) {
+                hideLoading()
+                return next({
+                    name: PREVIEW_DOCUMENT_SECRET,
+                    params: { doc_id: params.doc_id },
+                })
+            }
+
+            return next()
         }
 
         next()

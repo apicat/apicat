@@ -4,7 +4,7 @@
             {{ doc.title }}
         </h1>
 
-        <div v-if="doc.content" class="ProseMirror readonly" v-html="doc.content" />
+        <div class="ProseMirror readonly" v-html="doc.content" />
 
         <div v-html="zoomTemplate"></div>
     </div>

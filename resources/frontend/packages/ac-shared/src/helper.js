@@ -1,5 +1,7 @@
 import { DEFAULT_VAL } from './constant'
 
+export const isNumber = (str) => /^(0|[1-9][0-9]*)$/.test(str)
+
 export function isUrl(url) {
     // return true
     return /^https?:\/\/[\w-.]+(:\d+)?/i.test(url)

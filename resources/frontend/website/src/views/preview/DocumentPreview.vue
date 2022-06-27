@@ -1,7 +1,7 @@
 <template>
     <main class="ac-preview is-single">
         <div class="ac-preview-content">
-            <AcEditorDocument :doc="documentInfo" />
+            <AcEditorDocument v-if="documentInfo && documentInfo.id" :doc="documentInfo" />
         </div>
     </main>
 </template>
@@ -10,8 +10,9 @@
     import AcEditorDocument from './components/AcEditorDocument.vue'
     import { usePreviewStore } from '@/stores/preview'
     import { storeToRefs } from 'pinia'
-    import { inject } from 'vue'
-
+    import { inject, onMounted } from 'vue'
+    import { useRoute } from 'vue-router'
+    import { showLoading, hideLoading } from '@/hooks/useLoading'
     export default {
         name: 'DocumentPreview',
         components: {
@@ -22,10 +23,16 @@
             const showSearchInput = inject('showSearchInput')
             const previewStore = usePreviewStore()
             const { documentInfo } = storeToRefs(previewStore)
+            const { params } = useRoute()
+
+            onMounted(async () => {
+                showLoading()
+                const info = await previewStore.getDocumentInfo(params.doc_id)
+                document.title = info.title
+                hideLoading()
+            })
 
             showSearchInput(false)
-            document.title = documentInfo.value.title
-
             return {
                 documentInfo,
             }

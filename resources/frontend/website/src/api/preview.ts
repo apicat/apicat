@@ -4,6 +4,8 @@ export const getDocumentInfo = (doc_id: any) => Ajax.get('/preview/doc_info', { 
 
 export const checkDocumentSecretKey = (data: any) => Ajax.post('/api_doc/secretkey_check', data)
 
+export const getDocumentStatus = (doc_id: any) => Ajax.get('/api_doc/has_shared', { params: { doc_id } })
+
 export const getSingleApiDocumentDetail = (doc_id: any, token: any) => Ajax.get('/api_doc', { params: { doc_id, token, format: 'html' } })
 
 export const getTrashNormalDocumentDetail = (project_id: any, doc_id: any) =>

@@ -2,7 +2,6 @@ import { compile } from 'path-to-regexp'
 import PreviewLayout from '@/layout/PreviewLayout.vue'
 import { PREVIEW_DOCUMENT, PREVIEW_DOCUMENT_SECRET, PREVIEW_PROJECT, PREVIEW_PROJECT_SECRET } from './constant'
 
-const ProjectPreview = () => import('../views/preview/ProjectPreview.vue')
 const ProjectVerification = () => import('../views/preview/ProjectVerification.vue')
 
 const DocumentPreview = () => import('../views/preview/DocumentPreview.vue')
@@ -19,18 +18,18 @@ export const documentPreviewRouters = {
     component: PreviewLayout,
     meta: { ignoreAuth: true },
     children: [
-        // 文档 - 密钥校验
-        {
-            path: '/doc/:doc_id/verification',
-            name: PREVIEW_DOCUMENT_SECRET,
-            component: DocumentVerification,
-            meta: { ignoreAuth: true },
-        },
         // 单篇文档预览
         {
             path: '/doc/:doc_id',
             name: `${PREVIEW_DOCUMENT}.detail`,
             component: DocumentPreview,
+            meta: { ignoreAuth: true },
+        },
+        // 文档 - 密钥校验
+        {
+            path: '/doc/:doc_id/verification',
+            name: PREVIEW_DOCUMENT_SECRET,
+            component: DocumentVerification,
             meta: { ignoreAuth: true },
         },
     ],
@@ -49,13 +48,13 @@ export const projectPreviewRouters = {
             component: ProjectVerification,
             meta: { ignoreAuth: true },
         },
-        // 项目预览 文档路径
-        {
-            path: '/app/:project_id/:node_id?',
-            name: `${PREVIEW_PROJECT}.document`,
-            component: ProjectPreview,
-            meta: { ignoreAuth: true },
-        },
+        // // 项目预览 文档路径
+        // {
+        //     path: '/app/:project_id/:node_id?',
+        //     name: `${PREVIEW_PROJECT}.document`,
+        //     component: ProjectPreview,
+        //     meta: { ignoreAuth: true },
+        // },
     ],
 }
 
