@@ -45,8 +45,5 @@
     "vite": "^2.9.9",
     "vue-tsc": "^0.31.4"
   },
-  "dependencies": {
-    "vue": "^3.2.36"
-  },
   "license": "MIT"
 }
