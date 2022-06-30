@@ -41,11 +41,11 @@
     const isShowTitle = ref(false)
     const titleClass = computed(() => {
         return [
-            'ac-header-operate__title animate__animated1 animate__faster1',
+            'ac-header-operate__title',
             {
                 hidden: !isShowTitle.value,
-                // animate__slideInDown: isShowTitle.value,
-                // animate__slideOutUp: !isShowTitle.value,
+                animate__slideInDown: isShowTitle.value,
+                animate__slideOutUp: !isShowTitle.value,
             },
         ]
     })

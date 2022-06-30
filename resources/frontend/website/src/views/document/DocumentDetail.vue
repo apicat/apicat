@@ -43,7 +43,6 @@
     import { inject, ref, watch } from 'vue'
     import { hideLoading } from '@/hooks/useLoading'
     import { useElementBounding } from '@vueuse/core'
-    import { debounce } from 'lodash-es'
     import emitter, { IS_SHOW_DOCUMENT_TITLE } from '@/common/emitter'
     import { storeToRefs } from 'pinia'
     import { useProjectStore } from '@/stores/project'
@@ -73,15 +72,9 @@
             const projectStore = useProjectStore()
             const { isGuest } = storeToRefs(projectStore)
 
-            watch(
-                top,
-                debounce(() => {
-                    emitter.emit(IS_SHOW_DOCUMENT_TITLE, top.value < 25 ? true : false)
-                }, 200),
-                {
-                    immediate: true,
-                }
-            )
+            watch(top, () => emitter.emit(IS_SHOW_DOCUMENT_TITLE, top.value < 25 ? true : false), {
+                immediate: true,
+            })
 
             const { initHighlight } = useHighlight()
             const documentImportModal = inject('documentImportModal')
@@ -187,6 +180,7 @@
                 const doc_id = parseInt(this.$route.params.node_id, 10)
 
                 if (isNaN(doc_id)) {
+                    hideLoading()
                     this.isLoading = false
                     this.hasDocument = false
                     return
