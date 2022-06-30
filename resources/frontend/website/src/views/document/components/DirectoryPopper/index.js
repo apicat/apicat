@@ -1,7 +1,7 @@
 import tippy from 'tippy.js'
 import MENU_TYPES from './menus'
 import { noop } from 'lodash-es'
-import { $once } from '@ac/shared'
+import { $once } from '@natosoft/shared'
 
 export { NEW_MENUS } from './menus'
 
@@ -15,9 +15,10 @@ export default {
         placement: 'bottom',
         interactive: true,
         theme: 'light',
+        zIndex: 10,
     }),
 
-    show(type, el, props) {
+    show(type, el, props, appendToEl) {
         const menuConfig = MENU_TYPES[type]
 
         if (!menuConfig) {
@@ -32,6 +33,7 @@ export default {
         })
 
         this.popper.setProps({
+            appendTo: () => appendToEl || document.body,
             getReferenceClientRect: () => el.getBoundingClientRect(),
             content: this.$vm.el,
             onHide: () => {

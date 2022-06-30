@@ -14,7 +14,8 @@
 </template>
 
 <script>
-    import { IMPORT_EXPORT_STATE, downloadFile } from '@ac/shared'
+    import { downloadFile } from '@natosoft/shared'
+    import { IMPORT_EXPORT_STATE } from '@/common/constant'
     import delay from 'delay'
 
     export default {

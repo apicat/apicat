@@ -44,8 +44,7 @@
     import ModifyMemberPassword from './components/ModifyMemberPassword.vue'
 
     import { getMembers, removeMember } from '@/api/team'
-    import { PAGE_SIZE } from '@ac/shared'
-
+    import { PAGE_SIZE } from '@/common/constant'
     import { useApi } from '@/hooks/useApi'
     import { usePage } from '@/hooks/usePage'
     import { useUserStore } from '@/stores/user'

@@ -24,6 +24,6 @@ export const sortTree = (data = {}) => Ajax.post('/api_tree/sort', data)
 /**
  * @param {*} project_id
  */
-export const treeList = (project_id: string) => Ajax.get('/api_tree', { params: { project_id } })
+export const treeList = (project_id: string, token?: string) => Ajax.get('/api_tree', { params: { project_id, token } })
 
 export const getDirList = (project_id: string) => Ajax.get('/dir/list', { params: { project_id } })

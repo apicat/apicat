@@ -7,7 +7,7 @@
 
 <script>
     import DocumentTree from './DocumentTree.vue'
-    import { Storage } from '@ac/shared'
+    import { Storage } from '@natosoft/shared'
     import Tree from './Tree'
 
     export default {

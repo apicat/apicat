@@ -1,6 +1,6 @@
 import { onBeforeUnmount, onMounted, onUpdated, shallowRef, watch } from 'vue'
 import { off, on } from '../utils'
-import { EVENT_CODE } from '@ac/shared'
+import { EVENT_CODE } from '@natosoft/shared'
 import { useNamespace } from '@/hooks/useNamespace'
 import type TreeStore from './tree-store'
 

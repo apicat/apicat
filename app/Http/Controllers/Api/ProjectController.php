@@ -20,39 +20,6 @@ class ProjectController extends Controller
     }
 
     /**
-     * 项目详情
-     * @return array
-     */
-    public function index()
-    {
-        $authorityName = ['管理者', '维护者', '阅读者'];
-        $authority = ProjectMemberRepository::getAuthority(ProjectRepository::active()->id, Auth::id());
-
-        if ($share = ProjectShareRepository::getByMemberID(ProjectRepository::active()->id, Auth::id())) {
-            $secretKey = $share->secret_key;
-        } else {
-            $secretKey = '';
-        }
-
-        return [
-            'status' => 0,
-            'msg' => '',
-            'data' => [
-                'id' => ProjectRepository::active()->id,
-                'preview_link' => route('app.index', ['projectID' => ProjectRepository::active()->id]),
-                'icon' => ProjectRepository::active()->icon,
-                'name' => ProjectRepository::active()->name,
-                'authority' => $authority,
-                'authority_name' => $authorityName[$authority],
-                'visibility' => ProjectRepository::active()->visibility,
-                'secret_key' => $secretKey,
-                'description' => ProjectRepository::active()->description ? ProjectRepository::active()->description : '',
-                'user_id' => Auth::id()
-            ]
-        ];
-    }
-
-    /**
      * 开启关闭项目分享
      * @param Request $request
      * @return array

@@ -1,17 +1,16 @@
 <template>
-    <div class="ac-document is-detail" v-loading="isLoading">
+    <div class="ac-document" v-loading="isLoading">
         <div v-show="hasDocument && document.id">
-            <h1 class="ac-document__title">
-                {{ document.title }}
-            </h1>
-
+            <h1 class="ac-document__title" ref="title">{{ document.title }}</h1>
+            <p class="ac-document__desc">
+                <el-tooltip effect="dark" :content="document.last_updated_by + ' 最后编辑'" placement="bottom">
+                    <span><i class="iconfont iconIconPopoverUser"></i>{{ document.last_updated_by }}</span>
+                </el-tooltip>
+                <el-tooltip effect="dark" :content="'更新于 ' + document.updated_time" placement="bottom">
+                    <span><i class="iconfont icontime"></i>{{ document.updated_time }}</span>
+                </el-tooltip>
+            </p>
             <div v-if="document.content" class="ProseMirror readonly" v-html="document.content" />
-
-            <!-- <div class="ac-document__operate" v-show="!isLoading">
-                <div class="ac-document__operate-inner text-right">
-                    <el-button type="primary" @click="onEditBtnClick"> 编辑 </el-button>
-                </div>
-            </div> -->
         </div>
 
         <div v-if="!hasDocument">
@@ -20,10 +19,11 @@
                     <img src="@/assets/image/icon-empty.png" alt="" />
                 </template>
                 <template #title>
-                    <div style="width: 470px; display: block; margin: auto">
+                    <div style="width: 470px; display: block; margin: auto" v-if="!isGuest">
                         您当前尚未创建文档，请从左侧目录栏点击添加，开始在线维护 API 文档。您还可以将本地项目
                         <a class="text-blue-600" href="javascript:void(0);" @click="onImportBtnCLick">导入</a>
                     </div>
+                    <div style="width: 470px; display: block; margin: auto" v-else>您当前尚未创建文档</div>
                 </template>
             </Result>
         </div>
@@ -34,13 +34,19 @@
     </div>
 </template>
 <script>
-    import { getDocumentDetail, API_DOCUMENT_IMPORT_ACTION_MAPPING } from '@/api/document'
     import mediumZoom from 'medium-zoom'
     import tippy from 'tippy.js'
-    import { toggleClass, getAttr, hasClass, showOrHide, DOCUMENT_TYPES } from '@ac/shared'
+    import { getDocumentDetail, API_DOCUMENT_IMPORT_ACTION_MAPPING } from '@/api/document'
+    import { toggleClass, getAttr, hasClass, showOrHide } from '@natosoft/shared'
+    import { DOCUMENT_TYPES } from '@/common/constant'
     import { useHighlight } from '@/hooks/useHighlight'
-    import { inject } from 'vue'
+    import { inject, ref, watch } from 'vue'
     import { hideLoading } from '@/hooks/useLoading'
+    import { useElementBounding } from '@vueuse/core'
+    import { debounce } from 'lodash-es'
+    import emitter, { IS_SHOW_DOCUMENT_TITLE } from '@/common/emitter'
+    import { storeToRefs } from 'pinia'
+    import { useProjectStore } from '@/stores/project'
 
     function expand(pid, isExpand) {
         document.querySelectorAll('[data-pid="' + pid + '"]').forEach(function (el) {
@@ -62,12 +68,31 @@
         },
 
         setup() {
+            const title = ref(null)
+            const { top } = useElementBounding(title)
+            const projectStore = useProjectStore()
+            const { isGuest } = storeToRefs(projectStore)
+
+            watch(
+                top,
+                debounce(() => {
+                    emitter.emit(IS_SHOW_DOCUMENT_TITLE, top.value < 25 ? true : false)
+                }, 200),
+                {
+                    immediate: true,
+                }
+            )
+
             const { initHighlight } = useHighlight()
             const documentImportModal = inject('documentImportModal')
+            const setDocumentTitle = inject('setDocumentTitle')
 
             return {
+                isGuest,
+                title,
                 initHighlight,
                 documentImportModal,
+                setDocumentTitle,
             }
         },
 
@@ -175,6 +200,7 @@
                 getDocumentDetail(this.project_id, this.doc_id, 'html')
                     .then((res) => {
                         this.document = this.transferDoc(res.data || {})
+                        this.setDocumentTitle(this.document.title)
                         this.initStaticDocInteractive()
                     })
                     .catch((e) => {
@@ -189,12 +215,12 @@
             },
 
             transferDoc(doc) {
-                // doc.content = JSON.parse(doc.content || "{}")
                 return doc
             },
         },
 
         mounted() {
+            emitter.emit(IS_SHOW_DOCUMENT_TITLE, false)
             this.getDocumentDetail()
         },
 

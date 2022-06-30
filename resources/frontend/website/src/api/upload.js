@@ -1,5 +1,7 @@
 import { NoMessageAjax } from './Ajax'
-import { shortid, IMPORT_EXPORT_STATE } from '@ac/shared'
+import { shortid } from '@natosoft/shared'
+import { IMPORT_EXPORT_STATE } from '@/common/constant'
+
 export const uploadInit = (data = {}) => NoMessageAjax.post('/upload_init', data)
 export const uploadPath = (data = {}) => NoMessageAjax.post('/upload_path', data)
 

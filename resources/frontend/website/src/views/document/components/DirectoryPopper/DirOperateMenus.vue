@@ -8,7 +8,7 @@
 
 <script>
     import { DIR_OPERATE_MENUS } from './menus'
-    import { $emit } from '@ac/shared'
+    import { $emit } from '@natosoft/shared'
 
     export default {
         name: 'DirOperateMenus',

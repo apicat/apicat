@@ -51,6 +51,8 @@ class ProjectsController extends Controller
                 $groupIds = GroupRepository::relationship(0, Auth::id());
             }
 
+            $authoritys = ['manage', 'write', 'read'];
+
             foreach ($projects as $project) {
                 $projectArr[] = [
                     'id' => $project->id,
@@ -60,8 +62,8 @@ class ProjectsController extends Controller
                     'secret_key' => (isset($project->secret_key) and $project->secret_key) ? $project->secret_key : '',
                     'icon' => $project->icon ?? '',
                     'name' => $project->name,
-                    'visibility' => $project->visibility,
-                    'authority' => $project->authority,
+                    'visibility' => $project->visibility ? 'public' : 'private',
+                    'authority' => $authoritys[$project->authority],
                     'authority_name' => $project->authority_name
                 ];
             }
@@ -75,48 +77,6 @@ class ProjectsController extends Controller
                 'projects' => $projectArr
             ]
         ];
-    }
-
-    /**
-     * 项目列表2(基本信息)
-     * @param Request $request
-     * @return array
-     */
-    public function base(Request $request)
-    {
-        $request->validate([
-            'authority' => 'required|string|in:own,write,read'
-        ]);
-
-        $result = [];
-        $projects = null;
-
-        switch ($request->input('authority')) {
-            case 'own':
-                $projects = ProjectRepository::ownList(Auth::id());
-                break;
-            case 'write':
-                $projects = ProjectRepository::writeList(Auth::id());
-                break;
-            case 'read':
-                $projects = ProjectRepository::readList(Auth::id());
-                break;
-        }
-
-        if (!$projects) {
-            return ['status' => 0, 'msg' => '', 'data' => []];
-        }
-
-        foreach ($projects as $project) {
-            $result[] = [
-                'id' => $project->id,
-                'icon' => $project->icon ?? '',
-                'name' => $project->name,
-                'visibility' => $project->visibility
-            ];
-        }
-
-        return ['status' => 0, 'msg' => '', 'data' => $result];
     }
 
     /**

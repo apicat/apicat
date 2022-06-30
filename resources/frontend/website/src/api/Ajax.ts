@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { API_URL, REQUEST_TIMEOUT } from '@ac/shared'
+import { API_URL, REQUEST_TIMEOUT } from '@/common/constant'
 
 const config = {
     baseURL: API_URL,

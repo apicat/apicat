@@ -11,12 +11,6 @@
         />
 
         <AcEditor v-if="document.content" ref="editor" :document="document.content" :options="editorOptions" @on-change="onDocumentChange" />
-
-        <!-- <div class="ac-document__operate">
-            <div class="ac-document__operate-inner text-right">
-                <el-button :loading="isLoading" type="primary" @click="onSaveBtnClick"> 保存 </el-button>
-            </div>
-        </div> -->
     </div>
 </template>
 <script lang="ts">
@@ -29,10 +23,12 @@
     import { debounce, isEmpty } from 'lodash-es'
     import { hideLoading } from '@/hooks/useLoading'
     import { useRoute, useRouter } from 'vue-router'
+    import emitter, { DOCUMENT_SAVE_DONE, DOCUMENT_SAVE_ING, DOCUMENT_SAVE_ERROR } from '@/common/emitter'
+    import { DOCUMENT_DETAIL_NAME } from '@/router/constant'
 
     export default defineComponent({
         components: {
-            AcEditor: defineAsyncComponent(() => import('@ac/editor')),
+            AcEditor: defineAsyncComponent(() => import('@natosoft/editor')),
         },
 
         setup() {
@@ -77,7 +73,7 @@
                 },
             },
             'document.title': function () {
-                this.onDocumentTitleChange()
+                this.onDocumentChange()
             },
         },
 
@@ -204,7 +200,7 @@
                     .then((res: any) => {
                         $Message.success(res.message || '保存成功')
                         this.updateTreeNodeTitle(res.data)
-                        this.$router.push({ name: 'document.api.detail', params: { project_id: this.project_id, node_id: this.node_id } })
+                        this.$router.push({ name: DOCUMENT_DETAIL_NAME, params: { project_id: this.project_id, node_id: this.node_id } })
                     })
                     .catch((e) => e)
                     .finally(() => {
@@ -223,9 +219,15 @@
             },
 
             onDocumentChange: debounce(function (this: any) {
-                updateDoc(this.getDocumentContent()).then((res: any) => {
-                    this.updateTreeNodeTitle(res.data)
-                })
+                emitter.emit(DOCUMENT_SAVE_ING)
+                updateDoc(this.getDocumentContent())
+                    .then((res: any) => {
+                        emitter.emit(DOCUMENT_SAVE_DONE)
+                        this.updateTreeNodeTitle(res.data)
+                    })
+                    .catch(() => {
+                        emitter.emit(DOCUMENT_SAVE_ERROR)
+                    })
             }, 500),
 
             onDocumentTitleChange: debounce(function (this: any) {

@@ -3,7 +3,7 @@ $md-sidebar-width: 280px;
 $doc-prefix: document;
 $catalog-item-height: 38px;
 $dragbar-width: 16px;
-$preview-container-padding: 40px;
+$preview-container-padding: 30px;
 
 .logo {
     height: $header-height;
@@ -220,9 +220,7 @@ $preview-container-padding: 40px;
 
     &-content {
         background: #fff;
-        min-height: 100vh;
         padding: $preview-container-padding;
-
         &-main {
             margin: auto;
             max-width: 900px;
@@ -249,10 +247,15 @@ $preview-container-padding: 40px;
         margin: 0;
     }
 
+    @include b(document) {
+        padding-top: $preview-container-padding;
+        min-height: calc(100vh - $preview-container-padding - $header-height - $preview-container-padding);
+    }
+
     // 单篇文档
     @include when(single) {
-        padding: 40px;
-        padding-top: $header-height + 40px;
+        padding: $preview-container-padding;
+        padding-top: $header-height + $preview-container-padding;
 
         .ac-preview-content {
             margin: auto;

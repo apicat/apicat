@@ -29,7 +29,7 @@
     import { useRoute, useRouter } from 'vue-router'
     import { searchDocuments } from '@/api/document'
     import { toDocumentDetailPath } from '@/router/document.router'
-    import { traverseTree } from '@ac/shared'
+    import { traverseTree } from '@natosoft/shared'
     import { useDocumentStore } from '@/stores/document'
     import { storeToRefs } from 'pinia'
 
@@ -122,7 +122,7 @@
 </script>
 <style lang="scss" scoped>
     .search-poptip {
-        width: 384px;
+        width: 300px;
         margin: -12px;
         padding: 14px 24px;
         .search-result {

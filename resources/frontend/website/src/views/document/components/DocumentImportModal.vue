@@ -15,7 +15,7 @@
     </el-dialog>
 </template>
 <script>
-    import { IMPORT_EXPORT_STATE } from '@ac/shared'
+    import { IMPORT_EXPORT_STATE } from '@/common/constant'
     import { uploader } from '@/api/uploader'
     import delay from 'delay'
 

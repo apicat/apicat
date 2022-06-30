@@ -188,48 +188,6 @@ class ApiDocController extends Controller
     }
 
     /**
-     * 文档详情
-     * @param Request $request
-     * @return array
-     * @throws ValidationException
-     */
-    public function detail(Request $request)
-    {
-        $request->validate([
-            'doc_id' => 'required|integer|min:1',
-            'format' => 'nullable|string|in:json,html',
-            'deleted' => 'nullable|boolean'
-        ]);
-
-        $format = $request->input('format') ? $request->input('format') : 'json';
-        $deleted = $request->input('deleted') && $request->input('deleted');
-
-        $node = ApiDocRepository::getNode($request->input('doc_id'), $deleted);
-        if (!$node or $node->project_id != ProjectRepository::active()->id) {
-            throw ValidationException::withMessages([
-                'doc_id' => '无法获取该文档信息',
-            ]);
-        }
-
-        if ($format == 'json') {
-            $content = $node->content;
-        } else {
-            $content = $node->content ? Parser::parse($node->content, ProjectRepository::active()->id, $node->id) : '';
-        }
-
-        return [
-            'status' => 0,
-            'msg' => '',
-            'data' => [
-                'id' => $node->id,
-                'title' => $node->title,
-                'content' => $content,
-                'updated_time' => $node->updated_at->format('Y-m-d H:i')
-            ]
-        ];
-    }
-
-    /**
      * 文档重命名
      * @param Request $request
      * @return array
@@ -338,28 +296,6 @@ class ApiDocController extends Controller
         DocShareRepository::remove($node->project_id, Auth::id(), $node->id);
 
         return ['status' => 0, 'msg' => '删除成功'];
-    }
-
-    /**
-     * 文档搜索
-     * @param Request $request
-     * @return array
-     */
-    public function search(Request $request)
-    {
-        $request->validate([
-            'keywords' => ['required', 'string', 'max:255']
-        ]);
-
-        if (mb_strlen($request->input('keywords')) < 2) {
-            return ['status' => 0, 'msg' => '', 'data' => []];
-        }
-
-        return [
-            'status' => 0,
-            'msg' => '',
-            'data' => ApiDocRepository::searchNode($request->input('project_id'), $request->input('keywords'))
-        ];
     }
 
     /**

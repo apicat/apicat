@@ -16,11 +16,11 @@
             </el-form-item>
 
             <el-form-item label="用户名" prop="name">
-                <el-input v-model="userInfo.name" placeholder="用户名"></el-input>
+                <el-input v-model="userInfo.name" maxlength="30" placeholder="用户名"></el-input>
             </el-form-item>
 
             <el-form-item label="邮箱" prop="email">
-                <el-input v-model="userInfo.email" placeholder="邮箱"></el-input>
+                <el-input v-model="userInfo.email" maxlength="150" placeholder="邮箱"></el-input>
             </el-form-item>
 
             <el-form-item>

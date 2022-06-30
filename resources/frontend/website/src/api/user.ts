@@ -1,5 +1,5 @@
 import { useApi } from '@/hooks/useApi'
-import { getFirstChar } from '@ac/shared'
+import { getFirstChar } from '@natosoft/shared'
 import Ajax from './Ajax'
 
 // 用户登录
