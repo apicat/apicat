@@ -85,7 +85,7 @@ class ApiCatRepository extends BaseRepository
 
         $this->cacheContent['file'] = $this->fileName;
         $this->cacheContent['fileType'] = 'apicat';
-        $this->cacheContent['exportFileName'] = str_replace(' ', '_', $doc->title);
+        $this->cacheContent['exportFileName'] = str_replace(' ', '_', $doc->title) . '_apicat';
         $this->cacheContent['projectExport'] = false;
 
         $this->finish('导出完成');
@@ -115,7 +115,7 @@ class ApiCatRepository extends BaseRepository
 
         $this->cacheContent['file'] = $this->fileName;
         $this->cacheContent['fileType'] = 'apicat';
-        $this->cacheContent['exportFileName'] = str_replace(' ', '_', $projectName);
+        $this->cacheContent['exportFileName'] = str_replace(' ', '_', $projectName) . '_apicat';
         $this->cacheContent['projectExport'] = true;
         $this->finish('导出完成');
     }
