@@ -1,9 +1,10 @@
 import Ajax from './Ajax'
-
+import { compile } from 'path-to-regexp'
 import { Storage } from '@natosoft/shared'
 import ApicatLogo from '@/assets/image/logo-apicat@2x.png'
 import MarkdownLogo from '@/assets/image/logo-markdown@2x.png'
 import PostmanLogo from '@/assets/image/logo-postman@2x.png'
+import { DECUMENT_DETAIL_PATH } from '@/router/constant'
 
 // 常用URL地址
 export const getUrlTipList = (project_id: any) => Ajax.get('/api_url/list', { params: { project_id } })
@@ -47,3 +48,6 @@ export const API_DOCUMENT_IMPORT_ACTION_MAPPING = [
     { text: 'Markdown', icon: MarkdownLogo, type: 'markdown', action: importDocument, getJobResult: getImportDocumentResult, maxSize: 0.5, accept: '.md' },
     { text: 'Postman(v2.1)', icon: PostmanLogo, type: 'postman', action: importDocument, getJobResult: getImportDocumentResult, maxSize: 2, accept: '.json' },
 ]
+
+// 生成文档详情路由地址
+export const generateDocumentDetailPath = (project_id: any, node_id: any) => window['origin'] + compile(DECUMENT_DETAIL_PATH)({ project_id, node_id })

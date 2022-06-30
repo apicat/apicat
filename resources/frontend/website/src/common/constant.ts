@@ -85,6 +85,12 @@ export const PROJECT_VISIBLE_LIST = [
     { text: '公开', value: 1, key: PROJECT_VISIBLE_TYPES.PUBLIC },
 ]
 
+// 文档可见性类型
+export const DOCUMENT_VISIBLE_TYPES = {
+    PRIVATE: 0,
+    PUBLIC: 1,
+}
+
 // 团队角色
 export const TEAM_ROLE = {
     ADMIN: 0,

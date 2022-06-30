@@ -16,3 +16,6 @@ export const PREVIEW_DOCUMENT_SECRET = `${PREVIEW_DOCUMENT}.verification`
 
 export const DOCUMENT_EDIT_NAME = 'document.api.edit'
 export const DOCUMENT_DETAIL_NAME = 'document.api.detail'
+
+export const DECUMENT_DETAIL_PATH = '/editor/:project_id/doc/:node_id?'
+export const DECUMENT_EDIT_PATH = '/editor/:project_id/doc/:node_id/edit'

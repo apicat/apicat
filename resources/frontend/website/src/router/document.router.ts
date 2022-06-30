@@ -1,11 +1,9 @@
 import { compile } from 'path-to-regexp'
 import DocumentLayout from '@/layout/DocumentLayout.vue'
-import { DOCUMENT_ROUTE_NAME, DOCUMENT_EDIT_NAME, DOCUMENT_DETAIL_NAME, PROJECT_PREVIEW_PATH } from './constant'
+import { DOCUMENT_ROUTE_NAME, DOCUMENT_EDIT_NAME, DOCUMENT_DETAIL_NAME, PROJECT_PREVIEW_PATH, DECUMENT_DETAIL_PATH, DECUMENT_EDIT_PATH } from './constant'
 
 const DocumentDetail = () => import('@/views/document/DocumentDetail.vue')
 const DocumentEditor = () => import('@/views/document/DocumentEditor.vue')
-const DECUMENT_DETAIL_PATH = '/editor/:project_id/doc/:node_id?'
-const DECUMENT_EDIT_PATH = '/editor/:project_id/doc/:node_id/edit'
 
 export const toDocumentDetailPath = compile(DECUMENT_DETAIL_PATH)
 export const toDocumentEditPath = compile(DECUMENT_EDIT_PATH)

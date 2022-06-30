@@ -47,7 +47,8 @@
 </template>
 
 <script>
-    import { shareDoc, shareDetailDoc, resetDocShareSecretkey } from '@/api/document'
+    import { shareDoc, shareDetailDoc, resetDocShareSecretkey, generateDocumentDetailPath } from '@/api/document'
+    import { DOCUMENT_VISIBLE_TYPES } from '@/common/constant'
     import { toRefs, reactive, ref } from 'vue'
     import { useRouter } from 'vue-router'
 
@@ -113,7 +114,7 @@
                 if (!document.execCommand('copy')) return
                 this.copyText = '复制成功'
                 setTimeout(() => {
-                    this.copyText = this.document.visibility === 1 ? '复制链接' : '复制链接和密码'
+                    this.copyText = this.document.visibility === DOCUMENT_VISIBLE_TYPES.PUBLIC ? '复制链接' : '复制链接和密码'
                 }, 2000)
             },
 
@@ -125,9 +126,12 @@
             setDocument(document = {}) {
                 this.document = document
 
-                this.copyText = document.visibility === 1 ? '复制链接' : '复制链接和密码'
+                this.copyText = document.visibility === DOCUMENT_VISIBLE_TYPES.PUBLIC ? '复制链接' : '复制链接和密码'
+                this.isShare = document.visibility === DOCUMENT_VISIBLE_TYPES.PRIVATE && !!document.secret_key
 
-                this.isShare = document.visibility === 0 && !!document.secret_key
+                if (document.visibility === DOCUMENT_VISIBLE_TYPES.PUBLIC) {
+                    document.link = generateDocumentDetailPath(this.project_id, this.shareData.docId)
+                }
 
                 this.updateLinkAndPassword(document.link, document.secret_key)
 
@@ -150,7 +154,10 @@
             },
 
             updateCopyText() {
-                this.copyTextEl.value = this.document.visibility === 1 ? this.shareUrl : [`链接：${this.shareUrl}`, `密码：${this.password}`].join('\n')
+                this.copyTextEl.value =
+                    this.document.visibility === DOCUMENT_VISIBLE_TYPES.PRIVATE
+                        ? this.shareUrl
+                        : [`链接：${this.shareUrl}`, `密码：${this.password}`].join('\n')
             },
 
             getShareDetail() {
