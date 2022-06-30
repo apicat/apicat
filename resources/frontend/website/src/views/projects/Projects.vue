@@ -7,9 +7,9 @@
         <div class="ac-project">
             <div class="ac-project-item" v-for="project in projects" :key="project.id">
                 <div class="ac-project-thumb">
-                    <router-link :title="project.publicHref" :to="{ path: project.publicHref }">
+                    <a :title="project.publicHref" :href="project.publicHref">
                         <img :src="project.icon" />
-                    </router-link>
+                    </a>
                     <span class="ac-project-action" :ref="setProjectDropmenuClickOutsideIgnoreEle" @click="onProjectPopperIconClick($event, project)">
                         <el-icon><caret-bottom /></el-icon>
                     </span>

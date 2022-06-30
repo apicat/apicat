@@ -49,6 +49,7 @@
     import { storeToRefs } from 'pinia'
     import { useProjectStore } from '@/stores/project'
     import { API_PROJECT_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
+    import { generateProjectMembersUrl, generateProjectParamsUrl, generateProjectSettingUrl, generateProjectTrashUrl } from '@/api/project'
 
     const { push, currentRoute } = useRouter()
     const projectStore = useProjectStore()
@@ -58,8 +59,8 @@
     const projectExportModal: any = inject('projectExportModal')
 
     const onPopperItemClick = (menu: any) => {
-        if (menu.href) {
-            push(menu.href.replace('{project_id}', currentRoute.value.params.project_id))
+        if (menu.hrefFn) {
+            push(menu.hrefFn(currentRoute.value.params.project_id, false))
             return
         }
     }
@@ -79,12 +80,12 @@
     }
 
     const allMenus = [
-        { text: '项目设置', icon: 'iconIconPopoverSetting', href: '/project/{project_id}/setting' },
-        { text: '公共参数', icon: 'iconIconPopoverConfig', href: '/project/{project_id}/params' },
-        { text: '成员管理', icon: 'iconIconPopoverUser', href: '/project/{project_id}/members' },
+        { text: '项目设置', icon: 'iconIconPopoverSetting', hrefFn: generateProjectSettingUrl },
+        { text: '公共参数', icon: 'iconIconPopoverConfig', hrefFn: generateProjectParamsUrl },
+        { text: '项目成员', icon: 'iconIconPopoverUser', hrefFn: generateProjectMembersUrl },
         { text: '分享项目', icon: 'iconshare2', onClick: () => onShareProjectBtnClick() },
         { text: '导出项目', icon: 'iconIconPopoverUpload', onClick: () => onExportBtnClick() },
-        { text: '回收站', icon: 'icontrash', href: '/project/{project_id}/trash' },
+        { text: '回收站', icon: 'icontrash', hrefFn: generateProjectTrashUrl },
     ]
 
     const popperMenus: any = ref(allMenus)

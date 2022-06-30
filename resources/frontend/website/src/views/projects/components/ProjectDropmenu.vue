@@ -17,7 +17,7 @@
     import { AsyncMsgBox } from '@/components/AsyncMessageBox'
     import { onClickOutside } from '@vueuse/core'
     import { ref, watch } from 'vue'
-    import { deleteProject, quitProject } from '@/api/project'
+    import { deleteProject, generateProjectMembersUrl, generateProjectPreviewUrl, generateProjectSettingUrl, quitProject } from '@/api/project'
     import { API_PROJECT_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
     import { useRouter } from 'vue-router'
     import { PROJECT_ALL_ROLE_LIST, PROJECT_ROLES_KEYS, PROJECT_VISIBLE_TYPES } from '@/common/constant'
@@ -113,7 +113,7 @@
             text: '预览项目',
             selector: 'project_preview',
             isNewOpen: true,
-            href: '{id}',
+            hrefFn: generateProjectPreviewUrl,
             field: 'preview_link',
             icon: 'iconIconPopoverPlay',
             roles: [PROJECT_ROLES_KEYS.MANAGER, PROJECT_ROLES_KEYS.DEVELOPER],
@@ -121,7 +121,7 @@
         {
             text: '项目成员',
             selector: 'project_members',
-            href: '/project/{id}/members',
+            hrefFn: generateProjectMembersUrl,
             icon: 'iconIconPopoverUser',
             route: { name: 'project.members' },
             roles: [PROJECT_ROLES_KEYS.MANAGER, PROJECT_ROLES_KEYS.DEVELOPER, PROJECT_ROLES_KEYS.READER],
@@ -143,7 +143,7 @@
         {
             text: '项目设置',
             selector: 'project_edit',
-            href: '/project/{id}/setting',
+            hrefFn: generateProjectSettingUrl,
             icon: 'iconIconPopoverSetting',
             route: { name: 'project.setting' },
             roles: [PROJECT_ROLES_KEYS.MANAGER],
@@ -197,8 +197,8 @@
 
         actions.value = actionArray.map((item: any) => {
             let cp = { ...item }
-            if (cp.href) {
-                cp.href = cp.href.replace('{id}', projectInfo.value[item.field || 'id'])
+            if (cp.hrefFn) {
+                cp.href = cp.hrefFn(projectInfo.value['id'])
             }
             cp.menuHtml = `<i class="icon iconfont mr-1 ${cp.icon || ''}"></i>${cp.text}`
             return cp
@@ -217,8 +217,9 @@
         }
 
         if (item.href && !item.isNewOpen) {
-            item.route.params = { project_id: projectInfo.value[item.field || 'id'] }
-            router.push(item.route)
+            // item.route.params = { project_id: projectInfo.value['id'] }
+            // router.push(item.route)
+            location.href = item.href
         }
     }
 
