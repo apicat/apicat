@@ -42,6 +42,5 @@ export default {
     path: '/project/:project_id',
     name: 'project',
     component: ProjectNav,
-    redirect: { name: 'project.setting' },
     children: ProjectRouteList,
 }

@@ -4,11 +4,11 @@ import MainLayout from '../layout/MainLayout.vue'
 
 // 各模块路由
 import { indexRouter, loginRouter, registerRouter, notFoundRouter } from './base.router'
-import UserRouters from './user.router'
-import MembersRouters from './members.router'
-import ProjectsRouters from './projects.router'
-import ProjectRouters from './project.router'
-import DocumentRouter from './document.router'
+import userRouters from './user.router'
+import membersRouters from './members.router'
+import projectsRouters from './projects.router'
+import projectRouters from './project.router'
+import documentRouter from './document.router'
 import { documentPreviewRouters, projectPreviewRouters, trashPreviewRouters } from './preview.router'
 
 export const router = createRouter({
@@ -18,15 +18,16 @@ export const router = createRouter({
         loginRouter,
         registerRouter,
 
+        documentRouter,
+
         {
             path: MAIN_PATH,
             name: 'main',
             component: MainLayout,
             redirect: { name: 'projects' },
-            children: [ProjectsRouters, UserRouters, MembersRouters, ProjectRouters],
+            children: [projectsRouters, userRouters, membersRouters, projectRouters],
         },
 
-        DocumentRouter,
         projectPreviewRouters,
         documentPreviewRouters,
         trashPreviewRouters,

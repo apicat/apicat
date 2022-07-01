@@ -1,5 +1,6 @@
 import Ajax from './Ajax'
 import { compile } from 'path-to-regexp'
+import { wrapperOrigin } from '@/common/utils'
 import { PROJECT_PREVIEW_PATH, PROJECT_SETTING_PATH, PROJECT_MEMBERS_PATH, PROJECT_PARAMS_PATH, PROJECT_TRASH_PATH } from '@/router/constant'
 
 export const createProject = (project = {}) => Ajax.post('/project/create', project)
@@ -77,9 +78,11 @@ export const getProjectTrashList = (project_id: unknown) => Ajax.get('/doc/trash
 // 不在此项目中的成员
 export const getWithoutProjectMemberList = (project_id: unknown) => Ajax.get('/project/without_members', { params: { project_id } })
 
-const wrapperOrigin = (hasOrigin: boolean | undefined) => (hasOrigin ? window['origin'] : '')
 // 生成预览链接地址
 export const generateProjectPreviewUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_PREVIEW_PATH)({ project_id })
+// 生成项目详情链接地址
+export const generateProjectDetailUrl = generateProjectPreviewUrl
+
 // 生成项目设置链接地址
 export const generateProjectSettingUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_SETTING_PATH)({ project_id })
 // 生成项目成员链接地址

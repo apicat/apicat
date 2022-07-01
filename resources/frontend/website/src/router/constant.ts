@@ -7,7 +7,8 @@ export const NOT_FOUND = { path: '/404' }
 export const DOCUMENT_ROUTE_NAME = 'document'
 
 // 项目相关链接地址
-export const PROJECT_PREVIEW_PATH = '/editor/:project_id'
+export const PROJECT_PREVIEW_PATH = '/project/:project_id'
+export const PROJECT_DETAIL_PATH = PROJECT_PREVIEW_PATH
 export const PROJECT_SETTING_PATH = '/project/:project_id/setting'
 export const PROJECT_MEMBERS_PATH = '/project/:project_id/members'
 export const PROJECT_PARAMS_PATH = '/project/:project_id/params'
@@ -22,5 +23,5 @@ export const PREVIEW_DOCUMENT_SECRET = `${PREVIEW_DOCUMENT}.verification`
 // 文档相关链接地址
 export const DOCUMENT_EDIT_NAME = 'document.api.edit'
 export const DOCUMENT_DETAIL_NAME = 'document.api.detail'
-export const DECUMENT_DETAIL_PATH = '/editor/:project_id/doc/:node_id?'
-export const DECUMENT_EDIT_PATH = '/editor/:project_id/doc/:node_id/edit'
+export const DECUMENT_DETAIL_PATH = '/project/:project_id/doc/:node_id?'
+export const DECUMENT_EDIT_PATH = '/project/:project_id/doc/:node_id/edit'

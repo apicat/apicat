@@ -46,6 +46,7 @@
     import emitter, { IS_SHOW_DOCUMENT_TITLE } from '@/common/emitter'
     import { storeToRefs } from 'pinia'
     import { useProjectStore } from '@/stores/project'
+    import { DOCUMENT_EDIT_NAME } from '@/router/constant'
 
     function expand(pid, isExpand) {
         document.querySelectorAll('[data-pid="' + pid + '"]').forEach(function (el) {
@@ -110,7 +111,7 @@
 
         methods: {
             onEditBtnClick() {
-                this.$router.push({ name: 'document.api.edit', params: { project_id: this.$route.params.project_id, node_id: this.$route.params.node_id } })
+                this.$router.push({ name: DOCUMENT_EDIT_NAME, params: { project_id: this.$route.params.project_id, node_id: this.$route.params.node_id } })
             },
 
             initTableToggle() {
