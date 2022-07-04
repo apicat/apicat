@@ -17,7 +17,7 @@
     import { AsyncMsgBox } from '@/components/AsyncMessageBox'
     import { onClickOutside } from '@vueuse/core'
     import { ref, watch } from 'vue'
-    import { deleteProject, generateProjectMembersUrl, generateProjectPreviewUrl, generateProjectSettingUrl, quitProject } from '@/api/project'
+    import { deleteProject, generateProjectMembersUrl, generateProjectSettingUrl, quitProject } from '@/api/project'
     import { API_PROJECT_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
     import { useRouter } from 'vue-router'
     import { PROJECT_ALL_ROLE_LIST, PROJECT_ROLES_KEYS, PROJECT_VISIBLE_TYPES } from '@/common/constant'
@@ -109,15 +109,15 @@
     }
 
     const ALL_ACTIONS = [
-        {
-            text: '预览项目',
-            selector: 'project_preview',
-            isNewOpen: true,
-            hrefFn: generateProjectPreviewUrl,
-            field: 'preview_link',
-            icon: 'iconIconPopoverPlay',
-            roles: [PROJECT_ROLES_KEYS.MANAGER, PROJECT_ROLES_KEYS.DEVELOPER],
-        },
+        // {
+        //     text: '预览项目',
+        //     selector: 'project_preview',
+        //     isNewOpen: true,
+        //     hrefFn: generateProjectPreviewUrl,
+        //     field: 'preview_link',
+        //     icon: 'iconIconPopoverPlay',
+        //     roles: [PROJECT_ROLES_KEYS.MANAGER, PROJECT_ROLES_KEYS.DEVELOPER],
+        // },
         {
             text: '项目成员',
             selector: 'project_members',
