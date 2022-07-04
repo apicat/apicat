@@ -96,7 +96,7 @@ class PdfRepository extends BaseRepository
             return $this->fail('导出失败，文档不存在。');
         }
 
-        $result = $this->writeCover($doc->name);
+        $result = $this->writeCover($doc->title);
         if (!$result) {
             return $this->fail('导出失败，请稍后重试。');
         }
@@ -111,7 +111,7 @@ class PdfRepository extends BaseRepository
 
         $this->cacheContent['file'] = $this->fileName;
         $this->cacheContent['fileType'] = 'pdf';
-        $this->cacheContent['exportFileName'] = str_replace(' ', '_', $doc->name);
+        $this->cacheContent['exportFileName'] = str_replace(' ', '_', $doc->title);
         $this->cacheContent['projectExport'] = false;
 
         $this->finish('导出完成');

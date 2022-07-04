@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { isFunction } from '@ac/shared'
+import { isFunction } from '@natosoft/shared'
 import AxiosPendingManager from './AxiosCancelTokenManager'
 
 export default class AxiosService {

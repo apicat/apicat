@@ -1,87 +1,97 @@
 <template>
-    <div class="h-full overflow-x-scroll scroll-content" ref="dir">
-        <div class="flex justify-between items-center mb-7 px-1">
+    <div class="h-full flex flex-col">
+        <div class="ac-doc-catalog">
             <h3 class="text-base font-medium">目录</h3>
-            <el-icon class="cursor-pointer text-zinc-500" @click="onRootMoreIconClick"><plus /></el-icon>
+            <div>
+                <el-icon class="cursor-pointer text-zinc-500" :class="{ 'mr-5': isManager || isDeveloper }" @click="onSearchIconClick"><Search /></el-icon>
+                <el-icon v-if="isManager || isDeveloper" class="cursor-pointer text-zinc-500" @click="onRootMoreIconClick"><Plus /></el-icon>
+            </div>
         </div>
+        <div class="overflow-x-scroll scroll-content flex-auto" ref="dir">
+            <ac-tree
+                :data="apiDocTree"
+                class="bg-transparent"
+                node-key="id"
+                empty-text=""
+                :draggable="isManager || isDeveloper"
+                ref="treeIns"
+                :expand-on-click-node="false"
+                :props="{ children: 'sub_nodes', label: 'title', class: customNodeClass, isLeaf: customNodeLeaf }"
+                :allow-drop="allowDrop"
+                @node-drag-start="onMoveNodeStart"
+                @node-drop="onMoveNode"
+            >
+                <template #default="{ node, data }">
+                    <div class="el-tree-node__bg"></div>
 
-        <ac-tree
-            :data="apiDocTree"
-            class="bg-transparent"
-            node-key="id"
-            empty-text=""
-            draggable
-            ref="treeIns"
-            :expand-on-click-node="false"
-            :props="{ children: 'sub_nodes', label: 'title', class: customNodeClass, isLeaf: customNodeLeaf }"
-            :allow-drop="allowDrop"
-            @node-drag-start="onMoveNodeStart"
-            @node-drop="onMoveNode"
-        >
-            <template #default="{ node, data }">
-                <div class="el-tree-node__bg"></div>
-
-                <div class="flex justify-between ac-tree-node" :class="{ 'is-editable': data.isEditable }">
-                    <div class="ac-tree-node__main" @click="handleTreeNodeClick(node, data, $event)">
-                        <div class="ac-doc-node" :class="{ 'is-active': data.isCurrent }">
-                            <img v-if="data.isLeaf" class="ac-doc-node__icon" :src="createDocIcon" />
-                            <span class="ac-doc-node__label" v-show="!data.isEditable" :title="data.title">{{ data.title }}</span>
-                            <input
-                                type="text"
-                                ref="renameInput"
-                                class="ac-doc-node__input el-input el-input__inner"
-                                :id="'tree_input_' + data.id"
-                                v-if="data.isEditable"
-                                v-model="data.title"
-                                @keyup.enter="onEnterKeyUp"
-                                :maxlength="data.isLeaf ? 255 : 50"
-                                @blur="setUnEditable($event, data)"
-                            />
+                    <div class="flex justify-between ac-tree-node" :class="{ 'is-editable': data.isEditable }">
+                        <div class="ac-tree-node__main" @click="handleTreeNodeClick(node, data, $event)">
+                            <div class="ac-doc-node" :class="{ 'is-active': data.isCurrent }" :id="'tree_node_' + data.id">
+                                <img v-if="data.isLeaf" class="ac-doc-node__icon" :src="createDocIcon" />
+                                <span class="ac-doc-node__label" v-show="!data.isEditable" :title="data.title">{{ data.title }}</span>
+                                <input
+                                    type="text"
+                                    ref="renameInput"
+                                    class="ac-doc-node__input el-input el-input__inner"
+                                    :id="'tree_input_' + data.id"
+                                    v-if="data.isEditable"
+                                    v-model="data.title"
+                                    @keyup.enter="onEnterKeyUp"
+                                    :maxlength="data.isLeaf ? 255 : 50"
+                                    @blur="setUnEditable($event, data)"
+                                />
+                            </div>
+                        </div>
+                        <div class="ac-tree-node__more" :class="{ active: data.id === activeMoreNodeId }" v-if="isManager || isDeveloper">
+                            <el-icon v-show="!data.isLeaf" @click="onMoreIconClick($event, node, data, 'DIR_NEW_TYPE')"><plus /></el-icon>
+                            <span class="mx-1" />
+                            <el-icon v-show="!data.isLeaf" @click="onMoreIconClick($event, node, data, 'DIR_OPERATE_TYPE')"><more-filled /></el-icon>
+                            <el-icon v-show="data.isLeaf" @click="onMoreIconClick($event, node, data, 'DOC_OPERATE_TYPE')"><more-filled /></el-icon>
                         </div>
                     </div>
-                    <div class="ac-tree-node__more" :class="{ active: data.id === activeMoreNodeId }">
-                        <el-icon v-show="!data.isLeaf" @click="onMoreIconClick($event, node, data, 'DIR_NEW_TYPE')"><plus /></el-icon>
-                        <span class="mx-1" />
-                        <el-icon v-show="!data.isLeaf" @click="onMoreIconClick($event, node, data, 'DIR_OPERATE_TYPE')"><more-filled /></el-icon>
-                        <el-icon v-show="data.isLeaf" @click="onMoreIconClick($event, node, data, 'DOC_OPERATE_TYPE')"><more-filled /></el-icon>
-                    </div>
-                </div>
-            </template>
-        </ac-tree>
+                </template>
+            </ac-tree>
+        </div>
     </div>
 
-    <DocumentShareModal ref="documentShareModal" :share-data="shareData" />
+    <SearchDocumentPopover ref="searchDocumentPopoverRef" />
 </template>
 
 <script lang="tsx">
-    import { Plus, MoreFilled } from '@element-plus/icons-vue'
+    import { Plus, MoreFilled, Search } from '@element-plus/icons-vue'
     import DirectoryPopper, { NEW_MENUS } from './DirectoryPopper'
-    import DocumentShareModal from './DocumentShareModal.vue'
     import { useRoute, useRouter } from 'vue-router'
-    import { computed, nextTick, onMounted, ref, defineComponent, inject } from 'vue'
+    import { computed, nextTick, onMounted, ref, defineComponent, inject, watch } from 'vue'
     import { useDocumentStore, extendDocTreeFeild } from '@/stores/document'
     import { storeToRefs } from 'pinia'
     import createDocIcon from '@/assets/image/doc-common@2x.png'
     import { memoize, debounce } from 'lodash-es'
-    import { DOCUMENT_TYPES, traverseTree } from '@ac/shared'
+    import { traverseTree } from '@natosoft/shared'
+    import { DOCUMENT_TYPES } from '@/common/constant'
     import { renameDir, deleteDir, createDir, sortTree } from '@/api/dir'
     import { createDoc, createHttpDoc, renameDoc, deleteDoc, copyDoc, API_DOCUMENT_IMPORT_ACTION_MAPPING } from '@/api/document'
     import NProgress from 'nprogress'
     import { ElMessage as $Message } from 'element-plus'
     import { AsyncMsgBox } from '@/components/AsyncMessageBox'
     import { API_SINGLE_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
-    import { hideLoading } from '@/hooks/useLoading'
     import AcTree from './AcTree'
+    import SearchDocumentPopover from './SearchDocumentPopover.vue'
+    import { useProjectStore } from '@/stores/project'
+    import { DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME } from '@/router/constant'
+    import scrollIntoView from 'smooth-scroll-into-view-if-needed'
+    import { showLoading, hideLoading } from '@/hooks/useLoading'
 
     export default defineComponent({
         components: {
             AcTree,
-            DocumentShareModal,
             Plus,
+            Search,
             MoreFilled,
+            SearchDocumentPopover,
         },
 
         setup() {
+            const documentShareModal: any = inject('documentShareModal')
             const documentImportModal: any = inject('documentImportModal')
             const projectExportModal: any = inject('projectExportModal')
 
@@ -92,23 +102,28 @@
             const { project_id } = params
             const documentStore = useDocumentStore()
             const { apiDocTree } = storeToRefs(documentStore)
+            const projectStore = useProjectStore()
+            const { isManager, isDeveloper } = storeToRefs(projectStore)
 
             const newMenus: any = NEW_MENUS
             const activeMoreNodeId = ref(null)
             const renameInput: any = ref(null)
             const treeIns: any = ref(null)
-            const documentShareModal: any = ref(null)
+
+            const searchDocumentPopoverRef: any = ref(null)
             const dir: any = ref(null)
-            const shareData: any = ref({
-                docType: null,
-                dicId: null,
-            })
 
             let index = 1
             const oldDraggingNodeInfo: any = null
 
             // 是否为详情页
-            const isDetailPage = computed(() => currentRoute.value.name === 'document.api.detail')
+            const isDetailPage = computed(() => currentRoute.value.name === DOCUMENT_DETAIL_NAME)
+
+            // 启动切换文档选中
+            watch(
+                () => $route.params.node_id,
+                () => activeNode()
+            )
 
             const handleTreeNodeClick = (node: any, source: any, e: any) => {
                 if (e.target.tagName === 'INPUT') {
@@ -131,13 +146,13 @@
                     return
                 }
                 activeNode(source.id)
-                $router.push({ name: 'document.api.detail', params: { ...params, node_id: source.id } })
+                $router.push({ name: DOCUMENT_DETAIL_NAME, params: { ...params, node_id: source.id } })
             }
 
             const onMoreIconClick = (e: any, node: any, source: any, type: any) => {
                 e.stopPropagation()
                 activeMoreNodeId.value = source.id
-                DirectoryPopper.show(type, e.target, { node, source, isDetailPage: isDetailPage.value })
+                DirectoryPopper.show(type, e.target, { node, source, isDetailPage: isDetailPage.value }, dir.value)
             }
 
             const onRootMoreIconClick = (e: any) => {
@@ -182,8 +197,11 @@
             // 重命名功能
             const inputFocus = async () => {
                 await nextTick()
-                renameInput.value?.focus()
-                renameInput.value?.setSelectionRange(0, renameInput.value?.value.length)
+                if (renameInput.value) {
+                    scrollIntoView(renameInput.value, { scrollMode: 'if-needed' })
+                    renameInput.value.focus()
+                    renameInput.value.setSelectionRange(0, renameInput.value?.value.length)
+                }
             }
 
             const onEnterKeyUp = (e: any) => {
@@ -236,6 +254,9 @@
                     node.data.isCurrent = true
                     treeIns.value?.setCurrentKey(id)
                 }
+                // scrollIntoView
+                const el = document.querySelector('#tree_node_' + id)
+                el && scrollIntoView(el, { scrollMode: 'if-needed' })
             }
 
             const reactiveNode = () => {
@@ -280,13 +301,18 @@
 
                     const dirDom = dir.value as any
                     dirDom?.scrollTo(0, 0)
-                    $router.replace({ name: 'document.api.detail', params })
+                    $router.replace({ name: DOCUMENT_DETAIL_NAME, params })
                 }
             }
 
             const getDocTreeList = async () => {
-                const tree = await documentStore.getApiDocTree(project_id as string)
-                hideLoading()
+                // showLoading()
+                await documentStore.getApiDocTree(project_id as string)
+                // hideLoading()
+            }
+
+            const onSearchIconClick = (e: any) => {
+                searchDocumentPopoverRef.value?.show(e.currentTarget)
             }
 
             onMounted(async () => {
@@ -295,7 +321,9 @@
             })
 
             return {
-                $router,
+                isManager,
+                isDeveloper,
+                router: $router,
                 index,
                 oldDraggingNodeInfo,
 
@@ -308,13 +336,13 @@
                 treeIns,
                 newMenus,
                 documentShareModal,
-                shareData,
 
                 createDocIcon,
 
                 handleTreeNodeClick,
                 onRootMoreIconClick,
                 onMoreIconClick,
+                onSearchIconClick,
                 allowDrop,
                 customNodeClass,
                 customNodeLeaf,
@@ -328,6 +356,7 @@
 
                 documentImportModal,
                 projectExportModal,
+                searchDocumentPopoverRef,
             }
         },
 
@@ -425,8 +454,8 @@
                             const parentNode = this.treeIns.getNode(source)
                             parentNode && (parentNode.expanded = true)
 
-                            this.$router.push({
-                                name: 'document.api.edit',
+                            this.router.push({
+                                name: DOCUMENT_EDIT_NAME,
                                 params: { project_id: this.project_id, node_id: data.id },
                                 query: { isNew: true } as any,
                             })
@@ -486,7 +515,7 @@
                 })
                     .then(({ data }) => {
                         this.treeIns.insertAfter(extendDocTreeFeild(data), node)
-                        this.$router.push({ name: 'document.api.edit', params: { project_id: this.project_id, node_id: data.id } })
+                        this.router.push({ name: DOCUMENT_EDIT_NAME, params: { project_id: this.project_id, node_id: data.id } })
                     })
                     .finally(() => {
                         NProgress.done()
@@ -494,11 +523,10 @@
             },
 
             onShareBtnClick(node: any, source: any) {
-                this.shareData = {
+                this.documentShareModal.show({
                     docId: source.id,
                     nodeId: source.id,
-                }
-                this.documentShareModal.show()
+                })
             },
 
             onImportBtnClick(node: any, source: any) {
@@ -534,8 +562,8 @@
                             const parentNode = this.treeIns.getNode(source)
                             parentNode && (parentNode.expanded = true)
 
-                            this.$router.push({
-                                name: 'document.api.edit',
+                            this.router.push({
+                                name: DOCUMENT_EDIT_NAME,
                                 params: { project_id: this.project_id, node_id: data.id },
                                 query: { isNew: true } as any,
                             })

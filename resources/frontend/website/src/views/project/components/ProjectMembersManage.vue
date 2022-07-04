@@ -9,7 +9,7 @@
 
 <script lang="tsx">
     import { changeMemberAuthority, getProjectMembers, removeMember, transferProject } from '@/api/project'
-    import { PROJECT_ROLE_LIST } from '@ac/shared'
+    import { PROJECT_ROLE_LIST } from '@/common/constant'
     import { useProjectStore } from '@/stores/project'
     import { useUserStore } from '@/stores/user'
     import { storeToRefs } from 'pinia'

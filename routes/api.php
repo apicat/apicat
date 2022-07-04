@@ -5,15 +5,15 @@ use App\Http\Controllers\Api\ApiDocController;
 use App\Http\Controllers\Api\ApiDocTreeController;
 use App\Http\Controllers\Api\ApiUrlController;
 use App\Http\Controllers\Api\DirectoryController;
-use App\Http\Controllers\Api\DocPreviewController;
+use App\Http\Controllers\Api\ApiDocNoAuthController;
 use App\Http\Controllers\Api\DocTrashController;
 use App\Http\Controllers\Api\EmailController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ProjectGroupController;
 use App\Http\Controllers\Api\ProjectMemberController;
 use App\Http\Controllers\Api\ProjectParameterController;
-use App\Http\Controllers\Api\ProjectPreviewController;
 use App\Http\Controllers\Api\ProjectsController;
+use App\Http\Controllers\Api\ProjectNoAuthController;
 use App\Http\Controllers\Api\TeamController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\LogoutController;
@@ -85,14 +85,14 @@ Route::prefix('project_group')->group(function () {
 Route::prefix('projects')->group(function () {
     // 项目分组下的详细列表
     Route::get('/', [ProjectsController::class, 'index']);
-    // 权限下的项目列表，只返回项目基本信息
-    Route::get('/base', [ProjectsController::class, 'base']);
 });
 
 // 项目
 Route::prefix('project')->group(function () {
     // 项目详情
-    Route::get('/', [ProjectController::class, 'index']);
+    Route::get('/', [ProjectNoAuthController::class, 'detail']);
+    // 项目状态
+    Route::get('/status', [ProjectNoAuthController::class, 'status']);
     // 创建项目
     Route::post('create', [ProjectsController::class, 'create']);
     // 上传项目图标
@@ -101,6 +101,8 @@ Route::prefix('project')->group(function () {
     Route::post('share', [ProjectController::class, 'share']);
     // 重置分享项目访问秘钥
     Route::post('reset_share_secretkey', [ProjectController::class, 'resetShareSecretKey']);
+    // 私有项目秘钥校验
+    Route::post('secretkey_check', [ProjectNoAuthController::class, 'checkSecretKey']);
     // 项目设置
     Route::post('setting', [ProjectController::class, 'storeSetting']);
     // 项目分组
@@ -137,26 +139,6 @@ Route::prefix('project')->group(function () {
     Route::post('remove_param', [ProjectParameterController::class, 'remove']);
 });
 
-// 项目和单篇文档预览
-Route::prefix('preview')->group(function () {
-    // 项目信息
-    Route::get('project', [ProjectPreviewController::class, 'projectInfo']);
-    // 获取api文档树
-    Route::get('api_nodes', [ProjectPreviewController::class, 'apiNodes']);
-    // api文档详情
-    Route::get('api_doc', [ProjectPreviewController::class, 'apiDoc']);
-    // 文档搜索
-    Route::get('search', [ProjectPreviewController::class, 'search']);
-    // 私有项目秘钥校验
-    Route::post('check', [ProjectPreviewController::class, 'checkSecretKey']);
-    // 文档信息
-    Route::get('doc_info', [DocPreviewController::class, 'docInfo']);
-    // 文档详情
-    Route::get('single_doc', [DocPreviewController::class, 'doc']);
-    // 文档秘钥校验
-    Route::post('single_check', [DocPreviewController::class, 'checkSecretKey']);
-});
-
 // 回收站
 Route::prefix('doc')->group(function () {
     // 文档列表
@@ -168,7 +150,7 @@ Route::prefix('doc')->group(function () {
 // API文档树
 Route::prefix('api_tree')->group(function () {
     // 所有分类和文档列表
-    Route::get('/', [ApiDocTreeController::class, 'index']);
+    Route::get('/', [ProjectNoAuthController::class, 'docTree']);
     // 节点排序
     Route::post('sort', [ApiDocTreeController::class, 'sort']);
 });
@@ -195,14 +177,14 @@ Route::prefix('dir')->group(function () {
 
 // API文档
 Route::prefix('api_doc')->group(function () {
+    // 文档详情
+    Route::get('/', [ApiDocNoAuthController::class, 'detail']);
     // 创建文档
     Route::post('create', [ApiDocController::class, 'create']);
     // 创建HTTP API文档
     Route::post('http_template', [ApiDocController::class, 'httpTemplate']);
     // 编辑文档
     Route::post('update', [ApiDocController::class, 'update']);
-    // 文档详情
-    Route::get('/', [ApiDocController::class, 'detail']);
     // 文档重命名
     Route::post('rename', [ApiDocController::class, 'rename']);
     // 复制文档
@@ -210,13 +192,17 @@ Route::prefix('api_doc')->group(function () {
     // 删除文档
     Route::post('remove', [ApiDocController::class, 'remove']);
     // 文档搜索
-    Route::get('search', [ApiDocController::class, 'search']);
+    Route::get('search', [ProjectNoAuthController::class, 'docSearch']);
     // 文档分享详情
     Route::post('share_detail', [ApiDocController::class, 'shareDetail']);
     // 分享文档
     Route::post('share', [ApiDocController::class, 'share']);
     // 重置分享文档的访问密码
     Route::post('share_secretkey', [ApiDocController::class, 'shareSecretKey']);
+    // 文档分享状态
+    Route::get('has_shared', [ApiDocNoAuthController::class, 'hasShared']);
+    // 文档秘钥校验
+    Route::post('secretkey_check', [ApiDocNoAuthController::class, 'checkSecretKey']);
     // 文档导入
     Route::post('import', [ApiDocController::class, 'import']);
     // 文档导入结果查询

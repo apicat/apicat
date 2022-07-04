@@ -1,4 +1,4 @@
-import { Storage } from '@ac/shared'
+import { Storage } from '@natosoft/shared'
 import { uploadPath } from '@/api/upload'
 import { noop } from 'lodash-es'
 

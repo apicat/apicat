@@ -26,7 +26,10 @@
     import { ElMessage as $Message } from 'element-plus'
     import NProgress from 'nprogress'
     import { getProjectTrashList, restoreApiDocument } from '@/api/project'
-    import { HTTP_STATUS, timestampFormat } from '@ac/shared'
+    import { generateDocumentDetailPath } from '@/api/document'
+    import { timestampFormat } from '@natosoft/shared'
+    import { HTTP_STATUS } from '@/common/constant'
+
     import { useProjectStore } from '@/stores/project'
     import { toPreviewTrashDocumentPath } from '@/router/preview.router'
 
@@ -65,7 +68,7 @@
                                     'a',
                                     {
                                         class: 'text-blue-600',
-                                        href: `/editor/${projectStore.projectInfo.id}/doc/${doc.id}`,
+                                        href: generateDocumentDetailPath(projectStore.projectInfo.id, doc.id, false),
                                     },
                                     '查看详情'
                                 ),

@@ -1,4 +1,4 @@
-import { DOCUMENT_TYPES } from '@ac/shared'
+import { DOCUMENT_TYPES } from '@/common/constant'
 
 export class TreeNode {
     constructor(data) {

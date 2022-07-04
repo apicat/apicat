@@ -1,5 +1,5 @@
 import { getProjectGroupList, createProjectGroup, renameProjectGroup, removeProjectGroup, sortProjectGroup } from '@/api/project'
-import { Storage } from '@ac/shared'
+import { Storage } from '@natosoft/shared'
 import { defineStore } from 'pinia'
 
 interface ProjectState {

@@ -25,7 +25,7 @@
     import { isEmpty } from 'lodash-es'
     import { trim, debounce } from 'lodash-es'
     import { searchProjectInfo } from '@/api/preview'
-    import { Storage, traverseTree } from '@ac/shared'
+    import { Storage, traverseTree } from '@natosoft/shared'
 
     export default {
         name: 'ProjectSearch',

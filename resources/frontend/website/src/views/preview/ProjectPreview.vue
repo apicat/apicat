@@ -33,7 +33,7 @@
     import DocumentCatalog from './components/DocumentCatalog.vue'
     import AcEditorDocument from './components/AcEditorDocument.vue'
     import { getApiDocumentDetail, getProjectCatalog } from '@/api/preview'
-    import { Storage } from '@ac/shared'
+    import { Storage } from '@natosoft/shared'
     import { mapState } from 'pinia'
     import { usePreviewStore } from '@/stores/preview'
     import { showLoading, hideLoading } from '@/hooks/useLoading'

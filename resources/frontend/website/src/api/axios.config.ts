@@ -1,8 +1,8 @@
 import Ajax, { NoMessageAjax } from './Ajax'
-import { HTTP_STATUS } from '@ac/shared'
+import { HTTP_STATUS } from '@/common/constant'
 import { ElMessage } from 'element-plus'
 import { AxiosRequestConfig } from 'axios'
-import { AxiosCancelTokenManager } from '@ac/axios'
+import { AxiosCancelTokenManager } from '@natosoft/axios'
 import { useUserStore } from '@/stores/user'
 import { usePreviewStore } from '@/stores/preview'
 

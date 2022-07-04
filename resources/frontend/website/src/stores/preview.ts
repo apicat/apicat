@@ -1,7 +1,7 @@
 import { getProjectInfo, getSingleApiDocumentDetail } from '@/api/preview'
 import { defineStore } from 'pinia'
 import { router } from '@/router'
-import { Storage } from '@ac/shared'
+import { Storage } from '@natosoft/shared'
 import { PREVIEW_PROJECT, PREVIEW_PROJECT_SECRET, PREVIEW_DOCUMENT, PREVIEW_DOCUMENT_SECRET } from '@/router/constant'
 
 interface ProjectState {
@@ -28,7 +28,7 @@ export const usePreviewStore = defineStore({
 
         async getDocumentInfo(doc_id: any) {
             const token = Storage.get(Storage.KEYS.SECRET_DOCUMENT_TOKEN + doc_id, true) || ''
-            const { data } = await getSingleApiDocumentDetail(token, doc_id)
+            const { data } = await getSingleApiDocumentDetail(doc_id, token)
             this.documentInfo = data || null
             return this.documentInfo
         },

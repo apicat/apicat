@@ -137,7 +137,7 @@ class PostmanRepository extends BaseRepository
 
         $this->cacheContent['file'] = $this->fileName;
         $this->cacheContent['fileType'] = $this->fileType;
-        $this->cacheContent['exportFileName'] = str_replace(' ', '_', $doc->name);
+        $this->cacheContent['exportFileName'] = str_replace(' ', '_', $doc->title) . '_postman';
         $this->cacheContent['projectExport'] = false;
 
         $this->finish('导出完成');
@@ -165,7 +165,7 @@ class PostmanRepository extends BaseRepository
 
         $this->cacheContent['file'] = $this->fileName;
         $this->cacheContent['fileType'] = $this->fileType;
-        $this->cacheContent['exportFileName'] = str_replace(' ', '_', $this->content['info']['name']);
+        $this->cacheContent['exportFileName'] = str_replace(' ', '_', $this->content['info']['name']) . '_postman';
         $this->cacheContent['projectExport'] = true;
         $this->finish('导出完成');
     }

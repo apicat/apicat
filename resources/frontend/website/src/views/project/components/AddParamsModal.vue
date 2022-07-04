@@ -39,7 +39,7 @@
 </template>
 <script>
     import { addApiParam, updateApiParam } from '@/api/params'
-    import { PARAM_TYPES } from '@ac/shared'
+    import { PARAM_TYPES } from '@natosoft/shared'
     import { isEmpty } from 'lodash-es'
     import { mapState } from 'pinia'
     import { useProjectStore } from '@/stores/project'

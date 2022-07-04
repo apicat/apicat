@@ -1,6 +1,6 @@
 <template>
     <el-dialog v-model="isShow" :width="540" :close-on-click-modal="false" title="分享项目" append-to-body>
-        <div v-if="project && project.visibility === 1" class="-m-4">
+        <div v-if="project && project.visibility === PROJECT_VISIBLE_TYPES.PUBLIC" class="-m-4">
             <el-form label-position="top" class="px-6 py-3">
                 <el-form-item label="">
                     <el-input readonly v-model="shareUrl">
@@ -12,7 +12,7 @@
             </el-form>
         </div>
 
-        <div v-if="project && project.visibility === 0" class="-m-4">
+        <div v-if="project && project.visibility === PROJECT_VISIBLE_TYPES.PRIVATE" class="-m-4">
             <div class="px-6 flex items-center" :class="{ 'py-3': !isShare, 'pt-3': isShare }">
                 <div class="flex-1">
                     <h4>开启分享</h4>
@@ -46,8 +46,9 @@
 </template>
 
 <script>
-    import { share, resetSecretkey } from '@/api/project'
+    import { share, resetSecretkey, generateProjectPreviewUrl } from '@/api/project'
     import { toRefs, reactive, ref } from 'vue'
+    import { PROJECT_VISIBLE_TYPES } from '@/common/constant'
 
     export default {
         setup() {
@@ -65,6 +66,7 @@
             })
 
             return {
+                PROJECT_VISIBLE_TYPES,
                 ...toRefs(state),
             }
         },
@@ -76,7 +78,7 @@
                         .then(({ msg, data }) => {
                             data = data || {}
                             this.$Message.success(msg || '操作成功')
-                            this.updateLinkAndPassword(data.link, data.secret_key)
+                            this.updateLinkAndPassword(generateProjectPreviewUrl(this.project.id), data.secret_key)
                             if (status) {
                                 this.project.secret_key = data.secret_key
                             } else {
@@ -97,7 +99,7 @@
                 if (!document.execCommand('copy')) return
                 this.copyText = '复制成功'
                 setTimeout(() => {
-                    this.copyText = this.project.visibility === 1 ? '复制链接' : '复制链接和密码'
+                    this.copyText = this.project.visibility === PROJECT_VISIBLE_TYPES.PUBLIC ? '复制链接' : '复制链接和密码'
                 }, 2000)
             },
 
@@ -105,15 +107,15 @@
                 this.isShow = true
                 this.project = project
 
-                this.copyText = project.visibility === 1 ? '复制链接' : '复制链接和密码'
+                this.copyText = project.visibility === PROJECT_VISIBLE_TYPES.PUBLIC ? '复制链接' : '复制链接和密码'
 
-                if (project.visibility === 0 && project.secret_key) {
+                if (project.visibility === PROJECT_VISIBLE_TYPES.PRIVATE && project.secret_key) {
                     this.isShare = true
                 } else {
                     this.isShare = false
                 }
 
-                this.updateLinkAndPassword(project.preview_link, project.secret_key)
+                this.updateLinkAndPassword(generateProjectPreviewUrl(project.id), project.secret_key)
             },
 
             updateLinkAndPassword(link, secret_key) {
@@ -136,7 +138,7 @@
 
             updateCopyText() {
                 var copyStr = [this.project.name ? `《${this.project.name}》` : '', `链接：${this.shareUrl}`]
-                this.project.visibility !== 1 && copyStr.push(`密码：${this.password}`)
+                this.project.visibility !== PROJECT_VISIBLE_TYPES.PUBLIC && copyStr.push(`密码：${this.password}`)
 
                 this.$nextTick(() => {
                     this.copyTextEl.value = copyStr.join('\n')

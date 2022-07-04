@@ -34,17 +34,7 @@ class ApiCatRepository extends BaseRepository
             return $this->fail('导入失败，请重新导入。');
         }
 
-        if (!$content = trim($content)) {
-            File::delete($this->filePath);
-            return $this->fail('导入失败，文件内容有误。');
-        }
-
-        if (!$content = json_decode($content, true)) {
-            File::delete($this->filePath);
-            return $this->fail('导入失败，文件内容有误。');
-        }
-
-        if (!is_array($content)) {
+        if (!$content = $this->validate($content)) {
             File::delete($this->filePath);
             return $this->fail('导入失败，文件内容有误。');
         }
@@ -65,6 +55,10 @@ class ApiCatRepository extends BaseRepository
     protected function import($docs, $parentID = 0)
     {
         foreach ($docs as $doc) {
+            if (!is_array($doc)) {
+                continue;
+            }
+
             if (array_key_exists('name', $doc) and !array_key_exists('title', $doc)) {
                 $doc['title'] = $doc['name'];
             }
@@ -127,5 +121,40 @@ class ApiCatRepository extends BaseRepository
                 $this->import($doc['sub_nodes'], $record->id);
             }
         }
+    }
+
+    /**
+     * 校验文档内容并返回JSON反序列化内容
+     *
+     * @param string $content 文档内容
+     * @return array|boolean
+     */
+    protected function validate($content)
+    {
+        if (!$content = trim($content)) {
+            return false;
+        }
+
+        if (!$content = json_decode($content, true)) {
+            return false;
+        }
+
+        if (!is_array($content)) {
+            return false;
+        }
+
+        if (!isset($content[0]) or !is_array($content[0])) {
+            return false;
+        }
+
+        if (!array_key_exists('name', $content[0]) and !array_key_exists('title', $content[0])) {
+            return false;
+        }
+
+        if (!array_key_exists('type', $content[0]) or !array_key_exists('content', $content[0])) {
+            return false;
+        }
+
+        return $content;
     }
 }

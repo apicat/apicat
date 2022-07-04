@@ -29,7 +29,7 @@
 </template>
 <script>
     import { addMember } from '@/api/project'
-    import { PROJECT_ROLE_LIST } from '@ac/shared'
+    import { PROJECT_ROLE_LIST } from '@/common/constant'
     export default {
         emits: ['on-ok'],
         props: {

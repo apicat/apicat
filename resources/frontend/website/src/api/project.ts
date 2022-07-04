@@ -1,4 +1,7 @@
 import Ajax from './Ajax'
+import { compile } from 'path-to-regexp'
+import { wrapperOrigin } from '@/common/utils'
+import { PROJECT_PREVIEW_PATH, PROJECT_SETTING_PATH, PROJECT_MEMBERS_PATH, PROJECT_PARAMS_PATH, PROJECT_TRASH_PATH } from '@/router/constant'
 
 export const createProject = (project = {}) => Ajax.post('/project/create', project)
 
@@ -36,8 +39,6 @@ export const restoreApiDocument = (data = {}) => Ajax.post('/doc/restore_api_doc
 // 根据角色获取项目列表
 export const getProjectListByRole = (authority: unknown) => Ajax.get('/projects/json', { params: { authority } })
 
-export const getProjectListByRole2 = (authority: unknown) => Ajax.get('/projects/base', { params: { authority } })
-
 // 获取项目列表
 export const getProjectList = (group_id: number) => Ajax.get('/projects', { params: { group_id: group_id == 0 ? '' : group_id } })
 
@@ -57,7 +58,10 @@ export const renameProjectGroup = (data: unknown) => Ajax.post('/project_group/r
 export const sortProjectGroup = (ids: unknown) => Ajax.post('/project_group/change_order', { ids })
 
 // 获取项目详情
-export const getProjectDetail = (project_id: unknown) => Ajax.get('/project', { params: { project_id } })
+export const getProjectDetail = (project_id: unknown, token?: unknown) => Ajax.get('/project', { params: { project_id, token } })
+
+// 获取项目状态
+export const getProjectStatus = (project_id: unknown) => Ajax.get('/project/status', { params: { project_id } })
 
 // 更换项目分组
 export const changeProjectGroup = (data: unknown) => Ajax.post('/project/change_group', data)
@@ -73,3 +77,17 @@ export const getProjectTrashList = (project_id: unknown) => Ajax.get('/doc/trash
 
 // 不在此项目中的成员
 export const getWithoutProjectMemberList = (project_id: unknown) => Ajax.get('/project/without_members', { params: { project_id } })
+
+// 生成预览链接地址
+export const generateProjectPreviewUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_PREVIEW_PATH)({ project_id })
+// 生成项目详情链接地址
+export const generateProjectDetailUrl = generateProjectPreviewUrl
+
+// 生成项目设置链接地址
+export const generateProjectSettingUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_SETTING_PATH)({ project_id })
+// 生成项目成员链接地址
+export const generateProjectMembersUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_MEMBERS_PATH)({ project_id })
+// 生成项目参数链接地址
+export const generateProjectParamsUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_PARAMS_PATH)({ project_id })
+// 生成项目回收站链接地址
+export const generateProjectTrashUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_TRASH_PATH)({ project_id })

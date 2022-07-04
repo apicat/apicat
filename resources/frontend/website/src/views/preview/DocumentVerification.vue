@@ -17,7 +17,7 @@
 
 <script>
     import { checkDocumentSecretKey } from '@/api/preview'
-    import { Storage } from '@ac/shared'
+    import { Storage } from '@natosoft/shared'
     import { inject } from 'vue'
 
     export default {

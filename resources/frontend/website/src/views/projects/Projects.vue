@@ -7,9 +7,9 @@
         <div class="ac-project">
             <div class="ac-project-item" v-for="project in projects" :key="project.id">
                 <div class="ac-project-thumb">
-                    <router-link :title="project.publicHref" :to="{ path: project.publicHref }" :target="project.isBlank ? '_blank' : '_self'">
+                    <a :title="project.publicHref" :href="project.publicHref">
                         <img :src="project.icon" />
-                    </router-link>
+                    </a>
                     <span class="ac-project-action" :ref="setProjectDropmenuClickOutsideIgnoreEle" @click="onProjectPopperIconClick($event, project)">
                         <el-icon><caret-bottom /></el-icon>
                     </span>
@@ -48,8 +48,6 @@
     import { storeToRefs } from 'pinia'
     import { useApi } from '@/hooks/useApi'
     import { toDocumentDetailPath } from '@/router/document.router'
-    import { toPreviewProjectPath } from '@/router/preview.router'
-    import { PROJECT_ROLES_MAP } from '@ac/shared'
 
     const [isLoading, getProjectListWithState] = useApi(getProjectList, { isShowMessage: false })
 
@@ -82,16 +80,8 @@
         const { data } = await getProjectListWithState(activeGroup.value.id)
         if (data) {
             projects.value = (data.projects || []).map((project: any) => {
-                project.isBlank = false
-                // 默认进入编辑
+                // 默认编辑
                 project.publicHref = toDocumentDetailPath({ project_id: project.id })
-
-                // 阅读者路由
-                if (project.authority === PROJECT_ROLES_MAP.READER) {
-                    project.isBlank = true
-                    project.publicHref = toPreviewProjectPath({ project_id: project.id })
-                }
-
                 return project
             })
         }
