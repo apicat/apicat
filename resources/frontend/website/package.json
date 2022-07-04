@@ -12,9 +12,9 @@
   "dependencies": {
     "@element-plus/icons-vue": "^1.1.4",
     "@natosoft/axios": "workspace:1.0.0",
-    "@natosoft/doc-content-css": "^1.2.2",
-    "@natosoft/editor": "^1.2.2",
-    "@natosoft/shared": "^1.2.2",
+    "@natosoft/doc-content-css": "^1.2.3",
+    "@natosoft/editor": "^1.2.3",
+    "@natosoft/shared": "^1.2.3",
     "@vueuse/core": "^7.7.1",
     "@vueuse/integrations": "^7.7.1",
     "animate.css": "^4.1.1",

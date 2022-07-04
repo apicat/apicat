@@ -66,9 +66,9 @@ importers:
     specifiers:
       '@element-plus/icons-vue': ^1.1.4
       '@natosoft/axios': workspace:1.0.0
-      '@natosoft/doc-content-css': ^1.2.2
-      '@natosoft/editor': ^1.2.2
-      '@natosoft/shared': ^1.2.2
+      '@natosoft/doc-content-css': ^1.2.3
+      '@natosoft/editor': ^1.2.3
+      '@natosoft/shared': ^1.2.3
       '@types/lodash-es': ^4.17.6
       '@types/nprogress': ^0.2.0
       '@types/sortablejs': ^1.10.7
@@ -102,9 +102,9 @@ importers:
     dependencies:
       '@element-plus/icons-vue': 1.1.4_vue@3.2.31
       '@natosoft/axios': link:../packages/ac-axios
-      '@natosoft/doc-content-css': 1.2.2
-      '@natosoft/editor': 1.2.2_dqy43mgn2i46omo25uu47rtfa4
-      '@natosoft/shared': 1.2.2
+      '@natosoft/doc-content-css': 1.2.3
+      '@natosoft/editor': 1.2.3_hfpqyzbku62mmkhkavzebswvuq
+      '@natosoft/shared': 1.2.3
       '@vueuse/core': 7.7.1_vue@3.2.31
       '@vueuse/integrations': 7.7.1_idgfuus3cqhr4gj7lsobl6drre
       animate.css: 4.1.1
@@ -605,15 +605,15 @@ packages:
     resolution: {integrity: sha512-zMM9Ds+SawiUkakS7y94Ymqx+S0ORzpG3frZirN3l+UlXUmSUR7hF4wxCVqW+ei94JzV5kt0uXBcoOEAuiydrw==}
     dev: false
 
-  /@natosoft/doc-content-css/1.2.2:
-    resolution: {integrity: sha512-6xwox0Awu1BUaFmWxcuPAOnmle8+bgeb0c9HA+EmVU+D9/7rixyJrrqGjX1BZSQ+dvE/S1yM3CBWL659S0qf0w==}
+  /@natosoft/doc-content-css/1.2.3:
+    resolution: {integrity: sha512-0XV1/WQz5S5LzSSSkmQHwx3aXZHFGFwkZ9mAXLHocseTQBTgowhul5zSuJu/jb1T7bYy9/TNNOMTrrwBIcHahQ==}
     dev: false
 
-  /@natosoft/editor/1.2.2_dqy43mgn2i46omo25uu47rtfa4:
-    resolution: {integrity: sha512-KSoLelnvjqiV23BPolXO0x5gAGp1bK9JkV4sZeYgGXtxLf1rHZsMZTRiQKmn7I03dUeOUS+lEG6FL2gnm0UvIA==}
+  /@natosoft/editor/1.2.3_hfpqyzbku62mmkhkavzebswvuq:
+    resolution: {integrity: sha512-OQ5qeo0Ot28h4Cx8dua97JMp9ZhPXCndlWZw/iEE/zGWlHj430Mn4XTy4qX+NaNFwJ11LiJWMdBlzqpM1u+GDg==}
     peerDependencies:
       '@element-plus/icons-vue': ^1.1.4
-      '@natosoft/shared': 1.2.2
+      '@natosoft/shared': 1.2.3
       element-plus: ^2.2.6
       lodash-es: ^4.17.21
       shortid: ^2.2.16
@@ -623,7 +623,7 @@ packages:
     dependencies:
       '@element-plus/icons-vue': 1.1.4_vue@3.2.31
       '@juggle/resize-observer': 3.3.1
-      '@natosoft/shared': 1.2.2
+      '@natosoft/shared': 1.2.3
       codemirror: 5.65.6
       element-plus: 2.2.6_vue@3.2.31
       lodash-es: 4.17.21
@@ -654,8 +654,8 @@ packages:
     resolution: {integrity: sha512-RtqrYuee2fhnL/Ly0s6nrqad7knZaeRkIFMGqQKiCDclGRx9Qxns4sZ8NmUNgAIaebBEu3pFedPVOfX8RvmjaA==}
     dev: false
 
-  /@natosoft/shared/1.2.2:
-    resolution: {integrity: sha512-20vi4ED1DUw4N3Um7WiXxtqjOELkaQue7X4ixwuL/PFvsCRGJXj7dzUW/abyJlAEsfnBYGEIvn22ICBQdQ31Ew==}
+  /@natosoft/shared/1.2.3:
+    resolution: {integrity: sha512-kW/HaviG+TiBj0ePuMumQoBiydJ6cWoMtYeLwvt7J8QvjaoAog6JX1JWie9kAfOE1Yxixqa24EIDzhCosvdabw==}
     dev: false
 
   /@nodelib/fs.scandir/2.1.5:
