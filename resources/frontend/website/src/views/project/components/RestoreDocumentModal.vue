@@ -24,6 +24,7 @@
 <script>
     import { getDirList } from '@/api/dir'
     import { restoreApiDocument } from '@/api/project'
+    import { generateDocumentDetailPath } from '@/api/document'
     import { ElMessage as $Message } from 'element-plus'
     import { h } from 'vue'
 
@@ -89,7 +90,7 @@
                             closable: true,
                             message: h('span', null, [
                                 '文档恢复成功，',
-                                h('a', { class: 'text-blue-600', href: `/editor/${this.project_id}/doc/${this.document.doc_id}` }, '查看详情'),
+                                h('a', { class: 'text-blue-600', href: generateDocumentDetailPath(this.project_id, this.document.doc_id, false) }, '查看详情'),
                             ]),
                         })
                         this.$emit('on-ok')

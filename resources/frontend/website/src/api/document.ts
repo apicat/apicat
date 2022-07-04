@@ -1,4 +1,5 @@
 import Ajax from './Ajax'
+import { wrapperOrigin } from '@/common/utils'
 import { compile } from 'path-to-regexp'
 import { Storage } from '@natosoft/shared'
 import ApicatLogo from '@/assets/image/logo-apicat@2x.png'
@@ -50,4 +51,5 @@ export const API_DOCUMENT_IMPORT_ACTION_MAPPING = [
 ]
 
 // 生成文档详情路由地址
-export const generateDocumentDetailPath = (project_id: any, node_id: any) => window['origin'] + compile(DECUMENT_DETAIL_PATH)({ project_id, node_id })
+export const generateDocumentDetailPath = (project_id: any, node_id: any, hasOrigin?: boolean) =>
+    wrapperOrigin(hasOrigin) + compile(DECUMENT_DETAIL_PATH)({ project_id, node_id })

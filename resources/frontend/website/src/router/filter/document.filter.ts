@@ -12,11 +12,8 @@ const initDocumentFilter = (route: Router) => {
 
         // 不在文档模块内，忽略
         if (!to.matched.find((route) => route.name === DOCUMENT_ROUTE_NAME)) {
-            // projectStore.$reset()
             return next()
         }
-
-        // console.log('1.检查项目权限')
 
         const pid = parseInt(to.params.project_id as string, 10)
 
@@ -65,9 +62,9 @@ export const initProjectDetail = (route: Router) => {
         }
 
         try {
-            showLoading()
+            // showLoading()
             await projectStore.getProjectDetail(pid)
-            hideLoading()
+            // hideLoading()
         } catch (error) {
             hideLoading()
             return next(NOT_FOUND)

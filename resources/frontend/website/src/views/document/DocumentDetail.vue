@@ -1,5 +1,5 @@
 <template>
-    <div class="ac-document" v-loading="isLoading">
+    <div class="ac-document" v-loading="isLoading" element-loading-background="#fff">
         <div v-show="hasDocument && document.id">
             <h1 class="ac-document__title" ref="title">{{ document.title }}</h1>
             <p class="ac-document__desc">
@@ -43,10 +43,10 @@
     import { inject, ref, watch } from 'vue'
     import { hideLoading } from '@/hooks/useLoading'
     import { useElementBounding } from '@vueuse/core'
-    import { debounce } from 'lodash-es'
     import emitter, { IS_SHOW_DOCUMENT_TITLE } from '@/common/emitter'
     import { storeToRefs } from 'pinia'
     import { useProjectStore } from '@/stores/project'
+    import { DOCUMENT_EDIT_NAME } from '@/router/constant'
 
     function expand(pid, isExpand) {
         document.querySelectorAll('[data-pid="' + pid + '"]').forEach(function (el) {
@@ -73,15 +73,9 @@
             const projectStore = useProjectStore()
             const { isGuest } = storeToRefs(projectStore)
 
-            watch(
-                top,
-                debounce(() => {
-                    emitter.emit(IS_SHOW_DOCUMENT_TITLE, top.value < 25 ? true : false)
-                }, 200),
-                {
-                    immediate: true,
-                }
-            )
+            watch(top, () => emitter.emit(IS_SHOW_DOCUMENT_TITLE, top.value < 25 ? true : false), {
+                immediate: true,
+            })
 
             const { initHighlight } = useHighlight()
             const documentImportModal = inject('documentImportModal')
@@ -117,7 +111,7 @@
 
         methods: {
             onEditBtnClick() {
-                this.$router.push({ name: 'document.api.edit', params: { project_id: this.$route.params.project_id, node_id: this.$route.params.node_id } })
+                this.$router.push({ name: DOCUMENT_EDIT_NAME, params: { project_id: this.$route.params.project_id, node_id: this.$route.params.node_id } })
             },
 
             initTableToggle() {
@@ -187,6 +181,7 @@
                 const doc_id = parseInt(this.$route.params.node_id, 10)
 
                 if (isNaN(doc_id)) {
+                    hideLoading()
                     this.isLoading = false
                     this.hasDocument = false
                     return

@@ -306,9 +306,9 @@
             }
 
             const getDocTreeList = async () => {
-                showLoading()
+                // showLoading()
                 await documentStore.getApiDocTree(project_id as string)
-                hideLoading()
+                // hideLoading()
             }
 
             const onSearchIconClick = (e: any) => {

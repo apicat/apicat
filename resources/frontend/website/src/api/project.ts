@@ -1,6 +1,7 @@
 import Ajax from './Ajax'
 import { compile } from 'path-to-regexp'
-import { PROJECT_PREVIEW_PATH } from '@/router/constant'
+import { wrapperOrigin } from '@/common/utils'
+import { PROJECT_PREVIEW_PATH, PROJECT_SETTING_PATH, PROJECT_MEMBERS_PATH, PROJECT_PARAMS_PATH, PROJECT_TRASH_PATH } from '@/router/constant'
 
 export const createProject = (project = {}) => Ajax.post('/project/create', project)
 
@@ -78,4 +79,15 @@ export const getProjectTrashList = (project_id: unknown) => Ajax.get('/doc/trash
 export const getWithoutProjectMemberList = (project_id: unknown) => Ajax.get('/project/without_members', { params: { project_id } })
 
 // 生成预览链接地址
-export const generateProjectPreviewUrl = (project_id: string) => window['origin'] + compile(PROJECT_PREVIEW_PATH)({ project_id })
+export const generateProjectPreviewUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_PREVIEW_PATH)({ project_id })
+// 生成项目详情链接地址
+export const generateProjectDetailUrl = generateProjectPreviewUrl
+
+// 生成项目设置链接地址
+export const generateProjectSettingUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_SETTING_PATH)({ project_id })
+// 生成项目成员链接地址
+export const generateProjectMembersUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_MEMBERS_PATH)({ project_id })
+// 生成项目参数链接地址
+export const generateProjectParamsUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_PARAMS_PATH)({ project_id })
+// 生成项目回收站链接地址
+export const generateProjectTrashUrl = (project_id: string, hasOrigin?: true) => wrapperOrigin(hasOrigin) + compile(PROJECT_TRASH_PATH)({ project_id })
