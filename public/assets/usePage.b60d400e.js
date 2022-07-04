@@ -1,0 +1,1 @@
+import{bd as s,aZ as o,r as n,t as p}from"./vendor.5ba3dbe4.js";const m=a=>{const r=s(),t=o(),u=parseInt(r.query.page,10),e=n(isNaN(u)?1:u);return p(()=>e.value,()=>{t.push({name:t.currentRoute.value.name,query:{page:e.value}}),a&&a()}),{page:e}};export{m as u};
