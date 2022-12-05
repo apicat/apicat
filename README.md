@@ -29,4 +29,4 @@ ApiCat 开源版是 ApiCat 开发团队将 ApiCat 的核心功能代码开放在
 
 ## 使用文档
 
-部署安装及了解更多可查看我们的 [文档](https://apicat.net/app/31eb8ec8c295c8c4130ee50304d55ab5).
+部署安装及了解更多可查看我们的 [文档](https://apicat.net/project/31eb8ec8c295c8c4130ee50304d55ab5).
