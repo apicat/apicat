@@ -1,16 +1,16 @@
 <template>
     <SidebarLayout v-if="!isReader && projectInfo">
-        <div class="flex flex-col border divide-y bg-white adwa">
+        <div class="flex flex-col bg-white border divide-y adwa">
             <router-link
                 v-for="item in navs"
                 :key="item.name"
                 :to="{ name: item.name }"
-                class="relative h-12 pl-6 flex items-center text-neutral-600 hover:text-neutral-900"
+                class="relative flex items-center h-12 pl-6 text-neutral-600 hover:text-neutral-900"
             >
                 <span>{{ item.meta.title }}</span>
             </router-link>
 
-            <router-link :to="documentDetailPath" class="relative h-12 pl-6 flex items-center text-blue-600">
+            <router-link :to="documentDetailPath" class="relative flex items-center h-12 pl-6 text-blue-600">
                 <span class="truncate">前往 {{ projectInfo.name }} 文档</span>
             </router-link>
         </div>

@@ -2,6 +2,7 @@ import Ajax from './Ajax'
 import { compile } from 'path-to-regexp'
 import { wrapperOrigin } from '@/common/utils'
 import { PROJECT_PREVIEW_PATH, PROJECT_SETTING_PATH, PROJECT_MEMBERS_PATH, PROJECT_PARAMS_PATH, PROJECT_TRASH_PATH } from '@/router/constant'
+import { PROJECT_ROLES_KEYS } from '@/common/constant'
 
 export const createProject = (project = {}) => Ajax.post('/project/create', project)
 
@@ -37,8 +38,9 @@ export const restoreDocument = (data = {}) => Ajax.post('/project/trash_restore'
 export const restoreApiDocument = (data = {}) => Ajax.post('/doc/restore_api_doc', data)
 
 // 根据角色获取项目列表
-export const getProjectListByRole = (authority: unknown) => Ajax.get('/projects/json', { params: { authority } })
-
+export const getProjectListByRole = (authority: unknown) => Ajax.get('/projects/base', { params: { authority } })
+export const getAllProjectList = () => getProjectListByRole([PROJECT_ROLES_KEYS.MANAGER, PROJECT_ROLES_KEYS.DEVELOPER, PROJECT_ROLES_KEYS.READER])
+export const getEditableProjectListForCreateIterate = () => getProjectListByRole([PROJECT_ROLES_KEYS.MANAGER, PROJECT_ROLES_KEYS.DEVELOPER])
 // 获取项目列表
 export const getProjectList = (group_id: number) => Ajax.get('/projects', { params: { group_id: group_id == 0 ? '' : group_id } })
 

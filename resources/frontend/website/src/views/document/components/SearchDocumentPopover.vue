@@ -2,9 +2,9 @@
     <el-popover v-model:visible="visible" ref="popoverRef" placement="bottom-end" :virtual-ref="searchDocumentPopoverRefEl" virtual-triggering width="auto">
         <div ref="searchDomRef" class="search-poptip">
             <el-input ref="searchInput" :suffix-icon="Search" placeholder="关键字 回车搜索" v-model="keywords" @change="onSearchDocument" clearable />
-            <div v-show="isSearched" class="search-result scroll-content text-left" v-loading="isSearching">
+            <div v-show="isSearched" class="text-left search-result scroll-content" v-loading="isSearching">
                 <span class="cursor-pointer" v-for="(item, index) in searchData" :key="item.doc_id + '_' + index" @click="onSearchResultItemClick(item)">
-                    <h4 class="truncate px-2 hover:bg-gray-100">
+                    <h4 class="px-2 truncate hover:bg-gray-100">
                         {{ item.title }}
                     </h4>
                 </span>

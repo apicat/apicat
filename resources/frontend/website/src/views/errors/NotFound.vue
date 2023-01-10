@@ -7,9 +7,9 @@
 <script setup lang="ts">
     import { inject } from 'vue'
     import { useUserStore } from '@/stores/user'
-
+    import { ROOT_PATH, MAIN_PATH } from '@/router/constant'
     const switchNavState = inject('switchNavState') as any
-    const homePath = { path: useUserStore().isLogin ? '/main' : '/' }
+    const homePath = { path: useUserStore().isLogin ? MAIN_PATH : ROOT_PATH }
 
     switchNavState && switchNavState(false)
 </script>
