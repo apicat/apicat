@@ -67,10 +67,6 @@
         }
         const node_ids = transferTreeRef.value.getFlattenValues().map((item: any) => item.id)
 
-        // if (!node_ids.length) {
-        //     $Message.error('请选择需要规划的API')
-        //     return
-        // }
         await executePlanApisToIterate({ iteration_id, node_ids })
         emit('ok')
         hide()
@@ -172,9 +168,6 @@
         fromData.value = from
         toData.value = to
 
-        // setTimeout(() => {
-        //     expandedKeys.value = toRaw(expandedKeys || [])
-        // }, 2000)
     }
 
     defineExpose({

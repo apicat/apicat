@@ -39,7 +39,7 @@
     import useTable from '@/hooks/useTable'
     import { deleteIteration, getIterations, toIterateDocumentPath } from '@/api/iterate'
     import { getAllProjectList } from '@/api/project'
-    import { ref, toRaw, watch } from 'vue'
+    import { ref, toRaw, watch, onMounted } from 'vue'
     import useApi from '@/hooks/useApi'
 
     import { useIterateStore } from '@/stores/iterate'
@@ -47,7 +47,6 @@
     import { AsyncMsgBox } from '@/components/AsyncMessageBox'
     import { ElMessage as $Message } from 'element-plus'
     import { PROJECT_ROLES_KEYS } from '@/common/constant'
-    import { useLoadTeamInfo } from '@/hooks/useLoadTeamInfo'
 
     const searchParam = { project_id: '' }
     const iterateStore = useIterateStore()
@@ -223,7 +222,8 @@
         options.value = data || []
     }
 
-    useLoadTeamInfo(init)
+    onMounted(init)
+
 </script>
 
 <style lang="scss">

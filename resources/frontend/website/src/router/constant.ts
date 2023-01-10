@@ -2,7 +2,7 @@ export const INDEX_PATH = '/'
 export const ROOT_PATH = INDEX_PATH
 export const LOGIN_PATH = '/login'
 export const REGISTE_PATH = '/register'
-export const MAIN_PATH = '/main'
+export const MAIN_PATH = '/home'
 
 export const NOT_FOUND = { path: '/404' }
 export const DOCUMENT_ROUTE_NAME = 'document'

@@ -9,6 +9,9 @@ import membersRouters from './members.router'
 import projectsRouters from './projects.router'
 import projectRouters from './project.router'
 import documentRouter from './document.router'
+import iterationsRouter from './iterations.router'
+import iterateDocumentRouter from './iterate.router'
+
 import { documentPreviewRouters, projectPreviewRouters, trashPreviewRouters } from './preview.router'
 
 export const router = createRouter({
@@ -20,12 +23,14 @@ export const router = createRouter({
 
         documentRouter,
 
+        iterateDocumentRouter,
+
         {
             path: MAIN_PATH,
             name: 'main',
             component: MainLayout,
             redirect: { name: 'projects' },
-            children: [projectsRouters, userRouters, membersRouters, projectRouters],
+            children: [projectsRouters, userRouters, membersRouters, projectRouters, iterationsRouter],
         },
 
         projectPreviewRouters,
