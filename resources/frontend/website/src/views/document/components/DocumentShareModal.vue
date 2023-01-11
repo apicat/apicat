@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="isShow" title="分享文档" custom-class="vertical-center-modal" :width="540" append-to-body>
+    <el-dialog v-model="isShow" title="分享文档" class="vertical-center-modal" :width="540" append-to-body>
         <div v-loading="isShowDetail" class="-m-4">
             <div v-if="document && document.visibility === 1">
                 <el-form label-position="top" class="px-6 py-3">

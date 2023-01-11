@@ -2,7 +2,7 @@
     <el-dialog
         v-model="isShow"
         :width="400"
-        custom-class="show-footer-line vertical-center-modal"
+        class="show-footer-line vertical-center-modal"
         :close-on-click-modal="false"
         append-to-body
         title="原文档所在分类已被删除，请选择其他分类"

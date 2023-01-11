@@ -4,7 +4,7 @@
         :width="400"
         :close-on-click-modal="false"
         append-to-body
-        custom-class="show-footer-line vertical-center-modal"
+        class="show-footer-line vertical-center-modal"
         title="修改成员密码"
     >
         <el-form @submit.prevent="handleSubmit" ref="formRef" :model="form" :rules="rules" label-position="top">

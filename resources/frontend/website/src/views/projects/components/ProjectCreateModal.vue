@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="isShow" :width="440" :close-on-click-modal="false" title="新建项目" append-to-body custom-class="show-footer-line">
+    <el-dialog v-model="isShow" :width="440" :close-on-click-modal="false" title="新建项目" append-to-body class="show-footer-line">
         <el-form
             ref="projectForm"
             :model="form"

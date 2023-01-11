@@ -4,7 +4,7 @@
         :width="400"
         :close-on-click-modal="false"
         append-to-body
-        custom-class="show-footer-line vertical-center-modal"
+        class="show-footer-line vertical-center-modal"
         :title="(isEdit ? '编辑' : '添加') + '参数'"
     >
         <el-form @keyup.enter="handleSubmit('form')" ref="form" :model="form" :rules="rules" label-position="top">

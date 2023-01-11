@@ -5,7 +5,7 @@
         :close-on-click-modal="false"
         title="添加成员"
         append-to-body
-        custom-class="show-footer-line vertical-center-modal"
+        class="show-footer-line vertical-center-modal"
     >
         <el-form @keyup.enter="handleSubmit('teamForm')" ref="teamForm" :model="form" :rules="rules" label-position="top" style="margin-bottom: -19px">
             <el-form-item label="选择成员" prop="user_ids" class="hide_required">
