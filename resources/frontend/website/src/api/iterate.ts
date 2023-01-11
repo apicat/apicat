@@ -76,7 +76,6 @@ export const cancelCollection = (data: any) => Ajax.post('/iteration/unstar', da
  */
 export const planApisToIterate = (data: any) => Ajax.post('/iteration/push', data)
 
-export const toIterateDocumentPath = (iterate_id_public: string) => compile(ITERATE_ROUTE_PATH)({ iterate_id_public })
-export const toIterateDocumentDetailPath = (iterate_id_public: string, node_id?: string) =>
-    compile(ITERATE_DOCUMENT_DETAIL_PATH)({ iterate_id_public, node_id })
+export const toIterateDocumentPath = (iterate_id: string) => compile(ITERATE_ROUTE_PATH)({ iterate_id })
+export const toIterateDocumentDetailPath = (iterate_id: string, node_id?: string) => compile(ITERATE_DOCUMENT_DETAIL_PATH)({ iterate_id, node_id })
 export const toIterateDocumentEditPath = compile(ITERATE_DOCUMENT_EDIT_PATH)

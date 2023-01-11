@@ -53,7 +53,7 @@
     const { isActiveIterateList, activeTab } = storeToRefs(iterateStore)
 
     const transformData = (item: any) => {
-        item.to = toIterateDocumentPath(item.id_public)
+        item.to = toIterateDocumentPath(item.id)
         return item
     }
     const {
