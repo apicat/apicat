@@ -1,7 +1,7 @@
 import type { Router } from 'vue-router'
-import { showLoading, hideLoading } from '@/hooks/useLoading'
 import { useProjectStore } from '@/stores/project'
-import { DOCUMENT_ROUTE_NAME, NOT_FOUND } from '../constant'
+import { DOCUMENT_ROUTE_NAME } from '../constant'
+import { goNotFound } from '@/common/utils'
 
 /**
  * 文档中项目权限拦截
@@ -15,25 +15,27 @@ const initDocumentFilter = (route: Router) => {
             return next()
         }
 
-        const pid = parseInt(to.params.project_id as string, 10)
+        const project_id = parseInt(to.params.project_id as string, 10)
 
         // 同一个项目，无需再次获取权限信息
-        if (projectStore.projectAuthInfo && projectStore.projectAuthInfo.id === pid) {
+        if (projectStore.projectAuthInfo && projectStore.projectAuthInfo.id === project_id) {
             return next()
         }
 
         try {
-            showLoading()
-            const projectAuthInfo = await projectStore.getProjectAuth(pid)
+            // showLoading()
+            // console.log('1.获取项目状态')
+
+            const projectAuthInfo = await projectStore.getProjectAuth(project_id)
 
             // 无项目信息,404
-            if (!projectAuthInfo || !projectAuthInfo.id) {
-                hideLoading()
-                return next(NOT_FOUND)
+            if (!projectAuthInfo || !projectAuthInfo.id_public) {
+                goNotFound()
+                return false
             }
         } catch (error) {
-            hideLoading()
-            return next(NOT_FOUND)
+            goNotFound()
+            return false
         }
 
         return next()
@@ -43,7 +45,7 @@ const initDocumentFilter = (route: Router) => {
 /**
  * 文档中项目详情获取
  */
-export const initProjectDetail = (route: Router) => {
+export const initProjectDetailFilter = (route: Router) => {
     route.beforeEach(async (to, from, next) => {
         const projectStore = useProjectStore()
 
@@ -52,22 +54,20 @@ export const initProjectDetail = (route: Router) => {
             return next()
         }
 
-        // console.log('2.获取项目详情')
+        // console.log('3.获取项目详情')
 
-        const pid = parseInt(to.params.project_id as string, 10)
+        const project_id = parseInt(to.params.project_id as string, 10)
 
         // 同一个项目，无需再次获取详情信息
-        if (projectStore.projectInfo && projectStore.projectInfo.id === pid) {
+        if (projectStore.projectInfo && projectStore.projectInfo.id === project_id) {
             return next()
         }
 
         try {
-            // showLoading()
-            await projectStore.getProjectDetail(pid)
-            // hideLoading()
+            await projectStore.getProjectDetail(project_id)
         } catch (error) {
-            hideLoading()
-            return next(NOT_FOUND)
+            goNotFound()
+            return false
         }
 
         return next()

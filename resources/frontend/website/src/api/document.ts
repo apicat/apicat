@@ -12,13 +12,14 @@ export const getUrlTipList = (project_id: any) => Ajax.get('/api_url/list', { pa
 export const deleteUrlTip = (project_id: any, url_id: any) => Ajax.post('/api_url/remove', { project_id, url_id })
 
 // 文档详情综合
-export const getDocumentDetail = (project_id: any, doc_id: any, format = 'json') => {
+export const getDocumentDetail = (params: any, format = 'json') => {
+    const { project_id, doc_id } = params || {}
     const token = Storage.get(Storage.KEYS.SECRET_PROJECT_TOKEN + project_id || '', true)
     return Ajax.get('/api_doc', { params: { project_id, doc_id, format, token } })
 }
-export const searchDocuments = (project_id: any, keywords: any) => {
-    const token = Storage.get(Storage.KEYS.SECRET_PROJECT_TOKEN + project_id || '', true)
-    return Ajax.get('/api_doc/search', { params: { project_id, keywords, token } })
+export const searchDocuments = (params: any, keywords: any) => {
+    const token = Storage.get(Storage.KEYS.SECRET_PROJECT_TOKEN + params.project_id || '', true)
+    return Ajax.get('/api_doc/search', { params: { ...(params || {}), keywords, token } })
 }
 export const createDoc = (doc = {}) => Ajax.post('/api_doc/create', { ...doc })
 export const createHttpDoc = (doc = {} as any) => Ajax.post('/api_doc/http_template', { ...doc })
