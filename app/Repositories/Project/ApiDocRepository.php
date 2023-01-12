@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
 use App\Models\ApiDoc;
+use App\Models\Iteration;
+use App\Models\IterationApi;
+use App\Repositories\Iteration\IterationRepository;
 
 class ApiDocRepository
 {
@@ -173,6 +176,46 @@ class ApiDocRepository
     }
 
     /**
+     * 通过节点名称在迭代里查找节点
+     *
+     * @param int $iterationId 迭代id
+     * @param int $projectID 项目id
+     * @param string $keywords 关键词
+     * @return array
+     */
+    public static function searchNodeFromIteration(int $iterationId, int $projectID, string $keywords)
+    {
+        $result = [];
+
+        $iterationProjectId = Iteration::where('id', $iterationId)->value('project_id');
+
+        if ($projectID != $iterationProjectId) {
+            return $result;
+        }
+
+        $nodeIds = IterationApi::where('iteration_id', $iterationId)->pluck('node_id')->toArray();
+        if (!$nodeIds) {
+            return $result;
+        }
+
+        $records = ApiDoc::whereIn('id', $nodeIds)->where([
+            ['type', '>', 0],
+            ['name', 'like', '%' . $keywords . '%']
+        ])->latest()->get();
+
+        if ($records->count() > 0) {
+            foreach ($records as $record) {
+                $result[] = [
+                    'doc_id' => $record->id,
+                    'title' => $record->name
+                ];
+            }
+        }
+
+        return $result;
+    }
+
+    /**
      * 获取一个节点下所有的分类和文档的id，包含子分类
      * @param int $projectID 项目id
      * @param int $nodeID 节点id
@@ -215,9 +258,10 @@ class ApiDocRepository
      * @param string $name 目录名称
      * @param int $parentID 父级ID
      * @param int $userID 用户id
+     * @param int $iterationId 迭代id
      * @return false|ApiDoc 成功: ApiDoc  失败: false
      */
-    public static function addDirToHead($projectID, $name, $parentID = 0, $userID = null)
+    public static function addDirToHead(int $projectID, string $name, int $parentID = 0, int $userID = 0, int $iterationId = 0)
     {
         ApiDoc::where([
             ['project_id', $projectID],
@@ -240,6 +284,10 @@ class ApiDocRepository
             ])->decrement('display_order');
 
             return false;
+        }
+
+        if ($iterationId and $projectID == Iteration::where('id', $iterationId)->value('project_id')) {
+            IterationRepository::addApiToIteration($projectID, $iterationId, $node->id, $node->type);
         }
 
         TreeCacheRepository::remove($projectID);
@@ -388,9 +436,10 @@ class ApiDocRepository
      * @param string $title 文档名称
      * @param string $content 文档内容
      * @param int $userID 用户id
+     * @param int $iterationId 迭代id
      * @return false|ApiDoc 成功: ApiDoc  失败: false
      */
-    public static function addDoc($projectID, $parentID, $title, $content = '', $userID = null)
+    public static function addDoc(int $projectID, int $parentID, string $title, string $content = '', int $userID = 0, int $iterationId = 0)
     {
         if (!$userID and !Auth::id()) {
             return false;
@@ -415,6 +464,10 @@ class ApiDocRepository
         ]);
         if (!$node) {
             return false;
+        }
+
+        if ($iterationId and $projectID == Iteration::where('id', $iterationId)->value('project_id')) {
+            IterationRepository::addApiToIteration($projectID, $iterationId, $node->id, $node->type);
         }
 
         TreeCacheRepository::remove($projectID);
@@ -458,9 +511,10 @@ class ApiDocRepository
     /**
      * 删除文档
      * @param int|ApiDoc $node 节点id或节点实例
+     * @param int $iterationId 迭代id
      * @return boolean
      */
-    public static function removeDoc($node)
+    public static function removeDoc(int|ApiDoc $node, int $iterationId = 0)
     {
         if (is_int($node)) {
             $node = ApiDoc::where([
@@ -475,6 +529,10 @@ class ApiDocRepository
 
         if (!($node instanceof ApiDoc) or $node->type != 1) {
             return false;
+        }
+
+        if ($iterationId and $node->project_id == Iteration::where('id', $iterationId)->value('project_id')) {
+            IterationRepository::delIterationApi($node->project_id, $iterationId, $node->id);
         }
 
         TreeCacheRepository::remove($node->project_id);

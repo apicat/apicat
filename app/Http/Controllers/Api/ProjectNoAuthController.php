@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\NotLoginException;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use App\Exceptions\SecretKeyExpiredException;
+use App\Repositories\Iteration\IterationRepository;
 use App\Repositories\Project\ProjectRepository;
 use App\Repositories\Project\ProjectMemberRepository;
 use App\Repositories\Project\ProjectShareRepository;
 use App\Repositories\Project\ApiDocRepository;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * 非必需登录访问的API
@@ -135,17 +137,18 @@ class ProjectNoAuthController extends Controller
     public function docTree(Request $request)
     {
         $request->validate([
-            'project_id' => 'required|integer|min:1',
             'token' => 'nullable|string|size:60'
         ]);
 
-        $project = $this->getProject($request);
-
-        return [
-            'status' => 0,
-            'msg' => '',
-            'data' => ApiDocRepository::getTree($project->id)
-        ];
+        if ($request->input('iteration_id')) {
+            return $this->iterationDocTree($request);
+        } elseif ($request->input('project_id')) {
+            return $this->projectDocTree($request);
+        } else {
+            throw ValidationException::withMessages([
+                'project_id' => '请求失败，您传递的信息有误。',
+            ]);
+        }
     }
 
     public function docSearch(Request $request)
@@ -153,7 +156,8 @@ class ProjectNoAuthController extends Controller
         $request->validate([
             'project_id' => 'required|integer|min:1',
             'token' => 'nullable|string|size:60',
-            'keywords' => 'required|string|max:255'
+            'keywords' => 'required|string|max:255',
+            'iteration_id' => 'nullable|integer|min:1',
         ]);
 
         $project = $this->getProject($request);
@@ -162,10 +166,16 @@ class ProjectNoAuthController extends Controller
             return ['status' => 0, 'msg' => '', 'data' => []];
         }
 
+        if ($request->input('iteration_id')) {
+            $records = ApiDocRepository::searchNodeFromIteration($request->input('iteration_id'), $project->id, $request->input('keywords'));
+        } else {
+            $records = ApiDocRepository::searchNode($project->id, $request->input('keywords'));
+        }
+
         return [
             'status' => 0,
             'msg' => '',
-            'data' => ApiDocRepository::searchNode($project->id, $request->input('keywords'))
+            'data' => $records
         ];
     }
 
@@ -216,5 +226,54 @@ class ProjectNoAuthController extends Controller
         }
 
         return $project;
+    }
+
+    /**
+     * 获取项目文档树
+     *
+     * @param Request $request
+     * @return array
+     */
+    protected function projectDocTree($request)
+    {
+        $project = $this->getProject($request);
+
+        return [
+            'status' => 0,
+            'msg' => '',
+            'data' => ApiDocRepository::getTree($project->id)
+        ];
+    }
+
+    /**
+     * 获取迭代文档树
+     *
+     * @param Request $request
+     * @return void
+     */
+    protected function iterationDocTree($request)
+    {
+        if (!Auth::guard('api')->check()) {
+            throw new NotLoginException;
+        }
+
+        $iteration = IterationRepository::get($request->input('iteration_id'));
+        if (!$iteration) {
+            throw ValidationException::withMessages([
+                'iteration_id' => '您查看的迭代不存在',
+            ]);
+        }
+
+        if (!ProjectMemberRepository::inThisProject($iteration->project_id, Auth::guard('api')->id())) {
+            throw ValidationException::withMessages([
+                'project_id' => '您没有查看迭代API的权限',
+            ]);
+        }
+
+        return [
+            'status' => 0,
+            'msg' => '',
+            'data' => IterationRepository::apiTree($iteration)
+        ];
     }
 }

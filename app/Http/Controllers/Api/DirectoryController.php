@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Repositories\Project\ApiDocRepository;
 use App\Repositories\Project\ProjectRepository;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class DirectoryController extends Controller
@@ -39,10 +40,12 @@ class DirectoryController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:50'],
-            'parent_id' => ['nullable', 'integer', 'min:1']
+            'parent_id' => ['nullable', 'integer', 'min:1'],
+            'iteration_id' => ['nullable', 'integer', 'min:1']
         ]);
 
         $parentID = $request->input('parent_id') ? $request->input('parent_id') : 0;
+        $iterationId = $request->input('iteration_id') ?? 0;
 
         if (!ProjectRepository::active()->hasAuthority()) {
             throw ValidationException::withMessages([
@@ -50,7 +53,7 @@ class DirectoryController extends Controller
             ]);
         }
 
-        if ($node = ApiDocRepository::addDirToHead($request->input('project_id'), $request->input('name'), $parentID)) {
+        if ($node = ApiDocRepository::addDirToHead($request->input('project_id'), $request->input('name'), $parentID, Auth::id(), $iterationId)) {
             return [
                 'status' => 0,
                 'msg' => '目录创建成功',
@@ -116,7 +119,8 @@ class DirectoryController extends Controller
     public function remove(Request $request)
     {
         $request->validate([
-            'node_id' => ['required', 'integer', 'min:1']
+            'node_id' => ['required', 'integer', 'min:1'],
+            'iteration_id' => ['nullable', 'integer', 'min:1']
         ]);
 
         if (!ProjectRepository::active()->hasAuthority()) {
@@ -132,7 +136,8 @@ class DirectoryController extends Controller
             ]);
         }
 
-        if (ApiDocRepository::removeDir($request->input('project_id'), $request->input('node_id'))) {
+        $iterationId = $request->input('iteration_id') ?? 0;
+        if (ApiDocRepository::removeDir($request->input('project_id'), $request->input('node_id'), $iterationId)) {
             // 该目录之后的树节点向前移动一位
             ApiDocRepository::moveForward($request->input('project_id'), $node->parent_id, $node->display_order);
 

@@ -61,7 +61,7 @@ class ApiDocNoAuthController extends Controller
         $format = $request->input('format') ? $request->input('format') : 'json';
         $deleted = $request->input('deleted') ? $request->input('deleted') : false;
 
-        $doc= $this->getDoc($request, $deleted);
+        $doc = $this->getDoc($request, $deleted);
 
         if ($format == 'json') {
             $content = $doc->content;
