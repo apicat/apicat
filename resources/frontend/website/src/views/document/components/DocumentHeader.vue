@@ -1,13 +1,13 @@
 <template>
     <header class="ac-doc-header">
         <div class="ac-doc-header-inner">
-            <div class="w-full relative text-center">
-                <router-link class="absolute left-0 top-0 h-full flex items-center text-zinc-500" :to="{ name: 'projects' }">
+            <div class="relative w-full text-center">
+                <router-link class="absolute top-0 left-0 flex items-center h-full text-zinc-500" :to="{ name: 'projects' }">
                     <el-icon class="mr-1"><arrow-left-bold /></el-icon>
                     返回
                 </router-link>
 
-                <div class="h-14 text-base font-medium">
+                <div class="text-base font-medium h-14">
                     <el-popover placement="bottom" trigger="click" popper-class="ac-popper-menu ac-popper-menu--small" width="auto">
                         <template #reference>
                             <div class="flex items-center justify-center h-full max-w-sm m-auto cursor-pointer hover:text-zinc-600">
@@ -24,14 +24,14 @@
                                 :class="{ 'border-t': menu.divided }"
                                 @click="menu.onClick ? menu.onClick(menu) : onPopperItemClick(menu)"
                             >
-                                <i class="icon iconfont mr-1" :class="menu.icon" />{{ menu.text }}
+                                <i class="mr-1 icon iconfont" :class="menu.icon" />{{ menu.text }}
                             </li>
                         </ul>
                     </el-popover>
                 </div>
 
-                <div class="absolute right-0 top-0 h-full flex items-center text-zinc-500">
-                    <a class="flex items-center h-full" href="javascript:void(0)" @click="onSearchTextClick">
+                <div class="absolute top-0 right-0 flex items-center h-full text-zinc-500">
+                    <a class="flex items-center h-full" href="javascript:void(0)" ref="searchIconRef">
                         <el-icon class="mr-2"><Search /></el-icon>搜索
                     </a>
 
@@ -52,7 +52,7 @@
     </header>
 
     <ProjectShareModal ref="projectShareModal" />
-    <SearchDocumentPopover ref="searchDocumentPopoverRef" />
+    <SearchDocumentPopover ref="searchDocumentPopoverRef" :virtual-ref="searchIconRef" />
 </template>
 <script setup lang="ts">
     import { ArrowLeftBold, ArrowDownBold, Search, View, Share } from '@element-plus/icons-vue'
@@ -69,6 +69,7 @@
     const { projectInfo: project, isManager } = storeToRefs(projectStore)
 
     const projectShareModal = ref()
+    const searchIconRef = ref()
     const searchDocumentPopoverRef = ref()
     const projectExportModal: any = inject('projectExportModal')
     const previewUrl = toPreviewProjectPath({ project_id: currentRoute.value.params.project_id })
@@ -78,10 +79,6 @@
             push(menu.href.replace('{project_id}', currentRoute.value.params.project_id))
             return
         }
-    }
-
-    const onSearchTextClick = (e: any) => {
-        searchDocumentPopoverRef.value?.show(e.currentTarget)
     }
 
     const onExportBtnClick = () => {
