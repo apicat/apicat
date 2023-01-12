@@ -1,5 +1,15 @@
 <template>
-    <el-popover v-model:visible="visible" ref="popoverRef" placement="bottom-end" :virtual-ref="searchDocumentPopoverRefEl" virtual-triggering width="auto">
+    <el-popover
+        ref="popoverRef"
+        placement="bottom-end"
+        trigger="click"
+        :virtual-ref="props.virtualRef"
+        virtual-triggering
+        width="auto"
+        :popper-options="popperOptions"
+        @after-enter="onShow"
+        @after-leave="onHide"
+    >
         <div ref="searchDomRef" class="search-poptip">
             <el-input ref="searchInput" :suffix-icon="Search" placeholder="关键字 回车搜索" v-model="keywords" @change="onSearchDocument" clearable />
             <div v-show="isSearched" class="text-left search-result scroll-content" v-loading="isSearching">
@@ -21,11 +31,12 @@
         </div>
     </el-popover>
 </template>
+
 <script setup lang="ts">
     import { Search } from '@element-plus/icons-vue'
-    import { onClickOutside } from '@vueuse/core'
-    import { ref, unref } from 'vue'
+    import { ref, unref, toRefs } from 'vue'
     import { debounce } from 'lodash-es'
+    import { onClickOutside } from '@vueuse/core'
     import { useRoute, useRouter } from 'vue-router'
     import { searchDocuments } from '@/api/document'
     import { toDocumentDetailPath } from '@/router/document.router'
@@ -33,11 +44,14 @@
     import { useDocumentStore } from '@/stores/document'
     import { storeToRefs } from 'pinia'
 
+    const props = defineProps({
+        virtualRef: Object,
+    })
+
     const { params } = useRoute()
     const { push } = useRouter()
     const { apiDocTree } = storeToRefs(useDocumentStore())
 
-    const visible = ref(false)
     const isSearched = ref(false)
     const isSearching = ref(false)
     const keywords = ref('')
@@ -45,16 +59,23 @@
     const searchDomRef = ref()
     const popoverRef = ref()
     const searchInput = ref()
-    const searchDocumentPopoverRefEl = ref()
+
+    const propsRef: any = toRefs(props)
+
+    const popperOptions = {
+        modifiers: [
+            { name: 'computeStyles', options: { gpuAcceleration: false } },
+            { name: 'offset', options: { offset: [-300, 10] } },
+        ],
+    }
 
     onClickOutside(
         searchDomRef,
         () => {
-            visible.value = false
             resetSearch()
         },
         {
-            ignore: [searchDocumentPopoverRefEl],
+            ignore: [propsRef.virtualRef],
         }
     )
 
@@ -110,14 +131,17 @@
         }
     }
 
-    const show = (el: any) => {
-        searchDocumentPopoverRefEl.value = el
-        visible.value = true
+    const onShow = () => {
         searchInput.value.focus()
     }
 
+    const onHide = () => {
+        resetSearch()
+    }
+
     defineExpose({
-        show,
+        onShow,
+        onHide,
     })
 </script>
 <style lang="scss" scoped>

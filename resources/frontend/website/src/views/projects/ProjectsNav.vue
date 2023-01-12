@@ -1,8 +1,8 @@
 <template>
     <SidebarLayout>
-        <div class="flex flex-col border divide-y bg-white">
+        <div class="flex flex-col bg-white border divide-y">
             <a
-                class="relative h-12 pl-6 flex items-center text-neutral-600 hover:text-neutral-900"
+                class="relative flex items-center h-12 pl-6 text-neutral-600 hover:text-neutral-900"
                 href="javascript:void(0);"
                 :class="projectGroupActiveClass(0)"
                 @click="onSwitchProjectGroup()"
@@ -14,11 +14,11 @@
                 <a
                     v-for="group in projectGroupList"
                     :key="group.name"
-                    class="relative flex pr-4 items-center justify-between text-neutral-600 hover:text-neutral-900 ac-group-nav__item"
+                    class="relative flex items-center justify-between pr-4 text-neutral-600 hover:text-neutral-900 ac-group-nav__item"
                     :class="projectGroupActiveClass(group.id)"
                     href="javascript:void(0);"
                 >
-                    <section class="overflow-hidden flex items-center flex-1 h-12 pl-6" @click="onSwitchProjectGroup(group)">
+                    <section class="flex items-center flex-1 h-12 pl-6 overflow-hidden" @click="onSwitchProjectGroup(group)">
                         <el-icon><folder /></el-icon><span class="ml-1 truncate" :title="group.name">{{ group.name }}</span>
                     </section>
                     <el-icon @click="onShowMorePopover($event, group)" class="ml-1 el-icon__more"><more-filled /></el-icon>
@@ -26,7 +26,7 @@
             </div>
 
             <a
-                class="relative h-12 pl-6 flex items-center text-neutral-600 hover:text-neutral-900"
+                class="relative flex items-center h-12 pl-6 text-neutral-600 hover:text-neutral-900"
                 href="javascript:void(0);"
                 @click="onAddProjectCategoryBtnClick"
             >

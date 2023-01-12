@@ -1,13 +1,13 @@
 <template>
-    <div class="h-full flex flex-col">
+    <div class="flex flex-col h-full">
         <div class="ac-doc-catalog">
             <h3 class="text-base font-medium">目录</h3>
             <div>
-                <el-icon class="cursor-pointer text-zinc-500" :class="{ 'mr-5': isManager || isDeveloper }" @click="onSearchIconClick"><Search /></el-icon>
+                <el-icon class="cursor-pointer text-zinc-500" :class="{ 'mr-5': isManager || isDeveloper }" ref="searchIconRef"><Search /></el-icon>
                 <el-icon v-if="isManager || isDeveloper" class="cursor-pointer text-zinc-500" @click="onRootMoreIconClick"><Plus /></el-icon>
             </div>
         </div>
-        <div class="overflow-x-scroll scroll-content flex-auto" ref="dir">
+        <div class="flex-auto overflow-x-scroll scroll-content" ref="dir">
             <ac-tree
                 :data="apiDocTree"
                 class="bg-transparent"
@@ -54,7 +54,7 @@
         </div>
     </div>
 
-    <SearchDocumentPopover ref="searchDocumentPopoverRef" />
+    <SearchDocumentPopover ref="searchDocumentPopoverRef" :virtual-ref="searchIconRef" />
 </template>
 
 <script lang="tsx">
@@ -79,7 +79,6 @@
     import { useProjectStore } from '@/stores/project'
     import { DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME } from '@/router/constant'
     import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-    import { showLoading, hideLoading } from '@/hooks/useLoading'
 
     export default defineComponent({
         components: {
@@ -106,10 +105,12 @@
             const { isManager, isDeveloper } = storeToRefs(projectStore)
 
             const newMenus: any = NEW_MENUS
+
             const activeMoreNodeId = ref(null)
             const renameInput: any = ref(null)
             const treeIns: any = ref(null)
 
+            const searchIconRef = ref()
             const searchDocumentPopoverRef: any = ref(null)
             const dir: any = ref(null)
 
@@ -311,10 +312,6 @@
                 // hideLoading()
             }
 
-            const onSearchIconClick = (e: any) => {
-                searchDocumentPopoverRef.value?.show(e.currentTarget)
-            }
-
             onMounted(async () => {
                 await getDocTreeList()
                 currentRoute.value.params.node_id ? activeNode() : reactiveNode()
@@ -342,7 +339,6 @@
                 handleTreeNodeClick,
                 onRootMoreIconClick,
                 onMoreIconClick,
-                onSearchIconClick,
                 allowDrop,
                 customNodeClass,
                 customNodeLeaf,
@@ -357,6 +353,7 @@
                 documentImportModal,
                 projectExportModal,
                 searchDocumentPopoverRef,
+                searchIconRef,
             }
         },
 
