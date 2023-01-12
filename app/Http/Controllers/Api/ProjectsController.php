@@ -79,6 +79,48 @@ class ProjectsController extends Controller
         ];
     }
 
+    public function base(Request $request)
+    {
+        $request->validate([
+            'authority' => 'required|array|min:1|max:3'
+        ]);
+
+        $authorityArr = [];
+        foreach ($request->input('authority') as $v) {
+            $authority = strtolower($v);
+            if ($authority == 'manage') {
+                $authorityArr[] = 0;
+            } elseif ($authority == 'write') {
+                $authorityArr[] = 1;
+            } elseif ($authority == 'read') {
+                $authorityArr[] = 2;
+            }
+        }
+
+        if (!$authorityArr) {
+            throw ValidationException::withMessages([
+                'authority' => '权限名称有误',
+            ]);
+        }
+
+        $result = [];
+        $projects = ProjectRepository::recordByAuthority(Auth::id(), $authorityArr);
+        if (!$projects) {
+            return response()->json(['status' => 0, 'msg' => '', 'data' => []]);
+        }
+
+        foreach ($projects as $project) {
+            $result[] = [
+                'id' => $project->id,
+                'icon' => $project->icon,
+                'name' => $project->name,
+                'visibility' => $project->visibility ? 'public' : 'private'
+            ];
+        }
+
+        return response()->json(['status' => 0, 'msg' => '', 'data' => $result]);
+    }
+
     /**
      * 创建项目
      * @param Request $request
@@ -117,7 +159,7 @@ class ProjectsController extends Controller
                     'secret_key' => '',
                     'icon' => $project->icon ?? '',
                     'name' => $project->name,
-                    'visibility' => (integer)$project->visibility,
+                    'visibility' => (int)$project->visibility,
                     'authority' => 0,
                     'authority_name' => '管理者'
                 ]

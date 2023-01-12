@@ -331,4 +331,53 @@ class ProjectRepository
 
         return true;
     }
+
+    /**
+     * 通过权限获取项目记录
+     *
+     * @param int $userID 用户id
+     * @param array $authorityArr 权限数组
+     * @return \Illuminate\Database\Eloquent\Collection|void 有项目返回项目集合，没有项目返回null
+     */
+    public static function recordByAuthority(int $userID, array $authorityArr)
+    {
+        if (count($authorityArr) == 3) {
+            // 所有项目
+            $projectIds = ProjectMember::where('user_id', $userID)->pluck('project_id');
+        } elseif (count($authorityArr) == 1) {
+            $projectIds = ProjectMember::where([
+                ['user_id', $userID],
+                ['authority', $authorityArr[0]]
+            ])->pluck('project_id');
+        } else {
+            $projectIds = ProjectMember::where('user_id', $userID)->whereIn('authority', $authorityArr)->pluck('project_id');
+        }
+
+        if ($projectIds->count() > 0) {
+            $projects =  Project::whereIn('id', $projectIds->toArray())->get();
+            return $projects;
+        }
+    }
+
+    /**
+     * 通过id获取项目名称
+     *
+     * @param int $projectId 项目id
+     * @return string|null
+     */
+    public static function getNameById(int $projectId)
+    {
+        return Project::where('id', $projectId)->value('name');
+    }
+
+    /**
+     * 通过id数组获取项目id和数组对应关系
+     *
+     * @param array $projectIds 项目id
+     * @return array
+     */
+    public static function getNameByIds(array $projectIds)
+    {
+        return Project::whereIn('id', $projectIds)->pluck('name', 'id')->toArray();
+    }
 }
