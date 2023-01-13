@@ -29,7 +29,7 @@ const initDocumentFilter = (route: Router) => {
             const projectAuthInfo = await projectStore.getProjectAuth(project_id)
 
             // 无项目信息,404
-            if (!projectAuthInfo || !projectAuthInfo.id_public) {
+            if (!projectAuthInfo || !projectAuthInfo.id) {
                 goNotFound()
                 return false
             }

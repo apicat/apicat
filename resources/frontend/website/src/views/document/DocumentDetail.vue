@@ -1,5 +1,5 @@
 <template>
-    <div class="ac-document" v-loading="isLoading" element-loading-background="#fff">
+    <div class="ac-document document-detail" v-loading="isLoading" element-loading-background="#fff">
         <div v-show="hasDocument && document.id">
             <h1 class="ac-document__title" ref="title">{{ document.title }}</h1>
             <p class="ac-document__desc">
@@ -29,8 +29,6 @@
         </div>
 
         <ac-backtop :bottom="100" :right="100" />
-
-        <div v-html="zoomTemplate" />
     </div>
 </template>
 <script>

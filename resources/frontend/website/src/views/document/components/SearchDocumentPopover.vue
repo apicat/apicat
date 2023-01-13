@@ -31,26 +31,28 @@
         </div>
     </el-popover>
 </template>
-
 <script setup lang="ts">
     import { Search } from '@element-plus/icons-vue'
+    import { onClickOutside } from '@vueuse/core'
     import { ref, unref, toRefs } from 'vue'
     import { debounce } from 'lodash-es'
-    import { onClickOutside } from '@vueuse/core'
-    import { useRoute, useRouter } from 'vue-router'
-    import { searchDocuments } from '@/api/document'
-    import { toDocumentDetailPath } from '@/router/document.router'
+    import { useRouter } from 'vue-router'
+    import { searchDocuments, toDocumentDetailPath } from '@/api/document'
+    import { toIterateDocumentDetailPath } from '@/api/iterate'
     import { traverseTree } from '@natosoft/shared'
     import { useDocumentStore } from '@/stores/document'
     import { storeToRefs } from 'pinia'
+    import useIdPublicParam, { generateProjectOrIterateParams, getIdPublicByRouter } from '@/hooks/useIdPublicParam'
 
     const props = defineProps({
         virtualRef: Object,
     })
 
-    const { params } = useRoute()
     const { push } = useRouter()
     const { apiDocTree } = storeToRefs(useDocumentStore())
+    const publicParams = useIdPublicParam()
+    const id_public: any = getIdPublicByRouter()
+    const { isIterateRoute } = publicParams
 
     const isSearched = ref(false)
     const isSearching = ref(false)
@@ -69,15 +71,9 @@
         ],
     }
 
-    onClickOutside(
-        searchDomRef,
-        () => {
-            resetSearch()
-        },
-        {
-            ignore: [propsRef.virtualRef],
-        }
-    )
+    onClickOutside(searchDomRef, () => resetSearch(), {
+        ignore: [propsRef.virtualRef],
+    })
 
     const onSearchDocument = debounce(() => {
         const unRefKeywords = unref(keywords)
@@ -88,8 +84,10 @@
 
         isSearched.value = true
         isSearching.value = true
+        const data = generateProjectOrIterateParams(publicParams)
+        data.project_id_public = publicParams.projectPublicId
 
-        searchDocuments(params.project_id, unRefKeywords)
+        searchDocuments(data, unRefKeywords)
             .then((res) => {
                 searchData.value = res.data || []
             })
@@ -113,7 +111,7 @@
 
         traverseTree(
             (item: any) => {
-                if (item.id === parseInt(doc.node_id, 10)) {
+                if (item.id === parseInt(doc.doc_id, 10)) {
                     node = item
                     return false
                 }
@@ -122,7 +120,7 @@
             { subKey: 'sub_nodes' }
         )
 
-        const path = toDocumentDetailPath({ project_id: params.project_id, node_id: doc.node_id })
+        const path = isIterateRoute ? toIterateDocumentDetailPath(id_public, doc.doc_id) : toDocumentDetailPath(id_public, doc.doc_id)
 
         if (node) {
             push({ path })

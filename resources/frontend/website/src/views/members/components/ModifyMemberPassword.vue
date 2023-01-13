@@ -1,12 +1,5 @@
 <template>
-    <el-dialog
-        v-model="isShow"
-        :width="400"
-        :close-on-click-modal="false"
-        append-to-body
-        class="show-footer-line vertical-center-modal"
-        title="修改成员密码"
-    >
+    <el-dialog v-model="isShow" :width="400" :close-on-click-modal="false" append-to-body class="show-footer-line vertical-center-modal" title="修改成员密码">
         <el-form @submit.prevent="handleSubmit" ref="formRef" :model="form" :rules="rules" label-position="top">
             <el-form-item label="新密码" prop="password" class="hide_required">
                 <el-input type="password" v-model="form.password" placeholder="密码" maxlength="100" show-password />

@@ -14,7 +14,7 @@
             </div>
 
             <div v-if="document && document.visibility === 0">
-                <div class="px-6 flex items-center" :class="{ 'py-3': !isShare, 'pt-3': isShare }">
+                <div class="flex items-center px-6" :class="{ 'py-3': !isShare, 'pt-3': isShare }">
                     <div class="flex-1">
                         <h4>开启分享</h4>
                         <div class="ivu-list-item-meta-description">开启分享后，获得链接的人可以访问项目内容。</div>
@@ -50,7 +50,9 @@
     import { shareDoc, shareDetailDoc, resetDocShareSecretkey, generateDocumentDetailPath } from '@/api/document'
     import { DOCUMENT_VISIBLE_TYPES } from '@/common/constant'
     import { toRefs, reactive, ref } from 'vue'
-    import { useRouter } from 'vue-router'
+    import { useProjectStore } from '@/stores/project'
+    import { storeToRefs } from 'pinia'
+    import { generatePreviewDocumentPath } from '@/api/preview'
 
     export default {
         watch: {
@@ -61,10 +63,11 @@
             },
         },
         setup() {
-            const { currentRoute } = useRouter()
+            const projectStore = useProjectStore()
+            const { projectInfo } = storeToRefs(projectStore)
 
             const state = reactive({
-                project_id: parseInt(currentRoute.value.params.project_id, 10),
+                projectInfo,
                 document: null,
                 isShow: false,
                 isShowDetail: false,
@@ -90,10 +93,10 @@
             onShareStatusSwitch(status) {
                 if (this.document !== null) {
                     this.isLoading = true
-                    shareDoc({ project_id: this.project_id, doc_id: this.shareData.docId, share: status })
+                    shareDoc({ project_id: this.projectInfo.id, doc_id: this.shareData.docId, share: status })
                         .then(({ data }) => {
                             if (status) {
-                                this.updateLinkAndPassword(data.link, data.secret_key)
+                                this.updateLinkAndPassword(generatePreviewDocumentPath(this.shareData.docId), data.secret_key)
                                 this.document.secret_key = data.secret_key
                             } else {
                                 this.document.secret_key = ''
@@ -101,6 +104,7 @@
                             }
                         })
                         .catch((e) => {
+                            console.log(e)
                             this.isShare = !this.isShare
                         })
                         .finally(() => {
@@ -125,13 +129,15 @@
 
             setDocument(document = {}) {
                 this.document = document
+                const isPublic = document.visibility === DOCUMENT_VISIBLE_TYPES.PUBLIC
+                this.copyText = isPublic ? '复制链接' : '复制链接和密码'
+                this.isShare = !isPublic && !!document.secret_key
 
-                this.copyText = document.visibility === DOCUMENT_VISIBLE_TYPES.PUBLIC ? '复制链接' : '复制链接和密码'
-                this.isShare = document.visibility === DOCUMENT_VISIBLE_TYPES.PRIVATE && !!document.secret_key
-
-                if (document.visibility === DOCUMENT_VISIBLE_TYPES.PUBLIC) {
-                    document.link = generateDocumentDetailPath(this.project_id, this.shareData.docId)
-                }
+                document.link = isPublic
+                    ? generateDocumentDetailPath(this.projectInfo.id_public, this.shareData.docId)
+                    : this.isShare
+                    ? generatePreviewDocumentPath(this.shareData.docId)
+                    : ''
 
                 this.updateLinkAndPassword(document.link, document.secret_key)
 
@@ -146,7 +152,7 @@
 
             onResetPasswordBtnClick() {
                 this.isLoadingResetPwd = true
-                resetDocShareSecretkey({ project_id: this.project_id, doc_id: this.shareData.docId })
+                resetDocShareSecretkey({ project_id: this.projectInfo.id, doc_id: this.shareData.docId })
                     .then(({ data }) => this.updateLinkAndPassword(null, data))
                     .finally(() => {
                         this.isLoadingResetPwd = false
@@ -155,14 +161,12 @@
 
             updateCopyText() {
                 this.copyTextEl.value =
-                    this.document.visibility === DOCUMENT_VISIBLE_TYPES.PRIVATE
-                        ? this.shareUrl
-                        : [`链接：${this.shareUrl}`, `密码：${this.password}`].join('\n')
+                    this.document.visibility === DOCUMENT_VISIBLE_TYPES.PUBLIC ? this.shareUrl : [`链接：${this.shareUrl}`, `密码：${this.password}`].join('\n')
             },
 
             getShareDetail() {
                 this.isShowDetail = true
-                shareDetailDoc({ project_id: this.project_id, doc_id: this.shareData.docId })
+                shareDetailDoc({ project_id: this.projectInfo.id, doc_id: this.shareData.docId })
                     .then(({ data }) => {
                         this.setDocument(data)
                     })
