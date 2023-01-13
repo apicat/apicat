@@ -6,7 +6,7 @@ use App\Models\ApiDoc;
 use App\Models\Iteration;
 use App\Models\IterationApi;
 use App\Models\ProjectMember;
-use App\Repositories\Project\ApiDocRepository;
+use App\Repositories\ApiDoc\ApiDocRepository;
 use App\Repositories\Project\ProjectMemberRepository;
 use App\Repositories\Project\ProjectRepository;
 use App\Repositories\Project\TreeCacheRepository;

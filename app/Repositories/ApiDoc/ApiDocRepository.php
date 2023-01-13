@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repositories\Project;
+namespace App\Repositories\ApiDoc;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -10,6 +10,7 @@ use App\Models\ApiDoc;
 use App\Models\Iteration;
 use App\Models\IterationApi;
 use App\Repositories\Iteration\IterationRepository;
+use App\Repositories\Project\TreeCacheRepository;
 
 class ApiDocRepository
 {
@@ -55,9 +56,10 @@ class ApiDocRepository
      * @param array $records 树记录
      * @param int $parentID 父级节点id
      * @param int $depth 递归深度
+     * @param array $nodeIds 被选中的节点id
      * @return array
      */
-    public static function buildTree($records, $parentID, $depth = 0)
+    public static function buildTree($records, $parentID, $depth = 0, $nodeIds = null)
     {
         if ($depth > 5) {
             // 当深度超过5层后退出递归
@@ -73,8 +75,12 @@ class ApiDocRepository
                     'title' => $record['title'],
                     'type' => $record['type'],
                     'doc_id' => $record['id'],
-                    'sub_nodes' => self::buildTree($records, $record['id'], $depth + 1)
+                    'sub_nodes' => self::buildTree($records, $record['id'], $depth + 1, $nodeIds)
                 ];
+
+                if (!is_null($nodeIds)) {
+                    $tree[$record['display_order']]['selected'] = in_array($record['id'], $nodeIds) ? true : false;
+                }
             }
         }
         return $tree;

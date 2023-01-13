@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\EditorJsonToHtml\Parser;
 use App\Repositories\ApiDoc\MockPathRepository;
 use App\Repositories\Project\ApiCommonUrlRepository;
-use App\Repositories\Project\ApiDocRepository;
+use App\Repositories\ApiDoc\ApiDocRepository;
 use App\Repositories\Project\DocShareRepository;
 use App\Repositories\Project\ProjectRepository;
 use App\Repositories\Project\TreeCacheRepository;

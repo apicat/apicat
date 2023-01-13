@@ -7,7 +7,7 @@ use App\Exceptions\SecretKeyExpiredException;
 use App\Http\Controllers\Controller;
 use App\Modules\EditorJsonToHtml\Parser;
 use App\Repositories\User\UserRepository;
-use App\Repositories\Project\ApiDocRepository;
+use App\Repositories\ApiDoc\ApiDocRepository;
 use App\Repositories\Project\DocShareRepository;
 use App\Repositories\Project\ProjectMemberRepository;
 use App\Repositories\Project\ProjectRepository;

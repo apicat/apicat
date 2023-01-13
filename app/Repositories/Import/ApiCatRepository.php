@@ -3,7 +3,7 @@
 namespace App\Repositories\Import;
 
 use Illuminate\Support\Facades\File;
-use App\Repositories\Project\ApiDocRepository;
+use App\Repositories\ApiDoc\ApiDocRepository;
 use App\Repositories\ApiDoc\MockPathRepository;
 use App\Modules\EditorJsonToHtml\Register as NodeRegister;
 /**

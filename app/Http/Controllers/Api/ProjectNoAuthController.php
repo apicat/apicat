@@ -14,7 +14,7 @@ use App\Repositories\Iteration\IterationRepository;
 use App\Repositories\Project\ProjectRepository;
 use App\Repositories\Project\ProjectMemberRepository;
 use App\Repositories\Project\ProjectShareRepository;
-use App\Repositories\Project\ApiDocRepository;
+use App\Repositories\ApiDoc\ApiDocRepository;
 use Illuminate\Support\Facades\Auth;
 
 /**

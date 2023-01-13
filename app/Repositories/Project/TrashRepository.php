@@ -2,7 +2,7 @@
 
 namespace App\Repositories\Project;
 
-use App\Repositories\Project\ApiDocRepository;
+use App\Repositories\ApiDoc\ApiDocRepository;
 
 class TrashRepository
 {
