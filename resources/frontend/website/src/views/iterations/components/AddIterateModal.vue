@@ -90,7 +90,6 @@
         title.value = isEdit.value ? '编辑迭代' : '新建迭代'
         execute = isEdit.value ? editIteration : createIteration
         iterate && (form = Object.assign(form, iterate))
-        console.log(form.project_id)
 
         getUsableProjectList()
     }
@@ -144,13 +143,10 @@
     const getUsableProjectList = async () => {
         const { data } = await fetchEditableProjectListForCreateIterate()
         projects.value = data || []
-
         const projectItem = projects.value.find((item: any) => item.id === activeTab.value)
         // 选中默认项目
-        form.project_id = projectItem ? projectItem.id : form.project_id
-        setTimeout(() => {
-            iterateForm.value?.clearValidate()
-        }, 0)
+        form.project_id = projectItem ? projectItem.id : form.project_id ? form.project_id : ''
+        setTimeout(() => iterateForm.value?.clearValidate(), 0)
     }
 
     watch(

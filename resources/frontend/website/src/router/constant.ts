@@ -39,6 +39,5 @@ export const ITERATE_DOCUMENT_DETAIL_PATH = '/iteration/:iterate_id/doc/:node_id
 // 历史文档相关链接地址
 export const DOCUMENT_HISTORY_PATH = '/history/:project_id_public'
 export const DOCUMENT_HISTORY_NAME = 'history.doc'
-
 export const DOCUMENT_HISTORY_DETAIL_PATH = `${DOCUMENT_HISTORY_PATH}/:doc_id/:id?`
 export const DOCUMENT_HISTORY_DETAIL_NAME = 'history.doc.detail'

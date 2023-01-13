@@ -55,5 +55,14 @@ export const toDocumentDetailPath = (project_id_public: string, node_id?: string
 export const toDocumentEditPath = (project_id_public: string) => compile(DOCUMENT_EDIT_PATH)({ project_id_public })
 
 // 生成文档详情路由地址
-export const generateDocumentDetailPath = (project_id: any, node_id: any, hasOrigin?: boolean) =>
-    wrapperOrigin(hasOrigin) + compile(DECUMENT_DETAIL_PATH)({ project_id, node_id })
+export const generateDocumentDetailPath = (id_public: any, node_id: any, hasOrigin?: boolean) =>
+    wrapperOrigin(hasOrigin) + toDocumentDetailPath(id_public, node_id)
+
+// 文档历史记录列表
+export const getDocumentHistoryRecordList = (project_id: any, doc_id: any) => Ajax.get('/doc_histories', { params: { project_id, doc_id } })
+// 文档历史记录详情
+export const getDocumentHistoryRecordDetail = (project_id: any, id: any) => Ajax.get('/doc_history/detail', { params: { project_id, id } })
+// 文档历史记录对比
+export const compareDocument = (params: any) => Ajax.get('/doc_history/diff', { params })
+// 恢复文档
+export const restoreDocumentByHistoryRecord = (project_id: any, id: any) => Ajax.post('/doc_history/restore', { project_id, id })

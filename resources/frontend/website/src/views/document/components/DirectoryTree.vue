@@ -203,7 +203,7 @@
 
             const customNodeClass = (data: any) => {
                 const classNames = [data.isLeaf ? 'is-doc' : 'is-dir']
-                // todo 迭代 - 隐藏未规划API
+                // 迭代 - 隐藏未规划API
                 data.selected === false && classNames.push('hidden')
                 return classNames.join(' ')
             }
@@ -449,7 +449,7 @@
                     .then((res) => {
                         const data = extendDocTreeFeild(res.data, DOCUMENT_TYPES.DIR)
                         // 兼容代码
-                        data.title = data.name
+                        data.title = data.title || data.name
 
                         // root
                         if (!node.parent && node.level === 0) {
@@ -482,8 +482,9 @@
                 createDoc(param)
                     .then(({ data }) => {
                         // 兼容代码
-                        data.title = data.name
+                        data.title = data.title || data.name
                         this.treeIns.append(extendDocTreeFeild(data), node)
+
                         this.$nextTick(() => {
                             this.treeIns.setCurrentKey(data.id)
                             const parentNode = this.treeIns.getNode(source)
