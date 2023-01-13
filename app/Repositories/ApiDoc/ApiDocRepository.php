@@ -206,14 +206,14 @@ class ApiDocRepository
 
         $records = ApiDoc::whereIn('id', $nodeIds)->where([
             ['type', '>', 0],
-            ['name', 'like', '%' . $keywords . '%']
+            ['title', 'like', '%' . $keywords . '%']
         ])->latest()->get();
 
         if ($records->count() > 0) {
             foreach ($records as $record) {
                 $result[] = [
                     'doc_id' => $record->id,
-                    'title' => $record->name
+                    'title' => $record->title
                 ];
             }
         }
