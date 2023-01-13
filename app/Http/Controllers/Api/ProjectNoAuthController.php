@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Exceptions\NotFoundException;
 use App\Exceptions\NotLoginException;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -57,9 +58,14 @@ class ProjectNoAuthController extends Controller
     public function detail(Request $request)
     {
         $request->validate([
-            'project_id' => 'required|integer|min:1',
             'token' => 'nullable|string|size:60'
         ]);
+
+        if (!$request->input('project_id') and !$request->input('iteration_id')) {
+            throw ValidationException::withMessages([
+                'project_id' => '请求失败，您传递的信息有误。',
+            ]);
+        }
 
         $project = $this->getProject($request);
 
@@ -185,18 +191,33 @@ class ProjectNoAuthController extends Controller
      * @return Project
      * @throws SecretKeyExpiredException
      * @throws ValidationException
+     * @throws NotFoundException
      */
     protected function getProject($request)
     {
-        if (!$project = ProjectRepository::get($request->input('project_id'))) {
-            throw ValidationException::withMessages([
-                'project_id' => '您访问的项目不存在',
-            ]);
+        if ($request->input('project_id')) {
+            if (!$project = ProjectRepository::get($request->input('project_id'))) {
+                throw new NotFoundException;
+            }
+        } elseif ($request->input('iteration_id')) {
+            $projectId = IterationRepository::getProjectIdByIterationId($request->input('iteration_id'));
+            if (!$projectId) {
+                throw new NotFoundException;
+            }
+
+            if (!$project = ProjectRepository::get($projectId)) {
+                throw new NotFoundException;
+            }
+        } else {
+            throw new NotFoundException;
         }
 
-        if (Auth::guard('api')->check() and ProjectMemberRepository::inThisProject($project->id, Auth::guard('api')->id())) {
-            // 登录状态，且属于此项目
-            return $project;
+        if (Auth::guard('api')->check()) {
+            // 登录状态
+            if (ProjectMemberRepository::inThisProject($project->id, Auth::guard('api')->id())) {
+                // 属于此项目
+                return $project;
+            }
         }
 
         if ($project->visibility == 0) {
