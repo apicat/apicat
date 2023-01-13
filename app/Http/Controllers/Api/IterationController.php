@@ -113,7 +113,7 @@ class IterationController extends Controller
     public function detail(Request $request)
     {
         $request->validate([
-            'iteration_id' => 'required|string|size:32'
+            'iteration_id' => 'required|integer|min:1',
         ]);
 
         $iteration = IterationRepository::getIteration($request->input('iteration_id'));
