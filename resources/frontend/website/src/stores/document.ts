@@ -13,6 +13,7 @@ export const extendDocTreeFeild = (node = {} as any, type = DOCUMENT_TYPES.DOC) 
     isEditable: false,
     isCurrent: false,
     isLeaf: (node.type === undefined ? type : node.type) === DOCUMENT_TYPES.DOC,
+    title: node.title || node.name
 })
 
 export const useDocumentStore = defineStore({

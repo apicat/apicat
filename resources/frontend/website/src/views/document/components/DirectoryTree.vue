@@ -448,9 +448,6 @@
                 createDir(data)
                     .then((res) => {
                         const data = extendDocTreeFeild(res.data, DOCUMENT_TYPES.DIR)
-                        // 兼容代码
-                        data.title = data.title || data.name
-
                         // root
                         if (!node.parent && node.level === 0) {
                             source.unshift(data)
@@ -481,8 +478,6 @@
                 NProgress.start()
                 createDoc(param)
                     .then(({ data }) => {
-                        // 兼容代码
-                        data.title = data.title || data.name
                         this.treeIns.append(extendDocTreeFeild(data), node)
 
                         this.$nextTick(() => {
@@ -552,8 +547,6 @@
                     doc_id: source.id,
                 })
                     .then(({ data }) => {
-                        // 兼容代码
-                        data.title = data.name
                         this.treeIns.insertAfter(extendDocTreeFeild(data), node)
                         this.router.push({
                             name: this.isIterateRoute ? ITERATE_DOCUMENT_EDIT_NAME : DOCUMENT_EDIT_NAME,
