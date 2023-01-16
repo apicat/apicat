@@ -101,7 +101,7 @@
     const reset = () => {
         iterateForm.value?.resetFields()
         form = Object.assign(form, initForm)
-        form.project_id = activeTab.value || ''
+        form.project_id = ''
     }
 
     const handleSubmit = async (formEl: FormInstance | undefined) => {
@@ -153,12 +153,6 @@
         () => isShow.value,
         () => !isShow.value && reset()
     )
-
-    // // 收藏项目 切换
-    // watch(activeTab, async () => {
-    //     form.project_id = activeTab.value || ''
-    //     iterateForm.value?.clearValidate()
-    // })
 
     defineExpose({
         show,
