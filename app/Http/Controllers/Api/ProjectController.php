@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\Iteration\StarRepository;
 use App\Repositories\Project\GroupRepository;
 use App\Repositories\Project\ProjectMemberRepository;
 use App\Repositories\Project\ProjectRepository;
@@ -259,6 +260,8 @@ class ProjectController extends Controller
         }
 
         if (ProjectMemberRepository::remove($request->input('project_id'), Auth::id())) {
+            StarRepository::del($request->input('project_id'));
+
             return [
                 'status' => 0,
                 'msg' => '成功退出项目'
@@ -285,6 +288,8 @@ class ProjectController extends Controller
         }
 
         if (ProjectRepository::remove($request->input('project_id'))) {
+            StarRepository::delAll($request->input('project_id'));
+
             return [
                 'status' => 0,
                 'msg' => '项目删除成功'
@@ -295,5 +300,4 @@ class ProjectController extends Controller
             'result' => '项目删除失败，请稍后重试。',
         ]);
     }
-
 }
