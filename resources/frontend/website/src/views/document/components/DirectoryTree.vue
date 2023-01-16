@@ -595,8 +595,6 @@
                 NProgress.start()
                 createHttpDoc(param)
                     .then(({ data }) => {
-                        // 兼容代码
-                        data.title = data.name
                         this.treeIns.append(extendDocTreeFeild(data), node)
                         this.$nextTick(() => {
                             const parentNode = this.treeIns.getNode(source)
