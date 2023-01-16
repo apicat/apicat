@@ -231,7 +231,8 @@ class ApiDocController extends Controller
     public function copy(Request $request)
     {
         $request->validate([
-            'doc_id' => ['required', 'integer', 'min:1']
+            'doc_id' => ['required', 'integer', 'min:1'],
+            'iteration_id' => ['nullable', 'integer', 'min:1']
         ]);
 
         if (!ProjectRepository::active()->hasAuthority()) {
@@ -247,7 +248,8 @@ class ApiDocController extends Controller
             ]);
         }
 
-        if (!$newNode = ApiDocRepository::copyNode($node)) {
+        $iterationId = $request->input('iteration_id') ?? 0;
+        if (!$newNode = ApiDocRepository::copyNode($node, $iterationId)) {
             throw ValidationException::withMessages([
                 'node_id' => '复制失败，请稍后重试。',
             ]);
