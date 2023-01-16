@@ -483,9 +483,10 @@ class ApiDocRepository
     /**
      * 复制节点
      * @param ApiDoc $node 节点实例
+     * @param int $iterationId 迭代id
      * @return ApiDoc|boolean 成功: ApiDoc  失败: false
      */
-    public static function copyNode($node)
+    public static function copyNode($node, $iterationId = 0)
     {
         self::moveAfterward($node->project_id, $node->parent_id, $node->display_order + 1);
 
@@ -508,6 +509,10 @@ class ApiDocRepository
         if (!$newNode) {
             self::moveForward($node->project_id, $node->parent_id, $node->display_order + 1);
             return false;
+        }
+
+        if ($iterationId and $newNode->project_id == Iteration::where('id', $iterationId)->value('project_id')) {
+            IterationRepository::addApiToIteration($newNode->project_id, $iterationId, $newNode->id, $newNode->type);
         }
 
         TreeCacheRepository::remove($node->project_id);
