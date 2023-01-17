@@ -19,7 +19,7 @@
             </el-form-item>
 
             <el-form-item label="项目名称" prop="name" class="hide_required">
-                <el-input v-model="form.name" placeholder="项目名称" maxlength="255" />
+                <el-input ref="projectNameInputRef" v-model="form.name" placeholder="项目名称" maxlength="255" />
             </el-form-item>
 
             <el-form-item label="权限">
@@ -55,7 +55,7 @@
     import { createProject, uploadProjectIcon } from '@/api/project'
     import { Lock, View, Upload } from '@element-plus/icons-vue'
     import { useProjectsStore } from '@/stores/projects'
-    import { toRefs, reactive } from 'vue'
+    import { toRefs, reactive, ref } from 'vue'
     import { mapState } from 'pinia'
 
     export default {
@@ -83,8 +83,17 @@
                 },
             })
 
+            const projectNameInputRef = ref()
+
+            const show = () => {
+                state.isShow = true
+                setTimeout(() => projectNameInputRef.value?.focus(), 0)
+            }
+
             return {
                 ...toRefs(state),
+                projectNameInputRef,
+                show,
             }
         },
 
@@ -107,9 +116,6 @@
             handleUpload(data) {
                 data.append('icon', this.file)
                 return uploadProjectIcon(data)
-            },
-            show() {
-                this.isShow = true
             },
 
             hide() {
