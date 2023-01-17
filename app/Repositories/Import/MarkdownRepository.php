@@ -89,7 +89,7 @@ class MarkdownRepository extends BaseRepository
             $renderer = new Renderer;
             $content = json_encode($renderer->render($content));
 
-            ApiDocRepository::addDoc($this->projectID, $this->parentID, $title, $content, $this->userID);
+            ApiDocRepository::addDoc($this->projectID, $this->parentID, $title, $content, $this->userID, $this->iterationID);
             
             $this->finish('导入完成');
         } catch (\Exception $e) {

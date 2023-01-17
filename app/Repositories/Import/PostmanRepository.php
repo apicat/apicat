@@ -130,7 +130,7 @@ class PostmanRepository extends BaseRepository
 
             if (isset($doc['item'])) {
                 // 分类
-                $record = ApiDocRepository::addDirToFoot($this->projectID, $doc['name'], $parentID, $this->userID);
+                $record = ApiDocRepository::addDirToFoot($this->projectID, $doc['name'], $parentID, $this->userID, $this->iterationID);
 
                 if ($doc['item']) {
                     $this->import($doc['item'], $record->id);
@@ -142,7 +142,7 @@ class PostmanRepository extends BaseRepository
                 }
 
                 $content = $this->process($doc);
-                ApiDocRepository::addDoc($this->projectID, $parentID, $doc['name'], $content, $this->userID);
+                ApiDocRepository::addDoc($this->projectID, $parentID, $doc['name'], $content, $this->userID, $this->iterationID);
             }
         }
     }

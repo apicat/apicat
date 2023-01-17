@@ -21,6 +21,13 @@ class BaseRepository
     public $projectID;
 
     /**
+     * 迭代id
+     *
+     * @var int
+     */
+    public $iterationID;
+
+    /**
      * 父级节点id
      *
      * @var int
@@ -151,7 +158,7 @@ class BaseRepository
         foreach ($cache['data'] as $k => $v) {
             $this->$k = $v;
         }
-        
+
         $this->filePath = storage_path('app/upload') . '/' . $this->fileName;
 
         $this->readFile();
@@ -220,5 +227,6 @@ class BaseRepository
      * @return void
      */
     protected function readFile()
-    {}
+    {
+    }
 }

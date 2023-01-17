@@ -449,7 +449,8 @@ class ApiDocController extends Controller
             'filename' => 'required|string|max:255',
             'file' => 'required|string|max:255',
             'type' => 'required|string|in:markdown,apicat,postman',
-            'parent_id' => 'nullable|integer|min:0'
+            'parent_id' => 'nullable|integer|min:0',
+            'iteration_id' => 'nullable|integer|min:1',
         ]);
 
         $parentID = $request->input('parent_id') ? $request->input('parent_id') : 0;
@@ -471,7 +472,8 @@ class ApiDocController extends Controller
                 'projectID' => $request->input('project_id'),
                 'fileName' => $request->input('file'),
                 'originFileName' => $originFileName,
-                'parentID' => $parentID
+                'parentID' => $parentID,
+                'iterationID' => $request->input('iteration_id') ?? 0
             ]);
 
             if (!$jobID) {
@@ -488,7 +490,8 @@ class ApiDocController extends Controller
                 'userID' => Auth::id(),
                 'projectID' => $request->input('project_id'),
                 'fileName' => $request->input('file'),
-                'parentID' => $parentID
+                'parentID' => $parentID,
+                'iterationID' => $request->input('iteration_id') ?? 0
             ]);
 
             if (!$jobID) {
@@ -505,7 +508,8 @@ class ApiDocController extends Controller
                 'userID' => Auth::id(),
                 'projectID' => $request->input('project_id'),
                 'fileName' => $request->input('file'),
-                'parentID' => $parentID
+                'parentID' => $parentID,
+                'iterationID' => $request->input('iteration_id') ?? 0
             ]);
 
             if (!$jobID) {
