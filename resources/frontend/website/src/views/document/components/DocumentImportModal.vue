@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="isShow" width="fit-content" custom-class="vertical-center-modal" :close-on-click-modal="false" :title="title" append-to-body>
+    <el-dialog v-model="isShow" width="fit-content" class="vertical-center-modal" :close-on-click-modal="false" :title="title" append-to-body>
         <div class="ac-project-export" v-loading="isLoading" element-loading-text="导入中，请勿关闭窗口！">
             <div :class="projectItemClass(item)" :key="item.type" v-for="item in importList">
                 <div class="ac-project-export-inner">

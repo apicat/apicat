@@ -14,7 +14,7 @@
                         <el-icon><caret-bottom /></el-icon>
                     </span>
                 </div>
-                <p :title="project.name" class="ac-project-title truncate">
+                <p :title="project.name" class="truncate ac-project-title">
                     {{ project.name }}
                 </p>
             </div>

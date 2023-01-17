@@ -9,7 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Modules\EditorJsonToHtml\Parser;
 use App\Repositories\ApiDoc\MockPathRepository;
 use App\Repositories\Project\ApiCommonUrlRepository;
-use App\Repositories\Project\ApiDocRepository;
+use App\Repositories\ApiDoc\ApiDocRepository;
 use App\Repositories\Project\DocShareRepository;
 use App\Repositories\Project\ProjectRepository;
 use App\Repositories\Project\TreeCacheRepository;
@@ -47,6 +47,7 @@ class ApiDocController extends Controller
         $request->validate([
             'parent_id' => ['nullable', 'integer', 'min:1'],
             'title' => ['nullable', 'string', 'max:255'],
+            'iteration_id' => ['nullable', 'integer', 'min:1']
         ]);
 
         if (!ProjectRepository::active()->hasAuthority()) {
@@ -58,8 +59,9 @@ class ApiDocController extends Controller
         $parentID = $request->input('parent_id') ? $request->input('parent_id') : 0;
         $title = $request->input('title') ? $request->input('title') : '无标题';
         $content = '{"type":"doc","content":[{"type":"paragraph"}]}';
+        $iterationId = $request->input('iteration_id') ?? 0;
 
-        if (!$node = ApiDocRepository::addDoc(ProjectRepository::active()->id, $parentID, $title, $content)) {
+        if (!$node = ApiDocRepository::addDoc(ProjectRepository::active()->id, $parentID, $title, $content, Auth::id(), $iterationId)) {
             throw ValidationException::withMessages([
                 'result' => '文档创建失败，请稍后重试。',
             ]);
@@ -88,6 +90,7 @@ class ApiDocController extends Controller
         $request->validate([
             'parent_id' => ['nullable', 'integer', 'min:1'],
             'title' => ['nullable', 'string', 'max:255'],
+            'iteration_id' => ['nullable', 'integer', 'min:1']
         ]);
 
         if (!ProjectRepository::active()->hasAuthority()) {
@@ -99,8 +102,9 @@ class ApiDocController extends Controller
         $parentID = $request->input('parent_id') ? $request->input('parent_id') : 0;
         $title = $request->input('title') ? $request->input('title') : '无标题';
         $content = '{"type":"doc","content":[{"type":"http_api_url","attrs":{"url":"https://api.example.com","path":"","method":2,"bodyDataType":2}},{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"请求参数"}]},{"type":"http_api_request_parameter","attrs":{"request_header":{"params":[],"title":"Header 请求参数"},"request_body":{"params":[],"title":"Body 请求参数"},"request_query":{"params":[],"title":"Query 请求参数"}}},{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"请求参数示例"}]},{"type":"code_block","attrs":{"language":"json"}},{"type":"http_status_code","attrs":{"intro":"Response Status Code:","code":200,"codeDesc":"OK"}},{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"返回参数"}]},{"type":"http_api_response_parameter","attrs":{"response_header":{"params":[],"title":"返回头部"},"response_body":{"params":[],"title":"返回参数"}}},{"type":"heading","attrs":{"level":3},"content":[{"type":"text","text":"返回参数示例"}]},{"type":"code_block","attrs":{"language":"json"}},{"type":"paragraph"}]}';
+        $iterationId = $request->input('iteration_id') ?? 0;
 
-        if (!$node = ApiDocRepository::addDoc(ProjectRepository::active()->id, $parentID, $title, $content)) {
+        if (!$node = ApiDocRepository::addDoc(ProjectRepository::active()->id, $parentID, $title, $content, Auth::id(), $iterationId)) {
             throw ValidationException::withMessages([
                 'result' => '文档创建失败，请稍后重试。',
             ]);
@@ -227,7 +231,8 @@ class ApiDocController extends Controller
     public function copy(Request $request)
     {
         $request->validate([
-            'doc_id' => ['required', 'integer', 'min:1']
+            'doc_id' => ['required', 'integer', 'min:1'],
+            'iteration_id' => ['nullable', 'integer', 'min:1']
         ]);
 
         if (!ProjectRepository::active()->hasAuthority()) {
@@ -243,7 +248,8 @@ class ApiDocController extends Controller
             ]);
         }
 
-        if (!$newNode = ApiDocRepository::copyNode($node)) {
+        $iterationId = $request->input('iteration_id') ?? 0;
+        if (!$newNode = ApiDocRepository::copyNode($node, $iterationId)) {
             throw ValidationException::withMessages([
                 'node_id' => '复制失败，请稍后重试。',
             ]);
@@ -270,7 +276,8 @@ class ApiDocController extends Controller
     public function remove(Request $request)
     {
         $request->validate([
-            'doc_id' => ['required', 'integer', 'min:1']
+            'doc_id' => ['required', 'integer', 'min:1'],
+            'iteration_id' => ['nullable', 'integer', 'min:1']
         ]);
 
         if (!ProjectRepository::active()->hasAuthority()) {
@@ -286,7 +293,8 @@ class ApiDocController extends Controller
             ]);
         }
 
-        if (!ApiDocRepository::removeDoc($node)) {
+        $iterationId = $request->input('iteration_id') ?? 0;
+        if (!ApiDocRepository::removeDoc($node, $iterationId)) {
             throw ValidationException::withMessages([
                 'result' => '删除失败，请稍后重试。',
             ]);
@@ -441,7 +449,8 @@ class ApiDocController extends Controller
             'filename' => 'required|string|max:255',
             'file' => 'required|string|max:255',
             'type' => 'required|string|in:markdown,apicat,postman',
-            'parent_id' => 'nullable|integer|min:0'
+            'parent_id' => 'nullable|integer|min:0',
+            'iteration_id' => 'nullable|integer|min:1',
         ]);
 
         $parentID = $request->input('parent_id') ? $request->input('parent_id') : 0;
@@ -463,7 +472,8 @@ class ApiDocController extends Controller
                 'projectID' => $request->input('project_id'),
                 'fileName' => $request->input('file'),
                 'originFileName' => $originFileName,
-                'parentID' => $parentID
+                'parentID' => $parentID,
+                'iterationID' => $request->input('iteration_id') ?? 0
             ]);
 
             if (!$jobID) {
@@ -480,7 +490,8 @@ class ApiDocController extends Controller
                 'userID' => Auth::id(),
                 'projectID' => $request->input('project_id'),
                 'fileName' => $request->input('file'),
-                'parentID' => $parentID
+                'parentID' => $parentID,
+                'iterationID' => $request->input('iteration_id') ?? 0
             ]);
 
             if (!$jobID) {
@@ -497,7 +508,8 @@ class ApiDocController extends Controller
                 'userID' => Auth::id(),
                 'projectID' => $request->input('project_id'),
                 'fileName' => $request->input('file'),
-                'parentID' => $parentID
+                'parentID' => $parentID,
+                'iterationID' => $request->input('iteration_id') ?? 0
             ]);
 
             if (!$jobID) {
@@ -508,7 +520,7 @@ class ApiDocController extends Controller
 
             ApiCatJsonImport::dispatch($jobID);
         }
-        
+
         return response()->json([
             'status' => 0,
             'msg' => '',

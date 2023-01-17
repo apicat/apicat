@@ -1,5 +1,5 @@
 <template>
-    <el-dialog :width="600" :close-on-click-modal="false" v-model="state.visible" :title="title || '选择裁剪区域'" custom-class="show-footer-line">
+    <el-dialog :width="600" :close-on-click-modal="false" v-model="state.visible" :title="title || '选择裁剪区域'" class="show-footer-line">
         <div v-loading v-show="!state.imgLoading" ref="corpImgContainer" class="img-corp" :style="state.corpImgContainerStyle"></div>
         <template #footer>
             <el-button @click="onCloseBtnClick()">取消</el-button>

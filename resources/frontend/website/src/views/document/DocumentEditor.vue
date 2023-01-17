@@ -10,7 +10,7 @@
             placeholder="请输入文档标题"
         />
 
-        <AcEditor v-if="document.content" ref="editor" :document="document.content" :options="editorOptions" @on-change="onDocumentChange" />
+        <AcEditor ref="editor" v-if="document.content" :document="document.content" :options="editorOptions" @on-change="onDocumentChange" />
     </div>
 </template>
 <script lang="ts">
@@ -23,12 +23,28 @@
     import { debounce, isEmpty } from 'lodash-es'
     import { hideLoading } from '@/hooks/useLoading'
     import { useRoute, useRouter } from 'vue-router'
-    import emitter, { DOCUMENT_SAVE_DONE, DOCUMENT_SAVE_ING, DOCUMENT_SAVE_ERROR } from '@/common/emitter'
-    import { DOCUMENT_DETAIL_NAME } from '@/router/constant'
+    import { useProjectStore } from '@/stores/project'
+    import emitter, {
+        DOCUMENT_SAVE_DONE,
+        DOCUMENT_SAVE_ING,
+        DOCUMENT_SAVE_ERROR,
+        DOCUMENT_SAVE_BTN_DONE,
+        DOCUMENT_SAVE_BTN_ING,
+        DOCUMENT_SAVE_BTN_ERROR,
+    } from '@/common/emitter'
+    import { storeToRefs } from 'pinia'
+    import SimpleLoading from './components/SimpleLoading.vue'
+    import LoadingError from './components/LoadingError.vue'
+    import useIdPublicParam from '@/hooks/useIdPublicParam'
 
     export default defineComponent({
         components: {
-            AcEditor: defineAsyncComponent(() => import('@natosoft/editor')),
+            AcEditor: defineAsyncComponent({
+                loader: () => import('@natosoft/editor'),
+                loadingComponent: SimpleLoading,
+                errorComponent: LoadingError,
+                timeout: 10000,
+            }),
         },
 
         setup() {
@@ -36,12 +52,18 @@
             const $route: any = useRoute()
             const $router: any = useRouter()
             const docuemntContainer = ref(null)
+            const projectStore = useProjectStore()
+            const { projectInfo } = storeToRefs(projectStore)
+            const publicParams = useIdPublicParam()
+
             return {
+                publicParams,
+                projectInfo,
                 docuemntContainer,
-                project_id: $route.params.project_id,
+                project_id: projectInfo.value.id,
                 node_id: parseInt($route.params.node_id as string, 10),
-                $route,
-                $router,
+                route: $route,
+                router: $router,
                 updateTreeNode,
             }
         },
@@ -57,8 +79,6 @@
                     deleteUrl: (id: any) => this.deleteUrl(id),
                     openNotification: () => this.openNotification(),
                 },
-                // project_id: this.$route.params.project_id,
-                // node_id: parseInt(this.$route.params.node_id as string, 10),
                 document: {} as any,
                 isLoading: false,
                 isDocumentLoading: false,
@@ -157,7 +177,7 @@
             },
 
             getDocumentDetail() {
-                const node_id = parseInt(this.$route.params.node_id as string, 10)
+                const node_id = parseInt(this.route.params.node_id as string, 10)
 
                 if (isNaN(node_id)) {
                     hideLoading()
@@ -166,8 +186,8 @@
 
                 this.node_id = node_id
                 this.isDocumentLoading = true
-
-                getDocumentDetail(this.project_id, this.node_id)
+                const data = { project_id: this.publicParams.projectId, doc_id: this.node_id }
+                getDocumentDetail(data)
                     .then((res) => {
                         res.data.project_id = this.project_id
                         res.data.doc_id = res.data.id
@@ -194,15 +214,15 @@
             },
 
             save() {
+                const doc = this.getDocumentContent()
+                if (!doc) {
+                    // emitter.emit(DOCUMENT_SAVE_BTN_DONE)
+                    return
+                }
                 this.isLoading = true
-
-                updateDoc(this.getDocumentContent())
-                    .then((res: any) => {
-                        $Message.success(res.message || '保存成功')
-                        this.updateTreeNodeTitle(res.data)
-                        this.$router.push({ name: DOCUMENT_DETAIL_NAME, params: { project_id: this.project_id, node_id: this.node_id } })
-                    })
-                    .catch((e) => e)
+                updateDoc(doc)
+                    .then(() => emitter.emit(DOCUMENT_SAVE_BTN_DONE))
+                    .catch(() => emitter.emit(DOCUMENT_SAVE_BTN_ERROR))
                     .finally(() => {
                         this.isLoading = false
                     })
@@ -219,16 +239,21 @@
             },
 
             onDocumentChange: debounce(function (this: any) {
+                if (this.isLoading) {
+                    return
+                }
                 emitter.emit(DOCUMENT_SAVE_ING)
-                updateDoc(this.getDocumentContent())
-                    .then((res: any) => {
-                        emitter.emit(DOCUMENT_SAVE_DONE)
-                        this.updateTreeNodeTitle(res.data)
-                    })
-                    .catch(() => {
-                        emitter.emit(DOCUMENT_SAVE_ERROR)
-                    })
-            }, 500),
+                const doc = this.getDocumentContent()
+                doc &&
+                    updateDoc(doc)
+                        .then((res: any) => {
+                            emitter.emit(DOCUMENT_SAVE_DONE)
+                            this.updateTreeNodeTitle(res.data)
+                        })
+                        .catch(() => {
+                            emitter.emit(DOCUMENT_SAVE_ERROR)
+                        })
+            }, 200),
 
             onDocumentTitleChange: debounce(function (this: any) {
                 if (isEmpty(this.document.title)) {
@@ -239,10 +264,14 @@
             }, 500),
 
             autoFocus() {
-                if (this.$route.query.isNew) {
+                if (this.route.query.isNew) {
                     this.$refs.title && (this.$refs.title as any).focus()
                 }
             },
+        },
+
+        mounted() {
+            emitter.on(DOCUMENT_SAVE_BTN_ING, this.onSaveBtnClick)
         },
     })
 </script>

@@ -1,8 +1,9 @@
 import { useApi } from '@/hooks/useApi'
 import { onMounted, reactive, toRefs } from 'vue'
 import { usePage } from '@/hooks/usePage'
+import { isFunction } from '@natosoft/shared'
 
-export const useTable = (_api: any, options = { isLoaded: true, dataKey: 'data', totalKey: 'total' } as any) => {
+export const useTable = (_api: any, options = { isLoaded: true, dataKey: 'data', totalKey: 'total', transform: null } as any) => {
     const { isLoaded = true, searchParam = {}, dataKey, totalKey } = options
 
     const [isLoading, api] = useApi(_api, { isShowMessage: false })
@@ -18,7 +19,7 @@ export const useTable = (_api: any, options = { isLoaded: true, dataKey: 'data',
         const res = await api({ ...searchParam, page: page.value })
 
         if (res && res.data) {
-            tableState.data = res.data[dataKey] || []
+            tableState.data = (res.data[dataKey] || []).map((item: any) => (isFunction(options.transform) ? options.transform(item) : item))
             tableState.total = res.data[totalKey] || 1
         } else {
             tableState.data = []

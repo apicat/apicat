@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="isShow" :width="340" :close-on-click-modal="false" title="移动项目分组" append-to-body custom-class="show-footer-line">
+    <el-dialog v-model="isShow" :width="340" :close-on-click-modal="false" title="移动项目分组" append-to-body class="show-footer-line">
         <el-form @submit.prevent="handleSubmit('teamForm')" ref="teamForm" :model="form" :rules="rules" label-position="top" style="margin-bottom: -19px">
             <el-form-item label="选择项目分组" prop="new_group_id" class="hide_required">
                 <el-select

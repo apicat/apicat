@@ -1,13 +1,13 @@
 <template>
-    <div class="h-full flex flex-col">
+    <div class="flex flex-col h-full">
         <div class="ac-doc-catalog">
             <h3 class="text-base font-medium">目录</h3>
             <div>
-                <el-icon class="cursor-pointer text-zinc-500" :class="{ 'mr-5': isManager || isDeveloper }" @click="onSearchIconClick"><Search /></el-icon>
+                <el-icon class="cursor-pointer text-zinc-500" :class="{ 'mr-5': isManager || isDeveloper }" ref="searchIconRef"><Search /></el-icon>
                 <el-icon v-if="isManager || isDeveloper" class="cursor-pointer text-zinc-500" @click="onRootMoreIconClick"><Plus /></el-icon>
             </div>
         </div>
-        <div class="overflow-x-scroll scroll-content flex-auto" ref="dir">
+        <div class="flex-auto overflow-x-scroll scroll-content" ref="dir">
             <ac-tree
                 :data="apiDocTree"
                 class="bg-transparent"
@@ -53,8 +53,7 @@
             </ac-tree>
         </div>
     </div>
-
-    <SearchDocumentPopover ref="searchDocumentPopoverRef" />
+    <SearchDocumentPopover ref="searchDocumentPopoverRef" :virtual-ref="searchIconRef" />
 </template>
 
 <script lang="tsx">
@@ -63,6 +62,7 @@
     import { useRoute, useRouter } from 'vue-router'
     import { computed, nextTick, onMounted, ref, defineComponent, inject, watch } from 'vue'
     import { useDocumentStore, extendDocTreeFeild } from '@/stores/document'
+    import { useProjectStore } from '@/stores/project'
     import { storeToRefs } from 'pinia'
     import createDocIcon from '@/assets/image/doc-common@2x.png'
     import { memoize, debounce } from 'lodash-es'
@@ -76,10 +76,11 @@
     import { API_SINGLE_EXPORT_ACTION_MAPPING } from '@/api/exportFile'
     import AcTree from './AcTree'
     import SearchDocumentPopover from './SearchDocumentPopover.vue'
-    import { useProjectStore } from '@/stores/project'
-    import { DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME } from '@/router/constant'
+    import { DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME, ITERATE_DOCUMENT_DETAIL_NAME, ITERATE_DOCUMENT_EDIT_NAME } from '@/router/constant'
     import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-    import { showLoading, hideLoading } from '@/hooks/useLoading'
+    import useIdPublicParam, { generateProjectOrIterateParams } from '@/hooks/useIdPublicParam'
+    import { useIterateStore } from '@/stores/iterate'
+    import { hideLoading } from '@/hooks/useLoading'
 
     export default defineComponent({
         components: {
@@ -99,25 +100,29 @@
             const $router = useRouter()
             const { currentRoute } = $router
             const { params } = $route
-            const { project_id } = params
+
+            const { isIterateRoute, ...publicParams } = useIdPublicParam()
+
             const documentStore = useDocumentStore()
             const { apiDocTree } = storeToRefs(documentStore)
             const projectStore = useProjectStore()
-            const { isManager, isDeveloper } = storeToRefs(projectStore)
+            const iterateStore = useIterateStore()
+            const { isManager, isDeveloper, projectInfo } = storeToRefs(projectStore)
 
             const newMenus: any = NEW_MENUS
             const activeMoreNodeId = ref(null)
             const renameInput: any = ref(null)
             const treeIns: any = ref(null)
 
+            const searchIconRef = ref()
             const searchDocumentPopoverRef: any = ref(null)
             const dir: any = ref(null)
 
             let index = 1
             const oldDraggingNodeInfo: any = null
 
-            // 是否为详情页
-            const isDetailPage = computed(() => currentRoute.value.name === DOCUMENT_DETAIL_NAME)
+            // 是否为详情页 // todo 迭代
+            const isDetailPage = computed(() => currentRoute.value.name === DOCUMENT_DETAIL_NAME || currentRoute.value.name === ITERATE_DOCUMENT_EDIT_NAME)
 
             // 启动切换文档选中
             watch(
@@ -146,7 +151,12 @@
                     return
                 }
                 activeNode(source.id)
-                $router.push({ name: DOCUMENT_DETAIL_NAME, params: { ...params, node_id: source.id } })
+
+                // todo 迭代
+                $router.push({
+                    name: iterateStore.isIterateRoute ? ITERATE_DOCUMENT_DETAIL_NAME : DOCUMENT_DETAIL_NAME,
+                    params: { ...params, node_id: source.id },
+                })
             }
 
             const onMoreIconClick = (e: any, node: any, source: any, type: any) => {
@@ -191,9 +201,15 @@
                 return true
             }
 
-            const customNodeClass = (data: any) => (data.isLeaf ? 'is-doc' : 'is-dir')
+            const customNodeClass = (data: any) => {
+                const classNames = [data.isLeaf ? 'is-doc' : 'is-dir']
+                // 迭代 - 隐藏未规划API
+                data.selected === false && classNames.push('hidden')
+                return classNames.join(' ')
+            }
 
             const customNodeLeaf = (data: any) => data.type === DOCUMENT_TYPES.DOC
+
             // 重命名功能
             const inputFocus = async () => {
                 await nextTick()
@@ -219,7 +235,7 @@
 
                 const isDir = source.type === DOCUMENT_TYPES.DIR
                 const action = isDir ? renameDir : renameDoc
-                const param = { project_id, title: source.title } as any
+                const param = { project_id: projectInfo.value.id, title: source.title } as any
                 param[isDir ? 'node_id' : 'doc_id'] = source.id
 
                 action(param)
@@ -282,42 +298,50 @@
                     traverseTree(
                         (item: any) => {
                             let _node = treeIns.value.getNode(item.id)
-                            if (_node && _node.data.isLeaf) {
-                                node = _node
-                                return false
+                            // todo 迭代
+                            if (isIterateRoute) {
+                                if (_node && _node.data.isLeaf && _node.data.selected) {
+                                    node = _node
+                                    return false
+                                }
+                            } else {
+                                if (_node && _node.data.isLeaf) {
+                                    node = _node
+                                    return false
+                                }
                             }
                         },
                         apiDocTree.value,
                         { subKey: 'sub_nodes' }
                     )
 
-                    let params = { project_id } as any
-
                     // 存在文档
                     if (node) {
                         params.node_id = node.key
                         activeNode(node.key)
+                    } else {
+                        params.node_id = ''
+                        hideLoading()
                     }
 
                     const dirDom = dir.value as any
                     dirDom?.scrollTo(0, 0)
-                    $router.replace({ name: DOCUMENT_DETAIL_NAME, params })
+
+                    // todo 迭代
+                    $router.replace({ name: iterateStore.isIterateRoute ? ITERATE_DOCUMENT_DETAIL_NAME : DOCUMENT_DETAIL_NAME, params })
                 }
             }
 
             const getDocTreeList = async () => {
-                // showLoading()
-                await documentStore.getApiDocTree(project_id as string)
-                // hideLoading()
-            }
-
-            const onSearchIconClick = (e: any) => {
-                searchDocumentPopoverRef.value?.show(e.currentTarget)
+                const tree = await documentStore.getApiDocTree(generateProjectOrIterateParams(publicParams))
+                if (!tree || !tree.length) {
+                    hideLoading()
+                }
             }
 
             onMounted(async () => {
                 await getDocTreeList()
-                currentRoute.value.params.node_id ? activeNode() : reactiveNode()
+                params.node_id ? activeNode() : reactiveNode()
             })
 
             return {
@@ -327,7 +351,12 @@
                 index,
                 oldDraggingNodeInfo,
 
-                project_id,
+                params,
+
+                projectInfo,
+                publicParams,
+
+                isIterateRoute,
 
                 apiDocTree,
                 renameInput,
@@ -342,7 +371,6 @@
                 handleTreeNodeClick,
                 onRootMoreIconClick,
                 onMoreIconClick,
-                onSearchIconClick,
                 allowDrop,
                 customNodeClass,
                 customNodeLeaf,
@@ -357,6 +385,7 @@
                 documentImportModal,
                 projectExportModal,
                 searchDocumentPopoverRef,
+                searchIconRef,
             }
         },
 
@@ -385,13 +414,14 @@
                     title: '删除提示',
                     content: (
                         <div class="break-all">
-                            确定删除「{source.title}」{isDir ? '分类' : '文件'}吗？
+                            确定删除「{source.title}」{isDir ? '分类' : '文档'}吗？
                         </div>
                     ),
                     onOk: () => {
                         const isDir = source.type === DOCUMENT_TYPES.DIR
                         const action = isDir ? deleteDir : deleteDoc
-                        let param = { project_id: this.project_id } as any
+                        // 迭代
+                        let param = { ...generateProjectOrIterateParams(this.publicParams) } as any
                         param[isDir ? 'node_id' : 'doc_id'] = source.id
 
                         return action(param).then((res: any) => {
@@ -404,8 +434,9 @@
             },
 
             onCreateDirBtnClick(node: any, source: any) {
+                // todo 迭代
                 let data = {
-                    project_id: this.project_id,
+                    ...generateProjectOrIterateParams(this.publicParams),
                     name: '新建分类' + this.index++,
                 } as any
 
@@ -418,7 +449,6 @@
                 createDir(data)
                     .then((res) => {
                         const data = extendDocTreeFeild(res.data, DOCUMENT_TYPES.DIR)
-
                         // root
                         if (!node.parent && node.level === 0) {
                             source.unshift(data)
@@ -444,21 +474,24 @@
             },
 
             createDoc(node: any, source: any) {
-                let param = { project_id: this.project_id, parent_id: node.key, pid: node.key }
+                // todo 迭代
+                let param = { ...generateProjectOrIterateParams(this.publicParams), parent_id: node.key, pid: node.key }
                 NProgress.start()
                 createDoc(param)
                     .then(({ data }) => {
                         this.treeIns.append(extendDocTreeFeild(data), node)
+
                         this.$nextTick(() => {
                             this.treeIns.setCurrentKey(data.id)
                             const parentNode = this.treeIns.getNode(source)
                             parentNode && (parentNode.expanded = true)
 
                             this.router.push({
-                                name: DOCUMENT_EDIT_NAME,
-                                params: { project_id: this.project_id, node_id: data.id },
+                                name: this.isIterateRoute ? ITERATE_DOCUMENT_EDIT_NAME : DOCUMENT_EDIT_NAME,
+                                params: { ...this.params, node_id: data.id },
                                 query: { isNew: true } as any,
                             })
+
                             this.activeNode(data.id)
                         })
                     })
@@ -503,19 +536,23 @@
                     new_node_ids: sortData.newChildIds,
                     old_pid: sortData.oldPid || 0,
                     old_node_ids: sortData.oldChildIds,
-                    project_id: this.project_id,
+                    project_id: this.projectInfo.id,
                 })
             },
 
             onCopyBtnClick(node: any, source: any) {
                 NProgress.start()
+                // todo 迭代
                 copyDoc({
-                    project_id: this.project_id,
+                    ...generateProjectOrIterateParams(this.publicParams),
                     doc_id: source.id,
                 })
                     .then(({ data }) => {
                         this.treeIns.insertAfter(extendDocTreeFeild(data), node)
-                        this.router.push({ name: DOCUMENT_EDIT_NAME, params: { project_id: this.project_id, node_id: data.id } })
+                        this.router.push({
+                            name: this.isIterateRoute ? ITERATE_DOCUMENT_EDIT_NAME : DOCUMENT_EDIT_NAME,
+                            params: { ...this.params, node_id: data.id },
+                        })
                     })
                     .finally(() => {
                         NProgress.done()
@@ -530,9 +567,10 @@
             },
 
             onImportBtnClick(node: any, source: any) {
+                // todo 迭代
                 this.documentImportModal.show(
                     {
-                        project_id: this.project_id,
+                        ...generateProjectOrIterateParams(this.publicParams),
                         parent_id: source.id ? source.id : 0,
                     },
                     API_DOCUMENT_IMPORT_ACTION_MAPPING
@@ -541,7 +579,7 @@
 
             onExportBtnClick(node: any, source: any) {
                 this.projectExportModal.title = '导出文档'
-                this.projectExportModal.show({ project_id: this.project_id, doc_id: source.id }, API_SINGLE_EXPORT_ACTION_MAPPING)
+                this.projectExportModal.show({ project_id: this.projectInfo.id, doc_id: source.id }, API_SINGLE_EXPORT_ACTION_MAPPING)
             },
 
             // 更新文档标题
@@ -553,7 +591,8 @@
             },
 
             createHttpDoc(node: any, source: any) {
-                let param = { project_id: this.project_id, parent_id: node.key, pid: node.key }
+                // todo 迭代
+                let param = { ...generateProjectOrIterateParams(this.publicParams), parent_id: node.key, pid: node.key }
                 NProgress.start()
                 createHttpDoc(param)
                     .then(({ data }) => {
@@ -563,8 +602,8 @@
                             parentNode && (parentNode.expanded = true)
 
                             this.router.push({
-                                name: DOCUMENT_EDIT_NAME,
-                                params: { project_id: this.project_id, node_id: data.id },
+                                name: this.isIterateRoute ? ITERATE_DOCUMENT_EDIT_NAME : DOCUMENT_EDIT_NAME,
+                                params: { ...this.params, node_id: data.id },
                                 query: { isNew: true } as any,
                             })
                         })

@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\DirectoryController;
 use App\Http\Controllers\Api\ApiDocNoAuthController;
 use App\Http\Controllers\Api\DocTrashController;
 use App\Http\Controllers\Api\EmailController;
+use App\Http\Controllers\Api\IterationController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ProjectGroupController;
 use App\Http\Controllers\Api\ProjectMemberController;
@@ -85,6 +86,8 @@ Route::prefix('project_group')->group(function () {
 Route::prefix('projects')->group(function () {
     // 项目分组下的详细列表
     Route::get('/', [ProjectsController::class, 'index']);
+    // 权限下的项目列表，只返回项目基本信息
+    Route::get('/base', [ProjectsController::class, 'base']);
 });
 
 // 项目
@@ -212,6 +215,30 @@ Route::prefix('api_doc')->group(function () {
     // 文档导出结果查询
     Route::get('export_result', [ApiDocController::class, 'exportResult']);
 });
+
+// 迭代
+Route::prefix('iteration')->group(function () {
+    // 迭代详情
+    Route::get('/', [IterationController::class, 'detail']);
+    // 新建迭代
+    Route::post('create', [IterationController::class, 'create']);
+    // 编辑迭代
+    Route::post('edit', [IterationController::class, 'edit']);
+    // 删除迭代
+    Route::post('remove', [IterationController::class, 'del']);
+    // 规划迭代的API
+    Route::post('push', [IterationController::class, 'pushApi']);
+    // 添加收藏项目
+    Route::post('star', [IterationController::class, 'star']);
+    // 收藏项目列表
+    Route::get('stars', [IterationController::class, 'starList']);
+    // 收藏排序
+    Route::post('star_order', [IterationController::class, 'starOrder']);
+    // 取消收藏
+    Route::post('unstar', [IterationController::class, 'unstar']);
+});
+// 迭代列表
+Route::get('/iterations', [IterationController::class, 'iterationList']);
 
 // 块文件上传初始化
 Route::post('/upload_init', [UploadController::class, 'init']);
