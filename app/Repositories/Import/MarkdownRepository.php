@@ -4,7 +4,7 @@ namespace App\Repositories\Import;
 
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
-use App\Repositories\Project\ApiDocRepository;
+use App\Repositories\ApiDoc\ApiDocRepository;
 use App\Modules\HtmlToProseMirror\Renderer;
 use League\CommonMark\MarkdownConverter;
 use League\CommonMark\Environment\Environment;
@@ -89,7 +89,7 @@ class MarkdownRepository extends BaseRepository
             $renderer = new Renderer;
             $content = json_encode($renderer->render($content));
 
-            ApiDocRepository::addDoc($this->projectID, $this->parentID, $title, $content, $this->userID);
+            ApiDocRepository::addDoc($this->projectID, $this->parentID, $title, $content, $this->userID, $this->iterationID);
             
             $this->finish('导入完成');
         } catch (\Exception $e) {

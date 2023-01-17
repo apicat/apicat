@@ -1,12 +1,5 @@
 <template>
-    <el-dialog
-        v-model="isShow"
-        :width="340"
-        :close-on-click-modal="false"
-        title="添加成员"
-        append-to-body
-        custom-class="show-footer-line vertical-center-modal"
-    >
+    <el-dialog v-model="isShow" :width="340" :close-on-click-modal="false" title="添加成员" append-to-body class="show-footer-line vertical-center-modal">
         <el-form @keyup.enter="handleSubmit('teamForm')" ref="teamForm" :model="form" :rules="rules" label-position="top" style="margin-bottom: -19px">
             <el-form-item label="选择成员" prop="user_ids" class="hide_required">
                 <el-select v-model="form.user_ids" placeholder="选择成员" no-data-text="暂无成员" filterable multiple clearable class="w-full">

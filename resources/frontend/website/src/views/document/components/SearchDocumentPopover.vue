@@ -1,10 +1,20 @@
 <template>
-    <el-popover v-model:visible="visible" ref="popoverRef" placement="bottom-end" :virtual-ref="searchDocumentPopoverRefEl" virtual-triggering width="auto">
+    <el-popover
+        ref="popoverRef"
+        placement="bottom-end"
+        trigger="click"
+        :virtual-ref="props.virtualRef"
+        virtual-triggering
+        width="auto"
+        :popper-options="popperOptions"
+        @after-enter="onShow"
+        @after-leave="onHide"
+    >
         <div ref="searchDomRef" class="search-poptip">
             <el-input ref="searchInput" :suffix-icon="Search" placeholder="关键字 回车搜索" v-model="keywords" @change="onSearchDocument" clearable />
-            <div v-show="isSearched" class="search-result scroll-content text-left" v-loading="isSearching">
+            <div v-show="isSearched" class="text-left search-result scroll-content" v-loading="isSearching">
                 <span class="cursor-pointer" v-for="(item, index) in searchData" :key="item.doc_id + '_' + index" @click="onSearchResultItemClick(item)">
-                    <h4 class="truncate px-2 hover:bg-gray-100">
+                    <h4 class="px-2 truncate hover:bg-gray-100">
                         {{ item.title }}
                     </h4>
                 </span>
@@ -24,20 +34,26 @@
 <script setup lang="ts">
     import { Search } from '@element-plus/icons-vue'
     import { onClickOutside } from '@vueuse/core'
-    import { ref, unref } from 'vue'
+    import { ref, unref, toRefs } from 'vue'
     import { debounce } from 'lodash-es'
-    import { useRoute, useRouter } from 'vue-router'
-    import { searchDocuments } from '@/api/document'
-    import { toDocumentDetailPath } from '@/router/document.router'
+    import { useRouter } from 'vue-router'
+    import { searchDocuments, toDocumentDetailPath } from '@/api/document'
+    import { toIterateDocumentDetailPath } from '@/api/iterate'
     import { traverseTree } from '@natosoft/shared'
     import { useDocumentStore } from '@/stores/document'
     import { storeToRefs } from 'pinia'
+    import useIdPublicParam, { generateProjectOrIterateParams, getIdPublicByRouter } from '@/hooks/useIdPublicParam'
 
-    const { params } = useRoute()
+    const props = defineProps({
+        virtualRef: Object,
+    })
+
     const { push } = useRouter()
     const { apiDocTree } = storeToRefs(useDocumentStore())
+    const publicParams = useIdPublicParam()
+    const id_public: any = getIdPublicByRouter()
+    const { isIterateRoute } = publicParams
 
-    const visible = ref(false)
     const isSearched = ref(false)
     const isSearching = ref(false)
     const keywords = ref('')
@@ -45,18 +61,19 @@
     const searchDomRef = ref()
     const popoverRef = ref()
     const searchInput = ref()
-    const searchDocumentPopoverRefEl = ref()
 
-    onClickOutside(
-        searchDomRef,
-        () => {
-            visible.value = false
-            resetSearch()
-        },
-        {
-            ignore: [searchDocumentPopoverRefEl],
-        }
-    )
+    const propsRef: any = toRefs(props)
+
+    const popperOptions = {
+        modifiers: [
+            { name: 'computeStyles', options: { gpuAcceleration: false } },
+            { name: 'offset', options: { offset: [-300, 10] } },
+        ],
+    }
+
+    onClickOutside(searchDomRef, () => resetSearch(), {
+        ignore: [propsRef.virtualRef],
+    })
 
     const onSearchDocument = debounce(() => {
         const unRefKeywords = unref(keywords)
@@ -67,8 +84,10 @@
 
         isSearched.value = true
         isSearching.value = true
+        const data = generateProjectOrIterateParams(publicParams)
+        data.project_id_public = publicParams.projectPublicId
 
-        searchDocuments(params.project_id, unRefKeywords)
+        searchDocuments(data, unRefKeywords)
             .then((res) => {
                 searchData.value = res.data || []
             })
@@ -92,7 +111,7 @@
 
         traverseTree(
             (item: any) => {
-                if (item.id === parseInt(doc.node_id, 10)) {
+                if (item.id === parseInt(doc.doc_id, 10)) {
                     node = item
                     return false
                 }
@@ -101,7 +120,7 @@
             { subKey: 'sub_nodes' }
         )
 
-        const path = toDocumentDetailPath({ project_id: params.project_id, node_id: doc.node_id })
+        const path = isIterateRoute ? toIterateDocumentDetailPath(id_public, doc.doc_id) : toDocumentDetailPath(id_public, doc.doc_id)
 
         if (node) {
             push({ path })
@@ -110,14 +129,17 @@
         }
     }
 
-    const show = (el: any) => {
-        searchDocumentPopoverRefEl.value = el
-        visible.value = true
+    const onShow = () => {
         searchInput.value.focus()
     }
 
+    const onHide = () => {
+        resetSearch()
+    }
+
     defineExpose({
-        show,
+        onShow,
+        onHide,
     })
 </script>
 <style lang="scss" scoped>

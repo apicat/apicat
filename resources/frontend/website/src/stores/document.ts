@@ -13,6 +13,7 @@ export const extendDocTreeFeild = (node = {} as any, type = DOCUMENT_TYPES.DOC) 
     isEditable: false,
     isCurrent: false,
     isLeaf: (node.type === undefined ? type : node.type) === DOCUMENT_TYPES.DOC,
+    title: node.title || node.name,
 })
 
 export const useDocumentStore = defineStore({
@@ -25,14 +26,15 @@ export const useDocumentStore = defineStore({
     getters: {},
 
     actions: {
-        async getApiDocTree(project_id: string) {
-            if (!project_id) {
+        async getApiDocTree(params: any) {
+            if (!params.project_id) {
                 return []
             }
 
+            const { project_id } = params
             try {
                 const token = Storage.get(Storage.KEYS.SECRET_PROJECT_TOKEN + project_id || '', true)
-                const { data } = await treeList(project_id, token)
+                const { data } = await treeList(params, token)
                 this.apiDocTree = traverseTree(
                     (item: any) => {
                         item.isLeaf = item.type === DOCUMENT_TYPES.DOC

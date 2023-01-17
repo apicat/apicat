@@ -5,7 +5,7 @@ namespace App\Repositories\Export;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\File;
 use App\Models\Project;
-use App\Repositories\Project\ApiDocRepository;
+use App\Repositories\ApiDoc\ApiDocRepository;
 use App\Modules\Mock\Parser\Maker\MockRouter;
 
 /**

@@ -1,24 +1,25 @@
 import Ajax from './Ajax'
 import { wrapperOrigin } from '@/common/utils'
-import { compile } from 'path-to-regexp'
 import { Storage } from '@natosoft/shared'
 import ApicatLogo from '@/assets/image/logo-apicat@2x.png'
 import MarkdownLogo from '@/assets/image/logo-markdown@2x.png'
 import PostmanLogo from '@/assets/image/logo-postman@2x.png'
-import { DECUMENT_DETAIL_PATH } from '@/router/constant'
+import { compile } from 'path-to-regexp'
+import { DOCUMENT_DETAIL_PATH, DOCUMENT_EDIT_PATH } from '@/router/constant'
 
 // 常用URL地址
 export const getUrlTipList = (project_id: any) => Ajax.get('/api_url/list', { params: { project_id } })
 export const deleteUrlTip = (project_id: any, url_id: any) => Ajax.post('/api_url/remove', { project_id, url_id })
 
 // 文档详情综合
-export const getDocumentDetail = (project_id: any, doc_id: any, format = 'json') => {
+export const getDocumentDetail = (params: any, format = 'json') => {
+    const { project_id, doc_id } = params || {}
     const token = Storage.get(Storage.KEYS.SECRET_PROJECT_TOKEN + project_id || '', true)
     return Ajax.get('/api_doc', { params: { project_id, doc_id, format, token } })
 }
-export const searchDocuments = (project_id: any, keywords: any) => {
-    const token = Storage.get(Storage.KEYS.SECRET_PROJECT_TOKEN + project_id || '', true)
-    return Ajax.get('/api_doc/search', { params: { project_id, keywords, token } })
+export const searchDocuments = (params: any, keywords: any) => {
+    const token = Storage.get(Storage.KEYS.SECRET_PROJECT_TOKEN + params.project_id || '', true)
+    return Ajax.get('/api_doc/search', { params: { ...(params || {}), keywords, token } })
 }
 export const createDoc = (doc = {}) => Ajax.post('/api_doc/create', { ...doc })
 export const createHttpDoc = (doc = {} as any) => Ajax.post('/api_doc/http_template', { ...doc })
@@ -50,6 +51,18 @@ export const API_DOCUMENT_IMPORT_ACTION_MAPPING = [
     { text: 'Postman(v2.1)', icon: PostmanLogo, type: 'postman', action: importDocument, getJobResult: getImportDocumentResult, maxSize: 2, accept: '.json' },
 ]
 
+export const toDocumentDetailPath = (project_id: string, node_id?: string) => compile(DOCUMENT_DETAIL_PATH)({ project_id, node_id })
+export const toDocumentEditPath = (project_id: string) => compile(DOCUMENT_EDIT_PATH)({ project_id })
+
 // 生成文档详情路由地址
-export const generateDocumentDetailPath = (project_id: any, node_id: any, hasOrigin?: boolean) =>
-    wrapperOrigin(hasOrigin) + compile(DECUMENT_DETAIL_PATH)({ project_id, node_id })
+export const generateDocumentDetailPath = (id_public: any, node_id: any, hasOrigin?: boolean) =>
+    wrapperOrigin(hasOrigin) + toDocumentDetailPath(id_public, node_id)
+
+// 文档历史记录列表
+export const getDocumentHistoryRecordList = (project_id: any, doc_id: any) => Ajax.get('/doc_histories', { params: { project_id, doc_id } })
+// 文档历史记录详情
+export const getDocumentHistoryRecordDetail = (project_id: any, id: any) => Ajax.get('/doc_history/detail', { params: { project_id, id } })
+// 文档历史记录对比
+export const compareDocument = (params: any) => Ajax.get('/doc_history/diff', { params })
+// 恢复文档
+export const restoreDocumentByHistoryRecord = (project_id: any, id: any) => Ajax.post('/doc_history/restore', { project_id, id })

@@ -1,4 +1,7 @@
 import Ajax from './Ajax'
+import { compile } from 'path-to-regexp'
+import { PREVIEW_DOCUMENT_PATH } from '@/router/constant'
+import { wrapperOrigin } from '@/common/utils'
 
 export const getDocumentInfo = (doc_id: any) => Ajax.get('/preview/doc_info', { params: { doc_id } })
 
@@ -20,3 +23,6 @@ export const checkProjectSecretKey = (data: any) => Ajax.post('/project/secretke
 export const getApiDocumentDetail = (token: any, project_id: any, node_id: any) => Ajax.get('/preview/api_doc', { params: { project_id, node_id, token } })
 
 export const searchProjectInfo = (token: any, project_id: any, keywords: any) => Ajax.get('/preview/search', { params: { project_id, keywords, token } })
+
+// 生成文档预览链接
+export const generatePreviewDocumentPath = (doc_id: string, hasOrigin?: boolean) => wrapperOrigin(hasOrigin) + compile(PREVIEW_DOCUMENT_PATH)({ doc_id })

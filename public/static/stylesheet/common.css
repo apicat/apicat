@@ -1,0 +1,92 @@
+@font-face {
+    font-family: 'AVANTGA';
+    src: url('../font/unicode.avantgd.ttf') format('truetype'), url('../font/AVANTGA2.ttf') format('truetype');
+}
+*,*::before,*::after{
+    margin: 0;
+    padding: 0;
+}
+header.header {
+    background: #fff;
+    box-shadow: 0 1px 4px 0 rgb(0 21 41 / 12%);
+    min-width: 1144px;
+}
+
+.container {
+    padding: 0 64px;
+    max-width: 1440px;
+    min-width: 1144px;
+}
+
+header.header .container {
+    display: flex;
+    align-content: center;
+    align-items: center;
+    margin: auto;
+}
+
+.logo {
+    height: 48px;
+    line-height: 48px;
+    display: flex;
+    align-items: center;
+}
+
+a {
+    color: #006bff;
+    background: transparent;
+    text-decoration: none;
+    outline: none;
+    cursor: pointer;
+    transition: color .2s ease;
+}
+
+.logo img {
+    height: 40px;
+    vertical-align: middle;
+}
+
+img {
+    border-style: none;
+}
+
+.logo-text {
+    font-size: 16px;
+    color: #242424;
+    letter-spacing: 0;
+    max-width: 188px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+    font-weight: 400;
+}
+
+.logo-apicat,
+.logo-text {
+    font-family: AVANTGA, sans-serif;
+    margin-top: 3px;
+}
+
+main.container {
+    margin: auto;
+    padding-top: 16px;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.not-found-image {
+    height: 282px;
+    margin-bottom: 6vh;
+    margin-top: 20vh;
+}
+
+.not-found-tip {
+    font-size: 18px;
+    font-family: PingFangSC-Regular, PingFang SC;
+    font-weight: 400;
+    color: rgba(0, 0, 0, 0.65);
+    line-height: 25px;
+    letter-spacing: 4px;
+}

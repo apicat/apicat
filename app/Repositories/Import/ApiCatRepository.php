@@ -3,7 +3,7 @@
 namespace App\Repositories\Import;
 
 use Illuminate\Support\Facades\File;
-use App\Repositories\Project\ApiDocRepository;
+use App\Repositories\ApiDoc\ApiDocRepository;
 use App\Repositories\ApiDoc\MockPathRepository;
 use App\Modules\EditorJsonToHtml\Register as NodeRegister;
 /**
@@ -105,7 +105,7 @@ class ApiCatRepository extends BaseRepository
             
             if ($doc['type']) {
                 // 文档
-                $record = ApiDocRepository::addDoc($this->projectID, $parentID, $doc['title'], json_encode($finalContent), $this->userID);
+                $record = ApiDocRepository::addDoc($this->projectID, $parentID, $doc['title'], json_encode($finalContent), $this->userID, $this->iterationID);
 
                 if ($httpApiUrlFinded and $responseParamFinded) {
                     if ($httpApiUrlData['attrs']['path'] and ($responseParamData['attrs']['response_header']['params'] or $responseParamData['attrs']['response_body']['params'])) {
@@ -114,7 +114,7 @@ class ApiCatRepository extends BaseRepository
                 }
             } else {
                 // 分类
-                $record = ApiDocRepository::addDirToFoot($this->projectID, $doc['title'], $parentID, $this->userID);
+                $record = ApiDocRepository::addDirToFoot($this->projectID, $doc['title'], $parentID, $this->userID, $this->iterationID);
             }
 
             if ($doc['sub_nodes']) {

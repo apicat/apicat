@@ -10,8 +10,8 @@
             <el-table-column prop="remaining" label="剩余" />
             <el-table-column label="操作">
                 <template #default="{ row }">
-                    <a class="cursor-pointer mr-3 text-blue-600" target="_blank" :href="row.previewUrl">预览</a>
-                    <span class="cursor-pointer mr-3 text-blue-600" href="javascript:void(0)" @click="onRestoreBtnClick(row)">恢复</span>
+                    <a class="mr-3 text-blue-600 cursor-pointer" target="_blank" :href="row.previewUrl">预览</a>
+                    <span class="mr-3 text-blue-600 cursor-pointer" href="javascript:void(0)" @click="onRestoreBtnClick(row)">恢复</span>
                 </template>
             </el-table-column>
         </el-table>
@@ -91,7 +91,6 @@
         try {
             const { data } = await getProjectTrashList(projectStore.projectInfo.id)
             list.value = (data || []).map((item: any) => {
-                item.remaining = timestampFormat(item.deleted_at) + '天'
                 item.previewUrl = toPreviewTrashDocumentPath({ project_id: projectStore.projectInfo.id, doc_id: item.id })
                 return item
             })

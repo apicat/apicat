@@ -1,5 +1,5 @@
 <template>
-    <el-dialog v-model="isShow" :width="340" :close-on-click-modal="false" :title="title" append-to-body custom-class="show-footer-line">
+    <el-dialog v-model="isShow" :width="340" :close-on-click-modal="false" :title="title" append-to-body class="show-footer-line">
         <el-form ref="teamForm" :model="form" :rules="rules" label-position="top" style="margin-bottom: -19px" @submit.prevent="handleSubmit('teamForm')">
             <el-form-item label="分组名称" prop="name" class="hide_required">
                 <el-input type="text" ref="input" v-model="form.name" placeholder="请输入分组名称" :maxlength="255" />
