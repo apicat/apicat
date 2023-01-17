@@ -134,7 +134,7 @@
                 this.isShare = !isPublic && !!document.secret_key
 
                 document.link = isPublic
-                    ? generateDocumentDetailPath(this.projectInfo.id_public, this.shareData.docId)
+                    ? generateDocumentDetailPath(this.projectInfo.id, this.shareData.docId)
                     : this.isShare
                     ? generatePreviewDocumentPath(this.shareData.docId)
                     : ''

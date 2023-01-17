@@ -105,19 +105,6 @@
         projectExportModal.value.show({ project_id: projectInfo.value.id, doc_id: node_id }, API_SINGLE_EXPORT_ACTION_MAPPING)
     }
 
-    const goDocumentHistoryRecord = () => {
-        const { node_id, iterate_id_public } = getCommonParams()
-        const routeParams: any = {
-            name: DOCUMENT_HISTORY_DETAIL_NAME,
-            params: { project_id_public: projectInfo.value.id_public, doc_id: node_id },
-        }
-        // 迭代路由
-        if (isIterateRoute) {
-            routeParams.query = { from: iterate_id_public }
-        }
-        push(routeParams)
-    }
-
     const saveDocumentDone = () => {
         isSaving.value = false
     }

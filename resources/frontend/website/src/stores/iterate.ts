@@ -24,12 +24,12 @@ export const useIterateStore = defineStore({
     },
 
     actions: {
-        async getIterateInfo(iteration_public_id: any) {
-            if (this.iterateInfo && this.iterateInfo.id_public === iteration_public_id) {
+        async getIterateInfo(iteration_id: any) {
+            if (this.iterateInfo && this.iterateInfo.id === iteration_id) {
                 return this.iterateInfo
             }
 
-            const { data } = await getIterationDetail({ iteration_id: iteration_public_id })
+            const { data } = await getIterationDetail({ iteration_id: iteration_id })
             this.iterateInfo = data
 
             return this.iterateInfo

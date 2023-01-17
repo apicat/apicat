@@ -51,8 +51,8 @@ export const API_DOCUMENT_IMPORT_ACTION_MAPPING = [
     { text: 'Postman(v2.1)', icon: PostmanLogo, type: 'postman', action: importDocument, getJobResult: getImportDocumentResult, maxSize: 2, accept: '.json' },
 ]
 
-export const toDocumentDetailPath = (project_id_public: string, node_id?: string) => compile(DOCUMENT_DETAIL_PATH)({ project_id_public, node_id })
-export const toDocumentEditPath = (project_id_public: string) => compile(DOCUMENT_EDIT_PATH)({ project_id_public })
+export const toDocumentDetailPath = (project_id: string, node_id?: string) => compile(DOCUMENT_DETAIL_PATH)({ project_id, node_id })
+export const toDocumentEditPath = (project_id: string) => compile(DOCUMENT_EDIT_PATH)({ project_id })
 
 // 生成文档详情路由地址
 export const generateDocumentDetailPath = (id_public: any, node_id: any, hasOrigin?: boolean) =>

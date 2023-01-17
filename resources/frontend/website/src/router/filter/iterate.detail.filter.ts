@@ -57,22 +57,6 @@ export default function initDocumentEditFilter(route: Router) {
                 return
             }
 
-            // 未公开 已分享 未输入密钥 -> 输秘钥
-            // if (isPrivate && has_shared && !hasProjectSecretKey) {
-            //     hideLoading()
-            //     next({
-            //         name: PREVIEW_PROJECT_SECRET,
-            //         params: { id_public: params.id_public },
-            //     })
-            //     return
-            // }
-            //
-            // // 未公开 已分享 已输入密钥|密钥未过期
-            // if (isPrivate && has_shared && hasProjectSecretKey) {
-            //     next()
-            //     return
-            // }
-
             goNotFound()
             return false
         }
