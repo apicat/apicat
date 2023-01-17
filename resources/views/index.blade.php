@@ -7,7 +7,7 @@
     <meta name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>ApiCat</title>
-    <script type="module" crossorigin src="/assets/index.eae885e9.js"></script>
+    <script type="module" crossorigin src="/assets/index.6e925652.js"></script>
     <link rel="modulepreload" href="/assets/vendor.b7ec7f69.js">
     <link rel="modulepreload" href="/assets/element-plus.aa12b6bd.js">
     <link rel="stylesheet" href="/assets/element-plus.8e6ef202.css">
