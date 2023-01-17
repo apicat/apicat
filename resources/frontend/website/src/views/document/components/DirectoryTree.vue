@@ -320,6 +320,7 @@
                         params.node_id = node.key
                         activeNode(node.key)
                     } else {
+                        params.node_id = ''
                         hideLoading()
                     }
 
@@ -419,7 +420,7 @@
                     onOk: () => {
                         const isDir = source.type === DOCUMENT_TYPES.DIR
                         const action = isDir ? deleteDir : deleteDoc
-                        // todo 迭代
+                        // 迭代
                         let param = { ...generateProjectOrIterateParams(this.publicParams) } as any
                         param[isDir ? 'node_id' : 'doc_id'] = source.id
 
