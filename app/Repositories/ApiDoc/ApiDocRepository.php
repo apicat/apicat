@@ -11,6 +11,7 @@ use App\Models\Iteration;
 use App\Models\IterationApi;
 use App\Repositories\Iteration\IterationRepository;
 use App\Repositories\Project\TreeCacheRepository;
+use Illuminate\Support\Carbon;
 
 class ApiDocRepository
 {
@@ -354,14 +355,28 @@ class ApiDocRepository
             return false;
         }
 
-        if ($node->title != $name) {
+        if ($node->title == $name) {
+            return true;
+        }
+
+        $fiveMinutesAgo = Carbon::now()->subMinutes(5);
+
+        if ($node->type < 1 or ($node->updated_at->gte($fiveMinutesAgo) and $node->updated_user_id == Auth::id())) {
+            // 5分钟内编辑文档内容，且是同一个人，不保存历史记录
             $node->title = $name;
-            $node->updated_user_id = Auth::id();
+            $node->save();
 
             TreeCacheRepository::remove($node->project_id);
-            return (bool)$node->save();
+            return true;
         }
-        return true;
+
+        ApiDocHistoryRepository::add($node->id, $node->title, $node->content, $node->updated_user_id, $node->updated_at);
+
+        $node->title = $name;
+        $node->updated_user_id = Auth::id();
+        TreeCacheRepository::remove($node->project_id);
+
+        return (bool)$node->save();
     }
 
     /**
