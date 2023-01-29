@@ -2,9 +2,11 @@ import { traverseTree, Storage } from '@natosoft/shared'
 import { DOCUMENT_TYPES } from '@/common/constant'
 import { defineStore } from 'pinia'
 import { treeList } from '@/api/dir'
+import { getDocumentHistoryRecordList } from '@/api/document'
 
 interface State {
     apiDocTree: any
+    documentHistoryRecordTree: any
 }
 
 export const extendDocTreeFeild = (node = {} as any, type = DOCUMENT_TYPES.DOC) => ({
@@ -21,10 +23,17 @@ export const useDocumentStore = defineStore({
 
     state: (): State => ({
         apiDocTree: [],
+        documentHistoryRecordTree: [],
     }),
 
-    getters: {},
-
+    getters: {
+        historyRecordForOptions: (state) => {
+            const options = state.documentHistoryRecordTree
+                .reduce((result: any, item: any) => result.concat(item.sub_nodes || []), [])
+                .map((item: any) => ({ id: item.id, title: item.title }))
+            return [{ id: 0, title: '最新内容' }].concat(options)
+        },
+    },
     actions: {
         async getApiDocTree(params: any) {
             if (!params.project_id) {
@@ -50,6 +59,29 @@ export const useDocumentStore = defineStore({
             }
 
             return this.apiDocTree
+        },
+
+        async getDocumentHistoryRecordList(project_id: any, doc_id: any) {
+            if (!project_id || !doc_id) {
+                return []
+            }
+
+            try {
+                const { data } = await getDocumentHistoryRecordList(project_id, doc_id)
+                this.documentHistoryRecordTree = traverseTree(
+                    (item: any) => {
+                        item.isLeaf = item.type === DOCUMENT_TYPES.DOC
+                        item.isCurrent = false
+                        return item
+                    },
+                    data || [],
+                    { subKey: 'sub_nodes' }
+                )
+            } catch (error) {
+                //
+            }
+
+            return this.documentHistoryRecordTree
         },
     },
 })
