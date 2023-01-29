@@ -42,8 +42,8 @@
 
     const backRoute: any =
         query.from && query.from.length === 32
-            ? { name: ITERATE_DOCUMENT_DETAIL_NAME, params: { iterate_id_public: query.from, node_id: params.doc_id } }
-            : { name: DOCUMENT_DETAIL_NAME, params: { project_id_public: params.project_id_public, node_id: params.doc_id } }
+            ? { name: ITERATE_DOCUMENT_DETAIL_NAME, params: { iterate_id: query.from, node_id: params.doc_id } }
+            : { name: DOCUMENT_DETAIL_NAME, params: { project_id: params.project_id, node_id: params.doc_id } }
 
     const zoomTemplate = `<template id="template-zoom-image">
                             <div class="zoom-image-wrapper">

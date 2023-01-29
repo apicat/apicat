@@ -1,6 +1,6 @@
 <template>
-    <div class="h-full flex flex-col">
-        <div class="overflow-x-scroll scroll-content flex-auto" ref="dir">
+    <div class="flex flex-col h-full">
+        <div class="flex-auto overflow-x-scroll scroll-content" ref="dir">
             <ac-tree
                 :data="documentHistoryRecordTree"
                 class="bg-transparent"
@@ -44,7 +44,6 @@
     const $router = useRouter()
     const { currentRoute } = $router
     const { params, query } = $route
-    const { project_id_public, doc_id } = params
 
     const documentStore = useDocumentStore()
     const { documentHistoryRecordTree } = storeToRefs(documentStore)
@@ -169,7 +168,7 @@
     }
 
     const getDocTreeList = async () => {
-        const tree = await documentStore.getDocumentHistoryRecordList(project_id_public, doc_id)
+        const tree = await documentStore.getDocumentHistoryRecordList($route.params.project_id, $route.params.doc_id)
         if (!tree || !tree.length) {
             hideLoading()
         }
