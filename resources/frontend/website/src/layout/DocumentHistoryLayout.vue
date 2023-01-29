@@ -21,8 +21,8 @@
 </template>
 <script setup lang="ts">
     import { ArrowLeftBold } from '@element-plus/icons-vue'
-    import DocumentHistoryOperateHeader from '../views/document/components/DocumentHistoryOperateHeader.vue'
-    import DocumentHistoryRecordTree from '../views/document/components/DocumentHistoryRecordTree.vue'
+    import DocumentHistoryOperateHeader from '@/views/document/components/DocumentHistoryOperateHeader.vue'
+    import DocumentHistoryRecordTree from '@/views/document/components/DocumentHistoryRecordTree.vue'
     import { ref, provide, computed } from 'vue'
     import { storeToRefs } from 'pinia'
     import { useProjectStore } from '@/stores/project'

@@ -62,7 +62,6 @@ export const useDocumentStore = defineStore({
         },
 
         async getDocumentHistoryRecordList(project_id: any, doc_id: any) {
-            console.log(project_id)
             if (!project_id || !doc_id) {
                 return []
             }
