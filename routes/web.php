@@ -62,6 +62,10 @@ Route::prefix('doc')->name('doc.')->group(function () {
     Route::get('{docID}', [HomeController::class, 'shareDoc'])->name('index');
 });
 
+// 历史记录
+Route::get('/history/{projectID}/{docID}', [HomeController::class, 'doc']);
+Route::get('/history/{projectID}/{docID}/{any}', [HomeController::class, 'doc']);
+
 // 下载文件
 Route::get('/download/{fileName}', [DownloadController::class, 'index'])->name('download');
 
