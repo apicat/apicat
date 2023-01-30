@@ -535,6 +535,40 @@ class ApiDocRepository
     }
 
     /**
+     * 更新文档
+     *
+     * @param int\App\Models\ApiDoc $node 节点id或节点实例
+     * @param string $content 文档内容
+     * @param int $userID 用户id
+     * @return void
+     */
+    public static function updateDoc($node, $content, $userID = 0)
+    {
+        if (is_int($node)) {
+            $node = ApiDoc::find($node);
+            if (!$node) {
+                return;
+            }
+        }
+
+        $userID = $userID ? $userID : Auth::id();
+        $fiveMinutesAgo = Carbon::now()->subMinutes(5);
+
+        if ($node->updated_at->gte($fiveMinutesAgo) and $node->updated_user_id == $userID) {
+            // 5分钟内编辑文档内容，且是同一个人，不保存历史记录
+            $node->content = $content;
+            $node->save();
+            return;
+        }
+
+        ApiDocHistoryRepository::add($node->id, $node->title, $content, $node->updated_user_id, $node->updated_at);
+
+        $node->content = $content;
+        $node->updated_user_id = $userID;
+        $node->save();
+    }
+
+    /**
      * 删除文档
      * @param int|ApiDoc $node 节点id或节点实例
      * @param int $iterationId 迭代id
