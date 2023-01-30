@@ -132,7 +132,6 @@ class ApiDocController extends Controller
     {
         $request->validate([
             'doc_id' => 'required|integer|min:1',
-            'title' => 'required|string|max:255',
             'content' => 'required|string',
             'notification_list' => 'nullable|array'
         ]);
