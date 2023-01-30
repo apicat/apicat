@@ -27,4 +27,15 @@ class ApiDocHistoryRepository
             'last_updated_at' => $updated_time
         ]);
     }
+
+    /**
+     * 历史记录列表
+     *
+     * @param int $docId 文档id
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public static function list($docId)
+    {
+        return ApiDocHistories::where('doc_id', $docId)->latest()->get();
+    }
 }
