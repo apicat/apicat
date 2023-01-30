@@ -31,7 +31,7 @@
     const hasDocument = ref(true)
     const document: any = ref({})
 
-    const { project_id_public } = route.params
+    const { project_id } = route.params
 
     watch(
         () => route.params.id,
@@ -50,7 +50,7 @@
         isLoading.value = true
         hasDocument.value = true
 
-        getDocumentHistoryRecordDetail(project_id_public, id)
+        getDocumentHistoryRecordDetail(project_id, id)
             .then((res) => {
                 document.value = res.data || {}
                 useDocumentDetailInteractive('.document-history-detail')

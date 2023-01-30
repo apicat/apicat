@@ -35,7 +35,7 @@
     const route = useRoute()
     const { currentRoute } = useRouter()
     const { documentHistoryRecordTree } = storeToRefs(documentStore)
-    const { project_id_public } = route.params
+    const { project_id } = route.params
 
     const documentDiffModal = ref()
     const isLoading = ref(false)
@@ -64,7 +64,7 @@
             title: '提示',
             content: <div class="break-all">确定还原此历史记录吗？</div>,
             onOk: () => {
-                return restoreDocumentByHistoryRecord(project_id_public, currentRoute.value.params.id).then((res: any) => {
+                return restoreDocumentByHistoryRecord(project_id, currentRoute.value.params.id).then((res: any) => {
                     $Message.success(res.msg || '还原成功！')
                     goBack()
                 })
