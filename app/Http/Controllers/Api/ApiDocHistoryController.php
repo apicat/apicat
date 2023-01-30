@@ -105,4 +105,79 @@ class ApiDocHistoryController extends Controller
             ]
         ];
     }
+
+    public function diff(Request $request)
+    {
+        $request->validate([
+            'id1' => ['required', 'integer', 'min:1'],
+            'id2' => ['required', 'integer', 'min:0'],
+        ]);
+
+        if (!$record1 = ApiDocHistoryRepository::get($request->input('id1'))) {
+            throw ValidationException::withMessages([
+                'id1' => '您访问的历史记录不存在',
+            ]);
+        }
+        if (!ApiDocRepository::inThisProject(ProjectRepository::active()->id, $record1->doc_id)) {
+            throw ValidationException::withMessages([
+                'id1' => '您访问的历史记录不存在',
+            ]);
+        }
+
+        if ($request->input('id2')) {
+            if (!$record2 = ApiDocHistoryRepository::get($request->input('id2'))) {
+                throw ValidationException::withMessages([
+                    'id2' => '您访问的历史记录不存在',
+                ]);
+            }
+            if (!ApiDocRepository::inThisProject(ProjectRepository::active()->id, $record2->doc_id)) {
+                throw ValidationException::withMessages([
+                    'id2' => '您访问的历史记录不存在',
+                ]);
+            }
+        } else {
+            // id2值为0去查当前最新的文档内容
+            if (!$record2 = ApiDocRepository::getNode($record1->doc_id)) {
+                throw ValidationException::withMessages([
+                    'id2' => '您访问的历史记录不存在',
+                ]);
+            }
+            if (ProjectRepository::active()->id != $record2->project_id) {
+                throw ValidationException::withMessages([
+                    'id2' => '您访问的历史记录不存在',
+                ]);
+            }
+
+            $record2->doc_id = $record2->id;
+            $record2->title = $record2->title;
+            $record2->last_updated_at = $record2->updated_at;
+            $record2->last_user_id = $record2->updated_user_id;
+        }
+
+        $content1 = $record1->content ? Parser::parse($record1->content, ProjectRepository::active()->id, $record1->doc_id) : '';
+        $content2 = $record2->content ? Parser::parse($record2->content, ProjectRepository::active()->id, $record2->doc_id) : '';
+
+        return [
+            'status' => 0,
+            'msg' => '',
+            'data' => [
+                'doc1' => [
+                    'id' => $record1->id,
+                    'doc_id' => $record1->doc_id,
+                    'title' => $record1->title,
+                    'content' => $content1,
+                    'created_time' => $record1->last_updated_at->format('Y-m-d H:i'),
+                    'last_updated_by' => UserRepository::name($record1->last_user_id, true)
+                ],
+                'doc2' => [
+                    'id' => $record2->id,
+                    'doc_id' => $record2->doc_id,
+                    'title' => $record2->title,
+                    'content' => $content2,
+                    'created_time' => $record2->last_updated_at->format('Y-m-d H:i'),
+                    'last_updated_by' => UserRepository::name($record2->last_user_id, true)
+                ]
+            ]
+        ];
+    }
 }
