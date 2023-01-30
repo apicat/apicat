@@ -673,4 +673,17 @@ class ApiDocRepository
             ['deleted_at', '>', now()->subDays($day)]
         ])->latest('deleted_at')->get();
     }
+
+    /**
+     * 检查树节点是否属于对应项目
+     *
+     * @param int $projectID 项目id
+     * @param int $nodeID 节点id
+     * @return boolean
+     */
+    public static function inThisProject(int $projectID, int $nodeID)
+    {
+        $node = ApiDoc::find($nodeID);
+        return $node->project_id == $projectID;
+    }
 }

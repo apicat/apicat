@@ -38,4 +38,15 @@ class ApiDocHistoryRepository
     {
         return ApiDocHistories::where('doc_id', $docId)->latest()->get();
     }
+
+    /**
+     * 历史记录
+     *
+     * @param int $id 记录id
+     * @return ApiDocHistory
+     */
+    public static function get(int $id)
+    {
+        return ApiDocHistories::find($id);
+    }
 }
