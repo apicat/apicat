@@ -180,4 +180,33 @@ class ApiDocHistoryController extends Controller
             ]
         ];
     }
+
+    public function restore(Request $request)
+    {
+        $request->validate([
+            'id' => ['required', 'integer', 'min:1'],
+        ]);
+
+        if (!$record = ApiDocHistoryRepository::get($request->input('id'))) {
+            throw ValidationException::withMessages([
+                'id' => '您访问的历史记录不存在',
+            ]);
+        }
+
+        if (!ApiDocRepository::inThisProject(ProjectRepository::active()->id, $record->doc_id)) {
+            throw ValidationException::withMessages([
+                'id' => '数据有误',
+            ]);
+        }
+
+        if (!$node = ApiDocRepository::getNode($record->doc_id)) {
+            throw ValidationException::withMessages([
+                'id' => '数据有误',
+            ]);
+        }
+
+        ApiDocHistoryRepository::restore($record, $node);
+
+        return ['status' => 0, 'msg' => '恢复成功'];
+    }
 }
