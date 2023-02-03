@@ -9,6 +9,7 @@ declare module '@vue/runtime-core' {
     AcLoading: typeof import('./src/components/AcLoading.vue')['default']
     AcTable: typeof import('./src/components/AcTable.vue')['default']
     AcTransferTree: typeof import('./src/components/AcTransferTree.vue')['default']
+    AppHeader: typeof import('./src/components/AppHeader.vue')['default']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBacktop: typeof import('element-plus/es')['ElBacktop']
     ElButton: typeof import('element-plus/es')['ElButton']

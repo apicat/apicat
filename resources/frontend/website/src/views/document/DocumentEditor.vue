@@ -79,7 +79,10 @@
                     deleteUrl: (id: any) => this.deleteUrl(id),
                     openNotification: () => this.openNotification(),
                 },
-                document: {} as any,
+                document: {
+                    title: '',
+                    content: null,
+                } as any,
                 isLoading: false,
                 isDocumentLoading: false,
             }
@@ -92,8 +95,11 @@
                     this.getDocumentDetail()
                 },
             },
-            'document.title': function () {
-                this.onDocumentChange()
+            'document.title': function (newVal, oldVal) {
+                if (!oldVal) {
+                    return
+                }
+                this.onDocumentTitleChange()
             },
         },
 
@@ -229,13 +235,17 @@
             },
 
             getDocumentContent() {
-                if (this.$refs['editor'] && (this.$refs['editor'] as any).editor) {
-                    let content = (this.$refs['editor'] as any).editor.getJSON()
-                    return { ...this.document, content: JSON.stringify(content) }
+                const editor = this.$refs['editor'] && (this.$refs['editor'] as any).editor
+                if (!editor) {
+                    return null
                 }
 
-                // 默认返回原数据
-                return this.document
+                const doc = {} as any
+                doc.project_id = this.document.project_id
+                doc.doc_id = this.document.doc_id
+                doc.content = editor.getJSON()
+
+                return doc
             },
 
             onDocumentChange: debounce(function (this: any) {

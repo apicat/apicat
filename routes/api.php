@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ApiDocController;
+use App\Http\Controllers\Api\ApiDocHistoryController;
 use App\Http\Controllers\Api\ApiDocTreeController;
 use App\Http\Controllers\Api\ApiUrlController;
 use App\Http\Controllers\Api\DirectoryController;
@@ -239,6 +240,18 @@ Route::prefix('iteration')->group(function () {
 });
 // 迭代列表
 Route::get('/iterations', [IterationController::class, 'iterationList']);
+
+// 历史记录列表
+Route::get('/doc_histories', [ApiDocHistoryController::class, 'histories']);
+// 历史记录
+Route::prefix('doc_history')->group(function () {
+    // 历史记录详情
+    Route::get('detail', [ApiDocHistoryController::class, 'detail']);
+    // 历史记录对比
+    Route::get('diff', [ApiDocHistoryController::class, 'diff']);
+    // 恢复历史记录
+    Route::post('restore', [ApiDocHistoryController::class, 'restore']);
+});
 
 // 块文件上传初始化
 Route::post('/upload_init', [UploadController::class, 'init']);

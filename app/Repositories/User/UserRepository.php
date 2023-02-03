@@ -284,4 +284,19 @@ class UserRepository
 
         return User::where('id', $id)->value('name');
     }
+
+    /**
+     * 获取所有用户id和用户名称键值对
+     *
+     * @param boolean $deleted 是否包含已删除用户
+     * @return \Illuminate\Support\Collection
+     */
+    public static function idNameArr($deleted = false)
+    {
+        if ($deleted) {
+            return User::withTrashed()->pluck('name', 'id');
+        }
+
+        return User::pluck('name', 'id');
+    }
 }

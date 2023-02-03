@@ -3,7 +3,7 @@
     <router-view />
 </template>
 <script setup lang="ts">
-    import AppHeader from './AppHeader.vue'
+    import AppHeader from '../components/AppHeader.vue'
     import { ref, provide } from 'vue'
 
     const isShowNav = ref(true)

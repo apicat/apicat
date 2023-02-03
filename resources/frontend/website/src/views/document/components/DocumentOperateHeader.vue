@@ -13,6 +13,9 @@
             <el-tooltip effect="dark" content="导出该文档" placement="bottom">
                 <i class="iconfont iconIconPopoverUpload" @click="onExportBtnClick"></i>
             </el-tooltip>
+            <el-tooltip effect="dark" content="历史记录" placement="bottom">
+                <i class="iconfont iconhistory" @click="goDocumentHistoryRecord"></i>
+            </el-tooltip>
         </div>
     </div>
 </template>
@@ -72,8 +75,8 @@
         const { params } = currentRoute.value
         const node_id = parseInt(params.node_id as string, 10)
         return {
-            iterate_id_public: params.iterate_id_public,
-            project_id_public: params.project_id_public,
+            iterate_id: params.iterate_id,
+            project_id: params.project_id,
             node_id,
         }
     }
@@ -103,6 +106,19 @@
         const { node_id } = getCommonParams()
         projectExportModal.value.title = '导出文档'
         projectExportModal.value.show({ project_id: projectInfo.value.id, doc_id: node_id }, API_SINGLE_EXPORT_ACTION_MAPPING)
+    }
+
+    const goDocumentHistoryRecord = () => {
+        const { node_id, iterate_id } = getCommonParams()
+        const routeParams: any = {
+            name: DOCUMENT_HISTORY_DETAIL_NAME,
+            params: { project_id: projectInfo.value.id, doc_id: node_id },
+        }
+        // 迭代路由
+        if (isIterateRoute) {
+            routeParams.query = { from: iterate_id }
+        }
+        push(routeParams)
     }
 
     const saveDocumentDone = () => {
