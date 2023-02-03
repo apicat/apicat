@@ -9,6 +9,7 @@ import membersRouters from './members.router'
 import projectsRouters from './projects.router'
 import projectRouters from './project.router'
 import documentRouter from './document.router'
+import documentHistoryRouter from './document.history.router'
 import iterationsRouter from './iterations.router'
 import iterateDocumentRouter from './iterate.router'
 
@@ -23,6 +24,8 @@ export const router = createRouter({
 
         documentRouter,
 
+        documentHistoryRouter,
+
         iterateDocumentRouter,
 
         {
@@ -34,7 +37,9 @@ export const router = createRouter({
         },
 
         projectPreviewRouters,
+
         documentPreviewRouters,
+
         trashPreviewRouters,
 
         notFoundRouter,

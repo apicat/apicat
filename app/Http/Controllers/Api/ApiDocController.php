@@ -132,7 +132,6 @@ class ApiDocController extends Controller
     {
         $request->validate([
             'doc_id' => 'required|integer|min:1',
-            'title' => 'required|string|max:255',
             'content' => 'required|string',
             'notification_list' => 'nullable|array'
         ]);
@@ -150,16 +149,11 @@ class ApiDocController extends Controller
             ]);
         }
 
-        if ($node->title != $request->input('title')) {
-            $node->title = $request->input('title');
-            TreeCacheRepository::remove($node->project_id);
-        }
+        $content = $request->input('content') ? $request->input('content') : '';
+        ApiDocRepository::updateDoc($node, $content);
 
-        $node->content = $request->input('content');
-        $node->save();
-
-        if ($node->content) {
-            $content = json_decode($node->content, true);
+        if ($content) {
+            $content = json_decode($content, true);
 
             if (isset($content['content']) and is_array($content['content'])) {
                 $httpApiUrlFinded = false;

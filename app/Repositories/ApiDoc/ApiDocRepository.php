@@ -11,6 +11,7 @@ use App\Models\Iteration;
 use App\Models\IterationApi;
 use App\Repositories\Iteration\IterationRepository;
 use App\Repositories\Project\TreeCacheRepository;
+use Illuminate\Support\Carbon;
 
 class ApiDocRepository
 {
@@ -354,14 +355,28 @@ class ApiDocRepository
             return false;
         }
 
-        if ($node->title != $name) {
+        if ($node->title == $name) {
+            return true;
+        }
+
+        $fiveMinutesAgo = Carbon::now()->subMinutes(5);
+
+        if ($node->type < 1 or ($node->updated_at->gte($fiveMinutesAgo) and $node->updated_user_id == Auth::id())) {
+            // 5分钟内编辑文档内容，且是同一个人，不保存历史记录
             $node->title = $name;
-            $node->updated_user_id = Auth::id();
+            $node->save();
 
             TreeCacheRepository::remove($node->project_id);
-            return (bool)$node->save();
+            return true;
         }
-        return true;
+
+        ApiDocHistoryRepository::add($node->id, $node->title, $node->content, $node->updated_user_id, $node->updated_at);
+
+        $node->title = $name;
+        $node->updated_user_id = Auth::id();
+        TreeCacheRepository::remove($node->project_id);
+
+        return (bool)$node->save();
     }
 
     /**
@@ -520,6 +535,40 @@ class ApiDocRepository
     }
 
     /**
+     * 更新文档
+     *
+     * @param int\App\Models\ApiDoc $node 节点id或节点实例
+     * @param string $content 文档内容
+     * @param int $userID 用户id
+     * @return void
+     */
+    public static function updateDoc($node, $content, $userID = 0)
+    {
+        if (is_int($node)) {
+            $node = ApiDoc::find($node);
+            if (!$node) {
+                return;
+            }
+        }
+
+        $userID = $userID ? $userID : Auth::id();
+        $fiveMinutesAgo = Carbon::now()->subMinutes(5);
+
+        if ($node->updated_at->gte($fiveMinutesAgo) and $node->updated_user_id == $userID) {
+            // 5分钟内编辑文档内容，且是同一个人，不保存历史记录
+            $node->content = $content;
+            $node->save();
+            return;
+        }
+
+        ApiDocHistoryRepository::add($node->id, $node->title, $content, $node->updated_user_id, $node->updated_at);
+
+        $node->content = $content;
+        $node->updated_user_id = $userID;
+        $node->save();
+    }
+
+    /**
      * 删除文档
      * @param int|ApiDoc $node 节点id或节点实例
      * @param int $iterationId 迭代id
@@ -623,5 +672,18 @@ class ApiDocRepository
             ['type', 1],
             ['deleted_at', '>', now()->subDays($day)]
         ])->latest('deleted_at')->get();
+    }
+
+    /**
+     * 检查树节点是否属于对应项目
+     *
+     * @param int $projectID 项目id
+     * @param int $nodeID 节点id
+     * @return boolean
+     */
+    public static function inThisProject(int $projectID, int $nodeID)
+    {
+        $node = ApiDoc::find($nodeID);
+        return $node->project_id == $projectID;
     }
 }
