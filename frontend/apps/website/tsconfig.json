@@ -1,0 +1,27 @@
+{
+  "extends": "@apicat/tsconfig/base.json",
+  "compilerOptions": {
+    "types": [
+      "element-plus/global",
+      "vite/client",
+      "node"
+    ],
+    "baseUrl": "./",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
+  },
+  "include": [
+    "./src/**/*.vue",
+    "./src/**/*.ts",
+    "./src/**/*.d.ts",
+    "./src/**/*.tsx",
+  ],
+  "references": [
+    {
+      "path": "./tsconfig.node.json"
+    }
+  ]
+}

@@ -1,0 +1,94 @@
+.el-dialog {
+  .el-dialog__body {
+    padding-top: 0 !important;
+  }
+
+  &.fullscree {
+    .el-dialog__body {
+      @apply h-full;
+    }
+  }
+
+  &.hide-header {
+    .el-dialog__header {
+      position: absolute;
+      right: 0;
+      padding: 0;
+      .el-dialog__headerbtn {
+        width: auto;
+        height: 20px;
+        top: 20px;
+        font-size: 20px;
+        line-height: 20px;
+      }
+    }
+  }
+}
+
+.el-tree {
+  --el-tree-node-hover-bg-color: rgba(0, 0, 0, 0.04) !important;
+  background-color: transparent;
+
+  /* 拖拽上下以及内部边界改为虚线 */
+  .el-tree__drop-indicator {
+    height: 0;
+    background-color: transparent;
+    border-top: 1px dashed var(--el-color-primary);
+  }
+
+  .el-tree-node__content {
+    border: 1px dashed transparent;
+    position: relative;
+    height: auto;
+
+    > .el-tree-node__expand-icon {
+      padding-left: 0;
+      padding-right: 0;
+      font-size: 14px;
+      color: #6a6969;
+    }
+  }
+
+  .el-tree-node__expand-icon.is-leaf {
+    visibility: hidden;
+    margin-left: -14px;
+  }
+
+  .is-drop-inner {
+    > .el-tree-node__content .el-tree-node__label {
+      background-color: transparent;
+      color: inherit;
+    }
+
+    > .el-tree-node__content {
+      border-color: var(--el-color-primary);
+    }
+  }
+
+  /* 移除默认背景色行为,添加自定义hover行为 */
+  .el-tree-node:focus > .el-tree-node__content,
+  .el-tree-node__content:hover {
+    background-color: transparent !important;
+  }
+
+  .el-tree-node__bg {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    z-index: -1;
+  }
+
+  .el-tree-node__content:hover .el-tree-node__bg {
+    background-color: var(--el-tree-node-hover-bg-color);
+  }
+}
+
+.el-popover.el-popper {
+  min-width: auto !important;
+}
+
+.el-radio__label {
+  margin-bottom: 2px;
+}

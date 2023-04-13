@@ -1,0 +1,22 @@
+# Editor directories and files
+.idea
+
+# Package Manager
+node_modules
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# System
+.DS_Store
+
+# Bundle
+build
+dist
+.turbo
+
+# local env files
+*.local
+tmp

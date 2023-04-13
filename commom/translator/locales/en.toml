@@ -1,0 +1,51 @@
+[Projects]
+    [Projects.CreateFail]
+        other = "Project create failed"
+    [Projects.DeleteFail]
+        other = "Project delete failed"
+    [Projects.UpdateFail]
+        other = "Project update failed"
+    [Projects.ImportFail]
+        other = "The project import failed, please check whether the content of the data file is correct."
+    [Projects.ExportFail]
+        other = "Project export failed, please try again later."
+    [Projects.NotFound]
+        other = "Project not found"
+[Definitions]
+    [Definitions.CreateFail]
+        other = "Definition create failed"
+    [Definitions.UpdateFail]
+        other = "Definition update failed"
+    [Definitions.CopyFail]
+        other = "Definition copy failed"
+    [Definitions.DeleteFail]
+        other = "Definition delete failed"
+    [Definitions.NotFound]
+        other = "Definition not found"
+[Servers]
+    [Servers.SetSuccess]
+        other = "URL set successfully"
+[Parameters]
+    [Parameters.SetSuccess]
+        other = "Public parameter set successfully"
+[Responses]
+    [Response.NotFound]
+        other = "Public response not found"
+    [Responses.CreateFail]
+        other = "Public response create failed"
+    [Responses.CreateSuccess]
+        other = "Public response created successfully"
+    [Responses.DeleteFail]
+        other = "Public response delete failed"
+    [Responses.DeleteSuccess]
+        other = "Public response deleted successfully"
+    [Responses.UpdateFail]
+        other = "Public response update failed"
+    [Responses.UpdateSuccess]
+        other = "Public response updated successfully"
+[Collection]
+    [Collection.NotFound]
+        other = "Collection not found"
+[Trashs]
+    [Trashs.PartialRecoveryFailed]
+        other = "Partial recovery failed"

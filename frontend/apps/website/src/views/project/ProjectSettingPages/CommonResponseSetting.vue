@@ -1,0 +1,38 @@
+<template>
+  <div v-loading="isLoading">
+    <el-button link type="primary" @click="handleAddParam">
+      <el-icon><ac-icon-ep-plus /></el-icon>添加
+    </el-button>
+
+    <div v-for="(param, index) in responseParamList" class="mt-15px" :key="param._id">
+      <ToggleHeading
+        :title="`${param.detail?.description ?? param.description}(${param.detail?.code ?? param.code})`"
+        type="card"
+        :expand="param.expand"
+        @on-expand="(isExpand:boolean)=>handleExpand(isExpand,param)"
+        v-loading="param.isLoading"
+      >
+        <template #extra>
+          <el-icon @click="handleDeleteParam(param, index)" class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
+        </template>
+
+        <div v-if="param.detail">
+          <ResponseForm v-model="param.detail" class="mt-10px" />
+          <el-button class="mt-20px" type="primary" @click="handleSubmit(param)">{{ $t('app.common.save') }}</el-button>
+        </div>
+      </ToggleHeading>
+    </div>
+
+    <el-empty v-if="!responseParamList.length" :image-size="200" />
+  </div>
+</template>
+<script setup lang="ts">
+import { useProjectId } from '@/hooks/useProjectId'
+import { useResponseParamDetail } from '../logic/useResponseParamDetail'
+import { useResponseparamList } from '../logic/useResponseparamList'
+
+const project_id = useProjectId()
+
+const { isLoading, responseParamList, handleAddParam, handleDeleteParam } = useResponseparamList({ id: project_id })
+const { handleExpand, handleSubmit } = useResponseParamDetail({ id: project_id })
+</script>

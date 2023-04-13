@@ -1,0 +1,32 @@
+{
+  "name": "apicat-web",
+  "private": true,
+  "packageManager": "pnpm@7.27.0",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^18.15.11",
+    "@types/sortablejs": "^1.15.1",
+    "@unocss/reset": "^0.50.6",
+    "@unocss/transformer-directives": "^0.50.6",
+    "@vitejs/plugin-vue": "^4.1.0",
+    "@vitejs/plugin-vue-jsx": "^3.0.1",
+    "prettier": "^2.8.7",
+    "sass": "^1.60.0",
+    "turbo": "^1.8.8",
+    "typescript": "^4.9.5",
+    "unocss": "^0.50.6",
+    "unplugin-auto-import": "^0.15.2",
+    "unplugin-icons": "^0.15.3",
+    "unplugin-vue-components": "^0.24.1",
+    "vite": "^4.2.1",
+    "vue": "^3.2.47"
+  }
+}

@@ -1,0 +1,16 @@
+application:
+  name: ApiCat
+  host: 0.0.0.0
+  port: 8000
+log:
+  path: logs/
+  level: debug
+database:
+  driver: sqlite
+  path: data/
+  host: 127.0.0.1
+  port: 3306
+  user: root
+  password: 
+  dbname: apicat
+  charset: utf8mb4
