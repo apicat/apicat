@@ -1,9 +1,0 @@
-{
-  "private": true,
-  "name": "@natosoft/axios",
-  "version": "1.0.0",
-  "main": "index.ts",
-  "dependencies": {
-    "@natosoft/shared": "^1.2.0"
-  }
-}

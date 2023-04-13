@@ -1,0 +1,180 @@
+@use './mixins/mixins' as *;
+
+$doc-layout-padding: 25px;
+$doc-header-height: 60px;
+$doc-layout-left-width: 315px;
+$doc-layout-left-padding-right: 30px;
+$doc-content-padding-left: $doc-layout-left-width + $doc-layout-left-padding-right;
+$document-padding: 40px;
+
+$operate-height: 60px;
+
+@include b(doc-header) {
+  height: $doc-header-height;
+
+  &-inner {
+    height: $doc-header-height;
+    @apply fixed top-0 w-full z-50 flex;
+  }
+
+  @include m(left) {
+    width: $doc-layout-left-width;
+    padding: 0 $doc-layout-padding;
+  }
+
+  @include m(right) {
+    @apply flex-auto bg-white;
+  }
+}
+
+// 文档主体布局
+@include b(doc-layout) {
+  height: 100vh;
+  display: flex;
+  flex-direction: row;
+
+  &.readonly {
+    .ac-document {
+      padding-top: 15px;
+    }
+  }
+
+  @include e(left) {
+    width: $doc-layout-left-width;
+    padding: $doc-layout-padding;
+    padding-top: $doc-header-height;
+    @apply bg-gray-100;
+  }
+
+  @include e(right) {
+    position: fixed;
+    right: 0;
+    left: $doc-layout-left-width;
+    top: 0;
+    bottom: 0;
+    overflow: scroll;
+    @apply bg-white;
+  }
+
+  @include e(gap) {
+    height: $doc-header-height;
+  }
+}
+
+// 文档编辑
+@include b(document) {
+  position: relative;
+  min-height: 100vh;
+  padding: 0 $document-padding;
+  padding-bottom: $document-padding;
+  padding-top: $doc-header-height;
+
+  @include e(title) {
+    font-size: 28px;
+    font-weight: 500;
+    word-break: break-all;
+    color: theme('colors.zinc.800');
+    outline: none;
+    width: 100%;
+    line-height: 45px;
+  }
+
+  @include e(desc) {
+    vertical-align: center;
+    font-size: 14px;
+    color: #8a8f8d;
+    outline: none;
+    > * {
+      margin-right: 15px;
+    }
+
+    i {
+      font-size: 12px;
+      margin-right: 4px;
+    }
+  }
+
+  @include when(edit) {
+    @include e(title) {
+      font-weight: 400;
+    }
+  }
+
+  @include e(operate) {
+    @apply h-full flex items-center;
+
+    .el-button {
+      width: 50px;
+      height: 30px;
+    }
+    position: fixed;
+    z-index: 99;
+    width: 100%;
+    top: auto;
+    left: 0;
+    bottom: 0;
+    padding-left: $doc-content-padding-left + $doc-layout-padding;
+    padding-right: $doc-layout-padding;
+
+    &-inner {
+      box-shadow: 0px -4px 8px -5px #c7c7c7;
+      background: rgb(255, 255, 255);
+      border: 1px solid transparent;
+      border-top: 0;
+      border-bottom: 0;
+      padding: 0 28px;
+      height: $operate-height;
+      display: flex;
+      align-items: center;
+      justify-content: right;
+    }
+  }
+
+  /* 文档详情loading 位置 */
+  .el-loading-spinner {
+    top: 150px;
+    margin-top: 0;
+  }
+}
+
+@include b(header-operate) {
+  height: $doc-header-height;
+  padding: 0 $document-padding;
+  @apply flex items-center bg-white fixed top-0 z-50;
+  left: $doc-layout-left-width;
+  right: 0;
+
+  .el-button {
+    height: 30px;
+  }
+
+  @include e(main) {
+    @apply flex-auto;
+  }
+
+  @include e(title) {
+    font-size: 22px;
+    font-weight: bold;
+    color: #27272a;
+  }
+
+  @include e(btns) {
+    @apply flex items-center;
+
+    .iconfont {
+      font-size: 24px;
+      @apply cursor-pointer;
+    }
+
+    > * {
+      margin-left: 30px;
+    }
+  }
+}
+
+// 项目目录
+@include b(doc-catalog) {
+  @apply flex justify-between items-center;
+  padding: 0 1px;
+  margin-bottom: 20px;
+}
