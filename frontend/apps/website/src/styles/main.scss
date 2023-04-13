@@ -1,0 +1,66 @@
+@use './mixins/mixins' as *;
+@use './variable.scss';
+@use './reset.scss';
+@use './ac-tree.scss';
+@use './ac-doc.scss';
+@use './ac-http-url.scss';
+@use './element/overwrite.scss';
+
+@use '@/assets/iconfont/iconfont.css';
+@use 'nprogress/nprogress.css';
+@use 'tippy.js/dist/tippy.css';
+@use 'tippy.js/themes/light.css';
+
+html {
+  box-sizing: border-box;
+}
+
+*,
+*:before,
+*:after {
+  box-sizing: inherit;
+}
+
+#app {
+  @apply bg-white text-14px text-gray-65;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+// 清除element-plus popover默认间距
+.clear-popover-space {
+  margin: -12px;
+}
+.clear-inline-form-margin .el-form-item {
+  margin-bottom: 0;
+}
+
+// tippy 阴影调整
+.tippy-box[data-theme~='light'] {
+  box-shadow: 0 0 20px 4px rgba(154, 161, 177, 0.15), 0 4px 40px -8px rgba(36, 40, 47, 0.25), 0 4px 4px -2px rgba(91, 94, 105, 0.15);
+}
+
+// fixed mac 插拔USB鼠标所导致的滚动条样式变形
+.scroll-content {
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  &::-webkit-scrollbar-button,
+  &::-webkit-scrollbar-track-piece,
+  &::-webkit-scrollbar-thumb,
+  &::-webkit-scrollbar-corner,
+  &::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0);
+  }
+}
+// 表格默认居左
+th,
+td {
+  text-align: initial;
+}
+
+.copy_text {
+  cursor: pointer;
+}

@@ -1,0 +1,29 @@
+import type { FormInstance } from 'element-plus'
+
+export const useModal = (formRef?: Ref<FormInstance>) => {
+  const dialogVisible = ref(false)
+
+  watch(dialogVisible, () => {
+    if (!dialogVisible.value) {
+      const formIns = unref(formRef)
+      if (formIns) {
+        formIns.resetFields()
+        formIns.clearValidate()
+      }
+    }
+  })
+
+  const showModel = () => {
+    dialogVisible.value = true
+  }
+
+  const hideModel = () => {
+    dialogVisible.value = false
+  }
+
+  return {
+    dialogVisible,
+    showModel,
+    hideModel,
+  }
+}

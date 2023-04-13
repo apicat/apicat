@@ -1,0 +1,9 @@
+{
+  "extends": "@apicat/tsconfig/vite.json",
+  "compilerOptions": {
+    "composite": true
+  },
+  "include": [
+    "vite.config.ts",
+  ]
+}

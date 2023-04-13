@@ -1,0 +1,79 @@
+{
+  "id": "3982489",
+  "name": "apicat-opensouce",
+  "font_family": "ac-iconfont",
+  "css_prefix_text": "ac-",
+  "description": "open source apicat icons",
+  "glyphs": [
+    {
+      "icon_id": "11032211",
+      "name": "项目",
+      "font_class": "xiangmu",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "21591047",
+      "name": "参数维护",
+      "font_class": "canshuweihu",
+      "unicode": "e69b",
+      "unicode_decimal": 59035
+    },
+    {
+      "icon_id": "22272816",
+      "name": "response",
+      "font_class": "response",
+      "unicode": "e64b",
+      "unicode_decimal": 58955
+    },
+    {
+      "icon_id": "8952752",
+      "name": "export",
+      "font_class": "export",
+      "unicode": "e800",
+      "unicode_decimal": 59392
+    },
+    {
+      "icon_id": "22272822",
+      "name": "suffix-url",
+      "font_class": "suffix-url",
+      "unicode": "e64c",
+      "unicode_decimal": 58956
+    },
+    {
+      "icon_id": "1327504",
+      "name": "trash",
+      "font_class": "trash",
+      "unicode": "e61d",
+      "unicode_decimal": 58909
+    },
+    {
+      "icon_id": "11981761",
+      "name": "import",
+      "font_class": "import",
+      "unicode": "e977",
+      "unicode_decimal": 59767
+    },
+    {
+      "icon_id": "6537185",
+      "name": "分组",
+      "font_class": "fenzu",
+      "unicode": "e66c",
+      "unicode_decimal": 58988
+    },
+    {
+      "icon_id": "4766901",
+      "name": "cloud-upload",
+      "font_class": "cloud-upload",
+      "unicode": "e7d9",
+      "unicode_decimal": 59353
+    },
+    {
+      "icon_id": "15030621",
+      "name": "Icon／Popover／Setting",
+      "font_class": "IconPopoverSetting",
+      "unicode": "e617",
+      "unicode_decimal": 58903
+    }
+  ]
+}
