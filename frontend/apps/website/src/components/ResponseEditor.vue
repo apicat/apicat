@@ -4,7 +4,14 @@
     <el-tabs @tab-add="handleAddTab" @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
       <el-tab-pane v-for="(item, index) in model" :key="item.id" :name="item.id" :disabled="disabled">
         <template #label>
-          <el-space draggable="true" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler">
+          <el-space
+            draggable="true"
+            @dragstart="onDragStart($event, index)"
+            @dragend="onDragEnd"
+            @dragover="onDragOver($event, index)"
+            @dragleave="onDragLeave($event, index)"
+            @drop="onDropHandler($event, index)"
+          >
             <span>{{ item.description }}</span>
             <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
           </el-space>
@@ -23,9 +30,11 @@ import { getResponseStatusCodeBgColor } from '@/commons'
 import { useNodeAttrs, HTTP_RESPONSE_NODE_KEY } from '@/hooks/useNodeAttrs'
 import { uuid } from '@apicat/shared'
 import { createResponseDefaultContent } from '@/views/document/components/createHttpDocument'
+import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 
 const props = defineProps<{ modelValue: HttpDocument; definitions?: Definition[] }>()
 const nodeAttrs = useNodeAttrs(props, HTTP_RESPONSE_NODE_KEY)
+const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop()
 
 const model = computed({
   get: () => {
@@ -69,21 +78,6 @@ const handleRemoveTab = (id: any) => {
   if (id === editableTabsValue.value) {
     activeLastTab()
   }
-}
-
-const dragDataKey = 'application/apicat-response-tab'
-const dragStartHandler = (e: DragEvent, index: number) => {
-  e.dataTransfer!.dropEffect = 'move'
-  console.log(e)
-  const nodeEle = (e.target as Element).parentElement
-  nodeEle && nodeEle.classList.add('dragging')
-  e.dataTransfer?.setDragImage(nodeEle as HTMLElement, 0, 0)
-  e.dataTransfer?.setData(dragDataKey, index + '')
-}
-
-const dragEndHandler = (ev: DragEvent) => {
-  const nodeEle = (ev.target as Element).parentElement
-  nodeEle && nodeEle.classList.remove('dragging')
 }
 
 watch(nodeAttrs, () => {
