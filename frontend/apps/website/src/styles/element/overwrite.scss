@@ -5,7 +5,7 @@
 
   &.fullscree {
     .el-dialog__body {
-      @apply h-full;
+      @apply h-full p-0;
     }
   }
 

@@ -27,9 +27,9 @@
           v-slot="{ fileName }"
           :class="[ns.e('items'), { [ns.is('active')]: selectedProjectType === 'import' }]"
         >
-          <div class="flex flex-col items-center" @click="handleSelectedProjectType('import')">
+          <div class="flex flex-col items-center w-full" @click="handleSelectedProjectType('import')">
             <ac-icon-lucide-file-text class="text-30px" />
-            <div :class="ns.e('text')">
+            <div :class="ns.e('text')" class="w-full">
               <p v-if="!fileName">{{ $t('app.project.createModal.importProject') }}</p>
               <p v-else class="truncate">{{ fileName }}</p>
               <p class="text-gray-400 text-12px">

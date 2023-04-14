@@ -21,3 +21,5 @@ export const getProjectTranshList = useApi(async (project_id: string) => Ajax.ge
 export const restoreDoc = useApi(async ({ project_id, ids }: any) =>
   Ajax.put(`/projects/${project_id}/trashs?${ids.map((id: any) => `collection-id=${id}`).join('&')}`, { category: 0 })
 )
+
+export const deleleProject = useApi(async (project_id: string) => Ajax.delete(`/projects/${project_id}`))

@@ -16,6 +16,7 @@ import { copyCollection, createCollection, deleteCollection } from '@/api/collec
 import { useParams } from '@/hooks/useParams'
 import { createHttpDocument } from '@/views/document/components/createHttpDocument'
 import { useGoPage } from '@/hooks/useGoPage'
+import { useI18n } from 'vue-i18n'
 
 /**
  * hover 后更多菜单类型
@@ -36,6 +37,7 @@ let index = 1
  * @param treeIns 目录树
  */
 export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
+  const { t } = useI18n()
   const popoverMenus = ref<Array<Menu>>([])
   const popoverMenuSize = ref('small')
   const popoverRefEl = ref<Nullable<HTMLElement>>(null)
@@ -43,7 +45,6 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
   const activeNodeInfo = ref<Nullable<ActiveNodeInfo>>({ node: undefined, id: undefined })
   const { onRenameMenuClick, ...otherInputLogic } = useRenameInput(activeNodeInfo)
   const documentStore = useDocumentStore()
-  const appsStore = uesAppStore()
   const { apiDocTree } = storeToRefs(documentStore)
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
   const { project_id } = useParams()
@@ -118,12 +119,8 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
     const isDir = data.type === DocumentTypeEnum.DIR
 
     AsyncMsgBox({
-      title: '删除提示',
-      content: (
-        <div class="break-all">
-          确定删除「{data.title}」{isDir ? '分类' : '文档'}吗？
-        </div>
-      ),
+      title: t('app.common.deleteTip'),
+      content: <div class="break-all">确定删除「{data.title}」该项目吗？</div>,
       onOk: async () => {
         try {
           NProgress.start()

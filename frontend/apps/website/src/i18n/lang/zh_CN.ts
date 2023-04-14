@@ -12,6 +12,9 @@ export default {
       cancel: '取消',
       restore: '恢复',
       emptyDataTip: '暂无数据',
+      delete: '删除',
+      deleteTip: '删除提示',
+      confirmDelete: '确认删除{msg}吗？',
     },
     table: {
       paramName: '参数名称',

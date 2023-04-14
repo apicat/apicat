@@ -2,23 +2,21 @@
   <el-dialog v-model="dialogVisible" fullscreen append-to-body :close-on-click-modal="false" :close-on-press-escape="false" class="fullscree hide-header">
     <ProjectSettingLayout>
       <template #nav>
-        <div class="pt-20px px-30px">
-          <p class="text-16px text-gray-950 font-500">{{ $t('app.project.setting.title') }}</p>
-          <ul class="mt-20px">
-            <li
-              v-for="(menu, type) in menus"
-              :text="menu.text"
-              @click="onMenuTabClick(menu, type)"
-              class="cursor-pointer py-10px"
-              :class="{ 'text-blue-primary': activeTab.type === type }"
-            >
-              <Iconfont :icon="menu.icon" />
-              {{ menu.text }}
-            </li>
-          </ul>
-        </div>
+        <p class="text-16px text-gray-950 font-500">{{ $t('app.project.setting.title') }}</p>
+        <ul class="mt-20px">
+          <li
+            v-for="(menu, type) in menus"
+            :text="menu.text"
+            @click="onMenuTabClick(menu, type)"
+            class="cursor-pointer py-10px"
+            :class="{ 'text-blue-primary': activeTab.type === type }"
+          >
+            <Iconfont :icon="menu.icon" />
+            {{ menu.text }}
+          </li>
+        </ul>
       </template>
-      <div class="pt-20px pl-30px pr-10px" v-if="activeTab">
+      <div v-if="activeTab">
         <p class="text-16px text-gray-950 font-500 mb-20px">{{ activeTab.menu.text }}</p>
         <component v-if="activeTab.menu.component" :is="activeTab.menu.component" />
       </div>
