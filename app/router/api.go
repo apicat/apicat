@@ -19,6 +19,9 @@ func InitApiRouter(r *gin.Engine) {
 		panic(err)
 	}
 	r.StaticFS("/assets", http.FS(assets))
+	r.GET("/logo.svg", func(ctx *gin.Context) {
+		ctx.File("frontend/dist/logo.svg")
+	})
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.FileFromFS("dist/", http.FS(frontend.FrontDist))
 	})
