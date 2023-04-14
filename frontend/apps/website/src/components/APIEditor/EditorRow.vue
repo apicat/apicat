@@ -30,6 +30,9 @@
           <el-text v-if="data.schema.example" type="info">
             <small>示例</small>: <span class="copy_text">{{ data.schema.example }}</span>
           </el-text>
+          <el-text type="info">
+            <small>默认值</small>: <span class="copy_text">{{ data.schema.default }}</span>
+          </el-text>
         </div>
       </div>
     </div>
@@ -163,7 +166,7 @@ function isConstNode(v: string) {
   return constNodeType.root == v || constNodeType.items == v
 }
 
-const changeNotify = inject('change') as (root?:JSONSchema) => void
+const changeNotify = inject('change') as (root?: JSONSchema) => void
 
 const changeRequired = (v: CheckboxValueType) => {
   const sc = props.data.parent?.schema

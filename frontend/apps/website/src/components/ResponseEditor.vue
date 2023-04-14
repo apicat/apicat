@@ -2,14 +2,14 @@
   <div v-if="isShow">
     <h2 class="text-16px font-500">响应参数</h2>
     <el-tabs @tab-add="handleAddTab" @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
-      <el-tab-pane v-for="(item, i) in model" :key="item.id" :name="item.id" :disabled="disabled">
+      <el-tab-pane v-for="(item, index) in model" :key="item.id" :name="item.id" :disabled="disabled">
         <template #label>
-          <el-space>
+          <el-space draggable="true" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler">
             <span>{{ item.description }}</span>
             <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
           </el-space>
         </template>
-        <ResponseForm v-model="model[i]" :definitions="definitions" />
+        <ResponseForm v-model="model[index]" :definitions="definitions" />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -69,6 +69,21 @@ const handleRemoveTab = (id: any) => {
   if (id === editableTabsValue.value) {
     activeLastTab()
   }
+}
+
+const dragDataKey = 'application/apicat-response-tab'
+const dragStartHandler = (e: DragEvent, index: number) => {
+  e.dataTransfer!.dropEffect = 'move'
+  console.log(e)
+  const nodeEle = (e.target as Element).parentElement
+  nodeEle && nodeEle.classList.add('dragging')
+  e.dataTransfer?.setDragImage(nodeEle as HTMLElement, 0, 0)
+  e.dataTransfer?.setData(dragDataKey, index + '')
+}
+
+const dragEndHandler = (ev: DragEvent) => {
+  const nodeEle = (ev.target as Element).parentElement
+  nodeEle && nodeEle.classList.remove('dragging')
 }
 
 watch(nodeAttrs, () => {
