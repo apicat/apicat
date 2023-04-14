@@ -308,7 +308,7 @@ func (o *OpenAPI) toPaths(ver string, in *spec.Spec) (
 			}
 
 			if len(op.Res.List) == 0 {
-				if in.Common != nil || len(in.Common.Responses) == 0 {
+				if in.Common != nil && len(in.Common.Responses) > 0 {
 					op.Res.List = in.Common.Responses
 				}
 			}
