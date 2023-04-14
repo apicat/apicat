@@ -43,7 +43,7 @@ export default {
         title: '创建项目',
         dividerLine: '从以下方式创建',
         blackProject: '空白项目',
-        importProject: '导入JSON数据文件',
+        importProject: '导入JSON或YAML数据文件',
         importProjectTip: '支持OpenAPI2.0、3.0',
       },
       setting: {

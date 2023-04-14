@@ -74,7 +74,12 @@ func ProjectsCreate(ctx *gin.Context) {
 
 	project, _ := models.NewProjects()
 	if data.Data != "" {
-		base64Content := strings.Replace(data.Data, "data:application/json;base64,", "", 1)
+		var base64Content string
+		if strings.Contains(data.Data, "data:application/json;base64,") {
+			base64Content = strings.Replace(data.Data, "data:application/json;base64,", "", 1)
+		} else {
+			base64Content = strings.Replace(data.Data, "data:application/x-yaml;base64,", "", 1)
+		}
 		rawContent, err = base64.StdEncoding.DecodeString(base64Content)
 		if err != nil {
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{

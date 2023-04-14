@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="$t('app.project.createModal.title')" :width="400" align-center :close-on-click-modal="false">
+  <el-dialog v-model="dialogVisible" :title="$t('app.project.createModal.title')" :width="500" align-center :close-on-click-modal="false">
     <!-- 内容 -->
     <el-form label-position="top" label-width="100px" :model="form" :rules="rules" ref="projectFormRef" @submit.prevent="handleSubmit(projectFormRef)">
       <el-form-item :label="$t('app.project.form.title')" prop="title">
@@ -22,14 +22,14 @@
 
         <FileUploaderWrapper
           ref="fileUploaderWrapper"
-          accept=".json"
+          accept=".json,.yaml"
           @change="handleFileSelect"
           v-slot="{ fileName }"
           :class="[ns.e('items'), { [ns.is('active')]: selectedProjectType === 'import' }]"
         >
-          <div class="flex flex-col items-center" @click="handleSelectedProjectType('import')">
+          <div class="flex flex-col items-center w-full" @click="handleSelectedProjectType('import')" :title="fileName">
             <ac-icon-lucide-file-text class="text-30px" />
-            <div :class="ns.e('text')">
+            <div :class="ns.e('text')" class="w-full">
               <p v-if="!fileName">{{ $t('app.project.createModal.importProject') }}</p>
               <p v-else class="truncate">{{ fileName }}</p>
               <p class="text-gray-400 text-12px">
