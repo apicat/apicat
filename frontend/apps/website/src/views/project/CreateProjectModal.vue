@@ -22,7 +22,7 @@
 
         <FileUploaderWrapper
           ref="fileUploaderWrapper"
-          accept=".json"
+          accept=".json,.yaml"
           @change="handleFileSelect"
           v-slot="{ fileName }"
           :class="[ns.e('items'), { [ns.is('active')]: selectedProjectType === 'import' }]"
