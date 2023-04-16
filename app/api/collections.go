@@ -192,7 +192,7 @@ func CollectionsCopy(ctx *gin.Context) {
 	newCollection := models.Collections{
 		ProjectId:    collection.ProjectId,
 		ParentId:     collection.ParentId,
-		Title:        collection.Title,
+		Title:        fmt.Sprintf("%s (copy)", collection.Title),
 		Type:         collection.Type,
 		Content:      collection.Content,
 		DisplayOrder: collection.DisplayOrder,
@@ -208,7 +208,7 @@ func CollectionsCopy(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{
 		"id":         newCollection.ID,
 		"parent_id":  newCollection.ParentId,
-		"title":      fmt.Sprintf("%s (copy)", newCollection.Title),
+		"title":      newCollection.Title,
 		"type":       newCollection.Type,
 		"content":    newCollection.Content,
 		"created_at": newCollection.CreatedAt.Format("2006-01-02 15:04:05"),
