@@ -88,8 +88,6 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
       break
     case 'array':
       if (schema.items) {
-        expandKeys.value.add(key)
-        console.log('expandKeys', key)
         item.children = [convertTreeData(item, `${key}.${constNodeType.items}`, constNodeType.items, schema.items as JSONSchema)]
       }
   }
