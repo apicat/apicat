@@ -15,6 +15,7 @@ export default {
       delete: '删除',
       deleteTip: '删除提示',
       confirmDelete: '确认删除{msg}吗？',
+      copyAllPath: '复制完整URL',
     },
     table: {
       paramName: '参数名称',

@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <el-button type="primary" class="mt-20px" @click="handelExport(selectedRef.type)" :loading="isLoading">{{ $t('app.common.export') }}</el-button>
+  <el-button type="primary" class="mt-20px" @click="handelExport(selectedRef.type)">{{ $t('app.common.export') }}</el-button>
 </template>
 <script setup lang="ts">
 import swaggerLogo from '@/assets/images/logo-swagger@2x.png'
@@ -17,7 +17,6 @@ import { ExportProjectTypes } from '@/commons/constant'
 import { exportProject } from '@/api/project'
 import { useProjectId } from '@/hooks/useProjectId'
 
-const [isLoading, exportProjectApi] = exportProject()
 const project_id = useProjectId()
 
 const exportList = [
@@ -26,7 +25,5 @@ const exportList = [
 ]
 const selectedRef = ref(exportList[0])
 
-const handelExport = async (type: ExportProjectTypes) => {
-  await exportProjectApi({ project_id, type })
-}
+const handelExport = (type: ExportProjectTypes) => window.open(exportProject({ project_id, type }))
 </script>

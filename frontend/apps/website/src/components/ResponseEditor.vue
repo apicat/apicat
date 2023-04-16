@@ -2,7 +2,7 @@
   <div v-if="isShow">
     <h2 class="text-16px font-500">响应参数</h2>
     <el-tabs @tab-add="handleAddTab" @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
-      <el-tab-pane v-for="(item, index) in model" :key="item.id" :name="item.id" :disabled="disabled">
+      <el-tab-pane v-for="(item, index) in model" :key="item.id + index" :name="item.id" :disabled="disabled">
         <template #label>
           <el-space
             draggable="true"
@@ -34,16 +34,18 @@ import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 
 const props = defineProps<{ modelValue: HttpDocument; definitions?: Definition[] }>()
 const nodeAttrs = useNodeAttrs(props, HTTP_RESPONSE_NODE_KEY)
-const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop()
 
-const model = computed({
-  get: () => {
-    nodeAttrs.value.list = nodeAttrs.value.list.map((item: any) => ({ ...item, id: item.id || uuid() }))
-    return nodeAttrs.value.list
+const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop({
+  onDrop: (dragIndex: number, dropIndex: number) => {
+    const dragItem = nodeAttrs.value.list[dragIndex]
+    nodeAttrs.value.list.splice(dragIndex, 1)
+    nodeAttrs.value.list.splice(dropIndex, 0, dragItem)
   },
-  set: (val: any) => {
-    nodeAttrs.value.list = val
-  },
+})
+
+const model = computed(() => {
+  nodeAttrs.value.list = nodeAttrs.value.list.map((item: any) => ({ ...item, id: item.id || uuid() }))
+  return nodeAttrs.value.list
 })
 
 const editableTabsValue = ref()

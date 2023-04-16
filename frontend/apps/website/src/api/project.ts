@@ -14,7 +14,7 @@ export const getProjectServerUrlList = async (project_id: any) => Ajax.get(`/pro
 
 export const saveProjectServerUrlList = async ({ project_id, urls }: any) => Ajax.put(`/projects/${project_id}/servers`, urls)
 
-export const exportProject = useApi(async ({ project_id, ...params }: any) => Ajax.get(`/projects/${project_id}/data`, { params }))
+export const exportProject = ({ project_id, ...params }: any) => `/api/projects/${project_id}/data?${new URLSearchParams(params).toString()}`
 
 export const getProjectTranshList = useApi(async (project_id: string) => Ajax.get(`/projects/${project_id}/trashs`))
 
