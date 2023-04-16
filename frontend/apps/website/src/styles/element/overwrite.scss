@@ -83,6 +83,10 @@
   .el-tree-node__content:hover .el-tree-node__bg {
     background-color: var(--el-tree-node-hover-bg-color);
   }
+
+  .el-tree__empty-block {
+    min-height: auto;
+  }
 }
 
 .el-popover.el-popper {
