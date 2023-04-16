@@ -200,7 +200,7 @@ func DefinitionsUpdate(ctx *gin.Context) {
 		return
 	}
 
-	if len(definitions) > 0 {
+	if len(definitions) > 0 && definitions[0].ID != definition.ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NameExists"}),
 		})
