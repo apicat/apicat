@@ -13,7 +13,11 @@
         v-loading="param.isLoading"
       >
         <template #extra>
-          <el-icon @click="handleDeleteParam(param, index)" class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
+          <el-popconfirm width="auto" :title="$t('app.table.deleteResponseConfirm')" @confirm="handleDeleteParam(param, index)">
+            <template #reference>
+              <el-icon class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
+            </template>
+          </el-popconfirm>
         </template>
 
         <div v-if="param.detail">

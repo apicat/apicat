@@ -23,6 +23,7 @@ export default {
       required: '必须',
       defaultValue: '默认值',
       paramDesc: '参数说明',
+      deleteResponseConfirm: '确认删除该公共响应吗？',
     },
     form: {
       serverUrl: {
