@@ -21,7 +21,7 @@
         </template>
 
         <div v-if="param.detail">
-          <ResponseForm v-model="param.detail" class="mt-10px" />
+          <ResponseForm v-model="param.detail" :definitions="definitions" class="mt-10px" />
           <el-button class="mt-20px" type="primary" @click="handleSubmit(param)">{{ $t('app.common.save') }}</el-button>
         </div>
       </ToggleHeading>
@@ -34,8 +34,12 @@
 import { useProjectId } from '@/hooks/useProjectId'
 import { useResponseParamDetail } from '../logic/useResponseParamDetail'
 import { useResponseparamList } from '../logic/useResponseparamList'
+import useDefinitionStore from '@/store/definition'
+import { storeToRefs } from 'pinia'
 
 const project_id = useProjectId()
+const definitionStore = useDefinitionStore()
+const { definitions } = storeToRefs(definitionStore)
 
 const { isLoading, responseParamList, handleAddParam, handleDeleteParam } = useResponseparamList({ id: project_id })
 const { handleExpand, handleSubmit } = useResponseParamDetail({ id: project_id })
