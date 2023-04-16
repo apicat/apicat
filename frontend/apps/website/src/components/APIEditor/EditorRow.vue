@@ -30,7 +30,7 @@
           <el-text v-if="data.schema.example" type="info">
             <small>示例</small>: <span class="copy_text">{{ data.schema.example }}</span>
           </el-text>
-          <el-text type="info">
+          <el-text v-if="data.schema.default !== undefined && data.schema.default !== null && data.schema.default !== ''" type="info">
             <small>默认值</small>: <span class="copy_text">{{ data.schema.default }}</span>
           </el-text>
         </div>
@@ -89,7 +89,14 @@
         </div>
         <div>
           <el-tooltip v-if="data.parent?.type === 'object'" content="required" placement="top" :show-after="368">
-            <el-checkbox size="small" :disabled="isRefChildren(data)" :checked="data.parent?.schema.required?.includes(data.label)" @change="changeRequired" />
+            <el-checkbox
+              v-if="data.refObj || data.parent?.refObj"
+              size="small"
+              :disabled="isRefChildren(data)"
+              :checked="data.parent?.refObj?.schema.required?.includes(data.label)"
+              @change="changeRequired"
+            />
+            <el-checkbox v-else size="small" :disabled="isRefChildren(data)" :checked="data.parent?.schema.required?.includes(data.label)" @change="changeRequired" />
           </el-tooltip>
         </div>
         <div>
