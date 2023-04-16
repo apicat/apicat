@@ -17,7 +17,14 @@
             <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
             <el-text tag="b" v-else>
               <span class="copy_text">{{ data.label }}</span>
-              <el-text v-if="data.parent?.type === 'object' && data.parent?.schema.required?.includes(data.label)" type="danger"> (*) </el-text>
+              <template v-if="data.parent?.type === 'object'">
+                <template v-if="isRefChildren(data)">
+                  <el-text v-if="data.parent?.refObj?.schema.required?.includes(data.label)" type="danger"> (*) </el-text>
+                </template>
+                <template v-else>
+                  <el-text v-if="data.parent?.schema.required?.includes(data.label)" type="danger"> (*) </el-text>
+                </template>
+              </template>
             </el-text>
             <el-text>
               {{ data.type }}
@@ -90,7 +97,7 @@
         <div>
           <el-tooltip v-if="data.parent?.type === 'object'" content="required" placement="top" :show-after="368">
             <el-checkbox
-              v-if="data.refObj || data.parent?.refObj"
+              v-if="isRefChildren(data)"
               size="small"
               :disabled="isRefChildren(data)"
               :checked="data.parent?.refObj?.schema.required?.includes(data.label)"
