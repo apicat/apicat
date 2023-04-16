@@ -1,7 +1,7 @@
 <template>
   <div :class="ns.b()">
     <el-dropdown trigger="click" @command="handleChooseMethod">
-      <label :class="ns.e('method')" :style="{ backgroundColor: methodBgColor }">
+      <label :class="ns.e('method')" :style="{ backgroundColor: getRequestMethodColor(nodeAttrs.method) }">
         {{ nodeAttrs.method.toUpperCase() }}
         <el-icon class="ml-4px"><ac-icon-ep-arrow-down-bold /></el-icon>
       </label>
@@ -18,14 +18,12 @@
 import { useNamespace } from '@/hooks'
 import { HttpDocument } from '@/typings'
 import { HTTP_URL_NODE_KEY, useNodeAttrs } from '@/hooks/useNodeAttrs'
-import { HttpMethodTypeMap } from '@/commons'
+import { HttpMethodTypeMap, getRequestMethodColor } from '@/commons'
 
 const props = defineProps<{ modelValue: HttpDocument }>()
 const ns = useNamespace('http-method')
 
 const nodeAttrs = useNodeAttrs(props, HTTP_URL_NODE_KEY)
-
-const methodBgColor = computed(() => (HttpMethodTypeMap as any)[nodeAttrs.value.method].color)
 
 const placeholder = 'Path, 以"/"开始'
 

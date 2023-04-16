@@ -1,6 +1,6 @@
 <template>
   <div :class="[ns.b(), ns.is('readonly')]">
-    <label v-if="nodeAttrs.method" :class="ns.e('method')" :style="{ backgroundColor: methodBgColor }">
+    <label v-if="nodeAttrs.method" :class="ns.e('method')" :style="{ backgroundColor: getRequestMethodColor(nodeAttrs.method) }">
       {{ nodeAttrs.method.toUpperCase() }}
     </label>
 
@@ -19,23 +19,24 @@
       <span class="copy_text">{{ currentUrl }}</span>
     </div>
     <p :class="ns.e('path')" class="copy_text">{{ nodeAttrs.path }}</p>
-    <i :class="ns.e('copy')" class="copy_text" :data-text="currentUrl + nodeAttrs.path">
-      <ac-icon-ic-outline-content-copy />
-    </i>
+    <el-tooltip :content="$t('app.common.copyAllPath')">
+      <i :class="ns.e('copy')" class="copy_text" :data-text="currentUrl + nodeAttrs.path">
+        <ac-icon-ic-outline-content-copy />
+      </i>
+    </el-tooltip>
   </div>
 </template>
 <script setup lang="ts">
 import { useNamespace } from '@/hooks'
 import { HttpDocument } from '@/typings'
 import { HTTP_URL_NODE_KEY, useNodeAttrs } from '@/hooks/useNodeAttrs'
-import { HttpMethodTypeMap } from '@/commons'
+import { getRequestMethodColor } from '@/commons'
 
 const props = defineProps<{ doc: HttpDocument; urls: Array<any> }>()
 
 const ns = useNamespace('http-method')
 const nodeAttrs = useNodeAttrs(props, HTTP_URL_NODE_KEY, 'doc')
 const httpUrl = unref(nodeAttrs)
-const methodBgColor = computed(() => (HttpMethodTypeMap as any)[httpUrl.method].color)
 
 const currentUrl = ref('')
 
