@@ -3,11 +3,12 @@ import { noop } from '@vueuse/core'
 export type DragDropOptions = {
   dragClass?: string
   direction?: 'vertical' | 'horizontal'
+  onDragStartHandle?: (e?: DragEvent) => { dragElement: HTMLElement } | void
   onDrop?: (dragIndex: number, dropIndex: number) => void
 }
 
 export const useDragAndDrop = (options?: DragDropOptions) => {
-  const { dragClass = 'dragging', direction = 'vertical', onDrop = noop } = options || {}
+  const { dragClass = 'dragging', direction = 'vertical', onDrop = noop, onDragStartHandle = noop } = options || {}
 
   const DRAG_KEY = `DRAG_AND_DROP_${Date.now()}`
 
@@ -50,7 +51,8 @@ export const useDragAndDrop = (options?: DragDropOptions) => {
     e.dataTransfer!.dropEffect = 'move'
     const nodeEle = e.currentTarget as HTMLElement
     nodeEle && nodeEle.classList.add(dragClass)
-    e.dataTransfer?.setDragImage(nodeEle, 0, 0)
+    const data = onDragStartHandle(e)
+    e.dataTransfer?.setDragImage(data?.dragElement ?? nodeEle, 0, 0)
     e.dataTransfer?.setData(DRAG_KEY, String(index))
     nodeEle.style.opacity = '0.5'
     createDropIndicator(nodeEle)
@@ -84,7 +86,7 @@ export const useDragAndDrop = (options?: DragDropOptions) => {
     return 0
   }
 
-  const onDropHandler = (e: DragEvent, index: string | number) => {
+  const onDropHandler = (e: DragEvent, index: number) => {
     if (e.dataTransfer?.getData(DRAG_KEY)) {
       onDrop && onDrop(parseInt(e.dataTransfer?.getData(DRAG_KEY), 10), index)
     }
