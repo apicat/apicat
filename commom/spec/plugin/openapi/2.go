@@ -320,6 +320,15 @@ func (s *Swagger) toReqParameters(ps spec.HTTPRequestNode) []*openAPIParamter {
 							return false
 						}(),
 					}
+					if v != nil {
+						t := v.Type.Value()
+						if len(t) > 0 && t[0] == "file" {
+							// jsonschema 没有file
+							v.Type.SetValue("array")
+							v.Items = &jsonschema.ValueOrBoolean[*jsonschema.Schema]{}
+							v.Items.SetValue(&jsonschema.Schema{})
+						}
+					}
 					out = append(out, content)
 				}
 			} else {
