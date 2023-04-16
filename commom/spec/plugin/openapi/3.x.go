@@ -248,6 +248,7 @@ func (o *OpenAPI) convertJSONSchema(ver string, in *jsonschema.Schema) {
 			// jsonschema 没有file
 			in.Type.SetValue("array")
 			in.Items = &jsonschema.ValueOrBoolean[*jsonschema.Schema]{}
+			in.Items.SetValue(&jsonschema.Schema{})
 		}
 	}
 }
