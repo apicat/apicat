@@ -36,7 +36,6 @@ const props = defineProps<{ doc: HttpDocument; urls: Array<any> }>()
 
 const ns = useNamespace('http-method')
 const nodeAttrs = useNodeAttrs(props, HTTP_URL_NODE_KEY, 'doc')
-const httpUrl = unref(nodeAttrs)
 
 const currentUrl = ref('')
 

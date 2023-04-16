@@ -8,7 +8,7 @@
   }
 
   @include e(method) {
-    @apply flex justify-between items-center  border-1 border-solid border-transparent outline-none px-10px text-white w-100px;
+    @apply flex justify-between items-center border-1 border-solid border-transparent outline-none px-10px text-white w-100px;
   }
 
   @include e(server) {
@@ -28,7 +28,7 @@
 
   @include when(readonly) {
     @include e(method) {
-      @apply justify-center;
+      @apply justify-center w-80px;
     }
   }
 }

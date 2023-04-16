@@ -190,7 +190,7 @@ const dropHandler = (ev: DragEvent, i: number) => {
 .ac-sce-simple {
   font-size: 14px;
   border: 1px var(--el-border-color-lighter) solid;
-  border-radius: 5px;
+  border-radius: var(--el-border-radius-base);
   overflow: hidden;
 }
 .ac-sce-simple:focus-within {

@@ -65,7 +65,7 @@
     flex: 1;
     height: auto;
     line-height: 1.5;
-    border-radius: 4px;
+    border-radius: var(--el-border-radius-base);
     padding: 2px 4px;
     box-shadow: 0 0 0 1px var(--primary-color) inset;
   }

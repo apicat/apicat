@@ -127,7 +127,7 @@ onMounted(async () => {
 }
 
 .add-child-btn {
-  border-radius: 2px !important;
+  border-radius: var(--el-border-radius-base) !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
   color: rgba(0, 0, 0, 0.6) !important;
   border-style: dashed !important;

@@ -120,7 +120,7 @@ watch(
 <style>
 .ac-code-editor {
   border: 1px var(--el-border-color-lighter) solid;
-  border-radius: 5px;
+  border-radius: var(--el-border-radius-base);
   max-height: 200px;
   overflow-y: scroll;
 }
