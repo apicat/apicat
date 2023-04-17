@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" fullscreen append-to-body :close-on-click-modal="false" :close-on-press-escape="false" class="fullscree hide-header" destroy-on-close center>
+  <el-dialog v-model="dialogVisible" append-to-body :close-on-click-modal="false" :close-on-press-escape="false" class="fullscree hide-header" destroy-on-close center width="70%">
     <ProjectSettingLayout>
       <template #nav>
         <p class="text-16px text-gray-950 font-500">{{ $t('app.project.setting.title') }}</p>
@@ -16,10 +16,8 @@
           </li>
         </ul>
       </template>
-      <div v-if="activeTab">
-        <p class="text-16px text-gray-950 font-500 mb-20px">{{ activeTab.menu.text }}</p>
-        <component v-if="activeTab.menu.component" :is="activeTab.menu.component" />
-      </div>
+      <template v-if="activeTab" #title>{{ activeTab.menu.text }}</template>
+      <component v-if="activeTab && activeTab.menu.component" :is="activeTab.menu.component" />
     </ProjectSettingLayout>
   </el-dialog>
 </template>
