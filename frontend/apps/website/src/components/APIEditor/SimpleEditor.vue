@@ -8,7 +8,7 @@
         <th width="258">示例值</th>
         <th>描述</th>
       </tr>
-      <tr v-for="(data, index) in model" :key="index">
+      <tr v-for="(data, index) in list" :key="index">
         <td>
           <el-text tag="b">
             <span class="copy_text">{{ data.name }}</span>
@@ -41,32 +41,32 @@
         <th class="text-center" width="48"></th>
       </tr>
       <tbody>
-        <tr v-for="(data, index) in model" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
+        <tr v-for="(data, index) in list" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
           <td class="text-center" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" draggable="true">
             <el-icon class="mt-5px">
               <ac-icon-material-symbols-drag-indicator />
             </el-icon>
           </td>
           <td>
-            <el-input v-model="model[index].name" />
+            <el-input v-model="data._name" @input="(v) => onParamNameChange(data, v)" />
           </td>
           <td class="text-center">
-            <el-select v-model="data.schema.type">
+            <el-select v-model="data.schema.type" @change="changeNotify">
               <el-option v-for="item in ['string', 'integer', 'number', 'array', 'boolean']" :key="item" :label="item" :value="item" />
             </el-select>
           </td>
 
           <td class="text-center">
             <el-tooltip content="required" placement="top" :show-after="368">
-              <el-checkbox size="small" v-model="data.required" />
+              <el-checkbox size="small" v-model="data.required" @change="changeNotify" />
             </el-tooltip>
           </td>
 
           <td>
-            <el-input v-model="data.schema.default" />
+            <el-input v-model="data.schema.example" @change="changeNotify" />
           </td>
           <td>
-            <el-input v-model="data.schema.description" />
+            <el-input v-model="data.schema.description" @change="changeNotify" />
           </td>
           <td class="text-center">
             <el-popconfirm title="delete this?" @confirm="delHandler(index)">
@@ -84,7 +84,7 @@
         <tr>
           <td></td>
           <td>
-            <el-input v-model="newname" placeholder="添加参数" @change="addHandler">
+            <el-input v-model="newname" placeholder="添加参数" @keyup.enter="addHandler(newname)">
               <template #suffix>
                 <el-icon>
                   <ac-icon-mi-enter />
@@ -100,10 +100,8 @@
 </template>
 
 <script setup lang="ts">
-import { useVModel } from '@vueuse/core'
 import type { APICatSchemaObject } from './types'
-import { ref } from 'vue'
-import { ElMessage } from 'element-plus'
+import { useSchemaList } from './useSchemaList'
 
 const props = withDefaults(
   defineProps<{
@@ -116,29 +114,20 @@ const props = withDefaults(
   }
 )
 
-const emit = defineEmits(['update:modelValue'])
-const model = useVModel(props, 'modelValue', emit)
+const emits = defineEmits(['update:modelValue'])
 
-const newname = ref('')
-
-const addHandler = (v: string) => {
-  if (v == '') {
-    return
-  }
-  if (model.value.find((a: any) => a.name == v)) {
-    ElMessage.error(`参数「${v}」重复`)
-    return
-  }
-  newname.value = ''
-  model.value.push({
-    name: v,
-    schema: { type: 'string' },
+const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(emits, (models) =>
+  models.map((item) => {
+    const newItem = toRaw({ ...item })
+    delete newItem._name
+    return newItem
   })
-}
+)
 
-const delHandler = (i: number) => {
-  model.value.splice(i, 1)
-}
+const list = computed(() => {
+  model.value = (props.modelValue || []).map((item: APICatSchemaObject) => ({ ...item, _name: item.name }))
+  return model.value
+})
 
 const dragKey = 'application/apicat-sortable'
 

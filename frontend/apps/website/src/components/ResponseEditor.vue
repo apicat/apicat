@@ -89,7 +89,7 @@ watch(nodeAttrs, () => {
 <style lang="scss">
 .ac-response-editor {
   .el-tabs__item .is-icon-close {
-    margin-top: 12px;
+    margin-top: 13px;
     padding-bottom: 1px;
   }
 }

@@ -18,7 +18,7 @@
           <el-text>{{ data.schema.type }}</el-text>
         </td>
         <td>
-          <el-text>{{ data.schema.required ? '是' : '否' }}</el-text>
+          <el-text>{{ modelValue.required?.includes(data.name) ? '是' : '否' }}</el-text>
         </td>
         <td>
           <el-text>
@@ -49,7 +49,7 @@
             </el-icon>
           </td>
           <td>
-            <el-input v-model="flatValues[index].name" @change="changeNotify" />
+            <el-input v-model="data._name" @input="(v) => onParamNameChange(data, v)" />
           </td>
           <td class="text-center">
             <el-select v-model="data.schema.type" @change="changeNotify">
@@ -59,7 +59,7 @@
 
           <td class="text-center">
             <el-tooltip content="required" placement="top" :show-after="368">
-              <el-checkbox size="small" v-model="data.schema.required" @change="changeNotify" />
+              <el-checkbox size="small" :checked="modelValue.required?.includes(data.name)" @change="(v) => onRequiredChange(data, v)" />
             </el-tooltip>
           </td>
 
@@ -104,8 +104,7 @@
 import { ElMessage } from 'element-plus'
 import type { Definition, JSONSchema } from './types'
 import { ref, computed } from 'vue'
-
-const emits = defineEmits(['update:modelValue'])
+import { useSchemaList } from './useSchemaList'
 
 const props = withDefaults(
   defineProps<{
@@ -128,7 +127,29 @@ if (props.hasFile) {
   schemaType.push('file')
 }
 
-const list: any = ref([])
+const emits = defineEmits(['update:modelValue'])
+
+const transformModel = (models: any) => {
+  const ps: Record<string, JSONSchema> = {}
+
+  models.forEach((ele: any) => {
+    ps[ele.name] = toRaw(ele.schema)
+  })
+
+  return {
+    type: 'object',
+    properties: ps,
+    required: props.modelValue.required,
+    'x-apicat-orders': models.map((a: any) => a.name),
+  }
+}
+
+const onParamNameValid = (oldName: string, newName: string) => {
+  const schema = props.modelValue as JSONSchema
+  schema.required = schema.required?.map((one) => (one === oldName ? newName : one))
+}
+
+const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(emits, transformModel, onParamNameValid)
 
 const flatValues = computed(() => {
   const arr: any = []
@@ -148,58 +169,28 @@ const flatValues = computed(() => {
     const orders = schema['x-apicat-orders'] || Object.keys(ps)
     for (let k of orders) {
       // todo additionalMetadata??
-      arr.push({ name: k, schema: ps[k] })
+      arr.push({ name: k, _name: k, schema: ps[k] })
     }
     schema['x-apicat-orders'] = orders
   }
 
-  list.value = arr
+  model.value = arr
 
-  return list.value
+  return model.value
 })
 
-const changeNotify = () => {
-  const ps: Record<string, JSONSchema> = {}
+const onRequiredChange = (item: any, isChecked: any) => {
+  const schema = props.modelValue as JSONSchema
 
-  list.value.forEach((ele: any) => {
-    ps[ele.name] = toRaw(ele.schema)
-  })
+  if (!schema.required) schema.required = []
 
-  const model = {
-    type: 'object',
-    properties: ps,
-    'x-apicat-orders': list.value.map((a: any) => a.name),
+  if (isChecked) {
+    schema.required.push(item.name)
+  } else {
+    schema.required = schema.required.filter((v) => v !== item.name)
   }
-
-  emits('update:modelValue', model)
+  schema.required = Array.from(new Set(schema.required))
 }
-
-const newname = ref('')
-
-const addHandler = (v: string) => {
-  if (v == '') {
-    return
-  }
-
-  if (flatValues.value.find((a: any) => a.name == v)) {
-    ElMessage.error(`参数「${v}」重复`)
-    return
-  }
-  newname.value = ''
-  flatValues.value.push({
-    name: v,
-    required: false,
-    schema: { type: 'string' },
-  })
-
-  changeNotify()
-}
-
-const delHandler = (i: number) => {
-  flatValues.value.splice(i, 1)
-  changeNotify()
-}
-
 const dragKey = 'application/apicat-sortable'
 
 const dragStartHandler = (ev: DragEvent, i: number) => {
