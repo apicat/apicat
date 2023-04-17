@@ -18,13 +18,14 @@
 </template>
 <script setup lang="ts">
 import { restoreDoc, getProjectTranshList } from '@/api/project'
-import { useProjectId } from '@/hooks/useProjectId'
+import { useParams } from '@/hooks/useParams'
 import { TrashModel } from '@/typings/project'
 import type { ElTable } from 'element-plus'
 
-const project_id = useProjectId()
+const { project_id } = useParams()
 const [isLoading, getProjectTranshListApi] = getProjectTranshList()
 const [isRestoring, restoreDocApi] = restoreDoc()
+const directoryTree: any = inject('directoryTree')
 
 const tableRef = ref<InstanceType<typeof ElTable>>()
 const tableData = shallowRef<TrashModel[]>([])
@@ -40,6 +41,7 @@ const handleRestore = async (multipleSelection: TrashModel[]) => {
     await restoreDocApi({ project_id, ids: multipleSelection.map((item) => item.id) })
     tableData.value = await getProjectTranshListApi(project_id)
     tableRef.value!.clearSelection()
+    directoryTree?.reload()
   } finally {
     isLoading.value = false
   }

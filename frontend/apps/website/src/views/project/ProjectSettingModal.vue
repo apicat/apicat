@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" fullscreen append-to-body :close-on-click-modal="false" :close-on-press-escape="false" class="fullscree hide-header">
+  <el-dialog v-model="dialogVisible" fullscreen append-to-body :close-on-click-modal="false" :close-on-press-escape="false" class="fullscree hide-header" destroy-on-close center>
     <ProjectSettingLayout>
       <template #nav>
         <p class="text-16px text-gray-950 font-500">{{ $t('app.project.setting.title') }}</p>

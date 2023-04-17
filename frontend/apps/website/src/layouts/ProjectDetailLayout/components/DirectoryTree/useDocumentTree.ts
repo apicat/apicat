@@ -145,12 +145,14 @@ export const useDocumentTree = () => {
     }
   }
 
-  onMounted(async () => {
+  const initDocumentTree = async () => {
     await getApiDocTree(project_id as string)
     if (route.name === DOCUMENT_DETAIL_NAME || route.name === DOCUMENT_EDIT_NAME) {
       params.doc_id ? activeNode(params.doc_id) : reactiveNode()
     }
-  })
+  }
+
+  onMounted(async () => initDocumentTree())
 
   return {
     treeIns,
@@ -162,5 +164,7 @@ export const useDocumentTree = () => {
     onMoveNodeStart,
     onMoveNode,
     updateTitle,
+
+    initDocumentTree,
   }
 }

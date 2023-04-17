@@ -27,6 +27,12 @@ export const useDocumentStore = defineStore('document', {
       this.apiDocTree = traverseTree((item: CollectionNode) => extendDocTreeFeild(item), tree || [], { subKey: 'sub_nodes' }) as Array<CollectionNode>
       return this.apiDocTree
     },
+
+    async refreshApiDocTree(project_id: string) {
+      const tree = await getCollectionList(project_id)
+      this.apiDocTree = traverseTree((item: CollectionNode) => extendDocTreeFeild(item), tree || [], { subKey: 'sub_nodes' }) as Array<CollectionNode>
+      return this.apiDocTree
+    },
   },
 })
 
