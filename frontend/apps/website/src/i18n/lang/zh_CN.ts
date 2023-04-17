@@ -63,6 +63,13 @@ export default {
     },
   },
   // 编辑器
-  editor: {},
+  editor: {
+    node: {
+      httpMethod: {
+        pathPlaceholder: 'Path, 以"/"开始',
+        pathError: '请输入有效的路径',
+      },
+    },
+  },
   elementPlusLocale,
 }
