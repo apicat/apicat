@@ -44,7 +44,7 @@
       <tbody>
         <tr v-for="(data, index) in flatValues" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
           <td class="text-center" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" draggable="true">
-            <el-icon>
+            <el-icon class="mt-5px">
               <ac-icon-material-symbols-drag-indicator />
             </el-icon>
           </td>

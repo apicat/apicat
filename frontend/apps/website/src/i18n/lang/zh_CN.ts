@@ -64,6 +64,14 @@ export default {
   },
   // 编辑器
   editor: {
+    common: {
+      error: {
+        paramNameDuplicate: '参数{0}名称重复',
+      },
+      tips: {
+        confirmDelete: '确认删除{0}吗？',
+      },
+    },
     node: {
       httpMethod: {
         pathPlaceholder: 'Path, 以"/"开始',

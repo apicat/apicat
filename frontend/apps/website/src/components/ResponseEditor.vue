@@ -1,5 +1,5 @@
 <template>
-  <div v-if="isShow">
+  <div v-if="isShow" class="ac-response-editor">
     <h2 class="text-16px font-500">响应参数</h2>
     <el-tabs @tab-add="handleAddTab" @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
       <el-tab-pane v-for="(item, index) in model" :key="item.id + index" :name="item.id" :disabled="disabled">
@@ -86,3 +86,11 @@ watch(nodeAttrs, () => {
   editableTabsValue.value = model.value[0].id
 })
 </script>
+<style lang="scss">
+.ac-response-editor {
+  .el-tabs__item .is-icon-close {
+    margin-top: 12px;
+    padding-bottom: 1px;
+  }
+}
+</style>

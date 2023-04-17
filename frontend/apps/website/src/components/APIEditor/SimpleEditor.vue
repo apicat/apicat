@@ -43,7 +43,7 @@
       <tbody>
         <tr v-for="(data, index) in model" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
           <td class="text-center" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" draggable="true">
-            <el-icon>
+            <el-icon class="mt-5px">
               <ac-icon-material-symbols-drag-indicator />
             </el-icon>
           </td>
@@ -103,6 +103,7 @@
 import { useVModel } from '@vueuse/core'
 import type { APICatSchemaObject } from './types'
 import { ref } from 'vue'
+import { ElMessage } from 'element-plus'
 
 const props = withDefaults(
   defineProps<{
@@ -122,6 +123,10 @@ const newname = ref('')
 
 const addHandler = (v: string) => {
   if (v == '') {
+    return
+  }
+  if (model.value.find((a: any) => a.name == v)) {
+    ElMessage.error(`参数「${v}」重复`)
     return
   }
   newname.value = ''
