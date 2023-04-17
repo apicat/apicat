@@ -7,7 +7,7 @@
     <div :class="ns.e('server')" v-if="urls.length">
       <el-dropdown trigger="click" @command="onSelectUrl" placement="bottom-start" @visible-change="(v) => (isShowServerDropdownMenu = v)">
         <label>
-          <el-icon :class="['mr-4px transition-base origin-center', { '-rotate-90': isShowServerDropdownMenu }]"><ac-icon-ep-caret-bottom /></el-icon>
+          <el-icon :class="['mr-4px transition-base origin-center', { 'rotate-90': isShowServerDropdownMenu }]"><ac-icon-ep-caret-right /></el-icon>
         </label>
         <template #dropdown>
           <el-dropdown-menu>
