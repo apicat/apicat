@@ -1,15 +1,23 @@
 <template>
-  <div ref="domRef" class="ac-code-editor"></div>
+  <div ref="domRef" :class="['ac-code-editor', { readonly: readonly }]"></div>
 </template>
 
 <script setup lang="ts">
-import { basicSetup, EditorView } from 'codemirror'
-import { keymap } from '@codemirror/view'
-import { Compartment, type Extension } from '@codemirror/state'
+import { EditorView } from 'codemirror'
+import { Compartment } from '@codemirror/state'
 import { indentWithTab } from '@codemirror/commands'
 import { json } from '@codemirror/lang-json'
 import { xml } from '@codemirror/lang-xml'
 import { html } from '@codemirror/lang-html'
+
+import { keymap, highlightSpecialChars, drawSelection, lineNumbers, dropCursor, rectangularSelection, crosshairCursor } from '@codemirror/view'
+import { Extension, EditorState } from '@codemirror/state'
+import { defaultHighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching, foldGutter, foldKeymap } from '@codemirror/language'
+import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
+import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
+import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
+import { lintKeymap } from '@codemirror/lint'
+
 import { onMounted, onUnmounted, shallowRef, watch } from 'vue'
 
 interface langType {
@@ -58,6 +66,26 @@ const fixedHeightEditor = EditorView.baseTheme({
     outline: 0,
   },
 })
+
+const basicSetup: Extension = (() => [
+  lineNumbers(),
+  // highlightActiveLineGutter(),
+  highlightSpecialChars(),
+  history(),
+  foldGutter(),
+  drawSelection(),
+  dropCursor(),
+  EditorState.allowMultipleSelections.of(true),
+  indentOnInput(),
+  syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
+  bracketMatching(),
+  closeBrackets(),
+  autocompletion(),
+  rectangularSelection(),
+  crosshairCursor(),
+  highlightSelectionMatches(),
+  keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...searchKeymap, ...historyKeymap, ...foldKeymap, ...completionKeymap, ...lintKeymap]),
+])()
 
 onMounted(() => {
   const exts = [
@@ -117,12 +145,17 @@ watch(
 )
 </script>
 
-<style>
+<style lang="scss" scoped>
 .ac-code-editor {
-  border: 1px var(--el-border-color-lighter) solid;
+  border: 1px solid #eee;
   border-radius: var(--el-border-radius-base);
-  max-height: 200px;
+  max-height: 400px;
   overflow-y: scroll;
+  background: #f5f5f5;
+
+  &.readonly {
+    max-height: fit-content;
+  }
 }
 
 .ac-code-editor:focus-within {

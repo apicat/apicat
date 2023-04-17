@@ -53,9 +53,10 @@ const handleSubmit = async (formIns: FormInstance) => {
 }
 
 const handleRemove = () => {
+  const tip = t('app.common.confirmDelete', { msg: projectDetailInfo!.title })
   AsyncMsgBox({
     title: t('app.common.deleteTip'),
-    content: <div class="break-all">{t('app.common.confirmDelete', { msg: projectDetailInfo!.title })}</div>,
+    content: <div class="break-all">{tip}</div>,
     onOk: async () => {
       await deleleProjectApi(projectDetailInfo!.id)
       router.replace('/home')
