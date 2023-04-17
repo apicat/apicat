@@ -15,7 +15,9 @@ export default () => {
     plugins: [
       vue(),
       vueJsx(),
-      VueI18nPlugin({}),
+      VueI18nPlugin({
+        runtimeOnly: false,
+      }),
       UnoCSS(),
       AutoImport({
         imports: ['vue', 'vue-router', '@vueuse/core'],
@@ -71,6 +73,10 @@ export default () => {
           manualChunks(id) {
             if (id.includes('element-plus')) {
               return 'element-plus'
+            }
+
+            if (id.includes('@codemirror')) {
+              return 'codemirror'
             }
           },
         },
