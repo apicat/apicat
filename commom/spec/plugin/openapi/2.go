@@ -225,17 +225,21 @@ type swaggerSpec struct {
 	Swagger     string                                `json:"swagger"`
 	Info        *spec.Info                            `json:"info"`
 	Tags        []tagObject                           `json:"tags,omitempty"`
-	Host        string                                `json:"host"`
+	Host        string                                `json:"host,omitempty"`
 	BasePath    string                                `json:"basePath"`
-	Schemas     []string                              `json:"schemas"`
-	Definitions map[string]jsonschema.Schema          `json:"definitions,omitempty"`
-	Paths       map[string]map[string]swaggerPathItem `json:"paths,omitempty"`
+	Schemas     []string                              `json:"schemas,omitempty"`
+	Definitions map[string]jsonschema.Schema          `json:"definitions"`
+	Paths       map[string]map[string]swaggerPathItem `json:"paths"`
 }
 
 func (s *Swagger) toBase(in *spec.Spec) *swaggerSpec {
 	out := &swaggerSpec{
-		Swagger:     "2.0",
-		Info:        in.Info,
+		Swagger: "2.0",
+		Info: &spec.Info{
+			Title:       in.Info.Title,
+			Description: in.Info.Description,
+			Version:     in.Info.Version,
+		},
 		Definitions: make(map[string]jsonschema.Schema),
 	}
 	for _, v := range in.Servers {
@@ -251,6 +255,9 @@ func (s *Swagger) toBase(in *spec.Spec) *swaggerSpec {
 	}
 	for _, v := range in.Definitions {
 		out.Definitions[v.Name] = *v.Schema
+	}
+	if out.BasePath == "" {
+		out.BasePath = "/"
 	}
 	return out
 }
