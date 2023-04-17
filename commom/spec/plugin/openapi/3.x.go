@@ -183,8 +183,8 @@ func (o *OpenAPI) parseCollections(paths *v3.Paths) []*spec.CollectItem {
 type openapiSpec struct {
 	Openapi    string                                `json:"openapi"`
 	Info       *spec.Info                            `json:"info"`
-	Servers    []*spec.Server                        `json:"servers"`
-	Components map[string]any                        `json:"components"`
+	Servers    []*spec.Server                        `json:"servers,omitempty"`
+	Components map[string]any                        `json:"components,omitempty"`
 	Paths      map[string]map[string]openapiPathItem `json:"paths"`
 	Tags       []tagObject                           `json:"tags,omitempty"`
 }
