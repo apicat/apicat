@@ -1,4 +1,4 @@
-import Ajax from './Ajax'
+import Ajax, { QuietAjax } from './Ajax'
 import useApi from '@/hooks/useApi'
 import { ProjectInfo } from '@/typings/project'
 
@@ -6,7 +6,7 @@ export const getProjectList = () => Ajax.get('/projects')
 
 export const getProjectDetail = (project_id: string) => Ajax.get(`/projects/${project_id}`)
 
-export const createProject = useApi(async (projectInfo: ProjectInfo) => await Ajax.post('/projects', projectInfo))
+export const createProject = useApi(async (projectInfo: ProjectInfo) => await QuietAjax.post('/projects', projectInfo))
 
 export const updateProjectBaseInfo = useApi(async ({ id: project_id, ...info }: ProjectInfo) => Ajax.put(`/projects/${project_id}`, info))
 
