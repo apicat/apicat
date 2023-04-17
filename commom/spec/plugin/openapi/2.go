@@ -323,10 +323,7 @@ func (s *Swagger) toReqParameters(ps spec.HTTPRequestNode) []*openAPIParamter {
 					if v != nil {
 						t := v.Type.Value()
 						if len(t) > 0 && t[0] == "file" {
-							// jsonschema 没有file
-							v.Type.SetValue("array")
-							v.Items = &jsonschema.ValueOrBoolean[*jsonschema.Schema]{}
-							v.Items.SetValue(&jsonschema.Schema{})
+							content.Type = t[0]
 						}
 					}
 					out = append(out, content)
