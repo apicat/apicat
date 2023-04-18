@@ -3,57 +3,64 @@
   border: 1px solid var(--el-border-color-lighter);
   border-radius: var(--el-border-radius-base);
   overflow: hidden;
-}
-.ac-sce-simple:focus-within {
-  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
-}
 
-.ac-sce-simple table {
-  border: 0;
-  border-collapse: collapse;
-  border-spacing: 0;
-}
+  table:not(.readonly) tr > td:nth-child(1) {
+    opacity: 0.4;
+  }
 
-.ac-sce-simple table th {
-  font-weight: normal;
-  text-align: left;
-  color: var(--el-text-color-secondary);
-  padding: 6px 12px;
-  cursor: default;
-  user-select: none;
-  -webkit-user-select: none;
-  @apply bg-gray-100;
-}
+  table {
+    border: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    // add all border
+    margin: -1px;
+    width: calc(100% + 2px);
 
-.ac-sce-simple table tr {
-  border-bottom: 1px solid var(--el-border-color-lighter);
-}
+    tr {
+      &:hover {
+        @apply bg-gray-100;
 
-.ac-sce-simple table tr:last-child {
-  border-bottom: 0;
-}
+        > td:nth-child(1) {
+          opacity: 1;
+        }
+      }
+    }
 
-.ac-sce-simple table tr:hover {
-  @apply bg-gray-100;
-}
+    th {
+      font-weight: 500;
+      text-align: left;
+      color: #000000d9;
+      cursor: default;
+      user-select: none;
+      -webkit-user-select: none;
+      @apply bg-gray-100 px-12px;
+    }
 
-.ac-sce-simple table:not(.readonly) tr > td:nth-child(1) {
-  opacity: 0.1;
-}
+    th,
+    td {
+      height: 44px;
+      border: 1px solid var(--el-border-color-lighter);
+    }
 
-.ac-sce-simple table tr:hover > td:nth-child(1) {
-  opacity: 1;
-}
+    tr.drop-indicator {
+      td,
+      th {
+        border-bottom: 1px solid var(--primary-color);
+      }
+    }
 
-.ac-sce-simple .el-input__wrapper {
-  --el-input-border-color: transparent;
-  --el-input-bg-color: transparent;
-}
+    tr.dragging {
+      opacity: 0.5;
+    }
+  }
 
-.ac-sce-simple table tr.dragging {
-  opacity: 0.3;
-}
-
-.ac-sce-simple table.readonly td {
-  padding: 6px 12px;
+  table.readonly {
+    td {
+      @apply px-12px;
+    }
+  }
+  .el-input__wrapper {
+    --el-input-border-color: transparent;
+    --el-input-bg-color: transparent;
+  }
 }

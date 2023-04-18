@@ -2,31 +2,27 @@
   <div class="ac-sce-simple">
     <table class="w-full readonly" v-if="readonly">
       <tr>
-        <th width="320">参数名</th>
-        <th width="138">类型</th>
-        <th width="56">必须</th>
+        <th>参数名</th>
+        <th class="text-center" width="80">类型</th>
+        <th class="text-center" width="56">必须</th>
         <th width="258">示例值</th>
-        <th>描述</th>
+        <th width="">描述</th>
       </tr>
       <tr v-for="(data, index) in flatValues" :key="index">
         <td>
-          <el-text tag="b">
-            <span class="copy_text">{{ data.name }}</span>
-          </el-text>
+          <span class="break-all copy_text">{{ data.name }}</span>
         </td>
         <td>
-          <el-text>{{ data.schema.type }}</el-text>
+          {{ data.schema.type }}
+        </td>
+        <td class="text-center">
+          {{ modelValue.required?.includes(data.name) ? '是' : '否' }}
         </td>
         <td>
-          <el-text>{{ modelValue.required?.includes(data.name) ? '是' : '否' }}</el-text>
+          <span class="copy_text">{{ data.schema.example }}</span>
         </td>
-        <td>
-          <el-text>
-            <span class="copy_text">{{ data.schema.example }}</span>
-          </el-text>
-        </td>
-        <td>
-          <el-text>{{ data.schema.description }}</el-text>
+        <td class="break-all">
+          {{ data.schema.description }}
         </td>
       </tr>
     </table>
@@ -58,9 +54,7 @@
           </td>
 
           <td class="text-center">
-            <el-tooltip content="required" placement="top" :show-after="368">
-              <el-checkbox size="small" :checked="modelValue.required?.includes(data.name)" @change="(v) => onRequiredChange(data, v)" />
-            </el-tooltip>
+            <el-checkbox size="small" :checked="modelValue.required?.includes(data.name)" @change="(v) => onRequiredChange(data, v)" />
           </td>
 
           <td>
@@ -72,7 +66,7 @@
           <td class="text-center">
             <el-popconfirm title="delete this?" @confirm="delHandler(index)">
               <template #reference>
-                <el-button text circle>
+                <el-button text circle tabindex="-1">
                   <el-icon :size="14">
                     <ac-icon-ep-delete />
                   </el-icon>
@@ -212,12 +206,14 @@ const dragOverHandler = (ev: DragEvent, i: number) => {
   ev.preventDefault()
   if (ev.dataTransfer?.getData(dragKey) == i.toString()) return
   const dom = ev.currentTarget as HTMLElement
-  dom.style.borderBottom = ev.offsetY > dom.clientHeight / 2 ? '1px blue solid' : ''
+  // dom.style.borderBottom = ev.offsetY > dom.clientHeight / 2 ? '1px blue solid' : ''
+  dom.classList[ev.offsetY > dom.clientHeight / 2 ? 'add' : 'remove']('drop-indicator')
 }
 
 const dragLeaveHandler = (ev: DragEvent) => {
   const dom = ev.currentTarget as HTMLElement
-  dom.style.borderBottom = ''
+  // dom.style.borderBottom = ''
+  dom.classList.remove('drop-indicator')
 }
 
 const dragEndHandler = (ev: DragEvent) => {
