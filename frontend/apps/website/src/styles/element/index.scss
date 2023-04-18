@@ -4,11 +4,16 @@
       'base': #006bff,
     ),
   ),
+  $border-color: (
+    '': #eceeef,
+    'light': #eceeef,
+    'lighter': #eceeef,
+  ),
   $border-radius: (
     'base': 5px,
     // 'small': 2px,
     // 'round': 20px,
-    // 'circle': 100%,,,,
+    // 'circle': 100%,,,,,,,,
   ),
   $mask-color: (
     '': #fff,

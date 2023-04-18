@@ -147,7 +147,7 @@ watch(
 
 <style lang="scss" scoped>
 .ac-code-editor {
-  border: 1px solid #eee;
+  border: 1px solid var(--el-border-color-lighter);
   border-radius: var(--el-border-radius-base);
   max-height: 400px;
   overflow-y: scroll;

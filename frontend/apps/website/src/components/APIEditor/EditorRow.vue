@@ -365,7 +365,7 @@ const dropHandler = (ev: DragEvent) => {
 }
 </script>
 
-<style>
+<style lang="scss">
 .ac-sce-node {
   user-select: none;
   -webkit-user-select: none;
@@ -399,7 +399,7 @@ const dropHandler = (ev: DragEvent) => {
   transition: border 0.3s ease-out;
 }
 .ac-sce-node_content:hover {
-  background-color: var(--el-fill-color-light);
+  @apply bg-gray-100;
 }
 .ac-sce-node.dragging {
   opacity: 0.3;
@@ -411,7 +411,6 @@ const dropHandler = (ev: DragEvent) => {
   height: 16px;
   opacity: 0.1;
   z-index: 3;
-  /* transform: translateX(-18px); */
 }
 .ac-sce-node:hover > .ac-sce-node_drag {
   opacity: 1;
@@ -449,7 +448,9 @@ const dropHandler = (ev: DragEvent) => {
   flex: 0 0 200px;
 }
 .ac-sce-node_body:not(.readonly) > div:nth-child(2) {
-  flex: 0 0 140px;
+  .el-button {
+    width: 140px;
+  }
 }
 .ac-sce-node_body:not(.readonly) > div:nth-child(3) {
   flex: 0 0 46px;
