@@ -15,7 +15,7 @@ func (v *ValueOrBoolean[T]) UnmarshalJSON(raw []byte) error {
 		v.boolValue = &b
 		return nil
 	}
-	return json.Unmarshal(raw, v.value)
+	return json.Unmarshal(raw, &v.value)
 }
 
 func (v ValueOrBoolean[T]) MarshalJSON() ([]byte, error) {

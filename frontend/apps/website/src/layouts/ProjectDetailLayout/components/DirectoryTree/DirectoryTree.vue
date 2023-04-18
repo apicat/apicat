@@ -58,7 +58,7 @@ import AcTree from '@/components/AcTree'
 import { useDocumentTree } from './useDocumentTree'
 import { useDocumentPopoverMenu, PopoverMoreMenuType } from './useDocumentPopoverMenu'
 
-const { treeIns, treeOptions, apiDocTree, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle } = useDocumentTree()
+const { treeIns, treeOptions, apiDocTree, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, initDocumentTree } = useDocumentTree()
 
 const {
   popoverMenus,
@@ -76,5 +76,6 @@ const {
 defineExpose({
   updateTitle,
   createNodeByData,
+  reload: initDocumentTree,
 })
 </script>

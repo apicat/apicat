@@ -183,8 +183,8 @@ func (o *OpenAPI) parseCollections(paths *v3.Paths) []*spec.CollectItem {
 type openapiSpec struct {
 	Openapi    string                                `json:"openapi"`
 	Info       *spec.Info                            `json:"info"`
-	Servers    []*spec.Server                        `json:"servers"`
-	Components map[string]any                        `json:"components"`
+	Servers    []*spec.Server                        `json:"servers,omitempty"`
+	Components map[string]any                        `json:"components,omitempty"`
 	Paths      map[string]map[string]openapiPathItem `json:"paths"`
 	Tags       []tagObject                           `json:"tags,omitempty"`
 }
@@ -248,6 +248,7 @@ func (o *OpenAPI) convertJSONSchema(ver string, in *jsonschema.Schema) {
 			// jsonschema 没有file
 			in.Type.SetValue("array")
 			in.Items = &jsonschema.ValueOrBoolean[*jsonschema.Schema]{}
+			in.Items.SetValue(&jsonschema.Schema{})
 		}
 	}
 }
@@ -308,8 +309,14 @@ func (o *OpenAPI) toPaths(ver string, in *spec.Spec) (
 			}
 
 			if len(op.Res.List) == 0 {
-				if in.Common != nil || len(in.Common.Responses) == 0 {
+				if in.Common != nil && len(in.Common.Responses) > 0 {
 					op.Res.List = in.Common.Responses
+				} else {
+					// 如果什么响应都没有 则补充一个默认不包含任务内容的响应
+					op.Res.List = []spec.HTTPResponse{{
+						Code:        200,
+						Description: "success",
+					}}
 				}
 			}
 			for _, v := range op.Res.List {

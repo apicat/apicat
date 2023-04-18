@@ -1,5 +1,6 @@
 import { HttpCodeColorMap } from '@apicat/shared'
 import { compile } from 'path-to-regexp'
+import { HttpMethodTypeMap } from './constant'
 
 /**
  * 创建API模块get path
@@ -14,4 +15,9 @@ export const getResponseStatusCodeBgColor = (code: number): any => {
   return {
     backgroundColor,
   }
+}
+
+export const getRequestMethodColor = (method: string): any => {
+  const color = (HttpMethodTypeMap as any)[method].color
+  return color ?? HttpMethodTypeMap.get.color
 }

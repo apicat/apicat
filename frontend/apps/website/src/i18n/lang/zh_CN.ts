@@ -12,6 +12,10 @@ export default {
       cancel: '取消',
       restore: '恢复',
       emptyDataTip: '暂无数据',
+      delete: '删除',
+      deleteTip: '删除提示',
+      confirmDelete: '确认删除{msg}吗？',
+      copyAllPath: '复制完整URL',
     },
     table: {
       paramName: '参数名称',
@@ -19,6 +23,7 @@ export default {
       required: '必须',
       defaultValue: '默认值',
       paramDesc: '参数说明',
+      deleteResponseConfirm: '确认删除该公共响应吗？',
     },
     form: {
       serverUrl: {
@@ -58,6 +63,21 @@ export default {
     },
   },
   // 编辑器
-  editor: {},
+  editor: {
+    common: {
+      error: {
+        paramNameDuplicate: '参数{0}名称重复',
+      },
+      tips: {
+        confirmDelete: '确认删除{0}吗？',
+      },
+    },
+    node: {
+      httpMethod: {
+        pathPlaceholder: 'Path, 以"/"开始',
+        pathError: '请输入有效的路径',
+      },
+    },
+  },
   elementPlusLocale,
 }

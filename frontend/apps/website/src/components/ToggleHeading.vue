@@ -1,8 +1,8 @@
 <template>
   <div :class="[ns.b(), ns.m(type)]">
-    <div class="flex items-center justify-between mb-5px" :class="ns.e('header')">
-      <h3 class="text-base font-medium">
-        <span class="flex items-center cursor-pointer" @click="handleTitleClick">
+    <div :class="ns.e('header')">
+      <h3 class="text-base font-medium" @click="handleTitleClick">
+        <span class="flex items-center">
           <el-icon class="cursor-pointer text-zinc-500 transition-all duration-0.3s mr-6px" :class="{ 'rotate-90': isShow }"><ac-icon-ep-caret-right /></el-icon>
           {{ title }}
         </span>
@@ -45,8 +45,15 @@ const handleTitleClick = () => {
 
 @include b(toggle-heading) {
   @include m(card) {
+    @apply flex flex-col;
+
     @include e(header) {
       @apply bg-gray-200 rounded px-6px;
+      flex: 100%;
+
+      h3 {
+        @apply cursor-pointer flex-1;
+      }
     }
 
     @include e(content) {
@@ -55,6 +62,14 @@ const handleTitleClick = () => {
 
     h3 {
       @apply text-16px font-normal flex h-30px items-center;
+    }
+  }
+
+  @include e(header) {
+    @apply flex items-center justify-between mb-5px;
+
+    h3 > span {
+      @apply cursor-pointer;
     }
   }
 

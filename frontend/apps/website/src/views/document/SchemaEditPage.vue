@@ -70,6 +70,8 @@ watch(
         await definitionStore.updateDefinition({ project_id, def_id, ...rest })
         schemaTree.updateTitle(def_id, newVal.name)
       }
+    } catch (e) {
+      //
     } finally {
       isSaving.value = false
     }

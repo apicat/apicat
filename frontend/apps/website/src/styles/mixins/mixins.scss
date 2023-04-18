@@ -18,7 +18,7 @@
     }
 
     &-thumb {
-      border-radius: 5px;
+      border-radius: var(--el-border-radius-base);
       width: 6px;
       background: $scrollbar-thumb-background;
     }

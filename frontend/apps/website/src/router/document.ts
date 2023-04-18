@@ -54,22 +54,11 @@ const schemaEditRoute: RouteRecordRaw = {
 }
 
 export const projectDetailRoute: RouteRecordRaw = {
-  name: 'proejct.detail',
+  name: 'project.detail',
   path: PROJECT_DETAIL_PATH,
   component: ProjectDetailLayout,
   children: [documentDetailRoute, documentEditRoute, schemaDetailRoute, schemaEditRoute],
   redirect: { name: DOCUMENT_DETAIL_NAME },
-
-  // 全局获取项目信息
-  beforeEnter: async (to, from) => {
-    const projectStore = uesProjectStore()
-    const project_id = to.params.project_id
-    if (!projectStore.projectDetailInfo || projectStore.projectDetailInfo.id !== project_id) {
-      const info = await projectStore.getProjectDetailInfo(project_id as string)
-      // get fail
-      projectStore.setCurrentProjectInfo(info)
-    }
-  },
   meta: {
     title: 'app.project.detail.title',
   },

@@ -115,6 +115,21 @@ func DefinitionsCreate(ctx *gin.Context) {
 	definition, _ := models.NewDefinitions()
 	definition.ProjectId = project.(*models.Projects).ID
 	definition.Name = data.Name
+	definitions, err := definition.List()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	fmt.Println(definitions)
+	if len(definitions) > 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NameExists"}),
+		})
+		return
+	}
+
 	definition.Description = data.Description
 	definition.Type = data.Type
 	definition.Schema = string(schemaJson)
@@ -177,6 +192,21 @@ func DefinitionsUpdate(ctx *gin.Context) {
 
 	definition.Name = data.Name
 	definition.Description = data.Description
+	definitions, err := definition.List()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if len(definitions) > 0 && definitions[0].ID != definition.ID {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NameExists"}),
+		})
+		return
+	}
+
 	definition.Schema = string(schemaJson)
 	if err := definition.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

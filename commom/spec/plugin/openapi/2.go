@@ -225,17 +225,21 @@ type swaggerSpec struct {
 	Swagger     string                                `json:"swagger"`
 	Info        *spec.Info                            `json:"info"`
 	Tags        []tagObject                           `json:"tags,omitempty"`
-	Host        string                                `json:"host"`
+	Host        string                                `json:"host,omitempty"`
 	BasePath    string                                `json:"basePath"`
-	Schemas     []string                              `json:"schemas"`
-	Definitions map[string]jsonschema.Schema          `json:"definitions,omitempty"`
-	Paths       map[string]map[string]swaggerPathItem `json:"paths,omitempty"`
+	Schemas     []string                              `json:"schemas,omitempty"`
+	Definitions map[string]jsonschema.Schema          `json:"definitions"`
+	Paths       map[string]map[string]swaggerPathItem `json:"paths"`
 }
 
 func (s *Swagger) toBase(in *spec.Spec) *swaggerSpec {
 	out := &swaggerSpec{
-		Swagger:     "2.0",
-		Info:        in.Info,
+		Swagger: "2.0",
+		Info: &spec.Info{
+			Title:       in.Info.Title,
+			Description: in.Info.Description,
+			Version:     in.Info.Version,
+		},
 		Definitions: make(map[string]jsonschema.Schema),
 	}
 	for _, v := range in.Servers {
@@ -251,6 +255,9 @@ func (s *Swagger) toBase(in *spec.Spec) *swaggerSpec {
 	}
 	for _, v := range in.Definitions {
 		out.Definitions[v.Name] = *v.Schema
+	}
+	if out.BasePath == "" {
+		out.BasePath = "/"
 	}
 	return out
 }
@@ -320,6 +327,12 @@ func (s *Swagger) toReqParameters(ps spec.HTTPRequestNode) []*openAPIParamter {
 							return false
 						}(),
 					}
+					if v != nil {
+						t := v.Type.Value()
+						if len(t) > 0 && t[0] == "file" {
+							content.Type = t[0]
+						}
+					}
 					out = append(out, content)
 				}
 			} else {
@@ -340,9 +353,20 @@ func (s *Swagger) toReqParameters(ps spec.HTTPRequestNode) []*openAPIParamter {
 	return out
 }
 
-func (s *Swagger) toPathResponse(resp []spec.HTTPResponse) (map[string]any, []string) {
+func (s *Swagger) toPathResponse(in *spec.Spec, resp []spec.HTTPResponse) (map[string]any, []string) {
 	product := map[string]struct{}{}
 	reslist := make(map[string]any)
+	if len(resp) == 0 {
+		if in.Common != nil && len(in.Common.Responses) > 0 {
+			resp = in.Common.Responses
+		} else {
+			// 如果什么响应都没有 则补充一个默认不包含任务内容的响应
+			resp = []spec.HTTPResponse{{
+				Code:        200,
+				Description: "success",
+			}}
+		}
+	}
 	for _, v := range resp {
 		var res *spec.Schema
 		for k := range v.Content {
@@ -381,7 +405,7 @@ func (s *Swagger) toPaths(in *spec.Spec) (map[string]map[string]swaggerPathItem,
 			continue
 		}
 		for method, op := range ops {
-			reslist, product := s.toPathResponse(op.Res.List)
+			reslist, product := s.toPathResponse(in, op.Res.List)
 			item := swaggerPathItem{
 				Summary:     op.Title,
 				Description: op.Description,
