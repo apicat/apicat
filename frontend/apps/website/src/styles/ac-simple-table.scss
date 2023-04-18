@@ -55,7 +55,11 @@
   }
 
   table.readonly {
+    th {
+      height: 42px;
+    }
     td {
+      height: 40px;
       @apply px-12px;
     }
   }
