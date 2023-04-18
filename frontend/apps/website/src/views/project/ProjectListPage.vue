@@ -6,7 +6,7 @@
 
     <ul class="ac-project-list mt-20px" v-loading="isLoading">
       <li
-        class="flex flex-col overflow-hidden rounded-lg shadow-md cursor-pointer hover:shadow-lg w-250px h-156px"
+        class="flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px"
         v-for="project in projects"
         @click="$router.push(getProjectDetailPath(project.id))"
       >
@@ -16,7 +16,7 @@
         <p class="flex items-center flex-1 truncate px-16px">{{ project.title }}</p>
       </li>
 
-      <li class="w-250px h-156px rounded-lg cursor-pointer hover:shadow-lg bg-#F2F2F2 flex flex-col justify-between px-20px py-16px" @click="handleShowModelClick">
+      <li class="w-250px h-156px rounded cursor-pointer hover:shadow-lg bg-#F2F2F2 flex flex-col justify-between px-20px py-16px" @click="handleShowModelClick">
         <ac-icon-ep-plus class="text-18px" />
         <p>创建项目</p>
       </li>

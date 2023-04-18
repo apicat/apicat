@@ -1,9 +1,12 @@
 <template>
-  <div class="flex min-h-70vh">
-    <div class="w-315px bg-[var(--bg-color)]">
+  <div class="flex h-[70vh]">
+    <div class="bg-gray-100 w-315px pt-20px pl-30px">
       <slot name="nav"></slot>
     </div>
-    <div class="flex-1">
+    <div class="relative flex-1 h-full overflow-y-scroll px-30px pb-20px">
+      <p class="sticky top-0 z-10 bg-white text-16px text-gray-950 font-500 py-20px">
+        <slot name="title"></slot>
+      </p>
       <slot></slot>
     </div>
   </div>

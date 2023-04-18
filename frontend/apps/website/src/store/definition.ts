@@ -32,9 +32,13 @@ export const useDefinitionStore = defineStore('definition', {
     },
 
     async createDefinition(data: any) {
-      const definition: any = await createDefinition(data)
-      this.definitions.unshift(extendDocTreeFeild(definition))
-      return definition
+      try {
+        const definition: any = await createDefinition(data)
+        this.definitions.unshift(extendDocTreeFeild(definition))
+        return definition
+      } catch (error) {
+        // error
+      }
     },
 
     async copyDefinition(project_id: string, def_id: string | number) {

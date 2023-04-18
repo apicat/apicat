@@ -91,6 +91,12 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
         item.children = [convertTreeData(item, `${key}.${constNodeType.items}`, constNodeType.items, schema.items as JSONSchema)]
       }
   }
+
+  // default expand children
+  if (item.children && item.children.length) {
+    expandKeys.value.add(key)
+  }
+
   return item
 }
 
@@ -169,7 +175,7 @@ function checkValidObject(schema: JSONSchema) {
   font-size: var(--el-font-size-base);
   border: 1px var(--el-border-color-lighter) solid;
   padding: 4px 0px;
-  border-radius: 5px;
+  border-radius: var(--el-border-radius-base);
 }
 
 .ac-sce:focus-within {

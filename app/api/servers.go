@@ -10,7 +10,7 @@ import (
 )
 
 type CreateServer struct {
-	Description string `json:"description" binding:"required,lte=255"`
+	Description string `json:"description" binding:"lte=255"`
 	Url         string `json:"url" binding:"required,lte=255"`
 }
 

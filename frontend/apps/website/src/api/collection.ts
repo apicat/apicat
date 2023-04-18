@@ -24,7 +24,7 @@ export const getCollectionDetail = useApi(async ({ project_id, collection_id }: 
   return doc
 })
 
-export const createCollection = async ({ project_id, ...data }: any) => Ajax.post(`/projects/${project_id}/collections`, data)
+export const createCollection = async ({ project_id, ...data }: any) => QuietAjax.post(`/projects/${project_id}/collections`, data)
 
 export const updateCollection = async ({ project_id, collection_id, ...collectionInfo }: any) =>
   QuietAjax.put(`/projects/${project_id}/collections/${collection_id}`, collectionInfo)

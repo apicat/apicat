@@ -5,7 +5,7 @@ export const getDefinitionList = (project_id: string) => Ajax.get(`/projects/${p
 
 export const getDefinitionDetail = useApi(async ({ project_id, def_id }: any) => Ajax.get(`/projects/${project_id}/definitions/${def_id}`))
 
-export const createDefinition = async ({ project_id, ...definitionInfo }: any) => Ajax.post(`/projects/${project_id}/definitions`, definitionInfo)
+export const createDefinition = async ({ project_id, ...definitionInfo }: any) => QuietAjax.post(`/projects/${project_id}/definitions`, definitionInfo)
 
 export const updateDefinition = async ({ project_id, def_id, ...definitionInfo }: any) => QuietAjax.put(`/projects/${project_id}/definitions/${def_id}`, definitionInfo)
 

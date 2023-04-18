@@ -33,7 +33,7 @@
                   <span>{{ data.label }}</span>
                 </el-space>
               </span>
-              <el-radio :label="data.label" v-else style="margin-left: -1px; --el-radio-font-weight: 400">
+              <el-radio class="flex-1" :label="data.label" v-else style="margin-left: -1px; --el-radio-font-weight: 400">
                 {{ data.label }}
               </el-radio>
             </template>

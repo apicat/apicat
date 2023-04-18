@@ -22,6 +22,8 @@
         other = "Definition delete failed"
     [Definitions.NotFound]
         other = "Definition not found"
+    [Definitions.NameExists]
+        other = "Definition name exists"
 [Servers]
     [Servers.SetSuccess]
         other = "URL set successfully"

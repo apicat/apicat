@@ -42,7 +42,7 @@ const onMenuClick = (menu: Menu, keyOrIndex: any) => {
 @use '@/styles/mixins/mixins' as *;
 
 @include b(popper-menu) {
-  padding: 0;
+  padding: 5px 0;
   min-width: auto;
 
   @include m(thin) {

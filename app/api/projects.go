@@ -265,7 +265,7 @@ func ProjectDataGet(ctx *gin.Context) {
 	if data.Type == "swagger" {
 		content, err = openapi.Encode(apicatData, "2.0")
 	} else if data.Type == "openapi" {
-		content, err = openapi.Encode(apicatData, "3.0")
+		content, err = openapi.Encode(apicatData, "3.0.0")
 	} else {
 		content, err = apicatData.ToJSON(spec.JSONOption{Indent: "  "})
 	}

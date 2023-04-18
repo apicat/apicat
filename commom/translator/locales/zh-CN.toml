@@ -22,6 +22,8 @@
         other = "模型删除失败"
     [Definitions.NotFound]
         other = "模型不存在"
+    [Definitions.NameExists]
+        other = "模型名称存在"
 [Servers]
     [Servers.SetSuccess]
         other = "URL设置成功"

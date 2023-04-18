@@ -3,14 +3,15 @@
     <div ref="sortableList" :class="ns.b()">
       <el-form-item class="hide_required" :class="ns.e('item')" v-for="(item, index) in form.urls" :key="item._id">
         <el-row class="flex-1">
-          <el-col :span="6">
-            <el-form-item :prop="'urls.' + index + '.description'" :rules="rules.description">
-              <el-input v-model.trim="item.description" :placeholder="$t('app.form.serverUrl.desc')" maxlength="255" clearable />
-            </el-form-item>
-          </el-col>
-          <el-col :span="14" class="pl-2">
+          <el-col :span="14" class="pr-2">
             <el-form-item :prop="'urls.' + index + '.url'" :rules="rules.urlItem">
               <el-input v-model.trim="item.url" :placeholder="$t('app.form.serverUrl.url')" maxlength="255" clearable />
+            </el-form-item>
+          </el-col>
+
+          <el-col :span="6">
+            <el-form-item :prop="'urls.' + index + '.description'">
+              <el-input v-model.trim="item.description" :placeholder="$t('app.form.serverUrl.desc')" maxlength="255" clearable />
             </el-form-item>
           </el-col>
           <el-col :span="4" class="flex items-center pl-4 operate">
@@ -20,6 +21,7 @@
         </el-row>
       </el-form-item>
     </div>
+
     <el-form-item label="">
       <el-col :span="20">
         <el-button class="add-child-btn mt-2.5 w-full" @click="onAddNavItemBtnClick">
@@ -61,7 +63,6 @@ const form = reactive({
 })
 
 const rules = {
-  description: [{ required: true, message: '请输入链接描述', trigger: 'blur' }],
   urlItem: {
     validator: (rule: any, value: any, callback: any) => {
       let index = parseInt(rule.field.split('.')[1])
@@ -126,7 +127,7 @@ onMounted(async () => {
 }
 
 .add-child-btn {
-  border-radius: 2px !important;
+  border-radius: var(--el-border-radius-base) !important;
   border-color: rgba(0, 0, 0, 0.1) !important;
   color: rgba(0, 0, 0, 0.6) !important;
   border-style: dashed !important;

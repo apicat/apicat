@@ -1,0 +1,59 @@
+.ac-sce-simple {
+  font-size: 14px;
+  border: 1px solid var(--el-border-color-lighter);
+  border-radius: var(--el-border-radius-base);
+  overflow: hidden;
+}
+.ac-sce-simple:focus-within {
+  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
+}
+
+.ac-sce-simple table {
+  border: 0;
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+.ac-sce-simple table th {
+  font-weight: normal;
+  text-align: left;
+  color: var(--el-text-color-secondary);
+  padding: 6px 12px;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  @apply bg-gray-100;
+}
+
+.ac-sce-simple table tr {
+  border-bottom: 1px solid var(--el-border-color-lighter);
+}
+
+.ac-sce-simple table tr:last-child {
+  border-bottom: 0;
+}
+
+.ac-sce-simple table tr:hover {
+  @apply bg-gray-100;
+}
+
+.ac-sce-simple table:not(.readonly) tr > td:nth-child(1) {
+  opacity: 0.1;
+}
+
+.ac-sce-simple table tr:hover > td:nth-child(1) {
+  opacity: 1;
+}
+
+.ac-sce-simple .el-input__wrapper {
+  --el-input-border-color: transparent;
+  --el-input-bg-color: transparent;
+}
+
+.ac-sce-simple table tr.dragging {
+  opacity: 0.3;
+}
+
+.ac-sce-simple table.readonly td {
+  padding: 6px 12px;
+}

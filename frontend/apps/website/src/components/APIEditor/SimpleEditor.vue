@@ -8,7 +8,7 @@
         <th width="258">示例值</th>
         <th>描述</th>
       </tr>
-      <tr v-for="(data, index) in model" :key="index">
+      <tr v-for="(data, index) in list" :key="index">
         <td>
           <el-text tag="b">
             <span class="copy_text">{{ data.name }}</span>
@@ -41,32 +41,32 @@
         <th class="text-center" width="48"></th>
       </tr>
       <tbody>
-        <tr v-for="(data, index) in model" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
+        <tr v-for="(data, index) in list" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
           <td class="text-center" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" draggable="true">
-            <el-icon>
+            <el-icon class="mt-5px">
               <ac-icon-material-symbols-drag-indicator />
             </el-icon>
           </td>
           <td>
-            <el-input v-model="model[index].name" />
+            <el-input v-model="data._name" @input="(v) => onParamNameChange(data, v)" />
           </td>
           <td class="text-center">
-            <el-select v-model="data.schema.type">
+            <el-select v-model="data.schema.type" @change="changeNotify">
               <el-option v-for="item in ['string', 'integer', 'number', 'array', 'boolean']" :key="item" :label="item" :value="item" />
             </el-select>
           </td>
 
           <td class="text-center">
             <el-tooltip content="required" placement="top" :show-after="368">
-              <el-checkbox size="small" v-model="data.required" />
+              <el-checkbox size="small" v-model="data.required" @change="changeNotify" />
             </el-tooltip>
           </td>
 
           <td>
-            <el-input v-model="data.schema.default" />
+            <el-input v-model="data.schema.example" @change="changeNotify" />
           </td>
           <td>
-            <el-input v-model="data.schema.description" />
+            <el-input v-model="data.schema.description" @change="changeNotify" />
           </td>
           <td class="text-center">
             <el-popconfirm title="delete this?" @confirm="delHandler(index)">
@@ -84,7 +84,7 @@
         <tr>
           <td></td>
           <td>
-            <el-input v-model="newname" placeholder="添加参数" @change="addHandler">
+            <el-input v-model="newname" placeholder="添加参数" @keyup.enter="addHandler(newname)">
               <template #suffix>
                 <el-icon>
                   <ac-icon-mi-enter />
@@ -100,9 +100,8 @@
 </template>
 
 <script setup lang="ts">
-import { useVModel } from '@vueuse/core'
 import type { APICatSchemaObject } from './types'
-import { ref } from 'vue'
+import { useSchemaList } from './useSchemaList'
 
 const props = withDefaults(
   defineProps<{
@@ -115,25 +114,20 @@ const props = withDefaults(
   }
 )
 
-const emit = defineEmits(['update:modelValue'])
-const model = useVModel(props, 'modelValue', emit)
+const emits = defineEmits(['update:modelValue'])
 
-const newname = ref('')
-
-const addHandler = (v: string) => {
-  if (v == '') {
-    return
-  }
-  newname.value = ''
-  model.value.push({
-    name: v,
-    schema: { type: 'string' },
+const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(emits, (models) =>
+  models.map((item) => {
+    const newItem = toRaw({ ...item })
+    delete newItem._name
+    return newItem
   })
-}
+)
 
-const delHandler = (i: number) => {
-  model.value.splice(i, 1)
-}
+const list = computed(() => {
+  model.value = (props.modelValue || []).map((item: APICatSchemaObject) => ({ ...item, _name: item.name }))
+  return model.value
+})
 
 const dragKey = 'application/apicat-sortable'
 
@@ -185,65 +179,3 @@ const dropHandler = (ev: DragEvent, i: number) => {
   }
 }
 </script>
-
-<style>
-.ac-sce-simple {
-  font-size: 14px;
-  border: 1px var(--el-border-color-lighter) solid;
-  border-radius: 5px;
-  overflow: hidden;
-}
-.ac-sce-simple:focus-within {
-  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
-}
-
-.ac-sce-simple table {
-  border: 0;
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-
-.ac-sce-simple table th {
-  font-weight: normal;
-  text-align: left;
-  color: var(--el-text-color-secondary);
-  background-color: var(--el-fill-color-light);
-  padding: 6px 12px;
-  cursor: default;
-  user-select: none;
-  -webkit-user-select: none;
-}
-
-.ac-sce-simple table tr {
-  border-bottom: 1px var(--el-border-color-lighter) solid;
-}
-
-.ac-sce-simple table tr:last-child {
-  border-bottom: 0;
-}
-
-.ac-sce-simple table tr:hover {
-  background-color: var(--el-fill-color-light);
-}
-
-.ac-sce-simple table:not(.readonly) tr > td:nth-child(1) {
-  opacity: 0.1;
-}
-
-.ac-sce-simple table tr:hover > td:nth-child(1) {
-  opacity: 1;
-}
-
-.ac-sce-simple .el-input__wrapper {
-  --el-input-border-color: transparent;
-  --el-input-bg-color: transparent;
-}
-
-.ac-sce-simple table tr.dragging {
-  opacity: 0.3;
-}
-
-.ac-sce-simple table.readonly td {
-  padding: 6px 12px;
-}
-</style>

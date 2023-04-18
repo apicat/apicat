@@ -14,7 +14,6 @@ declare module '@vue/runtime-core' {
     AcIconEpArrowDownBold: typeof import('~icons/ep/arrow-down-bold')['default']
     AcIconEpArrowLeftBold: typeof import('~icons/ep/arrow-left-bold')['default']
     AcIconEpArrowRightBold: typeof import('~icons/ep/arrow-right-bold')['default']
-    AcIconEpCaretBottom: typeof import('~icons/ep/caret-bottom')['default']
     AcIconEpCaretRight: typeof import('~icons/ep/caret-right')['default']
     AcIconEpDelete: typeof import('~icons/ep/delete')['default']
     AcIconEpMoreFilled: typeof import('~icons/ep/more-filled')['default']

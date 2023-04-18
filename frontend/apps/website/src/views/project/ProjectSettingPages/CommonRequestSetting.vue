@@ -1,16 +1,16 @@
 <template>
   <div v-loading="isLoading">
-    <ToggleHeading title="Header" type="card" v-loading="savingHeader">
+    <ToggleHeading title="Header" type="card" v-loading="savingHeader" :expand="false">
       <SimpleParameterEditor v-model="data.header" />
       <el-button class="mt-10px" type="primary" :loading="savingHeader" @click="handleSubmit(saveHeaderParamerterApi, 'header')">{{ $t('app.common.save') }}</el-button>
     </ToggleHeading>
 
-    <ToggleHeading title="Cookie" type="card" v-loading="savingCookie">
+    <ToggleHeading title="Cookie" type="card" v-loading="savingCookie" :expand="false">
       <SimpleParameterEditor v-model="data.cookie" />
       <el-button class="mt-10px" type="primary" :loading="savingCookie" @click="handleSubmit(saveCookieParamerterApi, 'cookie')">{{ $t('app.common.save') }}</el-button>
     </ToggleHeading>
 
-    <ToggleHeading title="Query" type="card" v-loading="savingQuery">
+    <ToggleHeading title="Query" type="card" v-loading="savingQuery" :expand="false">
       <SimpleParameterEditor v-model="data.query" />
       <el-button class="mt-10px" type="primary" :loading="savingQuery" @click="handleSubmit(saveQueryParamerterApi, 'query')">{{ $t('app.common.save') }}</el-button>
     </ToggleHeading>

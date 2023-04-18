@@ -17,7 +17,14 @@
             <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
             <el-text tag="b" v-else>
               <span class="copy_text">{{ data.label }}</span>
-              <el-text v-if="data.parent?.type === 'object' && data.parent?.schema.required?.includes(data.label)" type="danger"> (*) </el-text>
+              <template v-if="data.parent?.type === 'object'">
+                <template v-if="isRefChildren(data)">
+                  <el-text v-if="data.parent?.refObj?.schema.required?.includes(data.label)" type="danger"> (*) </el-text>
+                </template>
+                <template v-else>
+                  <el-text v-if="data.parent?.schema.required?.includes(data.label)" type="danger"> (*) </el-text>
+                </template>
+              </template>
             </el-text>
             <el-text>
               {{ data.type }}
@@ -29,6 +36,9 @@
         <div>
           <el-text v-if="data.schema.example" type="info">
             <small>示例</small>: <span class="copy_text">{{ data.schema.example }}</span>
+          </el-text>
+          <el-text v-if="data.schema.default !== undefined && data.schema.default !== null && data.schema.default !== ''" type="info">
+            <small>默认值</small>: <span class="copy_text">{{ data.schema.default }}</span>
           </el-text>
         </div>
       </div>
@@ -86,7 +96,14 @@
         </div>
         <div>
           <el-tooltip v-if="data.parent?.type === 'object'" content="required" placement="top" :show-after="368">
-            <el-checkbox size="small" :disabled="isRefChildren(data)" :checked="data.parent?.schema.required?.includes(data.label)" @change="changeRequired" />
+            <el-checkbox
+              v-if="isRefChildren(data)"
+              size="small"
+              :disabled="isRefChildren(data)"
+              :checked="data.parent?.refObj?.schema.required?.includes(data.label)"
+              @change="changeRequired"
+            />
+            <el-checkbox v-else size="small" :disabled="isRefChildren(data)" :checked="data.parent?.schema.required?.includes(data.label)" @change="changeRequired" />
           </el-tooltip>
         </div>
         <div>
@@ -163,7 +180,7 @@ function isConstNode(v: string) {
   return constNodeType.root == v || constNodeType.items == v
 }
 
-const changeNotify = inject('change') as (root?:JSONSchema) => void
+const changeNotify = inject('change') as (root?: JSONSchema) => void
 
 const changeRequired = (v: CheckboxValueType) => {
   const sc = props.data.parent?.schema
@@ -348,7 +365,7 @@ const dropHandler = (ev: DragEvent) => {
 }
 </script>
 
-<style>
+<style lang="scss">
 .ac-sce-node {
   user-select: none;
   -webkit-user-select: none;
@@ -382,7 +399,7 @@ const dropHandler = (ev: DragEvent) => {
   transition: border 0.3s ease-out;
 }
 .ac-sce-node_content:hover {
-  background-color: var(--el-fill-color-light);
+  @apply bg-gray-100;
 }
 .ac-sce-node.dragging {
   opacity: 0.3;
@@ -394,7 +411,6 @@ const dropHandler = (ev: DragEvent) => {
   height: 16px;
   opacity: 0.1;
   z-index: 3;
-  /* transform: translateX(-18px); */
 }
 .ac-sce-node:hover > .ac-sce-node_drag {
   opacity: 1;
@@ -432,7 +448,9 @@ const dropHandler = (ev: DragEvent) => {
   flex: 0 0 200px;
 }
 .ac-sce-node_body:not(.readonly) > div:nth-child(2) {
-  flex: 0 0 140px;
+  .el-button {
+    width: 140px;
+  }
 }
 .ac-sce-node_body:not(.readonly) > div:nth-child(3) {
   flex: 0 0 46px;

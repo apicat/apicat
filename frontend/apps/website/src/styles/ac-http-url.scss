@@ -1,18 +1,18 @@
 @use '@/styles/mixins/mixins.scss' as *;
 
 @include b('http-method') {
-  @apply flex rounded overflow-hidden h-33px items-center bg-gray-100;
+  @apply flex rounded overflow-hidden h-33px items-center bg-[#f7f7f7];
 
   > * {
     @apply h-full;
   }
 
   @include e(method) {
-    @apply flex justify-between items-center  border-1 border-solid border-transparent outline-none px-10px text-white w-100px;
+    @apply flex justify-between items-center border-1 border-solid border-transparent outline-none px-10px text-white w-100px;
   }
 
   @include e(server) {
-    @apply flex items-center bg-gray-200 px-10px;
+    @apply flex items-center bg-[#e6e6e6] px-10px;
     label {
       @apply flex items-center;
     }
@@ -23,12 +23,12 @@
   }
 
   @include e(copy) {
-    @apply bg-gray-200 px-8px w-auto text-14px flex h-full items-center cursor-pointer;
+    @apply bg-[#e6e6e6] px-8px w-auto text-14px flex h-full items-center cursor-pointer;
   }
 
   @include when(readonly) {
     @include e(method) {
-      @apply justify-center;
+      @apply justify-center w-80px;
     }
   }
 }
