@@ -49,6 +49,5 @@ func ParseToken(tokenString string) (*MyClaims, error) {
 		return claims, nil
 	}
 
-	// TODO 补充「invalid token」的i18n
 	return nil, errors.New("invalid token")
 }

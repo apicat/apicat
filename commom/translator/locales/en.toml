@@ -51,3 +51,11 @@
 [Trashs]
     [Trashs.PartialRecoveryFailed]
         other = "Partial recovery failed"
+[Auth]
+    [Auth.TokenParsingFailed]
+        other = "Token parsing failed"
+[User]
+    [User.WrongPassword]
+        other = "Wrong password"
+    [User.FailedToGenerateToken]
+        other = "Failed to generate token"

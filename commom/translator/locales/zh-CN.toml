@@ -51,3 +51,11 @@
 [Trashs]
     [Trashs.PartialRecoveryFailed]
         other = "部分恢复失败"
+[Auth]
+    [Auth.TokenParsingFailed]
+        other = "令牌解析失败"
+[User]
+    [User.WrongPassword]
+        other = "密码错误"
+    [User.FailedToGenerateToken]
+        other = "生成令牌失败"
