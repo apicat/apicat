@@ -6,6 +6,7 @@ import (
 
 	"github.com/apicat/apicat/commom/auth"
 	"github.com/apicat/apicat/commom/translator"
+	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -41,8 +42,15 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 			return
 		}
 
+		user, err := models.NewUsers(mc.User.ID)
+		if err != nil {
+			ctx.Status(http.StatusUnauthorized)
+			ctx.Abort()
+			return
+		}
+
 		//将当前请求的username信息保存到请求的上下文c上
-		ctx.Set("CurrentUser", mc.User)
+		ctx.Set("CurrentUser", user)
 		//后续的处理函数可以通过c.Get("CurrentUser")来获取请求的用户信息
 		ctx.Next()
 	}
