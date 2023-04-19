@@ -27,3 +27,20 @@ func NewUsers(ids ...uint) (*Users, error) {
 	}
 	return users, nil
 }
+
+func (u *Users) GetByEmail(email string) error {
+	return Conn.Where("email = ?", email).Take(u).Error
+}
+
+func (u *Users) List() ([]Users, error) {
+	var users []Users
+	return users, Conn.Order("created_at desc").Find(&users).Error
+}
+
+func (u *Users) Delete() error {
+	return Conn.Delete(u).Error
+}
+
+func (u *Users) Save() error {
+	return Conn.Save(u).Error
+}

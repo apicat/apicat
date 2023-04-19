@@ -42,6 +42,12 @@ func InitApiRouter(r *gin.Engine) {
 			projects.DELETE("/:id", api.ProjectsDelete)
 		}
 
+		account := apiRouter.(*gin.RouterGroup).Group("/account")
+		{
+			account.POST("/login/email", api.EmailLogin)
+			account.POST("/register/email", api.EmailRegister)
+		}
+
 		project := apiRouter.(*gin.RouterGroup).Group("/projects/:id").Use(middleware.CheckProject())
 		{
 			definitions := project.(*gin.RouterGroup).Group("/definitions")

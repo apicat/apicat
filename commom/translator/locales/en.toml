@@ -59,3 +59,9 @@
         other = "Wrong password"
     [User.FailedToGenerateToken]
         other = "Failed to generate token"
+    [User.MailboxAlreadyExists]
+        other = "Mailbox already exists"
+    [User.PasswordEncryptionFailed]
+        other = "Password encryption failed"
+    [User.RegistrationFailed]
+        other = "Registration failed"
