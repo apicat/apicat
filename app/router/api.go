@@ -48,6 +48,11 @@ func InitApiRouter(r *gin.Engine) {
 			account.POST("/register/email", api.EmailRegister)
 		}
 
+		user := apiRouter.(*gin.RouterGroup).Group("/user", middleware.JWTAuthMiddleware())
+		{
+			user.GET("/", api.GetUserInfo)
+		}
+
 		project := apiRouter.(*gin.RouterGroup).Group("/projects/:id").Use(middleware.CheckProject())
 		{
 			definitions := project.(*gin.RouterGroup).Group("/definitions")
