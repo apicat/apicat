@@ -1,11 +1,11 @@
 <template>
   <div class="ac-sce">
-    <EditorRow :level="1" :data="root" :readonly="readonly"></EditorRow>
+    <EditorRow :level="1" :data="root" :readonly="readonly" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, provide, ref, unref, watch } from 'vue'
+import { computed, provide, ref, watch } from 'vue'
 import EditorRow from './EditorRow.vue'
 import type { JSONSchema, Definition, Tree } from './types'
 import { constNodeType, typename } from './types'

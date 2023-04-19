@@ -9,6 +9,8 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    'AcIconBi:arrowsExpand': typeof import('~icons/bi/arrows-expand')['default']
+    'AcIconBx:expandVertical': typeof import('~icons/bx/expand-vertical')['default']
     AcIconCarbonModelAlt: typeof import('~icons/carbon/model-alt')['default']
     AcIconCarbonUnlink: typeof import('~icons/carbon/unlink')['default']
     AcIconEpArrowDownBold: typeof import('~icons/ep/arrow-down-bold')['default']
@@ -25,6 +27,7 @@ declare module '@vue/runtime-core' {
     AcIconLucideFileText: typeof import('~icons/lucide/file-text')['default']
     AcIconMaterialSymbolsDragIndicator: typeof import('~icons/material-symbols/drag-indicator')['default']
     AcIconMiEnter: typeof import('~icons/mi/enter')['default']
+    'AcIconSystemUicons:expandHeight': typeof import('~icons/system-uicons/expand-height')['default']
     AcIconUilFileBlank: typeof import('~icons/uil/file-blank')['default']
     AcTag: typeof import('./../components/AcTag.vue')['default']
     AsyncMessageBox: typeof import('./../components/AsyncMessageBox.ts')['default']

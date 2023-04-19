@@ -1,20 +1,13 @@
 <template>
   <div class="ac-sce-node" v-if="readonly">
     <div class="ac-sce-node_content" :style="{ paddingLeft: level * 18 + 'px' }">
-      <div class="ac-sce-expand" @click="toggleExpandHandler">
-        <el-icon v-if="data.children">
-          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
-            <path
-              d="M12 5.83l2.46 2.46a.996.996 0 1 0 1.41-1.41L12.7 3.7a.996.996 0 0 0-1.41 0L8.12 6.88a.996.996 0 1 0 1.41 1.41L12 5.83zm0 12.34l-2.46-2.46a.996.996 0 1 0-1.41 1.41l3.17 3.18c.39.39 1.02.39 1.41 0l3.17-3.17a.996.996 0 1 0-1.41-1.41L12 18.17z"
-              fill="currentColor"
-            ></path>
-          </svg>
-        </el-icon>
-      </div>
+      <el-icon v-if="data.children" @click="toggleExpandHandler" class="cursor-pointer mr-4px">
+        <ac-icon-bx:expand-vertical />
+      </el-icon>
       <div class="ac-sce-node_body readonly">
         <div>
           <el-space spacer="·">
-            <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
+            <el-tag size="small" disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
             <el-text tag="b" v-else>
               <span class="copy_text">{{ data.label }}</span>
               <template v-if="data.parent?.type === 'object'">
@@ -44,8 +37,8 @@
       </div>
     </div>
     <el-collapse-transition>
-      <div class="ac-sce-node_children">
-        <div :style="{ left: level * 18 + 2 + 'px' }" class="indent-line"></div>
+      <div class="ac-sce-node_children" v-if="expand">
+        <div :style="intentLineStyle" class="indent-line"></div>
         <EditorRow :level="level + 1" v-for="item in data.children" :key="item.key" :data="item" :readonly="readonly" />
       </div>
     </el-collapse-transition>
@@ -70,9 +63,7 @@
       @dragleave.prevent="dragLeaveHandler"
       @drop.prevent="dropHandler"
     >
-      <div class="ac-sce-expand" @click="toggleExpandHandler">
-        <el-icon v-if="data.children"><ac-icon-ep-arrow-right-bold /></el-icon>
-      </div>
+      <el-icon v-if="data.children" class="ac-sce-expand" @click="toggleExpandHandler"><ac-icon-ep-arrow-right-bold /></el-icon>
       <div class="ac-sce-node_body">
         <div>
           <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
@@ -129,7 +120,7 @@
             <el-popconfirm title="delete this?" v-if="!isConstNode(data.label) && !isRefChildren(data)" @confirm="delHandler">
               <template #reference>
                 <el-button text circle>
-                  <el-icon :size="14"><ac-icon-iconoir-delete-circle /></el-icon>
+                  <el-icon :size="14"><ac-icon-ep-delete /></el-icon>
                 </el-button>
               </template>
             </el-popconfirm>
@@ -139,7 +130,7 @@
     </div>
     <el-collapse-transition>
       <div class="ac-sce-node_children" v-if="expand">
-        <div :style="{ left: level * 18 + 2 + 'px' }" class="indent-line"></div>
+        <div :style="intentLineStyle" class="indent-line"></div>
         <EditorRow :level="level + 1" v-for="item in data.children" :key="item.key" :data="item" />
       </div>
     </el-collapse-transition>
@@ -162,6 +153,16 @@ const props = defineProps<{
 
 const expandsKeys = inject('expandKeys') as Set<string>
 const expand = computed(() => expandsKeys.has(props.data.key))
+const intentLineStyle = computed(() => {
+  // padding-left: 18px; icon/2;
+  let left = (props.level - 1) * 18 + 26 / 2 - 1
+
+  if (props.readonly) {
+    left = (props.level - 1) * 18 + 14 / 2 - 1
+  }
+
+  return { left: left + 'px' }
+})
 const toggleExpandHandler = () => {
   if (!props.data.children) {
     return
@@ -424,7 +425,7 @@ const dropHandler = (ev: DragEvent) => {
   position: absolute;
   top: 0;
   height: 100%;
-  margin-left: 10px;
+  margin-left: 18px;
   width: 0px;
   z-index: 2;
   border-left: 1px var(--el-border-color-lighter) dashed;
