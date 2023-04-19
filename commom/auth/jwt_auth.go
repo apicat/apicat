@@ -14,7 +14,7 @@ type MyClaims struct {
 }
 
 // 定义过期时间
-const TokenExpireDuration = time.Hour * 168
+const TokenExpireDuration = time.Hour * 24 * 30
 
 // 定义secret
 var MySecret = []byte("这是一段用于生成token的密钥")
