@@ -53,7 +53,7 @@ func EmailLogin(ctx *gin.Context) {
 		return
 	}
 
-	if checkPasswordHash(data.Password, user.Password) {
+	if !checkPasswordHash(data.Password, user.Password) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.WrongPassword"}),
 		})
