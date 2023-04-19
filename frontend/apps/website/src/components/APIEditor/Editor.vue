@@ -58,7 +58,7 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
     type: '',
   }
   if (schema.$ref != undefined) {
-    const name = schema.$ref.match(/#\/definitions\/(\w+)/)?.[1]
+    const name = schema.$ref.match(/#\/definitions\/(.*)/)?.[1]
     const refschema = props.definitions?.find((v) => v.name === name)
     if (refschema && refschema.schema) {
       item.refObj = refschema
