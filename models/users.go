@@ -37,6 +37,11 @@ func (u *Users) List() ([]Users, error) {
 	return users, Conn.Order("created_at desc").Find(&users).Error
 }
 
+func (u *Users) Count() (int64, error) {
+	var count int64
+	return count, Conn.Model(&Users{}).Count(&count).Error
+}
+
 func (u *Users) Delete() error {
 	return Conn.Delete(u).Error
 }

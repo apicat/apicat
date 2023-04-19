@@ -114,7 +114,18 @@ func EmailRegister(ctx *gin.Context) {
 	}
 	user.Email = data.Email
 	user.Password = hashedPassword
-	user.Role = "user"
+	// 第一个注册的用户权限为superadmin
+	userCount, err := user.Count()
+	if err != nil {
+		ctx.Status(http.StatusBadRequest)
+		return
+	}
+	if userCount == 0 {
+		user.Role = "superadmin"
+	} else {
+		user.Role = "user"
+	}
+
 	if err := user.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.RegistrationFailed"}),
