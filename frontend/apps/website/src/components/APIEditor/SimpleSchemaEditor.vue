@@ -27,15 +27,15 @@
       </tr>
     </table>
 
-    <table class="w-full" v-else>
+    <table class="w-full table-fixed" v-else>
       <tr @dragover="dragOverHandler($event, -1)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, -1)">
-        <th class="text-center" width="32"></th>
-        <th>参数名</th>
-        <th class="text-center" width="138">类型</th>
-        <th class="text-center" width="56">必须</th>
-        <th width="258">示例值</th>
-        <th width="264">描述</th>
-        <th class="text-center" width="48"></th>
+        <th class="text-center" style="width: 1px"></th>
+        <th style="width: 25%">参数名</th>
+        <th class="text-center" style="width: 138px">类型</th>
+        <th class="text-center" style="width: 54px">必须</th>
+        <th style="width: 25%">示例值</th>
+        <th style="width: 50%">描述</th>
+        <th class="text-center" style="width: 30px"></th>
       </tr>
       <tbody>
         <tr v-for="(data, index) in flatValues" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
