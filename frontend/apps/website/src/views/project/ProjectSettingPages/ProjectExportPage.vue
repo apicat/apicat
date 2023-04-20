@@ -12,7 +12,7 @@
 </template>
 <script setup lang="ts">
 import swaggerLogo from '@/assets/images/logo-swagger@2x.png'
-import openApiLogo from '@/assets/images/logo-postman@2x.png'
+import openApiLogo from '@/assets/images/logo-openapis.svg'
 import { ExportProjectTypes } from '@/commons/constant'
 import { exportProject } from '@/api/project'
 import { useProjectId } from '@/hooks/useProjectId'
