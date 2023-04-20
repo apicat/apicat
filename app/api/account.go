@@ -8,32 +8,18 @@ import (
 	"github.com/apicat/apicat/commom/translator"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginEmail struct {
 	Email    string `json:"email" binding:"required,email,lte=255"`
-	Password string `json:"password" binding:"required,lte=255"`
+	Password string `json:"password" binding:"required,gte=6,lte=255"`
 }
 
 type RegisterEmail struct {
 	Email           string `json:"email" binding:"required,email,lte=255"`
-	Password        string `json:"password" binding:"required,lte=255"`
-	ConfirmPassword string `json:"confirm_password" binding:"required,lte=255,eqfield=Password"`
+	Password        string `json:"password" binding:"required,gte=6,lte=255"`
+	ConfirmPassword string `json:"confirm_password" binding:"required,gte=6,lte=255,eqfield=Password"`
 	Username        string `json:"username" binding:"lte=255"`
-}
-
-func hashPassword(password string) (string, error) {
-	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
-	if err != nil {
-		return "", err
-	}
-	return string(hashedPassword), nil
-}
-
-func checkPasswordHash(password, hash string) bool {
-	err := bcrypt.CompareHashAndPassword([]byte(hash), []byte(password))
-	return err == nil
 }
 
 func EmailLogin(ctx *gin.Context) {
@@ -53,7 +39,7 @@ func EmailLogin(ctx *gin.Context) {
 		return
 	}
 
-	if !checkPasswordHash(data.Password, user.Password) {
+	if !auth.CheckPasswordHash(data.Password, user.Password) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.WrongPassword"}),
 		})
@@ -99,7 +85,7 @@ func EmailRegister(ctx *gin.Context) {
 		return
 	}
 
-	hashedPassword, err := hashPassword(data.Password)
+	hashedPassword, err := auth.HashPassword(data.Password)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.PasswordEncryptionFailed"}),
