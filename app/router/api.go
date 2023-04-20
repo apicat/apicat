@@ -52,6 +52,7 @@ func InitApiRouter(r *gin.Engine) {
 		{
 			user.GET("/", api.GetUserInfo)
 			user.PUT("/", api.SetUserInfo)
+			user.PUT("/password", api.ChangePassword)
 		}
 
 		project := apiRouter.(*gin.RouterGroup).Group("/projects/:id").Use(middleware.CheckProject())

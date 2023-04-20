@@ -14,6 +14,12 @@ type SetUserInfoData struct {
 	Username string `json:"username" binding:"required,lte=255"`
 }
 
+type ChangePasswordData struct {
+	Password           string `json:"password" binding:"required,gte=6,lte=255"`
+	NewPassword        string `json:"new_password" binding:"required,gte=6,lte=255"`
+	ConfirmNewPassword string `json:"confirm_new_password" binding:"required,gte=6,lte=255,eqfield=NewPassword"`
+}
+
 func GetUserInfo(ctx *gin.Context) {
 	CurrentUser, _ := ctx.Get("CurrentUser")
 	user, _ := CurrentUser.(*models.Users)
@@ -50,6 +56,54 @@ func SetUserInfo(ctx *gin.Context) {
 
 	currentUser.Email = data.Email
 	currentUser.Username = data.Username
+	if err := currentUser.Save(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	token, err := auth.GenerateToken(currentUser)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.FailedToGenerateToken"}),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"token": token,
+	})
+}
+
+func ChangePassword(ctx *gin.Context) {
+	CurrentUser, _ := ctx.Get("CurrentUser")
+	currentUser, _ := CurrentUser.(*models.Users)
+
+	var data ChangePasswordData
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if !auth.CheckPasswordHash(data.Password, currentUser.Password) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.WrongPassword"}),
+		})
+		return
+	}
+
+	hashedPassword, err := auth.HashPassword(data.NewPassword)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.PasswordEncryptionFailed"}),
+		})
+		return
+	}
+
+	currentUser.Password = hashedPassword
 	if err := currentUser.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
