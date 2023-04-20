@@ -1,5 +1,15 @@
 <template>
-  <div class="ac-sce">
+  <div :class="nsEditor.b()">
+    <div :class="[nsRow.b(), nsRow.m('header')]">
+      <div :class="nsRow.e('content')">
+        <div :class="nsRow.e('name')">参数名</div>
+        <div :class="nsRow.e('type')">类型</div>
+        <div :class="nsRow.e('required')">必须</div>
+        <div :class="nsRow.e('example')">示例值</div>
+        <div :class="nsRow.e('description')">描述</div>
+        <div :class="nsRow.e('operation')" v-if="!readonly"></div>
+      </div>
+    </div>
     <EditorRow :level="1" :data="root" :readonly="readonly" />
   </div>
 </template>
@@ -9,6 +19,7 @@ import { computed, provide, ref, watch } from 'vue'
 import EditorRow from './EditorRow.vue'
 import type { JSONSchema, Definition, Tree } from './types'
 import { constNodeType, typename } from './types'
+import { useNamespace } from '@/hooks'
 
 const props = withDefaults(
   defineProps<{
@@ -22,6 +33,9 @@ const props = withDefaults(
     definitions: () => [],
   }
 )
+
+const nsEditor = useNamespace('schema-editor')
+const nsRow = useNamespace('schema-row')
 
 const emits = defineEmits(['update:modelValue'])
 const expandKeys = ref<Set<string>>(new Set([constNodeType.root]))
@@ -168,17 +182,6 @@ function checkValidObject(schema: JSONSchema) {
 }
 </script>
 
-<style>
-.ac-sce {
-  background: var(--el-fill-color-blank);
-  color: var(--el-tree-text-color);
-  font-size: var(--el-font-size-base);
-  border: 1px var(--el-border-color-lighter) solid;
-  padding: 4px 0px;
-  border-radius: var(--el-border-radius-base);
-}
-
-.ac-sce:focus-within {
-  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
-}
+<style lang="scss">
+@use './editor-row.scss';
 </style>

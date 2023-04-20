@@ -1,12 +1,12 @@
 <template>
   <div class="ac-sce-simple">
-    <table class="w-full readonly" v-if="readonly">
+    <table class="w-full table-fixed readonly" v-if="readonly">
       <tr>
-        <th>参数名</th>
-        <th class="text-center" width="80">类型</th>
-        <th class="text-center" width="56">必须</th>
-        <th width="258">示例值</th>
-        <th width="">描述</th>
+        <th style="width: 38%">参数名</th>
+        <th class="text-center" style="width: 150px">类型</th>
+        <th class="text-center" style="width: 54px">必须</th>
+        <th style="width: 38%">示例值</th>
+        <th style="width: 38%">描述</th>
       </tr>
       <tr v-for="(data, index) in flatValues" :key="index">
         <td>
@@ -30,11 +30,11 @@
     <table class="w-full table-fixed" v-else>
       <tr @dragover="dragOverHandler($event, -1)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, -1)">
         <th class="text-center" style="width: 1px"></th>
-        <th style="width: 25%">参数名</th>
-        <th class="text-center" style="width: 138px">类型</th>
+        <th style="width: 34%">参数名</th>
+        <th class="text-center" style="width: 150px">类型</th>
         <th class="text-center" style="width: 54px">必须</th>
-        <th style="width: 25%">示例值</th>
-        <th style="width: 50%">描述</th>
+        <th style="width: 34%">示例值</th>
+        <th style="width: 38%">描述</th>
         <th class="text-center" style="width: 30px"></th>
       </tr>
       <tbody>
