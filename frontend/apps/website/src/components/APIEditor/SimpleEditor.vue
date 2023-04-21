@@ -37,6 +37,8 @@
         <th class="text-center" style="width: 30px"></th>
       </tr>
       <tbody>
+        <slot name="before" />
+
         <tr v-for="(data, index) in list" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
           <td class="text-center" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" :draggable="draggable" v-show="draggable">
             <el-icon class="mt-5px">

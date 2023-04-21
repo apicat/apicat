@@ -13,8 +13,8 @@ const responseParamDetailApiPath = (project_id: string | number, response_id: st
 
 export const getGlobalParamList = useApi(async ({ project_id }: any) => await Ajax.get(globalParamterListApiPath(project_id)))
 export const createGlobalParamerter = async ({ project_id, ...param }: any) => await QuietAjax.post(globalParamterListApiPath(project_id), param)
-export const updateGlobalParamerter = async ({ project_id, id, ID, ...param }: any) => await QuietAjax.put(globalParamterApiPath(project_id, id || ID), param)
-export const deleteGlobalParamerter = async ({ project_id, id, ID, ...param }: any) => await Ajax.delete(globalParamterApiPath(project_id, id || ID), param)
+export const updateGlobalParamerter = async ({ project_id, id, ...param }: any) => await QuietAjax.put(globalParamterApiPath(project_id, id), param)
+export const deleteGlobalParamerter = async ({ project_id, id, ...param }: any) => await Ajax.delete(globalParamterApiPath(project_id, id), param)
 
 export const getResponseParamList = useApi(async ({ project_id }: any): Promise<ResponseList[]> => await Ajax.get(responseParamApiPath(project_id)))
 

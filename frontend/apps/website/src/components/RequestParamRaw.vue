@@ -62,9 +62,7 @@ const contentType = computed(() => {
   return RequestContentTypesMap.none
 })
 
-const isJsonSchema = computed(() => {
-  return contentType.value == RequestContentTypesMap.json || contentType.value == RequestContentTypesMap.xml
-})
+const isJsonSchema = computed(() => contentType.value == RequestContentTypesMap.json || contentType.value == RequestContentTypesMap.xml)
 const bodyTitle = computed(() => `Body (${contentType.value})`)
 const hasBody = computed(() => contentType.value && contentType.value !== RequestContentTypesMap.none)
 const contentVal = computed(() => request.value.content[contentType.value])

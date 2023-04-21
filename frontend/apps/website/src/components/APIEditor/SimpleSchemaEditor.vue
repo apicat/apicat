@@ -58,10 +58,10 @@
           </td>
 
           <td>
-            <el-input v-model="data.schema.default" @change="changeNotify" />
+            <el-input v-model="data.schema.default" @change="changeNotify()" />
           </td>
           <td>
-            <el-input v-model="data.schema.description" @change="changeNotify" />
+            <el-input v-model="data.schema.description" @change="changeNotify()" />
           </td>
           <td class="text-center">
             <el-popconfirm title="delete this?" @confirm="delHandler(index)">
