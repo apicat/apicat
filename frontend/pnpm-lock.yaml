@@ -146,6 +146,9 @@ importers:
       '@iconify-json/clarity':
         specifier: ^1.1.8
         version: 1.1.8
+      '@iconify-json/eos-icons':
+        specifier: ^1.1.6
+        version: 1.1.6
       '@iconify-json/ep':
         specifier: ^1.1.10
         version: 1.1.10
@@ -911,6 +914,12 @@ packages:
 
   /@iconify-json/clarity@1.1.8:
     resolution: {integrity: sha512-Pf8Y1I5aVN3w56LamWpk17YQ7Gh2NICJYqiVc6A4sU9UmPpJDOAhpd6mVSCeptNv058PROyPoM1KoDFDn7eNKA==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/eos-icons@1.1.6:
+    resolution: {integrity: sha512-A1kUcVbgrdlBBacFcs+srwnfSH9htQvlgbi0u6Jf38lp4PZAK3InXVbVySrJKx//FJtSMdnpZh0b89yjcAIIBg==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true
