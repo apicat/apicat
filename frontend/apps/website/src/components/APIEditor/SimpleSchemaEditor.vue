@@ -95,16 +95,14 @@
 </template>
 
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
 import type { Definition, JSONSchema } from './types'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useSchemaList } from './useSchemaList'
 
 const props = withDefaults(
   defineProps<{
     readonly?: boolean
     modelValue: JSONSchema
-    // 引用模型的集合
     definitions?: Definition[]
     hasFile?: boolean
   }>(),
@@ -143,7 +141,7 @@ const onParamNameValid = (oldName: string, newName: string) => {
   schema.required = schema.required?.map((one) => (one === oldName ? newName : one))
 }
 
-const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(emits, transformModel, onParamNameValid)
+const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(props, emits, transformModel, onParamNameValid)
 
 const flatValues = computed(() => {
   const arr: any = []

@@ -313,10 +313,10 @@ const dragOverHandler = (ev: DragEvent) => {
     switch (flag) {
       case -1:
         dom.style.borderBottom = ''
-        dom.style.borderTop = '1px blue solid'
+        dom.style.borderTop = '1px var(--primary-color) solid'
         break
       case 1:
-        dom.style.borderBottom = '1px blue solid'
+        dom.style.borderBottom = '1px var(--primary-color) solid'
         dom.style.borderTop = ''
         break
     }

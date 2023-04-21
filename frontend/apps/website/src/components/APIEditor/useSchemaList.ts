@@ -1,58 +1,82 @@
 import { ElMessage } from 'element-plus'
-import { APICatSchemaObject } from './types'
+import { APICatSchemaObjectCustom } from './types'
 import { debounce } from 'lodash-es'
 
-export type APICatSchemaObjectCustom = APICatSchemaObject & { _name?: string }
+export const useSchemaList = (
+  props: any,
+  emit: any,
+  transformModel: (_m: APICatSchemaObjectCustom[]) => unknown,
+  onParamNameValid?: (oldName: string, newName: string) => void
+) => {
+  const { onCreate, onDelete, onChange } = props
 
-export const useSchemaList = (emit: any, transformModel: (_m: APICatSchemaObjectCustom[]) => unknown, onParamNameValid?: (oldName: string, newName: string) => void) => {
   const newname = ref('')
 
   const model: Ref<APICatSchemaObjectCustom[]> = ref([])
 
-  const changeNotify = () => {
+  const changeNotify = debounce((item?: APICatSchemaObjectCustom) => {
+    // update
+    if (item) {
+      const { _name, ...others } = item
+      onChange && onChange(toRaw(others))
+    }
     transformModel && emit('update:modelValue', transformModel(model.value))
-  }
+  }, 500)
 
-  const validParamName = (v: string) => {
+  const validParamName = (v: string, item: APICatSchemaObjectCustom) => {
     if (v == '') {
       ElMessage.error('参数名不能为空')
       return false
     }
     if (model.value.find((item) => item.name == v)) {
       ElMessage.error(`参数「${v}」重复`)
+      item._name = item.name
       return false
     }
     return true
   }
 
   const onParamNameChange = debounce((item: APICatSchemaObjectCustom, v: string) => {
-    if (!validParamName(v)) {
+    if (!validParamName(v, item)) {
       // item._name = ''
       return
     }
-
     onParamNameValid && onParamNameValid(item.name, v)
     item.name = v
+    onChange && onChange(item)
     changeNotify()
-  }, 200)
+  }, 500)
 
-  const addHandler = (v: string) => {
+  const addHandler = async (v: string) => {
     if (!validParamName(v)) {
       return
     }
 
-    newname.value = ''
-    model.value.push({
+    let newItem: APICatSchemaObjectCustom = {
       name: v,
-      _name: v,
+      required: false,
       schema: { type: 'string' },
-    })
+    }
 
-    changeNotify()
+    try {
+      newname.value = ''
+
+      if (onCreate) {
+        const data = await onCreate({ ...newItem })
+        newItem = { ...newItem, ...data }
+      }
+
+      newItem._name = v
+      model.value.push(newItem)
+      changeNotify()
+    } catch (error) {
+      //
+    }
   }
 
   const delHandler = (i: number) => {
-    model.value.splice(i, 1)
+    const deleteItem = model.value.splice(i, 1)
+    onDelete && onDelete(deleteItem)
     changeNotify()
   }
 

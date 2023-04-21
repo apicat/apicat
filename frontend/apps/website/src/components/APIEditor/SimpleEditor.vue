@@ -28,7 +28,7 @@
     </table>
     <table class="w-full table-fixed" v-else>
       <tr @dragover="dragOverHandler($event, -1)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, -1)">
-        <th class="text-center" style="width: 1px"></th>
+        <th class="text-center" style="width: 1px" v-show="draggable"></th>
         <th style="width: 34%">参数名</th>
         <th class="text-center" style="width: 150px">类型</th>
         <th class="text-center" style="width: 54px">必须</th>
@@ -38,7 +38,7 @@
       </tr>
       <tbody>
         <tr v-for="(data, index) in list" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
-          <td class="text-center" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" draggable="true">
+          <td class="text-center" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" :draggable="draggable" v-show="draggable">
             <el-icon class="mt-5px">
               <ac-icon-material-symbols-drag-indicator />
             </el-icon>
@@ -47,20 +47,20 @@
             <el-input v-model="data._name" @input="(v) => onParamNameChange(data, v)" />
           </td>
           <td class="text-center">
-            <el-select v-model="data.schema.type" @change="changeNotify">
+            <el-select v-model="data.schema.type" @change="changeNotify(data)">
               <el-option v-for="item in ['string', 'integer', 'number', 'array', 'boolean']" :key="item" :label="item" :value="item" />
             </el-select>
           </td>
 
           <td class="text-center">
-            <el-checkbox size="small" v-model="data.required" @change="changeNotify" tabindex="0" />
+            <el-checkbox size="small" v-model="data.required" @change="changeNotify(data)" tabindex="0" />
           </td>
 
           <td>
-            <el-input v-model="data.schema.example" @change="changeNotify" />
+            <el-input v-model="data.schema.example" @input="changeNotify(data)" />
           </td>
           <td>
-            <el-input v-model="data.schema.description" @change="changeNotify" />
+            <el-input v-model="data.schema.description" @input="changeNotify(data)" />
           </td>
           <td class="text-center">
             <el-popconfirm title="delete this?" @confirm="delHandler(index)">
@@ -76,7 +76,7 @@
         </tr>
 
         <tr>
-          <td></td>
+          <td v-show="draggable"></td>
           <td>
             <el-input v-model="newname" placeholder="添加参数" @keyup.enter="addHandler(newname)">
               <template #suffix>
@@ -100,17 +100,22 @@ import { useSchemaList } from './useSchemaList'
 const props = withDefaults(
   defineProps<{
     readonly?: boolean
+    draggable?: boolean
     modelValue: APICatSchemaObject[]
+    onChange?: (v: APICatSchemaObject) => void
+    onCreate?: (v: APICatSchemaObject) => void
+    onDelete?: (v: APICatSchemaObject) => void
   }>(),
   {
     readonly: false,
+    draggable: true,
     modelValue: () => [],
   }
 )
 
 const emits = defineEmits(['update:modelValue'])
 
-const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(emits, (models) =>
+const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(props, emits, (models) =>
   models.map((item) => {
     const newItem = toRaw({ ...item })
     delete newItem._name
@@ -138,7 +143,7 @@ const dragStartHandler = (ev: DragEvent, i: number) => {
 }
 
 const dragOverHandler = (ev: DragEvent, i: number) => {
-  if (props.readonly) {
+  if (props.readonly || !props.draggable) {
     return
   }
   ev.preventDefault()
