@@ -10,7 +10,7 @@ import (
 )
 
 type GlobalParameterDetails struct {
-	ID       uint                  `uri:"id" binding:"required"`
+	ID       uint                  `json:"id" binding:"required"`
 	In       string                `json:"in" binding:"required,oneof=header query path cookie"`
 	Name     string                `json:"name" binding:"required,lte=255"`
 	Required bool                  `json:"required"`
@@ -24,7 +24,7 @@ type GlobalParameterSchema struct {
 	Description string `json:"description" binding:"omitempty,lte=255"`
 }
 
-type GlobalParametersCreateData struct {
+type GlobalParametersData struct {
 	In       string                `json:"in" binding:"required,oneof=header query path cookie"`
 	Name     string                `json:"name" binding:"required,lte=255"`
 	Required bool                  `json:"required"`
@@ -99,7 +99,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
-	var data GlobalParametersCreateData
+	var data GlobalParametersData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -110,6 +110,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	globalParameters, _ := models.NewGlobalParameters()
 	globalParameters.ProjectID = project.ID
 	globalParameters.Name = data.Name
+	globalParameters.In = data.In
 	count, err := globalParameters.GetCountByName()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -137,7 +138,6 @@ func GlobalParametersCreate(ctx *gin.Context) {
 		return
 	}
 
-	globalParameters.In = data.In
 	globalParameters.Required = required
 	globalParameters.Schema = string(jsonSchema)
 	if err := globalParameters.Create(); err != nil {
@@ -159,7 +159,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 }
 
 func GlobalParametersUpdate(ctx *gin.Context) {
-	var data GlobalParameterDetails
+	var data GlobalParametersData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -199,7 +199,6 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 		})
 		return
 	}
-	globalParameters.In = data.In
 	globalParameters.Required = required
 	globalParameters.Schema = string(jsonSchema)
 

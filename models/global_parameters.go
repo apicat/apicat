@@ -35,12 +35,12 @@ func (gp *GlobalParameters) List() ([]*GlobalParameters, error) {
 
 func (gp *GlobalParameters) GetCountByName() (int64, error) {
 	var count int64
-	return count, Conn.Model(&GlobalParameters{}).Where("project_id = ? and name = ?", gp.ProjectID, gp.Name).Count(&count).Error
+	return count, Conn.Model(&GlobalParameters{}).Where("project_id = ? and name = ? and \"in\" = ?", gp.ProjectID, gp.Name, gp.In).Count(&count).Error
 }
 
 func (gp *GlobalParameters) GetCountExcludeTheID() (int64, error) {
 	var count int64
-	return count, Conn.Model(&GlobalParameters{}).Where("project_id = ? and name = ? and id != ?", gp.ProjectID, gp.Name, gp.ID).Count(&count).Error
+	return count, Conn.Model(&GlobalParameters{}).Where("project_id = ? and name = ? and \"in\" = ? and id != ?", gp.ProjectID, gp.Name, gp.In, gp.ID).Count(&count).Error
 }
 
 func (gp *GlobalParameters) Create() error {
