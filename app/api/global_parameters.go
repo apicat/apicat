@@ -13,7 +13,7 @@ type GlobalParameterDetails struct {
 	ID       uint                  `uri:"id" binding:"required"`
 	In       string                `json:"in" binding:"required,oneof=header query path cookie"`
 	Name     string                `json:"name" binding:"required,lte=255"`
-	Required bool                  `json:"required" binding:"required"`
+	Required bool                  `json:"required"`
 	Schema   GlobalParameterSchema `json:"schema" binding:"required"`
 }
 
@@ -27,8 +27,31 @@ type GlobalParameterSchema struct {
 type GlobalParametersCreateData struct {
 	In       string                `json:"in" binding:"required,oneof=header query path cookie"`
 	Name     string                `json:"name" binding:"required,lte=255"`
-	Required bool                  `json:"required" binding:"required"`
+	Required bool                  `json:"required"`
 	Schema   GlobalParameterSchema `json:"schema" binding:"required"`
+}
+
+type GlobalParametersID struct {
+	ParameterID uint `uri:"parameter-id" binding:"required,gt=0"`
+}
+
+func (gp *GlobalParametersID) CheckGlobalParameters(ctx *gin.Context) (*models.GlobalParameters, error) {
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&gp)); err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
+		})
+		return nil, err
+	}
+
+	globalParameters, err := models.NewGlobalParameters(gp.ParameterID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
+		})
+		return nil, err
+	}
+
+	return globalParameters, nil
 }
 
 func GlobalParametersList(ctx *gin.Context) {
@@ -84,6 +107,23 @@ func GlobalParametersCreate(ctx *gin.Context) {
 		return
 	}
 
+	globalParameters, _ := models.NewGlobalParameters()
+	globalParameters.ProjectID = project.ID
+	globalParameters.Name = data.Name
+	count, err := globalParameters.GetCountByName()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	if count > 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NameExists"}),
+		})
+		return
+	}
+
 	required := 0
 	if data.Required {
 		required = 1
@@ -97,14 +137,9 @@ func GlobalParametersCreate(ctx *gin.Context) {
 		return
 	}
 
-	globalParameters := &models.GlobalParameters{
-		ProjectID: project.ID,
-		In:        data.In,
-		Name:      data.Name,
-		Required:  required,
-		Schema:    string(jsonSchema),
-	}
-
+	globalParameters.In = data.In
+	globalParameters.Required = required
+	globalParameters.Schema = string(jsonSchema)
 	if err := globalParameters.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -121,4 +156,59 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, globalParameterDetails)
+}
+
+func GlobalParametersUpdate(ctx *gin.Context) {
+	var data GlobalParameterDetails
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	gp := GlobalParametersID{}
+	globalParameters, err := gp.CheckGlobalParameters(ctx)
+	if err != nil {
+		return
+	}
+
+	globalParameters.Name = data.Name
+	count, err := globalParameters.GetCountExcludeTheID()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	if count > 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NameExists"}),
+		})
+		return
+	}
+
+	required := 0
+	if data.Required {
+		required = 1
+	}
+	jsonSchema, err := json.Marshal(data.Schema)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	globalParameters.In = data.In
+	globalParameters.Required = required
+	globalParameters.Schema = string(jsonSchema)
+
+	if err := globalParameters.Update(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusCreated)
 }

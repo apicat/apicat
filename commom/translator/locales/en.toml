@@ -51,3 +51,8 @@
 [Trashs]
     [Trashs.PartialRecoveryFailed]
         other = "Partial recovery failed"
+[GlobalParameters]
+    [GlobalParameters.NotFound]
+        other = "Global parameters not found"
+    [GlobalParameters.NameExists]
+        other = "Global parameters name exists"
