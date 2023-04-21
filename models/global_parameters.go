@@ -26,6 +26,13 @@ func NewGlobalParameters(ids ...uint) (*GlobalParameters, error) {
 	return globalParameters, nil
 }
 
+func (gp *GlobalParameters) List() ([]*GlobalParameters, error) {
+	globalParametersQuery := Conn.Where("project_id = ?", gp.ProjectID)
+
+	var globalParameters []*GlobalParameters
+	return globalParameters, globalParametersQuery.Order("id desc").Find(&globalParameters).Error
+}
+
 func (gp *GlobalParameters) Create() error {
 	return Conn.Create(gp).Error
 }

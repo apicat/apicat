@@ -63,6 +63,7 @@ func InitApiRouter(r *gin.Engine) {
 
 			globalParameters := project.(*gin.RouterGroup).Group("/global/parameters")
 			{
+				globalParameters.GET("/", api.GlobalParametersList)
 				globalParameters.POST("/", api.GlobalParametersCreate)
 			}
 

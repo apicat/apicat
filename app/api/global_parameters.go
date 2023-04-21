@@ -31,6 +31,47 @@ type GlobalParametersCreateData struct {
 	Schema   GlobalParameterSchema `json:"schema" binding:"required"`
 }
 
+func GlobalParametersList(ctx *gin.Context) {
+	currentProject, _ := ctx.Get("CurrentProject")
+	project, _ := currentProject.(*models.Projects)
+
+	globalParameters := &models.GlobalParameters{
+		ProjectID: project.ID,
+	}
+	globalParametersList, err := globalParameters.List()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	result := map[string][]GlobalParameterDetails{}
+	result["header"] = []GlobalParameterDetails{}
+	result["cookie"] = []GlobalParameterDetails{}
+	result["path"] = []GlobalParameterDetails{}
+	result["query"] = []GlobalParameterDetails{}
+	for _, v := range globalParametersList {
+		var schema GlobalParameterSchema
+		if err := json.Unmarshal([]byte(v.Schema), &schema); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		result[v.In] = append(result[v.In], GlobalParameterDetails{
+			ID:       v.ID,
+			In:       v.In,
+			Name:     v.Name,
+			Required: v.Required == 1,
+			Schema:   schema,
+		})
+	}
+
+	ctx.JSON(http.StatusOK, result)
+}
+
 func GlobalParametersCreate(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
