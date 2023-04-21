@@ -21,10 +21,12 @@ import ProjectInfoHeader from './components/ProjectInfoHeader.vue'
 import DirectoryTree from './components/DirectoryTree'
 import SchemaTree from './components/SchemaTree'
 import uesProjectStore from '@/store/project'
+import uesGlobalParametersStore from '@/store/globalParameters'
 import { useParams } from '@/hooks/useParams'
 
 const ns = useNamespace('doc-layout')
 const projectStore = uesProjectStore()
+const globalParametersStore = uesGlobalParametersStore()
 const { project_id } = useParams()
 
 const directoryTree = ref<InstanceType<typeof DirectoryTree>>()
@@ -42,6 +44,8 @@ provide('schemaTree', {
 })
 
 onMounted(async () => {
+  // init global data
   await projectStore.getUrlServers(project_id as string)
+  await globalParametersStore.getGlobalParameters(project_id as string)
 })
 </script>

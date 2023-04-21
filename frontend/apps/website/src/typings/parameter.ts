@@ -12,6 +12,7 @@ export interface GlobalParameters {
   header: GlobalParameter[]
   cookie: GlobalParameter[]
   query: GlobalParameter[]
+  path: GlobalParameter[]
 }
 
 export interface CommonParam {

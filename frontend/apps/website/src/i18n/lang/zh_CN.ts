@@ -55,7 +55,7 @@ export default {
         title: '项目管理',
         baseInfo: '项目设置',
         serverUrl: 'URL设置',
-        requestParam: '公共参数设置',
+        globalParam: '全局参数设置',
         responseParam: '公共响应设置',
         export: '导出项目',
         trash: '回收站',

@@ -78,7 +78,9 @@ export const useSchemaList = (
 
   const delHandler = (i: number) => {
     const deleteItem = model.value.splice(i, 1)
-    onDelete && onDelete(deleteItem)
+    if (deleteItem && deleteItem.length && onDelete) {
+      onDelete && onDelete({ ...deleteItem[0] })
+    }
     changeNotify()
   }
 
