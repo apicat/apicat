@@ -99,6 +99,11 @@ func InitApiRouter(r *gin.Engine) {
 				trashs.GET("/", api.TrashsList)
 				trashs.PUT("/", api.TrashsRecover)
 			}
+
+			ai := project.(*gin.RouterGroup).Group("/ai")
+			{
+				ai.POST("/collections", api.AICreateCollection)
+			}
 		}
 	}
 

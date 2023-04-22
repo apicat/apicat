@@ -16,8 +16,8 @@ type OpenAI struct {
 	CompletionResponse openAI.CompletionResponse
 }
 
-var createApiPromptEn = "\"\"\"\nDesign a http api for %s and return content in OpenAPI3.0.0 format.\n\"\"\"\n"
-var createApiPromptZh = "\"\"\"\n为%s设计一个 http api，并以 OpenAPI3.0.0 的格式返回内容。 \n\"\"\"\n"
+var createApiPromptEn = "\"\"\"\nDesign a %s http api and return the content in the format of OpenAPI3.0.0. There is only one operation in the path.\n\"\"\"\n"
+var createApiPromptZh = "\"\"\"\n设计一个%s http api，并以 OpenAPI3.0.0 的格式返回内容，path中只要一个operation。\n\"\"\"\n"
 
 var createSchemaPromptEn = "\"\"\"\nDesign a json schema format for the %v and return.\n\"\"\"\n"
 var createSchemaPromptZh = "\"\"\"\n为%s设计一个 json schema 格式，并返回内容。 \n\"\"\"\n"
@@ -32,7 +32,7 @@ func NewOpenAI(token, language string) *OpenAI {
 	return &OpenAI{
 		token:     token,
 		language:  strings.ToLower(language),
-		maxTokens: 500,
+		maxTokens: 1000,
 	}
 }
 

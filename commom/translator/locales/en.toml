@@ -56,3 +56,6 @@
         other = "Global parameters not found"
     [GlobalParameters.NameExists]
         other = "Global parameters name exists"
+[AI]
+    [AI.CollectionCreateFail]
+        other = "API create failed, please try again later."

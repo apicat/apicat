@@ -56,3 +56,6 @@
         other = "全局参数不存在"
     [GlobalParameters.NameExists]
         other = "全局参数名称存在"
+[AI]
+    [AI.CollectionCreateFail]
+        other = "接口创建失败，请稍后重试。"
