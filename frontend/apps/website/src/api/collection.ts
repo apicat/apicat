@@ -52,6 +52,10 @@ const mergeHttpRequest = (node: any) => {
     node.attrs.parameters = defaultVal.parameters
   }
 
+  if (!node.attrs.globalExcepts || isEmpty(node.attrs.globalExcepts)) {
+    node.attrs.globalExcepts = defaultVal.globalExcepts
+  }
+
   if (!node.attrs.content) {
     node.attrs.content = defaultVal.content
   }

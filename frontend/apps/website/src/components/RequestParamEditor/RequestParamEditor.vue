@@ -7,8 +7,23 @@
           Header
           <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px" v-if="headersCount">{{ headersCount }}</span>
         </template>
-        <SimpleParameterEditor v-model="headers" />
+        <SimpleParameterEditor v-model="headers">
+          <template #before>
+            <tr v-for="item in globalHeaders" :key="item.id">
+              <td></td>
+              <td class="px-12px">{{ item.name }}</td>
+              <td class="px-12px">{{ item.schema.type }}</td>
+              <td class="text-center">{{ item.required }}</td>
+              <td class="px-12px">{{ item.schema.default }}</td>
+              <td class="px-12px">{{ item.schema.description }}</td>
+              <td class="text-center">
+                <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalHeader(item.id, v)" />
+              </td>
+            </tr>
+          </template>
+        </SimpleParameterEditor>
       </el-tab-pane>
+
       <el-tab-pane label="Cookie">
         <template #label>
           Cookie
@@ -16,6 +31,7 @@
         </template>
         <SimpleParameterEditor v-model="cookies" />
       </el-tab-pane>
+
       <el-tab-pane label="Query">
         <template #label>
           Query
@@ -23,6 +39,7 @@
         </template>
         <SimpleParameterEditor v-model="queries" />
       </el-tab-pane>
+
       <el-tab-pane label="Body">
         <template #label>
           Body
@@ -35,13 +52,13 @@
           </el-radio-group>
         </div>
 
-        <div v-show="currentContentTypeRef === RequestContentTypesMap.none" class="text-center">该请求没有Body体</div>
+        <div v-if="currentContentTypeRef === RequestContentTypesMap.none" class="text-center">该请求没有Body体</div>
 
-        <div v-show="currentContentTypeRef === RequestContentTypesMap['form-data']">
+        <div v-if="currentContentTypeRef === RequestContentTypesMap['form-data']">
           <SimpleSchemaEditor v-model="contentValues[RequestContentTypesMap['form-data']].schema" :definitions="definitions" has-file />
         </div>
 
-        <div v-show="currentContentTypeRef === RequestContentTypesMap['x-www-form-urlencoded']">
+        <div v-if="currentContentTypeRef === RequestContentTypesMap['x-www-form-urlencoded']">
           <SimpleSchemaEditor v-model="contentValues[RequestContentTypesMap['x-www-form-urlencoded']].schema" :definitions="definitions" />
         </div>
 
@@ -49,21 +66,22 @@
           <JSONSchemaEditor v-model="contentValues[RequestContentTypesMap.json].schema" :definitions="definitions" />
         </div>
 
-        <div v-show="currentContentTypeRef === RequestContentTypesMap.xml">
+        <div v-if="currentContentTypeRef === RequestContentTypesMap.xml">
           <JSONSchemaEditor v-model="contentValues[RequestContentTypesMap.xml].schema" :definitions="definitions" />
         </div>
 
-        <div v-show="currentContentTypeRef === RequestContentTypesMap.raw">
+        <div v-if="currentContentTypeRef === RequestContentTypesMap.raw">
           <CodeEditor v-model="contentValues[RequestContentTypesMap.raw].schema.example" />
         </div>
 
-        <div v-show="currentContentTypeRef === RequestContentTypesMap.binary">
+        <div v-if="currentContentTypeRef === RequestContentTypesMap.binary">
           <FileUploaderWrapper class="flex items-center border border-gray-200 border-solid rounded cursor-pointer h-30px" v-slot="{ fileName }" @change="handleChooseFile">
             <label class="flex items-center h-full bg-gray-200 border-r border-gray-200 border-solid px-6px font-500">{{ RequestContentTypesMap.binary }}</label>
             <span class="flex-1 truncate px-6px"> {{ fileName ?? '请选择文件' }}</span>
           </FileUploaderWrapper>
         </div>
       </el-tab-pane>
+
       <el-tab-pane label="Path">
         <template #label>
           Path
@@ -86,6 +104,6 @@ import { Definition } from '../APIEditor/types'
 
 const props = defineProps<{ modelValue: HttpDocument; definitions?: Definition[] }>()
 
-const { headers, cookies, queries, paths, headersCount, cookiesCount, queriesCount, pathsCount } = useParameter(props)
+const { headers, globalHeaders, cookies, queries, paths, headersCount, cookiesCount, queriesCount, pathsCount, switchGlobalHeader } = useParameter(props)
 const { RequestContentTypesMap, currentContentTypeRef, contentValues, bodyCount, handleChooseFile } = useContentType(props)
 </script>

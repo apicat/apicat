@@ -1,6 +1,6 @@
 <template>
   <div v-loading="isLoading">
-    <ToggleHeading title="Header" type="card" :expand="false">
+    <ToggleHeading title="Header" type="card">
       <SimpleParameterEditor
         v-model="parameters.header"
         :draggable="false"
@@ -10,7 +10,7 @@
       />
     </ToggleHeading>
 
-    <ToggleHeading title="Cookie" type="card" :expand="false">
+    <ToggleHeading title="Cookie" type="card">
       <SimpleParameterEditor
         v-model="parameters.cookie"
         :draggable="false"
@@ -20,7 +20,7 @@
       />
     </ToggleHeading>
 
-    <ToggleHeading title="Query" type="card" :expand="false">
+    <ToggleHeading title="Query" type="card">
       <SimpleParameterEditor
         v-model="parameters.query"
         :draggable="false"
@@ -30,7 +30,7 @@
       />
     </ToggleHeading>
 
-    <ToggleHeading title="Path" type="card" :expand="false">
+    <ToggleHeading title="Path" type="card">
       <SimpleParameterEditor
         v-model="parameters.path"
         :draggable="false"

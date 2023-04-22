@@ -6,7 +6,7 @@ export const useSchemaList = (
   props: any,
   emit: any,
   transformModel: (_m: APICatSchemaObjectCustom[]) => unknown,
-  onParamNameValid?: (oldName: string, newName: string) => void
+  onChangeParamNameSuccess?: (oldName: string, newName: string) => void
 ) => {
   const { onCreate, onDelete, onChange } = props
 
@@ -21,7 +21,7 @@ export const useSchemaList = (
       onChange && onChange(toRaw(others))
     }
     transformModel && emit('update:modelValue', transformModel(model.value))
-  }, 500)
+  }, 300)
 
   const validParamName = (v: string, item?: APICatSchemaObjectCustom) => {
     if (v == '') {
@@ -43,11 +43,11 @@ export const useSchemaList = (
       // item._name = ''
       return
     }
-    onParamNameValid && onParamNameValid(item.name, v)
+    onChangeParamNameSuccess && onChangeParamNameSuccess(item.name, v)
     item.name = v
     onChange && onChange(item)
     changeNotify()
-  }, 500)
+  }, 200)
 
   const addHandler = async (v: string) => {
     if (!validParamName(v)) {

@@ -1,7 +1,14 @@
 <template>
   <div v-if="isShow" class="ac-response-editor">
-    <h2 class="text-16px font-500">响应参数</h2>
-    <el-tabs @tab-add="handleAddTab" @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
+    <h2 class="relative flex justify-between text-16px font-500">
+      响应参数
+      <div class="absolute right-0 z-10 bg-white -bottom-30px">
+        <el-button link type="primary" @click="handleAddTab">
+          <el-icon><ac-icon-ep-plus /></el-icon>添加
+        </el-button>
+      </div>
+    </h2>
+    <el-tabs @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
       <el-tab-pane v-for="(item, index) in model" :key="item.id + index" :name="item.id" :disabled="disabled">
         <template #label>
           <el-space
@@ -91,6 +98,10 @@ watch(nodeAttrs, () => {
   .el-tabs__item .is-icon-close {
     margin-top: 13px;
     padding-bottom: 1px;
+  }
+
+  .el-tabs__new-tab {
+    width: 40px;
   }
 }
 </style>

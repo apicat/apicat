@@ -136,12 +136,12 @@ const transformModel = (models: any) => {
   }
 }
 
-const onParamNameValid = (oldName: string, newName: string) => {
+const onChangeParamNameSuccess = (oldName: string, newName: string) => {
   const schema = props.modelValue as JSONSchema
   schema.required = schema.required?.map((one) => (one === oldName ? newName : one))
 }
 
-const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(props, emits, transformModel, onParamNameValid)
+const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(props, emits, transformModel, onChangeParamNameSuccess)
 
 const flatValues = computed(() => {
   const arr: any = []

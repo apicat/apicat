@@ -32,7 +32,9 @@ export declare interface APICatSchemaObject {
 }
 
 export declare type APICatSchemaObjectCustom = APICatSchemaObject & {
+  _id?: number | string
   _name?: string
+  [key: string]: any
 }
 
 export declare interface Definition extends APICatSchemaObject {
