@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -32,27 +33,26 @@ func (o *OpenAPI) parseServers(servs []*v3.Server) []*spec.Server {
 	return srvs
 }
 
-func (o *OpenAPI) parseDefinetions(shs map[string]*base.SchemaProxy) spec.Schemas {
-	si := 0
-	defines := make(spec.Schemas, len(shs))
-	for k, v := range shs {
-		js, err := jsonSchemaConverter(v.Schema())
-		if err != nil {
-			panic(err)
-		}
-		defines[si] = &spec.Schema{
-			Name:        k,
-			Description: k,
-			Schema:      js,
-		}
-		si++
+func (o *OpenAPI) parseParamtersCommon(comp *v3.Components) (spec.Schemas, map[string]string) {
+	mapping := make(map[string]string)
+	ps := make(spec.Schemas, 0)
+	if comp == nil {
+		return ps, mapping
 	}
-	return defines
-}
-
-func (o *OpenAPI) parseParameters(inp []*v3.Parameter) *spec.HTTPParameters {
-	var rawparamter spec.HTTPParameters
-	for _, v := range inp {
+	repeat := map[string]struct {
+		SrcKey string
+		Count  int
+	}{}
+	for key, v := range comp.Parameters {
+		x := repeat[v.Name]
+		x.SrcKey = key
+		x.Count++
+		repeat[v.Name] = x
+	}
+	for _, v := range comp.Parameters {
+		if repeat[v.Name].Count != 1 {
+			continue
+		}
 		var sp = &spec.Schema{
 			Name:     v.Name,
 			Required: v.Required,
@@ -68,9 +68,97 @@ func (o *OpenAPI) parseParameters(inp []*v3.Parameter) *spec.HTTPParameters {
 		sp.Schema.Description = v.Description
 		sp.Schema.Example = v.Example
 		sp.Schema.Deprecated = v.Deprecated
+		ps = append(ps, sp)
+	}
+	for k, v := range repeat {
+		if v.Count == 1 {
+			mapping[v.SrcKey] = k
+		}
+	}
+	return ps, mapping
+}
+
+func (o *OpenAPI) parseDefinetions(comp *v3.Components) spec.Definitions {
+	if comp == nil {
+		return spec.Definitions{}
+	}
+	si := 0
+	schemas := make(spec.Schemas, len(comp.Schemas))
+	for k, v := range comp.Schemas {
+		js, err := jsonSchemaConverter(v.Schema())
+		if err != nil {
+			panic(err)
+		}
+		schemas[si] = &spec.Schema{
+			Name:        k,
+			Description: k,
+			Schema:      js,
+		}
+		si++
+	}
+	si = 0
+	rets := make([]spec.HTTPResponseDefine, len(comp.Responses))
+	for k, v := range comp.Responses {
+		if v.Content == nil {
+			continue
+		}
+		var def spec.HTTPResponseDefine
+		def.Name = k
+		if v.Headers != nil {
+			for k, v := range v.Headers {
+				js, err := jsonSchemaConverter(v.Schema.Schema())
+				if err != nil {
+					panic(err)
+				}
+				js.Description = v.Description
+				def.Header = append(def.Header, &spec.Schema{
+					Name:   k,
+					Schema: js,
+				})
+			}
+		}
+		def.Content = o.parseContent(v.Content)
+		rets[si] = def
+		si++
+	}
+	return spec.Definitions{
+		Schemas:   schemas,
+		Responses: rets,
+	}
+}
+
+func (o *OpenAPI) parseParameters(inp []*v3.Parameter, commParamters map[string]string) spec.HTTPParameters {
+	var rawparamter spec.HTTPParameters
+	for _, v := range inp {
+		if g := v.GoLow(); g.IsReference() && commParamters != nil {
+			x, ok := commParamters[getRefName(g.GetReference())]
+			if ok {
+				r := "#/commons/parameters/" + x
+				rawparamter.Add(v.In, &spec.Schema{
+					Reference: &r,
+				})
+				continue
+			}
+		}
+		var sp = &spec.Schema{
+			Name:     v.Name,
+			Required: v.Required,
+		}
+
+		sp.Schema = &jsonschema.Schema{}
+		if v.Schema != nil {
+			js, err := jsonSchemaConverter(v.Schema.Schema())
+			if err != nil {
+				panic(err)
+			}
+			sp.Schema = js
+		}
+		sp.Schema.Description = v.Description
+		sp.Schema.Example = v.Example
+		sp.Schema.Deprecated = v.Deprecated
 		rawparamter.Add(v.In, sp)
 	}
-	return &rawparamter
+	return rawparamter
 }
 
 func (o *OpenAPI) parseContent(mts map[string]*v3.MediaType) spec.HTTPBody {
@@ -84,7 +172,7 @@ func (o *OpenAPI) parseContent(mts map[string]*v3.MediaType) spec.HTTPBody {
 			ref := strings.ReplaceAll(
 				g.GetSchemaReference(),
 				"#/components/schemas",
-				"#/definitions",
+				"#/definitions/schemas",
 			)
 			sh.Schema = &jsonschema.Schema{
 				Reference: &ref,
@@ -129,7 +217,7 @@ func (o *OpenAPI) parseeResoponse(responses map[string]*v3.Response) spec.HTTPRe
 	return outresponses
 }
 
-func (o *OpenAPI) parseCollections(paths *v3.Paths) []*spec.CollectItem {
+func (o *OpenAPI) parseCollections(paths *v3.Paths, commParamters map[string]string) []*spec.CollectItem {
 	collects := make([]*spec.CollectItem, 0)
 	for path, p := range paths.PathItems {
 		op := p.GetOperations()
@@ -151,7 +239,7 @@ func (o *OpenAPI) parseCollections(paths *v3.Paths) []*spec.CollectItem {
 
 			// request
 			var req spec.HTTPRequestNode
-			req.Parameters = o.parseParameters(info.Parameters)
+			req.Parameters = o.parseParameters(info.Parameters, commParamters)
 			if info.RequestBody != nil {
 				req.Content = o.parseContent(info.RequestBody.Content)
 			}
@@ -210,7 +298,7 @@ type openapiPathItem struct {
 	Description string              `json:"description,omitempty"`
 	OperationId string              `json:"operationId"`
 	Tags        []string            `json:"tags,omitempty"`
-	Parameters  []*openAPIParamter  `json:"parameters,omitempty"`
+	Parameters  []openAPIParamter   `json:"parameters,omitempty"`
 	RequestBody *openapiRequestbody `json:"requestBody,omitempty"`
 	Responses   map[string]any      `json:"responses,omitempty"`
 }
@@ -222,7 +310,7 @@ func (o *OpenAPI) convertJSONSchema(ver string, in *jsonschema.Schema) {
 	}
 	if in.Reference != nil {
 		*in.Reference = strings.ReplaceAll(
-			*in.Reference, "#/definitions", "#/components/schemas",
+			*in.Reference, "#/definitions/schemas", "#/components/schemas",
 		)
 	} else if strings.HasPrefix(ver, "3.0") {
 		if in.Items != nil {
@@ -253,15 +341,16 @@ func (o *OpenAPI) convertJSONSchema(ver string, in *jsonschema.Schema) {
 	}
 }
 
-func (o *OpenAPI) toReqParameters(ps *spec.HTTPParameters, ver string) []*openAPIParamter {
-	if ps == nil {
-		return nil
-	}
-	var out []*openAPIParamter
-	for in, params := range ps.Map() {
+func (o *OpenAPI) toReqParameters(spe *spec.Spec, ps spec.HTTPRequestNode, ver string) []openAPIParamter {
+	// var out []openAPIParamter
+	out := toParameterGlobal(spe.Globals.Parameters, ps.GlobalExcepts)
+	for in, params := range ps.Parameters.Map() {
 		for _, param := range params {
+			if param.Reference != nil {
+				param = spe.Common.Parameters.Lookup(getRefName(*param.Reference))
+			}
 			o.convertJSONSchema(ver, param.Schema)
-			item := &openAPIParamter{
+			item := openAPIParamter{
 				Name:     param.Name,
 				Required: param.Required,
 				Schema:   param.Schema,
@@ -289,7 +378,7 @@ func (o *OpenAPI) toPaths(ver string, in *spec.Spec) (
 				Description: op.Description,
 				OperationId: op.OperatorID,
 				Tags:        op.Tags,
-				Parameters:  o.toReqParameters(op.Req.Parameters, ver),
+				Parameters:  o.toReqParameters(in, op.Req, ver),
 			}
 			for _, v := range op.Tags {
 				tags[v] = struct{}{}
@@ -307,45 +396,19 @@ func (o *OpenAPI) toPaths(ver string, in *spec.Spec) (
 				}
 				item.RequestBody.Content[k] = sp
 			}
-
-			if len(op.Res.List) == 0 {
-				if in.Common != nil && len(in.Common.Responses) > 0 {
-					op.Res.List = in.Common.Responses
-				} else {
-					// 如果什么响应都没有 则补充一个默认不包含任务内容的响应
-					op.Res.List = []spec.HTTPResponse{{
-						Code:        200,
-						Description: "success",
-					}}
-				}
-			}
 			for _, v := range op.Res.List {
-				res := map[string]any{
-					"description": v.Description,
-				}
-				if v.Content != nil {
-					for _, xx := range v.Content {
-						o.convertJSONSchema(ver, xx.Schema)
-					}
-					res["content"] = v.Content
-				}
-				if len(v.Header) > 0 {
-					headers := make(map[string]any)
-					for _, v := range v.Header {
-						o.convertJSONSchema(ver, v.Schema)
-						headers[v.Name] = map[string]any{
-							"description": v.Description,
-							"schema":      v.Schema,
-						}
-					}
-					res["headers"] = headers
-				}
+				code, res := o.toResponse(in, v, ver)
 				if item.Responses != nil {
-					item.Responses[strconv.Itoa(v.Code)] = res
+					item.Responses[code] = res
 				} else {
 					item.Responses = map[string]any{
-						strconv.Itoa(v.Code): res,
+						code: res,
 					}
+				}
+			}
+			if len(op.Res.List) == 0 {
+				item.Responses["200"] = map[string]any{
+					"description": "success",
 				}
 			}
 			if _, ok := out[path]; !ok {
@@ -362,9 +425,51 @@ func (o *OpenAPI) toPaths(ver string, in *spec.Spec) (
 	}()
 }
 
+func (o *OpenAPI) toResponse(in *spec.Spec, def spec.HTTPResponse, ver string) (string, map[string]any) {
+	res := map[string]any{}
+	v := def
+	if def.Reference != nil {
+		switch {
+		case strings.HasPrefix(*v.Reference, "#/definitions/responses/"):
+			// openapi3 并没有define response
+			x := in.Definitions.Responses.Lookup(
+				getRefName(*v.Reference),
+			)
+			v.HTTPResponseDefine = *x
+			v.Reference = nil
+		case strings.HasPrefix(*v.Reference, "#/commons/responses/"):
+			x := in.Common.Responses.Lookup(
+				getRefName(*v.Reference),
+			)
+			v = *x
+		default:
+			panic(fmt.Sprintf("error response ref:%s", *def.Reference))
+		}
+	}
+	if v.Content != nil {
+		for _, xx := range v.Content {
+			o.convertJSONSchema(ver, xx.Schema)
+		}
+		res["content"] = v.Content
+	}
+	if len(v.Header) > 0 {
+		headers := make(map[string]any)
+		for _, h := range v.Header {
+			o.convertJSONSchema(ver, h.Schema)
+			headers[h.Name] = map[string]any{
+				"description": h.Description,
+				"schema":      h.Schema,
+			}
+		}
+		res["headers"] = headers
+	}
+	res["description"] = v.Description
+	return strconv.Itoa(v.Code), res
+}
+
 func (o *OpenAPI) toComponents(ver string, in *spec.Spec) map[string]any {
 	schemas := make(map[string]jsonschema.Schema)
-	for _, v := range in.Definitions {
+	for _, v := range in.Definitions.Schemas {
 		o.convertJSONSchema(ver, v.Schema)
 		schemas[v.Name] = *v.Schema
 	}

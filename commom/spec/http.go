@@ -69,8 +69,9 @@ func (HTTPURLNode) Name() string {
 type HTTPBody map[string]*Schema
 
 type HTTPRequestNode struct {
-	Parameters *HTTPParameters `json:"parameters,omitempty"`
-	Content    HTTPBody        `json:"content,omitempty"`
+	GlobalExcepts map[string][]string `json:"globalExcepts,omitempty"`
+	Parameters    HTTPParameters      `json:"parameters,omitempty"`
+	Content       HTTPBody            `json:"content,omitempty"`
 }
 
 func (HTTPRequestNode) Name() string {
@@ -78,7 +79,7 @@ func (HTTPRequestNode) Name() string {
 }
 
 type HTTPResponsesNode struct {
-	List []HTTPResponse `json:"list,omitempty"`
+	List HTTPResponses `json:"list,omitempty"`
 }
 
 func (HTTPResponsesNode) Name() string {
@@ -86,8 +87,37 @@ func (HTTPResponsesNode) Name() string {
 }
 
 type HTTPResponse struct {
-	Code        int       `json:"code"`
-	Description string    `json:"description"`
-	Content     HTTPBody  `json:"content,omitempty"`
-	Header      []*Schema `json:"header,omitempty"`
+	Name        string `json:"name,omitempty"`
+	Code        int    `json:"code"`
+	Description string `json:"description"`
+	HTTPResponseDefine
+}
+
+type HTTPResponses []HTTPResponse
+
+func (h HTTPResponses) Lookup(name string) *HTTPResponse {
+	for _, v := range h {
+		if v.Name == name {
+			return &v
+		}
+	}
+	return nil
+}
+
+type HTTPResponseDefine struct {
+	Name      string   `json:"name,omitempty"`
+	Content   HTTPBody `json:"content,omitempty"`
+	Header    Schemas  `json:"header,omitempty"`
+	Reference *string  `json:"$ref,omitempty"`
+}
+
+type HTTPResponseDefines []HTTPResponseDefine
+
+func (h HTTPResponseDefines) Lookup(name string) *HTTPResponseDefine {
+	for _, v := range h {
+		if v.Name == name {
+			return &v
+		}
+	}
+	return nil
 }

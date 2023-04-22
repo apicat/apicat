@@ -1,218 +1,235 @@
 {
-    "apicat": "2.0",
-    "info": {
-        "id": "xxx",
-        "title": "xxxx",
-        "description": "这是xxx的接口文档",
-        "version": "1.0"
+  "apicat": "2.0",
+  "info": {
+    "id": "xxx",
+    "title": "xxxx",
+    "description": "这是xxx的接口文档",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "description": "dev",
+      "url": "https://localhost:8080/v1"
     },
-    "servers": [
+    {
+      "description": "mock",
+      "url": "https://localhost:8080"
+    }
+  ],
+  "globals": {
+    "parameters": {
+      "header": [
         {
-            "description": "dev",
-            "url": "https://localhost:8080/v1"
-        },
-        {
-            "description": "mock",
-            "url": "https://localhost:8080"
+          "name": "api-request-id",
+          "required": true,
+          "schema": {
+            "type": "string",
+            "format": "uuid",
+            "description": "请求id",
+            "example": "aaaaa-bbbbb-ccccc-dddd",
+            "x-apicat-mock": ""
+          }
         }
-    ],
-    "common": {
-        "parameters": {
-            "header": [
-                {
-                    "name": "api-request-id",
-                    "required": true,
-                    "schema": {
-                        "type": "string",
-                        "format": "uuid",
-                        "description": "请求id",
-                        "example": "aaaaa-bbbbb-ccccc-dddd",
-                        "x-apicat-mock": ""
-                    }
-                }
-            ],
-            "query": [
-                {
-                    "name":"AA",
-                    "schema":{
-                        "$ref": "#/definitions/100000"  
-                    }
-                },
-                {
-                    "name": "render",
-                    "schema": {
-                        "type": "string",
-                        "default": "json",
-                        "description": "结果渲染格式"
-                    }
-                }
-            ],
-            "cookie": []
+      ],
+      "query": [
+        {
+          "name": "AA",
+          "schema": {
+            "type": "string",
+            "default": "2a",
+            "description": "对儿A"
+          }
         },
-        "response": [
-            {
-                "code": 400,
-                "description": "bad request",
-                "content": {
-                    "application/json": {
-                        "schema":{
-                            "$ref": "#/definitions/100000"
-                        }
-                    }
-                },
-                "header":[
-                    {
-                        "name": "xsf-session",
-                        "schema":{
-                            "type":"string",
-                            "description":""
-                        }
-                    }
-                ]
-            },
-            {
-                "code": 404,
-                "description": "not found",
-                "content": {
-                    "application/json": {
-                        "schema":{
-                            "$ref": "#/definitions/100001"
-                        }
-                    }
-                }
+        {
+          "name": "render",
+          "schema": {
+            "type": "string",
+            "default": "json",
+            "description": "结果渲染格式"
+          }
+        }
+      ]
+    }
+  },
+  "common": {
+    "parameters": [
+      {
+        "name": "type",
+        "schema": {
+          "type": "string",
+          "default": "http",
+          "description": "类型: category,doc,http,websocket"
+        }
+      },
+      {
+        "name": "page",
+        "schema": {
+          "type": "integer",
+          "default": "1",
+          "description": "页码"
+        }
+      }
+    ],
+    "response": [
+      {
+        "code": 400,
+        "description": "bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/definitions/schemas/response"
             }
+          }
+        },
+        "header": [
+          {
+            "name": "xsf-session",
+            "schema": {
+              "type": "string",
+              "description": ""
+            }
+          }
         ]
-    },
-    "definitions": [
-        {
-            "name": "user",
+      },
+      {
+        "code": 404,
+        "description": "not found",
+        "content": {
+          "application/json": {
             "schema": {
-                "type": "object",
-                "required": [
-                    "id"
-                ],
-                "properties": {
-                    "id": {
-                        "type": "number"
-                    },
-                    "name": {
-                        "type": "string"
-                    }
-                }
+              "$ref": "#/definitions/schemas/response"
             }
-        },
-        {
-            "name": "response",
-            "schema": {
-                "type": "object",
-                "description": "定义公共响应结构",
-                "properties": {
-                    "code": {
-                        "type": "integer",
-                        "description": "返回码"
-                    },
-                    "message": {
-                        "type": "string",
-                        "description": "返回消息"
-                    }
-                }
-            }
+          }
         }
-    ],
-    "collections": [
-        {
-            "title": "这是一个文档",
-            "id": 2,
-            "parentid": 0,
-            "type": "doc",
-            "tag": [
-                "aaa",
-                "bbb"
-            ],
-            "content": [
-                {
-                    "type": "paragraph"
-                }
-            ]
-        },
-        {
-            "title": "这是一个目录",
-            "id": 4,
-            "parentid": 0,
-            "type": "category",
-            "items": []
-        },
-        {
-            "title": "这是文件夹里的一个接口",
-            "id": 1,
-            "parentid": 0,
-            "type": "http",
-            "tag": [
-                "bbb"
-            ],
-            "content": [
-                {
-                    "type": "apicat-http-url",
-                    "attrs": {
-                        "path": "/getuser/{userid}",
-                        "method": "get"
-                    }
-                },
-                {
-                    "type": "paragraph",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "富文本描述在这里"
-                        }
-                    ]
-                },
-                {
-                    "type": "apicat-http-request",
-                    "attrs": {
-                        "parameters": {
-                            "path": [
-                                {
-                                    "name": "userid",
-                                    "required": true,
-                                    "schema": {
-                                        "type": "string"
-                                    }
-                                }
-                            ],
-                            "query":[]
-                        },
-                        "content": {
-                            "application/json": {
-                                "schema":{
-                                    "$ref": "#/definitions/user"
-                                }
-                            }
-                        }
-                    }
-                },
-                {
-                    "type": "paragraph"
-                },
-                {
-                    "type": "apicat-http-response",
-                    "attrs": {
-                        "list": [
-                            {
-                                "code": 200,
-                                "description": "success",
-                                "content": {
-                                    "application/json": {
-                                        "schema":{
-                                            "$ref": "#/definitions/response"
-                                        }
-                                    }
-                                }
-                            }
-                        ]
-                    }
-                }
-            ]
-        }
+      }
     ]
+  },
+  "definitions": {
+    "schemas": [
+      {
+        "name": "user",
+        "schema": {
+          "type": "object",
+          "required": ["id"],
+          "properties": {
+            "id": {
+              "type": "number"
+            },
+            "name": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      {
+        "name": "response",
+        "schema": {
+          "type": "object",
+          "description": "定义公共响应结构",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "description": "返回码"
+            },
+            "message": {
+              "type": "string",
+              "description": "返回消息"
+            }
+          }
+        }
+      }
+    ]
+  },
+
+  "collections": [
+    {
+      "title": "这是一个文档",
+      "id": 2,
+      "parentid": 0,
+      "type": "doc",
+      "tag": ["aaa", "bbb"],
+      "content": [
+        {
+          "type": "paragraph"
+        }
+      ]
+    },
+    {
+      "title": "这是一个目录",
+      "id": 4,
+      "parentid": 0,
+      "type": "category",
+      "items": []
+    },
+    {
+      "title": "这是文件夹里的一个接口",
+      "id": 1,
+      "parentid": 0,
+      "type": "http",
+      "tag": ["bbb"],
+      "content": [
+        {
+          "type": "apicat-http-url",
+          "attrs": {
+            "path": "/getuser/{userid}",
+            "method": "get"
+          }
+        },
+        {
+          "type": "paragraph",
+          "content": [
+            {
+              "type": "text",
+              "text": "富文本描述在这里"
+            }
+          ]
+        },
+        {
+          "type": "apicat-http-request",
+          "attrs": {
+            "parameters": {
+              "path": [
+                {
+                  "name": "userid",
+                  "required": true,
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              ],
+              "query": []
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/definitions/schemas/user"
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "paragraph"
+        },
+        {
+          "type": "apicat-http-response",
+          "attrs": {
+            "list": [
+              {
+                "code": 200,
+                "description": "success",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "$ref": "#/definitions/schemas/response"
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
 }
