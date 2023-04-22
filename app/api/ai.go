@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/apicat/apicat/commom/openai"
 	"github.com/apicat/apicat/commom/spec/plugin/openapi"
@@ -17,6 +18,11 @@ type AICreateCollectionStructure struct {
 	ParentID uint   `json:"parent_id" binding:"gte=0"`        // 父级id
 	Title    string `json:"title" binding:"required,lte=255"` // 名称
 	SchemaID uint   `json:"schema_id" binding:"gte=0"`        // 模型id
+}
+
+type AICreateSchemaStructure struct {
+	ParentID uint   `json:"parent_id" binding:"gte=0"`       // 父级id
+	Name     string `json:"name" binding:"required,lte=255"` // 名称
 }
 
 func AICreateCollection(ctx *gin.Context) {
@@ -101,5 +107,95 @@ func AICreateCollection(ctx *gin.Context) {
 		"created_by": collection.Creator(),
 		"updated_at": collection.UpdatedAt.Format("2006-01-02 15:04:05"),
 		"updated_by": collection.Updater(),
+	})
+}
+
+func AICreateSchema(ctx *gin.Context) {
+	var (
+		openapiContent string
+		err            error
+	)
+
+	type jsonSchema struct {
+		Title       string                 `json:"title"`
+		Description string                 `json:"description"`
+		Type        string                 `json:"type"`
+		Required    []string               `json:"required"`
+		Format      string                 `json:"format"`
+		Properties  map[string]interface{} `json:"properties"`
+		Items       interface{}            `json:"items"`
+		Example     interface{}            `json:"example"`
+	}
+
+	data := &AICreateSchemaStructure{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, "zh")
+	o.SetMaxTokens(2000)
+	openapiContent, err = o.CreateSchema(data.Name)
+	if err != nil || openapiContent == "" {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+		})
+		return
+	}
+	fmt.Println(openapiContent)
+
+	js := &jsonSchema{}
+	if err := json.Unmarshal([]byte(openapiContent), js); err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+		})
+		return
+	}
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+		})
+		return
+	}
+
+	project, _ := ctx.Get("CurrentProject")
+	definition, _ := models.NewDefinitions()
+	definition.ProjectId = project.(*models.Projects).ID
+	definition.Name = js.Title
+	definitions, err := definition.List()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	if len(definitions) > 0 {
+		definition.Name = definition.Name + time.Now().Format("20060102150405")
+	}
+
+	definition.Description = js.Description
+	definition.Type = "schema"
+	definition.Schema = openapiContent
+	if err := definition.Create(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.CreateFail"}),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"id":          definition.ID,
+		"parent_id":   definition.ParentId,
+		"name":        definition.Name,
+		"description": definition.Description,
+		"type":        definition.Type,
+		"schema":      definition.Schema,
+		"created_at":  definition.CreatedAt.Format("2006-01-02 15:04:05"),
+		"created_by":  definition.Creator(),
+		"updated_at":  definition.UpdatedAt.Format("2006-01-02 15:04:05"),
+		"updated_by":  definition.Updater(),
 	})
 }

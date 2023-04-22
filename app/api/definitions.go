@@ -122,7 +122,6 @@ func DefinitionsCreate(ctx *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(definitions)
 	if len(definitions) > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NameExists"}),
