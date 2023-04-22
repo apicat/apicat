@@ -25,8 +25,8 @@ var createSchemaPromptZh = "\"\"\"\n为%s设计一个 json schema 格式，并�
 var createApiBySchemaEn = "\"\"\"\nPlease generate a \"%s\" API based on the json schema content I provided below, and return it in the data format of openapi3.0.0.\n%s\n\"\"\"\n"
 var createApiBySchemaZh = "\"\"\"\n请根据我下面提供的json schema内容生成一个 \"%s\" 的api，并以openapi3.0.0的数据格式返回。\n%s\n\"\"\"\n"
 
-var listApiBySchemaEn = "\"\"\"\nBelow I will provide a json schema content named %s, which APIs can be generated according to this schema? Please directly provide the API names that can be generated in the form of an array, Inappropriate parameters can be ignored.\n%s\n\"\"\"\n"
-var listApiBySchemaZh = "\"\"\"\n下面我会提供一个名为%s的json schema内容，根据这个schema可以生成哪些API？ 请直接以数组形式给出可生成的API名称。\n%s\n\"\"\"\n"
+var listApiBySchemaEn = "\"\"\"\nBelow I will provide a json schema content named %s, which APIs can be generated according to this schema? Please directly provide the API title that can be generated in the form of an array, Inappropriate parameters can be ignored.\n%s\n\"\"\"\n"
+var listApiBySchemaZh = "\"\"\"\n下面我会提供一个名为%s的json schema内容，根据这个schema可以生成哪些API？ 请可生成的API的标题直接以json数组形式给出。\n%s\n\"\"\"\n"
 
 func NewOpenAI(token, language string) *OpenAI {
 	return &OpenAI{

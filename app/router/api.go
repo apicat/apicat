@@ -103,6 +103,7 @@ func InitApiRouter(r *gin.Engine) {
 
 			ai := project.(*gin.RouterGroup).Group("/ai")
 			{
+				ai.GET("/collections/name", api.AICreateApiNames)
 				ai.POST("/collections", api.AICreateCollection)
 				ai.POST("/schemas", api.AICreateSchema)
 			}

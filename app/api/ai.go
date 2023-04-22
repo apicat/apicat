@@ -17,12 +17,16 @@ import (
 type AICreateCollectionStructure struct {
 	ParentID uint   `json:"parent_id" binding:"gte=0"`        // 父级id
 	Title    string `json:"title" binding:"required,lte=255"` // 名称
-	SchemaID uint   `json:"schema_id" binding:"gte=0"`        // 模型id
+	SchemaID uint   `json:"schema_id" binding:"gt=0"`         // 模型id
 }
 
 type AICreateSchemaStructure struct {
 	ParentID uint   `json:"parent_id" binding:"gte=0"`       // 父级id
 	Name     string `json:"name" binding:"required,lte=255"` // 名称
+}
+
+type AICreateApiNameStructure struct {
+	SchemaID uint `form:"schema_id" binding:"gt=0"` // 模型id
 }
 
 func AICreateCollection(ctx *gin.Context) {
@@ -198,4 +202,47 @@ func AICreateSchema(ctx *gin.Context) {
 		"updated_at":  definition.UpdatedAt.Format("2006-01-02 15:04:05"),
 		"updated_by":  definition.Updater(),
 	})
+}
+
+func AICreateApiNames(ctx *gin.Context) {
+	var (
+		openapiContent string
+		err            error
+	)
+
+	data := &AICreateApiNameStructure{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	schema, err := models.NewDefinitions(data.SchemaID)
+	if err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NotFound"}),
+		})
+		return
+	}
+
+	o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, "zh")
+	openapiContent, err = o.ListApiBySchema(schema.Name, schema.Schema)
+	if err != nil || openapiContent == "" {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+		})
+		return
+	}
+	fmt.Println(openapiContent)
+
+	var arr []string
+	if err := json.Unmarshal([]byte(openapiContent), &arr); err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, arr)
 }
