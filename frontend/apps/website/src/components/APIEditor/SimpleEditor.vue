@@ -34,7 +34,7 @@
         <th class="text-center" style="width: 54px">必须</th>
         <th style="width: 34%">示例值</th>
         <th style="width: 38%">描述</th>
-        <th class="text-center" style="width: 30px"></th>
+        <th class="text-center" style="width: 50px"></th>
       </tr>
       <tbody>
         <slot name="before" />
@@ -179,6 +179,7 @@ const dropHandler = (ev: DragEvent, i: number) => {
   if (drag && drag !== '') {
     const p = parseInt(drag)
     model.value.splice(i + 1, 0, model.value.splice(p, 1)[0])
+    changeNotify()
   }
 }
 </script>

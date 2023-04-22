@@ -24,8 +24,9 @@ import isURL from 'validator/lib/isURL'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
-const { t } = useI18n()
 const props = defineProps<{ modelValue: HttpDocument }>()
+
+const { t } = useI18n()
 const ns = useNamespace('http-method')
 const nodeAttrs = useNodeAttrs(props, HTTP_URL_NODE_KEY)
 

@@ -30,7 +30,7 @@ func (gp *GlobalParameters) List() ([]*GlobalParameters, error) {
 	globalParametersQuery := Conn.Where("project_id = ?", gp.ProjectID)
 
 	var globalParameters []*GlobalParameters
-	return globalParameters, globalParametersQuery.Order("id desc").Find(&globalParameters).Error
+	return globalParameters, globalParametersQuery.Find(&globalParameters).Error
 }
 
 func (gp *GlobalParameters) GetCountByName() (int64, error) {
@@ -49,4 +49,8 @@ func (gp *GlobalParameters) Create() error {
 
 func (gp *GlobalParameters) Update() error {
 	return Conn.Save(gp).Error
+}
+
+func (gp *GlobalParameters) Delete() error {
+	return Conn.Delete(gp).Error
 }

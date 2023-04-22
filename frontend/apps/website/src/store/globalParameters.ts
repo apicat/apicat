@@ -6,7 +6,7 @@ interface GlobalParametersStore {
   parameters: GlobalParameters
 }
 
-export const uesGlobalParametersStore = defineStore('GlobalParametersStore', {
+export const uesGlobalParametersStore = defineStore('globalParameters', {
   state: (): GlobalParametersStore => ({
     parameters: {
       header: [],
@@ -26,12 +26,7 @@ export const uesGlobalParametersStore = defineStore('GlobalParametersStore', {
   actions: {
     async getGlobalParameters(project_id: string | number) {
       const data: any = await getGlobalParamList({ project_id })
-      const { header = [], cookie = [], query = [], path = [] } = data || {}
-
-      this.parameters.header = header
-      this.parameters.cookie = cookie
-      this.parameters.query = query
-      this.parameters.path = path
+      this.parameters = data || { header: [], cookie: [], query: [], path: [] }
     },
 
     async addGlobalParameter(project_id: string | number, type: string, param: GlobalParameter) {
