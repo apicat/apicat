@@ -37,18 +37,24 @@ func Decode(data []byte) (out *spec.Spec, err error) {
 	return
 }
 
+const defaultSwaggerConsumerProduce = "application/json"
+
 func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 	model, errors := document.BuildV2Model()
 	if len(errors) > 0 {
 		return nil, fmt.Errorf("swagger version:%s parse faild", document.GetVersion())
 	}
 	sw := &Swagger{}
+	schemas := sw.parseDefinetions(model.Model.Definitions)
+	responseDefinitions := sw.parseResponsesDefine(&model.Model)
+	paramters, paramemapping := sw.parseParamtersCommon(&model.Model)
 	return &spec.Spec{
 		ApiCat:      "2.0",
 		Info:        sw.parseInfo(model.Model.Info),
 		Servers:     sw.parseServers(&model.Model),
-		Definitions: sw.parseDefinetions(model.Model.Definitions),
-		Collections: sw.parseCollections(&model.Model, model.Model.Paths),
+		Collections: sw.parseCollections(&model.Model, model.Model.Paths, paramemapping),
+		Definitions: spec.Definitions{Schemas: schemas, Responses: responseDefinitions},
+		Common:      spec.Common{Parameters: paramters},
 	}, nil
 }
 
@@ -58,11 +64,15 @@ func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
 		return nil, fmt.Errorf("openapi version:%s parse faild", document.GetVersion())
 	}
 	o := &OpenAPI{}
+	paramters, paramemapping := o.parseParamtersCommon(model.Model.Components)
 	return &spec.Spec{
 		Info:        o.parseInfo(model.Model.Info),
 		Servers:     o.parseServers(model.Model.Servers),
-		Definitions: o.parseDefinetions(model.Model.Components.Schemas),
-		Collections: o.parseCollections(model.Model.Paths),
+		Definitions: o.parseDefinetions(model.Model.Components),
+		Collections: o.parseCollections(model.Model.Paths, paramemapping),
+		Common: spec.Common{
+			Parameters: paramters,
+		},
 	}, nil
 }
 
@@ -92,16 +102,53 @@ func Encode(in *spec.Spec, version string) ([]byte, error) {
 
 // swagger/open3.x
 type openAPIParamter struct {
-	Name        string `json:"name"`
-	In          string `json:"in"`
-	Required    bool   `json:"required"`
+	Name        string `json:"name,omitempty"`
+	In          string `json:"in,omitempty"`
+	Required    bool   `json:"required,omitempty"`
 	Description string `json:"description,omitempty"`
 	// in body
 	Schema *jsonschema.Schema `json:"schema,omitempty"`
 	// in not body
-	Type    string `json:"type,omitempty"`
-	Format  string `json:"format,omitempty"`
-	Default any    `json:"default,omitempty"`
+	Type      string  `json:"type,omitempty"`
+	Format    string  `json:"format,omitempty"`
+	Default   any     `json:"default,omitempty"`
+	Reference *string `json:"$ref,omitempty"`
+}
+
+func toParameter(p *spec.Schema, in string) openAPIParamter {
+	tp := "string"
+	if n := len(p.Schema.Type.Value()); n > 0 {
+		tp = p.Schema.Type.Value()[0]
+	}
+	return openAPIParamter{
+		In:       in,
+		Type:     tp,
+		Name:     p.Name,
+		Required: p.Required,
+		Format:   p.Schema.Format,
+		Default:  p.Schema.Default,
+	}
+}
+
+func toParameterGlobal(globalsParmaters spec.HTTPParameters, skip map[string][]string) []openAPIParamter {
+	var outs []openAPIParamter
+	skips := make(map[string]bool)
+	if skip != nil {
+		for k, v := range skip {
+			for _, x := range v {
+				skips[k+"|"+x] = true
+			}
+		}
+	}
+	for in, ps := range globalsParmaters.Map() {
+		for _, v := range ps {
+			if skips[in+"|"+v.Name] {
+				continue
+			}
+			outs = append(outs, toParameter(v, in))
+		}
+	}
+	return outs
 }
 
 type tagObject struct {

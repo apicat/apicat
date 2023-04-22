@@ -2,6 +2,7 @@ package openapi
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/apicat/apicat/commom/spec/jsonschema"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
@@ -105,4 +106,8 @@ func jsonSchemaConverter(in *base.Schema) (*jsonschema.Schema, error) {
 	}
 
 	return &out, nil
+}
+
+func getRefName(ref string) string {
+	return ref[strings.LastIndex(ref, "/"):]
 }

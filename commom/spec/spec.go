@@ -27,8 +27,9 @@ type Spec struct {
 	ApiCat      string         `json:"apicat"`
 	Info        *Info          `json:"info"`
 	Servers     []*Server      `json:"servers"`
-	Common      *Common        `json:"common"`
-	Definitions Schemas        `json:"definitions"`
+	Globals     Global         `json:"globals"`
+	Common      Common         `json:"common"`
+	Definitions Definitions    `json:"definitions"`
 	Collections []*CollectItem `json:"collections"`
 }
 
@@ -123,7 +124,16 @@ type Server struct {
 	Description string `json:"description,omitempty"`
 }
 
+type Global struct {
+	Parameters HTTPParameters `json:"parameters,omitempty"`
+}
+
 type Common struct {
-	Parameters *HTTPParameters `json:"parameters,omitempty"`
-	Responses  []HTTPResponse  `json:"responses,omitempty"`
+	Parameters Schemas       `json:"parameters,omitempty"`
+	Responses  HTTPResponses `json:"response,omitempty"`
+}
+
+type Definitions struct {
+	Schemas   Schemas             `json:"schemas,omitempty"`
+	Responses HTTPResponseDefines `json:"responses,omitempty"`
 }
