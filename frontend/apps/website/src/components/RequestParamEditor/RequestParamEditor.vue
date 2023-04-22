@@ -29,7 +29,21 @@
           Cookie
           <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px" v-if="cookiesCount">{{ cookiesCount }}</span>
         </template>
-        <SimpleParameterEditor v-model="cookies" />
+        <SimpleParameterEditor v-model="cookies">
+          <template #before>
+            <tr v-for="item in globalCookies" :key="item.id">
+              <td></td>
+              <td class="px-12px">{{ item.name }}</td>
+              <td class="px-12px">{{ item.schema.type }}</td>
+              <td class="text-center">{{ item.required }}</td>
+              <td class="px-12px">{{ item.schema.default }}</td>
+              <td class="px-12px">{{ item.schema.description }}</td>
+              <td class="text-center">
+                <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalCookie(item.id, v)" />
+              </td>
+            </tr>
+          </template>
+        </SimpleParameterEditor>
       </el-tab-pane>
 
       <el-tab-pane label="Query">
@@ -37,7 +51,21 @@
           Query
           <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px" v-if="queriesCount">{{ queriesCount }}</span>
         </template>
-        <SimpleParameterEditor v-model="queries" />
+        <SimpleParameterEditor v-model="queries">
+          <template #before>
+            <tr v-for="item in globalQueries" :key="item.id">
+              <td></td>
+              <td class="px-12px">{{ item.name }}</td>
+              <td class="px-12px">{{ item.schema.type }}</td>
+              <td class="text-center">{{ item.required }}</td>
+              <td class="px-12px">{{ item.schema.default }}</td>
+              <td class="px-12px">{{ item.schema.description }}</td>
+              <td class="text-center">
+                <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalQuery(item.id, v)" />
+              </td>
+            </tr>
+          </template>
+        </SimpleParameterEditor>
       </el-tab-pane>
 
       <el-tab-pane label="Body">
@@ -87,7 +115,21 @@
           Path
           <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px" v-if="pathsCount">{{ pathsCount }}</span>
         </template>
-        <SimpleParameterEditor v-model="paths" />
+        <SimpleParameterEditor v-model="paths">
+          <template #before>
+            <tr v-for="item in globalPaths" :key="item.id">
+              <td></td>
+              <td class="px-12px">{{ item.name }}</td>
+              <td class="px-12px">{{ item.schema.type }}</td>
+              <td class="text-center">{{ item.required }}</td>
+              <td class="px-12px">{{ item.schema.default }}</td>
+              <td class="px-12px">{{ item.schema.description }}</td>
+              <td class="text-center">
+                <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalPath(item.id, v)" />
+              </td>
+            </tr>
+          </template>
+        </SimpleParameterEditor>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -104,6 +146,23 @@ import { Definition } from '../APIEditor/types'
 
 const props = defineProps<{ modelValue: HttpDocument; definitions?: Definition[] }>()
 
-const { headers, globalHeaders, cookies, queries, paths, headersCount, cookiesCount, queriesCount, pathsCount, switchGlobalHeader } = useParameter(props)
+const {
+  headers,
+  cookies,
+  queries,
+  paths,
+  headersCount,
+  cookiesCount,
+  queriesCount,
+  pathsCount,
+  globalHeaders,
+  globalCookies,
+  globalPaths,
+  globalQueries,
+  switchGlobalHeader,
+  switchGlobalCookie,
+  switchGlobalPath,
+  switchGlobalQuery,
+} = useParameter(props)
 const { RequestContentTypesMap, currentContentTypeRef, contentValues, bodyCount, handleChooseFile } = useContentType(props)
 </script>
