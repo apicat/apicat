@@ -79,6 +79,9 @@ func (o *OpenAPI) parseParamtersCommon(comp *v3.Components) (spec.Schemas, map[s
 }
 
 func (o *OpenAPI) parseDefinetions(comp *v3.Components) spec.Definitions {
+	if comp == nil {
+		return spec.Definitions{}
+	}
 	si := 0
 	schemas := make(spec.Schemas, len(comp.Schemas))
 	for k, v := range comp.Schemas {
