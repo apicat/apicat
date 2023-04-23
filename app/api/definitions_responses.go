@@ -60,6 +60,39 @@ func DefinitionsResponsesList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
+func DefinitionsResponsesDetail(ctx *gin.Context) {
+	dr := DefinitionsResponsesID{}
+	definitionsResponses, err := dr.CheckDefinitionsResponses(ctx)
+	if err != nil {
+		return
+	}
+
+	header := []*apicat_struct.Header{}
+	if err := json.Unmarshal([]byte(definitionsResponses.Header), &header); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	content := apicat_struct.BodyObject{}
+	if err := json.Unmarshal([]byte(definitionsResponses.Content), &content); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, map[string]interface{}{
+		"id":          definitionsResponses.ID,
+		"name":        definitionsResponses.Name,
+		"code":        definitionsResponses.Code,
+		"description": definitionsResponses.Description,
+		"header":      header,
+		"content":     content,
+	})
+}
+
 func DefinitionsResponsesCreate(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)

@@ -18,7 +18,9 @@ type ResponseObject struct {
 
 type Header struct {
 	Name        string       `json:"name" binding:"required,lte=255"`
-	Description string       `json:"description" binding:"lte=255"`
+	Description string       `json:"description" binding:"omitempty,lte=255"`
+	Example     string       `json:"example" binding:"omitempty,lte=255"`
+	Default     string       `json:"default" binding:"omitempty,lte=255"`
 	Required    bool         `json:"required"`
 	Schema      SchemaObject `json:"schema"`
 }
