@@ -85,7 +85,7 @@ const disabled = computed(() => model.value.length <= 1)
 const activeLastTab = () => {
   const len = model.value.length
   const res = model.value[len - 1]
-  editableTabsValue.value = res.id
+  editableTabsValue.value = res._id
 }
 
 const handleAddTab = () => {
@@ -93,10 +93,10 @@ const handleAddTab = () => {
   activeLastTab()
 }
 
-const handleRemoveTab = (id: any) => {
-  const index = model.value.findIndex((item: any) => item.id === id)
+const handleRemoveTab = (_id: any) => {
+  const index = model.value.findIndex((item: any) => item._id === _id)
   model.value.splice(index, 1)
-  if (id === editableTabsValue.value) {
+  if (_id === editableTabsValue.value) {
     activeLastTab()
   }
 }
