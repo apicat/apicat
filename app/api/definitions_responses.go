@@ -261,7 +261,7 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 		Header:      header,
 		Content:     content,
 	}
-	fmt.Printf("responseDetail: %+v\n", responseDetail)
+
 	collections, _ := models.NewCollections()
 	collections.ProjectId = project.ID
 	collectionList, err := collections.List()
@@ -274,7 +274,6 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 
 	for _, collection := range collectionList {
 		if collection.Type == "http" {
-			fmt.Printf("collection.Content: %+v\n", collection.Content)
 			docContent := []map[string]interface{}{}
 			if err := json.Unmarshal([]byte(collection.Content), &docContent); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
@@ -295,7 +294,7 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 					}
 				}
 			}
-
+			fmt.Printf("response: %v\n", string(response))
 			apicatResponseList := apicat_struct.ResponseObjectList{}
 			if err := json.Unmarshal(response, &apicatResponseList); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
@@ -305,6 +304,26 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 			}
 
 			apicatResponseList.Dereference(&responseDetail)
+			for i, v := range docContent {
+				if v["type"] == "apicat-http-response" {
+					docContent[i]["attrs"] = apicatResponseList
+				}
+			}
+
+			newContent, err := json.Marshal(docContent)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": err.Error(),
+				})
+				return
+			}
+			collection.Content = string(newContent)
+			if err := collection.Update(); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": err.Error(),
+				})
+				return
+			}
 		}
 	}
 
