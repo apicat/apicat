@@ -14,7 +14,7 @@
               <td class="px-12px">{{ item.name }}</td>
               <td class="px-12px">{{ item.schema.type }}</td>
               <td class="text-center">{{ item.required }}</td>
-              <td class="px-12px">{{ item.schema.default }}</td>
+              <td class="px-12px">{{ item.schema.example }}</td>
               <td class="px-12px">{{ item.schema.description }}</td>
               <td class="text-center">
                 <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalHeader(item.id, v)" />
@@ -36,7 +36,7 @@
               <td class="px-12px">{{ item.name }}</td>
               <td class="px-12px">{{ item.schema.type }}</td>
               <td class="text-center">{{ item.required }}</td>
-              <td class="px-12px">{{ item.schema.default }}</td>
+              <td class="px-12px">{{ item.schema.example }}</td>
               <td class="px-12px">{{ item.schema.description }}</td>
               <td class="text-center">
                 <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalCookie(item.id, v)" />
@@ -58,7 +58,7 @@
               <td class="px-12px">{{ item.name }}</td>
               <td class="px-12px">{{ item.schema.type }}</td>
               <td class="text-center">{{ item.required }}</td>
-              <td class="px-12px">{{ item.schema.default }}</td>
+              <td class="px-12px">{{ item.schema.example }}</td>
               <td class="px-12px">{{ item.schema.description }}</td>
               <td class="text-center">
                 <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalQuery(item.id, v)" />
@@ -122,7 +122,7 @@
               <td class="px-12px">{{ item.name }}</td>
               <td class="px-12px">{{ item.schema.type }}</td>
               <td class="text-center">{{ item.required }}</td>
-              <td class="px-12px">{{ item.schema.default }}</td>
+              <td class="px-12px">{{ item.schema.example }}</td>
               <td class="px-12px">{{ item.schema.description }}</td>
               <td class="text-center">
                 <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalPath(item.id, v)" />

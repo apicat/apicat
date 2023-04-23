@@ -8,6 +8,9 @@
         <th style="width: 38%">示例值</th>
         <th style="width: 38%">描述</th>
       </tr>
+
+      <slot name="before" />
+
       <tr v-for="(data, index) in list" :key="index">
         <td>
           <span class="break-all copy_text">{{ data.name }}</span>
