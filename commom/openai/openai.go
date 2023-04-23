@@ -16,9 +16,6 @@ type OpenAI struct {
 	CompletionResponse openAI.CompletionResponse
 }
 
-var createApiBySchemaEn = "\"\"\"\nPlease generate a \"%s\" API based on the json schema content I provided below, and return it in the data format of openapi3.0.0.\n%s\n\"\"\"\n"
-var createApiBySchemaZh = "\"\"\"\n请根据我下面提供的json schema内容生成一个 \"%s\" 的api，并以openapi3.0.0的数据格式返回。\n%s\n\"\"\"\n"
-
 func NewOpenAI(token, language string) *OpenAI {
 	return &OpenAI{
 		token:     token,
@@ -112,9 +109,9 @@ func (o *OpenAI) generatePrompt(action string, text ...string) string {
 		return fmt.Sprintf(createSchemaPrompt, text[0])
 	case "createApiBySchema":
 		if o.language == "zh" {
-			return fmt.Sprintf(createApiBySchemaZh, text[0], text[1])
+			return fmt.Sprintf(createApiBySchemaPrompt, text[0], text[1]+"\nPlease translate the content corresponding to the title and description in the content into Chinese.")
 		}
-		return fmt.Sprintf(createApiBySchemaEn, text[0], text[1])
+		return fmt.Sprintf(createApiBySchemaPrompt, text[0], text[1])
 	case "listApiBySchema":
 		if o.language == "zh" {
 			return fmt.Sprintf(listApiBySchemaPrompt, text[0], text[1]+"\nPlease translate the content in the description field into Chinese.")

@@ -56,7 +56,7 @@ func AICreateCollection(ctx *gin.Context) {
 		}
 
 		o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, lang)
-		o.SetMaxTokens(2000)
+		o.SetMaxTokens(3000)
 		openapiContent, err = o.CreateApiBySchema(data.Title, schema.Schema)
 	} else {
 		o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, lang)
