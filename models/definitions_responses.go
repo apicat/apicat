@@ -32,3 +32,12 @@ func (dr *DefinitionsResponses) List() ([]*DefinitionsResponses, error) {
 	var definitionsResponses []*DefinitionsResponses
 	return definitionsResponses, definitionsResponsesQuery.Find(&definitionsResponses).Error
 }
+
+func (dr *DefinitionsResponses) GetCountByName() (int64, error) {
+	var count int64
+	return count, Conn.Model(&DefinitionsResponses{}).Where("project_id = ? and name = ?", dr.ProjectID, dr.Name).Count(&count).Error
+}
+
+func (dr *DefinitionsResponses) Create() error {
+	return Conn.Create(dr).Error
+}

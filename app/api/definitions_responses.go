@@ -1,8 +1,10 @@
 package api
 
 import (
+	"encoding/json"
 	"net/http"
 
+	"github.com/apicat/apicat/commom/apicat_struct"
 	"github.com/apicat/apicat/commom/translator"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
@@ -55,4 +57,72 @@ func DefinitionsResponsesList(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, result)
+}
+
+func DefinitionsResponsesCreate(ctx *gin.Context) {
+	currentProject, _ := ctx.Get("CurrentProject")
+	project, _ := currentProject.(*models.Projects)
+
+	data := apicat_struct.ResponseObject{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	definitionsResponses, _ := models.NewDefinitionsResponses()
+	definitionsResponses.ProjectID = project.ID
+	definitionsResponses.Name = data.Name
+
+	count, err := definitionsResponses.GetCountByName()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	if count > 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionsResponses.NameExists"}),
+		})
+		return
+	}
+
+	definitionsResponses.Code = data.Code
+	definitionsResponses.Description = data.Description
+
+	header, err := json.Marshal(data.Header)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	definitionsResponses.Header = string(header)
+
+	content, err := json.Marshal(data.Content)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	definitionsResponses.Content = string(content)
+
+	if err := definitionsResponses.Create(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"id":          definitionsResponses.ID,
+		"name":        definitionsResponses.Name,
+		"code":        definitionsResponses.Code,
+		"description": definitionsResponses.Description,
+		"header":      data.Header,
+		"content":     data.Content,
+	})
 }
