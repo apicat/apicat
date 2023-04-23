@@ -9,6 +9,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    'AcIconBi:robot': typeof import('~icons/bi/robot')['default']
     AcIconCarbonModelAlt: typeof import('~icons/carbon/model-alt')['default']
     AcIconCarbonUnlink: typeof import('~icons/carbon/unlink')['default']
     AcIconEpArrowDownBold: typeof import('~icons/ep/arrow-down-bold')['default']

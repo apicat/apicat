@@ -122,3 +122,5 @@ const mergeDocumentContent = (content: any) => {
     }
   })
 }
+
+export const createCollectionByAI = async ({ project_id, ...params }: any) => Ajax.post(`/projects/${project_id}/ai/collections`, params)
