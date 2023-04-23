@@ -48,7 +48,7 @@ const isInvalidId = () => isNaN(parseInt(route.params.doc_id as string, 10))
 watch(
   httpDoc,
   debounce(async (newVal, oldVal) => {
-    if (!oldVal.id || isInvalidId()) {
+    if (!oldVal || !oldVal.id || isInvalidId()) {
       // id 不存在
       return
     }

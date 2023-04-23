@@ -35,7 +35,6 @@ export const useResponseparamList = ({ id: project_id }: Pick<ProjectInfo, 'id'>
   const handleDeleteParam = async (item: APICatCommonResponseCustom, index: number) => {
     const { detail } = item
 
-    console.log(item)
     if (detail && detail.id) {
       item.isLoading = true
       try {
