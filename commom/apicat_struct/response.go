@@ -1,35 +1,25 @@
 package apicat_struct
 
-import "strconv"
+import "github.com/apicat/apicat/commom/spec"
 
 type ResponseObjectList struct {
 	List []*ResponseObject `json:"list"`
 }
 
 type ResponseObject struct {
-	ID          uint       `json:"id,omitempty"`
-	Name        string     `json:"name" binding:"required,lte=255"`
-	Code        int        `json:"code" binding:"required"`
-	Description string     `json:"description" binding:"required,lte=255"`
-	Header      []*Header  `json:"header" binding:"omitempty,dive"`
-	Content     BodyObject `json:"content" binding:"required"`
-	Ref         string     `json:"$ref,omitempty" binding:"omitempty,lte=255"`
+	Name        string                 `json:"name"`
+	Code        int                    `json:"code"`
+	Description string                 `json:"description"`
+	Header      []*Header              `json:"header,omitempty"`
+	Content     map[string]spec.Schema `json:"content,omitempty"`
+	Ref         string                 `json:"$ref,omitempty"`
 }
 
 type Header struct {
-	Name        string       `json:"name" binding:"required,lte=255"`
-	Description string       `json:"description" binding:"omitempty,lte=255"`
-	Example     string       `json:"example" binding:"omitempty,lte=255"`
-	Default     string       `json:"default" binding:"omitempty,lte=255"`
-	Required    bool         `json:"required"`
-	Schema      SchemaObject `json:"schema"`
-}
-
-func (rl *ResponseObjectList) Dereference(ro *ResponseObject) {
-	for i, r := range rl.List {
-		if r.Ref == "#/commons/responses/"+strconv.FormatUint(uint64(ro.ID), 10) {
-			rl.List = append(rl.List[:i], rl.List[i+1:]...)
-		}
-	}
-	rl.List = append(rl.List, ro)
+	Name        string      `json:"name"`
+	Description string      `json:"description"`
+	Example     string      `json:"example"`
+	Default     string      `json:"default"`
+	Required    bool        `json:"required"`
+	Schema      spec.Schema `json:"schema"`
 }

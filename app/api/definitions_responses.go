@@ -3,8 +3,10 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 
-	"github.com/apicat/apicat/commom/apicat_struct"
+	"github.com/apicat/apicat/commom/spec"
 	"github.com/apicat/apicat/commom/translator"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
@@ -31,6 +33,24 @@ func (dr *DefinitionsResponsesID) CheckDefinitionsResponses(ctx *gin.Context) (*
 	}
 
 	return definitionsResponses, nil
+}
+
+type ResponseDetailData struct {
+	Name        string                 `json:"name" binding:"required,lte=255"`
+	Code        int                    `json:"code" binding:"required"`
+	Description string                 `json:"description" binding:"required,lte=255"`
+	Header      []*HeaderData          `json:"header,omitempty" binding:"omitempty,dive"`
+	Content     map[string]spec.Schema `json:"content,omitempty" binding:"required"`
+	Ref         string                 `json:"$ref,omitempty" binding:"omitempty,lte=255"`
+}
+
+type HeaderData struct {
+	Name        string      `json:"name" binding:"required,lte=255"`
+	Description string      `json:"description" binding:"omitempty,lte=255"`
+	Example     string      `json:"example" binding:"omitempty,lte=255"`
+	Default     string      `json:"default" binding:"omitempty,lte=255"`
+	Required    bool        `json:"required"`
+	Schema      spec.Schema `json:"schema"`
 }
 
 func DefinitionsResponsesList(ctx *gin.Context) {
@@ -67,7 +87,7 @@ func DefinitionsResponsesDetail(ctx *gin.Context) {
 		return
 	}
 
-	header := []*apicat_struct.Header{}
+	header := []*HeaderData{}
 	if err := json.Unmarshal([]byte(definitionsResponses.Header), &header); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -75,7 +95,7 @@ func DefinitionsResponsesDetail(ctx *gin.Context) {
 		return
 	}
 
-	content := apicat_struct.BodyObject{}
+	content := map[string]spec.Schema{}
 	if err := json.Unmarshal([]byte(definitionsResponses.Content), &content); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -97,7 +117,7 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
-	data := apicat_struct.ResponseObject{}
+	data := ResponseDetailData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -162,7 +182,7 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 }
 
 func DefinitionsResponsesUpdate(ctx *gin.Context) {
-	data := apicat_struct.ResponseObject{}
+	data := ResponseDetailData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -238,14 +258,14 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 		return
 	}
 
-	header := []*apicat_struct.Header{}
+	header := []*HeaderData{}
 	if err := json.Unmarshal([]byte(definitionsResponses.Header), &header); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	content := apicat_struct.BodyObject{}
+	content := map[string]spec.Schema{}
 	if err := json.Unmarshal([]byte(definitionsResponses.Content), &content); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -253,7 +273,7 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 		return
 	}
 
-	responseDetail := apicat_struct.ResponseObject{
+	responseDetail := ResponseDetailData{
 		Name:        definitionsResponses.Name,
 		Code:        definitionsResponses.Code,
 		Description: definitionsResponses.Description,
@@ -271,57 +291,26 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 		return
 	}
 
+	ref := "{$ref:#/commons/responses/" + strconv.FormatUint(uint64(definitionsResponses.ID), 10) + "}"
+	responseDetailJson, err := json.Marshal(responseDetail)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
 	for _, collection := range collectionList {
 		if collection.Type == "http" {
-			docContent := []map[string]interface{}{}
-			if err := json.Unmarshal([]byte(collection.Content), &docContent); err != nil {
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": err.Error(),
-				})
-				return
-			}
-
-			var response []byte
-			for _, v := range docContent {
-				if v["type"] == "apicat-http-response" {
-					response, err = json.Marshal(v["attrs"])
-					if err != nil {
-						ctx.JSON(http.StatusBadRequest, gin.H{
-							"message": err.Error(),
-						})
-						return
-					}
+			if strings.Contains(collection.Content, ref) {
+				newContent := strings.Replace(collection.Content, ref, string(responseDetailJson), -1)
+				collection.Content = newContent
+				if err := collection.Update(); err != nil {
+					ctx.JSON(http.StatusBadRequest, gin.H{
+						"message": err.Error(),
+					})
+					return
 				}
-			}
-
-			apicatResponseList := apicat_struct.ResponseObjectList{}
-			if err := json.Unmarshal(response, &apicatResponseList); err != nil {
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": err.Error(),
-				})
-				return
-			}
-
-			apicatResponseList.Dereference(&responseDetail)
-			for i, v := range docContent {
-				if v["type"] == "apicat-http-response" {
-					docContent[i]["attrs"] = apicatResponseList
-				}
-			}
-
-			newContent, err := json.Marshal(docContent)
-			if err != nil {
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": err.Error(),
-				})
-				return
-			}
-			collection.Content = string(newContent)
-			if err := collection.Update(); err != nil {
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": err.Error(),
-				})
-				return
 			}
 		}
 	}
