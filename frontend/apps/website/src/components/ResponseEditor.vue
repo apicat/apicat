@@ -36,11 +36,10 @@
     </el-tabs>
   </div>
 
-  <SelectCommonResponseModal ref="selectCommonResponseModalRef" @ok="handleChooseCommonResponse" />
+  <SelectCommonResponseModal ref="selectCommonResponseModalRef" @ok="handleCommonResponseSelectFinish" />
 </template>
 
 <script setup lang="ts">
-import { HttpDocument } from '@/typings'
 import { Definition } from './APIEditor/types'
 import ResponseForm from './ResponseForm.vue'
 import { RefPrefixKeys, getResponseStatusCodeBgColor } from '@/commons'
@@ -50,7 +49,7 @@ import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 import SelectCommonResponseModal from '@/views/document/components/SelectCommonResponseModal.vue'
 
 const emits = defineEmits(['update:data'])
-const props = defineProps<{ modelValue?: HttpDocument; data: Array<any>; definitions?: Definition[] }>()
+const props = defineProps<{ data: Array<any>; definitions?: Definition[] }>()
 
 const createResponse = (item?: any) => {
   return {
@@ -61,6 +60,8 @@ const createResponse = (item?: any) => {
     ...item,
   }
 }
+
+const createCommonRefResponse = (name: string) => ({ $ref: `${RefPrefixKeys.CommonResponse.key}${name}`, _id: uuid(), _isCommonResponse: true, _refName: name })
 
 const model = ref(
   (props.data || []).map((item: any) => {
@@ -106,10 +107,10 @@ const onShowCommonResponseModal = () => {
   selectCommonResponseModalRef.value?.show(names)
 }
 
-const handleChooseCommonResponse = (selectedNames: string[]) => {
+const handleCommonResponseSelectFinish = (selectedNames: string[]) => {
   model.value = model.value.filter((item) => !item._isCommonResponse)
   selectedNames.forEach((name) => {
-    model.value.push({ $ref: `${RefPrefixKeys.CommonResponse.key}${name}`, _id: uuid(), _isCommonResponse: true, _refName: name })
+    model.value.push(createCommonRefResponse(name))
   })
 }
 
@@ -121,6 +122,7 @@ const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDr
   },
 })
 
+// v-model
 watch(
   model,
   () => {
