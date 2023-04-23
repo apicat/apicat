@@ -69,12 +69,6 @@ func InitApiRouter(r *gin.Engine) {
 				globalParameters.DELETE("/:parameter-id", api.GlobalParametersDelete)
 			}
 
-			// parameters := project.(*gin.RouterGroup).Group("/parameters")
-			// {
-			// 	parameters.GET("/", api.PublicParametersList)
-			// 	parameters.PUT("/", api.PublicParametersSettings)
-			// }
-
 			definitionsResponses := project.(*gin.RouterGroup).Group("/definitions/responses")
 			{
 				definitionsResponses.GET("/", api.DefinitionsResponsesList)
@@ -82,15 +76,6 @@ func InitApiRouter(r *gin.Engine) {
 				definitionsResponses.POST("/", api.DefinitionsResponsesCreate)
 				definitionsResponses.PUT("/:response-id", api.DefinitionsResponsesUpdate)
 				definitionsResponses.DELETE("/:response-id", api.DefinitionsResponsesDelete)
-			}
-
-			responses := project.(*gin.RouterGroup).Group("/responses")
-			{
-				responses.GET("/", api.PublicResponsesList)
-				responses.GET("/:response-id", api.PublicResponsesDetails)
-				responses.POST("/", api.PublicResponsesAdd)
-				responses.PUT("/:response-id", api.PublicResponsesEdit)
-				responses.DELETE("/:response-id", api.PublicResponsesDelete)
 			}
 
 			collections := project.(*gin.RouterGroup).Group("/collections")
