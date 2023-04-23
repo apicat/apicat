@@ -19,9 +19,6 @@ type OpenAI struct {
 var createApiPromptEn = "\"\"\"\nDesign a %s http api and return the content in the format of OpenAPI3.0.0. There is only one operation in the path.\n\"\"\"\n"
 var createApiPromptZh = "\"\"\"\n设计一个%s http api，并以 OpenAPI3.0.0 的格式返回内容，path中只要一个operation。\n\"\"\"\n"
 
-var createSchemaPromptEn = "\"\"\"\nDesign a json schema format for the %v and return.\n\"\"\"\n"
-var createSchemaPromptZh = "\"\"\"\n为%s设计一个 json schema 格式，并返回内容。 \n\"\"\"\n"
-
 var createApiBySchemaEn = "\"\"\"\nPlease generate a \"%s\" API based on the json schema content I provided below, and return it in the data format of openapi3.0.0.\n%s\n\"\"\"\n"
 var createApiBySchemaZh = "\"\"\"\n请根据我下面提供的json schema内容生成一个 \"%s\" 的api，并以openapi3.0.0的数据格式返回。\n%s\n\"\"\"\n"
 
@@ -113,9 +110,9 @@ func (o *OpenAI) generatePrompt(action string, text ...string) string {
 		return fmt.Sprintf(createApiPromptEn, text[0])
 	case "createSchema":
 		if o.language == "zh" {
-			return fmt.Sprintf(createSchemaPromptZh, text[0])
+			return fmt.Sprintf(createSchemaPrompt, text[0]+"\nIf there is a description field in the returned content, please translate the content into Chinese.")
 		}
-		return fmt.Sprintf(createSchemaPromptEn, text[0])
+		return fmt.Sprintf(createSchemaPrompt, text[0])
 	case "createApiBySchema":
 		if o.language == "zh" {
 			return fmt.Sprintf(createApiBySchemaZh, text[0], text[1])
@@ -123,7 +120,7 @@ func (o *OpenAI) generatePrompt(action string, text ...string) string {
 		return fmt.Sprintf(createApiBySchemaEn, text[0], text[1])
 	case "listApiBySchema":
 		if o.language == "zh" {
-			return fmt.Sprintf(listApiBySchemaPrompt, text[0], text[1]+"\nPlease translate the content in description into Chinese.")
+			return fmt.Sprintf(listApiBySchemaPrompt, text[0], text[1]+"\nPlease translate the content in the description field into Chinese.")
 		}
 		return fmt.Sprintf(listApiBySchemaPrompt, text[0], text[1])
 	default:

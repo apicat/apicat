@@ -140,7 +140,8 @@ func AICreateSchema(ctx *gin.Context) {
 		return
 	}
 
-	o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, "zh")
+	lang := util.GetUserLanguage(ctx)
+	o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, lang)
 	o.SetMaxTokens(2000)
 	openapiContent, err = o.CreateSchema(data.Name)
 	if err != nil || openapiContent == "" {
@@ -149,18 +150,10 @@ func AICreateSchema(ctx *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(openapiContent)
 
 	js := &jsonSchema{}
 	if err := json.Unmarshal([]byte(openapiContent), js); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
-		})
-		return
-	}
-
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
 		})
 		return
@@ -173,7 +166,7 @@ func AICreateSchema(ctx *gin.Context) {
 	definitions, err := definition.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
 		})
 		return
 	}
