@@ -54,6 +54,7 @@ func DefinitionsResponsesList(ctx *gin.Context) {
 			"id":          v.ID,
 			"code":        v.Code,
 			"description": v.Description,
+			"name":        v.Name,
 		})
 	}
 
