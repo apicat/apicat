@@ -1,5 +1,9 @@
 package openai
 
+var createApiPrompt = `"""
+Please use OpenAPI3.0.0 to describe the %s API, do not create schema.
+"""`
+
 var createSchemaPrompt = `"""
 Please use JSON Schema to describe the %s.
 The title field is required and must be in English.

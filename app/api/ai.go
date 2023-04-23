@@ -18,7 +18,7 @@ import (
 type AICreateCollectionStructure struct {
 	ParentID uint   `json:"parent_id" binding:"gte=0"`        // 父级id
 	Title    string `json:"title" binding:"required,lte=255"` // 名称
-	SchemaID uint   `json:"schema_id" binding:"gt=0"`         // 模型id
+	SchemaID uint   `json:"schema_id" binding:"gte=0"`        // 模型id
 }
 
 type AICreateSchemaStructure struct {
@@ -44,6 +44,8 @@ func AICreateCollection(ctx *gin.Context) {
 		return
 	}
 
+	lang := util.GetUserLanguage(ctx)
+
 	if data.SchemaID > 0 {
 		schema, err := models.NewDefinitions(data.SchemaID)
 		if err != nil {
@@ -53,12 +55,11 @@ func AICreateCollection(ctx *gin.Context) {
 			return
 		}
 
-		o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, "zh")
+		o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, lang)
 		o.SetMaxTokens(2000)
 		openapiContent, err = o.CreateApiBySchema(data.Title, schema.Schema)
 	} else {
-		// openapi := openapi.NewOpenAI(config.SysConfig.OpenAI.Token, ctx.GetHeader("Accept-Language"))
-		o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, "zh")
+		o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, lang)
 		o.SetMaxTokens(2000)
 		openapiContent, err = o.CreateApi(data.Title)
 		if err != nil || openapiContent == "" {
@@ -72,7 +73,6 @@ func AICreateCollection(ctx *gin.Context) {
 	content, err := openapi.Decode([]byte(openapiContent))
 	fmt.Println(openapiContent)
 	if err != nil {
-		fmt.Println(err.Error())
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
 		})
