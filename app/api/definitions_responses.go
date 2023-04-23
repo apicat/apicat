@@ -146,7 +146,12 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 	definitionsResponses.Code = data.Code
 	definitionsResponses.Description = data.Description
 
-	header, err := json.Marshal(data.Header)
+	responseHeader := make([]*HeaderData, 0)
+	if len(data.Header) > 0 {
+		responseHeader = data.Header
+	}
+
+	header, err := json.Marshal(responseHeader)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
