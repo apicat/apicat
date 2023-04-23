@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 
@@ -71,7 +70,6 @@ func AICreateCollection(ctx *gin.Context) {
 	}
 
 	content, err := openapi.Decode([]byte(openapiContent))
-	fmt.Println(openapiContent)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
@@ -79,7 +77,14 @@ func AICreateCollection(ctx *gin.Context) {
 		return
 	}
 
-	byteContent, err := json.Marshal(content.Collections)
+	if len(content.Collections) == 0 {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+		})
+		return
+	}
+
+	byteContent, err := json.Marshal(content.Collections[0].Content)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
