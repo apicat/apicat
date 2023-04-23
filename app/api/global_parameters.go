@@ -213,17 +213,6 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 	ctx.Status(http.StatusCreated)
 }
 
-type ApicatHttpRequest struct {
-	Type  string                                 `json:"type"`
-	Attrs map[string]map[string][]ParametersData `json:"attrs"`
-}
-
-type ParametersData struct {
-	Name     string          `json:"name"`
-	Required bool            `json:"required"`
-	Schema   ParameterSchema `json:"schema"`
-}
-
 func GlobalParametersDelete(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
@@ -325,11 +314,20 @@ func GlobalParametersDelete(ctx *gin.Context) {
 					docContent[i]["attrs"] = apicatRequest
 				}
 			}
-			if err := collection.Update(); err != nil {
+
+			if newContent, err := json.Marshal(docContent); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
 					"message": err.Error(),
 				})
 				return
+			} else {
+				collection.Content = string(newContent)
+				if err := collection.Update(); err != nil {
+					ctx.JSON(http.StatusBadRequest, gin.H{
+						"message": err.Error(),
+					})
+					return
+				}
 			}
 		}
 
