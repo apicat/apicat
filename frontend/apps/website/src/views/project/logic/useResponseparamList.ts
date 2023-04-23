@@ -14,6 +14,7 @@ export const useResponseparamList = ({ id: project_id }: Pick<ProjectInfo, 'id'>
   const extendResponseParamModel = (param?: Partial<APICatCommonResponseCustom>): APICatCommonResponseCustom => {
     return {
       id: param?.id ?? uuid(),
+      isLocal: true,
       expand: false,
       isLoaded: false,
       isLoading: false,
@@ -33,12 +34,12 @@ export const useResponseparamList = ({ id: project_id }: Pick<ProjectInfo, 'id'>
   }
 
   const handleDeleteParam = async (item: APICatCommonResponseCustom, index: number) => {
-    const { detail } = item
+    const { isLocal } = item
 
-    if (detail && detail.id) {
+    if (!isLocal) {
       item.isLoading = true
       try {
-        await commonResponseStore.deleteResponseParam(project_id, detail)
+        await commonResponseStore.deleteResponseParam(project_id, { id: item.id } as any)
       } finally {
         item.isLoading = false
       }
@@ -49,7 +50,7 @@ export const useResponseparamList = ({ id: project_id }: Pick<ProjectInfo, 'id'>
 
   onMounted(async () => {
     const data: APICatCommonResponse[] = await getResponseParamListApi(project_id)
-    const list: APICatCommonResponseCustom[] = data.map((item) => extendResponseParamModel(item))
+    const list: APICatCommonResponseCustom[] = data.map((item) => extendResponseParamModel({ ...item, isLocal: false }))
     responseParamList.value = list
   })
 

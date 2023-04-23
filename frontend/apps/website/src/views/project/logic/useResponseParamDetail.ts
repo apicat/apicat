@@ -40,8 +40,12 @@ export const useResponseParamDetail = ({ id: project_id }: Pick<ProjectInfo, 'id
       // 添加
       if (!detail.id) {
         const responseParamDetail = await commonResponseStore.addCommonResponse(project_id, detail)
+        param.isLocal = false
+        param.id = responseParamDetail.id
         param.detail = responseParamDetail
       }
+    } catch (e) {
+      //
     } finally {
       param.isLoading = false
     }

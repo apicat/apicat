@@ -12,6 +12,7 @@ export declare interface APICatCommonResponse {
 export declare interface APICatCommonResponseCustom {
   id: number | string
   expand: boolean
+  isLocal: boolean
   isLoading: boolean
   isLoaded: boolean
   code?: number
