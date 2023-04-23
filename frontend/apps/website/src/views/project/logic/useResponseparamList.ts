@@ -1,15 +1,19 @@
-import { deleteResponseParam, getResponseParamList } from '@/api/param'
-import { ProjectInfo, ResponseListCustom, ResponseList } from '@/typings'
-import { createHttpResponse } from '@/views/document/components/createHttpDocument'
+import useApi from '@/hooks/useApi'
+import useCommonResponseStore from '@/store/commonResponse'
+import { ProjectInfo, APICatCommonResponseCustom, APICatCommonResponse } from '@/typings'
+import { createCommonResponse } from '@/views/document/components/createHttpDocument'
+import { uuid } from '@apicat/shared'
 
-export const useResponseparamList = ({ id }: Pick<ProjectInfo, 'id'>) => {
-  const responseParamList: Ref<ResponseListCustom[]> = ref([])
+export const useResponseparamList = ({ id: project_id }: Pick<ProjectInfo, 'id'>) => {
+  const responseParamList: Ref<APICatCommonResponseCustom[]> = ref([])
 
-  const [isLoading, getResponseParamListApi] = getResponseParamList()
+  const commonResponseStore = useCommonResponseStore()
 
-  const extendResponseParamModel = (param?: Partial<ResponseListCustom>): ResponseListCustom => {
+  const [isLoading, getResponseParamListApi] = useApi(commonResponseStore.getCommonResponseList)()
+
+  const extendResponseParamModel = (param?: Partial<APICatCommonResponseCustom>): APICatCommonResponseCustom => {
     return {
-      _id: param?.id ?? Date.now(),
+      id: param?.id ?? uuid(),
       expand: false,
       isLoaded: false,
       isLoading: false,
@@ -18,28 +22,24 @@ export const useResponseparamList = ({ id }: Pick<ProjectInfo, 'id'>) => {
   }
 
   const createResponseParamModel = () => {
-    const response = createHttpResponse({ description: '公共响应' })
-    const extemdModel = extendResponseParamModel({ code: response.code, description: response.description, isLoaded: true, expand: true })
-    extemdModel.detail = response
-    return extemdModel
+    const response = createCommonResponse({ description: '公共响应' })
+    const extendModel = extendResponseParamModel({ code: response.code, description: response.description, isLoaded: true, expand: true })
+    extendModel.detail = response
+    return extendModel
   }
 
   const handleAddParam = () => {
     responseParamList.value.unshift(createResponseParamModel())
   }
 
-  const handleDeleteParam = async (item: ResponseListCustom, index: number) => {
+  const handleDeleteParam = async (item: APICatCommonResponseCustom, index: number) => {
     const { detail } = item
 
-    let deleteId = item.id
+    console.log(item)
     if (detail && detail.id) {
-      deleteId = detail.id
-    }
-
-    if (deleteId) {
       item.isLoading = true
       try {
-        await deleteResponseParam({ project_id: id, response_id: deleteId })
+        await commonResponseStore.deleteResponseParam(project_id, detail)
       } finally {
         item.isLoading = false
       }
@@ -49,8 +49,8 @@ export const useResponseparamList = ({ id }: Pick<ProjectInfo, 'id'>) => {
   }
 
   onMounted(async () => {
-    const data: ResponseList[] = await getResponseParamListApi({ project_id: id })
-    const list: ResponseListCustom[] = data.map((item) => extendResponseParamModel(item))
+    const data: APICatCommonResponse[] = await getResponseParamListApi(project_id)
+    const list: APICatCommonResponseCustom[] = data.map((item) => extendResponseParamModel(item))
     responseParamList.value = list
   })
 

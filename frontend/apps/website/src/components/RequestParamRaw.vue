@@ -4,11 +4,11 @@
       <SimpleParameterEditor :readonly="true" v-model="headers">
         <template #before>
           <tr v-for="item in globalHeaders" :key="item.id">
-            <td class="px-12px">{{ item.name }}</td>
+            <td class="px-12px copy_text">{{ item.name }}</td>
             <td class="px-12px">{{ item.schema.type }}</td>
             <td class="text-center">{{ item.required }}</td>
-            <td class="px-12px">{{ item.schema.example }}</td>
-            <td class="px-12px">{{ item.schema.description }}</td>
+            <td class="px-12px copy_text">{{ item.schema.example }}</td>
+            <td class="px-12px copy_text">{{ item.schema.description }}</td>
           </tr>
         </template>
       </SimpleParameterEditor>
@@ -17,11 +17,11 @@
       <SimpleParameterEditor :readonly="true" v-model="cookies">
         <template #before>
           <tr v-for="item in globalCookies" :key="item.id">
-            <td class="px-12px">{{ item.name }}</td>
+            <td class="px-12px copy_text">{{ item.name }}</td>
             <td class="px-12px">{{ item.schema.type }}</td>
             <td class="text-center">{{ item.required }}</td>
-            <td class="px-12px">{{ item.schema.example }}</td>
-            <td class="px-12px">{{ item.schema.description }}</td>
+            <td class="px-12px copy_text">{{ item.schema.example }}</td>
+            <td class="px-12px copy_text">{{ item.schema.description }}</td>
           </tr>
         </template>
       </SimpleParameterEditor>
@@ -30,11 +30,11 @@
       <SimpleParameterEditor :readonly="true" v-model="queries">
         <template #before>
           <tr v-for="item in globalQueries" :key="item.id">
-            <td class="px-12px">{{ item.name }}</td>
+            <td class="px-12px copy_text">{{ item.name }}</td>
             <td class="px-12px">{{ item.schema.type }}</td>
             <td class="text-center">{{ item.required }}</td>
-            <td class="px-12px">{{ item.schema.example }}</td>
-            <td class="px-12px">{{ item.schema.description }}</td>
+            <td class="px-12px copy_text">{{ item.schema.example }}</td>
+            <td class="px-12px copy_text">{{ item.schema.description }}</td>
           </tr>
         </template>
       </SimpleParameterEditor>
@@ -43,11 +43,11 @@
       <SimpleParameterEditor :readonly="true" v-model="paths">
         <template #before>
           <tr v-for="item in globalPaths" :key="item.id">
-            <td class="px-12px">{{ item.name }}</td>
+            <td class="px-12px copy_text">{{ item.name }}</td>
             <td class="px-12px">{{ item.schema.type }}</td>
             <td class="text-center">{{ item.required }}</td>
-            <td class="px-12px">{{ item.schema.example }}</td>
-            <td class="px-12px">{{ item.schema.description }}</td>
+            <td class="px-12px copy_text">{{ item.schema.example }}</td>
+            <td class="px-12px copy_text">{{ item.schema.description }}</td>
           </tr>
         </template>
       </SimpleParameterEditor>

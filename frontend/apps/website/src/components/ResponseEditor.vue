@@ -25,8 +25,18 @@
         </template>
         <ResponseForm v-model="model[index]" :definitions="definitions" />
       </el-tab-pane>
+      <el-tab-pane name="new-tab" disabled class="ac-response__common">
+        <template #label>
+          <el-space @click="onShowCommonResponseModal">
+            <span>公共响应</span>
+            <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px" v-if="10">{{ 10 }}</span>
+          </el-space>
+        </template>
+      </el-tab-pane>
     </el-tabs>
   </div>
+
+  <SelectCommonResponseModal ref="selectCommonResponseModalRef" />
 </template>
 
 <script setup lang="ts">
@@ -38,9 +48,12 @@ import { useNodeAttrs, HTTP_RESPONSE_NODE_KEY } from '@/hooks/useNodeAttrs'
 import { uuid } from '@apicat/shared'
 import { createResponseDefaultContent } from '@/views/document/components/createHttpDocument'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
+import SelectCommonResponseModal from '@/views/document/components/SelectCommonResponseModal.vue'
 
 const props = defineProps<{ modelValue: HttpDocument; definitions?: Definition[] }>()
 const nodeAttrs = useNodeAttrs(props, HTTP_RESPONSE_NODE_KEY)
+
+const selectCommonResponseModalRef = ref<InstanceType<typeof SelectCommonResponseModal>>()
 
 const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop({
   onDrop: (dragIndex: number, dropIndex: number) => {
@@ -89,9 +102,19 @@ const handleRemoveTab = (id: any) => {
   }
 }
 
-watch(nodeAttrs, () => {
-  editableTabsValue.value = model.value[0].id
-})
+const onShowCommonResponseModal = () => {
+  selectCommonResponseModalRef.value?.show()
+  console.log(selectCommonResponseModalRef.value)
+}
+watch(
+  nodeAttrs,
+  () => {
+    editableTabsValue.value = model.value[0].id
+  },
+  {
+    immediate: true,
+  }
+)
 </script>
 <style lang="scss">
 .ac-response-editor {
@@ -102,6 +125,11 @@ watch(nodeAttrs, () => {
 
   .el-tabs__new-tab {
     width: 40px;
+  }
+
+  .el-tabs--top .el-tabs__item.is-top:last-child {
+    color: inherit;
+    cursor: pointer;
   }
 }
 </style>
