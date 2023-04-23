@@ -138,3 +138,10 @@ export const HttpMethodTypeMap = {
   delete: { value: 'delete', color: '#DF4545' },
   option: { value: 'option', color: '#A973DF' },
 }
+
+export const RefPrefixKeys = {
+  CommonResponse: {
+    key: '#/commons/responses/',
+    reg: /#\/commons\/responses\/(.*)/,
+  },
+}

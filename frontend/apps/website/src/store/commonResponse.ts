@@ -42,7 +42,6 @@ export const useCommonResponseStore = defineStore('commonResponse', {
       const { id: response_id } = detail
       await deleteResponseParam({ project_id, response_id })
       const index = this.response.findIndex((item) => item.id === response_id)
-      console.log(index)
       index !== -1 && this.response.splice(index, 1)
     },
   },

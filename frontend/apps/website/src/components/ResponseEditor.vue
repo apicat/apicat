@@ -9,7 +9,7 @@
       </div>
     </h2>
     <el-tabs @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
-      <el-tab-pane v-for="(item, index) in model" :key="item.id + index" :name="item.id" :disabled="disabled">
+      <el-tab-pane v-for="(item, index) in responseList" :key="item._id + index" :name="item._id" :disabled="disabled">
         <template #label>
           <el-space
             draggable="true"
@@ -29,59 +29,58 @@
         <template #label>
           <el-space @click="onShowCommonResponseModal">
             <span>公共响应</span>
-            <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px" v-if="10">{{ 10 }}</span>
+            <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px">{{ commonResponseCount }}</span>
           </el-space>
         </template>
       </el-tab-pane>
     </el-tabs>
   </div>
 
-  <SelectCommonResponseModal ref="selectCommonResponseModalRef" />
+  <SelectCommonResponseModal ref="selectCommonResponseModalRef" @ok="handleChooseCommonResponse" />
 </template>
 
 <script setup lang="ts">
 import { HttpDocument } from '@/typings'
 import { Definition } from './APIEditor/types'
 import ResponseForm from './ResponseForm.vue'
-import { getResponseStatusCodeBgColor } from '@/commons'
-import { useNodeAttrs, HTTP_RESPONSE_NODE_KEY } from '@/hooks/useNodeAttrs'
+import { RefPrefixKeys, getResponseStatusCodeBgColor } from '@/commons'
 import { uuid } from '@apicat/shared'
 import { createResponseDefaultContent } from '@/views/document/components/createHttpDocument'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 import SelectCommonResponseModal from '@/views/document/components/SelectCommonResponseModal.vue'
 
-const props = defineProps<{ modelValue: HttpDocument; definitions?: Definition[] }>()
-const nodeAttrs = useNodeAttrs(props, HTTP_RESPONSE_NODE_KEY)
+const emits = defineEmits(['update:data'])
+const props = defineProps<{ modelValue?: HttpDocument; data: Array<any>; definitions?: Definition[] }>()
 
-const selectCommonResponseModalRef = ref<InstanceType<typeof SelectCommonResponseModal>>()
-
-const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop({
-  onDrop: (dragIndex: number, dropIndex: number) => {
-    const dragItem = nodeAttrs.value.list[dragIndex]
-    nodeAttrs.value.list.splice(dragIndex, 1)
-    nodeAttrs.value.list.splice(dropIndex, 0, dragItem)
-  },
-})
-
-const model = computed(() => {
-  nodeAttrs.value.list = nodeAttrs.value.list.map((item: any) => ({ ...item, id: item.id || uuid() }))
-  return nodeAttrs.value.list
-})
-
-const editableTabsValue = ref()
-
-const isShow = computed(() => model.value.length > 0)
-
-const disabled = computed(() => model.value.length <= 1)
-
-const createResponse = () => {
+const createResponse = (item?: any) => {
   return {
-    id: uuid(),
+    _id: uuid(),
     code: 200,
     description: 'success',
     content: createResponseDefaultContent(),
+    ...item,
   }
 }
+
+const model = ref(
+  (props.data || []).map((item: any) => {
+    const newItem = { ...item, _id: uuid() }
+
+    if (newItem.$ref && newItem.$ref.startsWith(RefPrefixKeys.CommonResponse.key)) {
+      newItem._isCommonResponse = true
+      newItem._refName = newItem.$ref.match(RefPrefixKeys.CommonResponse.reg)?.[1]
+    }
+    return newItem
+  })
+)
+
+const responseList = computed(() => model.value.filter((item) => !item._isCommonResponse))
+const commonResponseCount = computed(() => model.value.filter((item) => item._isCommonResponse).length)
+
+const selectCommonResponseModalRef = ref<InstanceType<typeof SelectCommonResponseModal>>()
+const editableTabsValue = ref(unref(model).length ? unref(model)[0]._id : null)
+const isShow = computed(() => model.value.length > 0)
+const disabled = computed(() => model.value.length <= 1)
 
 const activeLastTab = () => {
   const len = model.value.length
@@ -96,24 +95,41 @@ const handleAddTab = () => {
 
 const handleRemoveTab = (id: any) => {
   const index = model.value.findIndex((item: any) => item.id === id)
-  nodeAttrs.value.list.splice(index, 1)
+  model.value.splice(index, 1)
   if (id === editableTabsValue.value) {
     activeLastTab()
   }
 }
 
 const onShowCommonResponseModal = () => {
-  selectCommonResponseModalRef.value?.show()
-  console.log(selectCommonResponseModalRef.value)
+  const names = model.value.filter((item) => item._isCommonResponse).map((item) => item._refName)
+  selectCommonResponseModalRef.value?.show(names)
 }
-watch(
-  nodeAttrs,
-  () => {
-    editableTabsValue.value = model.value[0].id
+
+const handleChooseCommonResponse = (selectedNames: string[]) => {
+  model.value = model.value.filter((item) => !item._isCommonResponse)
+  selectedNames.forEach((name) => {
+    model.value.push({ $ref: `${RefPrefixKeys.CommonResponse.key}${name}`, _id: uuid(), _isCommonResponse: true, _refName: name })
+  })
+}
+
+const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop({
+  onDrop: (dragIndex: number, dropIndex: number) => {
+    const dragItem = model.value[dragIndex]
+    model.value.splice(dragIndex, 1)
+    model.value.splice(dropIndex, 0, dragItem)
   },
-  {
-    immediate: true,
-  }
+})
+
+watch(
+  model,
+  () => {
+    emits(
+      'update:data',
+      model.value.map(({ _id, _isCommonResponse, _refName, ...other }) => toRaw(other))
+    )
+  },
+  { deep: true }
 )
 </script>
 <style lang="scss">
