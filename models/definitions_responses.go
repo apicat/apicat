@@ -50,3 +50,7 @@ func (dr *DefinitionsResponses) Create() error {
 func (dr *DefinitionsResponses) Update() error {
 	return Conn.Save(dr).Error
 }
+
+func (dr *DefinitionsResponses) Delete() error {
+	return Conn.Delete(dr).Error
+}

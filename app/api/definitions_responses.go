@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/apicat/apicat/commom/apicat_struct"
@@ -189,4 +190,96 @@ func DefinitionsResponsesUpdate(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusCreated)
+}
+
+func DefinitionsResponsesDelete(ctx *gin.Context) {
+	currentProject, _ := ctx.Get("CurrentProject")
+	project, _ := currentProject.(*models.Projects)
+
+	dr := DefinitionsResponsesID{}
+	definitionsResponses, err := dr.CheckDefinitionsResponses(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	header := []*apicat_struct.Header{}
+	if err := json.Unmarshal([]byte(definitionsResponses.Header), &header); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	content := apicat_struct.BodyObject{}
+	if err := json.Unmarshal([]byte(definitionsResponses.Content), &content); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	responseDetail := apicat_struct.ResponseObject{
+		Name:        definitionsResponses.Name,
+		Code:        definitionsResponses.Code,
+		Description: definitionsResponses.Description,
+		Header:      header,
+		Content:     content,
+	}
+	fmt.Printf("responseDetail: %+v\n", responseDetail)
+	collections, _ := models.NewCollections()
+	collections.ProjectId = project.ID
+	collectionList, err := collections.List()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	for _, collection := range collectionList {
+		if collection.Type == "http" {
+			fmt.Printf("collection.Content: %+v\n", collection.Content)
+			docContent := []map[string]interface{}{}
+			if err := json.Unmarshal([]byte(collection.Content), &docContent); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": err.Error(),
+				})
+				return
+			}
+
+			var response []byte
+			for _, v := range docContent {
+				if v["type"] == "apicat-http-response" {
+					response, err = json.Marshal(v["attrs"])
+					if err != nil {
+						ctx.JSON(http.StatusBadRequest, gin.H{
+							"message": err.Error(),
+						})
+						return
+					}
+				}
+			}
+
+			apicatResponseList := apicat_struct.ResponseObjectList{}
+			if err := json.Unmarshal(response, &apicatResponseList); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": err.Error(),
+				})
+				return
+			}
+
+			apicatResponseList.Dereference(&responseDetail)
+		}
+	}
+
+	if err := definitionsResponses.Delete(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
 }
