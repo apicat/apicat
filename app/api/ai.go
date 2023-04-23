@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/apicat/apicat/app/util"
 	"github.com/apicat/apicat/commom/openai"
 	"github.com/apicat/apicat/commom/spec/plugin/openapi"
 	"github.com/apicat/apicat/commom/translator"
@@ -226,7 +227,8 @@ func AICreateApiNames(ctx *gin.Context) {
 		return
 	}
 
-	o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, "zh")
+	lang := util.GetUserLanguage(ctx)
+	o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, lang)
 	openapiContent, err = o.ListApiBySchema(schema.Name, schema.Schema)
 	if err != nil || openapiContent == "" {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -234,9 +236,8 @@ func AICreateApiNames(ctx *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(openapiContent)
 
-	var arr []string
+	var arr []map[string]string
 	if err := json.Unmarshal([]byte(openapiContent), &arr); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
