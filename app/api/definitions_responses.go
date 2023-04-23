@@ -126,3 +126,67 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 		"content":     data.Content,
 	})
 }
+
+func DefinitionsResponsesUpdate(ctx *gin.Context) {
+	data := apicat_struct.ResponseObject{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	dr := DefinitionsResponsesID{}
+	definitionsResponses, err := dr.CheckDefinitionsResponses(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	definitionsResponses.Name = data.Name
+	count, err := definitionsResponses.GetCountExcludeTheID()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	if count > 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionsResponses.NameExists"}),
+		})
+		return
+	}
+
+	definitionsResponses.Code = data.Code
+	definitionsResponses.Description = data.Description
+
+	header, err := json.Marshal(data.Header)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	definitionsResponses.Header = string(header)
+
+	content, err := json.Marshal(data.Content)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	definitionsResponses.Content = string(content)
+
+	if err := definitionsResponses.Update(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusCreated)
+}

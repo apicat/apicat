@@ -38,6 +38,15 @@ func (dr *DefinitionsResponses) GetCountByName() (int64, error) {
 	return count, Conn.Model(&DefinitionsResponses{}).Where("project_id = ? and name = ?", dr.ProjectID, dr.Name).Count(&count).Error
 }
 
+func (dr *DefinitionsResponses) GetCountExcludeTheID() (int64, error) {
+	var count int64
+	return count, Conn.Model(&DefinitionsResponses{}).Where("project_id = ? and name = ? and id != ?", dr.ProjectID, dr.Name, dr.ID).Count(&count).Error
+}
+
 func (dr *DefinitionsResponses) Create() error {
 	return Conn.Create(dr).Error
+}
+
+func (dr *DefinitionsResponses) Update() error {
+	return Conn.Save(dr).Error
 }

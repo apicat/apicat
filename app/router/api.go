@@ -79,6 +79,7 @@ func InitApiRouter(r *gin.Engine) {
 			{
 				definitionsResponses.GET("/", api.DefinitionsResponsesList)
 				definitionsResponses.POST("/", api.DefinitionsResponsesCreate)
+				definitionsResponses.PUT("/:response-id", api.DefinitionsResponsesUpdate)
 			}
 
 			responses := project.(*gin.RouterGroup).Group("/responses")

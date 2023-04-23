@@ -171,6 +171,9 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 	gp := GlobalParametersID{}
 	globalParameters, err := gp.CheckGlobalParameters(ctx)
 	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
