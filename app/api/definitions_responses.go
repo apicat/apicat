@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/apicat/apicat/commom/apicat_struct"
@@ -294,7 +293,7 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 					}
 				}
 			}
-			fmt.Printf("response: %v\n", string(response))
+
 			apicatResponseList := apicat_struct.ResponseObjectList{}
 			if err := json.Unmarshal(response, &apicatResponseList); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
