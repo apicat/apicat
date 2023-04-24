@@ -12,19 +12,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type DefinitionsResponsesID struct {
-	DefinitionsResponsesID uint `uri:"response-id" binding:"required,gt=0"`
+type CommonResponsesID struct {
+	CommonResponsesID uint `uri:"response-id" binding:"required,gt=0"`
 }
 
-func (dr *DefinitionsResponsesID) CheckDefinitionsResponses(ctx *gin.Context) (*models.DefinitionsResponses, error) {
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&dr)); err != nil {
+func (cr *CommonResponsesID) CheckCommonResponses(ctx *gin.Context) (*models.CommonResponses, error) {
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&cr)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err
 	}
 
-	definitionsResponses, err := models.NewDefinitionsResponses(dr.DefinitionsResponsesID)
+	definitionsResponses, err := models.NewCommonResponses(cr.CommonResponsesID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": "response not found",
@@ -53,11 +53,11 @@ type HeaderData struct {
 	Schema      spec.Schema `json:"schema"`
 }
 
-func DefinitionsResponsesList(ctx *gin.Context) {
+func CommonResponsesList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
-	definitionsResponses, _ := models.NewDefinitionsResponses()
+	definitionsResponses, _ := models.NewCommonResponses()
 	definitionsResponses.ProjectID = project.ID
 	definitionsResponsesList, err := definitionsResponses.List()
 	if err != nil {
@@ -80,9 +80,9 @@ func DefinitionsResponsesList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
-func DefinitionsResponsesDetail(ctx *gin.Context) {
-	dr := DefinitionsResponsesID{}
-	definitionsResponses, err := dr.CheckDefinitionsResponses(ctx)
+func CommonResponsesDetail(ctx *gin.Context) {
+	cr := CommonResponsesID{}
+	definitionsResponses, err := cr.CheckCommonResponses(ctx)
 	if err != nil {
 		return
 	}
@@ -113,7 +113,7 @@ func DefinitionsResponsesDetail(ctx *gin.Context) {
 	})
 }
 
-func DefinitionsResponsesCreate(ctx *gin.Context) {
+func CommonResponsesCreate(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
@@ -125,7 +125,7 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 		return
 	}
 
-	definitionsResponses, _ := models.NewDefinitionsResponses()
+	definitionsResponses, _ := models.NewCommonResponses()
 	definitionsResponses.ProjectID = project.ID
 	definitionsResponses.Name = data.Name
 
@@ -138,7 +138,7 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 	}
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionsResponses.NameExists"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.NameExists"}),
 		})
 		return
 	}
@@ -186,7 +186,7 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 	})
 }
 
-func DefinitionsResponsesUpdate(ctx *gin.Context) {
+func CommonResponsesUpdate(ctx *gin.Context) {
 	data := ResponseDetailData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -195,8 +195,8 @@ func DefinitionsResponsesUpdate(ctx *gin.Context) {
 		return
 	}
 
-	dr := DefinitionsResponsesID{}
-	definitionsResponses, err := dr.CheckDefinitionsResponses(ctx)
+	cr := CommonResponsesID{}
+	definitionsResponses, err := cr.CheckCommonResponses(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -214,7 +214,7 @@ func DefinitionsResponsesUpdate(ctx *gin.Context) {
 	}
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionsResponses.NameExists"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.NameExists"}),
 		})
 		return
 	}
@@ -250,12 +250,12 @@ func DefinitionsResponsesUpdate(ctx *gin.Context) {
 	ctx.Status(http.StatusCreated)
 }
 
-func DefinitionsResponsesDelete(ctx *gin.Context) {
+func CommonResponsesDelete(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
-	dr := DefinitionsResponsesID{}
-	definitionsResponses, err := dr.CheckDefinitionsResponses(ctx)
+	cr := CommonResponsesID{}
+	definitionsResponses, err := cr.CheckCommonResponses(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

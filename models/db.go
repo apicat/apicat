@@ -55,7 +55,7 @@ func initTable() {
 		&Tags{},
 		&TagToCollections{},
 		&GlobalParameters{},
-		&DefinitionsResponses{},
+		&CommonResponses{},
 	); err != nil {
 		panic("Failed to create database table.")
 	}

@@ -7,7 +7,7 @@ import (
 	"github.com/apicat/apicat/commom/spec"
 )
 
-type DefinitionsResponses struct {
+type CommonResponses struct {
 	ID           uint   `gorm:"type:integer primary key autoincrement"`
 	ProjectID    uint   `gorm:"type:integer;index;not null;comment:项目id"`
 	Name         string `gorm:"type:varchar(255);not null;comment:响应名称"`
@@ -20,44 +20,44 @@ type DefinitionsResponses struct {
 	UpdatedAt    time.Time
 }
 
-func NewDefinitionsResponses(ids ...uint) (*DefinitionsResponses, error) {
-	definitionsResponses := &DefinitionsResponses{}
+func NewCommonResponses(ids ...uint) (*CommonResponses, error) {
+	commonResponses := &CommonResponses{}
 	if len(ids) > 0 {
-		if err := Conn.Take(definitionsResponses, ids[0]).Error; err != nil {
-			return definitionsResponses, err
+		if err := Conn.Take(commonResponses, ids[0]).Error; err != nil {
+			return commonResponses, err
 		}
-		return definitionsResponses, nil
+		return commonResponses, nil
 	}
-	return definitionsResponses, nil
+	return commonResponses, nil
 }
 
-func (dr *DefinitionsResponses) List() ([]*DefinitionsResponses, error) {
-	definitionsResponsesQuery := Conn.Where("project_id = ?", dr.ProjectID)
+func (cr *CommonResponses) List() ([]*CommonResponses, error) {
+	commonResponsesQuery := Conn.Where("project_id = ?", cr.ProjectID)
 
-	var definitionsResponses []*DefinitionsResponses
-	return definitionsResponses, definitionsResponsesQuery.Find(&definitionsResponses).Error
+	var commonResponses []*CommonResponses
+	return commonResponses, commonResponsesQuery.Find(&commonResponses).Error
 }
 
-func (dr *DefinitionsResponses) GetCountByName() (int64, error) {
+func (cr *CommonResponses) GetCountByName() (int64, error) {
 	var count int64
-	return count, Conn.Model(&DefinitionsResponses{}).Where("project_id = ? and name = ?", dr.ProjectID, dr.Name).Count(&count).Error
+	return count, Conn.Model(&CommonResponses{}).Where("project_id = ? and name = ?", cr.ProjectID, cr.Name).Count(&count).Error
 }
 
-func (dr *DefinitionsResponses) GetCountExcludeTheID() (int64, error) {
+func (cr *CommonResponses) GetCountExcludeTheID() (int64, error) {
 	var count int64
-	return count, Conn.Model(&DefinitionsResponses{}).Where("project_id = ? and name = ? and id != ?", dr.ProjectID, dr.Name, dr.ID).Count(&count).Error
+	return count, Conn.Model(&CommonResponses{}).Where("project_id = ? and name = ? and id != ?", cr.ProjectID, cr.Name, cr.ID).Count(&count).Error
 }
 
-func (dr *DefinitionsResponses) Create() error {
-	return Conn.Create(dr).Error
+func (cr *CommonResponses) Create() error {
+	return Conn.Create(cr).Error
 }
 
-func (dr *DefinitionsResponses) Update() error {
-	return Conn.Save(dr).Error
+func (cr *CommonResponses) Update() error {
+	return Conn.Save(cr).Error
 }
 
-func (dr *DefinitionsResponses) Delete() error {
-	return Conn.Delete(dr).Error
+func (cr *CommonResponses) Delete() error {
+	return Conn.Delete(cr).Error
 }
 
 func CommonResponsesImport(projectID uint, responses spec.HTTPResponses) nameToIdMap {
@@ -82,7 +82,7 @@ func CommonResponsesImport(projectID uint, responses spec.HTTPResponses) nameToI
 			}
 		}
 
-		record := &DefinitionsResponses{
+		record := &CommonResponses{
 			ProjectID:    projectID,
 			Name:         response.Name,
 			Code:         response.Code,
