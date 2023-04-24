@@ -1,35 +1,42 @@
 const inputLimit = {
-  mounted: (el: any, binding: any) => {
-    const arg = binding.arg || 'en'
-    // 限制规则
-    const restrictRule = {
-      zh: /[^\s\u4E00-\u9FA5\s]/g, // 中文
-      en: /[^a-zA-Z\s]/g, // 英文
-      number: /[^0-9]/g, // 纯数字
-    }
-    let inputLock = false // 输入锁 使用输入法时关闭限制 结束输入法输入时触发限制
+  mounted: (el: any) => {
+    let inputLock = false
+
     const doRule = (e: any) => {
-      e.target.value = e.target.value.replaceAll((restrictRule as any)[arg], '')
+      e.target.value = e.target.value.match(/[\w-_]+/g, '').join('')
       // 手动更新绑定值
       e.target.dispatchEvent(new Event('input'))
     }
+
     const target = el instanceof HTMLInputElement ? el : el.querySelector('input')
-    target.addEventListener('input', (event: any) => {
+
+    el._handler = function (event: any) {
       if (!inputLock && event.inputType === 'insertText') {
         doRule(event)
         event.returnValue = false
       }
       event.returnValue = false
-    })
-    // /* 使用输入法开始触发 */
-    target.addEventListener('compositionstart', (event: any) => {
+    }
+
+    el._compositionstart = () => {
       inputLock = true
-    })
-    // /* 结束输入法使用触发 */
-    target.addEventListener('compositionend', (event: any) => {
+    }
+
+    el._compositionend = (event: any) => {
       inputLock = false
       doRule(event)
-    })
+    }
+
+    target.addEventListener('input', el._handler)
+    target.addEventListener('compositionstart', el._compositionstart)
+    target.addEventListener('compositionend', el._compositionend)
+  },
+
+  unmounted: (el: any) => {
+    const target = el instanceof HTMLInputElement ? el : el.querySelector('input')
+    el._handler && target.removeEventListener('input', el._handler)
+    el._compositionstart && target.removeEventListener('compositionstart', el._compositionstart)
+    el._compositionend && target.removeEventListener('compositionend', el._compositionend)
   },
 }
 
