@@ -18,6 +18,7 @@ export const getCollectionDetail = useApi(async ({ project_id, collection_id }: 
   try {
     doc.content = JSON.parse(doc.content)
     mergeDocumentContent(doc.content)
+    console.log(doc.content)
   } catch (error) {
     doc.content = createHttpDocument().content
   }
@@ -52,6 +53,10 @@ const mergeHttpRequest = (node: any) => {
     node.attrs.parameters = defaultVal.parameters
   }
 
+  if (!node.attrs.globalExcepts || isEmpty(node.attrs.globalExcepts)) {
+    node.attrs.globalExcepts = defaultVal.globalExcepts
+  }
+
   if (!node.attrs.content) {
     node.attrs.content = defaultVal.content
   }
@@ -79,6 +84,10 @@ const mergeHttpResponse = (node: any) => {
   }
 
   node.attrs.list = node.attrs.list.map((item: any) => {
+    if (item.$ref) {
+      return item
+    }
+
     if (!item.content) {
       item.content = defaultVal.list[0].content
     }
@@ -113,3 +122,5 @@ const mergeDocumentContent = (content: any) => {
     }
   })
 }
+
+export const createCollectionByAI = async ({ project_id, ...params }: any) => Ajax.post(`/projects/${project_id}/ai/collections`, params)

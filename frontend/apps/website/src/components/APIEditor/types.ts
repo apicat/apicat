@@ -31,6 +31,12 @@ export declare interface APICatSchemaObject {
   required?: boolean
 }
 
+export declare type APICatSchemaObjectCustom = APICatSchemaObject & {
+  _id?: number | string
+  _name?: string
+  [key: string]: any
+}
+
 export declare interface Definition extends APICatSchemaObject {
   id?: number
   parent_id: number

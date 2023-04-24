@@ -1,84 +1,37 @@
 <template>
-  <div class="ac-sce-node" v-if="readonly">
-    <div class="ac-sce-node_content" :style="{ paddingLeft: level * 18 + 'px' }">
-      <div class="ac-sce-expand" @click="toggleExpandHandler">
-        <el-icon v-if="data.children">
-          <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
-            <path
-              d="M12 5.83l2.46 2.46a.996.996 0 1 0 1.41-1.41L12.7 3.7a.996.996 0 0 0-1.41 0L8.12 6.88a.996.996 0 1 0 1.41 1.41L12 5.83zm0 12.34l-2.46-2.46a.996.996 0 1 0-1.41 1.41l3.17 3.18c.39.39 1.02.39 1.41 0l3.17-3.17a.996.996 0 1 0-1.41-1.41L12 18.17z"
-              fill="currentColor"
-            ></path>
-          </svg>
-        </el-icon>
-      </div>
-      <div class="ac-sce-node_body readonly">
-        <div>
-          <el-space spacer="·">
-            <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
-            <el-text tag="b" v-else>
-              <span class="copy_text">{{ data.label }}</span>
-              <template v-if="data.parent?.type === 'object'">
-                <template v-if="isRefChildren(data)">
-                  <el-text v-if="data.parent?.refObj?.schema.required?.includes(data.label)" type="danger"> (*) </el-text>
-                </template>
-                <template v-else>
-                  <el-text v-if="data.parent?.schema.required?.includes(data.label)" type="danger"> (*) </el-text>
-                </template>
-              </template>
-            </el-text>
-            <el-text>
-              {{ data.type }}
-              <el-text v-if="data.refObj" type="primary">({{ data.refObj.name }})</el-text>
-            </el-text>
-            <el-text class="w-300px" type="info" truncated :title="data.schema.description" v-if="data.schema.description">{{ data.schema.description }}</el-text>
-          </el-space>
-        </div>
-        <div>
-          <el-text v-if="data.schema.example" type="info">
-            <small>示例</small>: <span class="copy_text">{{ data.schema.example }}</span>
-          </el-text>
-          <el-text v-if="data.schema.default !== undefined && data.schema.default !== null && data.schema.default !== ''" type="info">
-            <small>默认值</small>: <span class="copy_text">{{ data.schema.default }}</span>
-          </el-text>
-        </div>
-      </div>
-    </div>
-    <el-collapse-transition>
-      <div class="ac-sce-node_children">
-        <div :style="{ left: level * 18 + 2 + 'px' }" class="indent-line"></div>
-        <EditorRow :level="level + 1" v-for="item in data.children" :key="item.key" :data="item" :readonly="readonly" />
-      </div>
-    </el-collapse-transition>
-  </div>
   <div
-    v-else
-    class="ac-sce-node"
-    :aria-expanded="expand"
-    :class="{
-      'ac-sce-ref': data.refObj?.name,
-      expand: expand,
-      'ac-sce-const': data.label.slice(0, 1) == '<',
-    }"
+    :class="[
+      ns.b(),
+      {
+        [ns.is('ref')]: data.refObj?.name,
+        [ns.is('expanded')]: expand,
+        [ns.is('const')]: data.label.slice(0, 1) == '<',
+      },
+    ]"
   >
-    <div class="ac-sce-node_drag" draggable="true" @dragstart="dragStartHandler" @dragend="dragEndHandler" v-if="!readonly">
+    <div :class="ns.e('drag')" draggable="true" @dragstart="dragStartHandler" @dragend="dragEndHandler" v-if="!readonly">
       <el-icon><ac-icon-material-symbols-drag-indicator /></el-icon>
     </div>
-    <div
-      class="ac-sce-node_content"
-      :style="{ paddingLeft: level * 18 + 'px' }"
-      @dragover.prevent="dragOverHandler"
-      @dragleave.prevent="dragLeaveHandler"
-      @drop.prevent="dropHandler"
-    >
-      <div class="ac-sce-expand" @click="toggleExpandHandler">
-        <el-icon v-if="data.children"><ac-icon-ep-arrow-right-bold /></el-icon>
-      </div>
-      <div class="ac-sce-node_body">
-        <div>
+
+    <div :class="ns.e('content')" @dragover.prevent="dragOverHandler" @dragleave.prevent="dragLeaveHandler" @drop.prevent="dropHandler">
+      <div :class="[ns.e('item'), ns.e('name')]">
+        <span :style="{ width: level * 16 + 'px' }" class="indent-spance"></span>
+
+        <el-icon :class="ns.e('expand')" v-if="data.children" @click="toggleExpandHandler"><ac-icon-ep-arrow-right-bold /></el-icon>
+        <span v-else class="el-icon"></span>
+
+        <template v-if="!readonly">
           <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
           <EditorInput v-else ref="labelInputRef" style="margin-left: -4px" placeholder="name" :value="data.label" :disabled="isRefChildren(data)" @change="changeName" />
-        </div>
-        <div>
+        </template>
+        <template v-else>
+          <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
+          <span v-else class="copy_text">{{ data.label }}</span>
+        </template>
+      </div>
+
+      <div :class="[ns.e('item'), ns.e('type')]">
+        <template v-if="!readonly">
           <el-dropdown trigger="click" @visible-change="resetShowRef">
             <el-button text :type="data.refObj ? 'primary' : undefined" :disabled="isRefChildren(data)">
               <el-space :size="4" v-if="data.refObj">
@@ -93,8 +46,15 @@
               <SelectTypeDropmenu :data="data" :show-ref="showRefModal" @showRef="showRefModal = true" @change="changeNotify" />
             </template>
           </el-dropdown>
-        </div>
-        <div>
+        </template>
+        <template v-else>
+          <el-text v-if="data.refObj" type="primary">{{ data.refObj.name }}</el-text>
+          <span v-else>{{ data.type }}</span>
+        </template>
+      </div>
+
+      <div :class="[ns.e('item'), ns.e('required')]">
+        <template v-if="!readonly">
           <el-tooltip v-if="data.parent?.type === 'object'" content="required" placement="top" :show-after="368">
             <el-checkbox
               v-if="isRefChildren(data)"
@@ -105,8 +65,17 @@
             />
             <el-checkbox v-else size="small" :disabled="isRefChildren(data)" :checked="data.parent?.schema.required?.includes(data.label)" @change="changeRequired" />
           </el-tooltip>
-        </div>
-        <div>
+        </template>
+        <template v-else>
+          <span v-if="data.parent?.type === 'object'">
+            <span v-if="isRefChildren(data)">{{ data.parent?.refObj?.schema.required?.includes(data.label) ? '是' : '否' }}</span>
+            <span v-else="isRefChildren(data)">{{ data.parent?.schema.required?.includes(data.label) ? '是' : '否' }}</span>
+          </span>
+        </template>
+      </div>
+
+      <div :class="[ns.e('item'), ns.e('example')]">
+        <template v-if="!readonly">
           <EditorInput
             v-if="['number', 'integer', 'boolean', 'string'].includes(data.type)"
             placeholder="示例值"
@@ -114,33 +83,43 @@
             :disabled="isRefChildren(data)"
             @change="(v) => changeSchemaField('example', v)"
           />
-        </div>
-        <div>
-          <EditorInput placeholder="描述" :value="data.schema.description" :disabled="isRefChildren(data)" @change="(v) => changeSchemaField('description', v)" />
-        </div>
-        <div>
-          <el-button-group size="small">
-            <el-tooltip content="添加子节点" placement="top" :show-after="368" v-if="data.type === 'object' && !isRefChildren(data) && !data.refObj">
-              <el-button text circle @click="addChildHandler">
-                <el-icon :size="14"><ac-icon-ic-outline-add-circle /></el-icon>
-              </el-button>
-            </el-tooltip>
+        </template>
+        <template v-else>
+          <span v-if="['number', 'integer', 'boolean', 'string'].includes(data.type)" class="copy_text">{{ data.schema.example }}</span>
+        </template>
+      </div>
 
-            <el-popconfirm title="delete this?" v-if="!isConstNode(data.label) && !isRefChildren(data)" @confirm="delHandler">
-              <template #reference>
-                <el-button text circle>
-                  <el-icon :size="14"><ac-icon-iconoir-delete-circle /></el-icon>
-                </el-button>
-              </template>
-            </el-popconfirm>
-          </el-button-group>
-        </div>
+      <div :class="[ns.e('item'), ns.e('description')]">
+        <template v-if="!readonly">
+          <EditorInput placeholder="描述" :value="data.schema.description" :disabled="isRefChildren(data)" @change="(v) => changeSchemaField('description', v)" />
+        </template>
+        <template v-else>
+          <span class="copy_text">{{ data.schema.description }}</span>
+        </template>
+      </div>
+
+      <div :class="[ns.e('item'), ns.e('operation')]" v-if="!readonly">
+        <el-button-group size="small">
+          <el-tooltip content="添加子节点" placement="top" :show-after="368" v-if="data.type === 'object' && !isRefChildren(data) && !data.refObj">
+            <el-button text circle @click="addChildHandler">
+              <el-icon :size="14"><ac-icon-ic-outline-add-circle /></el-icon>
+            </el-button>
+          </el-tooltip>
+
+          <el-popconfirm title="delete this?" v-if="!isConstNode(data.label) && !isRefChildren(data)" @confirm="delHandler">
+            <template #reference>
+              <el-button text circle>
+                <el-icon :size="14"><ac-icon-ep-delete /></el-icon>
+              </el-button>
+            </template>
+          </el-popconfirm>
+        </el-button-group>
       </div>
     </div>
     <el-collapse-transition>
-      <div class="ac-sce-node_children" v-if="expand">
-        <div :style="{ left: level * 18 + 2 + 'px' }" class="indent-line"></div>
-        <EditorRow :level="level + 1" v-for="item in data.children" :key="item.key" :data="item" />
+      <div :class="ns.e('children')" v-if="expand">
+        <div :style="intentLineStyle" :class="ns.e('line')"></div>
+        <EditorRow :level="level + 1" v-for="item in data.children" :key="item.key" :data="item" :readonly="readonly" />
       </div>
     </el-collapse-transition>
   </div>
@@ -153,6 +132,7 @@ import EditorInput from './EditorInput.vue'
 import { JSONSchema, constNodeType } from './types'
 import type { Tree } from './types'
 import { CheckboxValueType, ElMessage } from 'element-plus'
+import { useNamespace } from '@/hooks'
 
 const props = defineProps<{
   level: number
@@ -160,8 +140,14 @@ const props = defineProps<{
   readonly?: boolean
 }>()
 
+const ns = useNamespace('schema-row')
+
 const expandsKeys = inject('expandKeys') as Set<string>
 const expand = computed(() => expandsKeys.has(props.data.key))
+const intentLineStyle = computed(() => {
+  let left = props.level * 16 + 6
+  return { left: left + 'px' }
+})
 const toggleExpandHandler = () => {
   if (!props.data.children) {
     return
@@ -327,10 +313,10 @@ const dragOverHandler = (ev: DragEvent) => {
     switch (flag) {
       case -1:
         dom.style.borderBottom = ''
-        dom.style.borderTop = '1px blue solid'
+        dom.style.borderTop = '1px var(--primary-color) solid'
         break
       case 1:
-        dom.style.borderBottom = '1px blue solid'
+        dom.style.borderBottom = '1px var(--primary-color) solid'
         dom.style.borderTop = ''
         break
     }
@@ -364,124 +350,3 @@ const dropHandler = (ev: DragEvent) => {
   }
 }
 </script>
-
-<style lang="scss">
-.ac-sce-node {
-  user-select: none;
-  -webkit-user-select: none;
-  font-size: 14px;
-  position: relative;
-  background-color: var(--el-bg-color);
-  transition: opacity 0.3s ease-out;
-}
-
-.ac-sce-expand {
-  width: 26px;
-  height: 26px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.15s;
-}
-
-.ac-sce-node[aria-expanded='true'] > .ac-sce-node_content > .ac-sce-expand {
-  transform: rotate(90deg);
-}
-.ac-sce-node_content {
-  display: flex;
-  align-items: center;
-  height: 34px;
-  position: relative;
-  border-width: 1px 0;
-  box-sizing: content-box;
-  border-style: solid;
-  border-color: transparent;
-  transition: border 0.3s ease-out;
-}
-.ac-sce-node_content:hover {
-  @apply bg-gray-100;
-}
-.ac-sce-node.dragging {
-  opacity: 0.3;
-}
-.ac-sce-node_drag {
-  position: absolute;
-  top: 9px;
-  left: 6px;
-  height: 16px;
-  opacity: 0.1;
-  z-index: 3;
-}
-.ac-sce-node:hover > .ac-sce-node_drag {
-  opacity: 1;
-}
-
-.ac-sce-node_children {
-  position: relative;
-}
-
-.indent-line {
-  position: absolute;
-  top: 0;
-  height: 100%;
-  margin-left: 10px;
-  width: 0px;
-  z-index: 2;
-  border-left: 1px var(--el-border-color-lighter) dashed;
-}
-
-.ac-sce-node:hover > .ac-sce-node_children > .indent-line {
-  border-left: 1px var(--el-border-color) solid;
-}
-
-.ac-sce-node_body {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-
-.ac-sce-node_body > div:nth-child(1) {
-  flex: 1 0 auto;
-}
-.ac-sce-node_body.readonly > div:nth-child(2) {
-  flex: 0 0 200px;
-}
-.ac-sce-node_body:not(.readonly) > div:nth-child(2) {
-  .el-button {
-    width: 140px;
-  }
-}
-.ac-sce-node_body:not(.readonly) > div:nth-child(3) {
-  flex: 0 0 46px;
-}
-.ac-sce-node_body:not(.readonly) > div:nth-child(4) {
-  flex: 0 0 260px;
-}
-.ac-sce-node_body:not(.readonly) > div:nth-child(5) {
-  flex: 0 0 260px;
-}
-.ac-sce-node_body:not(.readonly) > div:nth-child(6) {
-  flex: 0 0 48px;
-}
-.ac-sce-node_body .el-input__wrapper {
-  --el-input-border-color: transparent;
-  --el-input-bg-color: transparent;
-  --el-disabled-border-color: transparent;
-  --el-disabled-bg-color: transparent;
-  padding: 1px 8px;
-}
-
-.ac-sce-ref > .ac-sce-node_children .ac-sce-node_drag {
-  display: none;
-}
-
-.ac-sce-const > .ac-sce-node_drag {
-  display: none;
-}
-
-.ac-sce-node .ac-selected {
-  color: var(--el-color-primary);
-  width: 120px;
-}
-</style>

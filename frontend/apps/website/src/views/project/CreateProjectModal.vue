@@ -27,8 +27,7 @@
           v-slot="{ fileName }"
           :class="[ns.e('items'), { [ns.is('active')]: selectedProjectType === 'import' }]"
         >
-
-          <div class="flex flex-col items-center w-full" @click="handleSelectedProjectType('import')">
+          <div class="flex flex-col items-center w-full" @click="handleSelectedProjectType('import')" :title="fileName">
             <ac-icon-lucide-file-text class="text-30px" />
             <div :class="ns.e('text')" class="w-full">
               <p v-if="!fileName">{{ $t('app.project.createModal.importProject') }}</p>
@@ -137,7 +136,7 @@ defineExpose({
   @apply flex justify-between gap-30px;
 
   @include e(items) {
-    @apply flex flex-col items-center flex-1 border border-solid rounded cursor-pointer p-20px border-gray-300 hover:border-gray-45;
+    @apply flex flex-col items-center flex-1 border border-solid rounded cursor-pointer p-20px border-gray-lighter hover:border-gray-45;
 
     @include when('active') {
       @apply border-blue-primary text-blue-primary;

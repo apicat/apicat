@@ -51,3 +51,14 @@
 [Trashs]
     [Trashs.PartialRecoveryFailed]
         other = "部分恢复失败"
+[GlobalParameters]
+    [GlobalParameters.NotFound]
+        other = "全局参数不存在"
+    [GlobalParameters.NameExists]
+        other = "全局参数名称存在"
+[AI]
+    [AI.CollectionCreateFail]
+        other = "接口创建失败，请稍后重试。"
+[DefinitionsResponses]
+    [DefinitionsResponses.NameExists]
+        other = "公共响应名称存在"

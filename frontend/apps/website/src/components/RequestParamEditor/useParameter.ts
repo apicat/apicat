@@ -1,7 +1,11 @@
 import { useNodeAttrs, HTTP_REQUEST_NODE_KEY } from '@/hooks/useNodeAttrs'
+import uesGlobalParametersStore from '@/store/globalParameters'
+import { storeToRefs } from 'pinia'
 
 export const useParameter = (props: any, propKey?: string) => {
   const nodeAttrs = useNodeAttrs(props, HTTP_REQUEST_NODE_KEY, propKey)
+  const globalParametersStore = uesGlobalParametersStore()
+  const { parameters: globalParameters } = storeToRefs(globalParametersStore)
 
   const headers = computed({
     get: () => nodeAttrs.value.parameters.header,
@@ -9,6 +13,39 @@ export const useParameter = (props: any, propKey?: string) => {
       nodeAttrs.value.parameters.header = val
     },
   })
+
+  const globalHeaders = computed(() =>
+    globalParameters.value.header.map((param) => {
+      return { ...param, required: param.required ? '是' : '否', isUse: !(nodeAttrs.value.globalExcepts.header || []).includes(param.id) }
+    })
+  )
+
+  const globalCookies = computed(() =>
+    globalParameters.value.cookie.map((param) => {
+      return { ...param, required: param.required ? '是' : '否', isUse: !(nodeAttrs.value.globalExcepts.cookie || []).includes(param.id) }
+    })
+  )
+
+  const globalQueries = computed(() =>
+    globalParameters.value.query.map((param) => {
+      return { ...param, required: param.required ? '是' : '否', isUse: !(nodeAttrs.value.globalExcepts.query || []).includes(param.id) }
+    })
+  )
+
+  const globalPaths = computed(() =>
+    globalParameters.value.path.map((param) => {
+      return { ...param, required: param.required ? '是' : '否', isUse: !(nodeAttrs.value.globalExcepts.path || []).includes(param.id) }
+    })
+  )
+
+  const switchGlobalParameter = (id: string | number, isUse: boolean, _in: string) => {
+    nodeAttrs.value.globalExcepts[_in] = isUse ? nodeAttrs.value.globalExcepts[_in].filter((item: string | number) => item !== id) : [...nodeAttrs.value.globalExcepts[_in], id]
+  }
+
+  const switchGlobalHeader = (id: any, isUse: any) => switchGlobalParameter(id, isUse, 'header')
+  const switchGlobalCookie = (id: any, isUse: any) => switchGlobalParameter(id, isUse, 'cookie')
+  const switchGlobalQuery = (id: any, isUse: any) => switchGlobalParameter(id, isUse, 'query')
+  const switchGlobalPath = (id: any, isUse: any) => switchGlobalParameter(id, isUse, 'path')
 
   const cookies = computed({
     get: () => nodeAttrs.value.parameters.cookie,
@@ -31,20 +68,29 @@ export const useParameter = (props: any, propKey?: string) => {
     },
   })
 
-  const headersCount = computed(() => headers.value.length || '')
-  const cookiesCount = computed(() => cookies.value.length || '')
-  const queriesCount = computed(() => queries.value.length || '')
-  const pathsCount = computed(() => paths.value.length || '')
+  const headersCount = computed(() => headers.value.length + globalHeaders.value.filter((i) => i.isUse).length || '')
+  const cookiesCount = computed(() => cookies.value.length + globalCookies.value.filter((i) => i.isUse).length || '')
+  const queriesCount = computed(() => queries.value.length + globalQueries.value.filter((i) => i.isUse).length || '')
+  const pathsCount = computed(() => paths.value.length + globalPaths.value.filter((i) => i.isUse).length || '')
 
   return {
     headers,
+    globalHeaders,
     cookies,
+    globalCookies,
     queries,
+    globalQueries,
     paths,
+    globalPaths,
 
     headersCount,
     cookiesCount,
     queriesCount,
     pathsCount,
+
+    switchGlobalHeader,
+    switchGlobalCookie,
+    switchGlobalQuery,
+    switchGlobalPath,
   }
 }

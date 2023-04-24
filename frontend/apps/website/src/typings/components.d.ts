@@ -9,6 +9,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    'AcIconBi:robot': typeof import('~icons/bi/robot')['default']
     AcIconCarbonModelAlt: typeof import('~icons/carbon/model-alt')['default']
     AcIconCarbonUnlink: typeof import('~icons/carbon/unlink')['default']
     AcIconEpArrowDownBold: typeof import('~icons/ep/arrow-down-bold')['default']
@@ -19,7 +20,6 @@ declare module '@vue/runtime-core' {
     AcIconEpMoreFilled: typeof import('~icons/ep/more-filled')['default']
     AcIconEpPlus: typeof import('~icons/ep/plus')['default']
     AcIconEpSort: typeof import('~icons/ep/sort')['default']
-    AcIconIconoirDeleteCircle: typeof import('~icons/iconoir/delete-circle')['default']
     AcIconIcOutlineAddCircle: typeof import('~icons/ic/outline-add-circle')['default']
     AcIconIcOutlineContentCopy: typeof import('~icons/ic/outline-content-copy')['default']
     AcIconLucideFileText: typeof import('~icons/lucide/file-text')['default']
@@ -53,6 +53,7 @@ declare module '@vue/runtime-core' {
     ElRow: typeof import('element-plus/es')['ElRow']
     ElSelect: typeof import('element-plus/es')['ElSelect']
     ElSpace: typeof import('element-plus/es')['ElSpace']
+    ElSwitch: typeof import('element-plus/es')['ElSwitch']
     ElTable: typeof import('element-plus/es')['ElTable']
     ElTableColumn: typeof import('element-plus/es')['ElTableColumn']
     ElTabPane: typeof import('element-plus/es')['ElTabPane']

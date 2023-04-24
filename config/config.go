@@ -29,10 +29,15 @@ type DB struct {
 	Charset  string `yaml:"charset"`
 }
 
+type OpenAI struct {
+	Token string `yaml:"token"`
+}
+
 type Sysconfig struct {
-	App App `yaml:"application"`
-	Log Log `yaml:"log"`
-	DB  DB  `yaml:"database"`
+	App    App    `yaml:"application"`
+	Log    Log    `yaml:"log"`
+	DB     DB     `yaml:"database"`
+	OpenAI OpenAI `yaml:"openai"`
 }
 
 func createDefault() *Sysconfig {

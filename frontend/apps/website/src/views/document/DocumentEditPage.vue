@@ -10,12 +10,13 @@
       <el-button type="primary" :loading="isLoadingForSaveBtn" @click="handleSave">预览</el-button>
     </div>
   </div>
-  <HttpDocumentEditor v-loading="isLoading" v-model="httpDoc" />
+  <div v-loading="isLoading">
+    <HttpDocumentEditor v-if="httpDoc" v-model="httpDoc" />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { HttpDocument } from '@/typings'
-import { createHttpDocument } from '@/views/document/components/createHttpDocument'
 import { getCollectionDetail, updateCollection } from '@/api/collection'
 import HttpDocumentEditor from './components/HttpDocumentEditor.vue'
 import { useParams } from '@/hooks/useParams'
@@ -31,7 +32,7 @@ const [isLoadingForSaveBtn, updateCollectionApiWithLoading] = useApi(updateColle
 const { goDocumentDetailPage } = useGoPage()
 
 const isSaving = ref(false)
-const httpDoc: Ref<HttpDocument> = ref(createHttpDocument())
+const httpDoc: Ref<HttpDocument | null> = ref(null)
 
 const directoryTree: any = inject('directoryTree')
 
@@ -47,7 +48,7 @@ const isInvalidId = () => isNaN(parseInt(route.params.doc_id as string, 10))
 watch(
   httpDoc,
   debounce(async (newVal, oldVal) => {
-    if (!oldVal.id || isInvalidId()) {
+    if (!oldVal || !oldVal.id || isInvalidId()) {
       // id 不存在
       return
     }

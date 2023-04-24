@@ -11,6 +11,12 @@ export const HTTP_RESPONSE_NODE_KEY = 'apicat-http-response'
 export const HTTP_URL_NODE_KEY = 'apicat-http-url'
 
 export const createRequestDefaultValue = (overwrite?: any) => ({
+  globalExcepts: {
+    header: [],
+    path: [],
+    cookie: [],
+    query: [],
+  },
   parameters: {
     header: [],
     path: [],
@@ -38,6 +44,14 @@ export const createResponseDefaultContent = () => ({
   'application/json': {
     schema: createDefaultSchema(),
   },
+})
+
+export const createCommonResponse = (overwrite?: Partial<APICatResponse>) => ({
+  name: '',
+  code: 200,
+  description: 'success',
+  content: createResponseDefaultContent(),
+  ...overwrite,
 })
 
 export const createHttpResponse = (overwrite?: Partial<APICatResponse>) => ({

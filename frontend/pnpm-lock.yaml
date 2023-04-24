@@ -134,12 +134,21 @@ importers:
       '@apicat/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
+      '@iconify-json/bi':
+        specifier: ^1.1.16
+        version: 1.1.16
+      '@iconify-json/bx':
+        specifier: ^1.1.6
+        version: 1.1.6
       '@iconify-json/carbon':
         specifier: ^1.1.16
         version: 1.1.16
       '@iconify-json/clarity':
         specifier: ^1.1.8
         version: 1.1.8
+      '@iconify-json/eos-icons':
+        specifier: ^1.1.6
+        version: 1.1.6
       '@iconify-json/ep':
         specifier: ^1.1.10
         version: 1.1.10
@@ -164,6 +173,9 @@ importers:
       '@iconify-json/ri':
         specifier: ^1.1.7
         version: 1.1.7
+      '@iconify-json/system-uicons':
+        specifier: ^1.1.8
+        version: 1.1.8
       '@iconify-json/uil':
         specifier: ^1.1.4
         version: 1.1.4
@@ -882,6 +894,18 @@ packages:
     dependencies:
       '@floating-ui/core': 1.2.4
 
+  /@iconify-json/bi@1.1.16:
+    resolution: {integrity: sha512-93jzbeGLqgjD+2DuwP1O0x/6KXQasrEYeLyPYs4PoXpkSRGWPnIvNtgTkjjPcMW4hHJxMMf7IZ90vrmOko9k1Q==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/bx@1.1.6:
+    resolution: {integrity: sha512-Wxf0UYZG95nkSdDv3OOCJLq46SVKtiUZaRJk5b+azoLthiHR/vfpubsUPnP4CGk/8kN1fkrD6PwADn2Ybj5Ouw==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
   /@iconify-json/carbon@1.1.16:
     resolution: {integrity: sha512-AD8bcnRSGA0WfcGEass2FbA0sagrUzrpFx5WchuDy3uf7yKBWumdypdQK121DH321fQDl5+zZQ26T6gC9knwUQ==}
     dependencies:
@@ -890,6 +914,12 @@ packages:
 
   /@iconify-json/clarity@1.1.8:
     resolution: {integrity: sha512-Pf8Y1I5aVN3w56LamWpk17YQ7Gh2NICJYqiVc6A4sU9UmPpJDOAhpd6mVSCeptNv058PROyPoM1KoDFDn7eNKA==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/eos-icons@1.1.6:
+    resolution: {integrity: sha512-A1kUcVbgrdlBBacFcs+srwnfSH9htQvlgbi0u6Jf38lp4PZAK3InXVbVySrJKx//FJtSMdnpZh0b89yjcAIIBg==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true
@@ -938,6 +968,12 @@ packages:
 
   /@iconify-json/ri@1.1.7:
     resolution: {integrity: sha512-ra80AV2Q0wFuzT3YB48DKy0q3IWmmIh2ZbDnMGNX2Wz1lOx9PHgcewVvThk8OaUJOeGkneTMAzKQ64MRrOXEpg==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/system-uicons@1.1.8:
+    resolution: {integrity: sha512-PtJvR2JKkJalQd48iHMThYMj678Wop8QkbShhpJ+lKZe0lwx2yElupV5vI81/AJ0sn6PVDMIvd2+/mVltEaNrg==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true

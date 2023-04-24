@@ -145,10 +145,10 @@ export const useDocumentTree = () => {
     }
   }
 
-  const initDocumentTree = async () => {
+  const initDocumentTree = async (activeDocId?: any) => {
     await getApiDocTree(project_id as string)
     if (route.name === DOCUMENT_DETAIL_NAME || route.name === DOCUMENT_EDIT_NAME) {
-      params.doc_id ? activeNode(params.doc_id) : reactiveNode()
+      params.doc_id ? activeNode(activeDocId || params.doc_id) : reactiveNode()
     }
   }
 

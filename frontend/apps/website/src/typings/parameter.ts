@@ -1,6 +1,19 @@
-// import { JSONSchema } from '@/components/JSONSchemaParamTable/types'
-
+import { JSONSchema } from '@/components/APIEditor/types'
 import type { APICatResponse } from '@/components/ResponseForm.vue'
+
+export interface GlobalParameter {
+  id?: string | number
+  name: string
+  required?: boolean
+  schema: JSONSchema
+}
+
+export interface GlobalParameters {
+  header: GlobalParameter[]
+  cookie: GlobalParameter[]
+  query: GlobalParameter[]
+  path: GlobalParameter[]
+}
 
 export interface CommonParam {
   in?: string
