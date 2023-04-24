@@ -38,7 +38,7 @@ provide('directoryTree', {
   updateTitle: (id: any, title: string) => directoryTree.value?.updateTitle(id, title),
   createNodeByData: (data: any) => directoryTree.value?.createNodeByData(data),
   reload: () => directoryTree.value?.reload(),
-  redirecToDocumentDetail: (activeId?: any) => directoryTree.value?.redirecToDocumentDetail(activeId),
+  redirecToDocumentDetail: (activeId?: any) => directoryTree.value?.redirecToDocumentDetailPage(activeId),
 })
 
 provide('schemaTree', {

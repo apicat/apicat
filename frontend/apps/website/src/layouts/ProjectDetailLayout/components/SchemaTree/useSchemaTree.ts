@@ -39,6 +39,7 @@ export const useSchemaTree = () => {
   const project_id = useProjectId()
   const { goSchemaDetailPage, goSchemaEditPage } = useGoPage()
   const route = useRoute()
+  const router = useRouter()
   const { params } = route
   const { getDefinitions } = definitionStore
   const { definitions } = storeToRefs(definitionStore)
@@ -149,7 +150,7 @@ export const useSchemaTree = () => {
   const initSchemaTree = async (activeId?: any) => {
     await getDefinitions(project_id as string)
     if (route.name === SCHEMA_DETAIL_NAME || route.name === SCHEMA_EDIT_NAME) {
-      params.shcema_id ? activeNode(activeId || params.shcema_id) : reactiveNode()
+      router.currentRoute.value.params.shcema_id ? activeNode(activeId || params.shcema_id) : reactiveNode()
     }
   }
 
