@@ -107,10 +107,10 @@ const onShowCommonResponseModal = () => {
   selectCommonResponseModalRef.value?.show(names)
 }
 
-const handleCommonResponseSelectFinish = (selectedNames: string[]) => {
+const handleCommonResponseSelectFinish = (selectedIds: string[]) => {
   model.value = model.value.filter((item) => !item._isCommonResponse)
-  selectedNames.forEach((name) => {
-    model.value.push(createCommonRefResponse(name))
+  selectedIds.forEach((id) => {
+    model.value.push(createCommonRefResponse(id))
   })
 }
 

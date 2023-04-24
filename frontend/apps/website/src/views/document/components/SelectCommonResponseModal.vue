@@ -47,7 +47,7 @@ const handelConfrim = () => {
   console.log(multipleSelection.value)
   emits(
     'ok',
-    multipleSelection.value.map((item: any) => item.name)
+    multipleSelection.value.map((item: any) => item.id)
   )
   hideModel()
 }

@@ -67,6 +67,7 @@ declare module '@vue/runtime-core' {
     ElTree: typeof import('element-plus/es')['ElTree']
     FileUploaderWrapper: typeof import('./../components/FileUploaderWrapper.vue')['default']
     Iconfont: typeof import('./../components/Iconfont.vue')['default']
+    LimitInput: typeof import('../directives/LimitInput')['default']
     PopperMenu: typeof import('./../components/PopperMenu.vue')['default']
     RequestMethodEditor: typeof import('./../components/RequestMethodEditor.vue')['default']
     RequestMethodRaw: typeof import('./../components/RequestMethodRaw.vue')['default']
