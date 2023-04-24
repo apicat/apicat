@@ -20,6 +20,7 @@ import EditorRow from './EditorRow.vue'
 import type { JSONSchema, Definition, Tree } from './types'
 import { constNodeType, typename } from './types'
 import { useNamespace } from '@/hooks'
+import { RefPrefixKeys } from '@/commons'
 
 const props = withDefaults(
   defineProps<{
@@ -72,7 +73,7 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
     type: '',
   }
   if (schema.$ref != undefined) {
-    const name = schema.$ref.match(/#\/definitions\/(.*)/)?.[1]
+    const name = schema.$ref.match(RefPrefixKeys.DefinitionsSchema.reg)?.[1]
     const refschema = props.definitions?.find((v) => v.name === name)
     if (refschema && refschema.schema) {
       item.refObj = refschema
