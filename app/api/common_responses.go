@@ -39,18 +39,9 @@ type ResponseDetailData struct {
 	Name        string                 `json:"name" binding:"required,lte=255"`
 	Code        int                    `json:"code" binding:"required"`
 	Description string                 `json:"description" binding:"required,lte=255"`
-	Header      []*HeaderData          `json:"header,omitempty" binding:"omitempty,dive"`
+	Header      []*spec.Schema         `json:"header,omitempty" binding:"omitempty,dive"`
 	Content     map[string]spec.Schema `json:"content,omitempty" binding:"required"`
 	Ref         string                 `json:"$ref,omitempty" binding:"omitempty,lte=255"`
-}
-
-type HeaderData struct {
-	Name        string      `json:"name" binding:"required,lte=255"`
-	Description string      `json:"description" binding:"omitempty,lte=255"`
-	Example     string      `json:"example" binding:"omitempty,lte=255"`
-	Default     string      `json:"default" binding:"omitempty,lte=255"`
-	Required    bool        `json:"required"`
-	Schema      spec.Schema `json:"schema"`
 }
 
 func CommonResponsesList(ctx *gin.Context) {
@@ -87,7 +78,7 @@ func CommonResponsesDetail(ctx *gin.Context) {
 		return
 	}
 
-	header := []*HeaderData{}
+	header := []*spec.Schema{}
 	if err := json.Unmarshal([]byte(definitionsResponses.Header), &header); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -146,7 +137,7 @@ func CommonResponsesCreate(ctx *gin.Context) {
 	definitionsResponses.Code = data.Code
 	definitionsResponses.Description = data.Description
 
-	responseHeader := make([]*HeaderData, 0)
+	responseHeader := make([]*spec.Schema, 0)
 	if len(data.Header) > 0 {
 		responseHeader = data.Header
 	}
@@ -263,7 +254,7 @@ func CommonResponsesDelete(ctx *gin.Context) {
 		return
 	}
 
-	header := []*HeaderData{}
+	header := []*spec.Schema{}
 	if err := json.Unmarshal([]byte(definitionsResponses.Header), &header); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -296,7 +287,7 @@ func CommonResponsesDelete(ctx *gin.Context) {
 		return
 	}
 
-	ref := "{$ref:#/commons/responses/" + strconv.FormatUint(uint64(definitionsResponses.ID), 10) + "}"
+	ref := "{\"$ref\":\"#/commons/responses/" + strconv.FormatUint(uint64(definitionsResponses.ID), 10) + "\"}"
 	responseDetailJson, err := json.Marshal(responseDetail)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

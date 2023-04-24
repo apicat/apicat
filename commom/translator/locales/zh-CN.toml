@@ -59,6 +59,6 @@
 [AI]
     [AI.CollectionCreateFail]
         other = "接口创建失败，请稍后重试。"
-[DefinitionsResponses]
-    [DefinitionsResponses.NameExists]
+[CommonResponses]
+    [CommonResponses.NameExists]
         other = "公共响应名称存在"

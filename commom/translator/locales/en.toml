@@ -59,6 +59,6 @@
 [AI]
     [AI.CollectionCreateFail]
         other = "API create failed, please try again later."
-[DefinitionsResponses]
-    [DefinitionsResponses.NameExists]
+[CommonResponses]
+    [CommonResponses.NameExists]
         other = "Definitions responses name exists"
