@@ -2,7 +2,10 @@ package models
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
+
+	"strconv"
 
 	"github.com/apicat/apicat/commom/spec"
 	"gorm.io/gorm"
@@ -101,36 +104,47 @@ func (c *Collections) Restore() error {
 	return Conn.Unscoped().Model(c).Updates(map[string]interface{}{"project_id": c.ProjectId, "parent_id": c.ParentId, "display_order": 0, "deleted_at": nil}).Error
 }
 
-func CollectionsImport(projectID uint, parentID uint, collections []*spec.CollectItem) {
-	if len(collections) > 0 {
-		for i, collection := range collections {
-			if len(collection.Items) > 0 {
-				category := &Collections{
-					ProjectId: projectID,
-					ParentId:  parentID,
-					Title:     collection.Title,
-					Type:      "category",
+func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem, definitionSchemas nameToIdMap) {
+	for i, collection := range collections {
+		if len(collection.Items) > 0 {
+			category := &Collections{
+				ProjectId: projectID,
+				ParentId:  parentID,
+				Title:     collection.Title,
+				Type:      "category",
+			}
+			if err := category.Create(); err == nil {
+				CollectionsImport(projectID, category.ID, collection.Items, definitionSchemas)
+			}
+		} else {
+			if collectionByte, err := json.Marshal(collection.Content); err == nil {
+				collectionStr := string(collectionByte)
+				collectionStr = replaceNameToID(collectionStr, definitionSchemas, "#/definitions/schemas/")
+
+				record := &Collections{
+					ProjectId:    projectID,
+					ParentId:     0,
+					Title:        collection.Title,
+					Type:         "http",
+					Content:      collectionStr,
+					DisplayOrder: i,
 				}
-				if err := category.Create(); err == nil {
-					CollectionsImport(projectID, category.ID, collection.Items)
-				}
-			} else {
-				if collectionStr, err := json.Marshal(collection.Content); err == nil {
-					record := &Collections{
-						ProjectId:    projectID,
-						ParentId:     0,
-						Title:        collection.Title,
-						Type:         "http",
-						Content:      string(collectionStr),
-						DisplayOrder: i,
-					}
-					if err := record.Create(); err == nil {
-						TagsImport(projectID, record.ID, collection.Tags)
-					}
+				if err := record.Create(); err == nil {
+					TagsImport(projectID, record.ID, collection.Tags)
 				}
 			}
 		}
 	}
+}
+
+func replaceNameToID(content string, nameIDMap nameToIdMap, prefix string) string {
+	for name, id := range nameIDMap {
+		oldStr := prefix + name
+		newStr := prefix + strconv.FormatUint(uint64(id), 10)
+
+		content = strings.Replace(content, oldStr, newStr, -1)
+	}
+	return content
 }
 
 // func CollectionsExport(projectID uint) []*spec.CollectItem {
