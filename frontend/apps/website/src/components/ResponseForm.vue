@@ -1,8 +1,8 @@
 <template>
   <el-space direction="vertical" fill warp class="w-full">
     <el-form :inline="true">
-      <el-form-item label="名称" v-if="isCommonResponse">
-        <el-input v-model="model.name" />
+      <el-form-item label="名称">
+        <el-input v-model="model.name" v-input-limit />
       </el-form-item>
 
       <el-form-item label="状态码">
@@ -71,19 +71,11 @@ import { computed } from 'vue'
 import { CheckboxValueType } from 'element-plus'
 import { APICatCommonResponse } from '@/typings'
 
-const props = withDefaults(
-  defineProps<{
-    modelValue: APICatResponse | APICatCommonResponse
-    // 引用模型的集合
-    definitions?: Definition[]
-
-    // 是否是公共编辑
-    isCommonResponse?: boolean
-  }>(),
-  {
-    isCommonResponse: false,
-  }
-)
+const props = defineProps<{
+  modelValue: APICatResponse | APICatCommonResponse
+  // 引用模型的集合
+  definitions?: Definition[]
+}>()
 
 const emit = defineEmits(['update:modelValue'])
 const model: any = useVModel(props, 'modelValue', emit)

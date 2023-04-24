@@ -33,7 +33,7 @@ const show = async (selectedNameList: string[]) => {
   multipleTableRef.value.clearSelection()
 
   response.value
-    .filter((row) => selectedNameList.includes(row.name))
+    .filter((row) => selectedNameList.includes(row.id + ''))
     .forEach((row) => {
       multipleTableRef.value.toggleRowSelection(row, true)
     })

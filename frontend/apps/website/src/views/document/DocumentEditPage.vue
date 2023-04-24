@@ -10,7 +10,7 @@
       <el-button type="primary" :loading="isLoadingForSaveBtn" @click="handleSave">预览</el-button>
     </div>
   </div>
-  <div v-loading="isLoading">
+  <div v-loading="isLoading" :class="{ 'h-50vh': !httpDoc }">
     <HttpDocumentEditor v-if="httpDoc" v-model="httpDoc" />
   </div>
 </template>

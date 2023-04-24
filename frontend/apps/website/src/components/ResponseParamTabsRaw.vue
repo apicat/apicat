@@ -4,7 +4,7 @@
       <el-tab-pane v-for="item in model.list" :key="item.id" :name="item.id">
         <template #label>
           <el-space>
-            <span>{{ item.description }}</span>
+            <span>{{ item.name || item.description }}</span>
             <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
           </el-space>
         </template>
@@ -18,20 +18,34 @@
 import { getResponseStatusCodeBgColor } from '@/commons'
 import ResponseParamPaneRaw from './ResponseParamPaneRaw.vue'
 import { Definition } from './APIEditor/types'
-import { HttpDocument } from '@/typings'
+import { APICatCommonResponse, HttpDocument } from '@/typings'
 import { HTTP_RESPONSE_NODE_KEY, useNodeAttrs } from '@/hooks/useNodeAttrs'
 import { APICatResponse } from './ResponseForm.vue'
 import { uuid } from '@apicat/shared'
+import useCommonResponseStore from '@/store/commonResponse'
+import { storeToRefs } from 'pinia'
 
 const props = defineProps<{ doc: HttpDocument; definitions: Definition[] }>()
-const response = useNodeAttrs(props, HTTP_RESPONSE_NODE_KEY, 'doc')
+const responseNode = useNodeAttrs(props, HTTP_RESPONSE_NODE_KEY, 'doc')
+const commonResponseStore = useCommonResponseStore()
 
 const model = ref<{ list: APICatResponse[] }>({ list: [] })
-const isShow = computed(() => model.value.list.length > 0)
 const editableTabsValue = ref()
+const { response } = storeToRefs(commonResponseStore)
+const isShow = computed(() => model.value.list.length > 0)
 
-watch(response, () => {
-  model.value.list = response.value.list.map((item: APICatResponse) => ({ ...item, id: item.id || uuid() }))
+watch(responseNode, () => {
+  model.value.list = responseNode.value.list.map((item: APICatResponse & APICatCommonResponse) => {
+    let newItem = { ...item, id: item.id || uuid() }
+
+    // common response
+    if (newItem.$ref) {
+      const responseId = parseInt(newItem.$ref.split('/').pop() as string, 10)
+      const responseDetail = response.value.find((item) => item.id === responseId)
+      newItem = { ...newItem, ...responseDetail }
+    }
+    return newItem
+  })
   editableTabsValue.value = (model.value.list[0] as APICatResponse).id
 })
 </script>

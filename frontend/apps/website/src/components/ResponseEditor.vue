@@ -11,7 +11,8 @@
     <el-tabs @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
       <el-tab-pane v-for="(item, index) in responseList" :key="item._id + index" :name="item._id" :disabled="disabled">
         <template #label>
-          <el-space
+          <div
+            class="inline-flex items-center"
             draggable="true"
             @dragstart="onDragStart($event, index)"
             @dragend="onDragEnd"
@@ -19,13 +20,13 @@
             @dragleave="onDragLeave($event, index)"
             @drop="onDropHandler($event, index)"
           >
-            <span>{{ item.description }}</span>
+            <span class="mr-4px">{{ item.name || '&nbsp' }}</span>
             <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
-          </el-space>
+          </div>
         </template>
         <ResponseForm v-model="model[index]" :definitions="definitions" />
       </el-tab-pane>
-      <el-tab-pane name="new-tab" disabled class="ac-response__common">
+      <el-tab-pane name="add-tab" disabled class="ac-response__common">
         <template #label>
           <el-space @click="onShowCommonResponseModal">
             <span>公共响应</span>
@@ -47,6 +48,8 @@ import { uuid } from '@apicat/shared'
 import { createResponseDefaultContent } from '@/views/document/components/createHttpDocument'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 import SelectCommonResponseModal from '@/views/document/components/SelectCommonResponseModal.vue'
+import { ElMessage } from 'element-plus'
+import { isEmpty } from 'lodash-es'
 
 const emits = defineEmits(['update:data'])
 const props = defineProps<{ data: Array<any>; definitions?: Definition[] }>()
@@ -83,10 +86,10 @@ const editableTabsValue = ref(unref(model).length ? unref(model)[0]._id : null)
 const isShow = computed(() => model.value.length > 0)
 const disabled = computed(() => model.value.length <= 1)
 
-const activeLastTab = () => {
+const activeLastTab = (_id?: string) => {
   const len = model.value.length
   const res = model.value[len - 1]
-  editableTabsValue.value = res._id
+  editableTabsValue.value = _id || res._id
 }
 
 const handleAddTab = () => {
@@ -122,14 +125,27 @@ const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDr
   },
 })
 
+const validResponseName = () => {
+  let len = model.value.length
+  for (let i = 0; i < len; i++) {
+    if (isEmpty(model.value[i].name)) {
+      ElMessage.error('响应名称不能为空')
+      // activeLastTab(model.value[i]._id)
+      return false
+    }
+  }
+  return true
+}
+
 // v-model
 watch(
   model,
   () => {
-    emits(
-      'update:data',
-      model.value.map(({ _id, _isCommonResponse, _refName, ...other }) => toRaw(other))
-    )
+    validResponseName() &&
+      emits(
+        'update:data',
+        model.value.map(({ _id, _isCommonResponse, _refName, ...other }) => toRaw(other))
+      )
   },
   { deep: true }
 )
