@@ -78,7 +78,7 @@ func (c *Commons) IsExist() bool {
 	return count > 0
 }
 
-func CommonsImport(projectID uint, commons spec.Common) map[string]nameToIdMap {
+func CommonsImport(projectID uint, commons *spec.Common) map[string]nameToIdMap {
 	var commonsMap = map[string]nameToIdMap{
 		"parameter": make(nameToIdMap),
 		"response":  make(nameToIdMap),

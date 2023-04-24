@@ -110,8 +110,9 @@ func ProjectsCreate(ctx *gin.Context) {
 	// 进行数据导入工作
 	if data.Data != "" {
 		models.ServersImport(project.ID, content.Servers)
-		commons := models.CommonsImport(project.ID, content.Common)
-		// models.DefinitionsImport(project.ID, &content.Definitions)
+		// globals := models.GlobalParametersImport(project.ID, &content.Globals.Parameters)
+		// commons := models.CommonsImport(project.ID, &content.Common)
+		// schemas := models.DefinitionsImport(project.ID, content.Definitions.Schemas)
 		// models.CollectionsImport(project.ID, 0, content.Collections)
 	}
 

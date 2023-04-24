@@ -1,6 +1,11 @@
 package models
 
-import "time"
+import (
+	"encoding/json"
+	"time"
+
+	"github.com/apicat/apicat/commom/spec"
+)
 
 type DefinitionsResponses struct {
 	ID           uint   `gorm:"type:integer primary key autoincrement"`
@@ -53,4 +58,44 @@ func (dr *DefinitionsResponses) Update() error {
 
 func (dr *DefinitionsResponses) Delete() error {
 	return Conn.Delete(dr).Error
+}
+
+func CommonResponsesImport(projectID uint, responses spec.HTTPResponses) nameToIdMap {
+	var ResponsesMap nameToIdMap
+
+	if responses == nil {
+		return ResponsesMap
+	}
+
+	for i, response := range responses {
+		header := ""
+		if response.Header != nil {
+			if headerByte, err := json.Marshal(response.Header); err == nil {
+				header = string(headerByte)
+			}
+		}
+
+		content := ""
+		if response.Content != nil {
+			if contentByte, err := json.Marshal(response.Content); err == nil {
+				content = string(contentByte)
+			}
+		}
+
+		record := &DefinitionsResponses{
+			ProjectID:    projectID,
+			Name:         response.Name,
+			Code:         response.Code,
+			Description:  response.Description,
+			Header:       header,
+			Content:      content,
+			DisplayOrder: i,
+		}
+
+		if Conn.Create(record).Error == nil {
+			ResponsesMap[response.Name] = record.ID
+		}
+	}
+
+	return ResponsesMap
 }

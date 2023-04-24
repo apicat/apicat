@@ -79,22 +79,32 @@ func (d *Definitions) Deleter() string {
 	return ""
 }
 
-func DefinitionsImport(projectID uint, definitions *spec.Schemas) {
-	if definitions.Length() > 0 {
-		for i, definition := range *definitions {
-			if schemaStr, err := json.Marshal(definition.Schema); err == nil {
-				Conn.Create(&Definitions{
-					ProjectId:    projectID,
-					ParentId:     0,
-					Name:         definition.Name,
-					Description:  definition.Description,
-					Type:         "schema",
-					Schema:       string(schemaStr),
-					DisplayOrder: i,
-				})
+func DefinitionsImport(projectID uint, schemas spec.Schemas) nameToIdMap {
+	var SchemasMap nameToIdMap
+
+	if schemas == nil {
+		return SchemasMap
+	}
+
+	for i, schema := range schemas {
+		if schemaStr, err := json.Marshal(schema.Schema); err == nil {
+			record := &Definitions{
+				ProjectId:    projectID,
+				ParentId:     0,
+				Name:         schema.Name,
+				Description:  schema.Description,
+				Type:         "schema",
+				Schema:       string(schemaStr),
+				DisplayOrder: i,
+			}
+
+			if Conn.Create(record).Error == nil {
+				SchemasMap[schema.Name] = record.ID
 			}
 		}
 	}
+
+	return SchemasMap
 }
 
 // func DefinitionsExport(projectID uint) spec.Schemas {
