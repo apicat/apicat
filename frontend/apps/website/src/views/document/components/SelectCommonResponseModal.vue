@@ -7,7 +7,7 @@
       <el-table-column property="code" label="状态码" width="120" />
       <el-table-column property="description" label="描述" show-overflow-tooltip />
     </el-table>
-    <el-button type="primary" class="mt-20px" @click="handelConfrim">确定</el-button>
+    <el-button type="primary" class="mt-20px" :disabled="!multipleSelection.length" @click="handelConfrim">确定</el-button>
   </el-dialog>
 </template>
 <script setup lang="ts">
@@ -44,11 +44,11 @@ const handleSelectionChange = (val: any) => {
 }
 
 const handelConfrim = () => {
-  console.log(multipleSelection.value)
-  emits(
-    'ok',
-    multipleSelection.value.map((item: any) => item.id)
-  )
+  !!multipleSelection.value.length &&
+    emits(
+      'ok',
+      multipleSelection.value.map((item: any) => item.id)
+    )
   hideModel()
 }
 

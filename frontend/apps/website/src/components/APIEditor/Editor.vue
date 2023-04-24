@@ -73,8 +73,8 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
     type: '',
   }
   if (schema.$ref != undefined) {
-    const name = schema.$ref.match(RefPrefixKeys.DefinitionsSchema.reg)?.[1]
-    const refschema = props.definitions?.find((v) => v.name === name)
+    const id = schema.$ref.match(RefPrefixKeys.DefinitionsSchema.reg)?.[1]
+    const refschema = props.definitions?.find((v) => v.id === parseInt(id as string, 10))
     if (refschema && refschema.schema) {
       item.refObj = refschema
       schema = refschema.schema

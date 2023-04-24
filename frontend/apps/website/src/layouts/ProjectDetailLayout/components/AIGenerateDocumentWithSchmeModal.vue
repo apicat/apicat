@@ -24,7 +24,7 @@
         <el-table-column property="path" label="路径" show-overflow-tooltip />
         <el-table-column property="description" label="描述" show-overflow-tooltip />
       </el-table>
-      <el-button class="mt-20px" :loading="isStartCreate" type="primary" @click="handleCreate(multipleSelection)">创建</el-button>
+      <el-button class="mt-20px" :disabled="!collectList.length" :loading="isStartCreate" type="primary" @click="handleCreate(multipleSelection)">创建</el-button>
     </div>
   </el-dialog>
 </template>

@@ -145,7 +145,7 @@ export const RefPrefixKeys = {
     reg: /#\/commons\/responses\/(.*)/,
   },
   DefinitionsSchema: {
-    key: '#/definitions/schema/',
-    reg: /#\/definitions\/schema\/(.*)/,
+    key: '#/definitions/schemas/',
+    reg: /#\/definitions\/schemas\/(.*)/,
   },
 }
