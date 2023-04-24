@@ -39,7 +39,7 @@
     <PopperMenu :menus="popoverMenus" size="small" class="clear-popover-space" />
   </el-popover>
 
-  <AIGenerateSchemaModal ref="aiPromptModalRef" @ok="onCreateSuccess" />
+  <AIGenerateSchemaModal ref="aiPromptModalRef" @ok="onCreateSchemaSuccess" />
   <AIGenerateDocumentWithSchmeModal ref="aiGenerateDocumentWithSchmeModalRef" @ok="onGenerateDocumentWithSchmeSuccess" />
 </template>
 
@@ -50,12 +50,20 @@ import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModa
 import { useSchemaPopoverMenu } from './useSchemaPopoverMenu'
 import { useSchemaTree } from './useSchemaTree'
 import { useActiveTree } from './useActiveTree'
-import { useAIModal } from '../useAIModal'
 
-const { treeIns, treeOptions, definitions, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, initSchemaTree } = useSchemaTree()
+const directoryTree = inject('directoryTree') as any
 
-const { aiPromptModalRef, onCreateSuccess } = useAIModal(initSchemaTree)
-const { aiPromptModalRef: aiGenerateDocumentWithSchmeModalRef, onCreateSuccess: onGenerateDocumentWithSchmeSuccess } = useAIModal(initSchemaTree)
+const { treeIns, treeOptions, definitions, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, redirecToSchemaEdit } = useSchemaTree()
+
+const aiPromptModalRef = ref()
+const onCreateSchemaSuccess = (schema_id: any) => {
+  redirecToSchemaEdit(schema_id)
+}
+
+const aiGenerateDocumentWithSchmeModalRef = ref()
+const onGenerateDocumentWithSchmeSuccess = (docId: any) => {
+  directoryTree.redirecToDocumentDetail(docId)
+}
 
 const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick } = useSchemaPopoverMenu(
   treeIns as any,
@@ -68,5 +76,6 @@ const { activeNode } = useActiveTree(treeIns as any)
 defineExpose({
   updateTitle,
   activeNode,
+  redirecToSchemaEdit,
 })
 </script>

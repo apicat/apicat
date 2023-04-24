@@ -62,7 +62,7 @@ import { useDocumentPopoverMenu, PopoverMoreMenuType } from './useDocumentPopove
 import AIGenerateDocumentModal from '../AIGenerateDocumentModal.vue'
 import { useAIModal } from '../useAIModal'
 
-const { treeIns, treeOptions, apiDocTree, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, initDocumentTree } = useDocumentTree()
+const { treeIns, treeOptions, apiDocTree, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, initDocumentTree, redirecToDocumentDetail } = useDocumentTree()
 
 const { aiPromptModalRef, onCreateSuccess } = useAIModal(initDocumentTree)
 
@@ -83,5 +83,6 @@ defineExpose({
   updateTitle,
   createNodeByData,
   reload: initDocumentTree,
+  redirecToDocumentDetail,
 })
 </script>

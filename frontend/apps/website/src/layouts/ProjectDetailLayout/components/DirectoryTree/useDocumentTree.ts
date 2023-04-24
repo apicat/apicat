@@ -152,6 +152,11 @@ export const useDocumentTree = () => {
     }
   }
 
+  const redirecToDocumentDetail = (activeId: any) => {
+    goDocumentDetailPage(activeId)
+    initDocumentTree(activeId)
+  }
+
   onMounted(async () => initDocumentTree())
 
   return {
@@ -166,5 +171,7 @@ export const useDocumentTree = () => {
     updateTitle,
 
     initDocumentTree,
+
+    redirecToDocumentDetail,
   }
 }

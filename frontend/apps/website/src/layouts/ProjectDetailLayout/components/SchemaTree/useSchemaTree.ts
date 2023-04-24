@@ -37,7 +37,7 @@ const getTreeMaxDepth = memoize(function (node) {
 export const useSchemaTree = () => {
   const definitionStore = useDefinitionStore()
   const project_id = useProjectId()
-  const { goSchemaDetailPage } = useGoPage()
+  const { goSchemaDetailPage, goSchemaEditPage } = useGoPage()
   const route = useRoute()
   const { params } = route
   const { getDefinitions } = definitionStore
@@ -153,6 +153,11 @@ export const useSchemaTree = () => {
     }
   }
 
+  const redirecToSchemaEdit = (activeId: any) => {
+    goSchemaEditPage(activeId)
+    initSchemaTree(activeId)
+  }
+
   onMounted(async () => await initSchemaTree())
 
   return {
@@ -167,5 +172,7 @@ export const useSchemaTree = () => {
     updateTitle,
 
     initSchemaTree,
+
+    redirecToSchemaEdit,
   }
 }

@@ -104,11 +104,12 @@ const handleCreate = async (selectedRows: Array<any>) => {
 
   isStartCreate.value = false
   if (!lastRequestResult) {
-    ElMessage.error('请选择要创建的接口')
+    ElMessage.error('接口创建失败，请重试')
     return
   }
 
   lastRequestResult && emits('ok', lastRequestResult)
+  hideModel()
 }
 
 defineExpose({

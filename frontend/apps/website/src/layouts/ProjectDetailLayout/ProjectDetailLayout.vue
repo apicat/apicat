@@ -38,11 +38,13 @@ provide('directoryTree', {
   updateTitle: (id: any, title: string) => directoryTree.value?.updateTitle(id, title),
   createNodeByData: (data: any) => directoryTree.value?.createNodeByData(data),
   reload: () => directoryTree.value?.reload(),
+  redirecToDocumentDetail: (activeId?: any) => directoryTree.value?.redirecToDocumentDetail(activeId),
 })
 
 provide('schemaTree', {
   updateTitle: (id: any, title: string) => schemaTree.value?.updateTitle(id, title),
   activeNode: (id: any) => schemaTree.value?.activeNode(id),
+  redirecToSchemaDetail: (activeId?: any) => schemaTree.value?.redirecToSchemaEdit(activeId),
 })
 
 onMounted(async () => {
