@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 export const API_URL = '/api'
 
 // 请求超时时长
-export const REQUEST_TIMEOUT = 1000 * 10
+export const REQUEST_TIMEOUT = 1000 * 60
 
 // 默认值
 export const DEFAULT_VAL = '--'

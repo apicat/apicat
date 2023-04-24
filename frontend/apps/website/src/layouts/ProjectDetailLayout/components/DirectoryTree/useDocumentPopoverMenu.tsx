@@ -16,7 +16,8 @@ import { useParams } from '@/hooks/useParams'
 import { createHttpDocument } from '@/views/document/components/createHttpDocument'
 import { useGoPage } from '@/hooks/useGoPage'
 import { useI18n } from 'vue-i18n'
-import AIPromptModal from '../AIPromptModal.vue'
+import AIPromptModal from '../AIGenerateDocumentModal.vue'
+import AcIconBIRobot from '~icons/bi/robot'
 
 /**
  * hover 后更多菜单类型
@@ -24,10 +25,6 @@ import AIPromptModal from '../AIPromptModal.vue'
 export const enum PopoverMoreMenuType {
   ADD,
   MORE,
-}
-
-export type MenuOpreate = {
-  onRenameMenuClick: () => void
 }
 
 let index = 1
@@ -51,7 +48,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
   const { goDocumentEditPage } = useGoPage()
 
   const ROOT_MENUS: Menu[] = [
-    { text: 'AI生成接口', image: createHttpDocIcon, onClick: () => onShowAIPromptModal() },
+    { text: 'AI生成接口', elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
     { text: '新建接口', image: createHttpDocIcon, onClick: () => onCreateDocMenuClick() },
     { text: '新建分类', icon: 'ac-fenzu', onClick: () => onCreateDirMenuClick() },
   ]
@@ -242,7 +239,10 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
    * 打开AI modal
    */
   const onShowAIPromptModal = () => {
-    aiPromptModalRef.value.show()
+    const node = unref(activeNodeInfo)?.node as Node
+    const source = node?.data as CollectionNode
+    const parent_id = !node ? 0 : source.id
+    aiPromptModalRef.value.show({ parent_id })
   }
 
   onClickOutside(popoverRefEl, () => {

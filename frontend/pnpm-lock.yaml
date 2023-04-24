@@ -161,6 +161,9 @@ importers:
       '@iconify-json/iconoir':
         specifier: ^1.1.25
         version: 1.1.25
+      '@iconify-json/logos':
+        specifier: ^1.1.25
+        version: 1.1.25
       '@iconify-json/lucide':
         specifier: ^1.1.72
         version: 1.1.72
@@ -944,6 +947,12 @@ packages:
 
   /@iconify-json/iconoir@1.1.25:
     resolution: {integrity: sha512-ntQQM599s/hZiRy1M5W8ingXZg1A6a8bwgvXsADSbf6ytEZProxQVIk3Al414TUSShZ1FkROZLu7pENVJ/OthQ==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/logos@1.1.25:
+    resolution: {integrity: sha512-wmShOx+1Hg3ObawFzmE0C/T6R8m7okxQjjd6RCqjTAAC4ZfYNf3LuP/0XszTrIHnobS5kU6SoDCUKXIXWgr0aw==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true

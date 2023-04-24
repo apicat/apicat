@@ -11,22 +11,31 @@ import { deleteDefinition } from '@/api/definition'
 import { useParams } from '@/hooks/useParams'
 import createDefaultDefinition from '@/views/document/components/createDefaultDefinition'
 import { useGoPage } from '@/hooks/useGoPage'
-
-export type MenuOpreate = {
-  onRenameMenuClick: () => void
-}
-
+import AIGenerateSchemaModal from '../AIGenerateSchemaModal.vue'
+import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModal.vue'
+import AcIconBIRobot from '~icons/bi/robot'
+import AcIconCarbonModelAlt from '~icons/carbon/model-alt'
 /**
  * 目录弹层菜单逻辑
  * @param treeIns 目录树
  */
-export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
+export const useSchemaPopoverMenu = (
+  treeIns: Ref<InstanceType<typeof AcTree>>,
+  aiPromptModalRef: Ref<InstanceType<typeof AIGenerateSchemaModal>>,
+  aiGenerateDocumentWithSchemaModalRef: Ref<InstanceType<typeof AIGenerateDocumentWithSchmeModal>>
+) => {
   const definitionStore = useDefinitionStore()
   const { project_id } = useParams()
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
   const { goSchemaEditPage } = useGoPage()
 
+  const ROOT_MENUS: Menu[] = [
+    { text: 'AI生成模型', elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
+    { text: '新建模型', elIcon: markRaw(AcIconCarbonModelAlt), onClick: () => onCreateSchemaMenuClick() },
+  ]
+
   const SCHEMA_MENUS: Menu[] = [
+    { text: 'AI生成接口', onClick: () => onCreateDocumentBySchema() },
     { text: '复制', onClick: () => onCopyMenuClick() },
     { text: '删除', onClick: () => onDeleteMenuClick() },
   ]
@@ -36,6 +45,13 @@ export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) 
   const activeNodeInfo = ref<Nullable<ActiveNodeInfo>>({ node: undefined, id: undefined })
 
   const onPopoverRefIconClick = (e: Event, node?: Node) => {
+    popoverMenus.value = SCHEMA_MENUS
+
+    // 顶级添加菜单
+    if (!node) {
+      popoverMenus.value = ROOT_MENUS
+    }
+
     popoverRefEl.value = e.currentTarget as HTMLElement
     activeNodeInfo.value = { node, id: node?.data?.id }
     isShowPopoverMenu.value = true
@@ -87,7 +103,6 @@ export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) 
    */
   const onCreateSchemaMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
-    const source = node?.data as CollectionNode
     const tree = unref(treeIns)
     const newDefinition: any = createDefaultDefinition({ name: '未命名模型' })
 
@@ -101,6 +116,19 @@ export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) 
     } finally {
       NProgress.done()
     }
+  }
+
+  /**
+   * 打开AI modal
+   */
+  const onShowAIPromptModal = () => {
+    aiPromptModalRef.value.show()
+  }
+
+  const onCreateDocumentBySchema = () => {
+    const node = unref(activeNodeInfo)?.node as Node
+    const data = node?.data as CollectionNode
+    aiGenerateDocumentWithSchemaModalRef.value.show(data.id)
   }
 
   onClickOutside(popoverRefEl, () => {

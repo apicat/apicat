@@ -1,0 +1,117 @@
+<template>
+  <el-dialog v-model="dialogVisible" center append-to-body :close-on-click-modal="false" :close-on-press-escape="false" destroy-on-close width="40%">
+    <template #header>
+      <div class="flex-y-center">
+        <el-icon class="mr-5px"><ac-icon-bi-robot /></el-icon>AI生成接口
+      </div>
+    </template>
+
+    <div v-loading="isLoading">
+      <el-table :data="collectList" class="w-full" @selection-change="handleSelectionChange">
+        <el-table-column type="selection" width="55" />
+        <el-table-column property="method" label="方式" width="100">
+          <template #default="{ row }">
+            <div class="flex-y-center">
+              <el-icon v-if="row.isLoading || row.isFinish" :class="{ 'animate-spin': row.isLoading }">
+                <ac-icon-ep-loading v-if="!row.isFinish && row.isLoading" />
+                <ac-icon-ep:circle-check-filled class="text-[var(--el-color-success)]" v-if="row.isFinish && row.isSuccess" />
+                <ac-icon-ep:circle-close-filled class="text-[var(--el-color-danger)]" v-if="row.isFinish && !row.isSuccess" />
+              </el-icon>
+              {{ row.method }}
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column property="path" label="路径" show-overflow-tooltip />
+        <el-table-column property="description" label="描述" show-overflow-tooltip />
+      </el-table>
+      <el-button class="mt-20px" :loading="isStartCreate" type="primary" @click="handleCreate(multipleSelection)">创建</el-button>
+    </div>
+  </el-dialog>
+</template>
+<script setup lang="ts">
+import { useModal } from '@/hooks'
+import { createCollectionByAI, createCollectionWithSchemaByAI } from '@/api/collection'
+import useApi from '@/hooks/useApi'
+import { useParams } from '@/hooks/useParams'
+import { ElMessage } from 'element-plus'
+import { uuid } from '@apicat/shared'
+
+const emits = defineEmits(['ok'])
+
+const { dialogVisible, showModel, hideModel } = useModal()
+const [isLoading, createCollectionWithSchemaByAIApi] = useApi(createCollectionWithSchemaByAI)()
+const { project_id } = useParams()
+
+const multipleSelection = ref([])
+const collectList = shallowRef([])
+const isStartCreate = ref(false)
+
+const show = async (schema_id: any) => {
+  showModel()
+  try {
+    collectList.value = []
+    const data = await createCollectionWithSchemaByAIApi({ project_id, schema_id })
+    collectList.value = (data || []).map((item: any, idx: number) => {
+      return {
+        ...item,
+        _id: uuid(),
+        sort: idx,
+        schema_id,
+        isLoading: false,
+        isSuccess: false,
+        isFinish: false,
+      }
+    })
+  } catch (error) {
+    //
+  }
+}
+
+const handleSelectionChange = (val: any) => {
+  multipleSelection.value = val
+}
+
+const handleCreate = async (selectedRows: Array<any>) => {
+  if (!selectedRows.length) {
+    ElMessage.error('请选择要创建的接口')
+    return
+  }
+
+  selectedRows.sort((a, b) => a.sort - b.sort)
+
+  const len = selectedRows.length
+  let lastRequestResult = null
+
+  isStartCreate.value = true
+
+  for (let i = 0; i < len; i++) {
+    const item = selectedRows[i]
+    item.isLoading = true
+
+    try {
+      const data: any = await createCollectionByAI({ project_id, schema_id: item.schema_id, title: item.description })
+      item.isSuccess = true
+      item.isFinish = true
+      item.isLoading = false
+
+      lastRequestResult = data.id
+    } catch (error) {
+      item.isSuccess = false
+      item.isFinish = true
+      item.isLoading = false
+    }
+  }
+
+  isStartCreate.value = false
+  if (!lastRequestResult) {
+    ElMessage.error('请选择要创建的接口')
+    return
+  }
+
+  lastRequestResult && emits('ok', lastRequestResult)
+}
+
+defineExpose({
+  show,
+})
+</script>

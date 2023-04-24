@@ -10,13 +10,18 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     'AcIconBi:robot': typeof import('~icons/bi/robot')['default']
+    AcIconBiRobot: typeof import('~icons/bi/robot')['default']
     AcIconCarbonModelAlt: typeof import('~icons/carbon/model-alt')['default']
     AcIconCarbonUnlink: typeof import('~icons/carbon/unlink')['default']
+    'AcIconEp:circleCheckFilled': typeof import('~icons/ep/circle-check-filled')['default']
+    'AcIconEp:circleCloseFilled': typeof import('~icons/ep/circle-close-filled')['default']
     AcIconEpArrowDownBold: typeof import('~icons/ep/arrow-down-bold')['default']
     AcIconEpArrowLeftBold: typeof import('~icons/ep/arrow-left-bold')['default']
     AcIconEpArrowRightBold: typeof import('~icons/ep/arrow-right-bold')['default']
     AcIconEpCaretRight: typeof import('~icons/ep/caret-right')['default']
     AcIconEpDelete: typeof import('~icons/ep/delete')['default']
+    AcIconEpLoading: typeof import('~icons/ep/loading')['default']
+    AcIconEpLoding: typeof import('~icons/ep/loding')['default']
     AcIconEpMoreFilled: typeof import('~icons/ep/more-filled')['default']
     AcIconEpPlus: typeof import('~icons/ep/plus')['default']
     AcIconEpSort: typeof import('~icons/ep/sort')['default']

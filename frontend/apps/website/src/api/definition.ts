@@ -14,3 +14,5 @@ export const copyDefinition = async (project_id: string, def_id: string | number
 export const moveDefinition = async (project_id: string, sortParams: { target: any; origin: any }) => QuietAjax.put(`/projects/${project_id}/definitions/movement`, sortParams)
 
 export const deleteDefinition = async (project_id: string | number, def_id: string | number) => Ajax.delete(`/projects/${project_id}/definitions/${def_id}`)
+
+export const aiGenerateDefinition = async ({ project_id, ...params }: any) => Ajax.post(`/projects/${project_id}/ai/schemas`, params)

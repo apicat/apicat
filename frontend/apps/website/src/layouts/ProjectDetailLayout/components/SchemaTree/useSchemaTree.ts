@@ -146,12 +146,14 @@ export const useSchemaTree = () => {
     }
   }
 
-  onMounted(async () => {
+  const initSchemaTree = async (activeId?: any) => {
     await getDefinitions(project_id as string)
     if (route.name === SCHEMA_DETAIL_NAME || route.name === SCHEMA_EDIT_NAME) {
-      params.shcema_id ? activeNode(params.shcema_id) : reactiveNode()
+      params.shcema_id ? activeNode(activeId || params.shcema_id) : reactiveNode()
     }
-  })
+  }
+
+  onMounted(async () => await initSchemaTree())
 
   return {
     treeIns,
@@ -163,5 +165,7 @@ export const useSchemaTree = () => {
     onMoveNodeStart,
     onMoveNode,
     updateTitle,
+
+    initSchemaTree,
   }
 }
