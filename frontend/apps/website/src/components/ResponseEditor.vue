@@ -57,6 +57,7 @@ const props = defineProps<{ data: Array<any>; definitions?: Definition[] }>()
 const createResponse = (item?: any) => {
   return {
     _id: uuid(),
+    name: 'Response Name',
     code: 200,
     description: 'success',
     content: createResponseDefaultContent(),
