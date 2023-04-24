@@ -30,11 +30,12 @@
 </template>
 <script setup lang="ts">
 import { useModal } from '@/hooks'
-import { createCollectionByAI, createCollectionWithSchemaByAI } from '@/api/collection'
+import { createCollection, createCollectionByAI, createCollectionWithSchemaByAI } from '@/api/collection'
 import useApi from '@/hooks/useApi'
 import { useParams } from '@/hooks/useParams'
 import { ElMessage } from 'element-plus'
 import { uuid } from '@apicat/shared'
+import { DocumentTypeEnum } from '@/commons'
 
 const emits = defineEmits(['ok'])
 
@@ -46,17 +47,17 @@ const multipleSelection = ref([])
 const collectList = shallowRef([])
 const isStartCreate = ref(false)
 
-const show = async (schema_id: any) => {
+const show = async (schema: any) => {
   showModel()
   try {
     collectList.value = []
-    const data = await createCollectionWithSchemaByAIApi({ project_id, schema_id })
+    const data = await createCollectionWithSchemaByAIApi({ project_id, schema_id: schema.id })
     collectList.value = (data || []).map((item: any, idx: number) => {
       return {
         ...item,
         _id: uuid(),
         sort: idx,
-        schema_id,
+        schema,
         isLoading: false,
         isSuccess: false,
         isFinish: false,
@@ -71,12 +72,23 @@ const handleSelectionChange = (val: any) => {
   multipleSelection.value = val
 }
 
+// 创建文档分类
+const createCategory = async (schema: any) => {
+  try {
+    const data: any = await createCollection({ project_id, title: schema.name, type: DocumentTypeEnum.DIR })
+    return data.id
+  } catch (error) {
+    return 0
+  }
+}
+
 const handleCreate = async (selectedRows: Array<any>) => {
   if (!selectedRows.length) {
     ElMessage.error('请选择要创建的接口')
     return
   }
 
+  const parent_id = await createCategory(selectedRows[0].schema)
   selectedRows.sort((a, b) => a.sort - b.sort)
 
   const len = selectedRows.length
@@ -89,7 +101,7 @@ const handleCreate = async (selectedRows: Array<any>) => {
     item.isLoading = true
 
     try {
-      const data: any = await createCollectionByAI({ project_id, schema_id: item.schema_id, title: item.description })
+      const data: any = await createCollectionByAI({ project_id, parent_id, schema_id: item.schema.id, title: item.description })
       item.isSuccess = true
       item.isFinish = true
       item.isLoading = false

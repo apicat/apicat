@@ -128,7 +128,7 @@ export const useSchemaPopoverMenu = (
   const onCreateDocumentBySchema = () => {
     const node = unref(activeNodeInfo)?.node as Node
     const data = node?.data as CollectionNode
-    aiGenerateDocumentWithSchemaModalRef.value.show(data.id)
+    aiGenerateDocumentWithSchemaModalRef.value.show(data)
   }
 
   onClickOutside(popoverRefEl, () => {
