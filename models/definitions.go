@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/apicat/apicat/commom/spec"
-	"github.com/apicat/apicat/commom/spec/jsonschema"
 	"gorm.io/gorm"
 )
 
@@ -98,21 +97,21 @@ func DefinitionsImport(projectID uint, definitions *spec.Schemas) {
 	}
 }
 
-func DefinitionsExport(projectID uint) spec.Schemas {
-	var definitions []*Definitions
-	specDefinitions := make(spec.Schemas, 0)
+// func DefinitionsExport(projectID uint) spec.Schemas {
+// 	var definitions []*Definitions
+// 	specDefinitions := make(spec.Schemas, 0)
 
-	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err == nil {
-		for _, definition := range definitions {
-			schema := &spec.Schema{
-				Schema: &jsonschema.Schema{},
-			}
-			if json.Unmarshal([]byte(definition.Schema), schema.Schema) == nil {
-				schema.Name = definition.Name
-				schema.Description = definition.Description
-				specDefinitions = append(specDefinitions, schema)
-			}
-		}
-	}
-	return specDefinitions
-}
+// 	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err == nil {
+// 		for _, definition := range definitions {
+// 			schema := &spec.Schema{
+// 				Schema: &jsonschema.Schema{},
+// 			}
+// 			if json.Unmarshal([]byte(definition.Schema), schema.Schema) == nil {
+// 				schema.Name = definition.Name
+// 				schema.Description = definition.Description
+// 				specDefinitions = append(specDefinitions, schema)
+// 			}
+// 		}
+// 	}
+// 	return specDefinitions
+// }

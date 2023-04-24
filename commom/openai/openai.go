@@ -99,7 +99,7 @@ func (o *OpenAI) generatePrompt(action string, text ...string) string {
 	switch action {
 	case "createApi":
 		if o.language == "zh" {
-			return fmt.Sprintf(createApiPrompt, text[0])
+			return fmt.Sprintf(createApiPrompt, text[0]+"\nIf there is a description field in the returned content, please translate the content into Chinese.")
 		}
 		return fmt.Sprintf(createApiPrompt, text[0])
 	case "createSchema":

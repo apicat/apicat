@@ -133,17 +133,17 @@ func CollectionsImport(projectID uint, parentID uint, collections []*spec.Collec
 	}
 }
 
-func CollectionsExport(projectID uint) []*spec.CollectItem {
-	var collections []*Collections
-	collectItems := make([]*spec.CollectItem, 0)
+// func CollectionsExport(projectID uint) []*spec.CollectItem {
+// 	var collections []*Collections
+// 	collectItems := make([]*spec.CollectItem, 0)
 
-	if err := Conn.Where("project_id = ?", projectID).Find(&collections).Error; err == nil {
-		parentCollection := &Collections{ID: 0}
-		collectItems = collectionsTree(collections, parentCollection)
-	}
+// 	if err := Conn.Where("project_id = ?", projectID).Find(&collections).Error; err == nil {
+// 		parentCollection := &Collections{ID: 0}
+// 		collectItems = collectionsTree(collections, parentCollection)
+// 	}
 
-	return collectItems
-}
+// 	return collectItems
+// }
 
 func collectionsTree(collections []*Collections, parentCollection *Collections) []*spec.CollectItem {
 	collectItems := make([]*spec.CollectItem, 0)
