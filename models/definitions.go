@@ -80,7 +80,7 @@ func (d *Definitions) Deleter() string {
 }
 
 func DefinitionsImport(projectID uint, schemas spec.Schemas) nameToIdMap {
-	var SchemasMap nameToIdMap
+	SchemasMap := make(nameToIdMap)
 
 	if schemas == nil {
 		return SchemasMap
