@@ -1,7 +1,10 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
+
+	"github.com/apicat/apicat/commom/spec"
 )
 
 type Commons struct {
@@ -75,38 +78,48 @@ func (c *Commons) IsExist() bool {
 	return count > 0
 }
 
-// func CommonsImport(projectID uint, commons *spec.Common) {
-// 	if commons == nil {
-// 		return
-// 	}
+func CommonsImport(projectID uint, commons spec.Common) map[string]nameToIdMap {
+	var commonsMap = map[string]nameToIdMap{
+		"parameter": make(nameToIdMap),
+		"response":  make(nameToIdMap),
+	}
 
-// 	if commons.Parameters == nil && commons.Parameters == nil {
-// 		return
-// 	}
+	if commons.Parameters == nil && commons.Responses == nil {
+		return commonsMap
+	}
 
-// 	if parameterStr, err := json.Marshal(common.Parameters); err == nil {
-// 		parameters := &Commons{
-// 			ProjectId: projectID,
-// 			Type:      "parameter",
-// 			Content:   string(parameterStr),
-// 		}
+	for i, parameter := range commons.Parameters {
+		if parameterStr, err := json.Marshal(parameter); err == nil {
+			record := &Commons{
+				ProjectId:    projectID,
+				Type:         "parameter",
+				Content:      string(parameterStr),
+				DisplayOrder: i,
+			}
 
-// 		Conn.Create(parameters)
-// 	}
+			if Conn.Create(record).Error == nil {
+				commonsMap["parameter"][parameter.Name] = record.ID
+			}
+		}
+	}
 
-// 	if len(common.Responses) > 0 {
-// 		for i, response := range common.Responses {
-// 			if responseStr, err := json.Marshal(response); err == nil {
-// 				Conn.Create(&Commons{
-// 					ProjectId:    projectID,
-// 					Type:         "response",
-// 					Content:      string(responseStr),
-// 					DisplayOrder: i,
-// 				})
-// 			}
-// 		}
-// 	}
-// }
+	for i, response := range commons.Responses {
+		if responseStr, err := json.Marshal(response); err == nil {
+			record := &Commons{
+				ProjectId:    projectID,
+				Type:         "response",
+				Content:      string(responseStr),
+				DisplayOrder: i,
+			}
+
+			if Conn.Create(record).Error == nil {
+				commonsMap["response"][response.Name] = record.ID
+			}
+		}
+	}
+
+	return commonsMap
+}
 
 // func CommonsExport(projectID uint) *spec.Common {
 // 	var commons []*Commons
