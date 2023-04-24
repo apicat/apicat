@@ -58,13 +58,31 @@ func CommonResponsesList(ctx *gin.Context) {
 		return
 	}
 
+	header := []*spec.Schema{}
+	if err := json.Unmarshal([]byte(definitionsResponses.Header), &header); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	content := map[string]spec.Schema{}
+	if err := json.Unmarshal([]byte(definitionsResponses.Content), &content); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
 	result := []map[string]interface{}{}
 	for _, v := range definitionsResponsesList {
 		result = append(result, map[string]interface{}{
 			"id":          v.ID,
+			"name":        v.Name,
 			"code":        v.Code,
 			"description": v.Description,
-			"name":        v.Name,
+			"header":      header,
+			"content":     content,
 		})
 	}
 
