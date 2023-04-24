@@ -59,7 +59,7 @@ func (o *OpenAPI) parseParamtersCommon(comp *v3.Components) (spec.Schemas, map[s
 		}
 		sp.Schema = &jsonschema.Schema{}
 		if v.Schema != nil {
-			js, err := jsonSchemaConverter(v.Schema.Schema())
+			js, err := jsonSchemaConverter(v.Schema)
 			if err != nil {
 				panic(err)
 			}
@@ -85,7 +85,7 @@ func (o *OpenAPI) parseDefinetions(comp *v3.Components) spec.Definitions {
 	si := 0
 	schemas := make(spec.Schemas, len(comp.Schemas))
 	for k, v := range comp.Schemas {
-		js, err := jsonSchemaConverter(v.Schema())
+		js, err := jsonSchemaConverter(v)
 		if err != nil {
 			panic(err)
 		}
@@ -106,7 +106,7 @@ func (o *OpenAPI) parseDefinetions(comp *v3.Components) spec.Definitions {
 		def.Name = k
 		if v.Headers != nil {
 			for k, v := range v.Headers {
-				js, err := jsonSchemaConverter(v.Schema.Schema())
+				js, err := jsonSchemaConverter(v.Schema)
 				if err != nil {
 					panic(err)
 				}
@@ -147,7 +147,7 @@ func (o *OpenAPI) parseParameters(inp []*v3.Parameter, commParamters map[string]
 
 		sp.Schema = &jsonschema.Schema{}
 		if v.Schema != nil {
-			js, err := jsonSchemaConverter(v.Schema.Schema())
+			js, err := jsonSchemaConverter(v.Schema)
 			if err != nil {
 				panic(err)
 			}
@@ -168,23 +168,12 @@ func (o *OpenAPI) parseContent(mts map[string]*v3.MediaType) spec.HTTPBody {
 	content := make(spec.HTTPBody)
 	for contentType, mt := range mts {
 		sh := &spec.Schema{}
-		if g := mt.Schema.GoLow(); g.IsSchemaReference() {
-			ref := strings.ReplaceAll(
-				g.GetSchemaReference(),
-				"#/components/schemas",
-				"#/definitions/schemas",
-			)
-			sh.Schema = &jsonschema.Schema{
-				Reference: &ref,
-			}
-		} else {
-			js, err := jsonSchemaConverter(mt.Schema.Schema())
-			if err != nil {
-				panic(err)
-			}
-			js.Example = mt.Example
-			sh.Schema = js
+		js, err := jsonSchemaConverter(mt.Schema)
+		if err != nil {
+			panic(err)
 		}
+		js.Example = mt.Example
+		sh.Schema = js
 		content[contentType] = sh
 	}
 	return content
@@ -200,7 +189,7 @@ func (o *OpenAPI) parseeResoponse(responses map[string]*v3.Response) spec.HTTPRe
 		}
 		if res.Headers != nil {
 			for k, v := range res.Headers {
-				js, err := jsonSchemaConverter(v.Schema.Schema())
+				js, err := jsonSchemaConverter(v.Schema)
 				if err != nil {
 					panic(err)
 				}
@@ -308,11 +297,8 @@ func (o *OpenAPI) convertJSONSchema(ver string, in *jsonschema.Schema) {
 	if in == nil {
 		return
 	}
-	if in.Reference != nil {
-		*in.Reference = strings.ReplaceAll(
-			*in.Reference, "#/definitions/schemas", "#/components/schemas",
-		)
-	} else if strings.HasPrefix(ver, "3.0") {
+	toConvertJSONSchemaRef(in, ver)
+	if in.Reference == nil && strings.HasPrefix(ver, "3.0") {
 		if in.Items != nil {
 			if !in.Items.IsBool() {
 				in.Items.SetValue(&jsonschema.Schema{})
@@ -343,7 +329,7 @@ func (o *OpenAPI) convertJSONSchema(ver string, in *jsonschema.Schema) {
 
 func (o *OpenAPI) toReqParameters(spe *spec.Spec, ps spec.HTTPRequestNode, ver string) []openAPIParamter {
 	// var out []openAPIParamter
-	out := toParameterGlobal(spe.Globals.Parameters, ps.GlobalExcepts)
+	out := toParameterGlobal(spe.Globals.Parameters, false, ps.GlobalExcepts)
 	for in, params := range ps.Parameters.Map() {
 		for _, param := range params {
 			if param.Reference != nil {
