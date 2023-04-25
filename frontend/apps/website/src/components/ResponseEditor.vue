@@ -129,7 +129,8 @@ const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDr
 const validResponseName = () => {
   let len = model.value.length
   for (let i = 0; i < len; i++) {
-    if (isEmpty(model.value[i].name)) {
+    const item = model.value[i]
+    if (isEmpty(item.name) && !item._isCommonResponse) {
       ElMessage.error('响应名称不能为空')
       // activeLastTab(model.value[i]._id)
       return false
