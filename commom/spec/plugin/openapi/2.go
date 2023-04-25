@@ -42,7 +42,7 @@ func (s *Swagger) parseDefinetions(defs *v2.Definitions) spec.Schemas {
 	si := 0
 	defines := make(spec.Schemas, len(defs.Definitions))
 	for k, v := range defs.Definitions {
-		js, err := jsonSchemaConverter(v.Schema())
+		js, err := jsonSchemaConverter(v)
 		if err != nil {
 			panic(err)
 		}
@@ -96,18 +96,7 @@ func (s *Swagger) parseParamtersCommon(in *v2.Swagger) (spec.Schemas, map[string
 
 // 主要处理$ref引用问题
 func (s *Swagger) parseContent(b *base.SchemaProxy) *jsonschema.Schema {
-	if g := b.GoLow(); g != nil {
-		if g.IsSchemaReference() {
-			ref := g.GetSchemaReference()
-			if strings.HasPrefix(ref, "#/definitions/") {
-				r := strings.ReplaceAll(ref, "#/definitions/", "#/definitions/schemas")
-				return &jsonschema.Schema{
-					Reference: &r,
-				}
-			}
-		}
-	}
-	js, err := jsonSchemaConverter(b.Schema())
+	js, err := jsonSchemaConverter(b)
 	if err != nil {
 		panic(err)
 	}
@@ -356,7 +345,7 @@ func (s *Swagger) toBase(in *spec.Spec) *swaggerSpec {
 	out.Parameters = make(map[string]openAPIParamter)
 	for in, ps := range m {
 		for _, p := range ps {
-			out.Parameters["global"+strings.Title(p.Name)] = toParameter(p, in)
+			out.Parameters[fmt.Sprintf("global-%s-%s", in, p.Name)] = toParameter(p, in)
 		}
 	}
 
@@ -393,24 +382,16 @@ type swaggerPathItem struct {
 // }
 
 func (s *Swagger) toReqParameters(ps spec.HTTPRequestNode, spe *spec.Spec) []openAPIParamter {
-	out := toParameterGlobal(spe.Globals.Parameters, ps.GlobalExcepts)
+	out := toParameterGlobal(spe.Globals.Parameters, true, ps.GlobalExcepts)
 	for in, params := range ps.Parameters.Map() {
 		switch in {
 		case "header", "query", "path":
 			for _, v := range params {
 				if v.Reference != nil {
-					if !strings.HasPrefix(*v.Reference, "#/commons/parameters/") {
-						continue
-					}
-					p := spe.Common.Parameters.Lookup(
-						getRefName(*v.Reference),
-					)
-					if p != nil {
-						out = append(out, toParameter(p, in))
-					}
-				} else {
-					out = append(out, toParameter(v, in))
+					v = spe.Common.Parameters.Lookup(getRefName(*v.Reference))
 				}
+				s.convertJSONSchema(v.Schema)
+				out = append(out, toParameter(v, in))
 			}
 		}
 	}
@@ -430,6 +411,7 @@ func (s *Swagger) toReqParameters(ps spec.HTTPRequestNode, spe *spec.Spec) []ope
 				}
 
 				for k, v := range c.Schema.Properties {
+					s.convertJSONSchema(v)
 					content := openAPIParamter{
 						Name:        k,
 						In:          "formData",
@@ -456,6 +438,7 @@ func (s *Swagger) toReqParameters(ps spec.HTTPRequestNode, spe *spec.Spec) []ope
 				if hasBody {
 					continue
 				}
+				s.convertJSONSchema(c.Schema)
 				out = append(out, openAPIParamter{
 					Name:        "body",
 					Description: c.Description,
@@ -468,6 +451,13 @@ func (s *Swagger) toReqParameters(ps spec.HTTPRequestNode, spe *spec.Spec) []ope
 		}
 	}
 	return out
+}
+
+func (s *Swagger) convertJSONSchema(v *jsonschema.Schema) {
+	if v == nil {
+		return
+	}
+	toConvertJSONSchemaRef(v, "2.0")
 }
 
 func (s *Swagger) toPathResponse(in *spec.Spec, resp []spec.HTTPResponse) (map[string]any, []string) {
@@ -507,6 +497,7 @@ func (s *Swagger) toPathResponse(in *spec.Spec, resp []spec.HTTPResponse) (map[s
 				Schema:      v.Content[k].Schema,
 				Description: v.Description,
 			}
+			s.convertJSONSchema(res.Schema)
 		}
 		if res == nil {
 			res = &spec.Schema{Description: v.Description}

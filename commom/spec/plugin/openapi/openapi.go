@@ -49,7 +49,7 @@ func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 	responseDefinitions := sw.parseResponsesDefine(&model.Model)
 	paramters, paramemapping := sw.parseParamtersCommon(&model.Model)
 	return &spec.Spec{
-		ApiCat:      "2.0",
+		ApiCat:      "2.0.1",
 		Info:        sw.parseInfo(model.Model.Info),
 		Servers:     sw.parseServers(&model.Model),
 		Collections: sw.parseCollections(&model.Model, model.Model.Paths, paramemapping),
@@ -66,6 +66,7 @@ func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
 	o := &OpenAPI{}
 	paramters, paramemapping := o.parseParamtersCommon(model.Model.Components)
 	return &spec.Spec{
+		ApiCat:      "2.0.1",
 		Info:        o.parseInfo(model.Model.Info),
 		Servers:     o.parseServers(model.Model.Servers),
 		Definitions: o.parseDefinetions(model.Model.Components),
@@ -130,7 +131,7 @@ func toParameter(p *spec.Schema, in string) openAPIParamter {
 	}
 }
 
-func toParameterGlobal(globalsParmaters spec.HTTPParameters, skip map[string][]string) []openAPIParamter {
+func toParameterGlobal(globalsParmaters spec.HTTPParameters, isSwagger bool, skip map[string][]string) []openAPIParamter {
 	var outs []openAPIParamter
 	skips := make(map[string]bool)
 	if skip != nil {
@@ -145,7 +146,15 @@ func toParameterGlobal(globalsParmaters spec.HTTPParameters, skip map[string][]s
 			if skips[in+"|"+v.Name] {
 				continue
 			}
-			outs = append(outs, toParameter(v, in))
+			ref := fmt.Sprintf("global-%s-%s", in, v.Name)
+			if isSwagger {
+				ref = "#/parameters/" + ref
+			} else {
+				ref = "#/components/parameters/" + ref
+			}
+			outs = append(outs, openAPIParamter{
+				Reference: &ref,
+			})
 		}
 	}
 	return outs
@@ -209,4 +218,33 @@ func walkHttpCollection(doc *spec.Spec) map[string]map[string]specPathItem {
 		},
 	)
 	return paths
+}
+
+// 将jsonschema 转为对应的 openaapi版本 主要是引用
+func toConvertJSONSchemaRef(v *jsonschema.Schema, ver string) {
+	if v.Reference != nil {
+		ref := getRefName(*v.Reference)
+		if ver[0] == '2' {
+			ref = fmt.Sprintf("#/definitions/%s", ref)
+		} else {
+			ref = fmt.Sprintf("#/components/schemas/%s", ref)
+		}
+		v.Reference = &ref
+		return
+	}
+	if v.Properties != nil {
+		for _, v := range v.Properties {
+			toConvertJSONSchemaRef(v, ver)
+		}
+	}
+	if v.Items != nil {
+		if !v.Items.IsBool() {
+			toConvertJSONSchemaRef(v.Items.Value(), ver)
+		}
+	}
+	if v.AdditionalProperties != nil {
+		if !v.AdditionalProperties.IsBool() {
+			toConvertJSONSchemaRef(v.AdditionalProperties.Value(), ver)
+		}
+	}
 }
