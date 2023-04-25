@@ -72,7 +72,7 @@ const createCommonRefResponse = (name: string) => ({ $ref: `${RefPrefixKeys.Comm
 
 const model: any = ref(
   (props.data || []).map((item: any) => {
-    const newItem = { ...item, _id: uuid() }
+    const newItem = { ...item, _id: uuid(), name: item.name || 'Response Name' }
     newItem._isCommonResponse = false
     if (newItem.$ref && newItem.$ref.startsWith(RefPrefixKeys.CommonResponse.key)) {
       newItem._isCommonResponse = true
@@ -145,11 +145,19 @@ const validResponseName = () => {
 watch(
   model,
   debounce(() => {
-    validResponseName() &&
-      emits(
-        'update:data',
-        model.value.map(({ _id, _isCommonResponse, _refName, ...other }: any) => toRaw(other))
-      )
+    if (validResponseName()) {
+      const normalResponse: any = []
+      const commonResponse: any = []
+
+      model.value.forEach(({ _id, _isCommonResponse, _refName, ...other }: any) => {
+        if (_isCommonResponse) {
+          commonResponse.push(toRaw(other))
+        } else {
+          normalResponse.push(toRaw(other))
+        }
+      })
+      emits('update:data', [...normalResponse, ...commonResponse])
+    }
   }, 300),
   { deep: true }
 )
