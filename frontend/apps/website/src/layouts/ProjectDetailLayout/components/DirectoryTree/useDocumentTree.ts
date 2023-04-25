@@ -33,8 +33,9 @@ const getTreeMaxDepth = memoize(function (node) {
 export const useDocumentTree = () => {
   const documentStore = useDocumentStore()
   const project_id = useProjectId()
-  const { goDocumentDetailPage } = useGoPage()
+  const { goDocumentDetailPage, goDocumentEditPage } = useGoPage()
   const route = useRoute()
+  const router = useRouter()
 
   const { params } = route
   const { getApiDocTree } = documentStore
@@ -148,8 +149,18 @@ export const useDocumentTree = () => {
   const initDocumentTree = async (activeDocId?: any) => {
     await getApiDocTree(project_id as string)
     if (route.name === DOCUMENT_DETAIL_NAME || route.name === DOCUMENT_EDIT_NAME) {
-      params.doc_id ? activeNode(activeDocId || params.doc_id) : reactiveNode()
+      router.currentRoute.value.params.doc_id ? activeNode(activeDocId || params.doc_id) : reactiveNode()
     }
+  }
+
+  const redirecToDocumentEditPage = (activeId: any) => {
+    goDocumentEditPage(activeId)
+    initDocumentTree(activeId)
+  }
+
+  const redirecToDocumentDetailPage = (activeId: any) => {
+    goDocumentDetailPage(activeId)
+    initDocumentTree(activeId)
   }
 
   onMounted(async () => initDocumentTree())
@@ -166,5 +177,8 @@ export const useDocumentTree = () => {
     updateTitle,
 
     initDocumentTree,
+
+    redirecToDocumentEditPage,
+    redirecToDocumentDetailPage,
   }
 }

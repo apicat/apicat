@@ -24,6 +24,8 @@
         other = "Definition not found"
     [Definitions.NameExists]
         other = "Definition name exists"
+    [Definitions.InUse]
+        other = "Model is already in use, please dereference and try again"
 [Servers]
     [Servers.SetSuccess]
         other = "URL set successfully"
@@ -59,6 +61,6 @@
 [AI]
     [AI.CollectionCreateFail]
         other = "API create failed, please try again later."
-[DefinitionsResponses]
-    [DefinitionsResponses.NameExists]
+[CommonResponses]
+    [CommonResponses.NameExists]
         other = "Definitions responses name exists"

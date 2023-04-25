@@ -5,6 +5,7 @@ import { createApp } from 'vue'
 import { pinia, elementPlus, initI18n } from './plugins'
 import clipboardHelper from '@/components/ClipboardHelper'
 import router, { setupRouterFilter } from '@/router'
+import limitInput from '@/directives/LimitInput'
 
 import App from './App.vue'
 
@@ -16,6 +17,7 @@ const run = async () => {
   app.use(elementPlus)
   app.use(router)
   app.use(clipboardHelper)
+  app.use(limitInput)
   setupRouterFilter(router)
 
   app.mount('#app')

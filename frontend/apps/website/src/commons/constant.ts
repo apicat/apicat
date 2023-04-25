@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 export const API_URL = '/api'
 
 // 请求超时时长
-export const REQUEST_TIMEOUT = 1000 * 10
+export const REQUEST_TIMEOUT = 1000 * 60
 
 // 默认值
 export const DEFAULT_VAL = '--'
@@ -69,7 +69,7 @@ export const getProjectNavigateList = (overwrite?: any): ProjectNavigateObject =
     [ProjectNavigateListEnum.ServerUrlSetting]: { text: t('app.project.setting.serverUrl'), icon: 'ac-suffix-url' },
     [ProjectNavigateListEnum.GlobalParamsSetting]: { text: t('app.project.setting.globalParam'), icon: 'ac-canshuweihu' },
     [ProjectNavigateListEnum.ResponseParamsSetting]: { text: t('app.project.setting.responseParam'), icon: 'ac-response' },
-    [ProjectNavigateListEnum.ProjectExport]: { text: t('app.project.setting.export'), icon: 'ac-export' },
+    // [ProjectNavigateListEnum.ProjectExport]: { text: t('app.project.setting.export'), icon: 'ac-export' },
     [ProjectNavigateListEnum.ProjectTrash]: { text: t('app.project.setting.trash'), icon: 'ac-trash' },
   } as any
 
@@ -143,5 +143,9 @@ export const RefPrefixKeys = {
   CommonResponse: {
     key: '#/commons/responses/',
     reg: /#\/commons\/responses\/(.*)/,
+  },
+  DefinitionsSchema: {
+    key: '#/definitions/schemas/',
+    reg: /#\/definitions\/schemas\/(.*)/,
   },
 }

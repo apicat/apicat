@@ -123,4 +123,6 @@ const mergeDocumentContent = (content: any) => {
   })
 }
 
-export const createCollectionByAI = async ({ project_id, ...params }: any) => Ajax.post(`/projects/${project_id}/ai/collections`, params)
+export const createCollectionByAI = async ({ project_id, ...params }: any, axiosConfig?: any) => Ajax.post(`/projects/${project_id}/ai/collections`, params, axiosConfig)
+
+export const createCollectionWithSchemaByAI = async ({ project_id, schema_id }: any) => Ajax.get(`/projects/${project_id}/ai/collections/name?schema_id=${schema_id}`)

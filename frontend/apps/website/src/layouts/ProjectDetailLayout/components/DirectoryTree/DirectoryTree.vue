@@ -51,7 +51,7 @@
     <PopperMenu :menus="popoverMenus" :size="popoverMenuSize" class="clear-popover-space" />
   </el-popover>
 
-  <AIPromptModal ref="aiPromptModalRef" @ok="onCreateSuccess" />
+  <AIGenerateDocumentModal ref="aiPromptModalRef" @ok="onGenerateDocumenSuccess" />
 </template>
 
 <script setup lang="ts">
@@ -59,12 +59,26 @@ import documentIcon from '@/assets/images/doc-http@2x.png'
 import AcTree from '@/components/AcTree'
 import { useDocumentTree } from './useDocumentTree'
 import { useDocumentPopoverMenu, PopoverMoreMenuType } from './useDocumentPopoverMenu'
-import AIPromptModal from '../AIPromptModal.vue'
-import { useAIModal } from './useAIModal'
+import AIGenerateDocumentModal from '../AIGenerateDocumentModal.vue'
 
-const { treeIns, treeOptions, apiDocTree, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, initDocumentTree } = useDocumentTree()
+const {
+  treeIns,
+  treeOptions,
+  apiDocTree,
+  handleTreeNodeClick,
+  allowDrop,
+  onMoveNode,
+  onMoveNodeStart,
+  updateTitle,
+  initDocumentTree,
+  redirecToDocumentEditPage,
+  redirecToDocumentDetailPage,
+} = useDocumentTree()
 
-const { aiPromptModalRef, onCreateSuccess } = useAIModal(initDocumentTree)
+const aiPromptModalRef = ref<InstanceType<typeof AIGenerateDocumentModal>>()
+const onGenerateDocumenSuccess = (doc_id: any) => {
+  redirecToDocumentEditPage(doc_id)
+}
 
 const {
   popoverMenus,
@@ -77,11 +91,12 @@ const {
   onRenameInputEnterKeyUp,
   createNodeByData,
   onRenameInputBlur,
-} = useDocumentPopoverMenu(treeIns as any, aiPromptModalRef)
+} = useDocumentPopoverMenu(treeIns as any, aiPromptModalRef as any)
 
 defineExpose({
   updateTitle,
   createNodeByData,
   reload: initDocumentTree,
+  redirecToDocumentDetailPage,
 })
 </script>

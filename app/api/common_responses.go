@@ -12,19 +12,19 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type DefinitionsResponsesID struct {
-	DefinitionsResponsesID uint `uri:"response-id" binding:"required,gt=0"`
+type CommonResponsesID struct {
+	CommonResponsesID uint `uri:"response-id" binding:"required,gt=0"`
 }
 
-func (dr *DefinitionsResponsesID) CheckDefinitionsResponses(ctx *gin.Context) (*models.DefinitionsResponses, error) {
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&dr)); err != nil {
+func (cr *CommonResponsesID) CheckCommonResponses(ctx *gin.Context) (*models.CommonResponses, error) {
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&cr)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err
 	}
 
-	definitionsResponses, err := models.NewDefinitionsResponses(dr.DefinitionsResponsesID)
+	commonResponses, err := models.NewCommonResponses(cr.CommonResponsesID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": "response not found",
@@ -32,34 +32,25 @@ func (dr *DefinitionsResponsesID) CheckDefinitionsResponses(ctx *gin.Context) (*
 		return nil, err
 	}
 
-	return definitionsResponses, nil
+	return commonResponses, nil
 }
 
 type ResponseDetailData struct {
 	Name        string                 `json:"name" binding:"required,lte=255"`
 	Code        int                    `json:"code" binding:"required"`
 	Description string                 `json:"description" binding:"required,lte=255"`
-	Header      []*HeaderData          `json:"header,omitempty" binding:"omitempty,dive"`
+	Header      []*spec.Schema         `json:"header,omitempty" binding:"omitempty,dive"`
 	Content     map[string]spec.Schema `json:"content,omitempty" binding:"required"`
 	Ref         string                 `json:"$ref,omitempty" binding:"omitempty,lte=255"`
 }
 
-type HeaderData struct {
-	Name        string      `json:"name" binding:"required,lte=255"`
-	Description string      `json:"description" binding:"omitempty,lte=255"`
-	Example     string      `json:"example" binding:"omitempty,lte=255"`
-	Default     string      `json:"default" binding:"omitempty,lte=255"`
-	Required    bool        `json:"required"`
-	Schema      spec.Schema `json:"schema"`
-}
-
-func DefinitionsResponsesList(ctx *gin.Context) {
+func CommonResponsesList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
-	definitionsResponses, _ := models.NewDefinitionsResponses()
-	definitionsResponses.ProjectID = project.ID
-	definitionsResponsesList, err := definitionsResponses.List()
+	commonResponses, _ := models.NewCommonResponses()
+	commonResponses.ProjectID = project.ID
+	commonResponsesList, err := commonResponses.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -68,27 +59,44 @@ func DefinitionsResponsesList(ctx *gin.Context) {
 	}
 
 	result := []map[string]interface{}{}
-	for _, v := range definitionsResponsesList {
+	for _, v := range commonResponsesList {
+		header := []*spec.Schema{}
+		if err := json.Unmarshal([]byte(v.Header), &header); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
+
+		content := map[string]spec.Schema{}
+		if err := json.Unmarshal([]byte(v.Content), &content); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": err.Error(),
+			})
+			return
+		}
 		result = append(result, map[string]interface{}{
 			"id":          v.ID,
+			"name":        v.Name,
 			"code":        v.Code,
 			"description": v.Description,
-			"name":        v.Name,
+			"header":      header,
+			"content":     content,
 		})
 	}
 
 	ctx.JSON(http.StatusOK, result)
 }
 
-func DefinitionsResponsesDetail(ctx *gin.Context) {
-	dr := DefinitionsResponsesID{}
-	definitionsResponses, err := dr.CheckDefinitionsResponses(ctx)
+func CommonResponsesDetail(ctx *gin.Context) {
+	cr := CommonResponsesID{}
+	commonResponses, err := cr.CheckCommonResponses(ctx)
 	if err != nil {
 		return
 	}
 
-	header := []*HeaderData{}
-	if err := json.Unmarshal([]byte(definitionsResponses.Header), &header); err != nil {
+	header := []*spec.Schema{}
+	if err := json.Unmarshal([]byte(commonResponses.Header), &header); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -96,7 +104,7 @@ func DefinitionsResponsesDetail(ctx *gin.Context) {
 	}
 
 	content := map[string]spec.Schema{}
-	if err := json.Unmarshal([]byte(definitionsResponses.Content), &content); err != nil {
+	if err := json.Unmarshal([]byte(commonResponses.Content), &content); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -104,16 +112,16 @@ func DefinitionsResponsesDetail(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, map[string]interface{}{
-		"id":          definitionsResponses.ID,
-		"name":        definitionsResponses.Name,
-		"code":        definitionsResponses.Code,
-		"description": definitionsResponses.Description,
+		"id":          commonResponses.ID,
+		"name":        commonResponses.Name,
+		"code":        commonResponses.Code,
+		"description": commonResponses.Description,
 		"header":      header,
 		"content":     content,
 	})
 }
 
-func DefinitionsResponsesCreate(ctx *gin.Context) {
+func CommonResponsesCreate(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
@@ -125,11 +133,11 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 		return
 	}
 
-	definitionsResponses, _ := models.NewDefinitionsResponses()
-	definitionsResponses.ProjectID = project.ID
-	definitionsResponses.Name = data.Name
+	commonResponses, _ := models.NewCommonResponses()
+	commonResponses.ProjectID = project.ID
+	commonResponses.Name = data.Name
 
-	count, err := definitionsResponses.GetCountByName()
+	count, err := commonResponses.GetCountByName()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -138,15 +146,15 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 	}
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionsResponses.NameExists"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.NameExists"}),
 		})
 		return
 	}
 
-	definitionsResponses.Code = data.Code
-	definitionsResponses.Description = data.Description
+	commonResponses.Code = data.Code
+	commonResponses.Description = data.Description
 
-	responseHeader := make([]*HeaderData, 0)
+	responseHeader := make([]*spec.Schema, 0)
 	if len(data.Header) > 0 {
 		responseHeader = data.Header
 	}
@@ -158,7 +166,7 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 		})
 		return
 	}
-	definitionsResponses.Header = string(header)
+	commonResponses.Header = string(header)
 
 	content, err := json.Marshal(data.Content)
 	if err != nil {
@@ -167,9 +175,9 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 		})
 		return
 	}
-	definitionsResponses.Content = string(content)
+	commonResponses.Content = string(content)
 
-	if err := definitionsResponses.Create(); err != nil {
+	if err := commonResponses.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -177,16 +185,16 @@ func DefinitionsResponsesCreate(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"id":          definitionsResponses.ID,
-		"name":        definitionsResponses.Name,
-		"code":        definitionsResponses.Code,
-		"description": definitionsResponses.Description,
+		"id":          commonResponses.ID,
+		"name":        commonResponses.Name,
+		"code":        commonResponses.Code,
+		"description": commonResponses.Description,
 		"header":      data.Header,
 		"content":     data.Content,
 	})
 }
 
-func DefinitionsResponsesUpdate(ctx *gin.Context) {
+func CommonResponsesUpdate(ctx *gin.Context) {
 	data := ResponseDetailData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -195,8 +203,8 @@ func DefinitionsResponsesUpdate(ctx *gin.Context) {
 		return
 	}
 
-	dr := DefinitionsResponsesID{}
-	definitionsResponses, err := dr.CheckDefinitionsResponses(ctx)
+	cr := CommonResponsesID{}
+	commonResponses, err := cr.CheckCommonResponses(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -204,8 +212,8 @@ func DefinitionsResponsesUpdate(ctx *gin.Context) {
 		return
 	}
 
-	definitionsResponses.Name = data.Name
-	count, err := definitionsResponses.GetCountExcludeTheID()
+	commonResponses.Name = data.Name
+	count, err := commonResponses.GetCountExcludeTheID()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -214,13 +222,13 @@ func DefinitionsResponsesUpdate(ctx *gin.Context) {
 	}
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionsResponses.NameExists"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.NameExists"}),
 		})
 		return
 	}
 
-	definitionsResponses.Code = data.Code
-	definitionsResponses.Description = data.Description
+	commonResponses.Code = data.Code
+	commonResponses.Description = data.Description
 
 	header, err := json.Marshal(data.Header)
 	if err != nil {
@@ -229,7 +237,7 @@ func DefinitionsResponsesUpdate(ctx *gin.Context) {
 		})
 		return
 	}
-	definitionsResponses.Header = string(header)
+	commonResponses.Header = string(header)
 
 	content, err := json.Marshal(data.Content)
 	if err != nil {
@@ -238,9 +246,9 @@ func DefinitionsResponsesUpdate(ctx *gin.Context) {
 		})
 		return
 	}
-	definitionsResponses.Content = string(content)
+	commonResponses.Content = string(content)
 
-	if err := definitionsResponses.Update(); err != nil {
+	if err := commonResponses.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -250,12 +258,12 @@ func DefinitionsResponsesUpdate(ctx *gin.Context) {
 	ctx.Status(http.StatusCreated)
 }
 
-func DefinitionsResponsesDelete(ctx *gin.Context) {
+func CommonResponsesDelete(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
-	dr := DefinitionsResponsesID{}
-	definitionsResponses, err := dr.CheckDefinitionsResponses(ctx)
+	cr := CommonResponsesID{}
+	commonResponses, err := cr.CheckCommonResponses(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -263,15 +271,15 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 		return
 	}
 
-	header := []*HeaderData{}
-	if err := json.Unmarshal([]byte(definitionsResponses.Header), &header); err != nil {
+	header := []*spec.Schema{}
+	if err := json.Unmarshal([]byte(commonResponses.Header), &header); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 	content := map[string]spec.Schema{}
-	if err := json.Unmarshal([]byte(definitionsResponses.Content), &content); err != nil {
+	if err := json.Unmarshal([]byte(commonResponses.Content), &content); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -279,9 +287,9 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 	}
 
 	responseDetail := ResponseDetailData{
-		Name:        definitionsResponses.Name,
-		Code:        definitionsResponses.Code,
-		Description: definitionsResponses.Description,
+		Name:        commonResponses.Name,
+		Code:        commonResponses.Code,
+		Description: commonResponses.Description,
 		Header:      header,
 		Content:     content,
 	}
@@ -296,7 +304,7 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 		return
 	}
 
-	ref := "{$ref:#/commons/responses/" + strconv.FormatUint(uint64(definitionsResponses.ID), 10) + "}"
+	ref := "{\"$ref\":\"#/commons/responses/" + strconv.FormatUint(uint64(commonResponses.ID), 10) + "\"}"
 	responseDetailJson, err := json.Marshal(responseDetail)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -320,7 +328,7 @@ func DefinitionsResponsesDelete(ctx *gin.Context) {
 		}
 	}
 
-	if err := definitionsResponses.Delete(); err != nil {
+	if err := commonResponses.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})

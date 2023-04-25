@@ -26,6 +26,7 @@ export function typename(type: string | string[] | undefined) {
 }
 
 export declare interface APICatSchemaObject {
+  id?: number | string
   name: string
   schema: JSONSchema
   required?: boolean

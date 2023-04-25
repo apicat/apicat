@@ -9,23 +9,26 @@
       </div>
     </h2>
     <el-tabs @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
-      <el-tab-pane v-for="(item, index) in responseList" :key="item._id + index" :name="item._id" :disabled="disabled">
-        <template #label>
-          <el-space
-            draggable="true"
-            @dragstart="onDragStart($event, index)"
-            @dragend="onDragEnd"
-            @dragover="onDragOver($event, index)"
-            @dragleave="onDragLeave($event, index)"
-            @drop="onDropHandler($event, index)"
-          >
-            <span>{{ item.description }}</span>
-            <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
-          </el-space>
-        </template>
-        <ResponseForm v-model="model[index]" :definitions="definitions" />
-      </el-tab-pane>
-      <el-tab-pane name="new-tab" disabled class="ac-response__common">
+      <template v-for="(item, index) in model" :key="item._id + index">
+        <el-tab-pane v-if="!item._isCommonResponse" :name="item._id" :disabled="disabled">
+          <template #label>
+            <div
+              class="inline-flex items-center"
+              draggable="true"
+              @dragstart="onDragStart($event, index)"
+              @dragend="onDragEnd"
+              @dragover="onDragOver($event, index)"
+              @dragleave="onDragLeave($event, index)"
+              @drop="onDropHandler($event, index)"
+            >
+              <span class="mr-4px">{{ item.name || '&nbsp' }}</span>
+              <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
+            </div>
+          </template>
+          <ResponseForm v-model="model[index]" :definitions="definitions" />
+        </el-tab-pane>
+      </template>
+      <el-tab-pane name="add-tab" disabled class="ac-response__common">
         <template #label>
           <el-space @click="onShowCommonResponseModal">
             <span>公共响应</span>
@@ -47,6 +50,8 @@ import { uuid } from '@apicat/shared'
 import { createResponseDefaultContent } from '@/views/document/components/createHttpDocument'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 import SelectCommonResponseModal from '@/views/document/components/SelectCommonResponseModal.vue'
+import { ElMessage } from 'element-plus'
+import { isEmpty, debounce } from 'lodash-es'
 
 const emits = defineEmits(['update:data'])
 const props = defineProps<{ data: Array<any>; definitions?: Definition[] }>()
@@ -54,6 +59,8 @@ const props = defineProps<{ data: Array<any>; definitions?: Definition[] }>()
 const createResponse = (item?: any) => {
   return {
     _id: uuid(),
+    _isCommonResponse: false,
+    name: 'Response Name',
     code: 200,
     description: 'success',
     content: createResponseDefaultContent(),
@@ -63,10 +70,10 @@ const createResponse = (item?: any) => {
 
 const createCommonRefResponse = (name: string) => ({ $ref: `${RefPrefixKeys.CommonResponse.key}${name}`, _id: uuid(), _isCommonResponse: true, _refName: name })
 
-const model = ref(
+const model: any = ref(
   (props.data || []).map((item: any) => {
-    const newItem = { ...item, _id: uuid() }
-
+    const newItem = { ...item, _id: uuid(), name: item.name || 'Response Name' }
+    newItem._isCommonResponse = false
     if (newItem.$ref && newItem.$ref.startsWith(RefPrefixKeys.CommonResponse.key)) {
       newItem._isCommonResponse = true
       newItem._refName = newItem.$ref.match(RefPrefixKeys.CommonResponse.reg)?.[1]
@@ -75,18 +82,17 @@ const model = ref(
   })
 )
 
-const responseList = computed(() => model.value.filter((item) => !item._isCommonResponse))
-const commonResponseCount = computed(() => model.value.filter((item) => item._isCommonResponse).length)
+const commonResponseCount = computed(() => model.value.filter((item: any) => item._isCommonResponse).length)
 
 const selectCommonResponseModalRef = ref<InstanceType<typeof SelectCommonResponseModal>>()
 const editableTabsValue = ref(unref(model).length ? unref(model)[0]._id : null)
 const isShow = computed(() => model.value.length > 0)
-const disabled = computed(() => model.value.length <= 1)
+const disabled = computed(() => model.value.filter((item: any) => !item._isCommonResponse).length <= 1)
 
-const activeLastTab = () => {
+const activeLastTab = (_id?: string) => {
   const len = model.value.length
   const res = model.value[len - 1]
-  editableTabsValue.value = res._id
+  editableTabsValue.value = _id || res._id
 }
 
 const handleAddTab = () => {
@@ -103,14 +109,14 @@ const handleRemoveTab = (_id: any) => {
 }
 
 const onShowCommonResponseModal = () => {
-  const names = model.value.filter((item) => item._isCommonResponse).map((item) => item._refName)
+  const names = model.value.filter((item: any) => item._isCommonResponse).map((item: any) => parseInt(item._refName, 10))
   selectCommonResponseModalRef.value?.show(names)
 }
 
-const handleCommonResponseSelectFinish = (selectedNames: string[]) => {
-  model.value = model.value.filter((item) => !item._isCommonResponse)
-  selectedNames.forEach((name) => {
-    model.value.push(createCommonRefResponse(name))
+const handleCommonResponseSelectFinish = (selectedIds: string[]) => {
+  model.value = model.value.filter((item: any) => !item._isCommonResponse)
+  selectedIds.forEach((id) => {
+    model.value.push(createCommonRefResponse(id))
   })
 }
 
@@ -122,15 +128,37 @@ const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDr
   },
 })
 
+const validResponseName = () => {
+  let len = model.value.length
+  for (let i = 0; i < len; i++) {
+    const item = model.value[i]
+    if (isEmpty(item.name) && !item._isCommonResponse) {
+      ElMessage.error('响应名称不能为空')
+      // activeLastTab(model.value[i]._id)
+      return false
+    }
+  }
+  return true
+}
+
 // v-model
 watch(
   model,
-  () => {
-    emits(
-      'update:data',
-      model.value.map(({ _id, _isCommonResponse, _refName, ...other }) => toRaw(other))
-    )
-  },
+  debounce(() => {
+    if (validResponseName()) {
+      const normalResponse: any = []
+      const commonResponse: any = []
+
+      model.value.forEach(({ _id, _isCommonResponse, _refName, ...other }: any) => {
+        if (_isCommonResponse) {
+          commonResponse.push(toRaw(other))
+        } else {
+          normalResponse.push(toRaw(other))
+        }
+      })
+      emits('update:data', [...normalResponse, ...commonResponse])
+    }
+  }, 300),
   { deep: true }
 )
 </script>

@@ -78,54 +78,68 @@ func (c *Commons) IsExist() bool {
 	return count > 0
 }
 
-func CommonsImport(projectID uint, common *spec.Common) {
-	if common == nil {
-		return
+func CommonsImport(projectID uint, commons *spec.Common) map[string]nameToIdMap {
+	var commonsMap = map[string]nameToIdMap{
+		"parameter": make(nameToIdMap),
+		"response":  make(nameToIdMap),
 	}
 
-	if parameterStr, err := json.Marshal(common.Parameters); err == nil {
-		parameters := &Commons{
-			ProjectId: projectID,
-			Type:      "parameter",
-			Content:   string(parameterStr),
-		}
-
-		Conn.Create(parameters)
+	if commons.Parameters == nil && commons.Responses == nil {
+		return commonsMap
 	}
 
-	if len(common.Responses) > 0 {
-		for i, response := range common.Responses {
-			if responseStr, err := json.Marshal(response); err == nil {
-				Conn.Create(&Commons{
-					ProjectId:    projectID,
-					Type:         "response",
-					Content:      string(responseStr),
-					DisplayOrder: i,
-				})
+	for i, parameter := range commons.Parameters {
+		if parameterStr, err := json.Marshal(parameter); err == nil {
+			record := &Commons{
+				ProjectId:    projectID,
+				Type:         "parameter",
+				Content:      string(parameterStr),
+				DisplayOrder: i,
+			}
+
+			if Conn.Create(record).Error == nil {
+				commonsMap["parameter"][parameter.Name] = record.ID
 			}
 		}
 	}
-}
 
-func CommonsExport(projectID uint) *spec.Common {
-	var commons []*Commons
+	for i, response := range commons.Responses {
+		if responseStr, err := json.Marshal(response); err == nil {
+			record := &Commons{
+				ProjectId:    projectID,
+				Type:         "response",
+				Content:      string(responseStr),
+				DisplayOrder: i,
+			}
 
-	specCommon := &spec.Common{
-		Parameters: &spec.HTTPParameters{},
-		Responses:  []spec.HTTPResponse{},
-	}
-
-	if err := Conn.Where("project_id = ?", projectID).Find(&commons).Error; err == nil {
-		for _, c := range commons {
-			if c.Type == "parameter" {
-				_ = json.Unmarshal([]byte(c.Content), &specCommon.Parameters)
-			} else {
-				var response spec.HTTPResponse
-				if json.Unmarshal([]byte(c.Content), &response) == nil {
-					specCommon.Responses = append(specCommon.Responses, response)
-				}
+			if Conn.Create(record).Error == nil {
+				commonsMap["response"][response.Name] = record.ID
 			}
 		}
 	}
-	return specCommon
+
+	return commonsMap
 }
+
+// func CommonsExport(projectID uint) *spec.Common {
+// 	var commons []*Commons
+
+// 	specCommon := &spec.Common{
+// 		Parameters: &spec.HTTPParameters{},
+// 		Responses:  []spec.HTTPResponse{},
+// 	}
+
+// 	if err := Conn.Where("project_id = ?", projectID).Find(&commons).Error; err == nil {
+// 		for _, c := range commons {
+// 			if c.Type == "parameter" {
+// 				_ = json.Unmarshal([]byte(c.Content), &specCommon.Parameters)
+// 			} else {
+// 				var response spec.HTTPResponse
+// 				if json.Unmarshal([]byte(c.Content), &response) == nil {
+// 					specCommon.Responses = append(specCommon.Responses, response)
+// 				}
+// 			}
+// 		}
+// 	}
+// 	return specCommon
+// }

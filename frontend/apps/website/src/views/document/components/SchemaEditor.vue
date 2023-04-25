@@ -6,7 +6,7 @@
       </template>
 
       <template v-else>
-        <input class="ac-document__title" type="text" v-model="definition.name" maxlength="255" ref="title" placeholder="请输入模型标题" />
+        <input class="ac-document__title" type="text" v-input-limit v-model="definition.name" maxlength="255" ref="title" placeholder="请输入模型标题" />
         <input class="ac-document__desc" type="text" v-model="definition.description" maxlength="255" ref="title" placeholder="请输入模型描述" />
       </template>
 

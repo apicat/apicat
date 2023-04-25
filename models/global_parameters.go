@@ -1,7 +1,10 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
+
+	"github.com/apicat/apicat/commom/spec"
 )
 
 type GlobalParameters struct {
@@ -53,4 +56,55 @@ func (gp *GlobalParameters) Update() error {
 
 func (gp *GlobalParameters) Delete() error {
 	return Conn.Delete(gp).Error
+}
+
+func GlobalParametersImport(projectID uint, parameters *spec.HTTPParameters) map[string]nameToIdMap {
+	var parametersMap = map[string]nameToIdMap{
+		"header": make(nameToIdMap),
+		"cookie": make(nameToIdMap),
+		"query":  make(nameToIdMap),
+		"path":   make(nameToIdMap),
+	}
+
+	if parameters.Header == nil && parameters.Cookie == nil && parameters.Query == nil && parameters.Path == nil {
+		return parametersMap
+	}
+
+	var params []*spec.Schema
+	parameterList := []string{"header", "cookie", "query", "path"}
+	for _, key := range parameterList {
+		switch key {
+		case "header":
+			params = parameters.Header
+		case "cookie":
+			params = parameters.Cookie
+		case "query":
+			params = parameters.Query
+		case "path":
+			params = parameters.Path
+		}
+
+		for _, parameter := range params {
+			if parameterStr, err := json.Marshal(parameter.Schema); err == nil {
+				required := 0
+				if parameter.Required {
+					required = 1
+				}
+
+				record := &GlobalParameters{
+					ProjectID: projectID,
+					In:        key,
+					Name:      parameter.Name,
+					Required:  required,
+					Schema:    string(parameterStr),
+				}
+
+				if Conn.Create(record).Error == nil {
+					parametersMap[key][parameter.Name] = record.ID
+				}
+			}
+		}
+	}
+
+	return parametersMap
 }

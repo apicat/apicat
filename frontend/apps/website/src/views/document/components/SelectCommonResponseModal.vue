@@ -27,13 +27,13 @@ const { response } = storeToRefs(commonResponseStore)
 const search = ref('')
 const filterResponse = computed(() => response.value.filter((data: any) => !search.value || data.name.toLowerCase().includes(search.value.toLowerCase())))
 
-const show = async (selectedNameList: string[]) => {
+const show = async (selectedNameList: number[]) => {
   showModel()
   await nextTick()
   multipleTableRef.value.clearSelection()
 
   response.value
-    .filter((row) => selectedNameList.includes(row.name))
+    .filter((row) => selectedNameList.includes(row.id as any))
     .forEach((row) => {
       multipleTableRef.value.toggleRowSelection(row, true)
     })
@@ -44,10 +44,9 @@ const handleSelectionChange = (val: any) => {
 }
 
 const handelConfrim = () => {
-  console.log(multipleSelection.value)
   emits(
     'ok',
-    multipleSelection.value.map((item: any) => item.name)
+    multipleSelection.value.map((item: any) => item.id)
   )
   hideModel()
 }

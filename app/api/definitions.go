@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
+	"strings"
 
 	"github.com/apicat/apicat/commom/translator"
 	"github.com/apicat/apicat/models"
@@ -218,6 +220,9 @@ func DefinitionsUpdate(ctx *gin.Context) {
 }
 
 func DefinitionsDelete(ctx *gin.Context) {
+	currentProject, _ := ctx.Get("CurrentProject")
+	project, _ := currentProject.(*models.Projects)
+
 	var data DefinitionID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
@@ -234,6 +239,65 @@ func DefinitionsDelete(ctx *gin.Context) {
 		})
 		return
 	}
+
+	// 判断该模型是否被使用
+	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(definition.ID), 10) + "\"}"
+
+	collections, _ := models.NewCollections()
+	collections.ProjectId = project.ID
+	collectionList, err := collections.List()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	for _, v := range collectionList {
+		if strings.Contains(v.Content, ref) {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.InUse"}),
+			})
+			return
+		}
+	}
+
+	definitions, _ := models.NewDefinitions()
+	definitions.ProjectId = project.ID
+	definitionList, err := definitions.List()
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	for _, v := range definitionList {
+		if strings.Contains(v.Schema, ref) {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.InUse"}),
+			})
+			return
+		}
+	}
+
+	commonResponses, _ := models.NewCommonResponses()
+	commonResponses.ProjectID = project.ID
+	commonResponsesList, err := commonResponses.List()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	for _, v := range commonResponsesList {
+		if strings.Contains(v.Content, ref) {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.InUse"}),
+			})
+			return
+		}
+	}
+
 	if err := definition.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.DeleteFail"}),
