@@ -92,21 +92,26 @@ const handleCreate = async (selectedRows: Array<any>) => {
   selectedRows.sort((a, b) => a.sort - b.sort)
 
   const len = selectedRows.length
-  let lastRequestResult = null
 
   isStartCreate.value = true
 
   for (let i = 0; i < len; i++) {
+    // 隐藏modal
+    if (!dialogVisible.value) {
+      break
+    }
+
     const item = selectedRows[i]
     item.isLoading = true
+    item.abortController = new AbortController()
 
     try {
-      const data: any = await createCollectionByAI({ project_id, parent_id, schema_id: item.schema.id, title: item.description })
+      const data: any = await createCollectionByAI({ project_id, parent_id, schema_id: item.schema.id, title: item.description }, { signal: item.abortController.signal })
       item.isSuccess = true
       item.isFinish = true
       item.isLoading = false
 
-      lastRequestResult = data.id
+      emits('ok', data.id)
     } catch (error) {
       item.isSuccess = false
       item.isFinish = true
@@ -115,14 +120,19 @@ const handleCreate = async (selectedRows: Array<any>) => {
   }
 
   isStartCreate.value = false
-  if (!lastRequestResult) {
-    ElMessage.error('接口创建失败，请重试')
-    return
+
+  if (selectedRows.every((item) => !item.isSuccess)) {
+    ElMessage.error('所有接口创建失败，请重试')
   }
 
-  lastRequestResult && emits('ok', lastRequestResult)
   hideModel()
 }
+
+watch(dialogVisible, () => {
+  if (!dialogVisible.value) {
+    multipleSelection.value.forEach((item: any) => item.abortController?.abort())
+  }
+})
 
 defineExpose({
   show,
