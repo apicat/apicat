@@ -87,7 +87,7 @@ const commonResponseCount = computed(() => model.value.filter((item: any) => ite
 const selectCommonResponseModalRef = ref<InstanceType<typeof SelectCommonResponseModal>>()
 const editableTabsValue = ref(unref(model).length ? unref(model)[0]._id : null)
 const isShow = computed(() => model.value.length > 0)
-const disabled = computed(() => model.value.length <= 1)
+const disabled = computed(() => model.value.filter((item: any) => !item._isCommonResponse).length <= 1)
 
 const activeLastTab = (_id?: string) => {
   const len = model.value.length
