@@ -39,10 +39,11 @@ import { storeToRefs } from 'pinia'
 import { getCollectionDetail } from '@/api/collection'
 import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
+import uesGlobalParametersStore from '@/store/globalParameters'
 
 const projectStore = uesProjectStore()
 const definitionStore = useDefinitionStore()
-
+const globalParametersStore = uesGlobalParametersStore()
 const route = useRoute()
 const { project_id } = useParams()
 const { goDocumentEditPage } = useGoPage()
@@ -70,6 +71,13 @@ const getDetail = async (docId: string) => {
     console.error(error)
   }
 }
+
+globalParametersStore.$onAction(({ name, after }) => {
+  // 删除全局参数
+  if (name === 'deleteGlobalParameter') {
+    after(() => getDetail(route.params.doc_id as string))
+  }
+})
 
 watch(
   () => route.params.doc_id,

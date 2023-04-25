@@ -24,11 +24,15 @@ import { useGoPage } from '@/hooks/useGoPage'
 import { debounce, isEmpty } from 'lodash-es'
 import useApi from '@/hooks/useApi'
 import { ElMessage } from 'element-plus'
+import uesGlobalParametersStore from '@/store/globalParameters'
 
 const { project_id } = useParams()
 const route = useRoute()
+const globalParametersStore = uesGlobalParametersStore()
+
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const [isLoadingForSaveBtn, updateCollectionApiWithLoading] = useApi(updateCollection)()
+
 const { goDocumentDetailPage } = useGoPage()
 
 const isSaving = ref(false)
@@ -44,6 +48,32 @@ const stringifyHttpDoc = (doc: any) => {
 }
 
 const isInvalidId = () => isNaN(parseInt(route.params.doc_id as string, 10))
+
+const handleSave = async () => {
+  await updateCollectionApiWithLoading(stringifyHttpDoc(httpDoc))
+  goDocumentDetailPage()
+}
+
+const getDetail = async () => {
+  // id 无效
+  if (isInvalidId()) {
+    // ElMessage.error('文档id无效')
+    return
+  }
+
+  try {
+    httpDoc.value = await getCollectionDetailApi({ project_id, collection_id: route.params.doc_id })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+globalParametersStore.$onAction(({ name, after }) => {
+  // 删除全局参数
+  if (name === 'deleteGlobalParameter') {
+    after(() => getDetail())
+  }
+})
 
 watch(
   httpDoc,
@@ -70,25 +100,6 @@ watch(
     deep: true,
   }
 )
-
-const handleSave = async () => {
-  await updateCollectionApiWithLoading(stringifyHttpDoc(httpDoc))
-  goDocumentDetailPage()
-}
-
-const getDetail = async () => {
-  // id 无效
-  if (isInvalidId()) {
-    // ElMessage.error('文档id无效')
-    return
-  }
-
-  try {
-    httpDoc.value = await getCollectionDetailApi({ project_id, collection_id: route.params.doc_id })
-  } catch (error) {
-    console.error(error)
-  }
-}
 
 watch(
   () => route.params.doc_id,
