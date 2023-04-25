@@ -7,7 +7,7 @@
       <el-table-column property="code" label="状态码" width="120" />
       <el-table-column property="description" label="描述" show-overflow-tooltip />
     </el-table>
-    <el-button type="primary" class="mt-20px" :disabled="!multipleSelection.length" @click="handelConfrim">确定</el-button>
+    <el-button type="primary" class="mt-20px" @click="handelConfrim">确定</el-button>
   </el-dialog>
 </template>
 <script setup lang="ts">
@@ -27,13 +27,13 @@ const { response } = storeToRefs(commonResponseStore)
 const search = ref('')
 const filterResponse = computed(() => response.value.filter((data: any) => !search.value || data.name.toLowerCase().includes(search.value.toLowerCase())))
 
-const show = async (selectedNameList: string[]) => {
+const show = async (selectedNameList: number[]) => {
   showModel()
   await nextTick()
   multipleTableRef.value.clearSelection()
 
   response.value
-    .filter((row) => selectedNameList.includes(row.id + ''))
+    .filter((row) => selectedNameList.includes(row.id as any))
     .forEach((row) => {
       multipleTableRef.value.toggleRowSelection(row, true)
     })
@@ -44,11 +44,10 @@ const handleSelectionChange = (val: any) => {
 }
 
 const handelConfrim = () => {
-  !!multipleSelection.value.length &&
-    emits(
-      'ok',
-      multipleSelection.value.map((item: any) => item.id)
-    )
+  emits(
+    'ok',
+    multipleSelection.value.map((item: any) => item.id)
+  )
   hideModel()
 }
 

@@ -9,23 +9,25 @@
       </div>
     </h2>
     <el-tabs @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
-      <el-tab-pane v-for="(item, index) in responseList" :key="item._id + index" :name="item._id" :disabled="disabled">
-        <template #label>
-          <div
-            class="inline-flex items-center"
-            draggable="true"
-            @dragstart="onDragStart($event, index)"
-            @dragend="onDragEnd"
-            @dragover="onDragOver($event, index)"
-            @dragleave="onDragLeave($event, index)"
-            @drop="onDropHandler($event, index)"
-          >
-            <span class="mr-4px">{{ item.name || '&nbsp' }}</span>
-            <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
-          </div>
-        </template>
-        <ResponseForm v-model="model[index]" :definitions="definitions" />
-      </el-tab-pane>
+      <template v-for="(item, index) in model" :key="item._id + index">
+        <el-tab-pane v-if="!item._isCommonResponse" :name="item._id" :disabled="disabled">
+          <template #label>
+            <div
+              class="inline-flex items-center"
+              draggable="true"
+              @dragstart="onDragStart($event, index)"
+              @dragend="onDragEnd"
+              @dragover="onDragOver($event, index)"
+              @dragleave="onDragLeave($event, index)"
+              @drop="onDropHandler($event, index)"
+            >
+              <span class="mr-4px">{{ item.name || '&nbsp' }}</span>
+              <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
+            </div>
+          </template>
+          <ResponseForm v-model="model[index]" :definitions="definitions" />
+        </el-tab-pane>
+      </template>
       <el-tab-pane name="add-tab" disabled class="ac-response__common">
         <template #label>
           <el-space @click="onShowCommonResponseModal">
@@ -57,6 +59,7 @@ const props = defineProps<{ data: Array<any>; definitions?: Definition[] }>()
 const createResponse = (item?: any) => {
   return {
     _id: uuid(),
+    _isCommonResponse: false,
     name: 'Response Name',
     code: 200,
     description: 'success',
@@ -67,10 +70,10 @@ const createResponse = (item?: any) => {
 
 const createCommonRefResponse = (name: string) => ({ $ref: `${RefPrefixKeys.CommonResponse.key}${name}`, _id: uuid(), _isCommonResponse: true, _refName: name })
 
-const model = ref(
+const model: any = ref(
   (props.data || []).map((item: any) => {
     const newItem = { ...item, _id: uuid() }
-
+    newItem._isCommonResponse = false
     if (newItem.$ref && newItem.$ref.startsWith(RefPrefixKeys.CommonResponse.key)) {
       newItem._isCommonResponse = true
       newItem._refName = newItem.$ref.match(RefPrefixKeys.CommonResponse.reg)?.[1]
@@ -79,8 +82,7 @@ const model = ref(
   })
 )
 
-const responseList = computed(() => model.value.filter((item) => !item._isCommonResponse))
-const commonResponseCount = computed(() => model.value.filter((item) => item._isCommonResponse).length)
+const commonResponseCount = computed(() => model.value.filter((item: any) => item._isCommonResponse).length)
 
 const selectCommonResponseModalRef = ref<InstanceType<typeof SelectCommonResponseModal>>()
 const editableTabsValue = ref(unref(model).length ? unref(model)[0]._id : null)
@@ -107,12 +109,12 @@ const handleRemoveTab = (_id: any) => {
 }
 
 const onShowCommonResponseModal = () => {
-  const names = model.value.filter((item) => item._isCommonResponse).map((item) => item._refName)
+  const names = model.value.filter((item: any) => item._isCommonResponse).map((item: any) => parseInt(item._refName, 10))
   selectCommonResponseModalRef.value?.show(names)
 }
 
 const handleCommonResponseSelectFinish = (selectedIds: string[]) => {
-  model.value = model.value.filter((item) => !item._isCommonResponse)
+  model.value = model.value.filter((item: any) => !item._isCommonResponse)
   selectedIds.forEach((id) => {
     model.value.push(createCommonRefResponse(id))
   })
@@ -146,7 +148,7 @@ watch(
     validResponseName() &&
       emits(
         'update:data',
-        model.value.map(({ _id, _isCommonResponse, _refName, ...other }) => toRaw(other))
+        model.value.map(({ _id, _isCommonResponse, _refName, ...other }: any) => toRaw(other))
       )
   }, 300),
   { deep: true }

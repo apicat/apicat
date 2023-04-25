@@ -32,9 +32,7 @@ export const useCommonResponseStore = defineStore('commonResponse', {
       await updateResponseParam({ project_id, response_id, ...rest })
       const respons = this.response.find((item) => item.id === response_id)
       if (respons) {
-        respons.name = detail.name
-        respons.code = detail.code
-        respons.description = detail.description
+        Object.assign(respons, rest)
       }
     },
 

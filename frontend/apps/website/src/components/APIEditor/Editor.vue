@@ -170,7 +170,6 @@ function findTreeFromKey(n: Tree, k: string): Tree | undefined {
 
 function getSchemaSource(t: Tree) {
   if (t.refObj) {
-    console.log(t.refObj)
     return {
       $ref: `${RefPrefixKeys.DefinitionsSchema.key}${t.refObj.id}`,
       description: t.schema.description,
