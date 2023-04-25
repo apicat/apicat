@@ -24,6 +24,8 @@
         other = "Definition not found"
     [Definitions.NameExists]
         other = "Definition name exists"
+    [Definitions.InUse]
+        other = "Model is already in use, please dereference and try again"
 [Servers]
     [Servers.SetSuccess]
         other = "URL set successfully"

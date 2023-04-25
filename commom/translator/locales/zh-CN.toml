@@ -24,6 +24,8 @@
         other = "模型不存在"
     [Definitions.NameExists]
         other = "模型名称存在"
+    [Definitions.InUse]
+        other = "模型已被使用，请解除引用后再试"
 [Servers]
     [Servers.SetSuccess]
         other = "URL设置成功"
