@@ -228,6 +228,7 @@ func (s *Swagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode {
 			continue
 		}
 		resp := spec.HTTPResponse{
+			Name:        res.Description,
 			Code:        c,
 			Description: res.Description,
 		}

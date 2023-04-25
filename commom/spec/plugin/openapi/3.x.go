@@ -184,6 +184,7 @@ func (o *OpenAPI) parseeResoponse(responses map[string]*v3.Response) spec.HTTPRe
 	for code, res := range responses {
 		c, _ := strconv.Atoi(code)
 		resp := spec.HTTPResponse{
+			Name:        res.Description,
 			Code:        c,
 			Description: res.Description,
 		}
