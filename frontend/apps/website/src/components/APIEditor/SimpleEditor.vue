@@ -154,13 +154,11 @@ const dragOverHandler = (ev: DragEvent, i: number) => {
   ev.preventDefault()
   if (ev.dataTransfer?.getData(dragKey) == i.toString()) return
   const dom = ev.currentTarget as HTMLElement
-  // dom.style.borderBottom = ev.offsetY > dom.clientHeight / 2 ? '1px blue solid' : ''
   dom.classList[ev.offsetY > dom.clientHeight / 2 ? 'add' : 'remove']('drop-indicator')
 }
 
 const dragLeaveHandler = (ev: DragEvent) => {
   const dom = ev.currentTarget as HTMLElement
-  // dom.style.borderBottom = ''
   dom.classList.remove('drop-indicator')
 }
 

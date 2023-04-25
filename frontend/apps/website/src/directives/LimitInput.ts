@@ -1,22 +1,25 @@
+import { debounce } from 'lodash-es'
+
 const inputLimit = {
   mounted: (el: any) => {
     let inputLock = false
 
     const doRule = (e: any) => {
-      e.target.value = e.target.value.match(/[\w-_]+/g, '').join('')
+      const v = e.target.value.match(/[\w-_]+/g, '') || []
+      e.target.value = v.join('')
       // 手动更新绑定值
       e.target.dispatchEvent(new Event('input'))
     }
 
     const target = el instanceof HTMLInputElement ? el : el.querySelector('input')
 
-    el._handler = function (event: any) {
+    el._handler = debounce(function (event: any) {
       if (!inputLock && event.inputType === 'insertText') {
         doRule(event)
         event.returnValue = false
       }
       event.returnValue = false
-    }
+    }, 300)
 
     el._compositionstart = () => {
       inputLock = true

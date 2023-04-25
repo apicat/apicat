@@ -49,7 +49,7 @@ import { createResponseDefaultContent } from '@/views/document/components/create
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 import SelectCommonResponseModal from '@/views/document/components/SelectCommonResponseModal.vue'
 import { ElMessage } from 'element-plus'
-import { isEmpty } from 'lodash-es'
+import { isEmpty, debounce } from 'lodash-es'
 
 const emits = defineEmits(['update:data'])
 const props = defineProps<{ data: Array<any>; definitions?: Definition[] }>()
@@ -141,13 +141,13 @@ const validResponseName = () => {
 // v-model
 watch(
   model,
-  () => {
+  debounce(() => {
     validResponseName() &&
       emits(
         'update:data',
         model.value.map(({ _id, _isCommonResponse, _refName, ...other }) => toRaw(other))
       )
-  },
+  }, 300),
   { deep: true }
 )
 </script>
