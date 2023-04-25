@@ -10,12 +10,13 @@
       <el-button type="primary" :loading="isLoadingForSaveBtn" @click="handleSave">预览</el-button>
     </div>
   </div>
-  <HttpDocumentEditor v-loading="isLoading" v-model="httpDoc" />
+  <div v-loading="isLoading" :class="{ 'h-50vh': !httpDoc }">
+    <HttpDocumentEditor v-if="httpDoc" v-model="httpDoc" />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { HttpDocument } from '@/typings'
-import { createHttpDocument } from '@/views/document/components/createHttpDocument'
 import { getCollectionDetail, updateCollection } from '@/api/collection'
 import HttpDocumentEditor from './components/HttpDocumentEditor.vue'
 import { useParams } from '@/hooks/useParams'
@@ -23,15 +24,19 @@ import { useGoPage } from '@/hooks/useGoPage'
 import { debounce, isEmpty } from 'lodash-es'
 import useApi from '@/hooks/useApi'
 import { ElMessage } from 'element-plus'
+import uesGlobalParametersStore from '@/store/globalParameters'
 
 const { project_id } = useParams()
 const route = useRoute()
+const globalParametersStore = uesGlobalParametersStore()
+
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const [isLoadingForSaveBtn, updateCollectionApiWithLoading] = useApi(updateCollection)()
+
 const { goDocumentDetailPage } = useGoPage()
 
 const isSaving = ref(false)
-const httpDoc: Ref<HttpDocument> = ref(createHttpDocument())
+const httpDoc: Ref<HttpDocument | null> = ref(null)
 
 const directoryTree: any = inject('directoryTree')
 
@@ -44,10 +49,36 @@ const stringifyHttpDoc = (doc: any) => {
 
 const isInvalidId = () => isNaN(parseInt(route.params.doc_id as string, 10))
 
+const handleSave = async () => {
+  await updateCollectionApiWithLoading(stringifyHttpDoc(httpDoc))
+  goDocumentDetailPage()
+}
+
+const getDetail = async () => {
+  // id 无效
+  if (isInvalidId()) {
+    // ElMessage.error('文档id无效')
+    return
+  }
+
+  try {
+    httpDoc.value = await getCollectionDetailApi({ project_id, collection_id: route.params.doc_id })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+globalParametersStore.$onAction(({ name, after }) => {
+  // 删除全局参数
+  if (name === 'deleteGlobalParameter') {
+    after(() => getDetail())
+  }
+})
+
 watch(
   httpDoc,
   debounce(async (newVal, oldVal) => {
-    if (!oldVal.id || isInvalidId()) {
+    if (!oldVal || !oldVal.id || isInvalidId()) {
       // id 不存在
       return
     }
@@ -69,25 +100,6 @@ watch(
     deep: true,
   }
 )
-
-const handleSave = async () => {
-  await updateCollectionApiWithLoading(stringifyHttpDoc(httpDoc))
-  goDocumentDetailPage()
-}
-
-const getDetail = async () => {
-  // id 无效
-  if (isInvalidId()) {
-    // ElMessage.error('文档id无效')
-    return
-  }
-
-  try {
-    httpDoc.value = await getCollectionDetailApi({ project_id, collection_id: route.params.doc_id })
-  } catch (error) {
-    console.error(error)
-  }
-}
 
 watch(
   () => route.params.doc_id,

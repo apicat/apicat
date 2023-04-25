@@ -17,4 +17,6 @@ apicat
 
 .vscode/
 data/*.db
-data/*.lock
+
+setting.default.yaml
+setting.example.yaml

@@ -4,6 +4,7 @@
     "types": [
       "element-plus/global",
       "vite/client",
+      "unplugin-icons/types/vue",
       "node"
     ],
     "baseUrl": "./",

@@ -6,7 +6,7 @@ import { useI18n } from 'vue-i18n'
 export const API_URL = '/api'
 
 // 请求超时时长
-export const REQUEST_TIMEOUT = 1000 * 10
+export const REQUEST_TIMEOUT = 1000 * 60
 
 // 默认值
 export const DEFAULT_VAL = '--'
@@ -48,7 +48,7 @@ export const enum ImportOrExportState {
 export const enum ProjectNavigateListEnum {
   BaseInfoSetting = 'BaseInfoSetting',
   ServerUrlSetting = 'ServerUrlSetting',
-  RequestParamsSetting = 'RequestParamsSetting',
+  GlobalParamsSetting = 'GlobalParamsSetting',
   ResponseParamsSetting = 'ResponseParamsSetting',
   ProjectExport = 'ProjectExport',
   ProjectTrash = 'ProjectTrash',
@@ -67,9 +67,9 @@ export const getProjectNavigateList = (overwrite?: any): ProjectNavigateObject =
   const navs = {
     [ProjectNavigateListEnum.BaseInfoSetting]: { text: t('app.project.setting.baseInfo'), icon: 'ac-IconPopoverSetting' },
     [ProjectNavigateListEnum.ServerUrlSetting]: { text: t('app.project.setting.serverUrl'), icon: 'ac-suffix-url' },
-    [ProjectNavigateListEnum.RequestParamsSetting]: { text: t('app.project.setting.requestParam'), icon: 'ac-canshuweihu' },
+    [ProjectNavigateListEnum.GlobalParamsSetting]: { text: t('app.project.setting.globalParam'), icon: 'ac-canshuweihu' },
     [ProjectNavigateListEnum.ResponseParamsSetting]: { text: t('app.project.setting.responseParam'), icon: 'ac-response' },
-    [ProjectNavigateListEnum.ProjectExport]: { text: t('app.project.setting.export'), icon: 'ac-export' },
+    // [ProjectNavigateListEnum.ProjectExport]: { text: t('app.project.setting.export'), icon: 'ac-export' },
     [ProjectNavigateListEnum.ProjectTrash]: { text: t('app.project.setting.trash'), icon: 'ac-trash' },
   } as any
 
@@ -137,4 +137,15 @@ export const HttpMethodTypeMap = {
   patch: { value: 'patch', color: '#F1924E' },
   delete: { value: 'delete', color: '#DF4545' },
   option: { value: 'option', color: '#A973DF' },
+}
+
+export const RefPrefixKeys = {
+  CommonResponse: {
+    key: '#/commons/responses/',
+    reg: /#\/commons\/responses\/(.*)/,
+  },
+  DefinitionsSchema: {
+    key: '#/definitions/schemas/',
+    reg: /#\/definitions\/schemas\/(.*)/,
+  },
 }

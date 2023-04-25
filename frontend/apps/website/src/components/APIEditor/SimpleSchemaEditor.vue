@@ -1,45 +1,41 @@
 <template>
   <div class="ac-sce-simple">
-    <table class="w-full readonly" v-if="readonly">
+    <table class="w-full table-fixed readonly" v-if="readonly">
       <tr>
-        <th width="320">参数名</th>
-        <th width="138">类型</th>
-        <th width="56">必须</th>
-        <th width="258">示例值</th>
-        <th>描述</th>
+        <th style="width: 38%">参数名</th>
+        <th class="text-center" style="width: 150px">类型</th>
+        <th class="text-center" style="width: 54px">必须</th>
+        <th style="width: 38%">示例值</th>
+        <th style="width: 38%">描述</th>
       </tr>
       <tr v-for="(data, index) in flatValues" :key="index">
         <td>
-          <el-text tag="b">
-            <span class="copy_text">{{ data.name }}</span>
-          </el-text>
+          <span class="break-all copy_text">{{ data.name }}</span>
         </td>
         <td>
-          <el-text>{{ data.schema.type }}</el-text>
+          {{ data.schema.type }}
+        </td>
+        <td class="text-center">
+          {{ modelValue.required?.includes(data.name) ? '是' : '否' }}
         </td>
         <td>
-          <el-text>{{ modelValue.required?.includes(data.name) ? '是' : '否' }}</el-text>
+          <span class="copy_text">{{ data.schema.example }}</span>
         </td>
-        <td>
-          <el-text>
-            <span class="copy_text">{{ data.schema.example }}</span>
-          </el-text>
-        </td>
-        <td>
-          <el-text>{{ data.schema.description }}</el-text>
+        <td class="break-all">
+          {{ data.schema.description }}
         </td>
       </tr>
     </table>
 
-    <table class="w-full" v-else>
+    <table class="w-full table-fixed" v-else>
       <tr @dragover="dragOverHandler($event, -1)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, -1)">
-        <th class="text-center" width="32"></th>
-        <th>参数名</th>
-        <th class="text-center" width="138">类型</th>
-        <th class="text-center" width="56">必须</th>
-        <th width="258">示例值</th>
-        <th width="264">描述</th>
-        <th class="text-center" width="48"></th>
+        <th class="text-center" style="width: 1px"></th>
+        <th style="width: 34%">参数名</th>
+        <th class="text-center" style="width: 150px">类型</th>
+        <th class="text-center" style="width: 54px">必须</th>
+        <th style="width: 34%">示例值</th>
+        <th style="width: 38%">描述</th>
+        <th class="text-center" style="width: 30px"></th>
       </tr>
       <tbody>
         <tr v-for="(data, index) in flatValues" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
@@ -58,21 +54,19 @@
           </td>
 
           <td class="text-center">
-            <el-tooltip content="required" placement="top" :show-after="368">
-              <el-checkbox size="small" :checked="modelValue.required?.includes(data.name)" @change="(v) => onRequiredChange(data, v)" />
-            </el-tooltip>
+            <el-checkbox size="small" :checked="modelValue.required?.includes(data.name)" @change="(v) => onRequiredChange(data, v)" />
           </td>
 
           <td>
-            <el-input v-model="data.schema.default" @change="changeNotify" />
+            <el-input v-model="data.schema.default" @change="changeNotify()" />
           </td>
           <td>
-            <el-input v-model="data.schema.description" @change="changeNotify" />
+            <el-input v-model="data.schema.description" @change="changeNotify()" />
           </td>
           <td class="text-center">
             <el-popconfirm title="delete this?" @confirm="delHandler(index)">
               <template #reference>
-                <el-button text circle>
+                <el-button text circle tabindex="-1">
                   <el-icon :size="14">
                     <ac-icon-ep-delete />
                   </el-icon>
@@ -101,16 +95,14 @@
 </template>
 
 <script setup lang="ts">
-import { ElMessage } from 'element-plus'
 import type { Definition, JSONSchema } from './types'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useSchemaList } from './useSchemaList'
 
 const props = withDefaults(
   defineProps<{
     readonly?: boolean
     modelValue: JSONSchema
-    // 引用模型的集合
     definitions?: Definition[]
     hasFile?: boolean
   }>(),
@@ -144,12 +136,12 @@ const transformModel = (models: any) => {
   }
 }
 
-const onParamNameValid = (oldName: string, newName: string) => {
+const onChangeParamNameSuccess = (oldName: string, newName: string) => {
   const schema = props.modelValue as JSONSchema
   schema.required = schema.required?.map((one) => (one === oldName ? newName : one))
 }
 
-const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(emits, transformModel, onParamNameValid)
+const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(props, emits, transformModel, onChangeParamNameSuccess)
 
 const flatValues = computed(() => {
   const arr: any = []
@@ -212,12 +204,14 @@ const dragOverHandler = (ev: DragEvent, i: number) => {
   ev.preventDefault()
   if (ev.dataTransfer?.getData(dragKey) == i.toString()) return
   const dom = ev.currentTarget as HTMLElement
-  dom.style.borderBottom = ev.offsetY > dom.clientHeight / 2 ? '1px blue solid' : ''
+  // dom.style.borderBottom = ev.offsetY > dom.clientHeight / 2 ? '1px blue solid' : ''
+  dom.classList[ev.offsetY > dom.clientHeight / 2 ? 'add' : 'remove']('drop-indicator')
 }
 
 const dragLeaveHandler = (ev: DragEvent) => {
   const dom = ev.currentTarget as HTMLElement
-  dom.style.borderBottom = ''
+  // dom.style.borderBottom = ''
+  dom.classList.remove('drop-indicator')
 }
 
 const dragEndHandler = (ev: DragEvent) => {

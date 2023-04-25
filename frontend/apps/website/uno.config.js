@@ -21,7 +21,9 @@ export default defineConfig({
         '06': 'rgba(0,0,0,.06)',
         65: 'rgba(0,0,0,.65)',
         45: 'rgba(0,0,0,.45)',
+        lighter: '#eceeef',
         100: '#fafafa',
+        110: '#F2F2F2',
       },
     },
     height: {

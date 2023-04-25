@@ -24,6 +24,8 @@
         other = "模型不存在"
     [Definitions.NameExists]
         other = "模型名称存在"
+    [Definitions.InUse]
+        other = "模型已被使用，请解除引用后再试"
 [Servers]
     [Servers.SetSuccess]
         other = "URL设置成功"
@@ -51,3 +53,14 @@
 [Trashs]
     [Trashs.PartialRecoveryFailed]
         other = "部分恢复失败"
+[GlobalParameters]
+    [GlobalParameters.NotFound]
+        other = "全局参数不存在"
+    [GlobalParameters.NameExists]
+        other = "全局参数名称存在"
+[AI]
+    [AI.CollectionCreateFail]
+        other = "接口创建失败，请稍后重试。"
+[CommonResponses]
+    [CommonResponses.NameExists]
+        other = "公共响应名称存在"

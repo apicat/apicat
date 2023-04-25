@@ -2,12 +2,23 @@ package openapi
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/apicat/apicat/commom/spec/jsonschema"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
 )
 
-func jsonSchemaConverter(in *base.Schema) (*jsonschema.Schema, error) {
+func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
+	if g := b.GoLow(); g != nil {
+		if g.IsReference() {
+			ref := g.GetReference()
+			if strings.HasPrefix(ref, "#/definitions/") || strings.HasPrefix(ref, "#/components/schemas/") {
+				ref = "#/definitions/schemas/" + getRefName(ref)
+				return &jsonschema.Schema{Reference: &ref}, nil
+			}
+		}
+	}
+	in := b.Schema()
 	var t jsonschema.SliceOrOneValue[string]
 	t.SetValue(in.Type...)
 	out := jsonschema.Schema{
@@ -57,7 +68,7 @@ func jsonSchemaConverter(in *base.Schema) (*jsonschema.Schema, error) {
 		props := make(map[string]*jsonschema.Schema)
 		names := make([]string, 0)
 		for name, v := range in.Properties {
-			js, err := jsonSchemaConverter(v.Schema())
+			js, err := jsonSchemaConverter(v)
 			if err != nil {
 				return nil, err
 			}
@@ -73,7 +84,7 @@ func jsonSchemaConverter(in *base.Schema) (*jsonschema.Schema, error) {
 		ap := &jsonschema.ValueOrBoolean[*jsonschema.Schema]{}
 		switch addprop := in.AdditionalProperties.(type) {
 		case *base.SchemaProxy:
-			v, err := jsonSchemaConverter(addprop.Schema())
+			v, err := jsonSchemaConverter(addprop)
 			if err != nil {
 				return nil, err
 			}
@@ -89,7 +100,7 @@ func jsonSchemaConverter(in *base.Schema) (*jsonschema.Schema, error) {
 	if in.Items != nil {
 		items := &jsonschema.ValueOrBoolean[*jsonschema.Schema]{}
 		if in.Items.IsA() {
-			v, err := jsonSchemaConverter(in.Items.A.Schema())
+			v, err := jsonSchemaConverter(in.Items.A)
 			if err != nil {
 				return nil, err
 			}
@@ -105,4 +116,8 @@ func jsonSchemaConverter(in *base.Schema) (*jsonschema.Schema, error) {
 	}
 
 	return &out, nil
+}
+
+func getRefName(ref string) string {
+	return ref[strings.LastIndex(ref, "/")+1:]
 }

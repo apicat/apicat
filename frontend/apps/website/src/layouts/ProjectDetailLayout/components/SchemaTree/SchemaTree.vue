@@ -1,7 +1,7 @@
 <template>
   <ToggleHeading title="模型">
     <template #extra>
-      <el-icon class="cursor-pointer text-zinc-500" @click="onCreateSchemaMenuClick"><ac-icon-ep-plus /></el-icon>
+      <el-icon class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
     </template>
     <div ref="dir">
       <ac-tree
@@ -38,21 +38,44 @@
   <el-popover :virtual-ref="popoverRefEl" trigger="click" virtual-triggering :visible="isShowPopoverMenu" width="auto">
     <PopperMenu :menus="popoverMenus" size="small" class="clear-popover-space" />
   </el-popover>
+
+  <AIGenerateSchemaModal ref="aiPromptModalRef" @ok="onCreateSchemaSuccess" />
+  <AIGenerateDocumentWithSchmeModal ref="aiGenerateDocumentWithSchmeModalRef" @ok="onGenerateDocumentWithSchmeSuccess" />
 </template>
 
 <script setup lang="ts">
 import AcTree from '@/components/AcTree'
+import AIGenerateSchemaModal from '../AIGenerateSchemaModal.vue'
+import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModal.vue'
 import { useSchemaPopoverMenu } from './useSchemaPopoverMenu'
 import { useSchemaTree } from './useSchemaTree'
 import { useActiveTree } from './useActiveTree'
 
-const { treeIns, treeOptions, definitions, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle } = useSchemaTree()
-const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick, onCreateSchemaMenuClick } = useSchemaPopoverMenu(treeIns as any)
+const directoryTree = inject('directoryTree') as any
+
+const { treeIns, treeOptions, definitions, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, redirecToSchemaEdit } = useSchemaTree()
+
+const aiPromptModalRef = ref()
+const onCreateSchemaSuccess = (schema_id: any) => {
+  redirecToSchemaEdit(schema_id)
+}
+
+const aiGenerateDocumentWithSchmeModalRef = ref()
+const onGenerateDocumentWithSchmeSuccess = (docId: any) => {
+  directoryTree.redirecToDocumentDetail(docId)
+}
+
+const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick } = useSchemaPopoverMenu(
+  treeIns as any,
+  aiPromptModalRef as any,
+  aiGenerateDocumentWithSchmeModalRef as any
+)
 
 const { activeNode } = useActiveTree(treeIns as any)
 
 defineExpose({
   updateTitle,
   activeNode,
+  redirecToSchemaEdit,
 })
 </script>

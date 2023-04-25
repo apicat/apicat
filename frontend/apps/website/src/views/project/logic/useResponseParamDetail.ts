@@ -1,8 +1,12 @@
-import { addResponseParam, getResponseParam, updateResponseParam } from '@/api/param'
-import { ProjectInfo, ResponseListCustom } from '@/typings'
+import { getResponseParam } from '@/api/commonResponse'
+import useCommonResponseStore from '@/store/commonResponse'
+import { ProjectInfo, APICatCommonResponseCustom } from '@/typings'
+import { ElMessage } from 'element-plus'
 
 export const useResponseParamDetail = ({ id: project_id }: Pick<ProjectInfo, 'id'>) => {
-  const handleExpand = async (isExpand: boolean, item: ResponseListCustom) => {
+  const commonResponseStore = useCommonResponseStore()
+
+  const handleExpand = async (isExpand: boolean, item: APICatCommonResponseCustom) => {
     if (isExpand && !item.isLoaded) {
       item.isLoading = true
       try {
@@ -15,24 +19,33 @@ export const useResponseParamDetail = ({ id: project_id }: Pick<ProjectInfo, 'id
     }
   }
 
-  const handleSubmit = async (param: ResponseListCustom) => {
-    param.isLoading = true
+  const handleSubmit = async (param: APICatCommonResponseCustom) => {
     const { detail } = param
     if (!detail) {
       return
     }
+
+    if (!detail.name) {
+      ElMessage.error('响应名称不能为空')
+      return
+    }
+
+    param.isLoading = true
     try {
       // 更新
       if (detail.id) {
-        const { id: response_id, ...rest } = detail
-        await updateResponseParam({ project_id, response_id, ...rest })
+        await commonResponseStore.updateResponseParam(project_id, detail)
       }
 
       // 添加
       if (!detail.id) {
-        const responseParamDetail = await addResponseParam({ project_id, ...detail })
+        const responseParamDetail = await commonResponseStore.addCommonResponse(project_id, detail)
+        param.isLocal = false
+        param.id = responseParamDetail.id
         param.detail = responseParamDetail
       }
+    } catch (e) {
+      //
     } finally {
       param.isLoading = false
     }

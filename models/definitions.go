@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/apicat/apicat/commom/spec"
-	"github.com/apicat/apicat/commom/spec/jsonschema"
 	"gorm.io/gorm"
 )
 
@@ -80,39 +79,49 @@ func (d *Definitions) Deleter() string {
 	return ""
 }
 
-func DefinitionsImport(projectID uint, definitions *spec.Schemas) {
-	if definitions.Length() > 0 {
-		for i, definition := range *definitions {
-			if schemaStr, err := json.Marshal(definition.Schema); err == nil {
-				Conn.Create(&Definitions{
-					ProjectId:    projectID,
-					ParentId:     0,
-					Name:         definition.Name,
-					Description:  definition.Description,
-					Type:         "schema",
-					Schema:       string(schemaStr),
-					DisplayOrder: i,
-				})
+func DefinitionsImport(projectID uint, schemas spec.Schemas) nameToIdMap {
+	SchemasMap := make(nameToIdMap)
+
+	if schemas == nil {
+		return SchemasMap
+	}
+
+	for i, schema := range schemas {
+		if schemaStr, err := json.Marshal(schema.Schema); err == nil {
+			record := &Definitions{
+				ProjectId:    projectID,
+				ParentId:     0,
+				Name:         schema.Name,
+				Description:  schema.Description,
+				Type:         "schema",
+				Schema:       string(schemaStr),
+				DisplayOrder: i,
+			}
+
+			if Conn.Create(record).Error == nil {
+				SchemasMap[schema.Name] = record.ID
 			}
 		}
 	}
+
+	return SchemasMap
 }
 
-func DefinitionsExport(projectID uint) spec.Schemas {
-	var definitions []*Definitions
-	specDefinitions := make(spec.Schemas, 0)
+// func DefinitionsExport(projectID uint) spec.Schemas {
+// 	var definitions []*Definitions
+// 	specDefinitions := make(spec.Schemas, 0)
 
-	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err == nil {
-		for _, definition := range definitions {
-			schema := &spec.Schema{
-				Schema: &jsonschema.Schema{},
-			}
-			if json.Unmarshal([]byte(definition.Schema), schema.Schema) == nil {
-				schema.Name = definition.Name
-				schema.Description = definition.Description
-				specDefinitions = append(specDefinitions, schema)
-			}
-		}
-	}
-	return specDefinitions
-}
+// 	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err == nil {
+// 		for _, definition := range definitions {
+// 			schema := &spec.Schema{
+// 				Schema: &jsonschema.Schema{},
+// 			}
+// 			if json.Unmarshal([]byte(definition.Schema), schema.Schema) == nil {
+// 				schema.Name = definition.Name
+// 				schema.Description = definition.Description
+// 				specDefinitions = append(specDefinitions, schema)
+// 			}
+// 		}
+// 	}
+// 	return specDefinitions
+// }

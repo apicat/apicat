@@ -61,19 +61,21 @@ func InitApiRouter(r *gin.Engine) {
 				servers.PUT("/", api.UrlSettings)
 			}
 
-			parameters := project.(*gin.RouterGroup).Group("/parameters")
+			globalParameters := project.(*gin.RouterGroup).Group("/global/parameters")
 			{
-				parameters.GET("/", api.PublicParametersList)
-				parameters.PUT("/", api.PublicParametersSettings)
+				globalParameters.GET("/", api.GlobalParametersList)
+				globalParameters.POST("/", api.GlobalParametersCreate)
+				globalParameters.PUT("/:parameter-id", api.GlobalParametersUpdate)
+				globalParameters.DELETE("/:parameter-id", api.GlobalParametersDelete)
 			}
 
-			responses := project.(*gin.RouterGroup).Group("/responses")
+			definitionsResponses := project.(*gin.RouterGroup).Group("/definitions/responses")
 			{
-				responses.GET("/", api.PublicResponsesList)
-				responses.GET("/:response-id", api.PublicResponsesDetails)
-				responses.POST("/", api.PublicResponsesAdd)
-				responses.PUT("/:response-id", api.PublicResponsesEdit)
-				responses.DELETE("/:response-id", api.PublicResponsesDelete)
+				definitionsResponses.GET("/", api.CommonResponsesList)
+				definitionsResponses.GET("/:response-id", api.CommonResponsesDetail)
+				definitionsResponses.POST("/", api.CommonResponsesCreate)
+				definitionsResponses.PUT("/:response-id", api.CommonResponsesUpdate)
+				definitionsResponses.DELETE("/:response-id", api.CommonResponsesDelete)
 			}
 
 			collections := project.(*gin.RouterGroup).Group("/collections")
@@ -91,6 +93,13 @@ func InitApiRouter(r *gin.Engine) {
 			{
 				trashs.GET("/", api.TrashsList)
 				trashs.PUT("/", api.TrashsRecover)
+			}
+
+			ai := project.(*gin.RouterGroup).Group("/ai")
+			{
+				ai.GET("/collections/name", api.AICreateApiNames)
+				ai.POST("/collections", api.AICreateCollection)
+				ai.POST("/schemas", api.AICreateSchema)
 			}
 		}
 	}

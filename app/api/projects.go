@@ -110,9 +110,8 @@ func ProjectsCreate(ctx *gin.Context) {
 	// 进行数据导入工作
 	if data.Data != "" {
 		models.ServersImport(project.ID, content.Servers)
-		models.CommonsImport(project.ID, content.Common)
-		models.DefinitionsImport(project.ID, &content.Definitions)
-		models.CollectionsImport(project.ID, 0, content.Collections)
+		definitionSchemas := models.DefinitionsImport(project.ID, content.Definitions.Schemas)
+		models.CollectionsImport(project.ID, 0, content.Collections, definitionSchemas)
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
@@ -257,10 +256,10 @@ func ProjectDataGet(ctx *gin.Context) {
 		Version:     "1.0.0",
 	}
 
-	apicatData.Servers = models.ServersExport(project.ID)
-	apicatData.Common = models.CommonsExport(project.ID)
-	apicatData.Definitions = models.DefinitionsExport(project.ID)
-	apicatData.Collections = models.CollectionsExport(project.ID)
+	// apicatData.Servers = models.ServersExport(project.ID)
+	// apicatData.Common = models.CommonsExport(project.ID)
+	// apicatData.Definitions = models.DefinitionsExport(project.ID)
+	// apicatData.Collections = models.CollectionsExport(project.ID)
 
 	if data.Type == "swagger" {
 		content, err = openapi.Encode(apicatData, "2.0")

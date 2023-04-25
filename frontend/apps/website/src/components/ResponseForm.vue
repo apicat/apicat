@@ -1,13 +1,17 @@
 <template>
   <el-space direction="vertical" fill warp class="w-full">
-    <el-form :inline="true" class="clear-inline-form-margin">
+    <el-form :inline="true">
+      <el-form-item label="名称">
+        <el-input v-model="model.name" maxlength="50" />
+      </el-form-item>
+
       <el-form-item label="状态码">
         <el-select v-model="model.code" placeholder="状态码" filterable>
           <el-option v-for="code in HttpCodeList" :label="code.code + ' ' + code.desc" :value="code.code" />
         </el-select>
       </el-form-item>
       <el-form-item label="描述">
-        <el-input v-model="model.description" />
+        <el-input v-model="model.description" maxlength="300" />
       </el-form-item>
       <el-form-item>
         <el-checkbox :checked="model.header ? true : false" @change="toggleHeader">header</el-checkbox>
@@ -40,6 +44,7 @@
 <script lang="ts">
 export declare interface APICatResponse {
   id?: number | string
+  name?: string
   code: number
   description: string
   content: Record<string, { schema: JSONSchema }>
@@ -64,9 +69,10 @@ import Editor from './APIEditor/Editor.vue'
 import CodeEditor from './APIEditor/CodeEditor.vue'
 import { computed } from 'vue'
 import { CheckboxValueType } from 'element-plus'
+import { APICatCommonResponse } from '@/typings'
 
 const props = defineProps<{
-  modelValue: APICatResponse
+  modelValue: APICatResponse | APICatCommonResponse
   // 引用模型的集合
   definitions?: Definition[]
 }>()

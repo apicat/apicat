@@ -4,7 +4,7 @@
       <el-icon><ac-icon-ep-plus /></el-icon>添加
     </el-button>
 
-    <div v-for="(param, index) in responseParamList" class="mt-15px" :key="param._id">
+    <div v-for="(param, index) in responseParamList" class="mt-15px" :key="param.id">
       <ToggleHeading
         :title="`${param.detail?.description ?? param.description}(${param.detail?.code ?? param.code})`"
         type="card"
@@ -21,7 +21,7 @@
         </template>
 
         <div v-if="param.detail">
-          <ResponseForm v-model="param.detail" :definitions="definitions" class="mt-10px" />
+          <ResponseForm v-model="param.detail" :definitions="definitions" class="mt-10px" :is-common-response="true" />
           <el-button class="mt-20px" type="primary" @click="handleSubmit(param)">{{ $t('app.common.save') }}</el-button>
         </div>
       </ToggleHeading>

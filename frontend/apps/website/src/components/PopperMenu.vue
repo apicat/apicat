@@ -7,7 +7,7 @@
       @click="onMenuClick(menu, keyOrIndex)"
     >
       <i v-if="menu.icon" class="mr-1 ac-iconfont" :class="[ns.e('icon'), menu.icon]" />
-      <el-icon v-if="menu.elIcon"><component :is="menu.elIcon" /></el-icon>
+      <el-icon v-if="menu.elIcon" class="mr-1"><component :is="menu.elIcon" /></el-icon>
       <img v-if="menu.image" class="mr-1" :class="ns.e('icon')" :src="menu.image" />
       {{ menu.text }}
     </li>

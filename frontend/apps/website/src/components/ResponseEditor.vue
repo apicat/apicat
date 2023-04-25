@@ -1,72 +1,98 @@
 <template>
   <div v-if="isShow" class="ac-response-editor">
-    <h2 class="text-16px font-500">响应参数</h2>
-    <el-tabs @tab-add="handleAddTab" @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
-      <el-tab-pane v-for="(item, index) in model" :key="item.id + index" :name="item.id" :disabled="disabled">
+    <h2 class="relative flex justify-between text-16px font-500">
+      响应参数
+      <div class="absolute right-0 z-10 bg-white -bottom-30px">
+        <el-button link type="primary" @click="handleAddTab">
+          <el-icon><ac-icon-ep-plus /></el-icon>添加
+        </el-button>
+      </div>
+    </h2>
+    <el-tabs @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
+      <template v-for="(item, index) in model" :key="item._id + index">
+        <el-tab-pane v-if="!item._isCommonResponse" :name="item._id" :disabled="disabled">
+          <template #label>
+            <div
+              class="inline-flex items-center"
+              draggable="true"
+              @dragstart="onDragStart($event, index)"
+              @dragend="onDragEnd"
+              @dragover="onDragOver($event, index)"
+              @dragleave="onDragLeave($event, index)"
+              @drop="onDropHandler($event, index)"
+            >
+              <span class="mr-4px">{{ item.name || '&nbsp' }}</span>
+              <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
+            </div>
+          </template>
+          <ResponseForm v-model="model[index]" :definitions="definitions" />
+        </el-tab-pane>
+      </template>
+      <el-tab-pane name="add-tab" disabled class="ac-response__common">
         <template #label>
-          <el-space
-            draggable="true"
-            @dragstart="onDragStart($event, index)"
-            @dragend="onDragEnd"
-            @dragover="onDragOver($event, index)"
-            @dragleave="onDragLeave($event, index)"
-            @drop="onDropHandler($event, index)"
-          >
-            <span>{{ item.description }}</span>
-            <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
+          <el-space @click="onShowCommonResponseModal">
+            <span>公共响应</span>
+            <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px">{{ commonResponseCount }}</span>
           </el-space>
         </template>
-        <ResponseForm v-model="model[index]" :definitions="definitions" />
       </el-tab-pane>
     </el-tabs>
   </div>
+
+  <SelectCommonResponseModal ref="selectCommonResponseModalRef" @ok="handleCommonResponseSelectFinish" />
 </template>
 
 <script setup lang="ts">
-import { HttpDocument } from '@/typings'
 import { Definition } from './APIEditor/types'
 import ResponseForm from './ResponseForm.vue'
-import { getResponseStatusCodeBgColor } from '@/commons'
-import { useNodeAttrs, HTTP_RESPONSE_NODE_KEY } from '@/hooks/useNodeAttrs'
+import { RefPrefixKeys, getResponseStatusCodeBgColor } from '@/commons'
 import { uuid } from '@apicat/shared'
 import { createResponseDefaultContent } from '@/views/document/components/createHttpDocument'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
+import SelectCommonResponseModal from '@/views/document/components/SelectCommonResponseModal.vue'
+import { ElMessage } from 'element-plus'
+import { isEmpty, debounce } from 'lodash-es'
 
-const props = defineProps<{ modelValue: HttpDocument; definitions?: Definition[] }>()
-const nodeAttrs = useNodeAttrs(props, HTTP_RESPONSE_NODE_KEY)
+const emits = defineEmits(['update:data'])
+const props = defineProps<{ data: Array<any>; definitions?: Definition[] }>()
 
-const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop({
-  onDrop: (dragIndex: number, dropIndex: number) => {
-    const dragItem = nodeAttrs.value.list[dragIndex]
-    nodeAttrs.value.list.splice(dragIndex, 1)
-    nodeAttrs.value.list.splice(dropIndex, 0, dragItem)
-  },
-})
-
-const model = computed(() => {
-  nodeAttrs.value.list = nodeAttrs.value.list.map((item: any) => ({ ...item, id: item.id || uuid() }))
-  return nodeAttrs.value.list
-})
-
-const editableTabsValue = ref()
-
-const isShow = computed(() => model.value.length > 0)
-
-const disabled = computed(() => model.value.length <= 1)
-
-const createResponse = () => {
+const createResponse = (item?: any) => {
   return {
-    id: uuid(),
+    _id: uuid(),
+    _isCommonResponse: false,
+    name: 'Response Name',
     code: 200,
     description: 'success',
     content: createResponseDefaultContent(),
+    ...item,
   }
 }
 
-const activeLastTab = () => {
+const createCommonRefResponse = (name: string) => ({ $ref: `${RefPrefixKeys.CommonResponse.key}${name}`, _id: uuid(), _isCommonResponse: true, _refName: name })
+
+const model: any = ref(
+  (props.data || []).map((item: any) => {
+    const newItem = { ...item, _id: uuid(), name: item.name || 'Response Name' }
+    newItem._isCommonResponse = false
+    if (newItem.$ref && newItem.$ref.startsWith(RefPrefixKeys.CommonResponse.key)) {
+      newItem._isCommonResponse = true
+      newItem._refName = newItem.$ref.match(RefPrefixKeys.CommonResponse.reg)?.[1]
+    }
+    return newItem
+  })
+)
+
+const commonResponseCount = computed(() => model.value.filter((item: any) => item._isCommonResponse).length)
+
+const selectCommonResponseModalRef = ref<InstanceType<typeof SelectCommonResponseModal>>()
+const editableTabsValue = ref(unref(model).length ? unref(model)[0]._id : null)
+const isShow = computed(() => model.value.length > 0)
+const disabled = computed(() => model.value.filter((item: any) => !item._isCommonResponse).length <= 1)
+
+const activeLastTab = (_id?: string) => {
   const len = model.value.length
   const res = model.value[len - 1]
-  editableTabsValue.value = res.id
+  editableTabsValue.value = _id || res._id
 }
 
 const handleAddTab = () => {
@@ -74,23 +100,82 @@ const handleAddTab = () => {
   activeLastTab()
 }
 
-const handleRemoveTab = (id: any) => {
-  const index = model.value.findIndex((item: any) => item.id === id)
-  nodeAttrs.value.list.splice(index, 1)
-  if (id === editableTabsValue.value) {
+const handleRemoveTab = (_id: any) => {
+  const index = model.value.findIndex((item: any) => item._id === _id)
+  model.value.splice(index, 1)
+  if (_id === editableTabsValue.value) {
     activeLastTab()
   }
 }
 
-watch(nodeAttrs, () => {
-  editableTabsValue.value = model.value[0].id
+const onShowCommonResponseModal = () => {
+  const names = model.value.filter((item: any) => item._isCommonResponse).map((item: any) => parseInt(item._refName, 10))
+  selectCommonResponseModalRef.value?.show(names)
+}
+
+const handleCommonResponseSelectFinish = (selectedIds: string[]) => {
+  model.value = model.value.filter((item: any) => !item._isCommonResponse)
+  selectedIds.forEach((id) => {
+    model.value.push(createCommonRefResponse(id))
+  })
+}
+
+const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop({
+  onDrop: (dragIndex: number, dropIndex: number) => {
+    const dragItem = model.value[dragIndex]
+    model.value.splice(dragIndex, 1)
+    model.value.splice(dropIndex, 0, dragItem)
+  },
 })
+
+const validResponseName = () => {
+  let len = model.value.length
+  for (let i = 0; i < len; i++) {
+    const item = model.value[i]
+    if (isEmpty(item.name) && !item._isCommonResponse) {
+      ElMessage.error('响应名称不能为空')
+      // activeLastTab(model.value[i]._id)
+      return false
+    }
+  }
+  return true
+}
+
+// v-model
+watch(
+  model,
+  debounce(() => {
+    if (validResponseName()) {
+      const normalResponse: any = []
+      const commonResponse: any = []
+
+      model.value.forEach(({ _id, _isCommonResponse, _refName, ...other }: any) => {
+        if (_isCommonResponse) {
+          commonResponse.push(toRaw(other))
+        } else {
+          normalResponse.push(toRaw(other))
+        }
+      })
+      emits('update:data', [...normalResponse, ...commonResponse])
+    }
+  }, 300),
+  { deep: true }
+)
 </script>
 <style lang="scss">
 .ac-response-editor {
   .el-tabs__item .is-icon-close {
     margin-top: 13px;
     padding-bottom: 1px;
+  }
+
+  .el-tabs__new-tab {
+    width: 40px;
+  }
+
+  .el-tabs--top .el-tabs__item.is-top:last-child {
+    color: inherit;
+    cursor: pointer;
   }
 }
 </style>

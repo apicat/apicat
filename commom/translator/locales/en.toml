@@ -24,6 +24,8 @@
         other = "Definition not found"
     [Definitions.NameExists]
         other = "Definition name exists"
+    [Definitions.InUse]
+        other = "Model is already in use, please dereference and try again"
 [Servers]
     [Servers.SetSuccess]
         other = "URL set successfully"
@@ -51,3 +53,14 @@
 [Trashs]
     [Trashs.PartialRecoveryFailed]
         other = "Partial recovery failed"
+[GlobalParameters]
+    [GlobalParameters.NotFound]
+        other = "Global parameters not found"
+    [GlobalParameters.NameExists]
+        other = "Global parameters name exists"
+[AI]
+    [AI.CollectionCreateFail]
+        other = "API create failed, please try again later."
+[CommonResponses]
+    [CommonResponses.NameExists]
+        other = "Definitions responses name exists"

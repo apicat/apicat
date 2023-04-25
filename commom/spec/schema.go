@@ -7,11 +7,15 @@ type Schema struct {
 	Description string             `json:"description,omitempty"`
 	Required    bool               `json:"required,omitempty"`
 	Schema      *jsonschema.Schema `json:"schema,omitempty"`
+	Reference   *string            `json:"$ref,omitempty"`
 }
 
 type Schemas []*Schema
 
 func (s *Schemas) Lookup(name string) *Schema {
+	if s == nil {
+		return nil
+	}
 	for _, v := range *s {
 		if name == v.Name {
 			return v
