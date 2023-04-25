@@ -9,17 +9,7 @@
         </template>
         <SimpleParameterEditor v-model="headers">
           <template #before>
-            <tr v-for="item in globalHeaders" :key="item.id">
-              <td></td>
-              <td class="px-12px">{{ item.name }}</td>
-              <td class="px-12px">{{ item.schema.type }}</td>
-              <td class="text-center">{{ item.required }}</td>
-              <td class="px-12px">{{ item.schema.example }}</td>
-              <td class="px-12px">{{ item.schema.description }}</td>
-              <td class="text-center">
-                <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalHeader(item.id, v)" />
-              </td>
-            </tr>
+            <GlobalParameter :data="globalHeaders" :onSwitch="switchGlobalHeader" />
           </template>
         </SimpleParameterEditor>
       </el-tab-pane>
@@ -31,17 +21,7 @@
         </template>
         <SimpleParameterEditor v-model="cookies">
           <template #before>
-            <tr v-for="item in globalCookies" :key="item.id">
-              <td></td>
-              <td class="px-12px">{{ item.name }}</td>
-              <td class="px-12px">{{ item.schema.type }}</td>
-              <td class="text-center">{{ item.required }}</td>
-              <td class="px-12px">{{ item.schema.example }}</td>
-              <td class="px-12px">{{ item.schema.description }}</td>
-              <td class="text-center">
-                <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalCookie(item.id, v)" />
-              </td>
-            </tr>
+            <GlobalParameter :data="globalCookies" :onSwitch="switchGlobalCookie" />
           </template>
         </SimpleParameterEditor>
       </el-tab-pane>
@@ -53,17 +33,7 @@
         </template>
         <SimpleParameterEditor v-model="queries">
           <template #before>
-            <tr v-for="item in globalQueries" :key="item.id">
-              <td></td>
-              <td class="px-12px">{{ item.name }}</td>
-              <td class="px-12px">{{ item.schema.type }}</td>
-              <td class="text-center">{{ item.required }}</td>
-              <td class="px-12px">{{ item.schema.example }}</td>
-              <td class="px-12px">{{ item.schema.description }}</td>
-              <td class="text-center">
-                <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalQuery(item.id, v)" />
-              </td>
-            </tr>
+            <GlobalParameter :data="globalQueries" :onSwitch="switchGlobalQuery" />
           </template>
         </SimpleParameterEditor>
       </el-tab-pane>
@@ -117,17 +87,7 @@
         </template>
         <SimpleParameterEditor v-model="paths">
           <template #before>
-            <tr v-for="item in globalPaths" :key="item.id">
-              <td></td>
-              <td class="px-12px">{{ item.name }}</td>
-              <td class="px-12px">{{ item.schema.type }}</td>
-              <td class="text-center">{{ item.required }}</td>
-              <td class="px-12px">{{ item.schema.example }}</td>
-              <td class="px-12px">{{ item.schema.description }}</td>
-              <td class="text-center">
-                <el-switch :model-value="item.isUse" size="small" @change="(v) => switchGlobalPath(item.id, v)" />
-              </td>
-            </tr>
+            <GlobalParameter :data="globalPaths" :onSwitch="switchGlobalPath" />
           </template>
         </SimpleParameterEditor>
       </el-tab-pane>
@@ -143,6 +103,7 @@ import { HttpDocument } from '@/typings'
 import { useParameter } from './useParameter'
 import { useContentType } from './useContentType'
 import { Definition } from '../APIEditor/types'
+import GlobalParameter from './GlobalParameter.vue'
 
 const props = defineProps<{ modelValue: HttpDocument; definitions?: Definition[] }>()
 
