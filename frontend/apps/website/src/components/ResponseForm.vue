@@ -2,7 +2,7 @@
   <el-space direction="vertical" fill warp class="w-full">
     <el-form :inline="true">
       <el-form-item label="名称">
-        <el-input v-model="model.name" v-input-limit />
+        <el-input v-model="model.name" maxlength="50" />
       </el-form-item>
 
       <el-form-item label="状态码">
@@ -11,7 +11,7 @@
         </el-select>
       </el-form-item>
       <el-form-item label="描述">
-        <el-input v-model="model.description" />
+        <el-input v-model="model.description" maxlength="300" />
       </el-form-item>
       <el-form-item>
         <el-checkbox :checked="model.header ? true : false" @change="toggleHeader">header</el-checkbox>

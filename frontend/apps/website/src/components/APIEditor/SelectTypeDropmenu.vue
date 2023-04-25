@@ -18,7 +18,7 @@
         <el-radio-group v-model="refName" @change="changeSchemaTypeRef">
           <el-tree :data="treeData" check-on-click-node class="typeSelect" style="width: 100%; max-height: 300px; overflow-y: scroll">
             <template #default="{ data }">
-              <span v-if="data.isDir" style="margin-left: -4px">
+              <span v-if="data.isDir" class="-ml-4px">
                 <el-space align-items="center" :size="4">
                   <el-icon :size="20">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16">
@@ -33,7 +33,7 @@
                   <span>{{ data.label }}</span>
                 </el-space>
               </span>
-              <el-radio class="flex-1" :label="data.label" v-else style="margin-left: -1px; --el-radio-font-weight: 400">
+              <el-radio class="flex-1" :label="data.key" v-else style="margin-left: -1px; --el-radio-font-weight: 400">
                 {{ data.label }}
               </el-radio>
             </template>
@@ -59,8 +59,9 @@
 
 <script setup lang="ts">
 import { computed, inject, ref, watchEffect } from 'vue'
-import type { Tree, APICatSchemaObject, Definition } from './types'
+import type { Tree, Definition } from './types'
 import { basicTypes } from './types'
+import { RefPrefixKeys } from '@/commons'
 const props = defineProps<{
   data: Tree
   showRef: boolean
@@ -76,6 +77,7 @@ interface treeNode {
 }
 
 const DefSchemas = inject('definitions') as () => Definition[]
+
 function listToTree(parentId: number): treeNode[] {
   const tree: treeNode[] = []
   DefSchemas()
@@ -118,7 +120,7 @@ function resetObject(v: Object) {
 
 const refName = ref()
 watchEffect(() => {
-  refName.value = props.data.refObj?.name
+  refName.value = props.data.refObj?.id
 })
 const openRefMode = () => {
   emits('showRef', true)
@@ -129,7 +131,7 @@ const changeSchemaTypeRef = (r: any) => {
   }
   const sc = props.data.schema
   resetObject(sc)
-  sc.$ref = `#/definitions/${r}`
+  sc.$ref = `${RefPrefixKeys.DefinitionsSchema.key}${r}`
   emits('change')
 }
 

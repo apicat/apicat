@@ -104,7 +104,7 @@ export const useSchemaPopoverMenu = (
   const onCreateSchemaMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
     const tree = unref(treeIns)
-    const newDefinition: any = createDefaultDefinition({ name: '未命名模型' })
+    const newDefinition: any = createDefaultDefinition({ name: 'Unnamed' })
 
     try {
       NProgress.start()
