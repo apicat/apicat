@@ -25,7 +25,7 @@ func TrashsList(ctx *gin.Context) {
 	collections, err := collection.TrashList()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Trashs.QueryFailed"}),
 		})
 	}
 

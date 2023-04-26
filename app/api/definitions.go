@@ -68,7 +68,7 @@ func DefinitionsList(ctx *gin.Context) {
 	definitions, err := definition.List()
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
 		})
 		return
 	}
@@ -78,7 +78,7 @@ func DefinitionsList(ctx *gin.Context) {
 		schema := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(d.Schema), &schema); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": err.Error(),
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 			})
 			return
 		}
@@ -108,7 +108,7 @@ func DefinitionsCreate(ctx *gin.Context) {
 	schemaJson, err := json.Marshal(data.Schema)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -120,13 +120,13 @@ func DefinitionsCreate(ctx *gin.Context) {
 	definitions, err := definition.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
 		})
 		return
 	}
 	if len(definitions) > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NameExists"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -186,7 +186,7 @@ func DefinitionsUpdate(ctx *gin.Context) {
 	schemaJson, err := json.Marshal(data.Schema)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -196,14 +196,14 @@ func DefinitionsUpdate(ctx *gin.Context) {
 	definitions, err := definition.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
 		})
 		return
 	}
 
 	if len(definitions) > 0 && definitions[0].ID != definition.ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NameExists"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -248,7 +248,7 @@ func DefinitionsDelete(ctx *gin.Context) {
 	collectionList, err := collections.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
 		})
 		return
 	}
@@ -267,7 +267,7 @@ func DefinitionsDelete(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
 		})
 		return
 	}
@@ -285,7 +285,7 @@ func DefinitionsDelete(ctx *gin.Context) {
 	commonResponsesList, err := commonResponses.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
 		})
 		return
 	}
@@ -329,7 +329,7 @@ func DefinitionsGet(ctx *gin.Context) {
 	schema := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(definition.Schema), &schema); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}

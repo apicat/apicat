@@ -12,6 +12,8 @@
     [Projects.NotFound]
         other = "项目不存在"
 [Definitions]
+    [Definitions.QueryFailed]
+        other = "模型查询失败"
     [Definitions.CreateFail]
         other = "模型创建失败"
     [Definitions.UpdateFail]
@@ -29,6 +31,10 @@
 [Servers]
     [Servers.SetSuccess]
         other = "URL设置成功"
+    [Servers.SetFailed]
+        other = "URL设置失败"
+    [Servers.GetFailed]
+        other = "URL获取失败"
 [Parameters]
     [Parameters.SetSuccess]
         other = "公共参数设置成功"
@@ -53,14 +59,50 @@
 [Trashs]
     [Trashs.PartialRecoveryFailed]
         other = "部分恢复失败"
+    [Trashs.QueryFailed]
+        other = "查询失败"
 [GlobalParameters]
     [GlobalParameters.NotFound]
         other = "全局参数不存在"
     [GlobalParameters.NameExists]
         other = "全局参数名称存在"
+    [GlobalParameters.QueryFailed]
+        other = "全局参数查询失败"
+    [GlobalParameters.CreateFailed]
+        other = "全局参数创建失败"
+    [GlobalParameters.UpdateFailed]
+        other = "全局参数编辑失败"
+    [GlobalParameters.DeleteFailed]
+        other = "全局参数删除失败"
 [AI]
     [AI.CollectionCreateFail]
         other = "接口创建失败，请稍后重试。"
 [CommonResponses]
     [CommonResponses.NameExists]
         other = "公共响应名称存在"
+    [CommonResponses.NotFound]
+        other = "公共响应不存在"
+    [CommonResponses.QueryFailed]
+        other = "公共响应查询失败"
+    [CommonResponses.CreateFailed]
+        other = "公共响应创建失败"
+    [CommonResponses.UpdateFailed]
+        other = "公共响应编辑失败"
+    [CommonResponses.DeleteFailed]
+        other = "公共响应删除失败"
+[Common]
+    [Common.ContentParsingFailed]
+        other = "内容解析失败"
+    [Common.NameExists]
+        other = "名称已存在"
+    [Common.TypeDoesNotExist]
+        other = "类型不存在"
+[Collections]
+    [Collections.QueryFailed]
+        other = "集合查询失败"
+    [Collections.CreateFailed]
+        other = "集合创建失败"
+    [Collections.UpdateFailed]
+        other = "集合编辑失败"
+    [Collections.DeleteFailed]
+        other = "集合删除失败"

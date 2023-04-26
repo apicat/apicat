@@ -29,6 +29,10 @@
 [Servers]
     [Servers.SetSuccess]
         other = "URL set successfully"
+    [Servers.SetFailed]
+        other = "URL set failed"
+    [Servers.GetFailed]
+        other = "URL get failed""
 [Parameters]
     [Parameters.SetSuccess]
         other = "Public parameter set successfully"
@@ -53,14 +57,50 @@
 [Trashs]
     [Trashs.PartialRecoveryFailed]
         other = "Partial recovery failed"
+    [Trashs.QueryFailed]
+        other = "Query failed"
 [GlobalParameters]
     [GlobalParameters.NotFound]
         other = "Global parameters not found"
     [GlobalParameters.NameExists]
         other = "Global parameters name exists"
+    [GlobalParameters.QueryFailed]
+        other = "Global parameters query failed"
+    [GlobalParameters.CreateFailed]
+        other = "Global parameters create failed"
+    [GlobalParameters.UpdateFailed]
+        other = "Global parameters update failed"
+    [GlobalParameters.DeleteFailed]
+        other = "Global parameters delete failed"
 [AI]
     [AI.CollectionCreateFail]
         other = "API create failed, please try again later."
 [CommonResponses]
     [CommonResponses.NameExists]
         other = "Definitions responses name exists"
+    [CommonResponses.NotFound]
+        other = "Definitions responses not found"
+    [CommonResponses.QueryFailed]
+        other = "Definitions responses query failed"
+    [CommonResponses.CreateFailed]
+        other = "Definitions responses create failed"
+    [CommonResponses.UpdateFailed]
+        other = "Definitions responses update failed"
+    [CommonResponses.DeleteFailed]
+        other = "Definitions responses delete failed"
+[Common]
+    [Common.ContentParsingFailed]
+        other = "Content parsing failed"
+    [Common.NameExists]
+        other = "Name exists"
+    [Common.TypeDoesNotExist]
+        other = "Type does not exist"
+[Collections]
+    [Collections.QueryFailed]
+        other = "Collection query failed"
+    [Collections.CreateFailed]
+        other = "Collection create failed"
+    [Collections.UpdateFailed]
+        other = "Collection update failed"
+    [Collections.DeleteFailed]
+        other = "Collection delete failed"

@@ -27,7 +27,7 @@ func (cr *CommonResponsesID) CheckCommonResponses(ctx *gin.Context) (*models.Com
 	commonResponses, err := models.NewCommonResponses(cr.CommonResponsesID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": "response not found",
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err
 	}
@@ -53,7 +53,7 @@ func CommonResponsesList(ctx *gin.Context) {
 	commonResponsesList, err := commonResponses.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.QueryFailed"}),
 		})
 		return
 	}
@@ -63,7 +63,7 @@ func CommonResponsesList(ctx *gin.Context) {
 		header := []*spec.Schema{}
 		if err := json.Unmarshal([]byte(v.Header), &header); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": err.Error(),
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 			})
 			return
 		}
@@ -71,7 +71,7 @@ func CommonResponsesList(ctx *gin.Context) {
 		content := map[string]spec.Schema{}
 		if err := json.Unmarshal([]byte(v.Content), &content); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": err.Error(),
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 			})
 			return
 		}
@@ -98,7 +98,7 @@ func CommonResponsesDetail(ctx *gin.Context) {
 	header := []*spec.Schema{}
 	if err := json.Unmarshal([]byte(commonResponses.Header), &header); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -106,7 +106,7 @@ func CommonResponsesDetail(ctx *gin.Context) {
 	content := map[string]spec.Schema{}
 	if err := json.Unmarshal([]byte(commonResponses.Content), &content); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -140,13 +140,13 @@ func CommonResponsesCreate(ctx *gin.Context) {
 	count, err := commonResponses.GetCountByName()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.QueryFailed"}),
 		})
 		return
 	}
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.NameExists"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -162,7 +162,7 @@ func CommonResponsesCreate(ctx *gin.Context) {
 	header, err := json.Marshal(responseHeader)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -171,7 +171,7 @@ func CommonResponsesCreate(ctx *gin.Context) {
 	content, err := json.Marshal(data.Content)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -179,7 +179,7 @@ func CommonResponsesCreate(ctx *gin.Context) {
 
 	if err := commonResponses.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.CreateFailed"}),
 		})
 		return
 	}
@@ -206,9 +206,6 @@ func CommonResponsesUpdate(ctx *gin.Context) {
 	cr := CommonResponsesID{}
 	commonResponses, err := cr.CheckCommonResponses(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
 		return
 	}
 
@@ -216,13 +213,13 @@ func CommonResponsesUpdate(ctx *gin.Context) {
 	count, err := commonResponses.GetCountExcludeTheID()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.QueryFailed"}),
 		})
 		return
 	}
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.NameExists"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -233,7 +230,7 @@ func CommonResponsesUpdate(ctx *gin.Context) {
 	header, err := json.Marshal(data.Header)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -242,7 +239,7 @@ func CommonResponsesUpdate(ctx *gin.Context) {
 	content, err := json.Marshal(data.Content)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -250,7 +247,7 @@ func CommonResponsesUpdate(ctx *gin.Context) {
 
 	if err := commonResponses.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.UpdateFailed"}),
 		})
 		return
 	}
@@ -265,23 +262,20 @@ func CommonResponsesDelete(ctx *gin.Context) {
 	cr := CommonResponsesID{}
 	commonResponses, err := cr.CheckCommonResponses(ctx)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
 		return
 	}
 
 	header := []*spec.Schema{}
 	if err := json.Unmarshal([]byte(commonResponses.Header), &header); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
 	content := map[string]spec.Schema{}
 	if err := json.Unmarshal([]byte(commonResponses.Content), &content); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -299,7 +293,7 @@ func CommonResponsesDelete(ctx *gin.Context) {
 	collectionList, err := collections.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.QueryFailed"}),
 		})
 		return
 	}
@@ -308,7 +302,7 @@ func CommonResponsesDelete(ctx *gin.Context) {
 	responseDetailJson, err := json.Marshal(responseDetail)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -320,7 +314,7 @@ func CommonResponsesDelete(ctx *gin.Context) {
 				collection.Content = newContent
 				if err := collection.Update(); err != nil {
 					ctx.JSON(http.StatusBadRequest, gin.H{
-						"message": err.Error(),
+						"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.UpdateFailed"}),
 					})
 					return
 				}
@@ -330,7 +324,7 @@ func CommonResponsesDelete(ctx *gin.Context) {
 
 	if err := commonResponses.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.DeleteFailed"}),
 		})
 		return
 	}
