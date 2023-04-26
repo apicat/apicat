@@ -10,6 +10,16 @@ ApiCat 目前还在早期阶段，欢迎 Star 和 Watch 来关注项目的最新
 
 ## 功能特性
 
+### 功能演示
+
+![AI-generate-schema](https://cdn.apicat.net/uploads/0c3518c1bfc421fc4f3f86c085f353d2.gif)
+
+![AI-generate-api-by-schema](https://cdn.apicat.net/uploads/bbcae83511d797d22077d05d17c262cc.gif)
+
+![AI-generate-api](https://cdn.apicat.net/uploads/cf617b56fa186960c228c79487cf6c5e.gif)
+
+### 功能描述
+
 - 支持 OpenAPI 和 Swagger 的数据文件导入和导出，方便开发人员进行 API 规范描述和管理。
 - 通过 AI 技术，可以自动识别 API 的需求和结构，生成相应的 API 文档和代码等内容，提高开发效率和质量。
 
@@ -39,10 +49,14 @@ go mod tidy
 go build
 
 # 修改配置文件
-vim ./setting.example.yaml
+# 你可以复制 config/setting.default.yaml 的配置文件内容进行配置修改
+cp ./config/setting.default.yaml ./
+vim ./setting.default.yaml
 
-# 启动服务
+# 启动服务(默认配置)
 ./apicat
+# 启动服务(自定义配置)
+./apicat -c setting.default.yaml
 ```
 
 ## 交流
