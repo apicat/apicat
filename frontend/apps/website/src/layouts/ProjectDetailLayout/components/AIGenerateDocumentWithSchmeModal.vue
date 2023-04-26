@@ -88,12 +88,11 @@ const handleCreate = async (selectedRows: Array<any>) => {
     return
   }
 
+  isStartCreate.value = true
+
   const parent_id = await createCategory(selectedRows[0].schema)
   selectedRows.sort((a, b) => a.sort - b.sort)
-
   const len = selectedRows.length
-
-  isStartCreate.value = true
 
   for (let i = 0; i < len; i++) {
     // 隐藏modal
