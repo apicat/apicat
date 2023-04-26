@@ -10,6 +10,16 @@ ApiCat is still in its early stages, Star and Watch are welcome to follow the la
 
 ## Features
 
+### Demo
+
+![AI-generate-schema](https://cdn.apicat.net/uploads/0c3518c1bfc421fc4f3f86c085f353d2.gif)
+
+![AI-generate-api-by-schema](https://cdn.apicat.net/uploads/bbcae83511d797d22077d05d17c262cc.gif)
+
+![AI-generate-api](https://cdn.apicat.net/uploads/cf617b56fa186960c228c79487cf6c5e.gif)
+
+### Overview
+
 - Support OpenAPI and Swagger data file import and export, which is convenient for developers to describe and manage API specifications.
 - Through AI technology, the requirements and structure of the API can be automatically identified, and corresponding API documents and codes can be generated to improve development efficiency and quality.
 
@@ -39,10 +49,14 @@ go mod tidy
 go build
 
 # Modify the configuration file
-vim ./setting.example.yaml
+# You can copy the configuration file content of config/setting.default.yaml for configuration modification
+cp ./config/setting.default.yaml ./
+vim ./setting.default.yaml
 
-# start service
+# start service(default configuration)
 ./apicat
+# start service(custom configuration)
+./apicat -c setting.default.yaml
 ```
 
 ## License
