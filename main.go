@@ -4,6 +4,7 @@ import (
 	"flag"
 
 	"github.com/apicat/apicat/app"
+	"github.com/apicat/apicat/commom/log"
 	"github.com/apicat/apicat/commom/translator"
 	"github.com/apicat/apicat/config"
 	"github.com/apicat/apicat/models"
@@ -16,6 +17,7 @@ func main() {
 
 	config.InitConfig(configFilePath)
 	translator.Init()
+	log.Init()
 	models.Init()
 	app.Run()
 }

@@ -14,6 +14,11 @@ import (
 
 func InitApiRouter(r *gin.Engine) {
 
+	r.Use(
+		middleware.RequestIDLog("/assets/", "/static/"),
+		gin.Recovery(),
+	)
+
 	assets, err := fs.Sub(frontend.FrontDist, "dist/assets")
 	if err != nil {
 		panic(err)

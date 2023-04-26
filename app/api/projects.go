@@ -9,6 +9,7 @@ import (
 	"github.com/apicat/apicat/commom/spec/plugin/openapi"
 	"github.com/apicat/apicat/commom/translator"
 	"github.com/apicat/apicat/models"
+	"golang.org/x/exp/slog"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/shortuuid/v4"
@@ -35,13 +36,16 @@ type ExportProject struct {
 
 func ProjectsList(ctx *gin.Context) {
 	project, _ := models.NewProjects()
-	projects, err := project.List()
+	projects, err := project.List(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
 	}
+
+	slog.InfoCtx(ctx, "这是一条日志")
+	slog.InfoCtx(ctx, "ProjectsList", slog.Int("project_length", len(projects)))
 
 	result := make([]gin.H, 0)
 	for _, p := range projects {
