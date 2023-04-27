@@ -32,7 +32,7 @@
     [Servers.SetFailed]
         other = "URL set failed"
     [Servers.GetFailed]
-        other = "URL get failed""
+        other = "URL get failed"
 [Parameters]
     [Parameters.SetSuccess]
         other = "Public parameter set successfully"
