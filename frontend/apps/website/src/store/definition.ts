@@ -61,9 +61,11 @@ export const useDefinitionStore = defineStore('definition', {
     updateDefinitionStore(definition: any) {
       const { id, name, description, schema } = definition
       const target = this.definitions.find((item: any) => item.id === id)
-      target.name = name
-      target.description = description
-      target.schema = { ...target.schema, ...schema }
+      if (target) {
+        target.name = name
+        target.description = description
+        target.schema = { ...target.schema, ...schema }
+      }
     },
   },
 })
