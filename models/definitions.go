@@ -2,6 +2,8 @@ package models
 
 import (
 	"encoding/json"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/apicat/apicat/commom/spec"
@@ -125,3 +127,27 @@ func DefinitionsImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 // 	}
 // 	return specDefinitions
 // }
+
+func DefinitionsDdereference(d *Definitions) error {
+	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
+
+	definitions, _ := NewDefinitions()
+	definitions.ProjectId = d.ProjectId
+	definitionsList, err := definitions.List()
+	if err != nil {
+		return err
+	}
+
+	for _, definitions := range definitionsList {
+		if strings.Contains(definitions.Schema, ref) {
+			newContent := strings.Replace(definitions.Schema, ref, d.Schema, -1)
+			definitions.Schema = newContent
+
+			if err := definitions.Save(); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}

@@ -195,3 +195,27 @@ func collectionsTree(collections []*Collections, parentCollection *Collections) 
 
 	return collectItems
 }
+
+func CollectionsDdereference(d *Definitions) error {
+	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
+
+	collections, _ := NewCollections()
+	collections.ProjectId = d.ProjectId
+	collectionList, err := collections.List()
+	if err != nil {
+		return err
+	}
+
+	for _, collection := range collectionList {
+		if strings.Contains(collection.Content, ref) {
+			newContent := strings.Replace(collection.Content, ref, d.Schema, -1)
+			collection.Content = newContent
+
+			if err := collection.Update(); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
