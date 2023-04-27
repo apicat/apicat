@@ -44,7 +44,14 @@ const getDetail = async () => {
   }
 
   try {
-    definition.value = await getDefinitionDetailApi({ project_id, def_id: route.params.shcema_id })
+    const data = await getDefinitionDetailApi({ project_id, def_id: route.params.shcema_id })
+    Object.defineProperty(data.schema, '_id', {
+      value: data.id,
+      enumerable: false,
+      configurable: false,
+      writable: false,
+    })
+    definition.value = data
   } catch (error) {
     console.error(error)
   }

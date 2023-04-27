@@ -36,7 +36,7 @@
             <el-button text :type="data.refObj ? 'primary' : undefined" :disabled="isRefChildren(data)">
               <el-space :size="4" v-if="data.refObj">
                 {{ data.refObj.name }}
-                <el-tooltip content="解除绑定" placement="top">
+                <el-tooltip v-if="!data.isSelf" content="解除绑定" placement="top">
                   <el-icon @click.stop.prevent="unlinkRefHandler"><ac-icon-carbon-unlink /></el-icon>
                 </el-tooltip>
               </el-space>
@@ -133,6 +133,7 @@ import { JSONSchema, constNodeType } from './types'
 import type { Tree } from './types'
 import { CheckboxValueType, ElMessage } from 'element-plus'
 import { useNamespace } from '@/hooks'
+import { cloneDeep } from 'lodash-es'
 
 const props = defineProps<{
   level: number
@@ -219,14 +220,17 @@ const resetShowRef = (flag: boolean) => {
 const unlinkRefHandler = () => {
   const d = props.data
   if (d.refObj?.schema) {
-    const s = Object.assign({}, unref(d.refObj.schema))
+    const s = cloneDeep(d.refObj.schema)
+
     if (!s.description) {
       s.description = props.data.schema.description
     }
     if (props.data.label === constNodeType.root) {
       changeNotify(s)
       return
-    } else if (d.parent?.schema.properties) {
+    }
+
+    if (d.parent?.schema.properties) {
       // schema 整体替换的话 需要从上级替换 否则会失去引用
       d.parent.schema.properties[d.label] = s
     }

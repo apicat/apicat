@@ -1,4 +1,5 @@
 import { getDefinitionList, updateDefinition, createDefinition, copyDefinition } from '@/api/definition'
+import { Definition } from '@/components/APIEditor/types'
 import { traverseTree } from '@apicat/shared'
 import { defineStore } from 'pinia'
 
@@ -10,12 +11,19 @@ export const extendDocTreeFeild = (node = {} as any) => {
     isCurrent: false,
   }
 
+  Object.defineProperty(node.schema, '_id', {
+    value: node.id,
+    enumerable: false,
+    writable: false,
+    configurable: false,
+  })
+
   return node
 }
 
 export const useDefinitionStore = defineStore('definition', {
   state: () => ({
-    definitions: [] as Array<any>,
+    definitions: [] as Definition[],
     tempCreateSchemaParentId: undefined as number | undefined,
   }),
   actions: {

@@ -47,7 +47,15 @@ const getDetail = async (defId: string) => {
     return
   }
   hasDocument.value = true
-  definition.value = await getDefinitionDetailApi({ project_id, def_id })
+  const data = await getDefinitionDetailApi({ project_id, def_id })
+
+  Object.defineProperty(data.schema, '_id', {
+    value: data.id,
+    enumerable: false,
+    configurable: false,
+    writable: false,
+  })
+  definition.value = data
 }
 
 watch(

@@ -1,4 +1,5 @@
 export declare interface JSONSchema {
+  _id?: number | string
   type?: string | string[]
   description?: string
   required?: string[]
@@ -56,6 +57,7 @@ export declare interface Tree {
   type: string
   schema: JSONSchema
   refObj?: APICatSchemaObject
+  isSelf?: boolean
   children?: Tree[]
   parent?: Tree
 }
