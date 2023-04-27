@@ -10,7 +10,10 @@ import (
 
 func Run() {
 	gin.SetMode(gin.DebugMode)
-	r := gin.Default()
+
+	r := gin.New()
+	r.ContextWithFallback = true
+
 	router.InitApiRouter(r)
 	r.Run(config.SysConfig.App.Host + ":" + strconv.Itoa(config.SysConfig.App.Port))
 }
