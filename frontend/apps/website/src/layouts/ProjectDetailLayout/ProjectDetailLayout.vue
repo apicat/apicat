@@ -51,7 +51,6 @@ onMounted(async () => {
   // init global data
   await projectStore.getUrlServers(project_id as string)
   await globalParametersStore.getGlobalParameters(project_id as string)
-  await globalParametersStore.getGlobalParameters(project_id as string)
   await commonResponseStore.getCommonResponseList(project_id as string)
 })
 </script>
