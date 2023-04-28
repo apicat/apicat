@@ -25,10 +25,12 @@ import { debounce, isEmpty } from 'lodash-es'
 import useApi from '@/hooks/useApi'
 import { ElMessage } from 'element-plus'
 import uesGlobalParametersStore from '@/store/globalParameters'
+import useDefinitionStore from '@/store/definition'
 
 const { project_id } = useParams()
 const route = useRoute()
 const globalParametersStore = uesGlobalParametersStore()
+const definitionStore = useDefinitionStore()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const [isLoadingForSaveBtn, updateCollectionApiWithLoading] = useApi(updateCollection)()
@@ -71,6 +73,13 @@ const getDetail = async () => {
 globalParametersStore.$onAction(({ name, after }) => {
   // 删除全局参数
   if (name === 'deleteGlobalParameter') {
+    after(() => getDetail())
+  }
+})
+
+definitionStore.$onAction(({ name, after }) => {
+  // 删除全局模型
+  if (name === 'deleteDefinition') {
     after(() => getDetail())
   }
 })

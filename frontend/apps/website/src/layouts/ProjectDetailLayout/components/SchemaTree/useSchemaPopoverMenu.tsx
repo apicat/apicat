@@ -7,7 +7,6 @@ import NProgress from 'nprogress'
 import { Menu } from '@/components/typings'
 import useDefinitionStore from '@/store/definition'
 import { useActiveTree } from './useActiveTree'
-import { deleteDefinition } from '@/api/definition'
 import { useParams } from '@/hooks/useParams'
 import createDefaultDefinition from '@/views/document/components/createDefaultDefinition'
 import { useGoPage } from '@/hooks/useGoPage'
@@ -15,6 +14,7 @@ import AIGenerateSchemaModal from '../AIGenerateSchemaModal.vue'
 import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModal.vue'
 import AcIconBIRobot from '~icons/bi/robot'
 import AcIconCarbonModelAlt from '~icons/carbon/model-alt'
+
 /**
  * 目录弹层菜单逻辑
  * @param treeIns 目录树
@@ -24,6 +24,8 @@ export const useSchemaPopoverMenu = (
   aiPromptModalRef: Ref<InstanceType<typeof AIGenerateSchemaModal>>,
   aiGenerateDocumentWithSchemaModalRef: Ref<InstanceType<typeof AIGenerateDocumentWithSchmeModal>>
 ) => {
+  const directoryTree = inject('directoryTree') as any
+
   const definitionStore = useDefinitionStore()
   const { project_id } = useParams()
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
@@ -58,7 +60,8 @@ export const useSchemaPopoverMenu = (
   }
 
   /**
-   * 删除分类或文档
+   * 删除模型
+   * todo 删除模型后，需要刷新文档详情
    */
   const onDeleteMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
@@ -71,10 +74,11 @@ export const useSchemaPopoverMenu = (
       onOk: async () => {
         NProgress.start()
         try {
-          await deleteDefinition(project_id as string, data.id)
+          await definitionStore.deleteDefinition(project_id as string, data.id)
           tree.remove(node)
           activeNodeInfo.value = null
           reactiveNode()
+          directoryTree.reactiveNode && directoryTree.reactiveNode()
         } catch (error) {
         } finally {
           NProgress.done()

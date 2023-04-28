@@ -1,4 +1,4 @@
-import { getDefinitionList, updateDefinition, createDefinition, copyDefinition } from '@/api/definition'
+import { getDefinitionList, updateDefinition, createDefinition, copyDefinition, deleteDefinition } from '@/api/definition'
 import { Definition } from '@/components/APIEditor/types'
 import { traverseTree } from '@apicat/shared'
 import { defineStore } from 'pinia'
@@ -66,6 +66,10 @@ export const useDefinitionStore = defineStore('definition', {
         target.description = description
         target.schema = { ...target.schema, ...schema }
       }
+    },
+
+    async deleteDefinition(project_id: string, def_id: string | number) {
+      await deleteDefinition(project_id as string, def_id)
     },
   },
 })

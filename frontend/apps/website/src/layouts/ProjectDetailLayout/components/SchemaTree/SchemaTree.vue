@@ -71,11 +71,12 @@ const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopover
   aiGenerateDocumentWithSchmeModalRef as any
 )
 
-const { activeNode } = useActiveTree(treeIns as any)
+const { activeNode,reactiveNode } = useActiveTree(treeIns as any)
 
 defineExpose({
   updateTitle,
   activeNode,
+  reactiveNode,
   redirecToSchemaEdit,
 })
 </script>

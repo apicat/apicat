@@ -24,7 +24,7 @@
       <img class="h-auto w-260px mb-26px" src="@/assets/images/icon-empty.png" alt="" />
     </template>
     <template #title>
-      <div class="m-auto">您当前尚未创建文档，请从左侧目录栏点击添加 API 文档。</div>
+      <div class="m-auto">您当前尚未创建接口，请从左侧目录栏点击添加 API 接口。</div>
     </template>
   </Result>
 </template>
@@ -80,9 +80,17 @@ globalParametersStore.$onAction(({ name, after }) => {
     after(() => getDetail(route.params.doc_id as string))
   }
 })
+
 commonResponseStore.$onAction(({ name, after }) => {
-  // 删除全局参数
+  // 删除全局响应
   if (name === 'updateResponseParam') {
+    after(() => getDetail(route.params.doc_id as string))
+  }
+})
+
+definitionStore.$onAction(({ name, after }) => {
+  // 删除全局模型
+  if (name === 'deleteDefinition') {
     after(() => getDetail(route.params.doc_id as string))
   }
 })

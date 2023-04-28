@@ -60,6 +60,7 @@ import AcTree from '@/components/AcTree'
 import { useDocumentTree } from './useDocumentTree'
 import { useDocumentPopoverMenu, PopoverMoreMenuType } from './useDocumentPopoverMenu'
 import AIGenerateDocumentModal from '../AIGenerateDocumentModal.vue'
+import { useActiveTree } from './useActiveTree'
 
 const {
   treeIns,
@@ -93,10 +94,14 @@ const {
   onRenameInputBlur,
 } = useDocumentPopoverMenu(treeIns as any, aiPromptModalRef as any)
 
+const { activeNode, reactiveNode } = useActiveTree(treeIns as any)
+
 defineExpose({
   updateTitle,
   createNodeByData,
   reload: initDocumentTree,
+  activeNode,
+  reactiveNode,
   redirecToDocumentDetailPage,
 })
 </script>

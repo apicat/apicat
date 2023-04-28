@@ -46,6 +46,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
   const { project_id } = useParams()
   const { goDocumentEditPage } = useGoPage()
+  const schemaTree = inject('schemaTree') as any
 
   const ROOT_MENUS: Menu[] = [
     { text: 'AI生成接口', elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
@@ -118,13 +119,18 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
 
     AsyncMsgBox({
       title: t('app.common.deleteTip'),
-      content: <div class="break-all">确定删除「{data.title}」该项目吗？</div>,
+      content: (
+        <div class="break-all">
+          确定删除「{data.title}」该${isDir ? '分类' : '接口'}吗？
+        </div>
+      ),
       onOk: async () => {
         try {
           NProgress.start()
           await deleteCollection(project_id as string, data.id)
           tree.remove(node)
           reactiveNode()
+          schemaTree.reactiveNode && schemaTree.reactiveNode()
         } finally {
           NProgress.done()
         }
