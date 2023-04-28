@@ -121,7 +121,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
       title: t('app.common.deleteTip'),
       content: (
         <div class="break-all">
-          确定删除「{data.title}」该${isDir ? '分类' : '接口'}吗？
+          确定删除「{data.title}」该{isDir ? '分类' : '接口'}吗？
         </div>
       ),
       onOk: async () => {
