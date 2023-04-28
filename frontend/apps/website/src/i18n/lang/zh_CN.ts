@@ -6,6 +6,7 @@ export default {
     common: {
       add: '添加',
       confirm: '确定',
+      edit: '编辑',
       save: '保存',
       export: '导出',
       import: '导入',

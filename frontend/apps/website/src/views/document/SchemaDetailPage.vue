@@ -5,7 +5,7 @@
     </div>
 
     <div class="ac-header-operate__btns">
-      <el-button type="primary" @click="() => goSchemaEditPage()">编辑</el-button>
+      <el-button type="primary" @click="() => goSchemaEditPage()">{{ $t('app.common.edit') }}</el-button>
     </div>
   </div>
 
@@ -16,7 +16,7 @@
       <img class="h-auto w-260px mb-26px" src="@/assets/images/icon-empty.png" alt="" />
     </template>
     <template #title>
-      <div class="m-auto">您当前尚未创建模型。</div>
+      <div class="m-auto">{{ $t('app.common.emptyDataTip') }}</div>
     </template>
   </Result>
 </template>
