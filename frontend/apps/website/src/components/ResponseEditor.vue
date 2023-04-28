@@ -121,10 +121,14 @@ const handleCommonResponseSelectFinish = (selectedIds: string[]) => {
 }
 
 const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop({
-  onDrop: (dragIndex: number, dropIndex: number) => {
-    const dragItem = model.value[dragIndex]
-    model.value.splice(dragIndex, 1)
-    model.value.splice(dropIndex, 0, dragItem)
+  onDrop: (dragIndex: number, dropIndex: number, offset: number) => {
+    const dropItem = model.value[dropIndex]
+    const dragItemArr = model.value.splice(dragIndex, 1)
+    if (dragItemArr.length) {
+      let i = model.value.indexOf(dropItem)
+      if (offset < 0) i += 1
+      model.value.splice(i < 0 ? 0 : i, 0, dragItemArr[0])
+    }
   },
 })
 

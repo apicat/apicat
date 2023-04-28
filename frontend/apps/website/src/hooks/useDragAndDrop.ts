@@ -4,48 +4,13 @@ export type DragDropOptions = {
   dragClass?: string
   direction?: 'vertical' | 'horizontal'
   onDragStartHandle?: (e?: DragEvent) => { dragElement: HTMLElement } | void
-  onDrop?: (dragIndex: number, dropIndex: number) => void
+  onDrop?: (dragIndex: number, dropIndex: number, flag: number) => void
 }
 
 export const useDragAndDrop = (options?: DragDropOptions) => {
   const { dragClass = 'dragging', direction = 'vertical', onDrop = noop, onDragStartHandle = noop } = options || {}
 
   const DRAG_KEY = `DRAG_AND_DROP_${Date.now()}`
-
-  let dropIndicator: HTMLElement | null = null
-
-  const createDropIndicator = (dragEle: HTMLElement) => {
-    const el = document.getElementById(DRAG_KEY)
-    if ((el && el.dataset.direction === direction) || !dragEle) {
-      return
-    }
-
-    const { top, left } = dragEle.getBoundingClientRect()
-
-    dropIndicator = dropIndicator || document.createElement('div')
-    dropIndicator.id = DRAG_KEY
-    dropIndicator.dataset.direction = direction
-    dropIndicator.style.position = 'absolute'
-    dropIndicator.style.top = top + 'px'
-    dropIndicator.style.left = `${left - 10}px`
-    dropIndicator.style[direction === 'vertical' ? 'width' : 'height'] = '1px'
-    dropIndicator.style[direction === 'vertical' ? 'height' : 'width'] = `${dragEle[direction === 'vertical' ? 'offsetHeight' : 'offsetWidth']}px`
-    dropIndicator.style.border = '1px dashed var(--el-color-primary)'
-
-    document.body.append(dropIndicator)
-  }
-
-  const updateDropIndicatorPosition = (dragEle: HTMLElement) => {
-    if (!dropIndicator || !dragEle) {
-      return
-    }
-
-    const { top, left } = dragEle.getBoundingClientRect()
-    dropIndicator.style.display = 'block'
-    dropIndicator.style.top = top + 'px'
-    dropIndicator.style.left = `${left - 10}px`
-    dropIndicator.style[direction === 'vertical' ? 'height' : 'width'] = `${dragEle[direction === 'vertical' ? 'offsetHeight' : 'offsetWidth']}px`
-  }
 
   const onDragStart = (e: DragEvent, index: string | number) => {
     e.dataTransfer!.dropEffect = 'move'
@@ -55,40 +20,65 @@ export const useDragAndDrop = (options?: DragDropOptions) => {
     e.dataTransfer?.setDragImage(data?.dragElement ?? nodeEle, 0, 0)
     e.dataTransfer?.setData(DRAG_KEY, String(index))
     nodeEle.style.opacity = '0.5'
-    createDropIndicator(nodeEle)
   }
 
   const onDragEnd = (e: DragEvent) => {
     const nodeEle = e.currentTarget as HTMLElement
     nodeEle.classList.remove(dragClass)
     nodeEle.style.opacity = ''
-    dropIndicator && dropIndicator.remove()
   }
 
   const onDragLeave = (e: DragEvent, index: string | number) => {
-    dropIndicator && (dropIndicator.style.display = 'none')
+    const dom = (e.currentTarget as HTMLElement).parentNode as HTMLElement
+    dom.style.borderLeft = ''
+    dom.style.borderRight = ''
   }
 
   const onDragOver = (e: DragEvent, index: string | number) => {
     e.preventDefault()
-    if (dropTest(e)) {
-      updateDropIndicatorPosition(e.currentTarget as HTMLElement)
+    let direction = dropTest(e, index)
+    if (direction === 0) {
+      return
+    }
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'move'
+      const dom = (e.currentTarget as HTMLElement).parentNode as HTMLElement
+      switch (direction) {
+        case -1:
+          dom.style.borderLeft = ''
+          dom.style.borderRight = '1px var(--primary-color) dashed'
+          break
+        case 1:
+          dom.style.borderLeft = '1px var(--primary-color) dashed'
+          dom.style.borderRight = ''
+          break
+      }
     }
   }
 
-  function dropTest(ev: DragEvent) {
-    ev.dataTransfer!.dropEffect = 'move'
-    const dom = ev.currentTarget as HTMLElement
-    if (ev[direction === 'vertical' ? 'offsetX' : 'offsetY'] < dom[direction === 'vertical' ? 'clientWidth' : 'clientHeight'] / 2) {
-      return 1
+  function dropTest(e: DragEvent, index: string | number) {
+    const dragData = parseInt(e.dataTransfer?.getData(DRAG_KEY) as any, 10)
+    if (dragData === index) {
+      return 0
     }
 
-    return 0
+    e.dataTransfer!.dropEffect = 'move'
+    const dom = e.currentTarget as HTMLElement
+    if (e[direction === 'vertical' ? 'offsetX' : 'offsetY'] < dom[direction === 'vertical' ? 'clientWidth' : 'clientHeight'] / 2) {
+      return 1
+    }
+    return -1
   }
 
   const onDropHandler = (e: DragEvent, index: number) => {
+    onDragLeave(e, index)
+    const flag = dropTest(e, index)
+    if (flag === 0) {
+      return
+    }
+
     if (e.dataTransfer?.getData(DRAG_KEY)) {
-      onDrop && onDrop(parseInt(e.dataTransfer?.getData(DRAG_KEY), 10), index)
+      onDrop && onDrop(parseInt(e.dataTransfer?.getData(DRAG_KEY), 10), index, flag)
     }
   }
 
