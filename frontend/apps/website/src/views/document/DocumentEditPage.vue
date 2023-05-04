@@ -3,11 +3,11 @@
     <div class="ac-header-operate__main">
       <p>
         <i class="ac-iconfont"></i>
-        {{ isSaving ? '保存中...' : '已保存在云端' }}
+        {{ isSaving ? $t('app.common.saving') : $t('app.common.savedCloud') }}
       </p>
     </div>
     <div class="ac-header-operate__btns">
-      <el-button type="primary" :loading="isLoadingForSaveBtn" @click="handleSave">预览</el-button>
+      <el-button type="primary" :loading="isLoadingForSaveBtn" @click="handleSave">{{ $t('app.common.preview') }}</el-button>
     </div>
   </div>
   <div v-loading="isLoading" :class="{ 'h-50vh': !httpDoc }">
@@ -26,7 +26,9 @@ import useApi from '@/hooks/useApi'
 import { ElMessage } from 'element-plus'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionStore from '@/store/definition'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const { project_id } = useParams()
 const route = useRoute()
 const globalParametersStore = uesGlobalParametersStore()
@@ -93,7 +95,7 @@ watch(
     }
 
     if (isEmpty(newVal.title)) {
-      ElMessage.error('请输入文档标题')
+      ElMessage.error(t('app.interface.form.title'))
       return
     }
 

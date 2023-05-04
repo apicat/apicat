@@ -1,5 +1,5 @@
 <template>
-  <ToggleHeading title="响应参数" v-if="isShow">
+  <ToggleHeading :title="$t('app.response.title')" v-if="isShow">
     <el-tabs v-model="editableTabsValue">
       <el-tab-pane v-for="item in model" :key="item.id" :name="item.id">
         <template #label>

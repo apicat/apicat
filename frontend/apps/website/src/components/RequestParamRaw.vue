@@ -1,5 +1,5 @@
 <template>
-  <ToggleHeading title="请求参数" v-if="hasHeader || hasCookie || hasQuery || hasPath || hasBody">
+  <ToggleHeading :title="$t('app.request.title')" v-if="hasHeader || hasCookie || hasQuery || hasPath || hasBody">
     <ToggleHeading title="Header" v-if="hasHeader">
       <SimpleParameterEditor :readonly="true" v-model="headers">
         <template #before>
@@ -84,6 +84,9 @@ import { Definition } from './APIEditor/types'
 import { HttpDocument } from '@/typings'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
+
+const { t } = useI18n()
 
 const props = defineProps<{ doc: HttpDocument; definitions: Definition[] }>()
 const request = useNodeAttrs(props, HTTP_REQUEST_NODE_KEY, 'doc')
@@ -98,23 +101,25 @@ const paths = computed(() => request.value.parameters.path || [])
 const globalHeaders = computed(() =>
   globalParameters.value.header
     .filter((param) => !(request.value.globalExcepts.header || []).includes(param.id))
-    .map((param) => ({ ...param, required: param.required ? '是' : '否' }))
+    .map((param) => ({ ...param, required: param.required ? t('app.table.yes') : t('app.table.no') }))
 )
 
 const globalCookies = computed(() =>
   globalParameters.value.cookie
     .filter((param) => !(request.value.globalExcepts.cookie || []).includes(param.id))
-    .map((param) => ({ ...param, required: param.required ? '是' : '否' }))
+    .map((param) => ({ ...param, required: param.required ? t('app.table.yes') : t('app.table.no') }))
 )
 
 const globalQueries = computed(() =>
   globalParameters.value.query
     .filter((param) => !(request.value.globalExcepts.query || []).includes(param.id))
-    .map((param) => ({ ...param, required: param.required ? '是' : '否' }))
+    .map((param) => ({ ...param, required: param.required ? t('app.table.yes') : t('app.table.no') }))
 )
 
 const globalPaths = computed(() =>
-  globalParameters.value.path.filter((param) => !(request.value.globalExcepts.path || []).includes(param.id)).map((param) => ({ ...param, required: param.required ? '是' : '否' }))
+  globalParameters.value.path
+    .filter((param) => !(request.value.globalExcepts.path || []).includes(param.id))
+    .map((param) => ({ ...param, required: param.required ? t('app.table.yes') : t('app.table.no') }))
 )
 
 const hasHeader = computed(() => headers.value.length || globalHeaders.value.length)

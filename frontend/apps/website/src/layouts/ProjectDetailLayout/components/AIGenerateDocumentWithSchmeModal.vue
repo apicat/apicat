@@ -2,14 +2,14 @@
   <el-dialog v-model="dialogVisible" center append-to-body :close-on-click-modal="false" :close-on-press-escape="false" destroy-on-close width="40%">
     <template #header>
       <div class="flex-y-center">
-        <el-icon class="mr-5px"><ac-icon-bi-robot /></el-icon>AI生成接口
+        <el-icon class="mr-5px"><ac-icon-bi-robot /></el-icon>{{ $t('app.interface.common.aiGenerateInterface') }}
       </div>
     </template>
 
     <div v-loading="isLoading">
       <el-table :data="collectList" class="w-full" @selection-change="handleSelectionChange">
         <el-table-column type="selection" width="55" />
-        <el-table-column property="method" label="方式" width="100">
+        <el-table-column property="method" :label="$t('app.interface.table.method')" width="100">
           <template #default="{ row }">
             <div class="flex-y-center">
               <el-icon v-if="row.isLoading || row.isFinish" :class="{ 'animate-spin': row.isLoading }">
@@ -21,10 +21,12 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column property="path" label="路径" show-overflow-tooltip />
-        <el-table-column property="description" label="描述" show-overflow-tooltip />
+        <el-table-column property="path" :label="$t('app.interface.table.path')" show-overflow-tooltip />
+        <el-table-column property="description" :label="$t('app.interface.table.desc')" show-overflow-tooltip />
       </el-table>
-      <el-button class="mt-20px" :disabled="!collectList.length" :loading="isStartCreate" type="primary" @click="handleCreate(multipleSelection)">创建</el-button>
+      <el-button class="mt-20px" :disabled="!collectList.length" :loading="isStartCreate" type="primary" @click="handleCreate(multipleSelection)">{{
+        $t('app.common.create')
+      }}</el-button>
     </div>
   </el-dialog>
 </template>
@@ -36,8 +38,10 @@ import { useParams } from '@/hooks/useParams'
 import { ElMessage } from 'element-plus'
 import { uuid } from '@apicat/shared'
 import { DocumentTypeEnum } from '@/commons'
+import { useI18n } from 'vue-i18n'
 
 const emits = defineEmits(['ok'])
+const { t } = useI18n()
 
 const { dialogVisible, showModel, hideModel } = useModal()
 const [isLoading, createCollectionWithSchemaByAIApi] = useApi(createCollectionWithSchemaByAI)()
@@ -84,7 +88,7 @@ const createCategory = async (schema: any) => {
 
 const handleCreate = async (selectedRows: Array<any>) => {
   if (!selectedRows.length) {
-    ElMessage.error('请选择要创建的接口')
+    ElMessage.error(t('app.interface.tips.unselectedInterface'))
     return
   }
 
@@ -121,7 +125,7 @@ const handleCreate = async (selectedRows: Array<any>) => {
   isStartCreate.value = false
 
   if (selectedRows.every((item) => !item.isSuccess)) {
-    ElMessage.error('所有接口创建失败，请重试')
+    ElMessage.error(t('app.interface.tips.allInterfaceCreateFailure'))
   }
 
   hideModel()

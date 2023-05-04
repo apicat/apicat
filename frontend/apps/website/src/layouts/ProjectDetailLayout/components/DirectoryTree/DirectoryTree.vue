@@ -1,5 +1,5 @@
 <template>
-  <ToggleHeading title="接口">
+  <ToggleHeading :title="$t('app.interface.title')">
     <template #extra>
       <el-icon class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
     </template>

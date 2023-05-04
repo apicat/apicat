@@ -3,11 +3,11 @@
     <div class="ac-header-operate__main">
       <p class="flex-y-center">
         <el-icon :size="18" class="mt-1px mr-4px"><ac-icon-ic-sharp-cloud-queue /></el-icon>
-        {{ isSaving ? '保存中...' : '已保存在云端' }}
+        {{ isSaving ? $t('app.common.saving') : $t('app.common.savedCloud') }}
       </p>
     </div>
     <div class="ac-header-operate__btns">
-      <el-button type="primary" @click="() => goSchemaDetailPage()">预览</el-button>
+      <el-button type="primary" @click="() => goSchemaDetailPage()">{{ $t('app.common.preview') }}</el-button>
     </div>
   </div>
   <SchmaEditor v-loading="isLoading" v-model="definition" :definitions="definitions" />
@@ -23,7 +23,9 @@ import createDefaultDefinition from './components/createDefaultDefinition'
 import { debounce, isEmpty } from 'lodash-es'
 import { useGoPage } from '@/hooks/useGoPage'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const route = useRoute()
 const definitionStore = useDefinitionStore()
 const { definitions } = storeToRefs(definitionStore)
@@ -65,7 +67,7 @@ watch(
     }
 
     if (isEmpty(newVal.name)) {
-      ElMessage.error('请输入模型标题')
+      ElMessage.error(t('app.schema.form.title'))
       return
     }
 

@@ -2,9 +2,11 @@ import { getResponseParam } from '@/api/commonResponse'
 import useCommonResponseStore from '@/store/commonResponse'
 import { ProjectInfo, APICatCommonResponseCustom } from '@/typings'
 import { ElMessage } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 
 export const useResponseParamDetail = ({ id: project_id }: Pick<ProjectInfo, 'id'>) => {
   const commonResponseStore = useCommonResponseStore()
+  const { t } = useI18n()
 
   const handleExpand = async (isExpand: boolean, item: APICatCommonResponseCustom) => {
     if (isExpand && !item.isLoaded) {
@@ -26,7 +28,7 @@ export const useResponseParamDetail = ({ id: project_id }: Pick<ProjectInfo, 'id
     }
 
     if (!detail.name) {
-      ElMessage.error('响应名称不能为空')
+      ElMessage.error(t('app.response.rules.name'))
       return
     }
 

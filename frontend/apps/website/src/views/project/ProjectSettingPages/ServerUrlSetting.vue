@@ -44,8 +44,10 @@ import isURL from 'validator/lib/isURL'
 import { useProjectId } from '@/hooks/useProjectId'
 import uesProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'
+import { useI18n } from 'vue-i18n'
 
 const ns = useNamespace('url-list')
+const { t } = useI18n()
 const project_id = useProjectId()
 const projectStore = uesProjectStore()
 const navFormRef = shallowRef()
@@ -69,7 +71,7 @@ const rules = {
       let field = rule.field.split('.')[2]
       let { url } = (form.urls[index] || {}) as Url
       if ((isEmpty(url) || !isURL(url, { protocols: ['http', 'https'], require_protocol: true })) && field === 'url') {
-        return callback(new Error('请输入有效的链接地址'))
+        return callback(new Error(t('app.serverUrl.rules.invalid')))
       }
       callback()
     },

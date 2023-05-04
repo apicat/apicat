@@ -36,7 +36,7 @@
             <el-button text :type="data.refObj ? 'primary' : undefined" :disabled="isRefChildren(data)">
               <el-space :size="4" v-if="data.refObj">
                 {{ data.refObj.name }}
-                <el-tooltip v-if="!data.isSelf" content="解除绑定" placement="top">
+                <el-tooltip v-if="!data.isSelf" :content="$t('editor.table.removeBinding')" placement="top">
                   <el-icon @click.stop.prevent="unlinkRefHandler"><ac-icon-carbon-unlink /></el-icon>
                 </el-tooltip>
               </el-space>
@@ -68,8 +68,8 @@
         </template>
         <template v-else>
           <span v-if="data.parent?.type === 'object'">
-            <span v-if="isRefChildren(data)">{{ data.parent?.refObj?.schema.required?.includes(data.label) ? '是' : '否' }}</span>
-            <span v-else="isRefChildren(data)">{{ data.parent?.schema.required?.includes(data.label) ? '是' : '否' }}</span>
+            <span v-if="isRefChildren(data)">{{ data.parent?.refObj?.schema.required?.includes(data.label) ? $t('editor.table.yes') : $t('editor.table.no') }}</span>
+            <span v-else="isRefChildren(data)">{{ data.parent?.schema.required?.includes(data.label) ? $t('editor.table.yes') : $t('editor.table.no') }}</span>
           </span>
         </template>
       </div>
@@ -78,7 +78,7 @@
         <template v-if="!readonly">
           <EditorInput
             v-if="['number', 'integer', 'boolean', 'string'].includes(data.type)"
-            placeholder="示例值"
+            :placeholder="$t('editor.table.paramExample')"
             :value="data.schema.example"
             :disabled="isRefChildren(data)"
             @change="(v) => changeSchemaField('example', v)"
@@ -91,7 +91,12 @@
 
       <div :class="[ns.e('item'), ns.e('description')]">
         <template v-if="!readonly">
-          <EditorInput placeholder="描述" :value="data.schema.description" :disabled="isRefChildren(data)" @change="(v) => changeSchemaField('description', v)" />
+          <EditorInput
+            :placeholder="$t('editor.table.paramDesc')"
+            :value="data.schema.description"
+            :disabled="isRefChildren(data)"
+            @change="(v) => changeSchemaField('description', v)"
+          />
         </template>
         <template v-else>
           <span class="copy_text">{{ data.schema.description }}</span>
@@ -100,13 +105,13 @@
 
       <div :class="[ns.e('item'), ns.e('operation')]" v-if="!readonly">
         <el-button-group size="small">
-          <el-tooltip content="添加子节点" placement="top" :show-after="368" v-if="data.type === 'object' && !isRefChildren(data) && !data.refObj">
+          <el-tooltip :content="$t('editor.table.addNode')" placement="top" :show-after="368" v-if="data.type === 'object' && !isRefChildren(data) && !data.refObj">
             <el-button text circle @click="addChildHandler">
               <el-icon :size="14"><ac-icon-ic-outline-add-circle /></el-icon>
             </el-button>
           </el-tooltip>
 
-          <el-popconfirm title="delete this?" v-if="!isConstNode(data.label) && !isRefChildren(data)" @confirm="delHandler">
+          <el-popconfirm :title="$t('editor.common.tips.delete')" v-if="!isConstNode(data.label) && !isRefChildren(data)" @confirm="delHandler">
             <template #reference>
               <el-button text circle>
                 <el-icon :size="14"><ac-icon-ep-delete /></el-icon>
@@ -126,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, inject, nextTick, onMounted, ref, shallowRef, unref } from 'vue'
+import { computed, inject, nextTick, onMounted, ref, shallowRef } from 'vue'
 import SelectTypeDropmenu from './SelectTypeDropmenu.vue'
 import EditorInput from './EditorInput.vue'
 import { JSONSchema, constNodeType } from './types'

@@ -1,5 +1,5 @@
 <template>
-  <ToggleHeading title="模型">
+  <ToggleHeading :title="$t('app.schema.title')">
     <template #extra>
       <el-icon class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
     </template>
@@ -71,7 +71,7 @@ const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopover
   aiGenerateDocumentWithSchmeModalRef as any
 )
 
-const { activeNode,reactiveNode } = useActiveTree(treeIns as any)
+const { activeNode, reactiveNode } = useActiveTree(treeIns as any)
 
 defineExpose({
   updateTitle,

@@ -1,13 +1,21 @@
 <template>
-  <el-dialog v-model="dialogVisible" append-to-body :close-on-click-modal="false" :close-on-press-escape="false" destroy-on-close title="公共响应" width="40%">
-    <el-input v-model="search" placeholder="响应名称" />
+  <el-dialog
+    v-model="dialogVisible"
+    append-to-body
+    :close-on-click-modal="false"
+    :close-on-press-escape="false"
+    destroy-on-close
+    :title="$t('app.publicResponse.title')"
+    width="40%"
+  >
+    <el-input v-model="search" :placeholder="$t('app.response.fullname')" />
     <el-table ref="multipleTableRef" :data="filterResponse" class="w-full" @selection-change="handleSelectionChange">
       <el-table-column type="selection" width="55" />
-      <el-table-column property="name" label="名称" />
-      <el-table-column property="code" label="状态码" width="120" />
-      <el-table-column property="description" label="描述" show-overflow-tooltip />
+      <el-table-column property="name" :label="$t('app.response.table.name')" />
+      <el-table-column property="code" :label="$t('app.response.table.code')" width="120" />
+      <el-table-column property="description" :label="$t('app.response.table.desc')" show-overflow-tooltip />
     </el-table>
-    <el-button type="primary" class="mt-20px" @click="handelConfrim">确定</el-button>
+    <el-button type="primary" class="mt-20px" @click="handelConfrim">{{ $t('app.common.confirm') }}</el-button>
   </el-dialog>
 </template>
 <script setup lang="ts">

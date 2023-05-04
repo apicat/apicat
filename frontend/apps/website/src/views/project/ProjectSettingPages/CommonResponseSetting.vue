@@ -1,7 +1,7 @@
 <template>
   <div v-loading="isLoading">
     <el-button link type="primary" @click="handleAddParam">
-      <el-icon><ac-icon-ep-plus /></el-icon>添加
+      <el-icon><ac-icon-ep-plus /></el-icon>{{ $t('app.common.add') }}
     </el-button>
 
     <div v-for="(param, index) in responseParamList" class="mt-15px" :key="param.id">
@@ -13,7 +13,7 @@
         v-loading="param.isLoading"
       >
         <template #extra>
-          <el-popconfirm width="auto" :title="$t('app.table.deleteResponseConfirm')" @confirm="handleDeleteParam(param, index)">
+          <el-popconfirm width="auto" :title="$t('app.response.tips.confirmDelete')" @confirm="handleDeleteParam(param, index)">
             <template #reference>
               <el-icon class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
             </template>

@@ -1,6 +1,7 @@
 import { ElMessage } from 'element-plus'
 import { APICatSchemaObjectCustom } from './types'
 import { debounce } from 'lodash-es'
+import { useI18n } from 'vue-i18n'
 
 export const useSchemaList = (
   props: any,
@@ -9,6 +10,7 @@ export const useSchemaList = (
   onChangeParamNameSuccess?: (oldName: string, newName: string) => void
 ) => {
   const { onCreate, onDelete, onChange } = props
+  const { t } = useI18n()
 
   const newname = ref('')
 
@@ -25,11 +27,11 @@ export const useSchemaList = (
 
   const validParamName = (v: string, item?: APICatSchemaObjectCustom) => {
     if (v == '') {
-      ElMessage.error('参数名不能为空')
+      ElMessage.error(t('editor.common.error.emptyParamName'))
       return false
     }
     if (model.value.find((item) => item.name == v)) {
-      ElMessage.error(`参数「${v}」重复`)
+      ElMessage.error(t('editor.common.error.paramNameDuplicate', [v]))
       if (item) {
         item._name = item.name
       }

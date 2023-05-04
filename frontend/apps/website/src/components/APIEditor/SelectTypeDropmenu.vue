@@ -2,7 +2,7 @@
   <div class="ac-sce-selecttype">
     <div v-if="showRef" style="padding: 12px; width: 240px">
       <el-space direction="vertical" fill warp style="width: 100%">
-        <el-text>引用模型</el-text>
+        <el-text>{{ $t('editor.table.refModel') }}</el-text>
         <el-input v-model="searchRef">
           <template #prefix>
             <el-icon>
@@ -42,7 +42,7 @@
       </el-space>
     </div>
     <el-dropdown-menu v-else>
-      <el-dropdown-item :class="{ 'ac-sec-selected': data.refObj }" @click.prevent="openRefMode">引用模型</el-dropdown-item>
+      <el-dropdown-item :class="{ 'ac-sec-selected': data.refObj }" @click.prevent="openRefMode">{{ $t('editor.table.refModel') }}</el-dropdown-item>
       <el-dropdown-item
         v-for="(item, i) in basicTypes"
         :divided="i == 0"
