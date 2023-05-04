@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -260,10 +261,17 @@ func ProjectDataGet(ctx *gin.Context) {
 		Version:     "1.0.0",
 	}
 
-	// apicatData.Servers = models.ServersExport(project.ID)
-	// apicatData.Common = models.CommonsExport(project.ID)
-	// apicatData.Definitions = models.DefinitionsExport(project.ID)
-	// apicatData.Collections = models.CollectionsExport(project.ID)
+	apicatData.Servers = models.ServersExport(project.ID)
+	apicatData.Globals.Parameters = models.GlobalParametersExport(project.ID)
+	apicatData.Common.Responses = models.CommonResponsesExport(project.ID)
+	apicatData.Definitions.Schemas = models.DefinitionsExport(project.ID)
+	apicatData.Collections = models.CollectionsExport(project.ID)
+
+	ctx.JSON(http.StatusOK, apicatData)
+	return
+	if apicatDataContent, err := json.Marshal(apicatData); err == nil {
+		slog.InfoCtx(ctx, "Export", slog.String("apicat", string(apicatDataContent)))
+	}
 
 	if data.Type == "swagger" {
 		content, err = openapi.Encode(apicatData, "2.0")
@@ -272,6 +280,8 @@ func ProjectDataGet(ctx *gin.Context) {
 	} else {
 		content, err = apicatData.ToJSON(spec.JSONOption{Indent: "  "})
 	}
+
+	slog.InfoCtx(ctx, "Export", slog.String(data.Type, string(content)))
 
 	if err != nil {
 		ctx.JSON(http.StatusServiceUnavailable, gin.H{

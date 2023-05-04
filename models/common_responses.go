@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/apicat/apicat/app/util"
 	"github.com/apicat/apicat/commom/spec"
 )
 
@@ -100,6 +101,39 @@ func CommonResponsesImport(projectID uint, responses spec.HTTPResponses) nameToI
 	}
 
 	return ResponsesMap
+}
+
+func CommonResponsesExport(projectID uint) spec.HTTPResponses {
+	var commonResponses []*CommonResponses
+	var definitions []*Definitions
+	specCommonResponses := make(spec.HTTPResponses, 0)
+
+	if err := Conn.Where("project_id = ?", projectID).Find(&commonResponses).Error; err != nil {
+		return specCommonResponses
+	}
+	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err != nil {
+		return specCommonResponses
+	}
+
+	idToNameMap := make(IdToNameMap)
+	for _, definition := range definitions {
+		idToNameMap[definition.ID] = definition.Name
+	}
+
+	for _, commonResponse := range commonResponses {
+		commonResponse.Content = util.ReplaceIDToName(commonResponse.Content, idToNameMap, "#/definitions/schemas/")
+
+		response := spec.HTTPResponse{}
+		response.Name = commonResponse.Name
+		response.Code = commonResponse.Code
+		response.Description = commonResponse.Description
+		json.Unmarshal([]byte(commonResponse.Header), &response.Header)
+		json.Unmarshal([]byte(commonResponse.Content), &response.Content)
+
+		specCommonResponses = append(specCommonResponses, response)
+	}
+
+	return specCommonResponses
 }
 
 func CommonResponsesDdereference(d *Definitions) error {

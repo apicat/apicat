@@ -2,10 +2,12 @@ package models
 
 import (
 	"encoding/json"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/apicat/apicat/app/util"
 	"github.com/apicat/apicat/commom/spec"
 	"gorm.io/gorm"
 )
@@ -109,24 +111,52 @@ func DefinitionsImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 	return SchemasMap
 }
 
-// func DefinitionsExport(projectID uint) spec.Schemas {
-// 	var definitions []*Definitions
-// 	specDefinitions := make(spec.Schemas, 0)
+func DefinitionsExport(projectID uint) spec.Schemas {
+	var definitions []*Definitions
+	specDefinitions := make(spec.Schemas, 0)
 
-// 	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err == nil {
-// 		for _, definition := range definitions {
-// 			schema := &spec.Schema{
-// 				Schema: &jsonschema.Schema{},
-// 			}
-// 			if json.Unmarshal([]byte(definition.Schema), schema.Schema) == nil {
-// 				schema.Name = definition.Name
-// 				schema.Description = definition.Description
-// 				specDefinitions = append(specDefinitions, schema)
-// 			}
-// 		}
-// 	}
-// 	return specDefinitions
-// }
+	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err != nil {
+		return specDefinitions
+	}
+
+	idToNameMap := make(IdToNameMap)
+	for _, definition := range definitions {
+		idToNameMap[definition.ID] = definition.Name
+	}
+
+	for _, definition := range definitions {
+		definition.Schema = util.ReplaceIDToName(definition.Schema, idToNameMap, "#/definitions/schemas/")
+
+		schema := spec.Schema{}
+		schema.Name = definition.Name
+		schema.Description = definition.Description
+		json.Unmarshal([]byte(definition.Schema), &schema.Schema)
+
+		specDefinitions = append(specDefinitions, &schema)
+	}
+
+	return specDefinitions
+}
+
+func DefinitionIdToName(content string, idToNameMap IdToNameMap) string {
+	re := regexp.MustCompile(`#/definitions/schemas/\d+`)
+	reID := regexp.MustCompile(`\d+`)
+
+	for {
+		match := re.FindString(content)
+		if match == "" {
+			break
+		}
+
+		schemasIDStr := reID.FindString(match)
+		if schemasIDInt, err := strconv.Atoi(schemasIDStr); err == nil {
+			schemasID := uint(schemasIDInt)
+			content = strings.Replace(content, match, "#/definitions/schemas/"+idToNameMap[schemasID], -1)
+		}
+	}
+
+	return content
+}
 
 func DefinitionsDdereference(d *Definitions) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
