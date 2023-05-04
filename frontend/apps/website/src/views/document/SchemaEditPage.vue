@@ -10,7 +10,10 @@
       <el-button type="primary" @click="() => goSchemaDetailPage()">{{ $t('app.common.preview') }}</el-button>
     </div>
   </div>
-  <SchmaEditor v-loading="isLoading" v-model="definition" :definitions="definitions" />
+
+  <div :class="[ns.b(), { 'h-50vh': !definition }]" v-loading="isLoading">
+    <SchmaEditor v-if="definition" v-model="definition" :definitions="definitions" />
+  </div>
 </template>
 <script setup lang="ts">
 import { getDefinitionDetail } from '@/api/definition'
@@ -19,11 +22,11 @@ import useDefinitionStore from '@/store/definition'
 import { storeToRefs } from 'pinia'
 import { useParams } from '@/hooks/useParams'
 import { Definition } from '@/components/APIEditor/types'
-import createDefaultDefinition from './components/createDefaultDefinition'
 import { debounce, isEmpty } from 'lodash-es'
 import { useGoPage } from '@/hooks/useGoPage'
 import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
+import { useNamespace } from '@/hooks'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -35,8 +38,9 @@ const { goSchemaDetailPage } = useGoPage()
 const isUpdate = shcema_id !== undefined
 const isSaving = ref(false)
 const schemaTree: any = inject('schemaTree')
+const ns = useNamespace('document')
 
-const definition = ref<Definition>(createDefaultDefinition())
+const definition = ref<Definition | null>(null)
 const isInvalidId = () => isNaN(parseInt(route.params.shcema_id as string, 10))
 
 const getDetail = async () => {
@@ -62,7 +66,7 @@ const getDetail = async () => {
 watch(
   definition,
   debounce(async (newVal, oldVal) => {
-    if (!oldVal.id) {
+    if (!oldVal || !oldVal.id) {
       return
     }
 
@@ -70,19 +74,20 @@ watch(
       ElMessage.error(t('app.schema.form.title'))
       return
     }
-
-    isSaving.value = true
-    try {
-      const data = unref(definition)
-      if (isUpdate && definition.value.id) {
-        const { id: def_id, ...rest } = data
-        await definitionStore.updateDefinition({ project_id, def_id, ...rest })
-        schemaTree.updateTitle(def_id, newVal.name)
+    if (definition.value) {
+      isSaving.value = true
+      try {
+        const data: any = unref(definition)
+        if (isUpdate && definition.value.id) {
+          const { id: def_id, ...rest } = data
+          await definitionStore.updateDefinition({ project_id, def_id, ...rest })
+          schemaTree.updateTitle(def_id, newVal.name)
+        }
+      } catch (e) {
+        //
+      } finally {
+        isSaving.value = false
       }
-    } catch (e) {
-      //
-    } finally {
-      isSaving.value = false
     }
   }, 300),
   {

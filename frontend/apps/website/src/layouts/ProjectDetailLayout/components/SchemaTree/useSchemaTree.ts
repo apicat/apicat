@@ -1,3 +1,4 @@
+import { useApi } from '@/hooks/useApi'
 import type { CollectionNode } from '@/typings/project'
 import { storeToRefs } from 'pinia'
 import { memoize } from 'lodash-es'
@@ -43,6 +44,7 @@ export const useSchemaTree = () => {
   const { params } = route
   const { getDefinitions } = definitionStore
   const { definitions } = storeToRefs(definitionStore)
+  const [isLoading, getDefinitionsApi] = useApi(getDefinitions)()
 
   const treeOptions: TreeOptionProps = {
     children: 'sub_nodes',
@@ -148,7 +150,7 @@ export const useSchemaTree = () => {
   }
 
   const initSchemaTree = async (activeId?: any) => {
-    await getDefinitions(project_id as string)
+    await getDefinitionsApi(project_id as string)
     if (route.name === SCHEMA_DETAIL_NAME || route.name === SCHEMA_EDIT_NAME) {
       router.currentRoute.value.params.shcema_id ? activeNode(activeId || params.shcema_id) : reactiveNode()
     }
@@ -160,8 +162,9 @@ export const useSchemaTree = () => {
   }
 
   onMounted(async () => await initSchemaTree())
-
+  onUnmounted(() => definitionStore.$reset())
   return {
+    isLoading,
     treeIns,
     treeOptions,
     definitions,

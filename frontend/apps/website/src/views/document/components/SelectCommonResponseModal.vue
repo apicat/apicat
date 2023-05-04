@@ -9,7 +9,7 @@
     width="40%"
   >
     <el-input v-model="search" :placeholder="$t('app.response.fullname')" />
-    <el-table ref="multipleTableRef" :data="filterResponse" class="w-full" @selection-change="handleSelectionChange">
+    <el-table ref="multipleTableRef" :data="filterResponse" class="w-full" @selection-change="handleSelectionChange" @row-click="handelRowClick">
       <el-table-column type="selection" width="55" />
       <el-table-column property="name" :label="$t('app.response.table.name')" />
       <el-table-column property="code" :label="$t('app.response.table.code')" width="120" />
@@ -26,7 +26,7 @@ import { storeToRefs } from 'pinia'
 const emits = defineEmits(['ok'])
 
 const { dialogVisible, showModel, hideModel } = useModal()
-const multipleSelection = ref([])
+const multipleSelection: any = ref([])
 const multipleTableRef = ref()
 
 const commonResponseStore = useCommonResponseStore()
@@ -49,6 +49,11 @@ const show = async (selectedNameList: number[]) => {
 
 const handleSelectionChange = (val: any) => {
   multipleSelection.value = val
+}
+
+const handelRowClick = (row: any) => {
+  const hasItem = multipleSelection.value.find((item: any) => item.id === row.id)
+  multipleTableRef.value!.toggleRowSelection(row, !hasItem)
 }
 
 const handelConfrim = () => {

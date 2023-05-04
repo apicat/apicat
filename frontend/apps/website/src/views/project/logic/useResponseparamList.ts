@@ -24,7 +24,7 @@ export const useResponseparamList = ({ id: project_id }: Pick<ProjectInfo, 'id'>
   }
 
   const createResponseParamModel = () => {
-    const response = createCommonResponse({ description: t('app.response.model.description') })
+    const response = createCommonResponse({ name: t('app.response.model.name') })
     const extendModel = extendResponseParamModel({ code: response.code, description: response.description, isLoaded: true, expand: true })
     extendModel.detail = response
     return extendModel

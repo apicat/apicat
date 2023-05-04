@@ -148,7 +148,7 @@ export default {
         desc: 'Description',
       },
       model: {
-        description: 'Public Response',
+        name: 'Response Name',
       },
       rules: {
         name: 'Response name cannot be empty',

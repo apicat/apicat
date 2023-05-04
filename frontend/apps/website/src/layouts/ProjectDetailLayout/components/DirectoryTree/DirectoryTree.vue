@@ -3,7 +3,7 @@
     <template #extra>
       <el-icon class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
     </template>
-    <div ref="dir">
+    <div ref="dir" :class="[ns.b(), { [ns.is('loading')]: isLoading }]" v-loading="isLoading">
       <ac-tree
         :data="apiDocTree"
         class="bg-transparent"
@@ -61,8 +61,12 @@ import { useDocumentTree } from './useDocumentTree'
 import { useDocumentPopoverMenu, PopoverMoreMenuType } from './useDocumentPopoverMenu'
 import AIGenerateDocumentModal from '../AIGenerateDocumentModal.vue'
 import { useActiveTree } from './useActiveTree'
+import { useNamespace } from '@/hooks'
+
+const ns = useNamespace('catalog-tree')
 
 const {
+  isLoading,
   treeIns,
   treeOptions,
   apiDocTree,

@@ -64,7 +64,7 @@ const createResponse = (item?: any) => {
     _isCommonResponse: false,
     name: 'Response Name',
     code: 200,
-    description: 'success',
+    description: '',
     content: createResponseDefaultContent(),
     ...item,
   }

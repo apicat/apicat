@@ -147,7 +147,7 @@ export default {
         desc: '描述',
       },
       model: {
-        description: '公共响应',
+        name: 'Response Name',
       },
       rules: {
         name: '响应名称不能为空',

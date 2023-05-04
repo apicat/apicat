@@ -1,10 +1,10 @@
 <template>
-  <div class="container flex flex-col justify-center mx-auto">
+  <div class="container flex flex-col justify-center mx-auto" v-loading="isLoading">
     <p class="border-b border-solid border-gray-lighter py-20px mt-20px text-20px">
       {{ $t('app.project.list.tabTitle') }}
     </p>
 
-    <ul class="ac-project-list mt-20px" v-loading="isLoading">
+    <ul class="ac-project-list my-20px py-10px" v-if="projects.length">
       <li
         class="flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px"
         v-for="project in projects"
@@ -39,7 +39,8 @@ const projectStore = uesProjectStore()
 const { projects } = storeToRefs(projectStore)
 const [isLoading, getProjectListApi] = useApi(projectStore.getProjects)()
 
-onMounted(async () => await getProjectListApi())
+onBeforeMount(async () => await getProjectListApi())
+onBeforeUnmount(() => (projectStore.projects = []))
 </script>
 <style scoped>
 .ac-project-list {
