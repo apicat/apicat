@@ -87,7 +87,7 @@ func AICreateCollection(ctx *gin.Context) {
 
 	currentProject, _ := ctx.Get("CurrentProject")
 	definitionSchemas := models.DefinitionsImport(currentProject.(*models.Projects).ID, content.Definitions.Schemas)
-	records := models.CollectionsImport(currentProject.(*models.Projects).ID, 0, content.Collections, definitionSchemas)
+	records := models.CollectionsImport(currentProject.(*models.Projects).ID, data.ParentID, content.Collections, definitionSchemas)
 
 	if len(records) == 0 {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
