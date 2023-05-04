@@ -267,8 +267,6 @@ func ProjectDataGet(ctx *gin.Context) {
 	apicatData.Definitions.Schemas = models.DefinitionsExport(project.ID)
 	apicatData.Collections = models.CollectionsExport(project.ID)
 
-	ctx.JSON(http.StatusOK, apicatData)
-	return
 	if apicatDataContent, err := json.Marshal(apicatData); err == nil {
 		slog.InfoCtx(ctx, "Export", slog.String("apicat", string(apicatDataContent)))
 	}
