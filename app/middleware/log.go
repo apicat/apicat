@@ -1,6 +1,9 @@
 package middleware
 
 import (
+	"bytes"
+	"encoding/json"
+	"io"
 	"strings"
 	"time"
 
@@ -9,6 +12,25 @@ import (
 	"github.com/lithammer/shortuuid/v4"
 	"golang.org/x/exp/slog"
 )
+
+type CustomResponseWriter struct {
+	gin.ResponseWriter
+	body *bytes.Buffer
+}
+
+func (w CustomResponseWriter) Write(b []byte) (int, error) {
+	w.body.Write(b)
+	return w.ResponseWriter.Write(b)
+}
+
+func (w CustomResponseWriter) WriteString(s string) (int, error) {
+	w.body.WriteString(s)
+	return w.ResponseWriter.WriteString(s)
+}
+
+type CreateProject struct {
+	Title string `json:"title"`
+}
 
 func RequestIDLog(skip ...string) func(*gin.Context) {
 	skipPaths := make(map[string]bool)
@@ -23,6 +45,23 @@ func RequestIDLog(skip ...string) func(*gin.Context) {
 		c.Request = c.Request.WithContext(log.ContextLogID(ctx, reqid))
 		c.Header("x-apicat-requestid", reqid)
 
+		// Read the Body content
+		var bodyByReq []byte
+		var request string
+		if c.Request.Body != nil {
+			bodyByReq, _ = io.ReadAll(c.Request.Body)
+		}
+
+		// Restore the io.ReadCloser to its original state
+		c.Request.Body = io.NopCloser(bytes.NewBuffer(bodyByReq))
+
+		blw := &CustomResponseWriter{
+			body:           bytes.NewBufferString(""),
+			ResponseWriter: c.Writer,
+		}
+
+		c.Writer = blw
+
 		c.Next()
 
 		path := c.Request.URL.Path
@@ -36,6 +75,16 @@ func RequestIDLog(skip ...string) func(*gin.Context) {
 			path = path + "?" + raw
 		}
 
+		if path == "/api/projects/" && c.Request.Method == "POST" {
+			createProject := CreateProject{}
+			if err := json.Unmarshal(bodyByReq, &createProject); err == nil {
+				requestJson, _ := json.Marshal(createProject)
+				request = string(requestJson)
+			}
+		} else {
+			request = string(bodyByReq)
+		}
+
 		logattrs := []slog.Attr{
 			slog.String("method", c.Request.Method),
 			slog.String("path", path),
@@ -43,6 +92,8 @@ func RequestIDLog(skip ...string) func(*gin.Context) {
 			slog.Int("status", c.Writer.Status()),
 			slog.Int("size", c.Writer.Size()),
 			slog.Duration("latency", time.Since(start)),
+			slog.String("request", request),
+			slog.String("response", blw.body.String()),
 		}
 
 		lvl := slog.LevelInfo
