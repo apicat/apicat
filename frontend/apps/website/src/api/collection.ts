@@ -18,7 +18,6 @@ export const getCollectionDetail = useApi(async ({ project_id, collection_id }: 
   try {
     doc.content = JSON.parse(doc.content)
     mergeDocumentContent(doc.content)
-    console.log(doc.content)
   } catch (error) {
     doc.content = createHttpDocument().content
   }

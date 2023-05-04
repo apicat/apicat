@@ -1,7 +1,9 @@
 <template>
   <div class="text-center">
     <img class="not-found-image" src="@/assets/images/404@2x.png" alt="404" />
-    <p class="not-found-tip">啊哦，网页走丢了，正在努力寻找中…<router-link class="text-blue-600" to="/">回到首页</router-link></p>
+    <p class="not-found-tip">
+      {{ $t('app.tips.notFound') }}<router-link class="text-blue-600" to="/">{{ $t('app.common.goHome') }}</router-link>
+    </p>
   </div>
 </template>
 

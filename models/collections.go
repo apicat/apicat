@@ -105,7 +105,9 @@ func (c *Collections) Restore() error {
 	return Conn.Unscoped().Model(c).Updates(map[string]interface{}{"project_id": c.ProjectId, "parent_id": c.ParentId, "display_order": 0, "deleted_at": nil}).Error
 }
 
-func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem, definitionSchemas nameToIdMap) {
+func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem, definitionSchemas nameToIdMap) []*Collections {
+	collectionList := make([]*Collections, 0)
+
 	for i, collection := range collections {
 		if len(collection.Items) > 0 {
 			category := &Collections{
@@ -115,7 +117,9 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 				Type:      "category",
 			}
 			if err := category.Create(); err == nil {
-				CollectionsImport(projectID, category.ID, collection.Items, definitionSchemas)
+				collectionList = append(collectionList, category)
+				children := CollectionsImport(projectID, category.ID, collection.Items, definitionSchemas)
+				collectionList = append(collectionList, children...)
 			}
 		} else {
 			if collectionByte, err := json.Marshal(collection.Content); err == nil {
@@ -124,18 +128,20 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 
 				record := &Collections{
 					ProjectId:    projectID,
-					ParentId:     0,
+					ParentId:     parentID,
 					Title:        collection.Title,
 					Type:         "http",
 					Content:      collectionStr,
 					DisplayOrder: i,
 				}
 				if err := record.Create(); err == nil {
+					collectionList = append(collectionList, record)
 					TagsImport(projectID, record.ID, collection.Tags)
 				}
 			}
 		}
 	}
+	return collectionList
 }
 
 func replaceNameToID(content string, nameIDMap nameToIdMap, prefix string) string {

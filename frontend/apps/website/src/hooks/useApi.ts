@@ -10,7 +10,7 @@ interface UseApiOptions {
 export function useApi(execute: any, options?: UseApiOptions): any {
   options = { isCatch: false, isShowMessage: true, ...options }
 
-  const isLoading = ref(false)
+  const isLoading = ref(true)
 
   const { isCatch, isShowMessage, msg } = options
 

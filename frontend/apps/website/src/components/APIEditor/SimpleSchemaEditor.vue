@@ -2,11 +2,11 @@
   <div class="ac-sce-simple">
     <table class="w-full table-fixed readonly" v-if="readonly">
       <tr>
-        <th style="width: 38%">参数名</th>
-        <th class="text-center" style="width: 150px">类型</th>
-        <th class="text-center" style="width: 54px">必须</th>
-        <th style="width: 38%">示例值</th>
-        <th style="width: 38%">描述</th>
+        <th style="width: 38%">{{ $t('editor.table.paramName') }}</th>
+        <th style="width: 150px">{{ $t('editor.table.paramType') }}</th>
+        <th class="text-center" style="width: 80px">{{ $t('editor.table.required') }}</th>
+        <th style="width: 38%">{{ $t('editor.table.paramExample') }}</th>
+        <th style="width: 38%">{{ $t('editor.table.paramDesc') }}</th>
       </tr>
       <tr v-for="(data, index) in flatValues" :key="index">
         <td>
@@ -16,7 +16,7 @@
           {{ data.schema.type }}
         </td>
         <td class="text-center">
-          {{ modelValue.required?.includes(data.name) ? '是' : '否' }}
+          {{ modelValue.required?.includes(data.name) ? $t('editor.table.yes') : $t('editor.table.no') }}
         </td>
         <td>
           <span class="copy_text">{{ data.schema.example }}</span>
@@ -30,11 +30,11 @@
     <table class="w-full table-fixed" v-else>
       <tr @dragover="dragOverHandler($event, -1)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, -1)">
         <th class="text-center" style="width: 1px"></th>
-        <th style="width: 34%">参数名</th>
-        <th class="text-center" style="width: 150px">类型</th>
-        <th class="text-center" style="width: 54px">必须</th>
-        <th style="width: 34%">示例值</th>
-        <th style="width: 38%">描述</th>
+        <th style="width: 34%">{{ $t('editor.table.paramName') }}</th>
+        <th style="width: 150px">{{ $t('editor.table.paramType') }}</th>
+        <th class="text-center" style="width: 80px">{{ $t('editor.table.required') }}</th>
+        <th style="width: 34%">{{ $t('editor.table.paramExample') }}</th>
+        <th style="width: 38%">{{ $t('editor.table.paramDesc') }}</th>
         <th class="text-center" style="width: 30px"></th>
       </tr>
       <tbody>
@@ -79,7 +79,7 @@
         <tr>
           <td></td>
           <td>
-            <el-input v-model="newname" placeholder="添加参数" @change="addHandler">
+            <el-input v-model="newname" :placeholder="$t('editor.table.addParam')" @change="addHandler">
               <template #suffix>
                 <el-icon>
                   <ac-icon-mi-enter />

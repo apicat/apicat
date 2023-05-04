@@ -1,9 +1,9 @@
 <template>
-  <ToggleHeading title="模型">
+  <ToggleHeading :title="$t('app.schema.title')">
     <template #extra>
       <el-icon class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
     </template>
-    <div ref="dir">
+    <div ref="dir" :class="[ns.b(), { [ns.is('loading')]: isLoading }]" v-loading="isLoading">
       <ac-tree
         :data="definitions"
         node-key="id"
@@ -50,10 +50,14 @@ import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModa
 import { useSchemaPopoverMenu } from './useSchemaPopoverMenu'
 import { useSchemaTree } from './useSchemaTree'
 import { useActiveTree } from './useActiveTree'
+import { useNamespace } from '@/hooks'
+
+const ns = useNamespace('catalog-tree')
 
 const directoryTree = inject('directoryTree') as any
 
-const { treeIns, treeOptions, definitions, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, redirecToSchemaEdit } = useSchemaTree()
+const { isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, redirecToSchemaEdit, initSchemaTree } =
+  useSchemaTree()
 
 const aiPromptModalRef = ref()
 const onCreateSchemaSuccess = (schema_id: any) => {
@@ -61,8 +65,9 @@ const onCreateSchemaSuccess = (schema_id: any) => {
 }
 
 const aiGenerateDocumentWithSchmeModalRef = ref()
-const onGenerateDocumentWithSchmeSuccess = (docId: any) => {
+const onGenerateDocumentWithSchmeSuccess = async (docId: any) => {
   directoryTree.redirecToDocumentDetail(docId)
+  await initSchemaTree()
 }
 
 const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick } = useSchemaPopoverMenu(
@@ -71,7 +76,7 @@ const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopover
   aiGenerateDocumentWithSchmeModalRef as any
 )
 
-const { activeNode,reactiveNode } = useActiveTree(treeIns as any)
+const { activeNode, reactiveNode } = useActiveTree(treeIns as any)
 
 defineExpose({
   updateTitle,

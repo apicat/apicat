@@ -172,9 +172,11 @@ $operate-height: 60px;
   }
 }
 
-// 项目目录
-@include b(doc-catalog) {
-  @apply flex justify-between items-center;
-  padding: 0 1px;
-  margin-bottom: 20px;
+// 目录
+@include b(catalog-tree) {
+  @include when(loading) {
+    .el-loading-mask {
+      @apply bg-gray-100;
+    }
+  }
 }

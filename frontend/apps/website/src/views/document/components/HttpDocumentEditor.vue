@@ -1,6 +1,6 @@
 <template>
   <div :class="ns.b()" class="is-edit">
-    <input class="ac-document__title" type="text" v-model="httpDoc.title" maxlength="255" ref="title" placeholder="请输入接口标题" />
+    <input class="ac-document__title" type="text" v-model="httpDoc.title" maxlength="255" ref="title" :placeholder="$t('app.interface.form.title')" />
 
     <div class="ac-editor mt-10px">
       <RequestMethodEditor class="mb-10px" v-model="httpDoc" />

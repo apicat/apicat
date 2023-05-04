@@ -2,11 +2,11 @@
   <div :class="nsEditor.b()">
     <div :class="[nsRow.b(), nsRow.m('header')]">
       <div :class="nsRow.e('content')">
-        <div :class="nsRow.e('name')">参数名</div>
-        <div :class="nsRow.e('type')">类型</div>
-        <div :class="nsRow.e('required')">必须</div>
-        <div :class="nsRow.e('example')">示例值</div>
-        <div :class="nsRow.e('description')">描述</div>
+        <div :class="nsRow.e('name')">{{ $t('editor.table.paramName') }}</div>
+        <div :class="nsRow.e('type')">{{ $t('editor.table.paramType') }}</div>
+        <div :class="nsRow.e('required')">{{ $t('editor.table.required') }}</div>
+        <div :class="nsRow.e('example')">{{ $t('editor.table.paramExample') }}</div>
+        <div :class="nsRow.e('description')">{{ $t('editor.table.paramDesc') }}</div>
         <div :class="nsRow.e('operation')" v-if="!readonly"></div>
       </div>
     </div>

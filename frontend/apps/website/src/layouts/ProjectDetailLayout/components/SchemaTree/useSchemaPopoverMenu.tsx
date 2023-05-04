@@ -14,6 +14,7 @@ import AIGenerateSchemaModal from '../AIGenerateSchemaModal.vue'
 import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModal.vue'
 import AcIconBIRobot from '~icons/bi/robot'
 import AcIconCarbonModelAlt from '~icons/carbon/model-alt'
+import { useI18n } from 'vue-i18n'
 
 /**
  * 目录弹层菜单逻辑
@@ -24,22 +25,23 @@ export const useSchemaPopoverMenu = (
   aiPromptModalRef: Ref<InstanceType<typeof AIGenerateSchemaModal>>,
   aiGenerateDocumentWithSchemaModalRef: Ref<InstanceType<typeof AIGenerateDocumentWithSchmeModal>>
 ) => {
-  const directoryTree = inject('directoryTree') as any
+  const { t } = useI18n()
 
   const definitionStore = useDefinitionStore()
   const { project_id } = useParams()
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
   const { goSchemaEditPage } = useGoPage()
+  const directoryTree = inject('directoryTree') as any
 
   const ROOT_MENUS: Menu[] = [
-    { text: 'AI生成模型', elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
-    { text: '新建模型', elIcon: markRaw(AcIconCarbonModelAlt), onClick: () => onCreateSchemaMenuClick() },
+    { text: t('app.schema.popoverMenus.aiGenerateSchema'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
+    { text: t('app.schema.popoverMenus.newSchema'), elIcon: markRaw(AcIconCarbonModelAlt), onClick: () => onCreateSchemaMenuClick() },
   ]
 
   const SCHEMA_MENUS: Menu[] = [
-    { text: 'AI生成接口', onClick: () => onCreateDocumentBySchema() },
-    { text: '复制', onClick: () => onCopyMenuClick() },
-    { text: '删除', onClick: () => onDeleteMenuClick() },
+    { text: t('app.interface.popoverMenus.aiGenerateInterface'), onClick: () => onCreateDocumentBySchema() },
+    { text: t('app.common.copy'), onClick: () => onCopyMenuClick() },
+    { text: t('app.common.delete'), onClick: () => onDeleteMenuClick() },
   ]
   const popoverMenus = ref<Array<Menu>>(SCHEMA_MENUS)
   const popoverRefEl = ref<Nullable<HTMLElement>>(null)
@@ -69,8 +71,8 @@ export const useSchemaPopoverMenu = (
     const tree = unref(treeIns)
 
     AsyncMsgBox({
-      title: '删除提示',
-      content: <div class="break-all">确定删除「{data.name}」模型吗？</div>,
+      title: t('app.common.deleteTip'),
+      content: <div class="break-all">{t('app.interface.popoverMenus.confirmDeleteInterface', [data.name])}</div>,
       onOk: async () => {
         NProgress.start()
         try {
@@ -108,7 +110,7 @@ export const useSchemaPopoverMenu = (
   const onCreateSchemaMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
     const tree = unref(treeIns)
-    const newDefinition: any = createDefaultDefinition({ name: 'Unnamed' })
+    const newDefinition: any = createDefaultDefinition({ name: t('app.schema.popoverMenus.unnamedSchema') })
 
     try {
       NProgress.start()

@@ -1,5 +1,5 @@
 <template>
-  <div class="ac-header-operate" v-if="hasDocument">
+  <div class="ac-header-operate" v-if="hasDocument && httpDoc">
     <div class="ac-header-operate__main">
       <p class="ac-header-operate__title">{{ httpDoc.title }}</p>
     </div>
@@ -9,17 +9,7 @@
     </div>
   </div>
 
-  <div :class="ns.b()" v-loading="isLoading" v-if="hasDocument">
-    <div class="ac-editor mt-10px">
-      <RequestMethodRaw class="mb-10px" :doc="httpDoc" :urls="urlServers" />
-
-      <RequestParamRaw class="mb-10px" :doc="httpDoc" :definitions="definitions" />
-
-      <ResponseParamTabsRaw :doc="httpDoc" :definitions="definitions" />
-    </div>
-  </div>
-
-  <Result v-if="!hasDocument">
+  <Result v-show="!hasDocument && !isLoading">
     <template #icon>
       <img class="h-auto w-260px mb-26px" src="@/assets/images/icon-empty.png" alt="" />
     </template>
@@ -27,11 +17,20 @@
       <div class="m-auto">{{ $t('app.common.emptyDataTip') }}</div>
     </template>
   </Result>
+
+  <div :class="[ns.b(), { 'h-20vh': !httpDoc }]" v-loading="isLoading">
+    <div class="ac-editor mt-10px" v-if="httpDoc">
+      <RequestMethodRaw class="mb-10px" :doc="httpDoc" :urls="urlServers" />
+
+      <RequestParamRaw class="mb-10px" :doc="httpDoc" :definitions="definitions" />
+
+      <ResponseParamTabsRaw :doc="httpDoc" :definitions="definitions" />
+    </div>
+  </div>
 </template>
 <script setup lang="ts">
 import { HttpDocument } from '@/typings'
 import { useNamespace } from '@/hooks/useNamespace'
-import { createHttpDocument } from '@/views/document/components/createHttpDocument'
 import ResponseParamTabsRaw from '@/components/ResponseParamTabsRaw.vue'
 import { useGoPage } from '@/hooks/useGoPage'
 import uesProjectStore from '@/store/project'
@@ -54,15 +53,18 @@ const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const { urlServers } = storeToRefs(projectStore)
 const { definitions } = storeToRefs(definitionStore)
 
-const hasDocument = ref(true)
+const hasDocument = ref(false)
 const ns = useNamespace('document')
-const httpDoc: Ref<HttpDocument> = ref(createHttpDocument())
+const httpDoc: Ref<HttpDocument | null> = ref(null)
 
 const getDetail = async (docId: string) => {
   const doc_id = parseInt(docId, 10)
 
+  isLoading.value = true
+
   if (isNaN(doc_id)) {
     hasDocument.value = false
+    httpDoc.value = null
     return
   }
 
@@ -97,7 +99,9 @@ definitionStore.$onAction(({ name, after }) => {
 
 watch(
   () => route.params.doc_id,
-  async () => await getDetail(route.params.doc_id as string),
+  async () => {
+    await getDetail(route.params.doc_id as string)
+  },
   {
     immediate: true,
   }

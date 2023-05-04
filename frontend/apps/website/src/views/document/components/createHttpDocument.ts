@@ -49,17 +49,12 @@ export const createResponseDefaultContent = () => ({
 export const createCommonResponse = (overwrite?: Partial<APICatResponse>) => ({
   name: '',
   code: 200,
-  description: 'success',
+  description: '',
   content: createResponseDefaultContent(),
   ...overwrite,
 })
 
-export const createHttpResponse = (overwrite?: Partial<APICatResponse>) => ({
-  code: 200,
-  description: 'success',
-  content: createResponseDefaultContent(),
-  ...overwrite,
-})
+export const createHttpResponse = createCommonResponse
 
 export const createHttpResponseNode = () => ({
   type: HTTP_RESPONSE_NODE_KEY,
