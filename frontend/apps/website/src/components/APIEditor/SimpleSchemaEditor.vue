@@ -3,7 +3,7 @@
     <table class="w-full table-fixed readonly" v-if="readonly">
       <tr>
         <th style="width: 38%">{{ $t('editor.table.paramName') }}</th>
-        <th class="text-center" style="width: 150px">{{ $t('editor.table.paramType') }}</th>
+        <th style="width: 150px">{{ $t('editor.table.paramType') }}</th>
         <th class="text-center" style="width: 80px">{{ $t('editor.table.required') }}</th>
         <th style="width: 38%">{{ $t('editor.table.paramExample') }}</th>
         <th style="width: 38%">{{ $t('editor.table.paramDesc') }}</th>
@@ -31,7 +31,7 @@
       <tr @dragover="dragOverHandler($event, -1)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, -1)">
         <th class="text-center" style="width: 1px"></th>
         <th style="width: 34%">{{ $t('editor.table.paramName') }}</th>
-        <th class="text-center" style="width: 150px">{{ $t('editor.table.paramType') }}</th>
+        <th style="width: 150px">{{ $t('editor.table.paramType') }}</th>
         <th class="text-center" style="width: 80px">{{ $t('editor.table.required') }}</th>
         <th style="width: 34%">{{ $t('editor.table.paramExample') }}</th>
         <th style="width: 38%">{{ $t('editor.table.paramDesc') }}</th>
