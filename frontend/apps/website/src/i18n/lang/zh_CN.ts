@@ -161,7 +161,6 @@ export default {
       },
     },
   },
-  // 编辑器
   editor: {
     common: {
       error: {
