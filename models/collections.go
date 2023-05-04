@@ -127,7 +127,7 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 
 				record := &Collections{
 					ProjectId:    projectID,
-					ParentId:     0,
+					ParentId:     parentID,
 					Title:        collection.Title,
 					Type:         "http",
 					Content:      collectionStr,
