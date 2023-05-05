@@ -68,15 +68,17 @@
             <el-input v-model="data.schema.description" @input="changeNotify(data)" />
           </td>
           <td class="text-center">
-            <el-popconfirm title="delete this?" @confirm="delHandler(index)">
-              <template #reference>
-                <el-button size="small" text circle tabindex="-1">
-                  <el-icon :size="14">
-                    <ac-icon-ep-delete />
-                  </el-icon>
-                </el-button>
-              </template>
-            </el-popconfirm>
+            <slot name="operate" :row="data" :index="index" :delHandler="delHandler">
+              <el-popconfirm title="delete this?" @confirm="delHandler(index)">
+                <template #reference>
+                  <el-button size="small" text circle tabindex="-1">
+                    <el-icon :size="14">
+                      <ac-icon-ep-delete />
+                    </el-icon>
+                  </el-button>
+                </template>
+              </el-popconfirm>
+            </slot>
           </td>
         </tr>
 
