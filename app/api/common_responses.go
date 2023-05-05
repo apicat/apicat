@@ -265,6 +265,14 @@ func CommonResponsesDelete(ctx *gin.Context) {
 		return
 	}
 
+	data := IsUnRefData{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
 	header := []*spec.Schema{}
 	if err := json.Unmarshal([]byte(commonResponses.Header), &header); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -310,7 +318,14 @@ func CommonResponsesDelete(ctx *gin.Context) {
 	for _, collection := range collectionList {
 		if collection.Type == "http" {
 			if strings.Contains(collection.Content, ref) {
-				newContent := strings.Replace(collection.Content, ref, string(responseDetailJson), -1)
+				newStr := ""
+				if data.IsUnRef == 1 {
+					newStr = string(responseDetailJson)
+				} else {
+					newStr = ""
+				}
+
+				newContent := strings.Replace(collection.Content, ref, newStr, -1)
 				collection.Content = newContent
 				if err := collection.Update(); err != nil {
 					ctx.JSON(http.StatusBadRequest, gin.H{
