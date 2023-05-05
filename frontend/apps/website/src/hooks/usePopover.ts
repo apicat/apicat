@@ -1,8 +1,12 @@
+import { noop } from '@vueuse/core'
+
 export type PopoverOptions = {
-  clickOutSide: () => void
+  ignore?: []
+  onHide?: () => void
 }
 
 export const usePopover = (options?: PopoverOptions) => {
+  let { onHide = noop, ignore = [] } = options || {}
   const popoverRefEl = ref<Nullable<HTMLElement>>(null)
   const isShow = ref(false)
 
@@ -12,22 +16,17 @@ export const usePopover = (options?: PopoverOptions) => {
   }
 
   const hidePopover = () => {
-    popoverRefEl.value = null
     isShow.value = false
-    options?.clickOutSide()
+    setTimeout(() => {
+      popoverRefEl.value = null
+    }, 100)
+
+    onHide()
   }
 
-  onClickOutside(
-    popoverRefEl,
-    () => {
-      popoverRefEl.value = null
-      isShow.value = false
-      options?.clickOutSide()
-    },
-    {
-      ignore: ['.ac-popper-menu'],
-    }
-  )
+  onClickOutside(popoverRefEl, () => hidePopover(), {
+    ignore: ['.ac-popper-menu', '.ignore-popper'].concat(ignore),
+  })
 
   return {
     popoverRefEl,

@@ -38,19 +38,19 @@ provide('directoryTree', {
   updateTitle: (id: any, title: string) => directoryTree.value?.updateTitle(id, title),
   createNodeByData: (data: any) => directoryTree.value?.createNodeByData(data),
   reload: () => directoryTree.value?.reload(),
+  reactiveNode: () => directoryTree.value?.reactiveNode(),
   redirecToDocumentDetail: (activeId?: any) => directoryTree.value?.redirecToDocumentDetailPage(activeId),
 })
 
 provide('schemaTree', {
   updateTitle: (id: any, title: string) => schemaTree.value?.updateTitle(id, title),
   activeNode: (id: any) => schemaTree.value?.activeNode(id),
+  reactiveNode: () => schemaTree.value?.reactiveNode(),
   redirecToSchemaDetail: (activeId?: any) => schemaTree.value?.redirecToSchemaEdit(activeId),
 })
 
 onMounted(async () => {
-  // init global data
   await projectStore.getUrlServers(project_id as string)
-  await globalParametersStore.getGlobalParameters(project_id as string)
   await globalParametersStore.getGlobalParameters(project_id as string)
   await commonResponseStore.getCommonResponseList(project_id as string)
 })

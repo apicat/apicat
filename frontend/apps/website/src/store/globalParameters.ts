@@ -37,8 +37,8 @@ export const uesGlobalParametersStore = defineStore('globalParameters', {
       await updateGlobalParamerter({ project_id, in: type, ...param })
     },
 
-    async deleteGlobalParameter(project_id: string | number, type: string, param: GlobalParameter) {
-      await deleteGlobalParamerter({ project_id, in: type, ...param })
+    async deleteGlobalParameter(project_id: string | number, param: GlobalParameter, is_unref = 1) {
+      await deleteGlobalParamerter({ project_id, ...param, is_unref })
     },
   },
 })

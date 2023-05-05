@@ -7,7 +7,6 @@ import NProgress from 'nprogress'
 import { Menu } from '@/components/typings'
 import useDefinitionStore from '@/store/definition'
 import { useActiveTree } from './useActiveTree'
-import { deleteDefinition } from '@/api/definition'
 import { useParams } from '@/hooks/useParams'
 import createDefaultDefinition from '@/views/document/components/createDefaultDefinition'
 import { useGoPage } from '@/hooks/useGoPage'
@@ -15,6 +14,9 @@ import AIGenerateSchemaModal from '../AIGenerateSchemaModal.vue'
 import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModal.vue'
 import AcIconBIRobot from '~icons/bi/robot'
 import AcIconCarbonModelAlt from '~icons/carbon/model-alt'
+import { useI18n } from 'vue-i18n'
+import { ElCheckbox, ElSwitch } from 'element-plus'
+import { h } from 'vue'
 /**
  * 目录弹层菜单逻辑
  * @param treeIns 目录树
@@ -24,20 +26,23 @@ export const useSchemaPopoverMenu = (
   aiPromptModalRef: Ref<InstanceType<typeof AIGenerateSchemaModal>>,
   aiGenerateDocumentWithSchemaModalRef: Ref<InstanceType<typeof AIGenerateDocumentWithSchmeModal>>
 ) => {
+  const { t } = useI18n()
+
   const definitionStore = useDefinitionStore()
   const { project_id } = useParams()
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
   const { goSchemaEditPage } = useGoPage()
+  const directoryTree = inject('directoryTree') as any
 
   const ROOT_MENUS: Menu[] = [
-    { text: 'AI生成模型', elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
-    { text: '新建模型', elIcon: markRaw(AcIconCarbonModelAlt), onClick: () => onCreateSchemaMenuClick() },
+    { text: t('app.schema.popoverMenus.aiGenerateSchema'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
+    { text: t('app.schema.popoverMenus.newSchema'), elIcon: markRaw(AcIconCarbonModelAlt), onClick: () => onCreateSchemaMenuClick() },
   ]
 
   const SCHEMA_MENUS: Menu[] = [
-    { text: 'AI生成接口', onClick: () => onCreateDocumentBySchema() },
-    { text: '复制', onClick: () => onCopyMenuClick() },
-    { text: '删除', onClick: () => onDeleteMenuClick() },
+    { text: t('app.interface.popoverMenus.aiGenerateInterface'), onClick: () => onCreateDocumentBySchema() },
+    { text: t('app.common.copy'), onClick: () => onCopyMenuClick() },
+    { text: t('app.common.delete'), onClick: () => onDeleteMenuClick() },
   ]
   const popoverMenus = ref<Array<Menu>>(SCHEMA_MENUS)
   const popoverRefEl = ref<Nullable<HTMLElement>>(null)
@@ -58,23 +63,41 @@ export const useSchemaPopoverMenu = (
   }
 
   /**
-   * 删除分类或文档
+   * 删除模型
    */
   const onDeleteMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
     const data = node?.data as CollectionNode
     const tree = unref(treeIns)
+    const isUnref = ref(1)
 
     AsyncMsgBox({
-      title: '删除提示',
-      content: <div class="break-all">确定删除「{data.name}」模型吗？</div>,
+      title: t('app.common.deleteTip'),
+      content: () => (
+        <div>
+          <div class="break-all mb-4px">{t('app.interface.popoverMenus.confirmDeleteInterface', [data.name])}</div>
+          <ElCheckbox
+            size="small"
+            style={{ fontWeight: 'normal' }}
+            modelValue={isUnref.value}
+            onUpdate:modelValue={(val: any) => {
+              isUnref.value = val
+            }}
+            trueLabel={1}
+            falseLabel={0}
+          >
+            对引用此模型的内容解引用
+          </ElCheckbox>
+        </div>
+      ),
       onOk: async () => {
         NProgress.start()
         try {
-          await deleteDefinition(project_id as string, data.id)
+          await definitionStore.deleteDefinition(project_id as string, data.id, isUnref.value)
           tree.remove(node)
           activeNodeInfo.value = null
           reactiveNode()
+          directoryTree.reactiveNode && directoryTree.reactiveNode()
         } catch (error) {
         } finally {
           NProgress.done()
@@ -104,7 +127,7 @@ export const useSchemaPopoverMenu = (
   const onCreateSchemaMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
     const tree = unref(treeIns)
-    const newDefinition: any = createDefaultDefinition({ name: 'Unnamed' })
+    const newDefinition: any = createDefaultDefinition({ name: t('app.schema.popoverMenus.unnamedSchema') })
 
     try {
       NProgress.start()

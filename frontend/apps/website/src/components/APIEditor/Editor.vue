@@ -2,11 +2,11 @@
   <div :class="nsEditor.b()">
     <div :class="[nsRow.b(), nsRow.m('header')]">
       <div :class="nsRow.e('content')">
-        <div :class="nsRow.e('name')">参数名</div>
-        <div :class="nsRow.e('type')">类型</div>
-        <div :class="nsRow.e('required')">必须</div>
-        <div :class="nsRow.e('example')">示例值</div>
-        <div :class="nsRow.e('description')">描述</div>
+        <div :class="nsRow.e('name')">{{ $t('editor.table.paramName') }}</div>
+        <div :class="nsRow.e('type')">{{ $t('editor.table.paramType') }}</div>
+        <div :class="nsRow.e('required')">{{ $t('editor.table.required') }}</div>
+        <div :class="nsRow.e('example')">{{ $t('editor.table.paramExample') }}</div>
+        <div :class="nsRow.e('description')">{{ $t('editor.table.paramDesc') }}</div>
         <div :class="nsRow.e('operation')" v-if="!readonly"></div>
       </div>
     </div>
@@ -21,6 +21,7 @@ import type { JSONSchema, Definition, Tree } from './types'
 import { constNodeType, typename } from './types'
 import { useNamespace } from '@/hooks'
 import { RefPrefixKeys } from '@/commons'
+import { cloneDeep } from 'lodash-es'
 
 const props = withDefaults(
   defineProps<{
@@ -48,9 +49,7 @@ watch(
   }
 )
 
-const root = computed(() => {
-  return convertTreeData(undefined, constNodeType.root, constNodeType.root, localSchema.value)
-})
+const root = computed(() => convertTreeData(undefined, constNodeType.root, constNodeType.root, localSchema.value))
 
 provide('expandKeys', expandKeys.value)
 provide('definitions', () => props.definitions)
@@ -72,15 +71,31 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
     parent,
     type: '',
   }
+
   if (schema.$ref != undefined) {
     const id = schema.$ref.match(RefPrefixKeys.DefinitionsSchema.reg)?.[1]
-    const refschema = props.definitions?.find((v) => v.id === parseInt(id as string, 10))
+    const pId = parent?.schema.$ref?.match(RefPrefixKeys.DefinitionsSchema.reg)?.[1]
+
+    const refId = parseInt(id as string, 10)
+    const pRefId = parseInt(pId as string, 10)
+
+    const refschema = props.definitions?.find((v) => v.id === refId)
+
     if (refschema && refschema.schema) {
       item.refObj = refschema
-      schema = refschema.schema
+
+      schema = cloneDeep(refschema.schema)
+
+      // 如果是自己的引用，不进行递归，避免死循环
+      if (refId === parent?.schema._id || refId === pRefId) {
+        item.isSelf = true
+        return item
+      }
     }
   }
+
   item.type = typename(schema.type)
+
   switch (item.type) {
     case 'object':
       let children: Tree[] = []

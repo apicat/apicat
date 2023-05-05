@@ -46,29 +46,30 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
   const { project_id } = useParams()
   const { goDocumentEditPage } = useGoPage()
+  const schemaTree = inject('schemaTree') as any
 
   const ROOT_MENUS: Menu[] = [
-    { text: 'AI生成接口', elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
-    { text: '新建接口', image: createHttpDocIcon, onClick: () => onCreateDocMenuClick() },
-    { text: '新建分类', icon: 'ac-fenzu', onClick: () => onCreateDirMenuClick() },
+    { text: t('app.interface.popoverMenus.aiGenerateInterface'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
+    { text: t('app.interface.popoverMenus.newInterface'), image: createHttpDocIcon, onClick: () => onCreateDocMenuClick() },
+    { text: t('app.interface.popoverMenus.newGroup'), icon: 'ac-fenzu', onClick: () => onCreateDirMenuClick() },
   ]
 
   const DIR_ADD_OPERATE_MENUS: Menu[] = ROOT_MENUS.concat([])
 
   const DIR_MORE_OPERATE_MENUS: Menu[] = [
     {
-      text: '重命名',
+      text: t('app.common.reanme'),
       onClick: () => onRenameMenuClick(),
     },
     {
-      text: '删除',
+      text: t('app.common.delete'),
       onClick: () => onDeleteMenuClick(),
     },
   ]
 
   const DOC_MORE_OPERATE_MENUS: Menu[] = [
-    { text: '复制', onClick: () => onCopyMenuClick() },
-    { text: '删除', onClick: () => onDeleteMenuClick() },
+    { text: t('app.common.copy'), onClick: () => onCopyMenuClick() },
+    { text: t('app.common.delete'), onClick: () => onDeleteMenuClick() },
   ]
 
   const onPopoverRefIconClick = (e: Event, node?: Node, moreMenuType?: PopoverMoreMenuType) => {
@@ -118,13 +119,18 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
 
     AsyncMsgBox({
       title: t('app.common.deleteTip'),
-      content: <div class="break-all">确定删除「{data.title}」该项目吗？</div>,
+      content: (
+        <div class="break-all">
+          {isDir ? t('app.interface.popoverMenus.confirmDeleteGroup', [data.title]) : t('app.interface.popoverMenus.confirmDeleteInterface', [data.title])}
+        </div>
+      ),
       onOk: async () => {
         try {
           NProgress.start()
           await deleteCollection(project_id as string, data.id)
           tree.remove(node)
           reactiveNode()
+          schemaTree.reactiveNode && schemaTree.reactiveNode()
         } finally {
           NProgress.done()
         }
@@ -156,7 +162,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
     const node = unref(activeNodeInfo)?.node as Node
     const source = node?.data as CollectionNode
     const tree = unref(treeIns)
-    const data: any = { title: '新建分类' + index++, type: DocumentTypeEnum.DIR }
+    const data: any = { title: t('app.interface.popoverMenus.newGroup') + index++, type: DocumentTypeEnum.DIR }
     if (source && source.id) {
       data.parent_id = source.id
     }
@@ -192,7 +198,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
     const node = unref(activeNodeInfo)?.node as Node
     const source = node?.data as CollectionNode
     const tree = unref(treeIns)
-    const newDoc: any = createHttpDocument({ title: '未命名接口' })
+    const newDoc: any = createHttpDocument({ title: t('app.interface.popoverMenus.unnamedInterface') })
     newDoc.content = JSON.stringify(newDoc.content)
     const parent_id = !node ? 0 : source.id
 

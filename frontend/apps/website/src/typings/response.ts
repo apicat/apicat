@@ -17,5 +17,6 @@ export declare interface APICatCommonResponseCustom {
   isLoaded: boolean
   code?: number
   description?: string
+  name?: string
   detail?: APICatCommonResponse
 }

@@ -3,7 +3,7 @@
     <el-popover placement="bottom" width="250px">
       <template #reference>
         <div :class="ns.e('img')">
-          <img src="@/assets/images/icon-project.png" alt="project.name" />
+          <img src="@/assets/images/icon-project.png" :alt="projectDetailInfo?.title" />
           <router-link to="/home">
             <el-icon :class="ns.e('back')"><ac-icon-ep-arrow-left-bold /></el-icon>
           </router-link>
@@ -13,7 +13,7 @@
       <PopperMenu :menus="allMenus" class="clear-popover-space" @menu-click="onMenuItemClick" />
     </el-popover>
 
-    <div :class="ns.e('title')" title="project.name">{{ projectDetailInfo?.title }}</div>
+    <div :class="ns.e('title')" :title="projectDetailInfo?.title">{{ projectDetailInfo?.title }}</div>
   </div>
 
   <ProjectSettingModal ref="projectSettingModalRef" />

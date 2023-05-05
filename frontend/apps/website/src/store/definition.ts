@@ -1,4 +1,5 @@
-import { getDefinitionList, updateDefinition, createDefinition, copyDefinition } from '@/api/definition'
+import { getDefinitionList, updateDefinition, createDefinition, copyDefinition, deleteDefinition } from '@/api/definition'
+import { Definition } from '@/components/APIEditor/types'
 import { traverseTree } from '@apicat/shared'
 import { defineStore } from 'pinia'
 
@@ -10,12 +11,19 @@ export const extendDocTreeFeild = (node = {} as any) => {
     isCurrent: false,
   }
 
+  Object.defineProperty(node.schema, '_id', {
+    value: node.id,
+    enumerable: false,
+    writable: false,
+    configurable: false,
+  })
+
   return node
 }
 
 export const useDefinitionStore = defineStore('definition', {
   state: () => ({
-    definitions: [] as Array<any>,
+    definitions: [] as Definition[],
     tempCreateSchemaParentId: undefined as number | undefined,
   }),
   actions: {
@@ -53,9 +61,15 @@ export const useDefinitionStore = defineStore('definition', {
     updateDefinitionStore(definition: any) {
       const { id, name, description, schema } = definition
       const target = this.definitions.find((item: any) => item.id === id)
-      target.name = name
-      target.description = description
-      target.schema = { ...target.schema, ...schema }
+      if (target) {
+        target.name = name
+        target.description = description
+        target.schema = { ...target.schema, ...schema }
+      }
+    },
+
+    async deleteDefinition(project_id: string, def_id: string | number, is_unref = 1) {
+      await deleteDefinition(project_id as string, def_id, is_unref)
     },
   },
 })

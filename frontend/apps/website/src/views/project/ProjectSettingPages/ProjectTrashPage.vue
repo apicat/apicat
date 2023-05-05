@@ -2,18 +2,18 @@
   <div v-loading="isLoading">
     <el-table ref="tableRef" :data="tableData" :border="true" @selection-change="handleSelectionChange" class="w-full" :empty-text="$t('app.common.emptyDataTip')">
       <el-table-column type="selection" width="55" />
-      <el-table-column property="title" label="名称" show-overflow-tooltip />
-      <el-table-column property="deleted_at" label="删除时间" />
-      <el-table-column label="操作">
+      <el-table-column property="title" :label="$t('app.table.name')" show-overflow-tooltip />
+      <el-table-column property="deleted_at" :label="$t('app.table.deleteAt')" />
+      <el-table-column :label="$t('app.table.operation')">
         <template #default="{ row }">
           <el-button type="primary" link @click="handleRestore([row])">{{ $t('app.common.restore') }}</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <el-button v-show="tableData.length" class="mt-20px" type="primary" :disabled="!multipleSelectionRef.length" @click="handleRestore(multipleSelectionRef)">{{
-      $t('app.common.restore')
-    }}</el-button>
+    <el-button v-show="tableData.length" class="mt-20px" type="primary" :disabled="!multipleSelectionRef.length" @click="handleRestore(multipleSelectionRef)">
+      {{ $t('app.common.restore') }}
+    </el-button>
   </div>
 </template>
 <script setup lang="ts">

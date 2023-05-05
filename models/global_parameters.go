@@ -2,6 +2,8 @@ package models
 
 import (
 	"encoding/json"
+	"regexp"
+	"strings"
 	"time"
 
 	"github.com/apicat/apicat/commom/spec"
@@ -107,4 +109,118 @@ func GlobalParametersImport(projectID uint, parameters *spec.HTTPParameters) map
 	}
 
 	return parametersMap
+}
+
+func GlobalParametersExport(projectID uint) spec.HTTPParameters {
+	var globalParameters []*GlobalParameters
+	var specHTTPParameters spec.HTTPParameters
+
+	if err := Conn.Where("project_id = ?", projectID).Find(&globalParameters).Error; err != nil {
+		return specHTTPParameters
+	}
+
+	for _, globalParameter := range globalParameters {
+		var schema spec.Schema
+		schema.Name = globalParameter.Name
+		required := false
+		if globalParameter.Required == 1 {
+			required = true
+		}
+		schema.Required = required
+		json.Unmarshal([]byte(globalParameter.Schema), &schema.Schema)
+
+		switch globalParameter.In {
+		case "header":
+			specHTTPParameters.Header = append(specHTTPParameters.Header, &schema)
+		case "cookie":
+			specHTTPParameters.Cookie = append(specHTTPParameters.Cookie, &schema)
+		case "query":
+			specHTTPParameters.Query = append(specHTTPParameters.Query, &schema)
+		case "path":
+			specHTTPParameters.Path = append(specHTTPParameters.Path, &schema)
+		}
+	}
+
+	return specHTTPParameters
+}
+
+type GlobalParametersIDToNameMap struct {
+	Header IdToNameMap
+	Cookie IdToNameMap
+	Query  IdToNameMap
+	Path   IdToNameMap
+}
+
+func (gpMap *GlobalParametersIDToNameMap) GlobalParametersIDToNameMapInit(projectID uint) {
+	var globalParameters []*GlobalParameters
+	if err := Conn.Where("project_id = ?", projectID).Find(&globalParameters).Error; err == nil {
+		for _, globalParameter := range globalParameters {
+			switch globalParameter.In {
+			case "header":
+				gpMap.Header[globalParameter.ID] = globalParameter.Name
+			case "cookie":
+				gpMap.Cookie[globalParameter.ID] = globalParameter.Name
+			case "query":
+				gpMap.Query[globalParameter.ID] = globalParameter.Name
+			case "path":
+				gpMap.Path[globalParameter.ID] = globalParameter.Name
+			}
+		}
+	}
+}
+
+type GlobalExceptsID struct {
+	Header []uint `json:"header"`
+	Path   []uint `json:"path"`
+	Cookie []uint `json:"cookie"`
+	Query  []uint `json:"query"`
+}
+
+type GlobalExceptsName struct {
+	Header []string `json:"header"`
+	Path   []string `json:"path"`
+	Cookie []string `json:"cookie"`
+	Query  []string `json:"query"`
+}
+
+func GlobalParametersExceptsIDToName(content string, gpMap GlobalParametersIDToNameMap) string {
+	re := regexp.MustCompile(`"globalExcepts":{[^}]*}`)
+	match := re.FindString(content)
+
+	if match == "" {
+		return content
+	}
+
+	oldGlobalExcepts := match[16:]
+
+	var globalExceptsID GlobalExceptsID
+	globalExceptsName := GlobalExceptsName{
+		Header: []string{},
+		Path:   []string{},
+		Cookie: []string{},
+		Query:  []string{},
+	}
+
+	if err := json.Unmarshal([]byte(oldGlobalExcepts), &globalExceptsID); err != nil {
+		return content
+	}
+
+	for _, id := range globalExceptsID.Header {
+		globalExceptsName.Header = append(globalExceptsName.Header, gpMap.Header[id])
+	}
+	for _, id := range globalExceptsID.Path {
+		globalExceptsName.Path = append(globalExceptsName.Path, gpMap.Path[id])
+	}
+	for _, id := range globalExceptsID.Cookie {
+		globalExceptsName.Cookie = append(globalExceptsName.Cookie, gpMap.Cookie[id])
+	}
+	for _, id := range globalExceptsID.Query {
+		globalExceptsName.Query = append(globalExceptsName.Query, gpMap.Query[id])
+	}
+
+	if newGlobalExcepts, err := json.Marshal(globalExceptsName); err == nil {
+		content = strings.Replace(content, oldGlobalExcepts, string(newGlobalExcepts), -1)
+	}
+
+	return content
 }

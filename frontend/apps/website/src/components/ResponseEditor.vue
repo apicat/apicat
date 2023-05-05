@@ -1,10 +1,10 @@
 <template>
   <div v-if="isShow" class="ac-response-editor">
     <h2 class="relative flex justify-between text-16px font-500">
-      响应参数
+      {{ $t('app.response.title') }}
       <div class="absolute right-0 z-10 bg-white -bottom-30px">
         <el-button link type="primary" @click="handleAddTab">
-          <el-icon><ac-icon-ep-plus /></el-icon>添加
+          <el-icon><ac-icon-ep-plus /></el-icon>{{ $t('app.common.add') }}
         </el-button>
       </div>
     </h2>
@@ -31,7 +31,7 @@
       <el-tab-pane name="add-tab" disabled class="ac-response__common">
         <template #label>
           <el-space @click="onShowCommonResponseModal">
-            <span>公共响应</span>
+            <span>{{ $t('app.publicResponse.title') }}</span>
             <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px">{{ commonResponseCount }}</span>
           </el-space>
         </template>
@@ -52,9 +52,11 @@ import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 import SelectCommonResponseModal from '@/views/document/components/SelectCommonResponseModal.vue'
 import { ElMessage } from 'element-plus'
 import { isEmpty, debounce } from 'lodash-es'
+import { useI18n } from 'vue-i18n'
 
 const emits = defineEmits(['update:data'])
 const props = defineProps<{ data: Array<any>; definitions?: Definition[] }>()
+const { t } = useI18n()
 
 const createResponse = (item?: any) => {
   return {
@@ -62,7 +64,7 @@ const createResponse = (item?: any) => {
     _isCommonResponse: false,
     name: 'Response Name',
     code: 200,
-    description: 'success',
+    description: '',
     content: createResponseDefaultContent(),
     ...item,
   }
@@ -121,10 +123,14 @@ const handleCommonResponseSelectFinish = (selectedIds: string[]) => {
 }
 
 const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop({
-  onDrop: (dragIndex: number, dropIndex: number) => {
-    const dragItem = model.value[dragIndex]
-    model.value.splice(dragIndex, 1)
-    model.value.splice(dropIndex, 0, dragItem)
+  onDrop: (dragIndex: number, dropIndex: number, offset: number) => {
+    const dropItem = model.value[dropIndex]
+    const dragItemArr = model.value.splice(dragIndex, 1)
+    if (dragItemArr.length) {
+      let i = model.value.indexOf(dropItem)
+      if (offset < 0) i += 1
+      model.value.splice(i < 0 ? 0 : i, 0, dragItemArr[0])
+    }
   },
 })
 
@@ -133,7 +139,7 @@ const validResponseName = () => {
   for (let i = 0; i < len; i++) {
     const item = model.value[i]
     if (isEmpty(item.name) && !item._isCommonResponse) {
-      ElMessage.error('响应名称不能为空')
+      ElMessage.error(t('app.response.rules.name'))
       // activeLastTab(model.value[i]._id)
       return false
     }

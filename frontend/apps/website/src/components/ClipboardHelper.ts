@@ -1,6 +1,7 @@
 import ClipboardJS from 'clipboard'
 import { ElMessage } from 'element-plus'
 import { trim } from 'lodash-es'
+import { i18n } from '@/i18n'
 
 const install = function (app: any) {
   app.mixin({
@@ -17,7 +18,7 @@ const install = function (app: any) {
 
       app.__clipboard__.on('success', () => {
         ElMessage.closeAll()
-        ElMessage.success('复制成功')
+        ElMessage.success((i18n.global as any).t('app.tips.copyed'))
       })
     },
   })

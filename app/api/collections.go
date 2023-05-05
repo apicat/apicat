@@ -71,7 +71,7 @@ func CollectionsList(ctx *gin.Context) {
 	collections, err := collection.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
 		})
 	}
 
@@ -137,7 +137,7 @@ func CollectionsCreate(ctx *gin.Context) {
 	collection.Content = data.Content
 	if err := collection.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
 		})
 		return
 	}
@@ -174,7 +174,7 @@ func CollectionsUpdate(ctx *gin.Context) {
 	collection.Content = data.Content
 	if err := collection.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.UpdateFailed"}),
 		})
 		return
 	}
@@ -200,7 +200,7 @@ func CollectionsCopy(ctx *gin.Context) {
 
 	if err := newCollection.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
 		})
 		return
 	}
@@ -257,7 +257,7 @@ func CollectionsDelete(ctx *gin.Context) {
 
 	if err := models.Deletes(collection.ID, models.Conn); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
 		})
 		return
 	}

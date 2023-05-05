@@ -7,6 +7,9 @@
   <div v-for="(_, contentTypeKey) in param.content" :key="contentTypeKey">
     <p class="mb-10px text-16px mt-14px">Content({{ contentTypeKey }})</p>
     <JSONSchemaEditor :readonly="true" :definitions="definitions" v-model="param.content[contentTypeKey].schema" v-if="isJsonschema" />
+    <p class="my-10px" v-if="param.content[contentTypeKey].schema.example">
+      {{ $t('app.response.tips.responseExample') }}
+    </p>
     <CodeEditor
       :readonly="true"
       v-if="param.content[contentTypeKey].schema.example"

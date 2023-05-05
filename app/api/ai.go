@@ -32,6 +32,7 @@ type AICreateApiNameStructure struct {
 func AICreateCollection(ctx *gin.Context) {
 	var (
 		openapiContent string
+		schema         *models.Definitions
 		err            error
 	)
 
@@ -46,7 +47,7 @@ func AICreateCollection(ctx *gin.Context) {
 	lang := util.GetUserLanguage(ctx)
 
 	if data.SchemaID > 0 {
-		schema, err := models.NewDefinitions(data.SchemaID)
+		schema, err = models.NewDefinitions(data.SchemaID)
 		if err != nil {
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NotFound"}),
@@ -84,39 +85,27 @@ func AICreateCollection(ctx *gin.Context) {
 		return
 	}
 
-	byteContent, err := json.Marshal(content.Collections[0].Content)
-	if err != nil {
+	currentProject, _ := ctx.Get("CurrentProject")
+	definitionSchemas := models.DefinitionsImport(currentProject.(*models.Projects).ID, content.Definitions.Schemas)
+	records := models.CollectionsImport(currentProject.(*models.Projects).ID, data.ParentID, content.Collections, definitionSchemas)
+
+	if len(records) == 0 {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
 		})
 		return
 	}
 
-	currentProject, _ := ctx.Get("CurrentProject")
-
-	collection, _ := models.NewCollections()
-	collection.ProjectId = currentProject.(*models.Projects).ID
-	collection.ParentId = data.ParentID
-	collection.Title = data.Title
-	collection.Type = "http"
-	collection.Content = string(byteContent)
-	if err := collection.Create(); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
-		})
-		return
-	}
-
 	ctx.JSON(http.StatusCreated, gin.H{
-		"id":         collection.ID,
-		"parent_id":  collection.ParentId,
-		"title":      collection.Title,
-		"type":       collection.Type,
-		"content":    collection.Content,
-		"created_at": collection.CreatedAt.Format("2006-01-02 15:04:05"),
-		"created_by": collection.Creator(),
-		"updated_at": collection.UpdatedAt.Format("2006-01-02 15:04:05"),
-		"updated_by": collection.Updater(),
+		"id":         records[0].ID,
+		"parent_id":  records[0].ParentId,
+		"title":      records[0].Title,
+		"type":       records[0].Type,
+		"content":    records[0].Content,
+		"created_at": records[0].CreatedAt.Format("2006-01-02 15:04:05"),
+		"created_by": records[0].Creator(),
+		"updated_at": records[0].UpdatedAt.Format("2006-01-02 15:04:05"),
+		"updated_by": records[0].Updater(),
 	})
 }
 
