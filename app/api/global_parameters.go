@@ -213,6 +213,10 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 	ctx.Status(http.StatusCreated)
 }
 
+type IsUnRefData struct {
+	IsUnRef int `json:"is_unref" binding:"required,oneof=0 1"`
+}
+
 func GlobalParametersDelete(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
@@ -220,6 +224,13 @@ func GlobalParametersDelete(ctx *gin.Context) {
 	gp := GlobalParametersID{}
 	globalParameters, err := gp.CheckGlobalParameters(ctx)
 	if err != nil {
+		return
+	}
+	data := IsUnRefData{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -287,19 +298,27 @@ func GlobalParametersDelete(ctx *gin.Context) {
 			switch globalParameters.In {
 			case "query":
 				if !apicatRequest.GlobalExcepts.CheckQueryRef(int(globalParameters.ID)) {
-					apicatRequest.Parameters.CheckQueryRef(parametersSchema)
+					if data.IsUnRef == 1 {
+						apicatRequest.Parameters.CheckQueryRef(parametersSchema)
+					}
 				}
 			case "header":
 				if !apicatRequest.GlobalExcepts.CheckHeaderRef(int(globalParameters.ID)) {
-					apicatRequest.Parameters.CheckHeaderRef(parametersSchema)
+					if data.IsUnRef == 1 {
+						apicatRequest.Parameters.CheckHeaderRef(parametersSchema)
+					}
 				}
 			case "path":
 				if !apicatRequest.GlobalExcepts.CheckPathRef(int(globalParameters.ID)) {
-					apicatRequest.Parameters.CheckPathRef(parametersSchema)
+					if data.IsUnRef == 1 {
+						apicatRequest.Parameters.CheckPathRef(parametersSchema)
+					}
 				}
 			case "cookie":
 				if !apicatRequest.GlobalExcepts.CheckCookieRef(int(globalParameters.ID)) {
-					apicatRequest.Parameters.CheckCookieRef(parametersSchema)
+					if data.IsUnRef == 1 {
+						apicatRequest.Parameters.CheckCookieRef(parametersSchema)
+					}
 				}
 			default:
 				ctx.JSON(http.StatusBadRequest, gin.H{
