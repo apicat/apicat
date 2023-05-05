@@ -39,7 +39,7 @@ func InitApiRouter(r *gin.Engine) {
 	{
 		projects := apiRouter.(*gin.RouterGroup).Group("/projects")
 		{
-			projects.GET("/", api.ProjectsList)
+			projects.GET("", api.ProjectsList)
 			projects.GET("/:id", api.ProjectsGet)
 			projects.GET("/:id/data", api.ProjectDataGet)
 			projects.POST("/", api.ProjectsCreate)
@@ -51,8 +51,8 @@ func InitApiRouter(r *gin.Engine) {
 		{
 			definitions := project.(*gin.RouterGroup).Group("/definitions")
 			{
-				definitions.GET("/", api.DefinitionsList)
-				definitions.POST("/", api.DefinitionsCreate)
+				definitions.GET("", api.DefinitionsList)
+				definitions.POST("", api.DefinitionsCreate)
 				definitions.PUT("/:definition-id", api.DefinitionsUpdate)
 				definitions.DELETE("/:definition-id", api.DefinitionsDelete)
 				definitions.GET("/:definition-id", api.DefinitionsGet)
@@ -62,32 +62,32 @@ func InitApiRouter(r *gin.Engine) {
 
 			servers := project.(*gin.RouterGroup).Group("/servers")
 			{
-				servers.GET("/", api.UrlList)
-				servers.PUT("/", api.UrlSettings)
+				servers.GET("", api.UrlList)
+				servers.PUT("", api.UrlSettings)
 			}
 
 			globalParameters := project.(*gin.RouterGroup).Group("/global/parameters")
 			{
-				globalParameters.GET("/", api.GlobalParametersList)
-				globalParameters.POST("/", api.GlobalParametersCreate)
+				globalParameters.GET("", api.GlobalParametersList)
+				globalParameters.POST("", api.GlobalParametersCreate)
 				globalParameters.PUT("/:parameter-id", api.GlobalParametersUpdate)
 				globalParameters.DELETE("/:parameter-id", api.GlobalParametersDelete)
 			}
 
 			definitionsResponses := project.(*gin.RouterGroup).Group("/definitions/responses")
 			{
-				definitionsResponses.GET("/", api.CommonResponsesList)
+				definitionsResponses.GET("", api.CommonResponsesList)
 				definitionsResponses.GET("/:response-id", api.CommonResponsesDetail)
-				definitionsResponses.POST("/", api.CommonResponsesCreate)
+				definitionsResponses.POST("", api.CommonResponsesCreate)
 				definitionsResponses.PUT("/:response-id", api.CommonResponsesUpdate)
 				definitionsResponses.DELETE("/:response-id", api.CommonResponsesDelete)
 			}
 
 			collections := project.(*gin.RouterGroup).Group("/collections")
 			{
-				collections.GET("/", api.CollectionsList)
+				collections.GET("", api.CollectionsList)
 				collections.GET("/:collection-id", api.CollectionsGet)
-				collections.POST("/", api.CollectionsCreate)
+				collections.POST("", api.CollectionsCreate)
 				collections.PUT("/:collection-id", api.CollectionsUpdate)
 				collections.POST("/:collection-id", api.CollectionsCopy)
 				collections.PUT("/movement", api.CollectionsMovement)
@@ -96,8 +96,8 @@ func InitApiRouter(r *gin.Engine) {
 
 			trashs := project.(*gin.RouterGroup).Group("/trashs")
 			{
-				trashs.GET("/", api.TrashsList)
-				trashs.PUT("/", api.TrashsRecover)
+				trashs.GET("", api.TrashsList)
+				trashs.PUT("", api.TrashsRecover)
 			}
 
 			ai := project.(*gin.RouterGroup).Group("/ai")
