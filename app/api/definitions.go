@@ -1,8 +1,10 @@
 package api
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"net/http"
 
 	"github.com/apicat/apicat/commom/translator"
@@ -331,9 +333,25 @@ func DefinitionsCopy(ctx *gin.Context) {
 		return
 	}
 
+	randomInt, err := rand.Int(rand.Reader, big.NewInt(100))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.CopyFail"}),
+		})
+		return
+	}
+
+	schema := map[string]interface{}{}
+	if err := json.Unmarshal([]byte(oldDefinition.Schema), &schema); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.CopyFail"}),
+		})
+		return
+	}
+
 	newDefinition, _ := models.NewDefinitions()
 	newDefinition.ProjectId = oldDefinition.ProjectId
-	newDefinition.Name = fmt.Sprintf("%s (copy)", oldDefinition.Name)
+	newDefinition.Name = fmt.Sprintf("%s_%s", oldDefinition.Name, randomInt)
 	newDefinition.Description = oldDefinition.Description
 	newDefinition.Type = oldDefinition.Type
 	newDefinition.Schema = oldDefinition.Schema
@@ -350,7 +368,7 @@ func DefinitionsCopy(ctx *gin.Context) {
 		"name":        newDefinition.Name,
 		"description": newDefinition.Description,
 		"type":        newDefinition.Type,
-		"schema":      newDefinition.Schema,
+		"schema":      schema,
 		"created_at":  newDefinition.CreatedAt.Format("2006-01-02 15:04:05"),
 		"created_by":  newDefinition.Creator(),
 		"updated_at":  newDefinition.UpdatedAt.Format("2006-01-02 15:04:05"),
