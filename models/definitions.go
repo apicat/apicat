@@ -178,7 +178,7 @@ func DefinitionIdToName(content string, idToNameMap IdToNameMap) string {
 	return content
 }
 
-func DefinitionsDdereference(d *Definitions) error {
+func DefinitionsUnRef(d *Definitions, isUnRef int) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
 
 	definitions, _ := NewDefinitions()
@@ -190,10 +190,73 @@ func DefinitionsDdereference(d *Definitions) error {
 
 	for _, definitions := range definitionsList {
 		if strings.Contains(definitions.Schema, ref) {
-			newContent := strings.Replace(definitions.Schema, ref, d.Schema, -1)
+			newStr := ""
+			if isUnRef == 1 {
+				newStr = d.Schema
+			}
+
+			newContent := strings.Replace(definitions.Schema, ref, newStr, -1)
 			definitions.Schema = newContent
 
 			if err := definitions.Save(); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func CommonResponsesUnRef(d *Definitions, isUnRef int) error {
+	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
+
+	commonResponses, _ := NewCommonResponses()
+	commonResponses.ProjectID = d.ProjectId
+	commonResponsesList, err := commonResponses.List()
+	if err != nil {
+		return err
+	}
+
+	for _, commonResponse := range commonResponsesList {
+		if strings.Contains(commonResponse.Content, ref) {
+			newStr := ""
+			if isUnRef == 1 {
+				newStr = d.Schema
+			}
+
+			newContent := strings.Replace(commonResponse.Content, ref, newStr, -1)
+			commonResponse.Content = newContent
+
+			if err := commonResponse.Update(); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func CollectionsUnRef(d *Definitions, isUnRef int) error {
+	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
+
+	collections, _ := NewCollections()
+	collections.ProjectId = d.ProjectId
+	collectionList, err := collections.List()
+	if err != nil {
+		return err
+	}
+
+	for _, collection := range collectionList {
+		if strings.Contains(collection.Content, ref) {
+			newStr := ""
+			if isUnRef == 1 {
+				newStr = d.Schema
+			}
+
+			newContent := strings.Replace(collection.Content, ref, newStr, -1)
+			collection.Content = newContent
+
+			if err := collection.Update(); err != nil {
 				return err
 			}
 		}

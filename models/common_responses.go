@@ -2,8 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/apicat/apicat/app/util"
@@ -134,28 +132,4 @@ func CommonResponsesExport(projectID uint) spec.HTTPResponses {
 	}
 
 	return specCommonResponses
-}
-
-func CommonResponsesDdereference(d *Definitions) error {
-	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
-
-	commonResponses, _ := NewCommonResponses()
-	commonResponses.ProjectID = d.ProjectId
-	commonResponsesList, err := commonResponses.List()
-	if err != nil {
-		return err
-	}
-
-	for _, commonResponse := range commonResponsesList {
-		if strings.Contains(commonResponse.Content, ref) {
-			newContent := strings.Replace(commonResponse.Content, ref, d.Schema, -1)
-			commonResponse.Content = newContent
-
-			if err := commonResponse.Update(); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }

@@ -321,8 +321,6 @@ func CommonResponsesDelete(ctx *gin.Context) {
 				newStr := ""
 				if data.IsUnRef == 1 {
 					newStr = string(responseDetailJson)
-				} else {
-					newStr = ""
 				}
 
 				newContent := strings.Replace(collection.Content, ref, newStr, -1)

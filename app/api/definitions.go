@@ -236,19 +236,27 @@ func DefinitionsDelete(ctx *gin.Context) {
 	}
 
 	// 模型解引用
-	if err := models.CollectionsDdereference(definition); err != nil {
+	isUnRefData := IsUnRefData{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	if err := models.CommonResponsesDdereference(definition); err != nil {
+
+	if err := models.CollectionsUnRef(definition, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	if err := models.DefinitionsDdereference(definition); err != nil {
+	if err := models.CommonResponsesUnRef(definition, isUnRefData.IsUnRef); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	if err := models.DefinitionsUnRef(definition, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
