@@ -64,7 +64,6 @@ export const useSchemaPopoverMenu = (
 
   /**
    * 删除模型
-   * todo 删除模型后，需要刷新文档详情
    */
   const onDeleteMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
