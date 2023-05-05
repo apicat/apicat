@@ -14,6 +14,7 @@ declare module '@vue/runtime-core' {
     AcIconCarbonUnlink: typeof import('~icons/carbon/unlink')['default']
     'AcIconEp:circleCheckFilled': typeof import('~icons/ep/circle-check-filled')['default']
     'AcIconEp:circleCloseFilled': typeof import('~icons/ep/circle-close-filled')['default']
+    'AcIconEp:plus': typeof import('~icons/ep/plus')['default']
     'AcIconEp:questionFilled': typeof import('~icons/ep/question-filled')['default']
     AcIconEpArrowDownBold: typeof import('~icons/ep/arrow-down-bold')['default']
     AcIconEpArrowLeftBold: typeof import('~icons/ep/arrow-left-bold')['default']

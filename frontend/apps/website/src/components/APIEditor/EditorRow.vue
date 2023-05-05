@@ -107,7 +107,7 @@
         <el-button-group size="small">
           <el-tooltip :content="$t('editor.table.addNode')" placement="top" :show-after="368" v-if="data.type === 'object' && !isRefChildren(data) && !data.refObj">
             <el-button text circle @click="addChildHandler">
-              <el-icon :size="14"><ac-icon-ic-outline-add-circle /></el-icon>
+              <el-icon :size="14"><ac-icon-ep:plus /></el-icon>
             </el-button>
           </el-tooltip>
 
