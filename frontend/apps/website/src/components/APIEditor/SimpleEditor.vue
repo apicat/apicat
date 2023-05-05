@@ -44,17 +44,19 @@
 
         <tr v-for="(data, index) in list" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
           <td class="text-center" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" :draggable="draggable" v-show="draggable">
-            <el-icon class="mt-5px">
+            <el-icon class="mt-5px" v-if="!isEditPath">
               <ac-icon-material-symbols-drag-indicator />
             </el-icon>
           </td>
           <td>
-            <el-input v-model="data._name" @input="(v) => onParamNameChange(data, v)" />
+            <el-input v-if="!isEditPath" v-model="data._name" @input="(v) => onParamNameChange(data, v)" />
+            <span class="px-12px" v-else>{{ data.name }}</span>
           </td>
-          <td class="text-center">
-            <el-select v-model="data.schema.type" @change="changeNotify(data)">
+          <td :class="{ 'text-center': !isEditPath }">
+            <el-select v-if="!isEditPath" v-model="data.schema.type" @change="changeNotify(data)">
               <el-option v-for="item in ['string', 'integer', 'number', 'array', 'boolean']" :key="item" :label="item" :value="item" />
             </el-select>
+            <span class="px-11px" v-else>{{ data.schema.type }}</span>
           </td>
 
           <td class="text-center">
@@ -68,7 +70,7 @@
             <el-input v-model="data.schema.description" @input="changeNotify(data)" />
           </td>
           <td class="text-center">
-            <slot name="operate" :row="data" :index="index" :delHandler="delHandler">
+            <slot v-if="!isEditPath" name="operate" :row="data" :index="index" :delHandler="delHandler">
               <el-popconfirm title="delete this?" @confirm="delHandler(index)">
                 <template #reference>
                   <el-button size="small" text circle tabindex="-1">
@@ -82,7 +84,7 @@
           </td>
         </tr>
 
-        <tr>
+        <tr v-if="!isEditPath">
           <td v-show="draggable"></td>
           <td>
             <el-input v-model="newname" :placeholder="$t('editor.table.addParam')" @keyup.enter="addHandler(newname)">
@@ -107,6 +109,7 @@ import { useSchemaList } from './useSchemaList'
 const props = withDefaults(
   defineProps<{
     readonly?: boolean
+    isEditPath?: boolean
     draggable?: boolean
     modelValue: APICatSchemaObject[]
     onChange?: (v: APICatSchemaObject) => void
@@ -115,6 +118,7 @@ const props = withDefaults(
   }>(),
   {
     readonly: false,
+    isEditPath: false,
     draggable: true,
     modelValue: () => [],
   }
