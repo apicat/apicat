@@ -68,8 +68,8 @@ export const useDefinitionStore = defineStore('definition', {
       }
     },
 
-    async deleteDefinition(project_id: string, def_id: string | number) {
-      await deleteDefinition(project_id as string, def_id)
+    async deleteDefinition(project_id: string, def_id: string | number, is_unref = 1) {
+      await deleteDefinition(project_id as string, def_id, is_unref)
     },
   },
 })

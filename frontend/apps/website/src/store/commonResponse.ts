@@ -36,9 +36,9 @@ export const useCommonResponseStore = defineStore('commonResponse', {
       }
     },
 
-    async deleteResponseParam(project_id: string | number, detail: APICatCommonResponse) {
+    async deleteResponseParam(project_id: string | number, detail: APICatCommonResponse, is_unref = 0) {
       const { id: response_id } = detail
-      await deleteResponseParam({ project_id, response_id })
+      await deleteResponseParam({ project_id, response_id, is_unref })
       const index = this.response.findIndex((item) => item.id === response_id)
       index !== -1 && this.response.splice(index, 1)
     },

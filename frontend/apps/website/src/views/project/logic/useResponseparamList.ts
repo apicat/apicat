@@ -11,6 +11,7 @@ export const useResponseparamList = ({ id: project_id }: Pick<ProjectInfo, 'id'>
   const [isLoading, getResponseParamListApi] = useApi(commonResponseStore.getCommonResponseList)()
 
   const responseParamList: Ref<APICatCommonResponseCustom[]> = ref([])
+  const isLoadingForDelete = shallowRef(false)
 
   const extendResponseParamModel = (param?: Partial<APICatCommonResponseCustom>): APICatCommonResponseCustom => {
     return {
@@ -34,15 +35,15 @@ export const useResponseparamList = ({ id: project_id }: Pick<ProjectInfo, 'id'>
     responseParamList.value.unshift(createResponseParamModel())
   }
 
-  const handleDeleteParam = async (item: APICatCommonResponseCustom, index: number) => {
+  const handleDeleteParam = async (item: APICatCommonResponseCustom, index: number, isUnRef: number) => {
     const { isLocal } = item
 
     if (!isLocal) {
-      item.isLoading = true
+      isLoadingForDelete.value = true
       try {
-        await commonResponseStore.deleteResponseParam(project_id, { id: item.id } as any)
+        await commonResponseStore.deleteResponseParam(project_id, { id: item.id } as any, isUnRef)
       } finally {
-        item.isLoading = false
+        isLoadingForDelete.value = false
       }
     }
 
@@ -57,6 +58,7 @@ export const useResponseparamList = ({ id: project_id }: Pick<ProjectInfo, 'id'>
 
   return {
     isLoading,
+    isLoadingForDelete,
     getResponseParamListApi,
     responseParamList,
 

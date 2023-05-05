@@ -15,7 +15,8 @@ import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModa
 import AcIconBIRobot from '~icons/bi/robot'
 import AcIconCarbonModelAlt from '~icons/carbon/model-alt'
 import { useI18n } from 'vue-i18n'
-
+import { ElCheckbox, ElSwitch } from 'element-plus'
+import { h } from 'vue'
 /**
  * 目录弹层菜单逻辑
  * @param treeIns 目录树
@@ -69,14 +70,31 @@ export const useSchemaPopoverMenu = (
     const node = unref(activeNodeInfo)?.node as Node
     const data = node?.data as CollectionNode
     const tree = unref(treeIns)
+    const isUnref = ref(1)
 
     AsyncMsgBox({
       title: t('app.common.deleteTip'),
-      content: <div class="break-all">{t('app.interface.popoverMenus.confirmDeleteInterface', [data.name])}</div>,
+      content: () => (
+        <div>
+          <div class="break-all mb-4px">{t('app.interface.popoverMenus.confirmDeleteInterface', [data.name])}</div>
+          <ElCheckbox
+            size="small"
+            style={{ fontWeight: 'normal' }}
+            modelValue={isUnref.value}
+            onUpdate:modelValue={(val: any) => {
+              isUnref.value = val
+            }}
+            trueLabel={1}
+            falseLabel={0}
+          >
+            对引用此模型的内容解引用
+          </ElCheckbox>
+        </div>
+      ),
       onOk: async () => {
         NProgress.start()
         try {
-          await definitionStore.deleteDefinition(project_id as string, data.id)
+          await definitionStore.deleteDefinition(project_id as string, data.id, isUnref.value)
           tree.remove(node)
           activeNodeInfo.value = null
           reactiveNode()
