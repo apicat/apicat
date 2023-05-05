@@ -1,8 +1,8 @@
 <template>
   <div class="ac-header-operate">
     <div class="ac-header-operate__main">
-      <p>
-        <i class="ac-iconfont"></i>
+      <p class="flex-y-center">
+        <el-icon :size="18" class="mt-1px mr-4px"><ac-icon-ic-sharp-cloud-queue /></el-icon>
         {{ isSaving ? $t('app.common.saving') : $t('app.common.savedCloud') }}
       </p>
     </div>
