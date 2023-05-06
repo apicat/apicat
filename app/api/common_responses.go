@@ -306,7 +306,7 @@ func CommonResponsesDelete(ctx *gin.Context) {
 		return
 	}
 
-	ref := "{\"$ref\":\"#/commons/responses/" + strconv.FormatUint(uint64(commonResponses.ID), 10) + "\"}"
+	ref := ",{\"$ref\":\"#/commons/responses/" + strconv.FormatUint(uint64(commonResponses.ID), 10) + "\"}"
 	responseDetailJson, err := json.Marshal(responseDetail)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -320,7 +320,7 @@ func CommonResponsesDelete(ctx *gin.Context) {
 			if strings.Contains(collection.Content, ref) {
 				newStr := ""
 				if data.IsUnRef == 1 {
-					newStr = string(responseDetailJson)
+					newStr = "," + string(responseDetailJson)
 				}
 
 				newContent := strings.Replace(collection.Content, ref, newStr, -1)
