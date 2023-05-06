@@ -41,7 +41,7 @@ export declare interface CollectionNode {
   title: string
   name?: string
   type: DocumentTypeEnum
-  sub_nodes?: CollectionNode[]
+  items?: CollectionNode[]
   _oldName?: string | undefined
   _extend?: {
     isLeaf: boolean

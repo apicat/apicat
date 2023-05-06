@@ -30,7 +30,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
         }
       },
       apiDocTree.value as any,
-      { subKey: 'sub_nodes' }
+      { subKey: 'items' }
     )
 
     const activeNodeId = nodeId
@@ -61,7 +61,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
         }
       },
       apiDocTree.value as any,
-      { subKey: 'sub_nodes' }
+      { subKey: 'items' }
     )
 
     // 没有选中文档时，进行自动切换
@@ -77,7 +77,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
           }
         },
         apiDocTree.value,
-        { subKey: 'sub_nodes' }
+        { subKey: 'items' }
       )
 
       // 存在文档

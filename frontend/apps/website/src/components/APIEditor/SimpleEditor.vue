@@ -103,6 +103,7 @@
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import type { APICatSchemaObject } from './types'
 import { useSchemaList } from './useSchemaList'
 
@@ -112,6 +113,7 @@ const props = withDefaults(
     isEditPath?: boolean
     draggable?: boolean
     modelValue: APICatSchemaObject[]
+    emptyText?: string
     onChange?: (v: APICatSchemaObject) => void
     onCreate?: (v: APICatSchemaObject) => void
     onDelete?: (v: APICatSchemaObject) => void
@@ -121,6 +123,7 @@ const props = withDefaults(
     isEditPath: false,
     draggable: true,
     modelValue: () => [],
+    emptyText: '',
   }
 )
 
