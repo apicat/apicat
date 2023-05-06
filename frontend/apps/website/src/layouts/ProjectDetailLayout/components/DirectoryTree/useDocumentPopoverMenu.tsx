@@ -257,6 +257,10 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
     activeNodeInfo.value!.id = undefined
   })
 
+  onUnmounted(() => {
+    index = 1
+  })
+
   return {
     popoverRefEl,
     popoverMenus,

@@ -39,8 +39,8 @@ const { goSchemaEditPage } = useGoPage()
 const definition = ref<Definition | null>(null)
 const hasDocument = ref(true)
 
-const getDetail = async (defId: string) => {
-  const def_id = parseInt(defId, 10)
+const getDetail = async () => {
+  const def_id = parseInt(route.params.shcema_id as string, 10)
 
   if (isNaN(def_id)) {
     hasDocument.value = false
@@ -58,9 +58,16 @@ const getDetail = async (defId: string) => {
   definition.value = data
 }
 
+definitionStore.$onAction(({ name, after }) => {
+  // 删除全局模型
+  if (name === 'deleteDefinition') {
+    after(() => getDetail())
+  }
+})
+
 watch(
   () => route.params.shcema_id,
-  async () => await getDetail(route.params.shcema_id as string),
+  async () => await getDetail(),
   {
     immediate: true,
   }
