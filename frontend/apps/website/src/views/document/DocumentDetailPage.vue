@@ -65,6 +65,7 @@ const getDetail = async (docId: string) => {
   if (isNaN(doc_id)) {
     hasDocument.value = false
     httpDoc.value = null
+    isLoading.value = false
     return
   }
 

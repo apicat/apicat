@@ -1,7 +1,7 @@
 import { noop } from '@vueuse/core'
 
 export type PopoverOptions = {
-  ignore?: []
+  ignore?: Array<any>
   onHide?: () => void
 }
 
@@ -9,6 +9,7 @@ export const usePopover = (options?: PopoverOptions) => {
   let { onHide = noop, ignore = [] } = options || {}
   const popoverRefEl = ref<Nullable<HTMLElement>>(null)
   const isShow = ref(false)
+  ignore = ['.ac-popper-menu', '.ignore-popper'].concat(ignore)
 
   const showPopover = (el: HTMLElement) => {
     popoverRefEl.value = el
@@ -17,16 +18,28 @@ export const usePopover = (options?: PopoverOptions) => {
 
   const hidePopover = () => {
     isShow.value = false
-    setTimeout(() => {
-      popoverRefEl.value = null
-    }, 100)
-
+    popoverRefEl.value = null
     onHide()
   }
 
-  onClickOutside(popoverRefEl, () => hidePopover(), {
-    ignore: ['.ac-popper-menu', '.ignore-popper'].concat(ignore),
-  })
+  // firefox
+  const shouldIgnore = (event: PointerEvent) =>
+    ignore.some((target2) => Array.from(window.document.querySelectorAll(target2)).some((el) => el === event.target || event.composedPath().includes(el)))
+
+  const stop: any = onClickOutside(
+    popoverRefEl,
+    (e) => {
+      if (shouldIgnore(e)) {
+        return
+      }
+      hidePopover()
+    },
+    {
+      ignore,
+    }
+  )
+
+  onUnmounted(() => stop())
 
   return {
     popoverRefEl,
