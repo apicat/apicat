@@ -239,7 +239,7 @@ func DefinitionsDelete(ctx *gin.Context) {
 
 	// 模型解引用
 	isUnRefData := IsUnRefData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&isUnRefData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})

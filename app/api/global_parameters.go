@@ -214,7 +214,7 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 }
 
 type IsUnRefData struct {
-	IsUnRef int `json:"is_unref" binding:"required,oneof=0 1"`
+	IsUnRef int `form:"is_unref"`
 }
 
 func GlobalParametersDelete(ctx *gin.Context) {
