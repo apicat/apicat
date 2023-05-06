@@ -17,6 +17,7 @@ import AcIconCarbonModelAlt from '~icons/carbon/model-alt'
 import { useI18n } from 'vue-i18n'
 import { ElCheckbox, ElSwitch } from 'element-plus'
 import { h } from 'vue'
+import { hasRefInSchema } from '@/commons'
 /**
  * 目录弹层菜单逻辑
  * @param treeIns 目录树
@@ -67,33 +68,37 @@ export const useSchemaPopoverMenu = (
    */
   const onDeleteMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
-    const data = node?.data as CollectionNode
+    const data = node?.data as any
     const tree = unref(treeIns)
+    const hasRef = hasRefInSchema(data.schema)
+
     const isUnref = ref(1)
 
     AsyncMsgBox({
       title: t('app.common.deleteTip'),
       content: () => (
         <div>
-          <div class="break-all mb-4px">{t('app.interface.popoverMenus.confirmDeleteInterface', [data.name])}</div>
-          <ElCheckbox
-            size="small"
-            style={{ fontWeight: 'normal' }}
-            modelValue={isUnref.value}
-            onUpdate:modelValue={(val: any) => {
-              isUnref.value = val
-            }}
-            trueLabel={1}
-            falseLabel={0}
-          >
-            对引用此模型的内容解引用
-          </ElCheckbox>
+          <div class="break-all mb-4px">{t('app.schema.popoverMenus.confirmDeleteSchema', [data.name])}</div>
+          {!hasRef && (
+            <ElCheckbox
+              size="small"
+              style={{ fontWeight: 'normal' }}
+              modelValue={isUnref.value}
+              onUpdate:modelValue={(val: any) => {
+                isUnref.value = val
+              }}
+              trueLabel={1}
+              falseLabel={0}
+            >
+              对引用此模型的内容解引用
+            </ElCheckbox>
+          )}
         </div>
       ),
       onOk: async () => {
         NProgress.start()
         try {
-          await definitionStore.deleteDefinition(project_id as string, data.id, isUnref.value)
+          await definitionStore.deleteDefinition(project_id as string, data.id, hasRef === true ? 0 : isUnref.value)
           tree.remove(node)
           activeNodeInfo.value = null
           reactiveNode()

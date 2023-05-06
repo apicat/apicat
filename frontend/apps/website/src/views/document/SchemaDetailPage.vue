@@ -18,7 +18,7 @@
     </template>
   </Result>
 
-  <div :class="[ns.b(), { 'h-20vh': !definition }]" v-loading="isLoading">
+  <div :class="[ns.b(), { 'h-20vh': !definition && hasDocument }]" v-loading="isLoading">
     <SchmaEditor v-if="definition" :readonly="true" v-model="definition" :definitions="definitions" />
   </div>
 </template>

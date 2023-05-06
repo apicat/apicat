@@ -22,22 +22,15 @@ export const usePopover = (options?: PopoverOptions) => {
     onHide()
   }
 
-  // firefox
   const shouldIgnore = (event: PointerEvent) =>
     ignore.some((target2) => Array.from(window.document.querySelectorAll(target2)).some((el) => el === event.target || event.composedPath().includes(el)))
 
-  const stop: any = onClickOutside(
-    popoverRefEl,
-    (e) => {
-      if (shouldIgnore(e)) {
-        return
-      }
-      hidePopover()
-    },
-    {
-      ignore,
+  const stop: any = onClickOutside(popoverRefEl, (e) => {
+    if (shouldIgnore(e)) {
+      return
     }
-  )
+    hidePopover()
+  })
 
   onUnmounted(() => stop())
 
