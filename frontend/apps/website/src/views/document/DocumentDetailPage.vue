@@ -13,9 +13,6 @@
     <template #icon>
       <img class="h-auto w-260px mb-26px" src="@/assets/images/icon-empty.png" alt="" />
     </template>
-    <template #title>
-      <div class="m-auto">{{ $t('app.common.emptyDataTip') }}</div>
-    </template>
   </Result>
 
   <div :class="[ns.b(), { 'h-20vh': !httpDoc && hasDocument }]" v-loading="isLoading">

@@ -4,7 +4,7 @@ import useDefinitionStore from '@/store/definition'
 import { traverseTree } from '@apicat/shared'
 import { storeToRefs } from 'pinia'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-import { SCHEMA_DETAIL_NAME } from '@/router'
+import { SCHEMA_DETAIL_NAME, DOCUMENT_DETAIL_NAME } from '@/router'
 
 export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
   const definitionStore = useDefinitionStore()
@@ -12,6 +12,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
   const route = useRoute()
   const { definitions } = storeToRefs(definitionStore)
   const { params } = route
+  const directoryTree = inject('directoryTree') as any
 
   // 启动切换文档选中
   watch(
@@ -56,7 +57,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
       }
     }, definitions.value as any)
 
-    // 没有选中文档时，进行自动切换
+    // 没有选中模型时，进行自动切换
     if (!hasCurrent) {
       let node: any = null
       traverseTree((item: any) => {
@@ -68,15 +69,18 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
         }
       }, definitions.value)
 
-      // 存在文档
+      // 存在模型
       if (node) {
         params.shcema_id = node.key
         activeNode(node.key)
+        router.replace({ name: SCHEMA_DETAIL_NAME, params })
       } else {
-        params.shcema_id = ''
+        const { project_id } = params
+        router.push({ name: DOCUMENT_DETAIL_NAME, params: { project_id } })
+        setTimeout(() => {
+          directoryTree.reactiveNode && directoryTree.reactiveNode()
+        }, 0)
       }
-
-      router.replace({ name: SCHEMA_DETAIL_NAME, params })
     }
   }
 

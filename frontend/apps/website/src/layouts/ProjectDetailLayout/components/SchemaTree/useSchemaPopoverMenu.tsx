@@ -15,8 +15,7 @@ import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModa
 import AcIconBIRobot from '~icons/bi/robot'
 import AcIconCarbonModelAlt from '~icons/carbon/model-alt'
 import { useI18n } from 'vue-i18n'
-import { ElCheckbox, ElSwitch } from 'element-plus'
-import { h } from 'vue'
+import { ElCheckbox } from 'element-plus'
 import { hasRefInSchema } from '@/commons'
 /**
  * 目录弹层菜单逻辑
@@ -33,7 +32,6 @@ export const useSchemaPopoverMenu = (
   const { project_id } = useParams()
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
   const { goSchemaEditPage } = useGoPage()
-  const directoryTree = inject('directoryTree') as any
 
   const ROOT_MENUS: Menu[] = [
     { text: t('app.schema.popoverMenus.aiGenerateSchema'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
@@ -102,7 +100,7 @@ export const useSchemaPopoverMenu = (
           tree.remove(node)
           activeNodeInfo.value = null
           reactiveNode()
-          directoryTree.reactiveNode && directoryTree.reactiveNode()
+          // directoryTree.reactiveNode && directoryTree.reactiveNode()
         } catch (error) {
         } finally {
           NProgress.done()
