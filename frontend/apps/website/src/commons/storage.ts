@@ -2,13 +2,14 @@ import { STORAGE_PREFIX } from './constant'
 
 interface StorageKeys {
   TOKEN: string
-  USER_INFO: string
+  USER: string
   LOCALE: string
 }
 
 const Storage = {
   KEYS: {
     TOKEN: `${STORAGE_PREFIX}.token`,
+    USER: `${STORAGE_PREFIX}.user`,
     LOCALE: `${STORAGE_PREFIX}.locale`,
   } as StorageKeys,
 
@@ -43,7 +44,7 @@ const Storage = {
     return this
   },
 
-  removeAll(keys = []) {
+  removeAll(keys: string[]) {
     ;(keys.length ? keys : Object.keys(this.KEYS)).forEach((key: string) => this.remove(key))
   },
 

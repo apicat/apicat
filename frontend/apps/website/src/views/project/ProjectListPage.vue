@@ -37,7 +37,7 @@ const createProjectModal = ref<InstanceType<typeof CreateProjectModal>>()
 const handleShowModelClick = () => createProjectModal.value!.show()
 const projectStore = uesProjectStore()
 const { projects } = storeToRefs(projectStore)
-const [isLoading, getProjectListApi] = useApi(projectStore.getProjects)()
+const [isLoading, getProjectListApi] = useApi(projectStore.getProjects)
 
 onBeforeMount(async () => await getProjectListApi())
 onBeforeUnmount(() => (projectStore.projects = []))

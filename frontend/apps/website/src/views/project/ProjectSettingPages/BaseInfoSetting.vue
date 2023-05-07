@@ -58,7 +58,7 @@ const handleRemove = () => {
     content: <div class="break-all" v-html={t('app.project.setting.deleteProjectTip')}></div>,
     onOk: async () => {
       await deleleProjectApi(projectDetailInfo!.id)
-      router.replace('/home')
+      router.replace('/main')
     },
   })
 }

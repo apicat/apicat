@@ -44,7 +44,7 @@ const emits = defineEmits(['ok'])
 const { t } = useI18n()
 
 const { dialogVisible, showModel, hideModel } = useModal()
-const [isLoading, createCollectionWithSchemaByAIApi] = useApi(createCollectionWithSchemaByAI)()
+const [isLoading, createCollectionWithSchemaByAIApi] = useApi(createCollectionWithSchemaByAI)
 const { project_id } = useParams()
 
 const multipleSelection = ref([])

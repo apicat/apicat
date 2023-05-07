@@ -1,18 +1,23 @@
-import type { RouteRecordRaw } from 'vue-router'
-
-export const ROOT_PATH = '/'
-export const ROOT_PATH_NAME = 'root'
-export const HOME_PATH = '/home'
-export const HOME_PATH_NAME = 'home'
-
-export const indexRoute: RouteRecordRaw = {
-  name: ROOT_PATH_NAME,
-  path: ROOT_PATH,
-  redirect: HOME_PATH,
-}
+export const LOGIN_PATH = '/login'
+export const REGISTER_PATH = '/register'
 
 export const notFoundRoute = {
   path: '/:path(.*)*',
   name: 'error',
+  meta: { ignoreAuth: true },
   component: () => import('@/views/errors/NotFound.vue'),
+}
+
+export const loginRoute = {
+  path: LOGIN_PATH,
+  name: 'login',
+  meta: { ignoreAuth: true },
+  component: () => import('@/views/LoginPage.vue'),
+}
+
+export const registerRoute = {
+  path: REGISTER_PATH,
+  name: 'register',
+  meta: { ignoreAuth: true },
+  component: () => import('@/views/RegisterPage.vue'),
 }

@@ -3,7 +3,7 @@ import useApi from '@/hooks/useApi'
 
 export const getDefinitionList = (project_id: string) => Ajax.get(`/projects/${project_id}/definitions`)
 
-export const getDefinitionDetail = useApi(async ({ project_id, def_id }: any) => Ajax.get(`/projects/${project_id}/definitions/${def_id}`))
+export const getDefinitionDetail = () => useApi(async ({ project_id, def_id }: any) => Ajax.get(`/projects/${project_id}/definitions/${def_id}`))
 
 export const createDefinition = async ({ project_id, ...definitionInfo }: any) => QuietAjax.post(`/projects/${project_id}/definitions`, definitionInfo)
 

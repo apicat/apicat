@@ -31,6 +31,7 @@ declare module '@vue/runtime-core' {
     AcIconMaterialSymbolsDragIndicator: typeof import('~icons/material-symbols/drag-indicator')['default']
     AcIconMiEnter: typeof import('~icons/mi/enter')['default']
     AcIconUilFileBlank: typeof import('~icons/uil/file-blank')['default']
+    AcLogo: typeof import('./../components/AcLogo.vue')['default']
     AcTag: typeof import('./../components/AcTag.vue')['default']
     AsyncMessageBox: typeof import('./../components/AsyncMessageBox.ts')['default']
     ClipboardHelper: typeof import('./../components/ClipboardHelper.ts')['default']

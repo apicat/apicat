@@ -58,7 +58,7 @@ import { usePopover } from '@/hooks/usePopover'
 const project_id = useProjectId()
 const globalParametersStore = uesGlobalParametersStore()
 const { parameters } = storeToRefs(globalParametersStore)
-const [isLoading, getCommonParamListApi] = useApi(globalParametersStore.getGlobalParameters)()
+const [isLoading, getCommonParamListApi] = useApi(globalParametersStore.getGlobalParameters)
 let currentDeleteParam: { param: any; index: number; delHandler: any } | null = null
 const isUnRef = shallowRef(1)
 
