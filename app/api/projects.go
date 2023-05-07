@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/apicat/apicat/commom/spec"
-	"github.com/apicat/apicat/commom/spec/plugin/openapi"
-	"github.com/apicat/apicat/commom/translator"
+	"github.com/apicat/apicat/common/spec"
+	"github.com/apicat/apicat/common/spec/plugin/openapi"
+	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/models"
 	"golang.org/x/exp/slog"
 

@@ -6,9 +6,9 @@ import (
 	"time"
 
 	"github.com/apicat/apicat/app/util"
-	"github.com/apicat/apicat/commom/openai"
-	"github.com/apicat/apicat/commom/spec/plugin/openapi"
-	"github.com/apicat/apicat/commom/translator"
+	"github.com/apicat/apicat/common/openai"
+	"github.com/apicat/apicat/common/spec/plugin/openapi"
+	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/config"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
@@ -58,7 +58,14 @@ func AICreateCollection(ctx *gin.Context) {
 		o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, lang)
 		o.SetMaxTokens(3000)
 		openapiContent, err = o.CreateApiBySchema(data.Title, schema.Schema)
+		if err != nil {
+			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+			})
+			return
+		}
 	} else {
+		// @todo maybe max tokens limit not effect
 		o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, lang)
 		o.SetMaxTokens(2000)
 		openapiContent, err = o.CreateApi(data.Title)
@@ -135,6 +142,7 @@ func AICreateSchema(ctx *gin.Context) {
 	}
 
 	lang := util.GetUserLanguage(ctx)
+	// @todo maybe max tokens configuration limit not effect
 	o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, lang)
 	o.SetMaxTokens(2000)
 	openapiContent, err = o.CreateSchema(data.Name)

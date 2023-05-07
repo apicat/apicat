@@ -43,6 +43,9 @@ func Init() {
 			config.SysConfig.DB.Charset,
 		)
 		Conn, err = gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: dbLogger})
+		if err != nil {
+			panic(err)
+		}
 	default:
 		panic("There is no setting for the database driver type.")
 	}

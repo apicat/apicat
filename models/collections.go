@@ -8,7 +8,7 @@ import (
 	"strconv"
 
 	"github.com/apicat/apicat/app/util"
-	"github.com/apicat/apicat/commom/spec"
+	"github.com/apicat/apicat/common/spec"
 	"gorm.io/gorm"
 )
 

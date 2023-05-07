@@ -6,8 +6,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/apicat/apicat/commom/spec"
-	"github.com/apicat/apicat/commom/translator"
+	"github.com/apicat/apicat/common/spec"
+	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )

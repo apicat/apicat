@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/commom/log"
+	"github.com/apicat/apicat/common/log"
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/shortuuid/v4"
 	"golang.org/x/exp/slog"

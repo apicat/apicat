@@ -6,7 +6,7 @@ import (
 
 	"github.com/apicat/apicat/app/api"
 	"github.com/apicat/apicat/app/middleware"
-	"github.com/apicat/apicat/commom/translator"
+	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/frontend"
 
 	"github.com/gin-gonic/gin"

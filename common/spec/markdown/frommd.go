@@ -3,7 +3,7 @@ package markdown
 import (
 	"io"
 
-	"github.com/apicat/apicat/commom/spec"
+	"github.com/apicat/apicat/common/spec"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/parser"
