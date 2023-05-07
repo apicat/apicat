@@ -19,11 +19,13 @@ import (
 type CreateProject struct {
 	Title string `json:"title" binding:"required,lte=255"`
 	Data  string `json:"data"`
+	Cover string `json:"cover" binding:"lte=255"`
 }
 
 type UpdateProject struct {
 	Title       string `json:"title" binding:"required,lte=255"`
 	Description string `json:"description" binding:"lte=255"`
+	Cover       string `json:"cover" binding:"lte=255"`
 }
 
 type ProjectID struct {
@@ -112,6 +114,7 @@ func ProjectsCreate(ctx *gin.Context) {
 	project.Title = data.Title
 	project.PublicId = shortuuid.New()
 	project.Visibility = 0
+	project.Cover = data.Cover
 	if err := project.Create(); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.CreateFail"}),
@@ -172,6 +175,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 
 	project.Title = data.Title
 	project.Description = data.Description
+	project.Cover = data.Cover
 	if err := project.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),

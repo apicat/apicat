@@ -14,6 +14,7 @@ type Projects struct {
 	Title       string `gorm:"type:varchar(255);not null;comment:项目名称"`
 	Visibility  int    `gorm:"type:tinyint(1);not null;comment:项目可见性:0私有,1公开"`
 	Description string `gorm:"type:varchar(255);comment:项目描述"`
+	Cover       string `gorm:"type:varchar(255);comment:项目封面"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	DeletedAt   gorm.DeletedAt
