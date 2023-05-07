@@ -113,5 +113,24 @@ func EmailRegister(ctx *gin.Context) {
 		return
 	}
 
-	ctx.Status(http.StatusCreated)
+	token, err := auth.GenerateToken(user)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.FailedToGenerateToken"}),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"access_token": token,
+		"expires_in":   auth.TokenExpireDuration,
+		"user": map[string]interface{}{
+			"id":         user.ID,
+			"username":   user.Username,
+			"email":      user.Email,
+			"role":       user.Role,
+			"created_at": user.CreatedAt.Format("2006-01-02 15:04:05"),
+			"updated_at": user.UpdatedAt.Format("2006-01-02 15:04:05"),
+		},
+	})
 }
