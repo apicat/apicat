@@ -63,6 +63,13 @@ func ProjectsList(ctx *gin.Context) {
 }
 
 func ProjectsCreate(ctx *gin.Context) {
+	CurrentUser, _ := ctx.Get("CurrentUser")
+	user, _ := CurrentUser.(*models.Users)
+	if user.Role == "user" {
+		ctx.Status(http.StatusForbidden)
+		return
+	}
+
 	var (
 		data       CreateProject
 		content    *spec.Spec
@@ -129,6 +136,13 @@ func ProjectsCreate(ctx *gin.Context) {
 }
 
 func ProjectsUpdate(ctx *gin.Context) {
+	CurrentUser, _ := ctx.Get("CurrentUser")
+	user, _ := CurrentUser.(*models.Users)
+	if user.Role == "user" {
+		ctx.Status(http.StatusForbidden)
+		return
+	}
+
 	var (
 		uriData ProjectID
 		data    UpdateProject
@@ -169,6 +183,13 @@ func ProjectsUpdate(ctx *gin.Context) {
 }
 
 func ProjectsDelete(ctx *gin.Context) {
+	CurrentUser, _ := ctx.Get("CurrentUser")
+	user, _ := CurrentUser.(*models.Users)
+	if user.Role == "user" {
+		ctx.Status(http.StatusForbidden)
+		return
+	}
+
 	var data ProjectID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
@@ -223,6 +244,13 @@ func ProjectsGet(ctx *gin.Context) {
 }
 
 func ProjectDataGet(ctx *gin.Context) {
+	CurrentUser, _ := ctx.Get("CurrentUser")
+	user, _ := CurrentUser.(*models.Users)
+	if user.Role == "user" {
+		ctx.Status(http.StatusForbidden)
+		return
+	}
+
 	var (
 		uriData ProjectID
 		data    ExportProject

@@ -104,3 +104,17 @@
         other = "Collection update failed"
     [Collections.DeleteFailed]
         other = "Collection delete failed"
+[Auth]
+    [Auth.TokenParsingFailed]
+        other = "Token parsing failed"
+[User]
+    [User.WrongPassword]
+        other = "Wrong password"
+    [User.FailedToGenerateToken]
+        other = "Failed to generate token"
+    [User.MailboxAlreadyExists]
+        other = "Mailbox already exists"
+    [User.PasswordEncryptionFailed]
+        other = "Password encryption failed"
+    [User.RegistrationFailed]
+        other = "Registration failed"
