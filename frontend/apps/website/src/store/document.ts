@@ -24,13 +24,13 @@ export const useDocumentStore = defineStore('document', {
   actions: {
     async getApiDocTree(project_id: string) {
       const tree = await getCollectionList(project_id)
-      this.apiDocTree = traverseTree((item: CollectionNode) => extendDocTreeFeild(item), tree || [], { subKey: 'sub_nodes' }) as Array<CollectionNode>
+      this.apiDocTree = traverseTree((item: CollectionNode) => extendDocTreeFeild(item), tree || [], { subKey: 'items' }) as Array<CollectionNode>
       return this.apiDocTree
     },
 
     async refreshApiDocTree(project_id: string) {
       const tree = await getCollectionList(project_id)
-      this.apiDocTree = traverseTree((item: CollectionNode) => extendDocTreeFeild(item), tree || [], { subKey: 'sub_nodes' }) as Array<CollectionNode>
+      this.apiDocTree = traverseTree((item: CollectionNode) => extendDocTreeFeild(item), tree || [], { subKey: 'items' }) as Array<CollectionNode>
       return this.apiDocTree
     },
   },

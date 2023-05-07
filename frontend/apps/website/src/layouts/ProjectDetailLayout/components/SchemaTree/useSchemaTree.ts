@@ -1,3 +1,4 @@
+import { useApi } from '@/hooks/useApi'
 import type { CollectionNode } from '@/typings/project'
 import { storeToRefs } from 'pinia'
 import { memoize } from 'lodash-es'
@@ -25,7 +26,7 @@ const getTreeMaxDepth = memoize(function (node) {
       }
     },
     [node] as CollectionNode[],
-    { subKey: 'sub_nodes' }
+    { subKey: 'items' }
   )
   return maxLevel
 })
@@ -43,9 +44,10 @@ export const useSchemaTree = () => {
   const { params } = route
   const { getDefinitions } = definitionStore
   const { definitions } = storeToRefs(definitionStore)
+  const [isLoading, getDefinitionsApi] = useApi(getDefinitions)()
 
   const treeOptions: TreeOptionProps = {
-    children: 'sub_nodes',
+    children: 'items',
     label: 'title',
     class: (data): string => [(data as CollectionNode)._extend?.isLeaf ? 'is-doc' : 'is-dir'].join(' '),
     isLeaf: (data): boolean => (data as CollectionNode).type === DocumentTypeEnum.DOC,
@@ -148,7 +150,7 @@ export const useSchemaTree = () => {
   }
 
   const initSchemaTree = async (activeId?: any) => {
-    await getDefinitions(project_id as string)
+    await getDefinitionsApi(project_id as string)
     if (route.name === SCHEMA_DETAIL_NAME || route.name === SCHEMA_EDIT_NAME) {
       router.currentRoute.value.params.shcema_id ? activeNode(activeId || params.shcema_id) : reactiveNode()
     }
@@ -160,8 +162,9 @@ export const useSchemaTree = () => {
   }
 
   onMounted(async () => await initSchemaTree())
-
+  onUnmounted(() => definitionStore.$reset())
   return {
+    isLoading,
     treeIns,
     treeOptions,
     definitions,

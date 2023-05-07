@@ -2,7 +2,7 @@
   <div class="ac-sce-selecttype">
     <div v-if="showRef" style="padding: 12px; width: 240px">
       <el-space direction="vertical" fill warp style="width: 100%">
-        <el-text>引用模型</el-text>
+        <el-text>{{ $t('editor.table.refModel') }}</el-text>
         <el-input v-model="searchRef">
           <template #prefix>
             <el-icon>
@@ -42,7 +42,7 @@
       </el-space>
     </div>
     <el-dropdown-menu v-else>
-      <el-dropdown-item :class="{ 'ac-sec-selected': data.refObj }" @click.prevent="openRefMode">引用模型</el-dropdown-item>
+      <el-dropdown-item :class="{ 'ac-sec-selected': data.refObj }" @click.prevent="openRefMode">{{ $t('editor.table.refModel') }}</el-dropdown-item>
       <el-dropdown-item
         v-for="(item, i) in basicTypes"
         :divided="i == 0"
@@ -110,13 +110,13 @@ const treeData = computed(() => {
     })
 })
 
-function resetObject(v: Object) {
-  for (let k of Object.keys(v)) {
-    if (k != 'description') {
-      delete (v as any)[k]
-    }
-  }
-}
+// function resetObject(v: Object) {
+//   for (let k of Object.keys(v)) {
+//     if (k != 'description') {
+//       delete (v as any)[k]
+//     }
+//   }
+// }
 
 const refName = ref()
 watchEffect(() => {
@@ -129,27 +129,28 @@ const changeSchemaTypeRef = (r: any) => {
   if (props.data.refObj?.name == r) {
     return
   }
-  const sc = props.data.schema
-  resetObject(sc)
-  sc.$ref = `${RefPrefixKeys.DefinitionsSchema.key}${r}`
-  emits('change')
+
+  // const sc = props.data.schema
+  // resetObject(sc)
+  // sc.$ref = `${RefPrefixKeys.DefinitionsSchema.key}${r}`
+  emits('change', { type: `${RefPrefixKeys.DefinitionsSchema.key}${r}`, isRef: true })
 }
 
-const changeSchemaType = (vtype: string) => {
-  if (vtype == props.data.type) {
+const changeSchemaType = (type: string) => {
+  if (type == props.data.type && !props.data.refObj) {
     return
   }
-  const sc = props.data.schema
-  resetObject(sc)
-  sc.type = vtype
-  if (sc.type == 'array') {
-    sc.items = {
-      type: 'string',
-    }
-  } else if (sc.type == 'object') {
-    sc.properties = {}
-  }
-  emits('change')
+  // const sc = props.data.schema
+  // resetObject(sc)
+  // sc.type = vtype
+  // if (sc.type == 'array') {
+  //   sc.items = {
+  //     type: 'string',
+  //   }
+  // } else if (sc.type == 'object') {
+  //   sc.properties = {}
+  // }
+  emits('change', { type, isRef: false })
 }
 </script>
 

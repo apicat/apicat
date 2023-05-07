@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"strings"
 
@@ -9,6 +10,7 @@ import (
 	"github.com/apicat/apicat/commom/spec/plugin/openapi"
 	"github.com/apicat/apicat/commom/translator"
 	"github.com/apicat/apicat/models"
+	"golang.org/x/exp/slog"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/shortuuid/v4"
@@ -29,19 +31,22 @@ type ProjectID struct {
 }
 
 type ExportProject struct {
-	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi"`
+	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi3.0.0 openapi3.0.1 openapi3.0.2 openapi3.1.0"`
 	Download string `form:"download" binding:"omitempty,oneof=true false"`
 }
 
 func ProjectsList(ctx *gin.Context) {
 	project, _ := models.NewProjects()
-	projects, err := project.List()
+	projects, err := project.List(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
 	}
+
+	slog.InfoCtx(ctx, "这是一条日志")
+	slog.InfoCtx(ctx, "ProjectsList", slog.Int("project_length", len(projects)))
 
 	result := make([]gin.H, 0)
 	for _, p := range projects {
@@ -256,18 +261,34 @@ func ProjectDataGet(ctx *gin.Context) {
 		Version:     "1.0.0",
 	}
 
-	// apicatData.Servers = models.ServersExport(project.ID)
-	// apicatData.Common = models.CommonsExport(project.ID)
-	// apicatData.Definitions = models.DefinitionsExport(project.ID)
-	// apicatData.Collections = models.CollectionsExport(project.ID)
+	apicatData.Servers = models.ServersExport(project.ID)
+	apicatData.Globals.Parameters = models.GlobalParametersExport(project.ID)
+	apicatData.Common.Responses = models.CommonResponsesExport(project.ID)
+	apicatData.Definitions.Schemas = models.DefinitionsExport(project.ID)
+	apicatData.Collections = models.CollectionsExport(project.ID)
 
-	if data.Type == "swagger" {
+	// ctx.JSON(http.StatusOK, apicatData)
+	// return
+	if apicatDataContent, err := json.Marshal(apicatData); err == nil {
+		slog.InfoCtx(ctx, "Export", slog.String("apicat", string(apicatDataContent)))
+	}
+
+	switch data.Type {
+	case "swagger":
 		content, err = openapi.Encode(apicatData, "2.0")
-	} else if data.Type == "openapi" {
+	case "openapi3.0.0":
 		content, err = openapi.Encode(apicatData, "3.0.0")
-	} else {
+	case "openapi3.0.1":
+		content, err = openapi.Encode(apicatData, "3.0.1")
+	case "openapi3.0.2":
+		content, err = openapi.Encode(apicatData, "3.0.2")
+	case "openapi3.1.0":
+		content, err = openapi.Encode(apicatData, "3.1.0")
+	default:
 		content, err = apicatData.ToJSON(spec.JSONOption{Indent: "  "})
 	}
+
+	slog.InfoCtx(ctx, "Export", slog.String(data.Type, string(content)))
 
 	if err != nil {
 		ctx.JSON(http.StatusServiceUnavailable, gin.H{

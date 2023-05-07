@@ -1,6 +1,7 @@
 package models
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -49,9 +50,9 @@ func (p *Projects) Get(id string) error {
 	return Conn.Where("public_id = ?", id).Take(p).Error
 }
 
-func (p *Projects) List() ([]Projects, error) {
+func (p *Projects) List(ctx context.Context) ([]Projects, error) {
 	var projects []Projects
-	return projects, Conn.Order("created_at desc").Find(&projects).Error
+	return projects, Conn.WithContext(ctx).Order("created_at desc").Find(&projects).Error
 }
 
 func (p *Projects) Delete() error {

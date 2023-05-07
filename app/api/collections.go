@@ -37,7 +37,7 @@ type CollectionList struct {
 	ParentID uint              `json:"parent_id"`
 	Title    string            `json:"title"`
 	Type     string            `json:"type"`
-	SubNodes []*CollectionList `json:"sub_nodes"`
+	Items    []*CollectionList `json:"items"`
 }
 
 type CollectionCreate struct {
@@ -71,7 +71,7 @@ func CollectionsList(ctx *gin.Context) {
 	collections, err := collection.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
 		})
 	}
 
@@ -89,7 +89,7 @@ func buildTree(parentID uint, collections []*models.Collections) []*CollectionLi
 				ParentID: c.ParentId,
 				Title:    c.Title,
 				Type:     c.Type,
-				SubNodes: children,
+				Items:    children,
 			})
 		}
 	}
@@ -137,7 +137,7 @@ func CollectionsCreate(ctx *gin.Context) {
 	collection.Content = data.Content
 	if err := collection.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
 		})
 		return
 	}
@@ -174,7 +174,7 @@ func CollectionsUpdate(ctx *gin.Context) {
 	collection.Content = data.Content
 	if err := collection.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.UpdateFailed"}),
 		})
 		return
 	}
@@ -200,7 +200,7 @@ func CollectionsCopy(ctx *gin.Context) {
 
 	if err := newCollection.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
 		})
 		return
 	}
@@ -257,7 +257,7 @@ func CollectionsDelete(ctx *gin.Context) {
 
 	if err := models.Deletes(collection.ID, models.Conn); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
 		})
 		return
 	}

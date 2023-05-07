@@ -25,6 +25,9 @@ import { ElMessage } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps<{ modelValue: HttpDocument }>()
+const emits = defineEmits(['url-change'])
+
+const regexp = /\{([^{}]+)\}/gi
 
 const { t } = useI18n()
 const ns = useNamespace('http-method')
@@ -40,5 +43,9 @@ const onChangePath = debounce((e: any) => {
     return
   }
   nodeAttrs.value.path = e.target.value
+  emits(
+    'url-change',
+    Array.from(e.target.value.matchAll(regexp), (m: Array<any>) => m[1])
+  )
 }, 300)
 </script>

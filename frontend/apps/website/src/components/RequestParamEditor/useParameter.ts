@@ -1,8 +1,11 @@
 import { useNodeAttrs, HTTP_REQUEST_NODE_KEY } from '@/hooks/useNodeAttrs'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
 
 export const useParameter = (props: any, propKey?: string) => {
+  const { t } = useI18n()
+
   const nodeAttrs = useNodeAttrs(props, HTTP_REQUEST_NODE_KEY, propKey)
   const globalParametersStore = uesGlobalParametersStore()
   const { parameters: globalParameters } = storeToRefs(globalParametersStore)
@@ -16,25 +19,25 @@ export const useParameter = (props: any, propKey?: string) => {
 
   const globalHeaders = computed(() =>
     globalParameters.value.header.map((param) => {
-      return { ...param, required: param.required ? '是' : '否', isUse: !(nodeAttrs.value.globalExcepts.header || []).includes(param.id) }
+      return { ...param, required: param.required ? t('editor.table.yes') : t('editor.table.no'), isUse: !(nodeAttrs.value.globalExcepts.header || []).includes(param.id) }
     })
   )
 
   const globalCookies = computed(() =>
     globalParameters.value.cookie.map((param) => {
-      return { ...param, required: param.required ? '是' : '否', isUse: !(nodeAttrs.value.globalExcepts.cookie || []).includes(param.id) }
+      return { ...param, required: param.required ? t('editor.table.yes') : t('editor.table.no'), isUse: !(nodeAttrs.value.globalExcepts.cookie || []).includes(param.id) }
     })
   )
 
   const globalQueries = computed(() =>
     globalParameters.value.query.map((param) => {
-      return { ...param, required: param.required ? '是' : '否', isUse: !(nodeAttrs.value.globalExcepts.query || []).includes(param.id) }
+      return { ...param, required: param.required ? t('editor.table.yes') : t('editor.table.no'), isUse: !(nodeAttrs.value.globalExcepts.query || []).includes(param.id) }
     })
   )
 
   const globalPaths = computed(() =>
     globalParameters.value.path.map((param) => {
-      return { ...param, required: param.required ? '是' : '否', isUse: !(nodeAttrs.value.globalExcepts.path || []).includes(param.id) }
+      return { ...param, required: param.required ? t('editor.table.yes') : t('editor.table.no'), isUse: !(nodeAttrs.value.globalExcepts.path || []).includes(param.id) }
     })
   )
 

@@ -12,8 +12,9 @@ const baseConfig = {
 }
 
 const handleError = (error: any) => {
-  const { response } = error
+  const { response = { data: {} } } = error
   ElMessage.error(response.data.message || 'server error')
+
   return Promise.reject(error)
 }
 

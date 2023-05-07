@@ -2,13 +2,13 @@
   <el-dialog v-model="dialogVisible" center append-to-body :close-on-click-modal="false" :close-on-press-escape="false" destroy-on-close width="40%">
     <template #header>
       <div class="flex-y-center">
-        <el-icon class="mr-5px"><ac-icon-bi-robot /></el-icon>AI生成接口
+        <el-icon class="mr-5px"><ac-icon-bi-robot /></el-icon>{{ $t('app.interface.common.aiGenerateInterface') }}
       </div>
     </template>
 
     <el-form class="mt-10px" label-position="top" label-width="0" :model="form" :rules="rules" ref="aiPromptForm" @submit.prevent="handleSubmit(aiPromptForm)">
       <el-form-item prop="title">
-        <el-input size="large" v-model="form.title" placeholder="请输入您想生成的接口名称" clearable />
+        <el-input size="large" v-model="form.title" :placeholder="$t('app.interface.form.modalTitle')" clearable />
       </el-form-item>
     </el-form>
     <el-button :loading="isLoading" type="primary" @click="handleSubmit(aiPromptForm)">生成</el-button>
@@ -20,7 +20,10 @@ import { createCollectionByAI } from '@/api/collection'
 import useApi from '@/hooks/useApi'
 import { useParams } from '@/hooks/useParams'
 import { FormInstance } from 'element-plus'
+import { useI18n } from 'vue-i18n'
+
 const emits = defineEmits(['ok'])
+const { t } = useI18n()
 
 const aiPromptForm = ref<FormInstance>()
 
@@ -35,7 +38,7 @@ const form = reactive({
 })
 
 const rules = {
-  title: [{ required: true, message: '请输入您想生成的接口名称', trigger: 'blur' }],
+  title: [{ required: true, message: t('app.interface.form.modalTitle'), trigger: 'blur' }],
 }
 
 const show = (params?: any) => {

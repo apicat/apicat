@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2 class="text-16px font-500">请求参数</h2>
+    <h2 class="text-16px font-500">{{ $t('app.request.title') }}</h2>
     <el-tabs>
       <el-tab-pane label="Header">
         <template #label>
@@ -50,7 +50,7 @@
           </el-radio-group>
         </div>
 
-        <div v-if="currentContentTypeRef === RequestContentTypesMap.none" class="text-center">该请求没有Body体</div>
+        <div v-if="currentContentTypeRef === RequestContentTypesMap.none" class="text-center">{{ $t('app.request.tips.noRequestBody') }}</div>
 
         <div v-if="currentContentTypeRef === RequestContentTypesMap['form-data']">
           <SimpleSchemaEditor v-model="contentValues[RequestContentTypesMap['form-data']].schema" :definitions="definitions" has-file />
@@ -75,7 +75,7 @@
         <div v-if="currentContentTypeRef === RequestContentTypesMap.binary">
           <FileUploaderWrapper class="flex items-center border border-gray-200 border-solid rounded cursor-pointer h-30px" v-slot="{ fileName }" @change="handleChooseFile">
             <label class="flex items-center h-full bg-gray-200 border-r border-gray-200 border-solid px-6px font-500">{{ RequestContentTypesMap.binary }}</label>
-            <span class="flex-1 truncate px-6px"> {{ fileName ?? '请选择文件' }}</span>
+            <span class="flex-1 truncate px-6px"> {{ fileName ?? $t('app.request.tips.selectFile') }}</span>
           </FileUploaderWrapper>
         </div>
       </el-tab-pane>
@@ -85,7 +85,7 @@
           Path
           <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px" v-if="pathsCount">{{ pathsCount }}</span>
         </template>
-        <SimpleParameterEditor v-model="paths">
+        <SimpleParameterEditor v-model="paths" :is-edit-path="true">
           <template #before>
             <GlobalParameter :data="globalPaths" :onSwitch="switchGlobalPath" />
           </template>

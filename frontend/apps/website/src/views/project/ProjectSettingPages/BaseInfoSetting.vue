@@ -34,8 +34,8 @@ const form: ProjectInfo = reactive({
 
 const rules = {
   title: [
-    { required: true, message: '请输入项目名称', trigger: 'blur' },
-    { min: 2, message: '项目名称不能少于两个字', trigger: 'blur' },
+    { required: true, message: t('app.project.rules.title'), trigger: 'blur' },
+    { min: 2, message: t('app.project.rules.titleMinLength'), trigger: 'blur' },
   ],
 }
 

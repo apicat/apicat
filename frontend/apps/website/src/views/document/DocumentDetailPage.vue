@@ -1,16 +1,22 @@
 <template>
-  <div class="ac-header-operate" v-if="hasDocument">
+  <div class="ac-header-operate" v-if="hasDocument && httpDoc">
     <div class="ac-header-operate__main">
       <p class="ac-header-operate__title">{{ httpDoc.title }}</p>
     </div>
 
     <div class="ac-header-operate__btns">
-      <el-button type="primary" @click="goDocumentEditPage()">编辑</el-button>
+      <el-button type="primary" @click="goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
     </div>
   </div>
 
-  <div :class="ns.b()" v-loading="isLoading" v-if="hasDocument">
-    <div class="ac-editor mt-10px">
+  <Result v-show="!hasDocument && !isLoading">
+    <template #icon>
+      <img class="h-auto w-260px mb-26px" src="@/assets/images/icon-empty.png" alt="" />
+    </template>
+  </Result>
+
+  <div :class="[ns.b(), { 'h-20vh': !httpDoc && hasDocument }]" v-loading="isLoading">
+    <div class="ac-editor mt-10px" v-if="httpDoc">
       <RequestMethodRaw class="mb-10px" :doc="httpDoc" :urls="urlServers" />
 
       <RequestParamRaw class="mb-10px" :doc="httpDoc" :definitions="definitions" />
@@ -18,20 +24,10 @@
       <ResponseParamTabsRaw :doc="httpDoc" :definitions="definitions" />
     </div>
   </div>
-
-  <Result v-if="!hasDocument">
-    <template #icon>
-      <img class="h-auto w-260px mb-26px" src="@/assets/images/icon-empty.png" alt="" />
-    </template>
-    <template #title>
-      <div class="m-auto">您当前尚未创建文档，请从左侧目录栏点击添加 API 文档。</div>
-    </template>
-  </Result>
 </template>
 <script setup lang="ts">
 import { HttpDocument } from '@/typings'
 import { useNamespace } from '@/hooks/useNamespace'
-import { createHttpDocument } from '@/views/document/components/createHttpDocument'
 import ResponseParamTabsRaw from '@/components/ResponseParamTabsRaw.vue'
 import { useGoPage } from '@/hooks/useGoPage'
 import uesProjectStore from '@/store/project'
@@ -54,15 +50,19 @@ const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const { urlServers } = storeToRefs(projectStore)
 const { definitions } = storeToRefs(definitionStore)
 
-const hasDocument = ref(true)
+const hasDocument = ref(false)
 const ns = useNamespace('document')
-const httpDoc: Ref<HttpDocument> = ref(createHttpDocument())
+const httpDoc: Ref<HttpDocument | null> = ref(null)
 
 const getDetail = async (docId: string) => {
   const doc_id = parseInt(docId, 10)
 
+  isLoading.value = true
+
   if (isNaN(doc_id)) {
     hasDocument.value = false
+    httpDoc.value = null
+    isLoading.value = false
     return
   }
 
@@ -80,16 +80,26 @@ globalParametersStore.$onAction(({ name, after }) => {
     after(() => getDetail(route.params.doc_id as string))
   }
 })
+
 commonResponseStore.$onAction(({ name, after }) => {
-  // 删除全局参数
+  // 删除全局响应
   if (name === 'updateResponseParam') {
+    after(() => getDetail(route.params.doc_id as string))
+  }
+})
+
+definitionStore.$onAction(({ name, after }) => {
+  // 删除全局模型
+  if (name === 'deleteDefinition') {
     after(() => getDetail(route.params.doc_id as string))
   }
 })
 
 watch(
   () => route.params.doc_id,
-  async () => await getDetail(route.params.doc_id as string),
+  async () => {
+    await getDetail(route.params.doc_id as string)
+  },
   {
     immediate: true,
   }

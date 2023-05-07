@@ -18,7 +18,6 @@ export const getCollectionDetail = useApi(async ({ project_id, collection_id }: 
   try {
     doc.content = JSON.parse(doc.content)
     mergeDocumentContent(doc.content)
-    console.log(doc.content)
   } catch (error) {
     doc.content = createHttpDocument().content
   }
@@ -56,6 +55,18 @@ const mergeHttpRequest = (node: any) => {
   if (!node.attrs.globalExcepts || isEmpty(node.attrs.globalExcepts)) {
     node.attrs.globalExcepts = defaultVal.globalExcepts
   }
+
+  Object.keys(node.attrs.globalExcepts).forEach((key) => {
+    if (isEmpty(node.attrs.globalExcepts[key])) {
+      node.attrs.globalExcepts[key] = []
+    }
+  })
+
+  Object.keys(node.attrs.parameters).forEach((key) => {
+    if (isEmpty(node.attrs.parameters[key])) {
+      node.attrs.parameters[key] = []
+    }
+  })
 
   if (!node.attrs.content) {
     node.attrs.content = defaultVal.content

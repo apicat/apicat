@@ -1,11 +1,11 @@
 package api
 
 import (
+	"crypto/rand"
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/apicat/apicat/commom/translator"
 	"github.com/apicat/apicat/models"
@@ -68,7 +68,7 @@ func DefinitionsList(ctx *gin.Context) {
 	definitions, err := definition.List()
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
 		})
 		return
 	}
@@ -78,7 +78,7 @@ func DefinitionsList(ctx *gin.Context) {
 		schema := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(d.Schema), &schema); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": err.Error(),
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 			})
 			return
 		}
@@ -108,7 +108,7 @@ func DefinitionsCreate(ctx *gin.Context) {
 	schemaJson, err := json.Marshal(data.Schema)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -120,13 +120,13 @@ func DefinitionsCreate(ctx *gin.Context) {
 	definitions, err := definition.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
 		})
 		return
 	}
 	if len(definitions) > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NameExists"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -186,7 +186,7 @@ func DefinitionsUpdate(ctx *gin.Context) {
 	schemaJson, err := json.Marshal(data.Schema)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -196,14 +196,14 @@ func DefinitionsUpdate(ctx *gin.Context) {
 	definitions, err := definition.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
 		})
 		return
 	}
 
 	if len(definitions) > 0 && definitions[0].ID != definition.ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NameExists"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -220,9 +220,6 @@ func DefinitionsUpdate(ctx *gin.Context) {
 }
 
 func DefinitionsDelete(ctx *gin.Context) {
-	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
-
 	var data DefinitionID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
@@ -240,62 +237,32 @@ func DefinitionsDelete(ctx *gin.Context) {
 		return
 	}
 
-	// 判断该模型是否被使用
-	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(definition.ID), 10) + "\"}"
-
-	collections, _ := models.NewCollections()
-	collections.ProjectId = project.ID
-	collectionList, err := collections.List()
-	if err != nil {
+	// 模型解引用
+	isUnRefData := IsUnRefData{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&isUnRefData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	for _, v := range collectionList {
-		if strings.Contains(v.Content, ref) {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.InUse"}),
-			})
-			return
-		}
-	}
 
-	definitions, _ := models.NewDefinitions()
-	definitions.ProjectId = project.ID
-	definitionList, err := definitions.List()
-
-	if err != nil {
+	if err := models.CollectionsUnRef(definition, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	for _, v := range definitionList {
-		if strings.Contains(v.Schema, ref) {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.InUse"}),
-			})
-			return
-		}
-	}
-
-	commonResponses, _ := models.NewCommonResponses()
-	commonResponses.ProjectID = project.ID
-	commonResponsesList, err := commonResponses.List()
-	if err != nil {
+	if err := models.CommonResponsesUnRef(definition, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	for _, v := range commonResponsesList {
-		if strings.Contains(v.Content, ref) {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.InUse"}),
-			})
-			return
-		}
+	if err := models.DefinitionsUnRef(definition, isUnRefData.IsUnRef); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
 	}
 
 	if err := definition.Delete(); err != nil {
@@ -329,7 +296,7 @@ func DefinitionsGet(ctx *gin.Context) {
 	schema := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(definition.Schema), &schema); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -366,9 +333,25 @@ func DefinitionsCopy(ctx *gin.Context) {
 		return
 	}
 
+	randomInt, err := rand.Int(rand.Reader, big.NewInt(100))
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.CopyFail"}),
+		})
+		return
+	}
+
+	schema := map[string]interface{}{}
+	if err := json.Unmarshal([]byte(oldDefinition.Schema), &schema); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.CopyFail"}),
+		})
+		return
+	}
+
 	newDefinition, _ := models.NewDefinitions()
 	newDefinition.ProjectId = oldDefinition.ProjectId
-	newDefinition.Name = fmt.Sprintf("%s (copy)", oldDefinition.Name)
+	newDefinition.Name = fmt.Sprintf("%s_%s", oldDefinition.Name, randomInt)
 	newDefinition.Description = oldDefinition.Description
 	newDefinition.Type = oldDefinition.Type
 	newDefinition.Schema = oldDefinition.Schema
@@ -385,7 +368,7 @@ func DefinitionsCopy(ctx *gin.Context) {
 		"name":        newDefinition.Name,
 		"description": newDefinition.Description,
 		"type":        newDefinition.Type,
-		"schema":      newDefinition.Schema,
+		"schema":      schema,
 		"created_at":  newDefinition.CreatedAt.Format("2006-01-02 15:04:05"),
 		"created_by":  newDefinition.Creator(),
 		"updated_at":  newDefinition.UpdatedAt.Format("2006-01-02 15:04:05"),

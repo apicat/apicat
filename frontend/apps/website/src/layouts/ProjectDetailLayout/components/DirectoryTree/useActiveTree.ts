@@ -4,7 +4,7 @@ import useDocumentStore from '@/store/document'
 import { traverseTree } from '@apicat/shared'
 import { storeToRefs } from 'pinia'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-import { DOCUMENT_DETAIL_NAME } from '@/router'
+import { DOCUMENT_DETAIL_NAME, getProjectDetailPath } from '@/router'
 
 export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
   const documentStore = useDocumentStore()
@@ -30,7 +30,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
         }
       },
       apiDocTree.value as any,
-      { subKey: 'sub_nodes' }
+      { subKey: 'items' }
     )
 
     const activeNodeId = nodeId
@@ -51,7 +51,6 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
     if (!treeIns.value || !String(route.name).startsWith('document')) {
       return
     }
-
     let hasCurrent = false
     traverseTree(
       (item: CollectionNode) => {
@@ -61,7 +60,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
         }
       },
       apiDocTree.value as any,
-      { subKey: 'sub_nodes' }
+      { subKey: 'items' }
     )
 
     // 没有选中文档时，进行自动切换
@@ -77,17 +76,18 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
           }
         },
         apiDocTree.value,
-        { subKey: 'sub_nodes' }
+        { subKey: 'items' }
       )
 
       // 存在文档
       if (node) {
         params.doc_id = node.key
         activeNode(node.key)
-      } else {
-        params.doc_id = ''
+        router.push({ name: DOCUMENT_DETAIL_NAME, params })
+        return
       }
-      router.replace({ name: DOCUMENT_DETAIL_NAME, params })
+
+      router.replace(getProjectDetailPath(route.params.project_id as string))
     }
   }
 

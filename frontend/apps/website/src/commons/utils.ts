@@ -1,6 +1,7 @@
 import { HttpCodeColorMap } from '@apicat/shared'
 import { compile } from 'path-to-regexp'
 import { HttpMethodTypeMap } from './constant'
+import { JSONSchema } from '@/components/APIEditor/types'
 
 /**
  * 创建API模块get path
@@ -20,4 +21,31 @@ export const getResponseStatusCodeBgColor = (code: number): any => {
 export const getRequestMethodColor = (method: string): any => {
   const color = (HttpMethodTypeMap as any)[method].color
   return color ?? HttpMethodTypeMap.get.color
+}
+
+export const hasRefInSchema = (schema: JSONSchema) => {
+  if (schema.$ref != undefined) {
+    return true
+  }
+
+  // check child
+  switch (schema.type) {
+    case 'object':
+      const properties = schema.properties
+      if (properties) {
+        const keys = Object.keys(properties)
+        for (let key of keys) {
+          if (hasRefInSchema(properties[key])) {
+            return true
+          }
+        }
+      }
+      break
+    case 'array':
+      if (hasRefInSchema(schema.items as JSONSchema)) {
+        return true
+      }
+  }
+
+  return false
 }

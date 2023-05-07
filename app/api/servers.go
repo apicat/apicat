@@ -22,7 +22,7 @@ func UrlList(ctx *gin.Context) {
 	servers, err := server.GetByProjectId(project.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Servers.GetFailed"}),
 		})
 		return
 	}
@@ -64,7 +64,7 @@ func UrlSettings(ctx *gin.Context) {
 	server := models.NewServers()
 	if err := server.DeleteAndCreateServers(project.ID, resule); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Servers.SetFailed"}),
 		})
 		return
 	}

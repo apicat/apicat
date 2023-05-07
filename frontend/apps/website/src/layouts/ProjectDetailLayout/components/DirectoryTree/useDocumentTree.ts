@@ -12,6 +12,7 @@ import { useActiveTree } from './useActiveTree'
 import { DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME } from '@/router'
 import { useProjectId } from '@/hooks/useProjectId'
 import { moveCollection } from '@/api/collection'
+import useApi from '@/hooks/useApi'
 
 /**
  * 获取节点树最大深度
@@ -25,7 +26,7 @@ const getTreeMaxDepth = memoize(function (node) {
       }
     },
     [node] as CollectionNode[],
-    { subKey: 'sub_nodes' }
+    { subKey: 'items' }
   )
   return maxLevel
 })
@@ -34,15 +35,17 @@ export const useDocumentTree = () => {
   const documentStore = useDocumentStore()
   const project_id = useProjectId()
   const { goDocumentDetailPage, goDocumentEditPage } = useGoPage()
+
   const route = useRoute()
   const router = useRouter()
 
   const { params } = route
   const { getApiDocTree } = documentStore
+  const [isLoading, getApiDocTreeApi] = useApi(getApiDocTree)()
   const { apiDocTree } = storeToRefs(documentStore)
 
   const treeOptions: TreeOptionProps = {
-    children: 'sub_nodes',
+    children: 'items',
     label: 'title',
     class: (data): string => [(data as CollectionNode)._extend?.isLeaf ? 'is-doc' : 'is-dir'].join(' '),
     isLeaf: (data): boolean => (data as CollectionNode).type === DocumentTypeEnum.DOC,
@@ -147,7 +150,7 @@ export const useDocumentTree = () => {
   }
 
   const initDocumentTree = async (activeDocId?: any) => {
-    await getApiDocTree(project_id as string)
+    await getApiDocTreeApi(project_id as string)
     if (route.name === DOCUMENT_DETAIL_NAME || route.name === DOCUMENT_EDIT_NAME) {
       router.currentRoute.value.params.doc_id ? activeNode(activeDocId || params.doc_id) : reactiveNode()
     }
@@ -165,7 +168,11 @@ export const useDocumentTree = () => {
 
   onMounted(async () => initDocumentTree())
 
+  onUnmounted(() => documentStore.$reset())
+
   return {
+    isLoading,
+
     treeIns,
     treeOptions,
     apiDocTree,

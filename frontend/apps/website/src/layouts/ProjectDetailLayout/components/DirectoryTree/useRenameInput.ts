@@ -1,4 +1,3 @@
-import { DocumentTypeEnum } from '@/commons/constant'
 import { CollectionNode } from '@/typings/project'
 import { debounce } from 'lodash-es'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'

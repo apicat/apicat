@@ -17,6 +17,7 @@ apicat
 
 .vscode/
 data/*.db
+logs/
 
 setting.default.yaml
 setting.example.yaml

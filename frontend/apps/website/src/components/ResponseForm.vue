@@ -1,16 +1,16 @@
 <template>
   <el-space direction="vertical" fill warp class="w-full">
     <el-form :inline="true">
-      <el-form-item label="名称">
+      <el-form-item :label="$t('app.response.table.name')">
         <el-input v-model="model.name" maxlength="50" />
       </el-form-item>
 
-      <el-form-item label="状态码">
-        <el-select v-model="model.code" placeholder="状态码" filterable>
+      <el-form-item :label="$t('app.response.table.code')">
+        <el-select v-model="model.code" :placeholder="$t('app.response.table.code')" filterable>
           <el-option v-for="code in HttpCodeList" :label="code.code + ' ' + code.desc" :value="code.code" />
         </el-select>
       </el-form-item>
-      <el-form-item label="描述">
+      <el-form-item :label="$t('app.response.table.desc')">
         <el-input v-model="model.description" maxlength="300" />
       </el-form-item>
       <el-form-item>
@@ -33,7 +33,7 @@
       </div>
       <Editor :definitions="definitions" v-model="model.content[ct].schema" v-if="isJsonschema" />
       <p class="my-10px">
-        响应示例
+        {{ $t('app.response.tips.responseExample') }}
         <el-tag disable-transitions effect="plain">format:{{ contentTypes[ct] }}</el-tag>
       </p>
       <CodeEditor v-model="model.content[ct].schema.example" :lang="contentTypes[ct]" />
