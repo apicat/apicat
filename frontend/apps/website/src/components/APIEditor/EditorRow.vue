@@ -43,7 +43,7 @@
               <span v-else>{{ data.type }}</span>
             </el-button>
             <template #dropdown>
-              <SelectTypeDropmenu :data="data" :show-ref="showRefModal" @showRef="showRefModal = true" @change="changeNotify" />
+              <SelectTypeDropmenu :data="data" :show-ref="showRefModal" @showRef="showRefModal = true" @change="changeType" />
             </template>
           </el-dropdown>
         </template>
@@ -186,6 +186,33 @@ const changeRequired = (v: CheckboxValueType) => {
     sc.required = sc.required?.filter((v) => v !== props.data.label)
   }
   changeNotify()
+}
+
+function resetObject(v: Object) {
+  for (let k of Object.keys(v)) {
+    if (k != 'description') {
+      delete (v as any)[k]
+    }
+  }
+}
+
+const changeType = ({ type, isRef }: any) => {
+  const sc = props.data.schema
+  resetObject(sc)
+  if (!isRef) {
+    sc.type = type
+    if (sc.type == 'array') {
+      sc.items = {
+        type: 'string',
+      }
+    } else if (sc.type == 'object') {
+      sc.properties = {}
+    }
+  } else {
+    sc.$ref = type
+  }
+
+  changeNotify(props.data.label === constNodeType.root ? sc : undefined)
 }
 
 const changeName = (v: string) => {

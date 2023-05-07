@@ -26,7 +26,7 @@ const getTreeMaxDepth = memoize(function (node) {
       }
     },
     [node] as CollectionNode[],
-    { subKey: 'sub_nodes' }
+    { subKey: 'items' }
   )
   return maxLevel
 })
@@ -47,7 +47,7 @@ export const useSchemaTree = () => {
   const [isLoading, getDefinitionsApi] = useApi(getDefinitions)()
 
   const treeOptions: TreeOptionProps = {
-    children: 'sub_nodes',
+    children: 'items',
     label: 'title',
     class: (data): string => [(data as CollectionNode)._extend?.isLeaf ? 'is-doc' : 'is-dir'].join(' '),
     isLeaf: (data): boolean => (data as CollectionNode).type === DocumentTypeEnum.DOC,

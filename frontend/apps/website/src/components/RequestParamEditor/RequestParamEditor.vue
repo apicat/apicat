@@ -85,7 +85,7 @@
           Path
           <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px" v-if="pathsCount">{{ pathsCount }}</span>
         </template>
-        <SimpleParameterEditor v-model="paths">
+        <SimpleParameterEditor v-model="paths" :is-edit-path="true">
           <template #before>
             <GlobalParameter :data="globalPaths" :onSwitch="switchGlobalPath" />
           </template>

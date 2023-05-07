@@ -37,7 +37,7 @@ type CollectionList struct {
 	ParentID uint              `json:"parent_id"`
 	Title    string            `json:"title"`
 	Type     string            `json:"type"`
-	SubNodes []*CollectionList `json:"sub_nodes"`
+	Items    []*CollectionList `json:"items"`
 }
 
 type CollectionCreate struct {
@@ -89,7 +89,7 @@ func buildTree(parentID uint, collections []*models.Collections) []*CollectionLi
 				ParentID: c.ParentId,
 				Title:    c.Title,
 				Type:     c.Type,
-				SubNodes: children,
+				Items:    children,
 			})
 		}
 	}

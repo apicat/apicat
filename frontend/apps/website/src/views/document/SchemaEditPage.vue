@@ -63,6 +63,13 @@ const getDetail = async () => {
   }
 }
 
+definitionStore.$onAction(({ name, after }) => {
+  // 删除全局模型
+  if (name === 'deleteDefinition') {
+    after(() => getDetail())
+  }
+})
+
 watch(
   definition,
   debounce(async (newVal, oldVal) => {

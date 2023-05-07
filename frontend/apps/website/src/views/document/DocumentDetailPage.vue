@@ -13,12 +13,9 @@
     <template #icon>
       <img class="h-auto w-260px mb-26px" src="@/assets/images/icon-empty.png" alt="" />
     </template>
-    <template #title>
-      <div class="m-auto">{{ $t('app.common.emptyDataTip') }}</div>
-    </template>
   </Result>
 
-  <div :class="[ns.b(), { 'h-20vh': !httpDoc }]" v-loading="isLoading">
+  <div :class="[ns.b(), { 'h-20vh': !httpDoc && hasDocument }]" v-loading="isLoading">
     <div class="ac-editor mt-10px" v-if="httpDoc">
       <RequestMethodRaw class="mb-10px" :doc="httpDoc" :urls="urlServers" />
 
@@ -65,6 +62,7 @@ const getDetail = async (docId: string) => {
   if (isNaN(doc_id)) {
     hasDocument.value = false
     httpDoc.value = null
+    isLoading.value = false
     return
   }
 

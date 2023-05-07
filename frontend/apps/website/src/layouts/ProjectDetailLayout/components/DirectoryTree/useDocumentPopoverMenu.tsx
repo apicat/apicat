@@ -174,10 +174,10 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
       if (!node) {
         apiDocTree.value.unshift(newData)
       } else {
-        if (!source.sub_nodes || !source.sub_nodes.length) {
+        if (!source.items || !source.items.length) {
           tree.append(newData, node)
         } else {
-          tree.insertBefore(newData, source.sub_nodes[0])
+          tree.insertBefore(newData, source.items[0])
         }
       }
       await nextTick()
@@ -211,10 +211,10 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
       if (!node) {
         apiDocTree.value.unshift(newData)
       } else {
-        if (!source.sub_nodes || !source.sub_nodes.length) {
+        if (!source.items || !source.items.length) {
           tree.append(newData, node)
         } else {
-          tree.insertBefore(newData, source.sub_nodes[0])
+          tree.insertBefore(newData, source.items[0])
         }
       }
 
@@ -255,6 +255,10 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
     popoverRefEl.value = null
     isShowPopoverMenu.value = false
     activeNodeInfo.value!.id = undefined
+  })
+
+  onUnmounted(() => {
+    index = 1
   })
 
   return {

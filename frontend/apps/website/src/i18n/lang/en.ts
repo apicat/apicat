@@ -36,6 +36,7 @@ export default {
       deleteAt: 'Delete Time',
       yes: 'Y',
       no: 'N',
+      emptyText: 'No data',
     },
     form: {
       serverUrl: {

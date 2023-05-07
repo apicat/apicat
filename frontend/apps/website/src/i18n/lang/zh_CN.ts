@@ -36,6 +36,7 @@ export default {
       deleteAt: '删除时间',
       yes: '是',
       no: '否',
+      emptyText: '暂无数据',
     },
     form: {
       serverUrl: {

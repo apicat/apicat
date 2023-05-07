@@ -110,13 +110,13 @@ const treeData = computed(() => {
     })
 })
 
-function resetObject(v: Object) {
-  for (let k of Object.keys(v)) {
-    if (k != 'description') {
-      delete (v as any)[k]
-    }
-  }
-}
+// function resetObject(v: Object) {
+//   for (let k of Object.keys(v)) {
+//     if (k != 'description') {
+//       delete (v as any)[k]
+//     }
+//   }
+// }
 
 const refName = ref()
 watchEffect(() => {
@@ -129,27 +129,28 @@ const changeSchemaTypeRef = (r: any) => {
   if (props.data.refObj?.name == r) {
     return
   }
-  const sc = props.data.schema
-  resetObject(sc)
-  sc.$ref = `${RefPrefixKeys.DefinitionsSchema.key}${r}`
-  emits('change')
+
+  // const sc = props.data.schema
+  // resetObject(sc)
+  // sc.$ref = `${RefPrefixKeys.DefinitionsSchema.key}${r}`
+  emits('change', { type: `${RefPrefixKeys.DefinitionsSchema.key}${r}`, isRef: true })
 }
 
-const changeSchemaType = (vtype: string) => {
-  if (vtype == props.data.type) {
+const changeSchemaType = (type: string) => {
+  if (type == props.data.type && !props.data.refObj) {
     return
   }
-  const sc = props.data.schema
-  resetObject(sc)
-  sc.type = vtype
-  if (sc.type == 'array') {
-    sc.items = {
-      type: 'string',
-    }
-  } else if (sc.type == 'object') {
-    sc.properties = {}
-  }
-  emits('change')
+  // const sc = props.data.schema
+  // resetObject(sc)
+  // sc.type = vtype
+  // if (sc.type == 'array') {
+  //   sc.items = {
+  //     type: 'string',
+  //   }
+  // } else if (sc.type == 'object') {
+  //   sc.properties = {}
+  // }
+  emits('change', { type, isRef: false })
 }
 </script>
 

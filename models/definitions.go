@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/apicat/apicat/app/util"
+	"github.com/apicat/apicat/commom/apicat_struct"
 	"github.com/apicat/apicat/commom/spec"
 	"gorm.io/gorm"
 )
@@ -188,9 +189,15 @@ func DefinitionsUnRef(d *Definitions, isUnRef int) error {
 		return err
 	}
 
+	sourceJson := map[string]interface{}{}
+	if err := json.Unmarshal([]byte(d.Schema), &sourceJson); err != nil {
+		return err
+	}
+	typeEmptyStructure := apicat_struct.TypeEmptyStructure()
+
 	for _, definitions := range definitionsList {
 		if strings.Contains(definitions.Schema, ref) {
-			newStr := ""
+			newStr := typeEmptyStructure[sourceJson["type"].(string)]
 			if isUnRef == 1 {
 				newStr = d.Schema
 			}
@@ -217,9 +224,15 @@ func CommonResponsesUnRef(d *Definitions, isUnRef int) error {
 		return err
 	}
 
+	sourceJson := map[string]interface{}{}
+	if err := json.Unmarshal([]byte(d.Schema), &sourceJson); err != nil {
+		return err
+	}
+	typeEmptyStructure := apicat_struct.TypeEmptyStructure()
+
 	for _, commonResponse := range commonResponsesList {
 		if strings.Contains(commonResponse.Content, ref) {
-			newStr := ""
+			newStr := typeEmptyStructure[sourceJson["type"].(string)]
 			if isUnRef == 1 {
 				newStr = d.Schema
 			}
@@ -246,9 +259,15 @@ func CollectionsUnRef(d *Definitions, isUnRef int) error {
 		return err
 	}
 
+	sourceJson := map[string]interface{}{}
+	if err := json.Unmarshal([]byte(d.Schema), &sourceJson); err != nil {
+		return err
+	}
+	typeEmptyStructure := apicat_struct.TypeEmptyStructure()
+
 	for _, collection := range collectionList {
 		if strings.Contains(collection.Content, ref) {
-			newStr := ""
+			newStr := typeEmptyStructure[sourceJson["type"].(string)]
 			if isUnRef == 1 {
 				newStr = d.Schema
 			}

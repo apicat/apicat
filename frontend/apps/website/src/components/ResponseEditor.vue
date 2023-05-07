@@ -171,8 +171,8 @@ watch(
 <style lang="scss">
 .ac-response-editor {
   .el-tabs__item .is-icon-close {
-    margin-top: 13px;
-    padding-bottom: 1px;
+    vertical-align: -1px;
+    display: inline-block;
   }
 
   .el-tabs__new-tab {

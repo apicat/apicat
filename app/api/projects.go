@@ -31,7 +31,7 @@ type ProjectID struct {
 }
 
 type ExportProject struct {
-	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi"`
+	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi3.0.0 openapi3.0.1 openapi3.0.2 openapi3.1.0"`
 	Download string `form:"download" binding:"omitempty,oneof=true false"`
 }
 
@@ -267,15 +267,24 @@ func ProjectDataGet(ctx *gin.Context) {
 	apicatData.Definitions.Schemas = models.DefinitionsExport(project.ID)
 	apicatData.Collections = models.CollectionsExport(project.ID)
 
+	// ctx.JSON(http.StatusOK, apicatData)
+	// return
 	if apicatDataContent, err := json.Marshal(apicatData); err == nil {
 		slog.InfoCtx(ctx, "Export", slog.String("apicat", string(apicatDataContent)))
 	}
 
-	if data.Type == "swagger" {
+	switch data.Type {
+	case "swagger":
 		content, err = openapi.Encode(apicatData, "2.0")
-	} else if data.Type == "openapi" {
+	case "openapi3.0.0":
 		content, err = openapi.Encode(apicatData, "3.0.0")
-	} else {
+	case "openapi3.0.1":
+		content, err = openapi.Encode(apicatData, "3.0.1")
+	case "openapi3.0.2":
+		content, err = openapi.Encode(apicatData, "3.0.2")
+	case "openapi3.1.0":
+		content, err = openapi.Encode(apicatData, "3.1.0")
+	default:
 		content, err = apicatData.ToJSON(spec.JSONOption{Indent: "  "})
 	}
 

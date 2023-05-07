@@ -13,12 +13,9 @@
     <template #icon>
       <img class="h-auto w-260px mb-26px" src="@/assets/images/icon-empty.png" alt="" />
     </template>
-    <template #title>
-      <div class="m-auto">{{ $t('app.common.emptyDataTip') }}</div>
-    </template>
   </Result>
 
-  <div :class="[ns.b(), { 'h-20vh': !definition }]" v-loading="isLoading">
+  <div :class="[ns.b(), { 'h-20vh': !definition && hasDocument }]" v-loading="isLoading">
     <SchmaEditor v-if="definition" :readonly="true" v-model="definition" :definitions="definitions" />
   </div>
 </template>
@@ -42,8 +39,8 @@ const { goSchemaEditPage } = useGoPage()
 const definition = ref<Definition | null>(null)
 const hasDocument = ref(true)
 
-const getDetail = async (defId: string) => {
-  const def_id = parseInt(defId, 10)
+const getDetail = async () => {
+  const def_id = parseInt(route.params.shcema_id as string, 10)
 
   if (isNaN(def_id)) {
     hasDocument.value = false
@@ -61,9 +58,16 @@ const getDetail = async (defId: string) => {
   definition.value = data
 }
 
+definitionStore.$onAction(({ name, after }) => {
+  // 删除全局模型
+  if (name === 'deleteDefinition') {
+    after(() => getDetail())
+  }
+})
+
 watch(
   () => route.params.shcema_id,
-  async () => await getDetail(route.params.shcema_id as string),
+  async () => await getDetail(),
   {
     immediate: true,
   }

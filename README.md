@@ -59,6 +59,12 @@ vim ./setting.default.yaml
 ./apicat -c setting.default.yaml
 ```
 
+## Contact
+
+The growth of ApiCat is inseparable from each of its users. If you have any content that you want to discuss with us, please contact us and join our WeChat discussion group through the QR code below.
+
+![Wechat Group](https://cdn.apicat.net/uploads/01bfb23802cdfad49f0d560ee80fc5e3.png)
+
 ## License
 
 [MIT](https://github.com/apicat/apicat/blob/main/LICENSE)
