@@ -58,14 +58,13 @@ func AICreateCollection(ctx *gin.Context) {
 		o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, lang)
 		o.SetMaxTokens(3000)
 		openapiContent, err = o.CreateApiBySchema(data.Title, schema.Schema)
-		if err != nil {
+		if err != nil || openapiContent == "" {
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
 			})
 			return
 		}
 	} else {
-		// @todo maybe max tokens limit not effect
 		o := openai.NewOpenAI(config.SysConfig.OpenAI.Token, lang)
 		o.SetMaxTokens(2000)
 		openapiContent, err = o.CreateApi(data.Title)

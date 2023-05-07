@@ -3,8 +3,8 @@ package api
 import (
 	"net/http"
 
-	"github.com/apicat/apicat/commom/auth"
-	"github.com/apicat/apicat/commom/translator"
+	"github.com/apicat/apicat/common/auth"
+	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
