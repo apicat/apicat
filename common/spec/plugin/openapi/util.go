@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/apicat/apicat/commom/spec/jsonschema"
+	"github.com/apicat/apicat/common/spec/jsonschema"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
 )
 

@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/apicat/apicat/commom/spec"
+	"github.com/apicat/apicat/common/spec"
 )
 
 // func TestDecode(t *testing.T) {

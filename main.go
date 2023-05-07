@@ -4,8 +4,8 @@ import (
 	"flag"
 
 	"github.com/apicat/apicat/app"
-	"github.com/apicat/apicat/commom/log"
-	"github.com/apicat/apicat/commom/translator"
+	"github.com/apicat/apicat/common/log"
+	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/config"
 	"github.com/apicat/apicat/models"
 )

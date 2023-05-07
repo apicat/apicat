@@ -1,6 +1,6 @@
 package spec
 
-import "github.com/apicat/apicat/commom/spec/jsonschema"
+import "github.com/apicat/apicat/common/spec/jsonschema"
 
 type Schema struct {
 	Name        string             `json:"name,omitempty"`

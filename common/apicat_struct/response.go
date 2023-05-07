@@ -1,6 +1,6 @@
 package apicat_struct
 
-import "github.com/apicat/apicat/commom/spec"
+import "github.com/apicat/apicat/common/spec"
 
 type ResponseObjectList struct {
 	List []*ResponseObject `json:"list"`

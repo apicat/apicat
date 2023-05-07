@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/commom/spec"
+	"github.com/apicat/apicat/common/spec"
 )
 
 type GlobalParameters struct {
