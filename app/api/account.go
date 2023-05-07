@@ -16,10 +16,8 @@ type LoginEmail struct {
 }
 
 type RegisterEmail struct {
-	Email           string `json:"email" binding:"required,email,lte=255"`
-	Password        string `json:"password" binding:"required,gte=6,lte=255"`
-	ConfirmPassword string `json:"confirm_password" binding:"required,gte=6,lte=255,eqfield=Password"`
-	Username        string `json:"username" binding:"lte=255"`
+	Email    string `json:"email" binding:"required,email,lte=255"`
+	Password string `json:"password" binding:"required,gte=6,lte=255"`
 }
 
 func EmailLogin(ctx *gin.Context) {
@@ -93,11 +91,7 @@ func EmailRegister(ctx *gin.Context) {
 		return
 	}
 
-	if len(data.Username) == 0 {
-		user.Username = strings.Split(data.Email, "@")[0]
-	} else {
-		user.Username = data.Username
-	}
+	user.Username = strings.Split(data.Email, "@")[0]
 	user.Email = data.Email
 	user.Password = hashedPassword
 	// 第一个注册的用户权限为superadmin
@@ -109,7 +103,7 @@ func EmailRegister(ctx *gin.Context) {
 	if userCount == 0 {
 		user.Role = "superadmin"
 	} else {
-		user.Role = "user"
+		user.Role = "admin"
 	}
 
 	if err := user.Save(); err != nil {
