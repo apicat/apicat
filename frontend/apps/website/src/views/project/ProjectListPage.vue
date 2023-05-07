@@ -4,7 +4,7 @@
       {{ $t('app.project.list.tabTitle') }}
     </p>
 
-    <ul class="ac-project-list my-20px py-10px" v-if="projects.length">
+    <ul class="ac-project-list my-20px py-10px">
       <li
         class="flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px"
         v-for="project in projects"
