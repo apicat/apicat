@@ -3,7 +3,7 @@ package models
 import (
 	"time"
 
-	"github.com/apicat/apicat/commom/spec"
+	"github.com/apicat/apicat/common/spec"
 	"gorm.io/gorm"
 )
 

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/apicat/apicat/commom/spec"
-	"github.com/apicat/apicat/commom/spec/jsonschema"
-	"github.com/apicat/apicat/commom/spec/markdown"
+	"github.com/apicat/apicat/common/spec"
+	"github.com/apicat/apicat/common/spec/jsonschema"
+	"github.com/apicat/apicat/common/spec/markdown"
 	"github.com/pb33f/libopenapi"
 	"github.com/pb33f/libopenapi/utils"
 )

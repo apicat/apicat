@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/apicat/apicat/commom/spec"
+	"github.com/apicat/apicat/common/spec"
 )
 
 // ToMarkdown 将node文档转为markdown

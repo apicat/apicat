@@ -7,7 +7,7 @@ import (
 	"math/big"
 	"net/http"
 
-	"github.com/apicat/apicat/commom/translator"
+	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/models"
 
 	"github.com/gin-gonic/gin"

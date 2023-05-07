@@ -17,6 +17,7 @@ func ReplaceIDToName(content string, idToNameMap map[uint]string, prefix string)
 		}
 
 		schemasIDStr := reID.FindString(match)
+		// @todo error not handled
 		if schemasIDInt, err := strconv.Atoi(schemasIDStr); err == nil {
 			schemasID := uint(schemasIDInt)
 			content = strings.Replace(content, match, prefix+idToNameMap[schemasID], -1)
