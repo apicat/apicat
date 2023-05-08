@@ -4,6 +4,7 @@ import { MAIN_PATH, LOGIN_PATH } from '@/router'
 import Storage from '@/commons/storage'
 import { userEmailLogin, userRegister } from '@/api/user'
 import { UserInfo } from '@/typings/user'
+import { pinia } from '@/plugins'
 
 interface UserState {
   userInfo: {}
@@ -23,18 +24,14 @@ export const useUserStore = defineStore({
   },
 
   actions: {
-    updateToken(token: string) {
-      Storage.set(Storage.KEYS.TOKEN, token)
-      this.token = token
-    },
-
     // 登录
     async login(form: any) {
       try {
-        const res = await userEmailLogin(form)
-        await this.getUserInfo()
+        const data: any = await userEmailLogin(form)
+        this.updateToken(data.access_token)
+        this.updateUserInfo(data.user)
         this.goHome()
-        return res
+        return data
       } catch (error) {
         //
       }
@@ -42,39 +39,25 @@ export const useUserStore = defineStore({
 
     async register(form: UserInfo) {
       try {
-        const res = await userRegister(form)
+        const data: any = await userRegister(form)
+        this.updateToken(data.access_token)
+        this.updateUserInfo(data.user)
         this.goHome()
-        return res
+        return data
       } catch (error) {
         //
       }
     },
     // 退出
-    async logout() {
+    logout() {
       Storage.removeAll([Storage.KEYS.TOKEN, Storage.KEYS.USER])
-      try {
-        // await logout()
-      } catch (error) {
-        //
-      } finally {
-        this.token = null
-        this.userInfo = {} as any
-        location.href = LOGIN_PATH
-      }
+      this.token = null
+      this.userInfo = {} as any
     },
 
-    // 获取个人信息
-    async getUserInfo() {
-      // try {
-      //   const { data } = (await getUserInfo()) || {}
-      //   data.address = [data.province, data.city]
-      //   this.userInfo = data
-      //   Storage.set(Storage.KEYS.USER_INFO, this.userInfo)
-      //   return this.userInfo
-      // } catch (error) {
-      //   //
-      // }
-      // return {}
+    updateToken(token: string) {
+      Storage.set(Storage.KEYS.TOKEN, token)
+      this.token = token
     },
 
     goHome(path?: string) {
@@ -82,10 +65,11 @@ export const useUserStore = defineStore({
     },
 
     // 更新个人信息
-    async updateUserInfo(user: any) {
-      // await updateUserProfile(user)
-      // this.$patch({ userInfo: { ...user } })
-      // Storage.set(Storage.KEYS.USER_INFO, this.userInfo)
+    updateUserInfo(user: UserInfo) {
+      this.$patch({ userInfo: { ...user } })
+      Storage.set(Storage.KEYS.USER, this.userInfo)
     },
   },
 })
+
+export const useUserStoreWithOut = () => useUserStore(pinia)
