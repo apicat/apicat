@@ -34,7 +34,7 @@ type DefinitionSchemaSearch struct {
 }
 
 type DefinitionSchemaID struct {
-	ID uint `uri:"definition-id" binding:"required,gte=0"`
+	ID uint `uri:"schemas-id" binding:"required,gte=0"`
 }
 
 type DefinitionSchemaMove struct {

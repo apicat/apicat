@@ -62,15 +62,15 @@ func InitApiRouter(r *gin.Engine) {
 
 		project := apiRouter.(*gin.RouterGroup).Group("/projects/:id", middleware.JWTAuthMiddleware()).Use(middleware.CheckProject())
 		{
-			definitions := project.(*gin.RouterGroup).Group("/definitions")
+			definitionSchemas := project.(*gin.RouterGroup).Group("/definition/schemas")
 			{
-				definitions.GET("", api.DefinitionSchemasList)
-				definitions.POST("", api.DefinitionSchemasCreate)
-				definitions.PUT("/:definition-id", api.DefinitionSchemasUpdate)
-				definitions.DELETE("/:definition-id", api.DefinitionSchemasDelete)
-				definitions.GET("/:definition-id", api.DefinitionSchemasGet)
-				definitions.POST("/:definition-id", api.DefinitionSchemasCopy)
-				definitions.PUT("/movement", api.DefinitionSchemasMove)
+				definitionSchemas.GET("", api.DefinitionSchemasList)
+				definitionSchemas.POST("", api.DefinitionSchemasCreate)
+				definitionSchemas.PUT("/:schemas-id", api.DefinitionSchemasUpdate)
+				definitionSchemas.DELETE("/:schemas-id", api.DefinitionSchemasDelete)
+				definitionSchemas.GET("/:schemas-id", api.DefinitionSchemasGet)
+				definitionSchemas.POST("/:schemas-id", api.DefinitionSchemasCopy)
+				definitionSchemas.PUT("/movement", api.DefinitionSchemasMove)
 			}
 
 			servers := project.(*gin.RouterGroup).Group("/servers")
