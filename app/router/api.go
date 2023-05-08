@@ -37,7 +37,7 @@ func InitApiRouter(r *gin.Engine) {
 
 	apiRouter := r.Group("/api").Use(translator.UseValidatori18n())
 	{
-		projects := apiRouter.(*gin.RouterGroup).Group("/projects")
+		projects := apiRouter.(*gin.RouterGroup).Group("/projects", middleware.JWTAuthMiddleware())
 		{
 			projects.GET("", api.ProjectsList)
 			projects.GET("/:id", api.ProjectsGet)
