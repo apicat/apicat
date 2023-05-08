@@ -1,122 +1,161 @@
-[Projects]
-    [Projects.CreateFail]
-        other = "项目创建失败"
-    [Projects.DeleteFail]
-        other = "项目删除失败"
-    [Projects.UpdateFail]
-        other = "项目修改失败"
-    [Projects.ImportFail]
-        other = "项目导入失败，请检查数据文件内容是否正确。"
-    [Projects.ExportFail]
-        other = "项目导出失败，请稍后重试。"
-    [Projects.NotFound]
-        other = "项目不存在"
-[Definitions]
-    [Definitions.QueryFailed]
-        other = "模型查询失败"
-    [Definitions.CreateFail]
-        other = "模型创建失败"
-    [Definitions.UpdateFail]
-        other = "模型修改失败"
-    [Definitions.CopyFail]
-        other = "模型复制失败"
-    [Definitions.DeleteFail]
-        other = "模型删除失败"
-    [Definitions.NotFound]
-        other = "模型不存在"
-    [Definitions.NameExists]
-        other = "模型名称存在"
-    [Definitions.InUse]
-        other = "模型已被使用，请解除引用后再试"
-[Servers]
-    [Servers.SetSuccess]
-        other = "URL设置成功"
-    [Servers.SetFailed]
-        other = "URL设置失败"
-    [Servers.GetFailed]
-        other = "URL获取失败"
-[Parameters]
-    [Parameters.SetSuccess]
-        other = "公共参数设置成功"
-[Responses]
-    [Response.NotFound]
-        other = "公共响应不存在"
-    [Responses.CreateFail]
-        other = "公共响应创建失败"
-    [Responses.CreateSuccess]
-        other = "公共响应创建成功"
-    [Responses.DeleteFail]
-        other = "公共响应删除失败"
-    [Responses.DeleteSuccess]
-        other = "公共响应删除成功"
-    [Responses.UpdateFail]
-        other = "公共响应修改失败"
-    [Responses.UpdateSuccess]
-        other = "公共响应修改成功"
-[Collection]
-    [Collection.NotFound]
-        other = "集合不存在"
-[Trashs]
-    [Trashs.PartialRecoveryFailed]
-        other = "部分恢复失败"
-    [Trashs.QueryFailed]
-        other = "查询失败"
-[GlobalParameters]
-    [GlobalParameters.NotFound]
-        other = "全局参数不存在"
-    [GlobalParameters.NameExists]
-        other = "全局参数名称存在"
-    [GlobalParameters.QueryFailed]
-        other = "全局参数查询失败"
-    [GlobalParameters.CreateFailed]
-        other = "全局参数创建失败"
-    [GlobalParameters.UpdateFailed]
-        other = "全局参数编辑失败"
-    [GlobalParameters.DeleteFailed]
-        other = "全局参数删除失败"
-[AI]
-    [AI.CollectionCreateFail]
-        other = "接口创建失败，请稍后重试。"
-[CommonResponses]
-    [CommonResponses.NameExists]
-        other = "公共响应名称存在"
-    [CommonResponses.NotFound]
-        other = "公共响应不存在"
-    [CommonResponses.QueryFailed]
-        other = "公共响应查询失败"
-    [CommonResponses.CreateFailed]
-        other = "公共响应创建失败"
-    [CommonResponses.UpdateFailed]
-        other = "公共响应编辑失败"
-    [CommonResponses.DeleteFailed]
-        other = "公共响应删除失败"
-[Common]
-    [Common.ContentParsingFailed]
-        other = "内容解析失败"
-    [Common.NameExists]
-        other = "名称已存在"
-    [Common.TypeDoesNotExist]
-        other = "类型不存在"
-[Collections]
-    [Collections.QueryFailed]
-        other = "集合查询失败"
-    [Collections.CreateFailed]
-        other = "集合创建失败"
-    [Collections.UpdateFailed]
-        other = "集合编辑失败"
-    [Collections.DeleteFailed]
-        other = "集合删除失败"
-[Auth]
-    [Auth.TokenParsingFailed]
-        other = "令牌解析失败"
-[User]
-    [User.WrongPassword]
-        other = "密码错误"
-    [User.FailedToGenerateToken]
-        other = "生成令牌失败"
-    [User.MailboxAlreadyExists]
-        other = "邮箱已存在"
-    [User.PasswordEncryptionFailed]
-        other = "密码加密失败"
-    [User.RegistrationFailed]
-        other = "注册失败"
+[Projects.CreateFail]
+other = "项目创建失败"
+
+[Projects.DeleteFail]
+other = "项目删除失败"
+
+[Projects.UpdateFail]
+other = "项目修改失败"
+
+[Projects.ImportFail]
+other = "项目导入失败，请检查数据文件内容是否正确。"
+
+[Projects.ExportFail]
+other = "项目导出失败，请稍后重试。"
+
+[Projects.NotFound]
+other = "项目不存在"
+
+[Definitions.QueryFailed]
+other = "模型查询失败"
+
+[Definitions.CreateFail]
+other = "模型创建失败"
+
+[Definitions.UpdateFail]
+other = "模型修改失败"
+
+[Definitions.CopyFail]
+other = "模型复制失败"
+
+[Definitions.DeleteFail]
+other = "模型删除失败"
+
+[Definitions.NotFound]
+other = "模型不存在"
+
+[Definitions.NameExists]
+other = "模型名称存在"
+
+[Definitions.InUse]
+other = "模型已被使用，请解除引用后再试"
+
+[Servers.SetSuccess]
+other = "URL设置成功"
+
+[Servers.SetFailed]
+other = "URL设置失败"
+
+[Servers.GetFailed]
+other = "URL获取失败"
+
+[Parameters.SetSuccess]
+other = "公共参数设置成功"
+
+[Response.NotFound]
+other = "公共响应不存在"
+
+[Responses.CreateFail]
+other = "公共响应创建失败"
+
+[Responses.CreateSuccess]
+other = "公共响应创建成功"
+
+[Responses.DeleteFail]
+other = "公共响应删除失败"
+
+[Responses.DeleteSuccess]
+other = "公共响应删除成功"
+
+[Responses.UpdateFail]
+other = "公共响应修改失败"
+
+[Responses.UpdateSuccess]
+other = "公共响应修改成功"
+
+[Collection.NotFound]
+other = "集合不存在"
+
+[Trashs.PartialRecoveryFailed]
+other = "部分恢复失败"
+
+[Trashs.QueryFailed]
+other = "查询失败"
+
+[GlobalParameters.NotFound]
+other = "全局参数不存在"
+
+[GlobalParameters.NameExists]
+other = "全局参数名称存在"
+
+[GlobalParameters.QueryFailed]
+other = "全局参数查询失败"
+
+[GlobalParameters.CreateFailed]
+other = "全局参数创建失败"
+
+[GlobalParameters.UpdateFailed]
+other = "全局参数编辑失败"
+
+[GlobalParameters.DeleteFailed]
+other = "全局参数删除失败"
+
+[AI.CollectionCreateFail]
+other = "接口创建失败，请稍后重试。"
+
+[CommonResponses.NameExists]
+other = "公共响应名称存在"
+
+[CommonResponses.NotFound]
+other = "公共响应不存在"
+
+[CommonResponses.QueryFailed]
+other = "公共响应查询失败"
+
+[CommonResponses.CreateFailed]
+other = "公共响应创建失败"
+
+[CommonResponses.UpdateFailed]
+other = "公共响应编辑失败"
+
+[CommonResponses.DeleteFailed]
+other = "公共响应删除失败"
+
+[Common.ContentParsingFailed]
+other = "内容解析失败"
+
+[Common.NameExists]
+other = "名称已存在"
+
+[Common.TypeDoesNotExist]
+other = "类型不存在"
+
+[Collections.QueryFailed]
+other = "集合查询失败"
+
+[Collections.CreateFailed]
+other = "集合创建失败"
+
+[Collections.UpdateFailed]
+other = "集合编辑失败"
+
+[Collections.DeleteFailed]
+other = "集合删除失败"
+
+[Auth.TokenParsingFailed]
+other = "令牌解析失败"
+
+[User.WrongPassword]
+other = "密码错误"
+
+[User.FailedToGenerateToken]
+other = "生成令牌失败"
+
+[User.MailboxAlreadyExists]
+other = "邮箱已存在"
+
+[User.PasswordEncryptionFailed]
+other = "密码加密失败"
+
+[User.RegistrationFailed]
+other = "注册失败"
