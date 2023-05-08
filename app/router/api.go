@@ -87,7 +87,7 @@ func InitApiRouter(r *gin.Engine) {
 				globalParameters.DELETE("/:parameter-id", api.GlobalParametersDelete)
 			}
 
-			definitionsResponses := project.(*gin.RouterGroup).Group("/definitions/responses")
+			definitionsResponses := project.(*gin.RouterGroup).Group("/common/responses")
 			{
 				definitionsResponses.GET("", api.CommonResponsesList)
 				definitionsResponses.GET("/:response-id", api.CommonResponsesDetail)
