@@ -59,7 +59,7 @@ func initTable() {
 		&Projects{},
 		&Collections{},
 		&CollectionHistories{},
-		&Definitions{},
+		&DefinitionSchemas{},
 		&Servers{},
 		&Commons{},
 		&Tags{},

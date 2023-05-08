@@ -16,28 +16,28 @@ other = "项目导出失败，请稍后重试。"
 [Projects.NotFound]
 other = "项目不存在"
 
-[Definitions.QueryFailed]
+[DefinitionSchemas.QueryFailed]
 other = "模型查询失败"
 
-[Definitions.CreateFail]
+[DefinitionSchemas.CreateFail]
 other = "模型创建失败"
 
-[Definitions.UpdateFail]
+[DefinitionSchemas.UpdateFail]
 other = "模型修改失败"
 
-[Definitions.CopyFail]
+[DefinitionSchemas.CopyFail]
 other = "模型复制失败"
 
-[Definitions.DeleteFail]
+[DefinitionSchemas.DeleteFail]
 other = "模型删除失败"
 
-[Definitions.NotFound]
+[DefinitionSchemas.NotFound]
 other = "模型不存在"
 
-[Definitions.NameExists]
+[DefinitionSchemas.NameExists]
 other = "模型名称存在"
 
-[Definitions.InUse]
+[DefinitionSchemas.InUse]
 other = "模型已被使用，请解除引用后再试"
 
 [Servers.SetSuccess]

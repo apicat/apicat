@@ -16,28 +16,28 @@ other = "Project export failed, please try again later."
 [Projects.NotFound]
 other = "Item does not exist"
 
-[Definitions.QueryFailed]
+[DefinitionSchemas.QueryFailed]
 other = "Model query failed"
 
-[Definitions.CreateFail]
+[DefinitionSchemas.CreateFail]
 other = "Model creation failed"
 
-[Definitions.UpdateFail]
+[DefinitionSchemas.UpdateFail]
 other = "Failed to modify model"
 
-[Definitions.CopyFail]
+[DefinitionSchemas.CopyFail]
 other = "Failed to copy model"
 
-[Definitions.DeleteFail]
+[DefinitionSchemas.DeleteFail]
 other = "Failed to delete model"
 
-[Definitions.NotFound]
+[DefinitionSchemas.NotFound]
 other = "Model does not exist"
 
-[Definitions.NameExists]
+[DefinitionSchemas.NameExists]
 other = "Model Name Exists"
 
-[Definitions.InUse]
+[DefinitionSchemas.InUse]
 other = "Model already used, please try again after unreferencing"
 
 [Servers.SetSuccess]
@@ -51,6 +51,9 @@ other = "URL fetch failed"
 
 [Parameters.SetSuccess]
 other = "Public parameters set successfully"
+
+[Response.NotFound]
+other = "Public response does not exist"
 
 [Responses.CreateFail]
 other = "Public response creation failed"
@@ -69,9 +72,6 @@ other = "Public response modification failed"
 
 [Responses.UpdateSuccess]
 other = "Public response changed successfully"
-
-[Response.NotFound]
-other = "Public response does not exist"
 
 [Collection.NotFound]
 other = "Collection does not exist"

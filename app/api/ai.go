@@ -32,7 +32,7 @@ type AICreateApiNameStructure struct {
 func AICreateCollection(ctx *gin.Context) {
 	var (
 		openapiContent string
-		schema         *models.Definitions
+		schema         *models.DefinitionSchemas
 		err            error
 	)
 
@@ -47,10 +47,10 @@ func AICreateCollection(ctx *gin.Context) {
 	lang := util.GetUserLanguage(ctx)
 
 	if data.SchemaID > 0 {
-		schema, err = models.NewDefinitions(data.SchemaID)
+		schema, err = models.NewDefinitionSchemas(data.SchemaID)
 		if err != nil {
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NotFound"}),
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
 			})
 			return
 		}
@@ -92,7 +92,7 @@ func AICreateCollection(ctx *gin.Context) {
 	}
 
 	currentProject, _ := ctx.Get("CurrentProject")
-	definitionSchemas := models.DefinitionsImport(currentProject.(*models.Projects).ID, content.Definitions.Schemas)
+	definitionSchemas := models.DefinitionSchemasImport(currentProject.(*models.Projects).ID, content.Definitions.Schemas)
 	records := models.CollectionsImport(currentProject.(*models.Projects).ID, data.ParentID, content.Collections, definitionSchemas)
 
 	if len(records) == 0 {
@@ -161,7 +161,7 @@ func AICreateSchema(ctx *gin.Context) {
 	}
 
 	project, _ := ctx.Get("CurrentProject")
-	definition, _ := models.NewDefinitions()
+	definition, _ := models.NewDefinitionSchemas()
 	definition.ProjectId = project.(*models.Projects).ID
 	definition.Name = js.Title
 	definitions, err := definition.List()
@@ -180,7 +180,7 @@ func AICreateSchema(ctx *gin.Context) {
 	definition.Schema = openapiContent
 	if err := definition.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.CreateFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CreateFail"}),
 		})
 		return
 	}
@@ -213,10 +213,10 @@ func AICreateApiNames(ctx *gin.Context) {
 		return
 	}
 
-	schema, err := models.NewDefinitions(data.SchemaID)
+	schema, err := models.NewDefinitionSchemas(data.SchemaID)
 	if err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
 		})
 		return
 	}

@@ -64,13 +64,13 @@ func InitApiRouter(r *gin.Engine) {
 		{
 			definitions := project.(*gin.RouterGroup).Group("/definitions")
 			{
-				definitions.GET("", api.DefinitionsList)
-				definitions.POST("", api.DefinitionsCreate)
-				definitions.PUT("/:definition-id", api.DefinitionsUpdate)
-				definitions.DELETE("/:definition-id", api.DefinitionsDelete)
-				definitions.GET("/:definition-id", api.DefinitionsGet)
-				definitions.POST("/:definition-id", api.DefinitionsCopy)
-				definitions.PUT("/movement", api.DefinitionsMove)
+				definitions.GET("", api.DefinitionSchemasList)
+				definitions.POST("", api.DefinitionSchemasCreate)
+				definitions.PUT("/:definition-id", api.DefinitionSchemasUpdate)
+				definitions.DELETE("/:definition-id", api.DefinitionSchemasDelete)
+				definitions.GET("/:definition-id", api.DefinitionSchemasGet)
+				definitions.POST("/:definition-id", api.DefinitionSchemasCopy)
+				definitions.PUT("/movement", api.DefinitionSchemasMove)
 			}
 
 			servers := project.(*gin.RouterGroup).Group("/servers")

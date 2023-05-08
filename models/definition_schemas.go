@@ -13,7 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type Definitions struct {
+type DefinitionSchemas struct {
 	ID           uint   `gorm:"type:integer primary key autoincrement"`
 	ProjectId    uint   `gorm:"index;not null;comment:项目id"`
 	ParentId     uint   `gorm:"not null;comment:父级id"`
@@ -30,8 +30,8 @@ type Definitions struct {
 	DeletedBy    uint `gorm:"not null;default:0;comment:删除人id"`
 }
 
-func NewDefinitions(ids ...uint) (*Definitions, error) {
-	definition := &Definitions{}
+func NewDefinitionSchemas(ids ...uint) (*DefinitionSchemas, error) {
+	definition := &DefinitionSchemas{}
 	if len(ids) > 0 {
 		if err := Conn.Take(definition, ids[0]).Error; err != nil {
 			return definition, err
@@ -41,7 +41,7 @@ func NewDefinitions(ids ...uint) (*Definitions, error) {
 	return definition, nil
 }
 
-func (d *Definitions) List() ([]Definitions, error) {
+func (d *DefinitionSchemas) List() ([]DefinitionSchemas, error) {
 	tx := Conn.Where("project_id = ?", d.ProjectId)
 	if d.ParentId > 0 {
 		tx = tx.Where("parent_id = ?", d.ParentId)
@@ -53,11 +53,11 @@ func (d *Definitions) List() ([]Definitions, error) {
 		tx = tx.Where("type = ?", d.Type)
 	}
 
-	var definitions []Definitions
+	var definitions []DefinitionSchemas
 	return definitions, tx.Order("display_order asc").Order("id desc").Find(&definitions).Error
 }
 
-func (d *Definitions) Get() error {
+func (d *DefinitionSchemas) Get() error {
 	tx := Conn.Where("project_id = ?", d.ProjectId)
 	if d.Name != "" {
 		tx = tx.Where("name = ?", d.Name)
@@ -68,34 +68,34 @@ func (d *Definitions) Get() error {
 	return tx.Take(d).Error
 }
 
-func (d *Definitions) Create() error {
+func (d *DefinitionSchemas) Create() error {
 	return Conn.Create(d).Error
 }
 
-func (d *Definitions) Save() error {
+func (d *DefinitionSchemas) Save() error {
 	return Conn.Save(d).Error
 }
 
-func (d *Definitions) Delete() error {
+func (d *DefinitionSchemas) Delete() error {
 	if d.Type == "category" {
-		Conn.Where("parent_id = ?", d.ID).Delete(&Definitions{})
+		Conn.Where("parent_id = ?", d.ID).Delete(&DefinitionSchemas{})
 	}
 	return Conn.Delete(d).Error
 }
 
-func (d *Definitions) Creator() string {
+func (d *DefinitionSchemas) Creator() string {
 	return ""
 }
 
-func (d *Definitions) Updater() string {
+func (d *DefinitionSchemas) Updater() string {
 	return ""
 }
 
-func (d *Definitions) Deleter() string {
+func (d *DefinitionSchemas) Deleter() string {
 	return ""
 }
 
-func DefinitionsImport(projectID uint, schemas spec.Schemas) nameToIdMap {
+func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 	SchemasMap := make(nameToIdMap)
 
 	if schemas == nil {
@@ -104,7 +104,7 @@ func DefinitionsImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 
 	for i, schema := range schemas {
 		if schemaStr, err := json.Marshal(schema.Schema); err == nil {
-			record := &Definitions{
+			record := &DefinitionSchemas{
 				ProjectId: projectID,
 				Name:      schema.Name,
 				Type:      "schema",
@@ -112,7 +112,7 @@ func DefinitionsImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 			if record.Get() == nil {
 				SchemasMap[record.Name] = record.ID
 			} else {
-				record := &Definitions{
+				record := &DefinitionSchemas{
 					ProjectId:    projectID,
 					ParentId:     0,
 					Name:         schema.Name,
@@ -132,12 +132,12 @@ func DefinitionsImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 	return SchemasMap
 }
 
-func DefinitionsExport(projectID uint) spec.Schemas {
-	var definitions []*Definitions
-	specDefinitions := make(spec.Schemas, 0)
+func DefinitionSchemasExport(projectID uint) spec.Schemas {
+	var definitions []*DefinitionSchemas
+	specDefinitionSchemas := make(spec.Schemas, 0)
 
 	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err != nil {
-		return specDefinitions
+		return specDefinitionSchemas
 	}
 
 	idToNameMap := make(IdToNameMap)
@@ -153,10 +153,10 @@ func DefinitionsExport(projectID uint) spec.Schemas {
 		schema.Description = definition.Description
 		json.Unmarshal([]byte(definition.Schema), &schema.Schema)
 
-		specDefinitions = append(specDefinitions, &schema)
+		specDefinitionSchemas = append(specDefinitionSchemas, &schema)
 	}
 
-	return specDefinitions
+	return specDefinitionSchemas
 }
 
 func DefinitionIdToName(content string, idToNameMap IdToNameMap) string {
@@ -179,10 +179,10 @@ func DefinitionIdToName(content string, idToNameMap IdToNameMap) string {
 	return content
 }
 
-func DefinitionsUnRef(d *Definitions, isUnRef int) error {
+func DefinitionSchemasUnRef(d *DefinitionSchemas, isUnRef int) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
 
-	definitions, _ := NewDefinitions()
+	definitions, _ := NewDefinitionSchemas()
 	definitions.ProjectId = d.ProjectId
 	definitionsList, err := definitions.List()
 	if err != nil {
@@ -214,7 +214,7 @@ func DefinitionsUnRef(d *Definitions, isUnRef int) error {
 	return nil
 }
 
-func CommonResponsesUnRef(d *Definitions, isUnRef int) error {
+func CommonResponsesUnRef(d *DefinitionSchemas, isUnRef int) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
 
 	commonResponses, _ := NewCommonResponses()
@@ -249,7 +249,7 @@ func CommonResponsesUnRef(d *Definitions, isUnRef int) error {
 	return nil
 }
 
-func CollectionsUnRef(d *Definitions, isUnRef int) error {
+func CollectionsUnRef(d *DefinitionSchemas, isUnRef int) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
 
 	collections, _ := NewCollections()

@@ -125,7 +125,7 @@ func ProjectsCreate(ctx *gin.Context) {
 	// 进行数据导入工作
 	if data.Data != "" {
 		models.ServersImport(project.ID, content.Servers)
-		definitionSchemas := models.DefinitionsImport(project.ID, content.Definitions.Schemas)
+		definitionSchemas := models.DefinitionSchemasImport(project.ID, content.Definitions.Schemas)
 		models.CollectionsImport(project.ID, 0, content.Collections, definitionSchemas)
 	}
 
@@ -296,7 +296,7 @@ func ProjectDataGet(ctx *gin.Context) {
 	apicatData.Servers = models.ServersExport(project.ID)
 	apicatData.Globals.Parameters = models.GlobalParametersExport(project.ID)
 	apicatData.Common.Responses = models.CommonResponsesExport(project.ID)
-	apicatData.Definitions.Schemas = models.DefinitionsExport(project.ID)
+	apicatData.Definitions.Schemas = models.DefinitionSchemasExport(project.ID)
 	apicatData.Collections = models.CollectionsExport(project.ID)
 
 	// ctx.JSON(http.StatusOK, apicatData)

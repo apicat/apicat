@@ -13,7 +13,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type DefinitionCreate struct {
+type DefinitionSchemaCreate struct {
 	ParentId    uint                   `json:"parent_id" binding:"gte=0"`
 	Name        string                 `json:"name" binding:"required,lte=255"`
 	Description string                 `json:"description" binding:"lte=255"`
@@ -21,23 +21,23 @@ type DefinitionCreate struct {
 	Schema      map[string]interface{} `json:"schema"`
 }
 
-type DefinitionUpdate struct {
+type DefinitionSchemaUpdate struct {
 	Name        string                 `json:"name" binding:"required,lte=255"`
 	Description string                 `json:"description" binding:"lte=255"`
 	Schema      map[string]interface{} `json:"schema"`
 }
 
-type DefinitionSearch struct {
+type DefinitionSchemaSearch struct {
 	ParentId uint   `form:"parent_id" binding:"gte=0"`
 	Name     string `form:"name" binding:"lte=255"`
 	Type     string `form:"type" binding:"omitempty,oneof=category schema"`
 }
 
-type DefinitionID struct {
+type DefinitionSchemaID struct {
 	ID uint `uri:"definition-id" binding:"required,gte=0"`
 }
 
-type DefinitionMove struct {
+type DefinitionSchemaMove struct {
 	Target OrderContent `json:"target" binding:"required"`
 	Origin OrderContent `json:"origin" binding:"required"`
 }
@@ -47,8 +47,8 @@ type OrderContent struct {
 	Ids []uint `json:"ids" binding:"required,dive,gte=0"`
 }
 
-func DefinitionsList(ctx *gin.Context) {
-	var data DefinitionSearch
+func DefinitionSchemasList(ctx *gin.Context) {
+	var data DefinitionSchemaSearch
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -59,7 +59,7 @@ func DefinitionsList(ctx *gin.Context) {
 
 	project, _ := ctx.Get("CurrentProject")
 
-	definition, _ := models.NewDefinitions()
+	definition, _ := models.NewDefinitionSchemas()
 	definition.ProjectId = project.(*models.Projects).ID
 	definition.ParentId = data.ParentId
 	definition.Name = data.Name
@@ -68,7 +68,7 @@ func DefinitionsList(ctx *gin.Context) {
 	definitions, err := definition.List()
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.QueryFailed"}),
 		})
 		return
 	}
@@ -95,8 +95,8 @@ func DefinitionsList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
-func DefinitionsCreate(ctx *gin.Context) {
-	var data DefinitionCreate
+func DefinitionSchemasCreate(ctx *gin.Context) {
+	var data DefinitionSchemaCreate
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -114,13 +114,13 @@ func DefinitionsCreate(ctx *gin.Context) {
 	}
 
 	project, _ := ctx.Get("CurrentProject")
-	definition, _ := models.NewDefinitions()
+	definition, _ := models.NewDefinitionSchemas()
 	definition.ProjectId = project.(*models.Projects).ID
 	definition.Name = data.Name
 	definitions, err := definition.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.QueryFailed"}),
 		})
 		return
 	}
@@ -136,7 +136,7 @@ func DefinitionsCreate(ctx *gin.Context) {
 	definition.Schema = string(schemaJson)
 	if err := definition.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.CreateFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CreateFail"}),
 		})
 		return
 	}
@@ -155,10 +155,10 @@ func DefinitionsCreate(ctx *gin.Context) {
 	})
 }
 
-func DefinitionsUpdate(ctx *gin.Context) {
+func DefinitionSchemasUpdate(ctx *gin.Context) {
 	var (
-		uriData DefinitionID
-		data    DefinitionUpdate
+		uriData DefinitionSchemaID
+		data    DefinitionSchemaUpdate
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
@@ -175,10 +175,10 @@ func DefinitionsUpdate(ctx *gin.Context) {
 		return
 	}
 
-	definition, err := models.NewDefinitions(uriData.ID)
+	definition, err := models.NewDefinitionSchemas(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
 		})
 		return
 	}
@@ -196,7 +196,7 @@ func DefinitionsUpdate(ctx *gin.Context) {
 	definitions, err := definition.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.QueryFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.QueryFailed"}),
 		})
 		return
 	}
@@ -211,7 +211,7 @@ func DefinitionsUpdate(ctx *gin.Context) {
 	definition.Schema = string(schemaJson)
 	if err := definition.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.UpdateFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.UpdateFail"}),
 		})
 		return
 	}
@@ -219,8 +219,8 @@ func DefinitionsUpdate(ctx *gin.Context) {
 	ctx.Status(http.StatusCreated)
 }
 
-func DefinitionsDelete(ctx *gin.Context) {
-	var data DefinitionID
+func DefinitionSchemasDelete(ctx *gin.Context) {
+	var data DefinitionSchemaID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -229,10 +229,10 @@ func DefinitionsDelete(ctx *gin.Context) {
 		return
 	}
 
-	definition, err := models.NewDefinitions(data.ID)
+	definition, err := models.NewDefinitionSchemas(data.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
 		})
 		return
 	}
@@ -258,7 +258,7 @@ func DefinitionsDelete(ctx *gin.Context) {
 		})
 		return
 	}
-	if err := models.DefinitionsUnRef(definition, isUnRefData.IsUnRef); err != nil {
+	if err := models.DefinitionSchemasUnRef(definition, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -267,7 +267,7 @@ func DefinitionsDelete(ctx *gin.Context) {
 
 	if err := definition.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.DeleteFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.DeleteFail"}),
 		})
 		return
 	}
@@ -275,8 +275,8 @@ func DefinitionsDelete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
-func DefinitionsGet(ctx *gin.Context) {
-	var data DefinitionID
+func DefinitionSchemasGet(ctx *gin.Context) {
+	var data DefinitionSchemaID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -285,10 +285,10 @@ func DefinitionsGet(ctx *gin.Context) {
 		return
 	}
 
-	definition, err := models.NewDefinitions(data.ID)
+	definition, err := models.NewDefinitionSchemas(data.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
 		})
 		return
 	}
@@ -315,8 +315,8 @@ func DefinitionsGet(ctx *gin.Context) {
 	})
 }
 
-func DefinitionsCopy(ctx *gin.Context) {
-	var data DefinitionID
+func DefinitionSchemasCopy(ctx *gin.Context) {
+	var data DefinitionSchemaID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -325,10 +325,10 @@ func DefinitionsCopy(ctx *gin.Context) {
 		return
 	}
 
-	oldDefinition, err := models.NewDefinitions(data.ID)
+	oldDefinition, err := models.NewDefinitionSchemas(data.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
 		})
 		return
 	}
@@ -336,7 +336,7 @@ func DefinitionsCopy(ctx *gin.Context) {
 	randomInt, err := rand.Int(rand.Reader, big.NewInt(100))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.CopyFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CopyFail"}),
 		})
 		return
 	}
@@ -344,12 +344,12 @@ func DefinitionsCopy(ctx *gin.Context) {
 	schema := map[string]interface{}{}
 	if err := json.Unmarshal([]byte(oldDefinition.Schema), &schema); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.CopyFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CopyFail"}),
 		})
 		return
 	}
 
-	newDefinition, _ := models.NewDefinitions()
+	newDefinition, _ := models.NewDefinitionSchemas()
 	newDefinition.ProjectId = oldDefinition.ProjectId
 	newDefinition.Name = fmt.Sprintf("%s_%s", oldDefinition.Name, randomInt)
 	newDefinition.Description = oldDefinition.Description
@@ -357,7 +357,7 @@ func DefinitionsCopy(ctx *gin.Context) {
 	newDefinition.Schema = oldDefinition.Schema
 	if err := newDefinition.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Definitions.CopyFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CopyFail"}),
 		})
 		return
 	}
@@ -376,8 +376,8 @@ func DefinitionsCopy(ctx *gin.Context) {
 	})
 }
 
-func DefinitionsMove(ctx *gin.Context) {
-	var data DefinitionMove
+func DefinitionSchemasMove(ctx *gin.Context) {
+	var data DefinitionSchemaMove
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -387,7 +387,7 @@ func DefinitionsMove(ctx *gin.Context) {
 	}
 
 	for i, id := range data.Target.Ids {
-		if definition, err := models.NewDefinitions(id); err == nil {
+		if definition, err := models.NewDefinitionSchemas(id); err == nil {
 			definition.ParentId = data.Target.Pid
 			definition.DisplayOrder = i
 			definition.Save()
@@ -396,7 +396,7 @@ func DefinitionsMove(ctx *gin.Context) {
 
 	if data.Target.Pid != data.Origin.Pid {
 		for i, id := range data.Origin.Ids {
-			if definition, err := models.NewDefinitions(id); err == nil {
+			if definition, err := models.NewDefinitionSchemas(id); err == nil {
 				definition.ParentId = data.Origin.Pid
 				definition.DisplayOrder = i
 				definition.Save()
