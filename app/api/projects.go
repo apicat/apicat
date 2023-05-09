@@ -56,6 +56,7 @@ func ProjectsList(ctx *gin.Context) {
 			"id":          p.PublicId,
 			"title":       p.Title,
 			"description": p.Description,
+			"cover":       p.Cover,
 			"created_at":  p.CreatedAt.Format("2006-01-02 15:04:05"),
 			"updated_at":  p.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
@@ -133,6 +134,7 @@ func ProjectsCreate(ctx *gin.Context) {
 		"id":          project.PublicId,
 		"title":       project.Title,
 		"description": project.Description,
+		"cover":       project.Cover,
 		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
@@ -242,6 +244,7 @@ func ProjectsGet(ctx *gin.Context) {
 		"id":          project.PublicId,
 		"title":       project.Title,
 		"description": project.Description,
+		"cover":       project.Cover,
 		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
