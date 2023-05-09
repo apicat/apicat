@@ -1,8 +1,8 @@
 <template>
   <aside :class="ns.b()">
     <AcLogo pure />
-    <main class="flex-1 w-full mt-30px">
-      <router-link to="/projects" class="flex flex-col items-center hover:bg-gray-110 pt-13px pb-18px" active-class="font-500 bg-gray-110">
+    <main class="flex-1 w-full mt-30px px-5px">
+      <router-link to="/projects" class="flex flex-col items-center rounded hover:bg-gray-110 pt-10px pb-11px" active-class="font-500 bg-gray-110">
         <Iconfont :size="28" icon="ac-xiangmu" />
         <p>项目</p>
       </router-link>
