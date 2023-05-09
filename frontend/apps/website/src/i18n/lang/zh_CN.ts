@@ -81,6 +81,7 @@ export default {
       },
     },
     project: {
+      title: '项目',
       list: {
         title: '项目列表',
         tabTitle: '项目',
