@@ -1,5 +1,5 @@
 <template>
-  <div class="container flex flex-col justify-center mx-auto" v-loading="isLoading">
+  <div class="container flex flex-col justify-center mx-auto px-20px" v-loading="isLoading">
     <p class="border-b border-solid border-gray-lighter py-20px mt-20px text-20px">
       {{ $t('app.project.list.tabTitle') }}
     </p>

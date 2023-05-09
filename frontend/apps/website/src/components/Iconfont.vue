@@ -1,5 +1,5 @@
 <template>
-  <i class="ac-iconfont" :class="icon" :style="style" />
+  <i class="leading-none ac-iconfont" :class="icon" :style="style" />
 </template>
 <script setup lang="ts">
 const props = defineProps({

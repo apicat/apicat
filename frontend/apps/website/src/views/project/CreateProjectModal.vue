@@ -98,7 +98,6 @@ import { createProject } from '@/api/project'
 import { getProjectDetailPath } from '@/router'
 import { ProjectInfo } from '@/typings'
 import uesProjectStore from '@/store/project'
-import { ProjectListCoverBgColors, ProjectListCoverIcons } from '@/commons'
 import { useProjectCover } from './logic/useProjectCover'
 
 const ns = useNamespace('project-types')
@@ -112,10 +111,6 @@ const { dialogVisible, showModel } = useModal(projectFormRef as any)
 const [isLoading, createProjectApi] = createProject()
 
 const selectedProjectType = ref('blank')
-const mapper = (value: string) => ({ value, label: value })
-
-const projectCoverBgColorsOptions = ProjectListCoverBgColors.map(mapper)
-const projectCoverIcons = ProjectListCoverIcons.map(mapper)
 
 const form = reactive({
   title: '',
@@ -123,7 +118,7 @@ const form = reactive({
   data: '',
 })
 
-const { bgColorRef, iconRef } = useProjectCover(form)
+const { projectCoverBgColorsOptions, projectCoverIcons, bgColorRef, iconRef } = useProjectCover(form)
 
 watch(dialogVisible, () => {
   if (!dialogVisible.value) {

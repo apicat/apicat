@@ -6,6 +6,62 @@
   "description": "open source apicat icons",
   "glyphs": [
     {
+      "icon_id": "2733951",
+      "name": "单据模型",
+      "font_class": "danjumoxing",
+      "unicode": "e6e8",
+      "unicode_decimal": 59112
+    },
+    {
+      "icon_id": "5387905",
+      "name": "应用APP_o",
+      "font_class": "fangkuai",
+      "unicode": "eb88",
+      "unicode_decimal": 60296
+    },
+    {
+      "icon_id": "8106227",
+      "name": "home",
+      "font_class": "home",
+      "unicode": "e69c",
+      "unicode_decimal": 59036
+    },
+    {
+      "icon_id": "11520228",
+      "name": "接口",
+      "font_class": "jiekou",
+      "unicode": "e638",
+      "unicode_decimal": 58936
+    },
+    {
+      "icon_id": "12309867",
+      "name": "doc_text",
+      "font_class": "doc-text",
+      "unicode": "e81f",
+      "unicode_decimal": 59423
+    },
+    {
+      "icon_id": "15644305",
+      "name": "笔记本电脑",
+      "font_class": "bijibendiannao",
+      "unicode": "e6ba",
+      "unicode_decimal": 59066
+    },
+    {
+      "icon_id": "15714215",
+      "name": "电脑",
+      "font_class": "diannao",
+      "unicode": "e625",
+      "unicode_decimal": 58917
+    },
+    {
+      "icon_id": "21243081",
+      "name": "实验",
+      "font_class": "shiyan",
+      "unicode": "e653",
+      "unicode_decimal": 58963
+    },
+    {
       "icon_id": "11032211",
       "name": "项目",
       "font_class": "xiangmu",

@@ -1,10 +1,16 @@
 <template>
   <div :class="ns.b()">
     <img :class="ns.e('img')" src="@/assets/images/logo-apicat.png" alt="ApiCat" />
-    <span :class="ns.e('text')">ApiCat</span>
+    <span v-if="!pure" :class="ns.e('text')">ApiCat</span>
   </div>
 </template>
 <script setup>
+defineProps({
+  pure: {
+    type: Boolean,
+    default: false,
+  },
+})
 import { useNamespace } from '@/hooks'
 const ns = useNamespace('logo')
 </script>

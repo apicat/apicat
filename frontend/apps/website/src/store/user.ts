@@ -2,12 +2,12 @@ import { defineStore } from 'pinia'
 import { router } from '@/router'
 import { MAIN_PATH, LOGIN_PATH } from '@/router'
 import Storage from '@/commons/storage'
-import { userEmailLogin, userRegister } from '@/api/user'
+import { userEmailLogin, userRegister, modifyUserInfo, modifyPassword } from '@/api/user'
 import { UserInfo } from '@/typings/user'
 import { pinia } from '@/plugins'
 
 interface UserState {
-  userInfo: {}
+  userInfo: UserInfo
   token: string | null
 }
 
@@ -48,11 +48,31 @@ export const useUserStore = defineStore({
         //
       }
     },
+
+    async modifyUserInfo(form: UserInfo) {
+      try {
+        const { token, user }: any = await modifyUserInfo(form)
+        this.updateUserInfo(user)
+        this.updateToken(token)
+      } catch (error) {
+        //
+      }
+    },
+
+    async modifyUserPassword(form: UserInfo) {
+      try {
+        const { token }: any = await modifyPassword(form)
+        this.updateToken(token)
+      } catch (error) {
+        //
+      }
+    },
     // 退出
     logout() {
       Storage.removeAll([Storage.KEYS.TOKEN, Storage.KEYS.USER])
       this.token = null
       this.userInfo = {} as any
+      this.goHome(LOGIN_PATH)
     },
 
     updateToken(token: string) {
@@ -66,7 +86,7 @@ export const useUserStore = defineStore({
 
     // 更新个人信息
     updateUserInfo(user: UserInfo) {
-      this.$patch({ userInfo: { ...user } })
+      this.$patch({ userInfo: { ...this.userInfo, ...user } })
       Storage.set(Storage.KEYS.USER, this.userInfo)
     },
   },

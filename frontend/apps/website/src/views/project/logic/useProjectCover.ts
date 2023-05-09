@@ -9,6 +9,11 @@ export const getProjectDefaultCover = (overwrite?: Partial<ProjectCover>): Proje
 })
 
 export const useProjectCover = (form: Record<string, any>) => {
+  const mapper = (value: string) => ({ value, label: value })
+
+  const projectCoverBgColorsOptions = ProjectListCoverBgColors.map(mapper)
+  const projectCoverIcons = ProjectListCoverIcons.map(mapper)
+
   const projectCoverRef: ComputedRef<ProjectCover> = computed(() => {
     const defaultCover: ProjectCover = getProjectDefaultCover()
 
@@ -56,6 +61,9 @@ export const useProjectCover = (form: Record<string, any>) => {
   })
 
   return {
+    projectCoverBgColorsOptions,
+    projectCoverIcons,
+
     projectCoverRef,
     bgColorRef,
     iconRef,

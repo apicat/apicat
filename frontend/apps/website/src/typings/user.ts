@@ -1,7 +1,7 @@
 export interface UserInfo {
   id?: number
-  email: string
-  name?: string
+  email?: string
+  username?: string
   password?: string
 }
 
