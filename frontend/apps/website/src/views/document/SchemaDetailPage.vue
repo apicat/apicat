@@ -58,9 +58,11 @@ const getDetail = async () => {
   definition.value = data
 }
 
-definitionStore.$onAction(({ name, after }) => {
+definitionStore.$onAction(({ name, after, args }) => {
+  console.log(args)
+
   // 删除全局模型
-  if (name === 'deleteDefinition') {
+  if (name === 'deleteDefinition' && args[1] !== parseInt(route.params.shcema_id as string, 10)) {
     after(() => getDetail())
   }
 })
