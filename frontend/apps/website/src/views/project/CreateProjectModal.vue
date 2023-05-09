@@ -129,6 +129,7 @@ watch(dialogVisible, () => {
   if (!dialogVisible.value) {
     fileUploaderWrapper.value.clear()
     form.data = ''
+    form.cover = ''
   }
 })
 
