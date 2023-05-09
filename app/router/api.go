@@ -87,13 +87,13 @@ func InitApiRouter(r *gin.Engine) {
 				globalParameters.DELETE("/:parameter-id", api.GlobalParametersDelete)
 			}
 
-			definitionsResponses := project.(*gin.RouterGroup).Group("/common/responses")
+			commonResponses := project.(*gin.RouterGroup).Group("/common/responses")
 			{
-				definitionsResponses.GET("", api.CommonResponsesList)
-				definitionsResponses.GET("/:response-id", api.CommonResponsesDetail)
-				definitionsResponses.POST("", api.CommonResponsesCreate)
-				definitionsResponses.PUT("/:response-id", api.CommonResponsesUpdate)
-				definitionsResponses.DELETE("/:response-id", api.CommonResponsesDelete)
+				commonResponses.GET("", api.CommonResponsesList)
+				commonResponses.GET("/:response-id", api.CommonResponsesDetail)
+				commonResponses.POST("", api.CommonResponsesCreate)
+				commonResponses.PUT("/:response-id", api.CommonResponsesUpdate)
+				commonResponses.DELETE("/:response-id", api.CommonResponsesDelete)
 			}
 
 			collections := project.(*gin.RouterGroup).Group("/collections")
