@@ -1,5 +1,7 @@
-import { getProjectList, getProjectDetail, updateProjectBaseInfo, getProjectServerUrlList, saveProjectServerUrlList } from '@/api/project'
+import { getProjectList, getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList } from '@/api/project'
+import { ProjectListCoverBgColors, ProjectListCoverIcons } from '@/commons'
 import { ProjectInfo } from '@/typings/project'
+import { getProjectDefaultCover } from '@/views/project/logic/useProjectCover'
 import { defineStore } from 'pinia'
 
 interface ProjectState {
@@ -14,6 +16,18 @@ export const uesProjectStore = defineStore('project', {
     projectDetailInfo: null,
     urlServers: [],
   }),
+
+  getters: {
+    projectList: (state) =>
+      state.projects.map((info) => {
+        try {
+          info.cover = JSON.parse(info.cover as string)
+        } catch (error) {
+          info.cover = getProjectDefaultCover({ coverBgColor: ProjectListCoverBgColors[1], coverIcon: ProjectListCoverIcons[0], type: 'icon' })
+        }
+        return info
+      }),
+  },
   actions: {
     async getProjects() {
       const projects: any = await getProjectList()
