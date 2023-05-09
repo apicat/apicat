@@ -2,6 +2,44 @@
   <el-dialog v-model="dialogVisible" :title="$t('app.project.createModal.title')" :width="500" align-center :close-on-click-modal="false">
     <!-- 内容 -->
     <el-form label-position="top" label-width="100px" :model="form" :rules="rules" ref="projectFormRef" @submit.prevent="handleSubmit(projectFormRef)">
+      <el-form-item v-if="bgColorRef && iconRef" :label="$t('app.project.form.cover')" v-show="bgColorRef && iconRef">
+        <div class="w-full text-white rounded h-128px flex-center" :style="{ backgroundColor: bgColorRef }">
+          <Iconfont :icon="iconRef" :size="55" />
+        </div>
+      </el-form-item>
+
+      <el-form-item v-if="bgColorRef && iconRef">
+        <el-form-item :label="$t('app.project.form.coverColor')" class="flex-1 mr-10px">
+          <AcSelect v-model="bgColorRef" class="w-full" :options="projectCoverBgColorsOptions">
+            <template #default="{ selected }">
+              <div class="flex-center wh-full">
+                <span class="inline-flex rounded w-40% h-15px" :style="{ backgroundColor: selected }"></span>
+              </div>
+            </template>
+
+            <template #option="{ option }">
+              <span :style="{ backgroundColor: option.value }" class="flex h-15px"></span>
+            </template>
+          </AcSelect>
+        </el-form-item>
+
+        <el-form-item :label="$t('app.project.form.coverIcon')" class="flex-1 mr-10px">
+          <AcSelect v-model="iconRef" class="w-full" :options="projectCoverIcons">
+            <template #default="{ selected }">
+              <div class="flex-center wh-full">
+                <Iconfont :icon="selected" />
+              </div>
+            </template>
+
+            <template #option="{ option }">
+              <div class="flex-center wh-full">
+                <Iconfont :icon="option.value" />
+              </div>
+            </template>
+          </AcSelect>
+        </el-form-item>
+      </el-form-item>
+
       <el-form-item :label="$t('app.project.form.title')" prop="title">
         <el-input v-model="form.title" :placeholder="$t('app.project.form.title')" clearable />
       </el-form-item>
@@ -60,6 +98,8 @@ import { createProject } from '@/api/project'
 import { getProjectDetailPath } from '@/router'
 import { ProjectInfo } from '@/typings'
 import uesProjectStore from '@/store/project'
+import { ProjectListCoverBgColors, ProjectListCoverIcons } from '@/commons'
+import { useProjectCover } from './logic/useProjectCover'
 
 const ns = useNamespace('project-types')
 const { t } = useI18n()
@@ -72,11 +112,18 @@ const { dialogVisible, showModel } = useModal(projectFormRef as any)
 const [isLoading, createProjectApi] = createProject()
 
 const selectedProjectType = ref('blank')
+const mapper = (value: string) => ({ value, label: value })
+
+const projectCoverBgColorsOptions = ProjectListCoverBgColors.map(mapper)
+const projectCoverIcons = ProjectListCoverIcons.map(mapper)
 
 const form = reactive({
   title: '',
+  cover: '',
   data: '',
 })
+
+const { bgColorRef, iconRef } = useProjectCover(form)
 
 watch(dialogVisible, () => {
   if (!dialogVisible.value) {

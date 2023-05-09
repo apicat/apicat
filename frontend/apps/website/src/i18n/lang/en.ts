@@ -50,6 +50,8 @@ export default {
         tabTitle: 'Project',
       },
       form: {
+        coverColor: '封面颜色',
+        coverIcon: '封面图标',
         title: 'Project Name',
         desc: 'Project Description',
       },

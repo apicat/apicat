@@ -1,7 +1,12 @@
 import { DocumentTypeEnum, ProjectNavigateObject } from '@/commons/constant'
-/**
- * project_detail
- */
+
+export interface ProjectCover {
+  type: 'icon' | 'url'
+  coverBgColor?: string
+  coverIcon?: string
+  coverUrl?: string
+}
+
 export declare interface ProjectInfo {
   /**
    * 创建时间
@@ -19,6 +24,7 @@ export declare interface ProjectInfo {
    * 项目名称
    */
   title: string
+  cover?: string | ProjectCover
 }
 
 /**
