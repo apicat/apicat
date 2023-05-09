@@ -25,6 +25,10 @@ export default {
       savedCloud: '已保存在云端',
       preview: '预览',
       goHome: '回到首页',
+      setting: '设置',
+      register: '注册',
+      registerAccount: '注册账号',
+      login: '登录',
     },
     tips: {
       notFound: '啊哦，网页走丢了，正在努力寻找中…',
@@ -42,6 +46,38 @@ export default {
       serverUrl: {
         desc: '描述',
         url: '以http://或https://开始',
+      },
+      user: {
+        username: '用户名',
+        email: '邮箱',
+        password: '密码',
+        oldPassword: '旧密码',
+        newPassword: '新密码',
+        confirmNewPassword: '确认新密码',
+      },
+    },
+    rules: {
+      username: {
+        required: '请输入用户名',
+      },
+      email: {
+        required: '请输入邮箱',
+        correct: '请输入正确的邮箱地址',
+      },
+      password: {
+        required: '请输入密码',
+        requiredOld: '请输入旧密码',
+        requiredNew: '请输入新密码',
+        requiredConfirm: '请输入确认新密码',
+        noMatch: '新密码不一致',
+        minLength: '密码至少8位',
+      },
+    },
+    user: {
+      nav: {
+        userSetting: '个人设置',
+        modifyPassword: '修改密码',
+        logout: '退出登录',
       },
     },
     project: {

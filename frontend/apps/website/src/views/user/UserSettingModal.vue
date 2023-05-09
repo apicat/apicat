@@ -11,7 +11,7 @@
   >
     <ModalLayout style="height: 40vh" :slide-width="200">
       <template #nav>
-        <p class="text-16px text-gray-950 font-500">设置</p>
+        <p class="text-16px text-gray-950 font-500">{{ $t('app.common.setting') }}</p>
         <ul class="mt-20px">
           <li
             v-for="menu in menus"
@@ -39,10 +39,12 @@ import ModifyPassword from '@/views/user/UserSettingPages/ModifyPassword.vue'
 import AcIconLock from '~icons/material-symbols/lock-outline'
 import AcIconUserSetting from '~icons/ph/user-bold'
 import { useModal } from '@/hooks'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const menus = [
-  { title: '个人设置', icon: markRaw(AcIconUserSetting), component: UserProfiles },
-  { title: '修改密码', icon: markRaw(AcIconLock), component: ModifyPassword },
+  { title: t('app.user.nav.userSetting'), icon: markRaw(AcIconUserSetting), component: UserProfiles },
+  { title: t('app.user.nav.modifyPassword'), icon: markRaw(AcIconLock), component: ModifyPassword },
 ]
 
 const activeTab = shallowRef(menus[0])

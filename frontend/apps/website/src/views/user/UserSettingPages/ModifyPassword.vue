@@ -1,15 +1,15 @@
 <template>
   <el-form @submit.prevent="onSubmit" @keyup.enter="onSubmit" ref="formRef" :model="form" :rules="rules" label-position="top" class="max-w-sm">
-    <el-form-item label="旧密码" prop="password">
-      <el-input type="password" v-model="form.password" placeholder="旧密码" autocomplete="on" />
+    <el-form-item :label="$t('app.form.user.oldPassword')" prop="password">
+      <el-input type="password" v-model="form.password" :placeholder="$t('app.rules.password.requiredOld')" autocomplete="on" />
     </el-form-item>
 
-    <el-form-item label="新密码" prop="new_password">
-      <el-input type="password" v-model="form.new_password" placeholder="新密码" autocomplete="on" />
+    <el-form-item :label="$t('app.form.user.newPassword')" prop="new_password">
+      <el-input type="password" v-model="form.new_password" :placeholder="$t('app.rules.password.requiredNew')" autocomplete="on" />
     </el-form-item>
 
-    <el-form-item label="确认新密码" prop="confirm_new_password">
-      <el-input type="password" v-model="form.confirm_new_password" placeholder="新密码" autocomplete="on" />
+    <el-form-item :label="$t('app.form.user.confirmNewPassword')" prop="confirm_new_password">
+      <el-input type="password" v-model="form.confirm_new_password" :placeholder="$t('app.rules.password.requiredConfirm')" autocomplete="on" />
     </el-form-item>
 
     <el-form-item>
@@ -21,7 +21,9 @@
 import useApi from '@/hooks/useApi'
 import { useUserStore } from '@/store/user'
 import { reactive, ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 
+const { t } = useI18n()
 const userStore = useUserStore()
 const formRef = ref()
 
@@ -31,24 +33,22 @@ const form = reactive({
   confirm_new_password: '',
 })
 
-const minLengthRule = { type: 'string', min: 8, message: '密码至少8位', trigger: 'blur' }
+const minLengthRule = { type: 'string', min: 8, message: t('app.rules.password.minLength'), trigger: 'blur' }
 
 const rules = {
-  password: [{ required: true, message: '请输入旧密码', trigger: 'blur' }, minLengthRule],
-  new_password: [{ required: true, message: '请输入新密码', trigger: 'blur' }, minLengthRule],
+  password: [{ required: true, message: t('app.rules.password.requiredOld'), trigger: 'blur' }, minLengthRule],
+  new_password: [{ required: true, message: t('app.rules.password.requiredNew'), trigger: 'blur' }, minLengthRule],
   confirm_new_password: [
     {
       required: true,
-      message: '请输入确认新密码',
+      message: t('app.rules.password.requiredConfirm'),
       trigger: 'blur',
     },
     minLengthRule,
     {
       validator: (rule: any, value: string, callback: any) => {
-        if (value === '') {
-          callback(new Error('请输入确认新密码'))
-        } else if (value !== form.new_password) {
-          callback(new Error('新密码不一致'))
+        if (value !== form.new_password) {
+          callback(new Error(t('app.rules.password.noMatch')))
         } else {
           callback()
         }
