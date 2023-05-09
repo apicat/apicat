@@ -47,9 +47,6 @@ func ProjectsList(ctx *gin.Context) {
 		return
 	}
 
-	slog.InfoCtx(ctx, "这是一条日志")
-	slog.InfoCtx(ctx, "ProjectsList", slog.Int("project_length", len(projects)))
-
 	result := make([]gin.H, 0)
 	for _, p := range projects {
 		result = append(result, gin.H{
@@ -302,8 +299,6 @@ func ProjectDataGet(ctx *gin.Context) {
 	apicatData.Definitions.Schemas = models.DefinitionSchemasExport(project.ID)
 	apicatData.Collections = models.CollectionsExport(project.ID)
 
-	// ctx.JSON(http.StatusOK, apicatData)
-	// return
 	if apicatDataContent, err := json.Marshal(apicatData); err == nil {
 		slog.InfoCtx(ctx, "Export", slog.String("apicat", string(apicatDataContent)))
 	}
