@@ -58,7 +58,7 @@ func SetUserInfo(ctx *gin.Context) {
 	currentUser.Username = data.Username
 	if err := currentUser.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.UpdateFailed"}),
 		})
 		return
 	}
@@ -106,7 +106,7 @@ func ChangePassword(ctx *gin.Context) {
 	hashedPassword, err := auth.HashPassword(data.NewPassword)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.PasswordEncryptionFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.UpdateFailed"}),
 		})
 		return
 	}
@@ -114,7 +114,7 @@ func ChangePassword(ctx *gin.Context) {
 	currentUser.Password = hashedPassword
 	if err := currentUser.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.UpdateFailed"}),
 		})
 		return
 	}

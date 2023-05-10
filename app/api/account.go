@@ -32,7 +32,7 @@ func EmailLogin(ctx *gin.Context) {
 	user, _ := models.NewUsers()
 	if err := user.GetByEmail(data.Email); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
 	}
@@ -86,7 +86,7 @@ func EmailRegister(ctx *gin.Context) {
 	hashedPassword, err := auth.HashPassword(data.Password)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.PasswordEncryptionFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.RegistrationFailed"}),
 		})
 		return
 	}

@@ -143,19 +143,22 @@ other = "Collection editing failed"
 other = "Collection delete failed"
 
 [Auth.TokenParsingFailed]
-other = "Token parse failed"
+other = "Login is unusual, please login again"
 
 [User.WrongPassword]
 other = "Wrong password"
 
 [User.FailedToGenerateToken]
-other = "Failed to generate token"
+other = "Login failed, please login again"
 
 [User.MailboxAlreadyExists]
 other = "Email already exists"
 
-[User.PasswordEncryptionFailed]
-other = "Password encryption failed"
-
 [User.RegistrationFailed]
 other = "Registration failed"
+
+[User.AccountDoesNotExist]
+other = "Account does not exist"
+
+[User.UpdateFailed]
+other = "User information change failed"
