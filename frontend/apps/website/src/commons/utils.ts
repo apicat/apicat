@@ -1,4 +1,4 @@
-import { HttpCodeColorMap } from '@apicat/shared'
+import { HttpCodeColorMap, uuid } from '@apicat/shared'
 import { compile } from 'path-to-regexp'
 import { HttpMethodTypeMap } from './constant'
 import { JSONSchema } from '@/components/APIEditor/types'
@@ -51,3 +51,15 @@ export const hasRefInSchema = (schema: JSONSchema) => {
 }
 
 export const randomArray = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]
+
+export const DATA_KEY = '_id'
+
+export const markDataWithKey = (data: Record<string, any>): void => {
+  if (!data || data[DATA_KEY]) return
+  Object.defineProperty(data, DATA_KEY, {
+    value: uuid(),
+    enumerable: false,
+    configurable: false,
+    writable: false,
+  })
+}
