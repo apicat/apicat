@@ -170,9 +170,15 @@ importers:
       '@iconify-json/material-symbols':
         specifier: ^1.1.36
         version: 1.1.36
+      '@iconify-json/mdi':
+        specifier: ^1.1.50
+        version: 1.1.50
       '@iconify-json/mi':
         specifier: ^1.1.4
         version: 1.1.4
+      '@iconify-json/ph':
+        specifier: ^1.1.5
+        version: 1.1.5
       '@iconify-json/ri':
         specifier: ^1.1.7
         version: 1.1.7
@@ -969,8 +975,20 @@ packages:
       '@iconify/types': 2.0.0
     dev: true
 
+  /@iconify-json/mdi@1.1.50:
+    resolution: {integrity: sha512-SgbT5w5eHCdOG74ZWPz7HlTGk6VsifIJhNi6lAsxj/5Nlqt6Cz4LlQmSa9eecU9p075Jub2aAx/o7YI+GCahRQ==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
   /@iconify-json/mi@1.1.4:
     resolution: {integrity: sha512-FO3sWZH1OqRPOSNZPE6vDUtLz6gSrCner3GVG82iB/ICIqP14C7y5EygHIMQgRinBgoBGOnnoX+7jVBbnwMJ1Q==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/ph@1.1.5:
+    resolution: {integrity: sha512-iLXq3nohfGge22gL2tZmQ2WHBKkKkIbGWrkuyC8arckS4PWaONyh4A+uDPtSek9QbYDvi9AE2+NxWkNZhANotA==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true

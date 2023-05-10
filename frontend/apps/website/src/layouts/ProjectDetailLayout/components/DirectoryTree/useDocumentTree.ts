@@ -41,7 +41,7 @@ export const useDocumentTree = () => {
 
   const { params } = route
   const { getApiDocTree } = documentStore
-  const [isLoading, getApiDocTreeApi] = useApi(getApiDocTree)()
+  const [isLoading, getApiDocTreeApi] = useApi(getApiDocTree)
   const { apiDocTree } = storeToRefs(documentStore)
 
   const treeOptions: TreeOptionProps = {

@@ -3,8 +3,8 @@ package api
 import (
 	"net/http"
 
-	"github.com/apicat/apicat/commom/auth"
-	"github.com/apicat/apicat/commom/translator"
+	"github.com/apicat/apicat/common/auth"
+	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
@@ -73,6 +73,14 @@ func SetUserInfo(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{
 		"token": token,
+		"user": map[string]interface{}{
+			"id":         user.ID,
+			"username":   user.Username,
+			"email":      user.Email,
+			"role":       user.Role,
+			"created_at": user.CreatedAt.Format("2006-01-02 15:04:05"),
+			"updated_at": user.UpdatedAt.Format("2006-01-02 15:04:05"),
+		},
 	})
 }
 

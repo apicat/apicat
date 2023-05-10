@@ -35,7 +35,7 @@ const globalParametersStore = uesGlobalParametersStore()
 const definitionStore = useDefinitionStore()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
-const [isLoadingForSaveBtn, updateCollectionApiWithLoading] = useApi(updateCollection)()
+const [isLoadingForSaveBtn, updateCollectionApiWithLoading] = useApi(updateCollection)
 
 const { goDocumentDetailPage } = useGoPage()
 

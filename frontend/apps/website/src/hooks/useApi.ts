@@ -35,7 +35,7 @@ export function useApi(execute: any, options?: UseApiOptions): any {
     }
   }
 
-  return (): [Ref<boolean>, any] => [isLoading, call]
+  return [isLoading, call]
 }
 
 export default useApi

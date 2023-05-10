@@ -4,7 +4,7 @@
       <template #reference>
         <div :class="ns.e('img')">
           <img src="@/assets/images/icon-project.png" :alt="projectDetailInfo?.title" />
-          <router-link to="/home">
+          <router-link to="/main">
             <el-icon :class="ns.e('back')"><ac-icon-ep-arrow-left-bold /></el-icon>
           </router-link>
         </div>

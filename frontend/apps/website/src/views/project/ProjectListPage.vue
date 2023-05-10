@@ -1,5 +1,5 @@
 <template>
-  <div class="container flex flex-col justify-center mx-auto" v-loading="isLoading">
+  <div class="container flex flex-col justify-center mx-auto px-20px" v-loading="isLoading">
     <p class="border-b border-solid border-gray-lighter py-20px mt-20px text-20px">
       {{ $t('app.project.list.tabTitle') }}
     </p>
@@ -7,11 +7,11 @@
     <ul class="ac-project-list my-20px py-10px">
       <li
         class="flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px"
-        v-for="project in projects"
+        v-for="project in projectList"
         @click="$router.push(getProjectDetailPath(project.id))"
       >
-        <div class="flex items-center justify-center h-112px bg-#6699CC">
-          <Iconfont class="text-white" icon="ac-xiangmu" :size="55" />
+        <div class="flex items-center justify-center h-112px" :style="{ backgroundColor: (project.cover as ProjectCover).coverBgColor }">
+          <Iconfont class="text-white" :icon="(project.cover as ProjectCover).coverIcon" :size="55" />
         </div>
         <p class="flex items-center flex-1 truncate px-16px">{{ project.title }}</p>
       </li>
@@ -32,12 +32,13 @@ import CreateProjectModal from './CreateProjectModal.vue'
 import uesProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'
 import { storeToRefs } from 'pinia'
+import { ProjectCover } from '@/typings'
 
 const createProjectModal = ref<InstanceType<typeof CreateProjectModal>>()
 const handleShowModelClick = () => createProjectModal.value!.show()
 const projectStore = uesProjectStore()
-const { projects } = storeToRefs(projectStore)
-const [isLoading, getProjectListApi] = useApi(projectStore.getProjects)()
+const { projectList } = storeToRefs(projectStore)
+const [isLoading, getProjectListApi] = useApi(projectStore.getProjects)
 
 onBeforeMount(async () => await getProjectListApi())
 onBeforeUnmount(() => (projectStore.projects = []))

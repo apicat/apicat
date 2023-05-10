@@ -13,7 +13,7 @@ export const setupGetProjectInfoFilter = (router: Router) => {
           projectStore.setCurrentProjectInfo(info)
           return next()
         } catch (error) {
-          router.replace('/home')
+          router.replace('/main')
         }
       }
     }

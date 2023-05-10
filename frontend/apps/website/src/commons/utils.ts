@@ -49,3 +49,5 @@ export const hasRefInSchema = (schema: JSONSchema) => {
 
   return false
 }
+
+export const randomArray = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]

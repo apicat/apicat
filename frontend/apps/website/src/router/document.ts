@@ -1,11 +1,6 @@
-import { uesProjectStore } from '../store/project'
 import type { RouteRecordRaw } from 'vue-router'
 import { compile } from 'path-to-regexp'
 import ProjectDetailLayout from '@/layouts/ProjectDetailLayout'
-import DocumentDetailPage from '@/views/document/DocumentDetailPage.vue'
-import DocumentEditPage from '@/views/document/DocumentEditPage.vue'
-import SchemaEditPage from '@/views/document/SchemaEditPage.vue'
-import SchemaDetailPage from '@/views/document/SchemaDetailPage.vue'
 
 export const PROJECT_DETAIL_PATH = '/proejct/:project_id'
 
@@ -28,6 +23,11 @@ export const getDocumentEditPath = (project_id: number | string, doc_id: number 
 
 export const getSchemaDetailPath = (project_id: number | string, shcema_id: number | string) => compile(SCHEMA_DETAIL_PATH)({ project_id, shcema_id })
 export const getSchemaEditPath = (project_id: number | string, shcema_id: number | string) => compile(SCHEMA_DETAIL_PATH)({ project_id, shcema_id }) + '/edit'
+
+const DocumentDetailPage = () => import('@/views/document/DocumentDetailPage.vue')
+const DocumentEditPage = () => import('@/views/document/DocumentEditPage.vue')
+const SchemaEditPage = () => import('@/views/document/SchemaEditPage.vue')
+const SchemaDetailPage = () => import('@/views/document/SchemaDetailPage.vue')
 
 const documentDetailRoute: RouteRecordRaw = {
   name: DOCUMENT_DETAIL_NAME,
@@ -59,7 +59,5 @@ export const projectDetailRoute: RouteRecordRaw = {
   component: ProjectDetailLayout,
   children: [documentDetailRoute, documentEditRoute, schemaDetailRoute, schemaEditRoute],
   redirect: { name: DOCUMENT_DETAIL_NAME },
-  meta: {
-    title: 'app.project.detail.title',
-  },
+  meta: {},
 }

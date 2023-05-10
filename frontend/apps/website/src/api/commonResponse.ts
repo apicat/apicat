@@ -2,9 +2,9 @@ import Ajax from './Ajax'
 import { APICatCommonResponse } from '@/typings'
 import { convertRequestPath } from '@/commons'
 
-const responseParamApiPath = (project_id: string | number): string => convertRequestPath('/projects/:project_id/definitions/responses', { project_id })
+const responseParamApiPath = (project_id: string | number): string => convertRequestPath('/projects/:project_id/common/responses', { project_id })
 const responseParamDetailApiPath = (project_id: string | number, response_id: string | number): string =>
-  convertRequestPath('/projects/:project_id/definitions/responses/:response_id', { project_id, response_id })
+  convertRequestPath(`${responseParamApiPath(project_id)}/:response_id`, { response_id })
 
 export const getCommonResponseList = async ({ project_id }: any): Promise<APICatCommonResponse[]> => await Ajax.get(responseParamApiPath(project_id))
 

@@ -51,8 +51,8 @@ const { t } = useI18n()
 const project_id = useProjectId()
 const projectStore = uesProjectStore()
 const navFormRef = shallowRef()
-const [isLoading, saveProjectServerUrlListApi] = useApi(projectStore.saveProjectServerUrlListApi)()
-const [isLoadingUrls, getProjectServerUrlListApi] = useApi(projectStore.getUrlServers)()
+const [isLoading, saveProjectServerUrlListApi] = useApi(projectStore.saveProjectServerUrlListApi)
+const [isLoadingUrls, getProjectServerUrlListApi] = useApi(projectStore.getUrlServers)
 
 type Url = {
   url: string
