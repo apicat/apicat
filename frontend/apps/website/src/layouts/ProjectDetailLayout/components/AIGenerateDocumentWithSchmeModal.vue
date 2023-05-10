@@ -109,8 +109,9 @@ const handleCreate = async (selectedRows: Array<any>) => {
     item.abortController = new AbortController()
 
     try {
-      const { description: title, id: schema_id, method, path } = item
-      const data: any = await createCollectionByAI({ project_id, parent_id, schema_id, title, method, path }, { signal: item.abortController.signal })
+      const { description: title, method, path } = item
+      const data: any = await createCollectionByAI({ project_id, parent_id, schema_id: item.schema.id, title, method, path }, { signal: item.abortController.signal })
+
       item.isSuccess = true
       item.isFinish = true
       item.isLoading = false
