@@ -45,15 +45,9 @@ func TestListApiBySchema(t *testing.T) {
 		t.Fail()
 	}
 
-	schema, err := os.ReadFile("./testdata/customer_schema.json")
-	if err != nil {
-		t.Log(err)
-		t.Fail()
-	}
-
 	o := NewOpenAI(string(token), "en")
 	o.SetMaxTokens(3000)
-	res, err := o.ListApiBySchema("Customer", string(schema))
+	res, err := o.ListApiBySchema("Customer")
 	if err != nil || res == "" {
 		t.Log(err)
 		t.Fail()
@@ -76,7 +70,7 @@ func TestCreateApiBySchema(t *testing.T) {
 
 	o := NewOpenAI(string(token), "en")
 	o.SetMaxTokens(3000)
-	res, err := o.CreateApiBySchema("CreateCustomer", string(schema))
+	res, err := o.CreateApiBySchema("CreateCustomer", "/customers", "POST", string(schema))
 	if err != nil || res == "" {
 		t.Log(err)
 		t.Fail()
