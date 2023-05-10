@@ -13,11 +13,7 @@
         v-loading="param.isLoading"
       >
         <template #extra>
-          <!-- <el-popconfirm width="auto" :title="$t('app.response.tips.confirmDelete')" @confirm="handleDeleteParam(param, index)">
-            <template #reference> -->
           <el-icon @click="(e) => onClickDeleteIcon(param, index, e)" class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
-          <!-- </template>
-          </el-popconfirm> -->
         </template>
 
         <div v-if="param.detail">
@@ -33,9 +29,9 @@
   <el-popover :visible="isShow" width="auto" :virtual-ref="popoverRefEl" virtual-triggering>
     <div class="ignore-popper">
       <p class="flex-y-center">
-        <el-icon class="mr-2px" :color="'rgb(255, 153, 0)'"><ac-icon-ep:question-filled /></el-icon>确认删除此公共响应吗？
+        <el-icon class="mr-2px" :color="'rgb(255, 153, 0)'"><ac-icon-ep:question-filled /></el-icon>{{ $t('app.publicResponse.tips.confirmDelete') }}
       </p>
-      <el-checkbox size="small" style="font-weight: normal" v-model="isUnRef" :true-label="1" :false-label="0">对引用此响应的内容解引用</el-checkbox>
+      <el-checkbox size="small" style="font-weight: normal" v-model="isUnRef" :true-label="1" :false-label="0">{{ $t('app.publicResponse.tips.unref') }}</el-checkbox>
       <div class="flex justify-end">
         <el-button size="small" text @click="hidePopover">{{ $t('app.common.cancel') }}</el-button>
         <el-button size="small" type="primary" :loading="isLoadingForDelete" @click="handelConfirmDelete">{{ $t('app.common.confirm') }}</el-button>

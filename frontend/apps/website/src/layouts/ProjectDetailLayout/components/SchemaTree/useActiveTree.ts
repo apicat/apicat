@@ -76,10 +76,8 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
         router.replace({ name: SCHEMA_DETAIL_NAME, params })
       } else {
         const { project_id } = params
-        router.push({ name: DOCUMENT_DETAIL_NAME, params: { project_id } })
-        setTimeout(() => {
-          directoryTree.reactiveNode && directoryTree.reactiveNode()
-        }, 0)
+        router.replace({ name: DOCUMENT_DETAIL_NAME, params: { project_id } })
+        setTimeout(() => directoryTree.reactiveNode && directoryTree.reactiveNode(), 0)
       }
     }
   }

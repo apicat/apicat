@@ -5,13 +5,14 @@
   </div>
 </template>
 <script setup>
+import { useNamespace } from '@/hooks'
+
 defineProps({
   pure: {
     type: Boolean,
     default: false,
   },
 })
-import { useNamespace } from '@/hooks'
 const ns = useNamespace('logo')
 </script>
 <style lang="scss" scoped>

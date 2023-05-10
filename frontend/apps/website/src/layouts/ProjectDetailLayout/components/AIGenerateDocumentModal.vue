@@ -52,6 +52,7 @@ const handleSubmit = async (formEl: FormInstance | undefined) => {
     const valid = await formEl.validate()
     if (valid) {
       const data = await createCollectionByAIApi({ project_id, title: form.title, ...otherParams })
+
       emits('ok', data.id)
       reset()
       hideModel()

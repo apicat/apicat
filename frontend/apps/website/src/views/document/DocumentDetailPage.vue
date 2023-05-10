@@ -82,8 +82,7 @@ globalParametersStore.$onAction(({ name, after }) => {
 })
 
 commonResponseStore.$onAction(({ name, after }) => {
-  // 删除全局响应
-  if (name === 'updateResponseParam') {
+  if (name === 'updateResponseParam' || name === 'deleteResponseParam') {
     after(() => getDetail(route.params.doc_id as string))
   }
 })
