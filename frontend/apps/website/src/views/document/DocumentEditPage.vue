@@ -28,10 +28,12 @@ import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionStore from '@/store/definition'
 import { useI18n } from 'vue-i18n'
 import useCommonResponseStore from '@/store/commonResponse'
+import { DOCUMENT_EDIT_NAME } from '@/router'
 
 const { t } = useI18n()
 const { project_id } = useParams()
 const route = useRoute()
+const router = useRouter()
 const globalParametersStore = uesGlobalParametersStore()
 const definitionStore = useDefinitionStore()
 const commonResponseStore = useCommonResponseStore()
@@ -62,13 +64,12 @@ const handleSave = async () => {
 
 const getDetail = async () => {
   // id 无效
-  if (isInvalidId()) {
-    // ElMessage.error('文档id无效')
+  if (isInvalidId() || router.currentRoute.value.name !== DOCUMENT_EDIT_NAME) {
     return
   }
 
+  httpDoc.value = null
   try {
-    httpDoc.value = null
     httpDoc.value = await getCollectionDetailApi({ project_id, collection_id: route.params.doc_id })
   } catch (error) {
     console.error(error)

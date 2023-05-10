@@ -63,6 +63,7 @@ import AIGenerateDocumentModal from '../AIGenerateDocumentModal.vue'
 import { useActiveTree } from './useActiveTree'
 import { useNamespace } from '@/hooks'
 
+const schemaTree = inject('schemaTree') as any
 const ns = useNamespace('catalog-tree')
 
 const {
@@ -81,7 +82,8 @@ const {
 } = useDocumentTree()
 
 const aiPromptModalRef = ref<InstanceType<typeof AIGenerateDocumentModal>>()
-const onGenerateDocumenSuccess = (doc_id: any) => {
+const onGenerateDocumenSuccess = async (doc_id: any) => {
+  schemaTree && (await schemaTree.reload())
   redirecToDocumentEditPage(doc_id)
 }
 

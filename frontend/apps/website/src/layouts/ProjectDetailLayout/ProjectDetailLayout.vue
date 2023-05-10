@@ -45,6 +45,7 @@ provide('directoryTree', {
 provide('schemaTree', {
   updateTitle: (id: any, title: string) => schemaTree.value?.updateTitle(id, title),
   activeNode: (id: any) => schemaTree.value?.activeNode(id),
+  reload: async () => await schemaTree.value?.reload(),
   reactiveNode: () => schemaTree.value?.reactiveNode(),
   redirecToSchemaDetail: (activeId?: any) => schemaTree.value?.redirecToSchemaEdit(activeId),
 })

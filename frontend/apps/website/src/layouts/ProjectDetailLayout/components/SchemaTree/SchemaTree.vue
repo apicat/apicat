@@ -83,5 +83,6 @@ defineExpose({
   activeNode,
   reactiveNode,
   redirecToSchemaEdit,
+  reload: initSchemaTree,
 })
 </script>
