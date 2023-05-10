@@ -47,7 +47,7 @@ func EmailLogin(ctx *gin.Context) {
 	token, err := auth.GenerateToken(user)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.FailedToGenerateToken"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.LoginFailed"}),
 		})
 		return
 	}
@@ -116,7 +116,7 @@ func EmailRegister(ctx *gin.Context) {
 	token, err := auth.GenerateToken(user)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.FailedToGenerateToken"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.RegistrationFailed"}),
 		})
 		return
 	}

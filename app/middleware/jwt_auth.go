@@ -15,14 +15,18 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		authHeader := ctx.Request.Header.Get("Authorization")
 		if authHeader == "" {
-			ctx.Status(http.StatusUnauthorized)
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
+			})
 			//阻止调用后续的函数
 			ctx.Abort()
 			return
 		}
 		parts := strings.SplitN(authHeader, " ", 2)
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
-			ctx.Status(http.StatusUnauthorized)
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
+			})
 			ctx.Abort()
 			return
 		}
@@ -37,14 +41,18 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 		}
 
 		if mc.User == nil {
-			ctx.Status(http.StatusUnauthorized)
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
+			})
 			ctx.Abort()
 			return
 		}
 
 		user, err := models.NewUsers(mc.User.ID)
 		if err != nil {
-			ctx.Status(http.StatusUnauthorized)
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
+			})
 			ctx.Abort()
 			return
 		}

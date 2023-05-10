@@ -145,20 +145,20 @@ other = "Collection delete failed"
 [Auth.TokenParsingFailed]
 other = "Login is unusual, please login again"
 
-[User.WrongPassword]
-other = "Wrong password"
-
-[User.FailedToGenerateToken]
-other = "Login failed, please login again"
-
-[User.MailboxAlreadyExists]
-other = "Email already exists"
+[User.LoginFailed]
+other = "Login failed"
 
 [User.RegistrationFailed]
 other = "Registration failed"
 
+[User.UpdateFailed]
+other = "Failed to modify user information"
+
+[User.MailboxAlreadyExists]
+other = "Email already exists"
+
 [User.AccountDoesNotExist]
 other = "Account does not exist"
 
-[User.UpdateFailed]
-other = "User information change failed"
+[User.WrongPassword]
+other = "Wrong password"

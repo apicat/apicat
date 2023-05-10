@@ -66,7 +66,7 @@ func SetUserInfo(ctx *gin.Context) {
 	token, err := auth.GenerateToken(currentUser)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.FailedToGenerateToken"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.UpdateFailed"}),
 		})
 		return
 	}
@@ -74,12 +74,12 @@ func SetUserInfo(ctx *gin.Context) {
 	ctx.JSON(http.StatusCreated, gin.H{
 		"token": token,
 		"user": map[string]interface{}{
-			"id":         user.ID,
-			"username":   user.Username,
-			"email":      user.Email,
-			"role":       user.Role,
-			"created_at": user.CreatedAt.Format("2006-01-02 15:04:05"),
-			"updated_at": user.UpdatedAt.Format("2006-01-02 15:04:05"),
+			"id":         currentUser.ID,
+			"username":   currentUser.Username,
+			"email":      currentUser.Email,
+			"role":       currentUser.Role,
+			"created_at": currentUser.CreatedAt.Format("2006-01-02 15:04:05"),
+			"updated_at": currentUser.UpdatedAt.Format("2006-01-02 15:04:05"),
 		},
 	})
 }
@@ -122,7 +122,7 @@ func ChangePassword(ctx *gin.Context) {
 	token, err := auth.GenerateToken(currentUser)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.FailedToGenerateToken"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.UpdateFailed"}),
 		})
 		return
 	}
