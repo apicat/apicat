@@ -174,12 +174,15 @@ export default {
     },
     publicResponse: {
       title: '公共响应',
+      tips: {
+        confirmDelete: '确认删除该公共响应吗？',
+        unref: '对引用此响应的内容解引用',
+      },
     },
     response: {
       title: '响应参数',
       fullname: '响应名称',
       tips: {
-        confirmDelete: '确认删除该公共响应吗？',
         responseExample: '响应示例',
       },
       table: {

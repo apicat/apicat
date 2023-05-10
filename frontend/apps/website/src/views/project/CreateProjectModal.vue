@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="$t('app.project.createModal.title')" :width="500" align-center :close-on-click-modal="false">
+  <el-dialog v-model="dialogVisible" :title="$t('app.project.createModal.title')" :width="580" align-center :close-on-click-modal="false">
     <!-- 内容 -->
     <el-form label-position="top" label-width="100px" :model="form" :rules="rules" ref="projectFormRef" @submit.prevent="handleSubmit(projectFormRef)">
       <el-form-item v-if="bgColorRef && iconRef" :label="$t('app.project.form.cover')" v-show="bgColorRef && iconRef">

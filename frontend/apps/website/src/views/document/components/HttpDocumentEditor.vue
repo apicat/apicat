@@ -48,6 +48,7 @@ const onUrlChange = (paths: string[]) => {
 const httpResponseList = computed({
   get: () => {
     const response = httpDoc.value.content.find((node) => node.type === HTTP_RESPONSE_NODE_KEY)
+    console.log(response)
     return response?.attrs?.list || []
   },
   set: (val) => {

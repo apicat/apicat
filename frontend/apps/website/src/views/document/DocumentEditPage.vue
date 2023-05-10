@@ -27,12 +27,14 @@ import { ElMessage } from 'element-plus'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionStore from '@/store/definition'
 import { useI18n } from 'vue-i18n'
+import useCommonResponseStore from '@/store/commonResponse'
 
 const { t } = useI18n()
 const { project_id } = useParams()
 const route = useRoute()
 const globalParametersStore = uesGlobalParametersStore()
 const definitionStore = useDefinitionStore()
+const commonResponseStore = useCommonResponseStore()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const [isLoadingForSaveBtn, updateCollectionApiWithLoading] = useApi(updateCollection)
@@ -66,6 +68,7 @@ const getDetail = async () => {
   }
 
   try {
+    httpDoc.value = null
     httpDoc.value = await getCollectionDetailApi({ project_id, collection_id: route.params.doc_id })
   } catch (error) {
     console.error(error)
@@ -73,14 +76,18 @@ const getDetail = async () => {
 }
 
 globalParametersStore.$onAction(({ name, after }) => {
-  // 删除全局参数
   if (name === 'deleteGlobalParameter') {
     after(() => getDetail())
   }
 })
 
+commonResponseStore.$onAction(({ name, after }) => {
+  if (name === 'updateResponseParam' || name === 'deleteResponseParam') {
+    after(() => getDetail())
+  }
+})
+
 definitionStore.$onAction(({ name, after }) => {
-  // 删除全局模型
   if (name === 'deleteDefinition') {
     after(() => getDetail())
   }

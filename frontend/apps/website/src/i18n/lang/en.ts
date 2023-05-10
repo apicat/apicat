@@ -66,7 +66,7 @@ export default {
       password: {
         required: 'Please enter a password',
         requiredOld: 'Please enter an old password',
-        requiredNew: 'Please enter a new password.',
+        requiredNew: 'Please enter a new password',
         requiredConfirm: 'Please enter a confirmation password',
         noMatch: 'New passwords do not match',
         minLength: 'Password must be at least 8 bits',
@@ -174,12 +174,15 @@ export default {
     },
     publicResponse: {
       title: 'Public Response',
+      tips: {
+        confirmDelete: 'Are you sure you want to delete this public response?',
+        unref: 'Unquote the content of this response',
+      },
     },
     response: {
       title: 'Response Parameters',
       fullname: 'Response Name',
       tips: {
-        confirmDelete: 'Are you sure you want to delete this public response?',
         responseExample: 'Response Example',
       },
       table: {
