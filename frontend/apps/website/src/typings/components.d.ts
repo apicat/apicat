@@ -9,9 +9,11 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    AcIcon: typeof import('./../components/AcIcon.vue')['default']
     AcIconBiRobot: typeof import('~icons/bi/robot')['default']
     AcIconCarbonModelAlt: typeof import('~icons/carbon/model-alt')['default']
     AcIconCarbonUnlink: typeof import('~icons/carbon/unlink')['default']
+    'AcIconEp:arrowDown': typeof import('~icons/ep/arrow-down')['default']
     'AcIconEp:circleCheckFilled': typeof import('~icons/ep/circle-check-filled')['default']
     'AcIconEp:circleCloseFilled': typeof import('~icons/ep/circle-close-filled')['default']
     'AcIconEp:plus': typeof import('~icons/ep/plus')['default']
@@ -30,7 +32,10 @@ declare module '@vue/runtime-core' {
     AcIconLucideFileText: typeof import('~icons/lucide/file-text')['default']
     AcIconMaterialSymbolsDragIndicator: typeof import('~icons/material-symbols/drag-indicator')['default']
     AcIconMiEnter: typeof import('~icons/mi/enter')['default']
+    'AcIconPh:userCircleLight': typeof import('~icons/ph/user-circle-light')['default']
     AcIconUilFileBlank: typeof import('~icons/uil/file-blank')['default']
+    AcLogo: typeof import('./../components/AcLogo.vue')['default']
+    AcSelect: typeof import('./../components/AcSelect.vue')['default']
     AcTag: typeof import('./../components/AcTag.vue')['default']
     AsyncMessageBox: typeof import('./../components/AsyncMessageBox.ts')['default']
     ClipboardHelper: typeof import('./../components/ClipboardHelper.ts')['default']

@@ -149,3 +149,6 @@ export const RefPrefixKeys = {
     reg: /#\/definitions\/schemas\/(.*)/,
   },
 }
+
+export const ProjectListCoverBgColors = ['#FF9966', '#6699CC', '#FFCC99', '#66CCCC', '#FFCCCC', '#CCCCFF', '#99CC99', '#CCCCCC', '#99CCFF']
+export const ProjectListCoverIcons = ['ac-danjumoxing', 'ac-fangkuai', 'ac-home', 'ac-jiekou', 'ac-doc-text', 'ac-bijibendiannao', 'ac-diannao', 'ac-shiyan', 'ac-xiangmu']

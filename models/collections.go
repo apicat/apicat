@@ -177,7 +177,7 @@ func collectionsTree(collections []*Collections, parentCollection *Collections, 
 	}
 
 	gpMap.GlobalParametersIDToNameMapInit(projectID)
-	var definitions []*Definitions
+	var definitions []*DefinitionSchemas
 
 	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err != nil {
 		return collectItems

@@ -19,11 +19,13 @@ import (
 type CreateProject struct {
 	Title string `json:"title" binding:"required,lte=255"`
 	Data  string `json:"data"`
+	Cover string `json:"cover" binding:"lte=255"`
 }
 
 type UpdateProject struct {
 	Title       string `json:"title" binding:"required,lte=255"`
 	Description string `json:"description" binding:"lte=255"`
+	Cover       string `json:"cover" binding:"lte=255"`
 }
 
 type ProjectID struct {
@@ -45,15 +47,13 @@ func ProjectsList(ctx *gin.Context) {
 		return
 	}
 
-	slog.InfoCtx(ctx, "这是一条日志")
-	slog.InfoCtx(ctx, "ProjectsList", slog.Int("project_length", len(projects)))
-
 	result := make([]gin.H, 0)
 	for _, p := range projects {
 		result = append(result, gin.H{
 			"id":          p.PublicId,
 			"title":       p.Title,
 			"description": p.Description,
+			"cover":       p.Cover,
 			"created_at":  p.CreatedAt.Format("2006-01-02 15:04:05"),
 			"updated_at":  p.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
@@ -63,6 +63,13 @@ func ProjectsList(ctx *gin.Context) {
 }
 
 func ProjectsCreate(ctx *gin.Context) {
+	CurrentUser, _ := ctx.Get("CurrentUser")
+	user, _ := CurrentUser.(*models.Users)
+	if user.Role == "user" {
+		ctx.Status(http.StatusForbidden)
+		return
+	}
+
 	var (
 		data       CreateProject
 		content    *spec.Spec
@@ -105,6 +112,7 @@ func ProjectsCreate(ctx *gin.Context) {
 	project.Title = data.Title
 	project.PublicId = shortuuid.New()
 	project.Visibility = 0
+	project.Cover = data.Cover
 	if err := project.Create(); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.CreateFail"}),
@@ -115,7 +123,7 @@ func ProjectsCreate(ctx *gin.Context) {
 	// 进行数据导入工作
 	if data.Data != "" {
 		models.ServersImport(project.ID, content.Servers)
-		definitionSchemas := models.DefinitionsImport(project.ID, content.Definitions.Schemas)
+		definitionSchemas := models.DefinitionSchemasImport(project.ID, content.Definitions.Schemas)
 		models.CollectionsImport(project.ID, 0, content.Collections, definitionSchemas)
 	}
 
@@ -123,12 +131,20 @@ func ProjectsCreate(ctx *gin.Context) {
 		"id":          project.PublicId,
 		"title":       project.Title,
 		"description": project.Description,
+		"cover":       project.Cover,
 		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
 }
 
 func ProjectsUpdate(ctx *gin.Context) {
+	CurrentUser, _ := ctx.Get("CurrentUser")
+	user, _ := CurrentUser.(*models.Users)
+	if user.Role == "user" {
+		ctx.Status(http.StatusForbidden)
+		return
+	}
+
 	var (
 		uriData ProjectID
 		data    UpdateProject
@@ -158,6 +174,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 
 	project.Title = data.Title
 	project.Description = data.Description
+	project.Cover = data.Cover
 	if err := project.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
@@ -169,6 +186,13 @@ func ProjectsUpdate(ctx *gin.Context) {
 }
 
 func ProjectsDelete(ctx *gin.Context) {
+	CurrentUser, _ := ctx.Get("CurrentUser")
+	user, _ := CurrentUser.(*models.Users)
+	if user.Role == "user" {
+		ctx.Status(http.StatusForbidden)
+		return
+	}
+
 	var data ProjectID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
@@ -217,12 +241,20 @@ func ProjectsGet(ctx *gin.Context) {
 		"id":          project.PublicId,
 		"title":       project.Title,
 		"description": project.Description,
+		"cover":       project.Cover,
 		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
 }
 
 func ProjectDataGet(ctx *gin.Context) {
+	CurrentUser, _ := ctx.Get("CurrentUser")
+	user, _ := CurrentUser.(*models.Users)
+	if user.Role == "user" {
+		ctx.Status(http.StatusForbidden)
+		return
+	}
+
 	var (
 		uriData ProjectID
 		data    ExportProject
@@ -264,11 +296,9 @@ func ProjectDataGet(ctx *gin.Context) {
 	apicatData.Servers = models.ServersExport(project.ID)
 	apicatData.Globals.Parameters = models.GlobalParametersExport(project.ID)
 	apicatData.Common.Responses = models.CommonResponsesExport(project.ID)
-	apicatData.Definitions.Schemas = models.DefinitionsExport(project.ID)
+	apicatData.Definitions.Schemas = models.DefinitionSchemasExport(project.ID)
 	apicatData.Collections = models.CollectionsExport(project.ID)
 
-	// ctx.JSON(http.StatusOK, apicatData)
-	// return
 	if apicatDataContent, err := json.Marshal(apicatData); err == nil {
 		slog.InfoCtx(ctx, "Export", slog.String("apicat", string(apicatDataContent)))
 	}

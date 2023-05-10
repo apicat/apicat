@@ -13,16 +13,17 @@ import { isEmpty } from 'lodash-es'
 
 export const getCollectionList = (project_id: string) => Ajax.get(`/projects/${project_id}/collections`)
 
-export const getCollectionDetail = useApi(async ({ project_id, collection_id }: any) => {
-  const doc: any = await Ajax.get(`/projects/${project_id}/collections/${collection_id}`)
-  try {
-    doc.content = JSON.parse(doc.content)
-    mergeDocumentContent(doc.content)
-  } catch (error) {
-    doc.content = createHttpDocument().content
-  }
-  return doc
-})
+export const getCollectionDetail = () =>
+  useApi(async ({ project_id, collection_id }: any) => {
+    const doc: any = await Ajax.get(`/projects/${project_id}/collections/${collection_id}`)
+    try {
+      doc.content = JSON.parse(doc.content)
+      mergeDocumentContent(doc.content)
+    } catch (error) {
+      doc.content = createHttpDocument().content
+    }
+    return doc
+  })
 
 export const createCollection = async ({ project_id, ...data }: any) => QuietAjax.post(`/projects/${project_id}/collections`, data)
 

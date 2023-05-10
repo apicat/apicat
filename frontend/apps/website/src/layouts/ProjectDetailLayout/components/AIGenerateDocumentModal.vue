@@ -28,7 +28,7 @@ const { t } = useI18n()
 const aiPromptForm = ref<FormInstance>()
 
 const { dialogVisible, showModel, hideModel } = useModal(aiPromptForm as any)
-const [isLoading, createCollectionByAIApi] = useApi(createCollectionByAI)()
+const [isLoading, createCollectionByAIApi] = useApi(createCollectionByAI)
 const { project_id } = useParams()
 
 let otherParams = {}
@@ -52,6 +52,7 @@ const handleSubmit = async (formEl: FormInstance | undefined) => {
     const valid = await formEl.validate()
     if (valid) {
       const data = await createCollectionByAIApi({ project_id, title: form.title, ...otherParams })
+
       emits('ok', data.id)
       reset()
       hideModel()

@@ -37,7 +37,7 @@ func InitApiRouter(r *gin.Engine) {
 
 	apiRouter := r.Group("/api").Use(translator.UseValidatori18n())
 	{
-		projects := apiRouter.(*gin.RouterGroup).Group("/projects")
+		projects := apiRouter.(*gin.RouterGroup).Group("/projects", middleware.JWTAuthMiddleware())
 		{
 			projects.GET("", api.ProjectsList)
 			projects.GET("/:id", api.ProjectsGet)
@@ -47,17 +47,30 @@ func InitApiRouter(r *gin.Engine) {
 			projects.DELETE("/:id", api.ProjectsDelete)
 		}
 
-		project := apiRouter.(*gin.RouterGroup).Group("/projects/:id").Use(middleware.CheckProject())
+		account := apiRouter.(*gin.RouterGroup).Group("/account")
 		{
-			definitions := project.(*gin.RouterGroup).Group("/definitions")
+			account.POST("/login/email", api.EmailLogin)
+			account.POST("/register/email", api.EmailRegister)
+		}
+
+		user := apiRouter.(*gin.RouterGroup).Group("/user", middleware.JWTAuthMiddleware())
+		{
+			user.GET("", api.GetUserInfo)
+			user.PUT("", api.SetUserInfo)
+			user.PUT("/password", api.ChangePassword)
+		}
+
+		project := apiRouter.(*gin.RouterGroup).Group("/projects/:id", middleware.JWTAuthMiddleware()).Use(middleware.CheckProject())
+		{
+			definitionSchemas := project.(*gin.RouterGroup).Group("/definition/schemas")
 			{
-				definitions.GET("", api.DefinitionsList)
-				definitions.POST("", api.DefinitionsCreate)
-				definitions.PUT("/:definition-id", api.DefinitionsUpdate)
-				definitions.DELETE("/:definition-id", api.DefinitionsDelete)
-				definitions.GET("/:definition-id", api.DefinitionsGet)
-				definitions.POST("/:definition-id", api.DefinitionsCopy)
-				definitions.PUT("/movement", api.DefinitionsMove)
+				definitionSchemas.GET("", api.DefinitionSchemasList)
+				definitionSchemas.POST("", api.DefinitionSchemasCreate)
+				definitionSchemas.PUT("/:schemas-id", api.DefinitionSchemasUpdate)
+				definitionSchemas.DELETE("/:schemas-id", api.DefinitionSchemasDelete)
+				definitionSchemas.GET("/:schemas-id", api.DefinitionSchemasGet)
+				definitionSchemas.POST("/:schemas-id", api.DefinitionSchemasCopy)
+				definitionSchemas.PUT("/movement", api.DefinitionSchemasMove)
 			}
 
 			servers := project.(*gin.RouterGroup).Group("/servers")
@@ -74,13 +87,13 @@ func InitApiRouter(r *gin.Engine) {
 				globalParameters.DELETE("/:parameter-id", api.GlobalParametersDelete)
 			}
 
-			definitionsResponses := project.(*gin.RouterGroup).Group("/definitions/responses")
+			commonResponses := project.(*gin.RouterGroup).Group("/common/responses")
 			{
-				definitionsResponses.GET("", api.CommonResponsesList)
-				definitionsResponses.GET("/:response-id", api.CommonResponsesDetail)
-				definitionsResponses.POST("", api.CommonResponsesCreate)
-				definitionsResponses.PUT("/:response-id", api.CommonResponsesUpdate)
-				definitionsResponses.DELETE("/:response-id", api.CommonResponsesDelete)
+				commonResponses.GET("", api.CommonResponsesList)
+				commonResponses.GET("/:response-id", api.CommonResponsesDetail)
+				commonResponses.POST("", api.CommonResponsesCreate)
+				commonResponses.PUT("/:response-id", api.CommonResponsesUpdate)
+				commonResponses.DELETE("/:response-id", api.CommonResponsesDelete)
 			}
 
 			collections := project.(*gin.RouterGroup).Group("/collections")

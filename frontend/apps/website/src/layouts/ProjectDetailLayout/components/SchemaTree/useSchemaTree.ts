@@ -44,7 +44,7 @@ export const useSchemaTree = () => {
   const { params } = route
   const { getDefinitions } = definitionStore
   const { definitions } = storeToRefs(definitionStore)
-  const [isLoading, getDefinitionsApi] = useApi(getDefinitions)()
+  const [isLoading, getDefinitionsApi] = useApi(getDefinitions)
 
   const treeOptions: TreeOptionProps = {
     children: 'items',

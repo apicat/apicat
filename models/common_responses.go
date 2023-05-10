@@ -103,7 +103,7 @@ func CommonResponsesImport(projectID uint, responses spec.HTTPResponses) nameToI
 
 func CommonResponsesExport(projectID uint) spec.HTTPResponses {
 	var commonResponses []*CommonResponses
-	var definitions []*Definitions
+	var definitions []*DefinitionSchemas
 	specCommonResponses := make(spec.HTTPResponses, 0)
 
 	if err := Conn.Where("project_id = ?", projectID).Find(&commonResponses).Error; err != nil {

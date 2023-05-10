@@ -27,7 +27,7 @@ const { t } = useI18n()
 const aiPromptForm = ref<FormInstance>()
 
 const { dialogVisible, showModel, hideModel } = useModal(aiPromptForm as any)
-const [isLoading, aiGenerateDefinitionApi] = useApi(aiGenerateDefinition)()
+const [isLoading, aiGenerateDefinitionApi] = useApi(aiGenerateDefinition)
 const { project_id } = useParams()
 
 let otherParams = {}

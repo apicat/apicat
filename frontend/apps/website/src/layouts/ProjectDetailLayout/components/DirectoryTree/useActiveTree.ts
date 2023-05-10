@@ -83,7 +83,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
       if (node) {
         params.doc_id = node.key
         activeNode(node.key)
-        router.push({ name: DOCUMENT_DETAIL_NAME, params })
+        router.replace({ name: DOCUMENT_DETAIL_NAME, params })
         return
       }
 

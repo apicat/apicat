@@ -8,7 +8,7 @@ import { useI18n } from 'vue-i18n'
 export const useResponseparamList = ({ id: project_id }: Pick<ProjectInfo, 'id'>) => {
   const { t } = useI18n()
   const commonResponseStore = useCommonResponseStore()
-  const [isLoading, getResponseParamListApi] = useApi(commonResponseStore.getCommonResponseList)()
+  const [isLoading, getResponseParamListApi] = useApi(commonResponseStore.getCommonResponseList)
 
   const responseParamList: Ref<APICatCommonResponseCustom[]> = ref([])
   const isLoadingForDelete = shallowRef(false)

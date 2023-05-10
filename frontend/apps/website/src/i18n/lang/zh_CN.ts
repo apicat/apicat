@@ -25,6 +25,10 @@ export default {
       savedCloud: '已保存在云端',
       preview: '预览',
       goHome: '回到首页',
+      setting: '设置',
+      register: '注册',
+      registerAccount: '注册账号',
+      login: '登录',
     },
     tips: {
       notFound: '啊哦，网页走丢了，正在努力寻找中…',
@@ -43,13 +47,49 @@ export default {
         desc: '描述',
         url: '以http://或https://开始',
       },
+      user: {
+        username: '用户名',
+        email: '邮箱',
+        password: '密码',
+        oldPassword: '旧密码',
+        newPassword: '新密码',
+        confirmNewPassword: '确认新密码',
+      },
+    },
+    rules: {
+      username: {
+        required: '请输入用户名',
+      },
+      email: {
+        required: '请输入邮箱',
+        correct: '请输入正确的邮箱地址',
+      },
+      password: {
+        required: '请输入密码',
+        requiredOld: '请输入旧密码',
+        requiredNew: '请输入新密码',
+        requiredConfirm: '请输入确认新密码',
+        noMatch: '新密码不一致',
+        minLength: '密码至少8位',
+      },
+    },
+    user: {
+      nav: {
+        userSetting: '个人设置',
+        modifyPassword: '修改密码',
+        logout: '退出登录',
+      },
     },
     project: {
+      title: '项目',
       list: {
         title: '项目列表',
         tabTitle: '项目',
       },
       form: {
+        cover: '项目封面',
+        coverColor: '封面颜色',
+        coverIcon: '封面图标',
         title: '项目名称',
         desc: '项目描述',
       },
@@ -134,12 +174,15 @@ export default {
     },
     publicResponse: {
       title: '公共响应',
+      tips: {
+        confirmDelete: '确认删除该公共响应吗？',
+        unref: '对引用此响应的内容解引用',
+      },
     },
     response: {
       title: '响应参数',
       fullname: '响应名称',
       tips: {
-        confirmDelete: '确认删除该公共响应吗？',
         responseExample: '响应示例',
       },
       table: {
