@@ -1,11 +1,10 @@
 package api
 
 import (
-	"crypto/rand"
 	"encoding/json"
 	"fmt"
-	"math/big"
 	"net/http"
+	"strconv"
 
 	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/models"
@@ -333,14 +332,6 @@ func DefinitionSchemasCopy(ctx *gin.Context) {
 		return
 	}
 
-	randomInt, err := rand.Int(rand.Reader, big.NewInt(100))
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CopyFail"}),
-		})
-		return
-	}
-
 	schema := map[string]interface{}{}
 	if err := json.Unmarshal([]byte(oldDefinition.Schema), &schema); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -351,11 +342,19 @@ func DefinitionSchemasCopy(ctx *gin.Context) {
 
 	newDefinition, _ := models.NewDefinitionSchemas()
 	newDefinition.ProjectId = oldDefinition.ProjectId
-	newDefinition.Name = fmt.Sprintf("%s_%s", oldDefinition.Name, randomInt)
+	newDefinition.Name = oldDefinition.Name
 	newDefinition.Description = oldDefinition.Description
 	newDefinition.Type = oldDefinition.Type
 	newDefinition.Schema = oldDefinition.Schema
 	if err := newDefinition.Create(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CopyFail"}),
+		})
+		return
+	}
+
+	newDefinition.Name = fmt.Sprintf("%s_%s", newDefinition.Name, strconv.Itoa(int(newDefinition.ID)))
+	if err := newDefinition.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CopyFail"}),
 		})
