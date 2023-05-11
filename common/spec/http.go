@@ -1,10 +1,25 @@
 package spec
 
 type HTTPParameters struct {
-	Query  []*Schema `json:"query,omitempty"`
-	Path   []*Schema `json:"path,omitempty"`
-	Cookie []*Schema `json:"cookie,omitempty"`
-	Header []*Schema `json:"header,omitempty"`
+	Query  Schemas `json:"query"`
+	Path   Schemas `json:"path"`
+	Cookie Schemas `json:"cookie"`
+	Header Schemas `json:"header"`
+}
+
+func (h *HTTPParameters) Fill() {
+	if h.Query == nil {
+		h.Query = make(Schemas, 0)
+	}
+	if h.Path == nil {
+		h.Path = make(Schemas, 0)
+	}
+	if h.Cookie == nil {
+		h.Cookie = make(Schemas, 0)
+	}
+	if h.Header == nil {
+		h.Header = make(Schemas, 0)
+	}
 }
 
 func (h *HTTPParameters) Add(in string, v *Schema) {
@@ -20,8 +35,8 @@ func (h *HTTPParameters) Add(in string, v *Schema) {
 	}
 }
 
-func (h *HTTPParameters) Map() map[string][]*Schema {
-	m := make(map[string][]*Schema)
+func (h *HTTPParameters) Map() map[string]Schemas {
+	m := make(map[string]Schemas)
 	if h.Query != nil {
 		m["query"] = h.Query
 	}
@@ -87,9 +102,7 @@ func (HTTPResponsesNode) Name() string {
 }
 
 type HTTPResponse struct {
-	Name        string `json:"name,omitempty"`
-	Code        int    `json:"code"`
-	Description string `json:"description"`
+	Code int `json:"code"`
 	HTTPResponseDefine
 }
 
@@ -105,10 +118,12 @@ func (h HTTPResponses) Lookup(name string) *HTTPResponse {
 }
 
 type HTTPResponseDefine struct {
-	Name      string   `json:"name,omitempty"`
-	Content   HTTPBody `json:"content,omitempty"`
-	Header    Schemas  `json:"header,omitempty"`
-	Reference *string  `json:"$ref,omitempty"`
+	ID          int64    `json:"id,omitempty"`
+	Name        string   `json:"name,omitempty"`
+	Description string   `json:"description,omitempty"`
+	Content     HTTPBody `json:"content,omitempty"`
+	Header      Schemas  `json:"header,omitempty"`
+	Reference   *string  `json:"$ref,omitempty"`
 }
 
 type HTTPResponseDefines []HTTPResponseDefine
@@ -116,6 +131,15 @@ type HTTPResponseDefines []HTTPResponseDefine
 func (h HTTPResponseDefines) Lookup(name string) *HTTPResponseDefine {
 	for _, v := range h {
 		if v.Name == name {
+			return &v
+		}
+	}
+	return nil
+}
+
+func (h HTTPResponseDefines) LookupID(id int64) *HTTPResponseDefine {
+	for _, v := range h {
+		if v.ID == id {
 			return &v
 		}
 	}
