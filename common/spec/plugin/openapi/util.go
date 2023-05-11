@@ -2,21 +2,37 @@ package openapi
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/apicat/apicat/common/spec/jsonschema"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
 )
 
-func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
+func jsonschemaIsRef(b *base.SchemaProxy) *string {
 	if g := b.GoLow(); g != nil {
 		if g.IsReference() {
 			ref := g.GetReference()
 			if strings.HasPrefix(ref, "#/definitions/") || strings.HasPrefix(ref, "#/components/schemas/") {
-				ref = "#/definitions/schemas/" + getRefName(ref)
-				return &jsonschema.Schema{Reference: &ref}, nil
+				// if len(mapping) > 0 {
+				// 	id, ok := mapping[0][getRefName(ref)]
+				// 	if ok {
+				// 		refid := fmt.Sprintf("#/definitions/schemas/%d", id)
+				// 		return &jsonschema.Schema{Reference: &refid}, nil
+				// 	}
+				// }
+				refname := getRefName(ref)
+				return &refname
 			}
 		}
+	}
+	return nil
+}
+
+func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
+	if refname := jsonschemaIsRef(b); refname != nil {
+		refid := fmt.Sprintf("#/definitions/schemas/%d", stringToUnid(*refname))
+		return &jsonschema.Schema{Reference: &refid}, nil
 	}
 	in := b.Schema()
 	var t jsonschema.SliceOrOneValue[string]
@@ -111,7 +127,7 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 		out.Items = items
 	}
 
-	if in.Deprecated != nil && *in.Deprecated == true {
+	if in.Deprecated != nil && *in.Deprecated {
 		out.Deprecated = true
 	}
 
@@ -120,4 +136,18 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 
 func getRefName(ref string) string {
 	return ref[strings.LastIndex(ref, "/")+1:]
+}
+
+func toInt64(s string) int64 {
+	i, _ := strconv.ParseInt(s, 10, 64)
+	return i
+}
+
+func stringToUnid(s string) int64 {
+	n := len(s)
+	x := int64(n * 10000)
+	for i := 0; i < n; i++ {
+		x += int64(s[i])
+	}
+	return x
 }

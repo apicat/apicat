@@ -28,7 +28,6 @@ type Spec struct {
 	Info        *Info          `json:"info"`
 	Servers     []*Server      `json:"servers"`
 	Globals     Global         `json:"globals"`
-	Common      Common         `json:"common"`
 	Definitions Definitions    `json:"definitions"`
 	Collections []*CollectItem `json:"collections"`
 }
@@ -128,12 +127,13 @@ type Global struct {
 	Parameters HTTPParameters `json:"parameters,omitempty"`
 }
 
-type Common struct {
-	Parameters Schemas       `json:"parameters,omitempty"`
-	Responses  HTTPResponses `json:"response,omitempty"`
-}
+// type Common struct {
+// 	Parameters Schemas       `json:"parameters,omitempty"`
+// 	Responses  HTTPResponses `json:"response,omitempty"`
+// }
 
 type Definitions struct {
-	Schemas   Schemas             `json:"schemas,omitempty"`
-	Responses HTTPResponseDefines `json:"responses,omitempty"`
+	Schemas    Schemas             `json:"schemas"`
+	Parameters Schemas             `json:"parameters"`
+	Responses  HTTPResponseDefines `json:"responses"`
 }
