@@ -37,6 +37,12 @@ func InitApiRouter(r *gin.Engine) {
 
 	apiRouter := r.Group("/api").Use(translator.UseValidatori18n())
 	{
+		account := apiRouter.(*gin.RouterGroup).Group("/account")
+		{
+			account.POST("/login/email", api.EmailLogin)
+			account.POST("/register/email", api.EmailRegister)
+		}
+
 		projects := apiRouter.(*gin.RouterGroup).Group("/projects", middleware.JWTAuthMiddleware())
 		{
 			projects.GET("", api.ProjectsList)
@@ -45,12 +51,6 @@ func InitApiRouter(r *gin.Engine) {
 			projects.POST("/", api.ProjectsCreate)
 			projects.PUT("/:id", api.ProjectsUpdate)
 			projects.DELETE("/:id", api.ProjectsDelete)
-		}
-
-		account := apiRouter.(*gin.RouterGroup).Group("/account")
-		{
-			account.POST("/login/email", api.EmailLogin)
-			account.POST("/register/email", api.EmailRegister)
 		}
 
 		user := apiRouter.(*gin.RouterGroup).Group("/user", middleware.JWTAuthMiddleware())

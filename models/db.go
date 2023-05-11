@@ -61,7 +61,6 @@ func initTable() {
 		&CollectionHistories{},
 		&DefinitionSchemas{},
 		&Servers{},
-		&Commons{},
 		&Tags{},
 		&TagToCollections{},
 		&GlobalParameters{},
