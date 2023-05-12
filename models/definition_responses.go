@@ -62,7 +62,7 @@ func (dr *DefinitionResponses) Delete() error {
 func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponses) nameToIdMap {
 	ResponsesMap := nameToIdMap{}
 
-	if responses == nil {
+	if len(responses) == 0 {
 		return ResponsesMap
 	}
 

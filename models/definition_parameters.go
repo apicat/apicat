@@ -47,10 +47,14 @@ func (dp *DefinitionParameters) Delete() error {
 	return Conn.Delete(dp).Error
 }
 
-func DefinitionParametersImport(projectID uint, parameters *spec.Schemas) nameToIdMap {
+func DefinitionParametersImport(projectID uint, parameters spec.Schemas) nameToIdMap {
 	parametersMap := nameToIdMap{}
 
-	for _, v := range *parameters {
+	if len(parameters) == 0 {
+		return parametersMap
+	}
+
+	for _, v := range parameters {
 		if schema, err := json.Marshal(v.Schema); err == nil {
 			required := 0
 			if v.Required {

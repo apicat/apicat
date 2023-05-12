@@ -96,9 +96,9 @@ func (d *DefinitionSchemas) Deleter() string {
 }
 
 func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) nameToIdMap {
-	SchemasMap := make(nameToIdMap)
+	SchemasMap := nameToIdMap{}
 
-	if schemas == nil {
+	if len(schemas) == 0 {
 		return SchemasMap
 	}
 
@@ -112,7 +112,7 @@ func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 			if record.Get() == nil {
 				SchemasMap[record.Name] = record.ID
 			} else {
-				record := &DefinitionSchemas{
+				ds := &DefinitionSchemas{
 					ProjectId:    projectID,
 					ParentId:     0,
 					Name:         schema.Name,
@@ -122,7 +122,7 @@ func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 					DisplayOrder: i,
 				}
 
-				if Conn.Create(record).Error == nil {
+				if ds.Create() == nil {
 					SchemasMap[record.Name] = record.ID
 				}
 			}
