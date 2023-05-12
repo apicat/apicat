@@ -214,12 +214,12 @@ func DefinitionSchemasUnRef(d *DefinitionSchemas, isUnRef int) error {
 	return nil
 }
 
-func CommonResponsesUnRef(d *DefinitionSchemas, isUnRef int) error {
+func DefinitionResponsesUnRef(d *DefinitionSchemas, isUnRef int) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
 
-	commonResponses, _ := NewCommonResponses()
-	commonResponses.ProjectID = d.ProjectId
-	commonResponsesList, err := commonResponses.List()
+	definitionResponses, _ := NewDefinitionResponses()
+	definitionResponses.ProjectID = d.ProjectId
+	definitionResponsesList, err := definitionResponses.List()
 	if err != nil {
 		return err
 	}
@@ -230,17 +230,17 @@ func CommonResponsesUnRef(d *DefinitionSchemas, isUnRef int) error {
 	}
 	typeEmptyStructure := apicat_struct.TypeEmptyStructure()
 
-	for _, commonResponse := range commonResponsesList {
-		if strings.Contains(commonResponse.Content, ref) {
+	for _, definitionResponse := range definitionResponsesList {
+		if strings.Contains(definitionResponse.Content, ref) {
 			newStr := typeEmptyStructure[sourceJson["type"].(string)]
 			if isUnRef == 1 {
 				newStr = d.Schema
 			}
 
-			newContent := strings.Replace(commonResponse.Content, ref, newStr, -1)
-			commonResponse.Content = newContent
+			newContent := strings.Replace(definitionResponse.Content, ref, newStr, -1)
+			definitionResponse.Content = newContent
 
-			if err := commonResponse.Update(); err != nil {
+			if err := definitionResponse.Update(); err != nil {
 				return err
 			}
 		}

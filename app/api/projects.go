@@ -295,7 +295,7 @@ func ProjectDataGet(ctx *gin.Context) {
 
 	apicatData.Servers = models.ServersExport(project.ID)
 	apicatData.Globals.Parameters = models.GlobalParametersExport(project.ID)
-	apicatData.Common.Responses = models.CommonResponsesExport(project.ID)
+	// apicatData.Common.Responses = models.CommonResponsesExport(project.ID)
 	apicatData.Definitions.Schemas = models.DefinitionSchemasExport(project.ID)
 	apicatData.Collections = models.CollectionsExport(project.ID)
 

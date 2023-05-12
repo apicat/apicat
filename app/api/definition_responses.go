@@ -12,11 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CommonResponsesID struct {
-	CommonResponsesID uint `uri:"response-id" binding:"required,gt=0"`
+type DefinitionResponsesID struct {
+	DefinitionResponsesID uint `uri:"response-id" binding:"required,gt=0"`
 }
 
-func (cr *CommonResponsesID) CheckCommonResponses(ctx *gin.Context) (*models.CommonResponses, error) {
+func (cr *DefinitionResponsesID) CheckDefinitionResponses(ctx *gin.Context) (*models.DefinitionResponses, error) {
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&cr)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
@@ -24,7 +24,7 @@ func (cr *CommonResponsesID) CheckCommonResponses(ctx *gin.Context) (*models.Com
 		return nil, err
 	}
 
-	commonResponses, err := models.NewCommonResponses(cr.CommonResponsesID)
+	definitionResponses, err := models.NewDefinitionResponses(cr.DefinitionResponsesID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
@@ -32,7 +32,7 @@ func (cr *CommonResponsesID) CheckCommonResponses(ctx *gin.Context) (*models.Com
 		return nil, err
 	}
 
-	return commonResponses, nil
+	return definitionResponses, nil
 }
 
 type ResponseDetailData struct {
@@ -44,22 +44,22 @@ type ResponseDetailData struct {
 	Ref         string                 `json:"$ref,omitempty" binding:"omitempty,lte=255"`
 }
 
-func CommonResponsesList(ctx *gin.Context) {
+func DefinitionResponsesList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
-	commonResponses, _ := models.NewCommonResponses()
-	commonResponses.ProjectID = project.ID
-	commonResponsesList, err := commonResponses.List()
+	definitionResponses, _ := models.NewDefinitionResponses()
+	definitionResponses.ProjectID = project.ID
+	definitionResponsesList, err := definitionResponses.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.QueryFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.QueryFailed"}),
 		})
 		return
 	}
 
 	result := []map[string]interface{}{}
-	for _, v := range commonResponsesList {
+	for _, v := range definitionResponsesList {
 		header := []*spec.Schema{}
 		if err := json.Unmarshal([]byte(v.Header), &header); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
@@ -78,7 +78,6 @@ func CommonResponsesList(ctx *gin.Context) {
 		result = append(result, map[string]interface{}{
 			"id":          v.ID,
 			"name":        v.Name,
-			"code":        v.Code,
 			"description": v.Description,
 			"header":      header,
 			"content":     content,
@@ -88,15 +87,15 @@ func CommonResponsesList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, result)
 }
 
-func CommonResponsesDetail(ctx *gin.Context) {
-	cr := CommonResponsesID{}
-	commonResponses, err := cr.CheckCommonResponses(ctx)
+func DefinitionResponsesDetail(ctx *gin.Context) {
+	cr := DefinitionResponsesID{}
+	definitionResponses, err := cr.CheckDefinitionResponses(ctx)
 	if err != nil {
 		return
 	}
 
 	header := []*spec.Schema{}
-	if err := json.Unmarshal([]byte(commonResponses.Header), &header); err != nil {
+	if err := json.Unmarshal([]byte(definitionResponses.Header), &header); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
@@ -104,7 +103,7 @@ func CommonResponsesDetail(ctx *gin.Context) {
 	}
 
 	content := map[string]spec.Schema{}
-	if err := json.Unmarshal([]byte(commonResponses.Content), &content); err != nil {
+	if err := json.Unmarshal([]byte(definitionResponses.Content), &content); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
@@ -112,16 +111,15 @@ func CommonResponsesDetail(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, map[string]interface{}{
-		"id":          commonResponses.ID,
-		"name":        commonResponses.Name,
-		"code":        commonResponses.Code,
-		"description": commonResponses.Description,
+		"id":          definitionResponses.ID,
+		"name":        definitionResponses.Name,
+		"description": definitionResponses.Description,
 		"header":      header,
 		"content":     content,
 	})
 }
 
-func CommonResponsesCreate(ctx *gin.Context) {
+func DefinitionResponsesCreate(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
@@ -133,14 +131,14 @@ func CommonResponsesCreate(ctx *gin.Context) {
 		return
 	}
 
-	commonResponses, _ := models.NewCommonResponses()
-	commonResponses.ProjectID = project.ID
-	commonResponses.Name = data.Name
+	definitionResponses, _ := models.NewDefinitionResponses()
+	definitionResponses.ProjectID = project.ID
+	definitionResponses.Name = data.Name
 
-	count, err := commonResponses.GetCountByName()
+	count, err := definitionResponses.GetCountByName()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.QueryFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.QueryFailed"}),
 		})
 		return
 	}
@@ -151,8 +149,7 @@ func CommonResponsesCreate(ctx *gin.Context) {
 		return
 	}
 
-	commonResponses.Code = data.Code
-	commonResponses.Description = data.Description
+	definitionResponses.Description = data.Description
 
 	responseHeader := make([]*spec.Schema, 0)
 	if len(data.Header) > 0 {
@@ -166,7 +163,7 @@ func CommonResponsesCreate(ctx *gin.Context) {
 		})
 		return
 	}
-	commonResponses.Header = string(header)
+	definitionResponses.Header = string(header)
 
 	content, err := json.Marshal(data.Content)
 	if err != nil {
@@ -175,26 +172,25 @@ func CommonResponsesCreate(ctx *gin.Context) {
 		})
 		return
 	}
-	commonResponses.Content = string(content)
+	definitionResponses.Content = string(content)
 
-	if err := commonResponses.Create(); err != nil {
+	if err := definitionResponses.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.CreateFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.CreateFailed"}),
 		})
 		return
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"id":          commonResponses.ID,
-		"name":        commonResponses.Name,
-		"code":        commonResponses.Code,
-		"description": commonResponses.Description,
+		"id":          definitionResponses.ID,
+		"name":        definitionResponses.Name,
+		"description": definitionResponses.Description,
 		"header":      data.Header,
 		"content":     data.Content,
 	})
 }
 
-func CommonResponsesUpdate(ctx *gin.Context) {
+func DefinitionResponsesUpdate(ctx *gin.Context) {
 	data := ResponseDetailData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -203,17 +199,17 @@ func CommonResponsesUpdate(ctx *gin.Context) {
 		return
 	}
 
-	cr := CommonResponsesID{}
-	commonResponses, err := cr.CheckCommonResponses(ctx)
+	cr := DefinitionResponsesID{}
+	definitionResponses, err := cr.CheckDefinitionResponses(ctx)
 	if err != nil {
 		return
 	}
 
-	commonResponses.Name = data.Name
-	count, err := commonResponses.GetCountExcludeTheID()
+	definitionResponses.Name = data.Name
+	count, err := definitionResponses.GetCountExcludeTheID()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.QueryFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.QueryFailed"}),
 		})
 		return
 	}
@@ -224,8 +220,7 @@ func CommonResponsesUpdate(ctx *gin.Context) {
 		return
 	}
 
-	commonResponses.Code = data.Code
-	commonResponses.Description = data.Description
+	definitionResponses.Description = data.Description
 
 	header, err := json.Marshal(data.Header)
 	if err != nil {
@@ -234,7 +229,7 @@ func CommonResponsesUpdate(ctx *gin.Context) {
 		})
 		return
 	}
-	commonResponses.Header = string(header)
+	definitionResponses.Header = string(header)
 
 	content, err := json.Marshal(data.Content)
 	if err != nil {
@@ -243,11 +238,11 @@ func CommonResponsesUpdate(ctx *gin.Context) {
 		})
 		return
 	}
-	commonResponses.Content = string(content)
+	definitionResponses.Content = string(content)
 
-	if err := commonResponses.Update(); err != nil {
+	if err := definitionResponses.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.UpdateFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.UpdateFailed"}),
 		})
 		return
 	}
@@ -255,12 +250,12 @@ func CommonResponsesUpdate(ctx *gin.Context) {
 	ctx.Status(http.StatusCreated)
 }
 
-func CommonResponsesDelete(ctx *gin.Context) {
+func DefinitionResponsesDelete(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
-	cr := CommonResponsesID{}
-	commonResponses, err := cr.CheckCommonResponses(ctx)
+	cr := DefinitionResponsesID{}
+	definitionResponses, err := cr.CheckDefinitionResponses(ctx)
 	if err != nil {
 		return
 	}
@@ -274,14 +269,14 @@ func CommonResponsesDelete(ctx *gin.Context) {
 	}
 
 	header := []*spec.Schema{}
-	if err := json.Unmarshal([]byte(commonResponses.Header), &header); err != nil {
+	if err := json.Unmarshal([]byte(definitionResponses.Header), &header); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
 	content := map[string]spec.Schema{}
-	if err := json.Unmarshal([]byte(commonResponses.Content), &content); err != nil {
+	if err := json.Unmarshal([]byte(definitionResponses.Content), &content); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
@@ -289,9 +284,8 @@ func CommonResponsesDelete(ctx *gin.Context) {
 	}
 
 	responseDetail := ResponseDetailData{
-		Name:        commonResponses.Name,
-		Code:        commonResponses.Code,
-		Description: commonResponses.Description,
+		Name:        definitionResponses.Name,
+		Description: definitionResponses.Description,
 		Header:      header,
 		Content:     content,
 	}
@@ -301,12 +295,12 @@ func CommonResponsesDelete(ctx *gin.Context) {
 	collectionList, err := collections.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.QueryFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.QueryFailed"}),
 		})
 		return
 	}
 
-	ref := ",{\"$ref\":\"#/commons/responses/" + strconv.FormatUint(uint64(commonResponses.ID), 10) + "\"}"
+	ref := ",{\"$ref\":\"#/commons/responses/" + strconv.FormatUint(uint64(definitionResponses.ID), 10) + "\"}"
 	responseDetailJson, err := json.Marshal(responseDetail)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -327,7 +321,7 @@ func CommonResponsesDelete(ctx *gin.Context) {
 				collection.Content = newContent
 				if err := collection.Update(); err != nil {
 					ctx.JSON(http.StatusBadRequest, gin.H{
-						"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.UpdateFailed"}),
+						"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.UpdateFailed"}),
 					})
 					return
 				}
@@ -335,9 +329,9 @@ func CommonResponsesDelete(ctx *gin.Context) {
 		}
 	}
 
-	if err := commonResponses.Delete(); err != nil {
+	if err := definitionResponses.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "CommonResponses.DeleteFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.DeleteFailed"}),
 		})
 		return
 	}

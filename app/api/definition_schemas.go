@@ -251,7 +251,7 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 		})
 		return
 	}
-	if err := models.CommonResponsesUnRef(definition, isUnRefData.IsUnRef); err != nil {
+	if err := models.DefinitionResponsesUnRef(definition, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})

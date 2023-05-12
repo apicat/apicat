@@ -188,14 +188,14 @@ func collectionsTree(collections []*Collections, parentCollection *Collections, 
 		definitionsIdToNameMap[definition.ID] = definition.Name
 	}
 
-	var commonResponses []*CommonResponses
+	var definitionResponses []*DefinitionResponses
 
-	if err := Conn.Where("project_id = ?", projectID).Find(&commonResponses).Error; err != nil {
+	if err := Conn.Where("project_id = ?", projectID).Find(&definitionResponses).Error; err != nil {
 		return collectItems
 	}
-	commonResponsesIdToNameMap := make(IdToNameMap)
-	for _, commonResponse := range commonResponses {
-		commonResponsesIdToNameMap[commonResponse.ID] = commonResponse.Name
+	definitionResponsesIdToNameMap := make(IdToNameMap)
+	for _, commonResponse := range definitionResponses {
+		definitionResponsesIdToNameMap[commonResponse.ID] = commonResponse.Name
 	}
 
 	for _, collection := range collections {
@@ -221,7 +221,7 @@ func collectionsTree(collections []*Collections, parentCollection *Collections, 
 			if collection.Type != "category" {
 				collection.Content = GlobalParametersExceptsIDToName(collection.Content, gpMap)
 				collection.Content = util.ReplaceIDToName(collection.Content, definitionsIdToNameMap, "#/definitions/schemas/")
-				collection.Content = util.ReplaceIDToName(collection.Content, commonResponsesIdToNameMap, "#/commons/responses/")
+				collection.Content = util.ReplaceIDToName(collection.Content, definitionResponsesIdToNameMap, "#/commons/responses/")
 
 				content := []*spec.NodeProxy{}
 				if json.Unmarshal([]byte(collection.Content), &content) == nil {
