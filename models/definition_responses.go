@@ -59,7 +59,7 @@ func (dr *DefinitionResponses) Delete() error {
 	return Conn.Delete(dr).Error
 }
 
-func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponses) nameToIdMap {
+func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponseDefines) nameToIdMap {
 	ResponsesMap := nameToIdMap{}
 
 	if len(responses) == 0 {

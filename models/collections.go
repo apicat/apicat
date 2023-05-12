@@ -105,8 +105,8 @@ func (c *Collections) Restore() error {
 	return Conn.Unscoped().Model(c).Updates(map[string]interface{}{"project_id": c.ProjectId, "parent_id": c.ParentId, "display_order": 0, "deleted_at": nil}).Error
 }
 
-func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem, definitionSchemas nameToIdMap) []*Collections {
-	collectionList := make([]*Collections, 0)
+func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem, refContentNameToId *RefContentNameToId) []*Collections {
+	collectionList := []*Collections{}
 
 	for i, collection := range collections {
 		if len(collection.Items) > 0 {
@@ -118,13 +118,15 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 			}
 			if err := category.Create(); err == nil {
 				collectionList = append(collectionList, category)
-				children := CollectionsImport(projectID, category.ID, collection.Items, definitionSchemas)
+				children := CollectionsImport(projectID, category.ID, collection.Items, refContentNameToId)
 				collectionList = append(collectionList, children...)
 			}
 		} else {
 			if collectionByte, err := json.Marshal(collection.Content); err == nil {
 				collectionStr := string(collectionByte)
-				collectionStr = replaceNameToID(collectionStr, definitionSchemas, "#/definitions/schemas/")
+				collectionStr = replaceNameToID(collectionStr, refContentNameToId.DefinitionSchemas, "#/definitions/schemas/")
+				collectionStr = replaceNameToID(collectionStr, refContentNameToId.DefinitionResponses, "#/definitions/responses/")
+				collectionStr = replaceNameToID(collectionStr, refContentNameToId.DefinitionParameters, "#/definitions/parameters/")
 
 				record := &Collections{
 					ProjectId:    projectID,
@@ -141,6 +143,7 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 			}
 		}
 	}
+
 	return collectionList
 }
 

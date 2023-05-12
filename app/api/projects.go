@@ -123,8 +123,14 @@ func ProjectsCreate(ctx *gin.Context) {
 	// 进行数据导入工作
 	if data.Data != "" {
 		models.ServersImport(project.ID, content.Servers)
-		definitionSchemas := models.DefinitionSchemasImport(project.ID, content.Definitions.Schemas)
-		models.CollectionsImport(project.ID, 0, content.Collections, definitionSchemas)
+
+		refContentNameToId := &models.RefContentNameToId{
+			DefinitionSchemas:    models.DefinitionSchemasImport(project.ID, content.Definitions.Schemas),
+			DefinitionResponses:  models.DefinitionResponsesImport(project.ID, content.Definitions.Responses),
+			DefinitionParameters: models.DefinitionParametersImport(project.ID, content.Definitions.Parameters),
+		}
+
+		models.CollectionsImport(project.ID, 0, content.Collections, refContentNameToId)
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
