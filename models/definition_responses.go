@@ -1,7 +1,10 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
+
+	"github.com/apicat/apicat/common/spec"
 )
 
 type DefinitionResponses struct {
@@ -27,73 +30,73 @@ func NewDefinitionResponses(ids ...uint) (*DefinitionResponses, error) {
 	return definitionResponses, nil
 }
 
-func (cr *DefinitionResponses) List() ([]*DefinitionResponses, error) {
-	definitionResponsesQuery := Conn.Where("project_id = ?", cr.ProjectID)
+func (dr *DefinitionResponses) List() ([]*DefinitionResponses, error) {
+	definitionResponsesQuery := Conn.Where("project_id = ?", dr.ProjectID)
 
 	var definitionResponses []*DefinitionResponses
 	return definitionResponses, definitionResponsesQuery.Find(&definitionResponses).Error
 }
 
-func (cr *DefinitionResponses) GetCountByName() (int64, error) {
+func (dr *DefinitionResponses) GetCountByName() (int64, error) {
 	var count int64
-	return count, Conn.Model(&DefinitionResponses{}).Where("project_id = ? and name = ?", cr.ProjectID, cr.Name).Count(&count).Error
+	return count, Conn.Model(&DefinitionResponses{}).Where("project_id = ? and name = ?", dr.ProjectID, dr.Name).Count(&count).Error
 }
 
-func (cr *DefinitionResponses) GetCountExcludeTheID() (int64, error) {
+func (dr *DefinitionResponses) GetCountExcludeTheID() (int64, error) {
 	var count int64
-	return count, Conn.Model(&DefinitionResponses{}).Where("project_id = ? and name = ? and id != ?", cr.ProjectID, cr.Name, cr.ID).Count(&count).Error
+	return count, Conn.Model(&DefinitionResponses{}).Where("project_id = ? and name = ? and id != ?", dr.ProjectID, dr.Name, dr.ID).Count(&count).Error
 }
 
-func (cr *DefinitionResponses) Create() error {
-	return Conn.Create(cr).Error
+func (dr *DefinitionResponses) Create() error {
+	return Conn.Create(dr).Error
 }
 
-func (cr *DefinitionResponses) Update() error {
-	return Conn.Save(cr).Error
+func (dr *DefinitionResponses) Update() error {
+	return Conn.Save(dr).Error
 }
 
-func (cr *DefinitionResponses) Delete() error {
-	return Conn.Delete(cr).Error
+func (dr *DefinitionResponses) Delete() error {
+	return Conn.Delete(dr).Error
 }
 
-// func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponses) nameToIdMap {
-// 	var ResponsesMap nameToIdMap
+func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponses) nameToIdMap {
+	ResponsesMap := nameToIdMap{}
 
-// 	if responses == nil {
-// 		return ResponsesMap
-// 	}
+	if responses == nil {
+		return ResponsesMap
+	}
 
-// 	for i, response := range responses {
-// 		header := ""
-// 		if response.Header != nil {
-// 			if headerByte, err := json.Marshal(response.Header); err == nil {
-// 				header = string(headerByte)
-// 			}
-// 		}
+	for i, response := range responses {
+		header := ""
+		if response.Header != nil {
+			if headerByte, err := json.Marshal(response.Header); err == nil {
+				header = string(headerByte)
+			}
+		}
 
-// 		content := ""
-// 		if response.Content != nil {
-// 			if contentByte, err := json.Marshal(response.Content); err == nil {
-// 				content = string(contentByte)
-// 			}
-// 		}
+		content := ""
+		if response.Content != nil {
+			if contentByte, err := json.Marshal(response.Content); err == nil {
+				content = string(contentByte)
+			}
+		}
 
-// 		record := &DefinitionResponses{
-// 			ProjectID:    projectID,
-// 			Name:         response.Name,
-// 			Description:  response.Description,
-// 			Header:       header,
-// 			Content:      content,
-// 			DisplayOrder: i,
-// 		}
+		dr := &DefinitionResponses{
+			ProjectID:    projectID,
+			Name:         response.Name,
+			Description:  response.Description,
+			Header:       header,
+			Content:      content,
+			DisplayOrder: i,
+		}
 
-// 		if Conn.Create(record).Error == nil {
-// 			ResponsesMap[response.Name] = record.ID
-// 		}
-// 	}
+		if dr.Create() == nil {
+			ResponsesMap[response.Name] = dr.ID
+		}
+	}
 
-// 	return ResponsesMap
-// }
+	return ResponsesMap
+}
 
 // func DefinitionResponsesExport(projectID uint) spec.HTTPResponses {
 // 	var definitionResponses []*DefinitionResponses
