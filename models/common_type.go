@@ -2,9 +2,10 @@ package models
 
 type nameToIdMap map[string]uint
 type IdToNameMap map[uint]string
+type virtualIDToIDMap map[int64]uint
 
-type RefContentNameToId struct {
-	DefinitionSchemas    nameToIdMap
-	DefinitionResponses  nameToIdMap
-	DefinitionParameters nameToIdMap
+type RefContentVirtualIDToId struct {
+	DefinitionSchemas    virtualIDToIDMap
+	DefinitionResponses  virtualIDToIDMap
+	DefinitionParameters virtualIDToIDMap
 }

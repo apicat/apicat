@@ -104,7 +104,7 @@ func (c *Collections) Restore() error {
 	return Conn.Unscoped().Model(c).Updates(map[string]interface{}{"project_id": c.ProjectId, "parent_id": c.ParentId, "display_order": 0, "deleted_at": nil}).Error
 }
 
-func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem, refContentNameToId *RefContentNameToId) []*Collections {
+func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem, refContentNameToId *RefContentVirtualIDToId) []*Collections {
 	collectionList := []*Collections{}
 
 	for i, collection := range collections {
@@ -123,9 +123,9 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 		} else {
 			if collectionByte, err := json.Marshal(collection.Content); err == nil {
 				collectionStr := string(collectionByte)
-				collectionStr = replaceNameToID(collectionStr, refContentNameToId.DefinitionSchemas, "#/definitions/schemas/")
-				collectionStr = replaceNameToID(collectionStr, refContentNameToId.DefinitionResponses, "#/definitions/responses/")
-				collectionStr = replaceNameToID(collectionStr, refContentNameToId.DefinitionParameters, "#/definitions/parameters/")
+				collectionStr = replaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionSchemas, "#/definitions/schemas/")
+				collectionStr = replaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionResponses, "#/definitions/responses/")
+				collectionStr = replaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionParameters, "#/definitions/parameters/")
 
 				record := &Collections{
 					ProjectId:    projectID,
@@ -146,10 +146,10 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 	return collectionList
 }
 
-func replaceNameToID(content string, nameIDMap nameToIdMap, prefix string) string {
-	for name, id := range nameIDMap {
-		oldStr := prefix + name
-		newStr := prefix + strconv.FormatUint(uint64(id), 10)
+func replaceVirtualIDToID(content string, nameIDMap virtualIDToIDMap, prefix string) string {
+	for virtualID, id := range nameIDMap {
+		oldStr := prefix + strconv.Itoa(int(virtualID))
+		newStr := prefix + strconv.Itoa(int(id))
 
 		content = strings.Replace(content, oldStr, newStr, -1)
 	}

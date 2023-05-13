@@ -48,8 +48,8 @@ func (dp *DefinitionParameters) Delete() error {
 	return Conn.Delete(dp).Error
 }
 
-func DefinitionParametersImport(projectID uint, parameters spec.Schemas) nameToIdMap {
-	parametersMap := nameToIdMap{}
+func DefinitionParametersImport(projectID uint, parameters spec.Schemas) virtualIDToIDMap {
+	parametersMap := virtualIDToIDMap{}
 
 	if len(parameters) == 0 {
 		return parametersMap
@@ -70,7 +70,7 @@ func DefinitionParametersImport(projectID uint, parameters spec.Schemas) nameToI
 			}
 
 			if dp.Create() == nil {
-				parametersMap[v.Name] = uint(v.ID)
+				parametersMap[v.ID] = uint(dp.ID)
 			}
 		}
 	}

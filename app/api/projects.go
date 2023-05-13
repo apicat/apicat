@@ -124,13 +124,13 @@ func ProjectsCreate(ctx *gin.Context) {
 	if data.Data != "" {
 		models.ServersImport(project.ID, content.Servers)
 
-		refContentNameToId := &models.RefContentNameToId{
+		refContentVirtualIDToId := &models.RefContentVirtualIDToId{
 			DefinitionSchemas:    models.DefinitionSchemasImport(project.ID, content.Definitions.Schemas),
 			DefinitionResponses:  models.DefinitionResponsesImport(project.ID, content.Definitions.Responses),
 			DefinitionParameters: models.DefinitionParametersImport(project.ID, content.Definitions.Parameters),
 		}
 
-		models.CollectionsImport(project.ID, 0, content.Collections, refContentNameToId)
+		models.CollectionsImport(project.ID, 0, content.Collections, refContentVirtualIDToId)
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{

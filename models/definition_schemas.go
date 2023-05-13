@@ -95,11 +95,11 @@ func (d *DefinitionSchemas) Deleter() string {
 	return ""
 }
 
-func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) nameToIdMap {
-	SchemasMap := nameToIdMap{}
+func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) virtualIDToIDMap {
+	schemasMap := virtualIDToIDMap{}
 
 	if len(schemas) == 0 {
-		return SchemasMap
+		return schemasMap
 	}
 
 	for i, schema := range schemas {
@@ -110,7 +110,7 @@ func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 				Type:      "schema",
 			}
 			if record.Get() == nil {
-				SchemasMap[record.Name] = record.ID
+				schemasMap[schema.ID] = record.ID
 			} else {
 				ds := &DefinitionSchemas{
 					ProjectId:    projectID,
@@ -123,13 +123,13 @@ func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 				}
 
 				if ds.Create() == nil {
-					SchemasMap[record.Name] = record.ID
+					schemasMap[schema.ID] = ds.ID
 				}
 			}
 		}
 	}
 
-	return SchemasMap
+	return schemasMap
 }
 
 func DefinitionSchemasExport(projectID uint) spec.Schemas {

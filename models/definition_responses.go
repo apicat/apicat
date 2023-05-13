@@ -59,11 +59,11 @@ func (dr *DefinitionResponses) Delete() error {
 	return Conn.Delete(dr).Error
 }
 
-func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponseDefines) nameToIdMap {
-	ResponsesMap := nameToIdMap{}
+func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponseDefines) virtualIDToIDMap {
+	responsesMap := virtualIDToIDMap{}
 
 	if len(responses) == 0 {
-		return ResponsesMap
+		return responsesMap
 	}
 
 	for i, response := range responses {
@@ -91,11 +91,11 @@ func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponseDefine
 		}
 
 		if dr.Create() == nil {
-			ResponsesMap[response.Name] = dr.ID
+			responsesMap[response.ID] = dr.ID
 		}
 	}
 
-	return ResponsesMap
+	return responsesMap
 }
 
 func DefinitionResponsesExport(projectID uint) spec.HTTPResponseDefines {
