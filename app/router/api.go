@@ -43,14 +43,14 @@ func InitApiRouter(r *gin.Engine) {
 			account.POST("/register/email", api.EmailRegister)
 		}
 
-		projects := apiRouter.(*gin.RouterGroup).Group("/projects", middleware.JWTAuthMiddleware())
+		projects := apiRouter.(*gin.RouterGroup).Group("/projects")
 		{
-			projects.GET("", api.ProjectsList)
-			projects.GET("/:id", api.ProjectsGet)
+			projects.GET("", middleware.JWTAuthMiddleware(), api.ProjectsList)
+			projects.GET("/:id", middleware.JWTAuthMiddleware(), api.ProjectsGet)
 			projects.GET("/:id/data", api.ProjectDataGet)
-			projects.POST("/", api.ProjectsCreate)
-			projects.PUT("/:id", api.ProjectsUpdate)
-			projects.DELETE("/:id", api.ProjectsDelete)
+			projects.POST("", middleware.JWTAuthMiddleware(), api.ProjectsCreate)
+			projects.PUT("/:id", middleware.JWTAuthMiddleware(), api.ProjectsUpdate)
+			projects.DELETE("/:id", middleware.JWTAuthMiddleware(), api.ProjectsDelete)
 		}
 
 		user := apiRouter.(*gin.RouterGroup).Group("/user", middleware.JWTAuthMiddleware())

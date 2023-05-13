@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/apicat/apicat/common/spec"
+	"github.com/apicat/apicat/common/spec/jsonschema"
 )
 
 type DefinitionParameters struct {
@@ -75,4 +76,32 @@ func DefinitionParametersImport(projectID uint, parameters spec.Schemas) nameToI
 	}
 
 	return parametersMap
+}
+
+func DefinitionParametersExport(projectID uint) spec.Schemas {
+	parameters := []*DefinitionParameters{}
+	specParameters := spec.Schemas{}
+
+	if err := Conn.Where("project_id = ?", projectID).Find(&parameters).Error; err != nil {
+		return specParameters
+	}
+
+	for _, v := range parameters {
+		schema := &jsonschema.Schema{}
+		if err := json.Unmarshal([]byte(v.Schema), &schema); err == nil {
+			required := false
+			if v.Required == 1 {
+				required = true
+			}
+
+			specParameters = append(specParameters, &spec.Schema{
+				ID:       int64(v.ID),
+				Name:     v.Name,
+				Required: required,
+				Schema:   schema,
+			})
+		}
+	}
+
+	return specParameters
 }

@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/app/util"
 	"github.com/apicat/apicat/common/apicat_struct"
 	"github.com/apicat/apicat/common/spec"
+	"github.com/apicat/apicat/common/spec/jsonschema"
 	"gorm.io/gorm"
 )
 
@@ -133,27 +133,23 @@ func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 }
 
 func DefinitionSchemasExport(projectID uint) spec.Schemas {
-	var definitions []*DefinitionSchemas
-	specDefinitionSchemas := make(spec.Schemas, 0)
+	definitions := []*DefinitionSchemas{}
+	specDefinitionSchemas := spec.Schemas{}
 
 	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err != nil {
 		return specDefinitionSchemas
 	}
 
-	idToNameMap := make(IdToNameMap)
-	for _, definition := range definitions {
-		idToNameMap[definition.ID] = definition.Name
-	}
-
-	for _, definition := range definitions {
-		definition.Schema = util.ReplaceIDToName(definition.Schema, idToNameMap, "#/definitions/schemas/")
-
-		schema := spec.Schema{}
-		schema.Name = definition.Name
-		schema.Description = definition.Description
-		json.Unmarshal([]byte(definition.Schema), &schema.Schema)
-
-		specDefinitionSchemas = append(specDefinitionSchemas, &schema)
+	for _, v := range definitions {
+		schema := &jsonschema.Schema{}
+		if err := json.Unmarshal([]byte(v.Schema), &schema); err == nil {
+			specDefinitionSchemas = append(specDefinitionSchemas, &spec.Schema{
+				ID:          int64(v.ID),
+				Name:        v.Name,
+				Description: v.Description,
+				Schema:      schema,
+			})
+		}
 	}
 
 	return specDefinitionSchemas

@@ -254,13 +254,6 @@ func ProjectsGet(ctx *gin.Context) {
 }
 
 func ProjectDataGet(ctx *gin.Context) {
-	CurrentUser, _ := ctx.Get("CurrentUser")
-	user, _ := CurrentUser.(*models.Users)
-	if user.Role == "user" {
-		ctx.Status(http.StatusForbidden)
-		return
-	}
-
 	var (
 		uriData ProjectID
 		data    ExportProject
@@ -301,9 +294,13 @@ func ProjectDataGet(ctx *gin.Context) {
 
 	apicatData.Servers = models.ServersExport(project.ID)
 	apicatData.Globals.Parameters = models.GlobalParametersExport(project.ID)
-	// apicatData.Common.Responses = models.CommonResponsesExport(project.ID)
 	apicatData.Definitions.Schemas = models.DefinitionSchemasExport(project.ID)
+	apicatData.Definitions.Parameters = models.DefinitionParametersExport(project.ID)
+	apicatData.Definitions.Responses = models.DefinitionResponsesExport(project.ID)
 	apicatData.Collections = models.CollectionsExport(project.ID)
+
+	ctx.JSON(200, apicatData)
+	return
 
 	if apicatDataContent, err := json.Marshal(apicatData); err == nil {
 		slog.InfoCtx(ctx, "Export", slog.String("apicat", string(apicatDataContent)))

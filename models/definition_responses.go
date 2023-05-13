@@ -98,34 +98,33 @@ func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponseDefine
 	return ResponsesMap
 }
 
-// func DefinitionResponsesExport(projectID uint) spec.HTTPResponses {
-// 	var definitionResponses []*DefinitionResponses
-// 	var definitions []*DefinitionSchemas
-// 	specDefinitionResponses := make(spec.HTTPResponses, 0)
+func DefinitionResponsesExport(projectID uint) spec.HTTPResponseDefines {
+	definitionResponses := []*DefinitionResponses{}
+	specResponseDefines := spec.HTTPResponseDefines{}
 
-// 	if err := Conn.Where("project_id = ?", projectID).Find(&definitionResponses).Error; err != nil {
-// 		return specDefinitionResponses
-// 	}
-// 	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err != nil {
-// 		return specDefinitionResponses
-// 	}
+	if err := Conn.Where("project_id = ?", projectID).Find(&definitionResponses).Error; err != nil {
+		return specResponseDefines
+	}
 
-// 	idToNameMap := make(IdToNameMap)
-// 	for _, definition := range definitions {
-// 		idToNameMap[definition.ID] = definition.Name
-// 	}
+	for _, definitionResponse := range definitionResponses {
+		header := spec.Schemas{}
+		if err := json.Unmarshal([]byte(definitionResponse.Header), &header); err != nil {
+			continue
+		}
 
-// 	for _, commonResponse := range definitionResponses {
-// 		commonResponse.Content = util.ReplaceIDToName(commonResponse.Content, idToNameMap, "#/definitions/schemas/")
+		content := spec.HTTPBody{}
+		if err := json.Unmarshal([]byte(definitionResponse.Content), &content); err != nil {
+			continue
+		}
 
-// 		response := spec.HTTPResponse{}
-// 		response.Name = commonResponse.Name
-// 		response.Description = commonResponse.Description
-// 		json.Unmarshal([]byte(commonResponse.Header), &response.Header)
-// 		json.Unmarshal([]byte(commonResponse.Content), &response.Content)
+		specResponseDefines = append(specResponseDefines, spec.HTTPResponseDefine{
+			ID:          int64(definitionResponse.ID),
+			Name:        definitionResponse.Name,
+			Description: definitionResponse.Description,
+			Header:      header,
+			Content:     content,
+		})
+	}
 
-// 		specDefinitionResponses = append(specDefinitionResponses, response)
-// 	}
-
-// 	return specDefinitionResponses
-// }
+	return specResponseDefines
+}
