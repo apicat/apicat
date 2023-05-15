@@ -1,21 +1,10 @@
 <template>
-  <ToggleHeading :title="$t('app.publicResponse.title')">
+  <ToggleHeading :title="$t('app.definitionResponse.title')">
     <template #extra>
-      <el-icon class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
+      <el-icon class="cursor-pointer text-zinc-500" @click="onCreateMenuClick"><ac-icon-ep-plus /></el-icon>
     </template>
     <div ref="dir" :class="[ns.b(), { [ns.is('loading')]: isLoading }]" v-loading="isLoading">
-      <ac-tree
-        :data="definitions"
-        node-key="id"
-        empty-text=""
-        ref="treeIns"
-        :expand-on-click-node="false"
-        :props="treeOptions"
-        draggable
-        :allow-drop="allowDrop"
-        @node-drag-start="onMoveNodeStart"
-        @node-drop="onMoveNode"
-      >
+      <ac-tree :data="definitions" node-key="id" empty-text="" ref="treeIns" :expand-on-click-node="false" :props="treeOptions">
         <template #default="{ node, data }">
           <div class="flex justify-between ac-tree-node" :class="{ 'is-editable': data._extend.isEditable }">
             <div class="ac-tree-node__main" @click="handleTreeNodeClick(node, data, $event)">
@@ -42,17 +31,16 @@
 
 <script setup lang="ts">
 import AcTree from '@/components/AcTree'
-import { useSchemaPopoverMenu } from './useCommonResponsePopoverMenu'
-import { useSchemaTree } from './useCommonResponseTree'
+import { useDefinitionResponsePopoverMenu } from './useDefinitionResponsePopoverMenu'
+import { useDefinitionResponseTree } from './useDefinitionResponseTree'
 import { useActiveTree } from './useActiveTree'
 import { useNamespace } from '@/hooks'
 
 const ns = useNamespace('catalog-tree')
 
-const { isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, redirecToSchemaEdit, initSchemaTree } =
-  useSchemaTree()
+const { isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, updateTitle, initDefinitionResponseTree } = useDefinitionResponseTree()
 
-const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick } = useSchemaPopoverMenu(treeIns as any)
+const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick, onCreateMenuClick } = useDefinitionResponsePopoverMenu(treeIns as any)
 
 const { activeNode, reactiveNode } = useActiveTree(treeIns as any)
 
@@ -60,7 +48,6 @@ defineExpose({
   updateTitle,
   activeNode,
   reactiveNode,
-  redirecToSchemaEdit,
-  reload: initSchemaTree,
+  reload: initDefinitionResponseTree,
 })
 </script>

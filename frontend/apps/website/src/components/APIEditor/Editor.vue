@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { computed, provide, ref, watch } from 'vue'
 import EditorRow from './EditorRow.vue'
-import type { JSONSchema, Definition, Tree } from './types'
+import type { JSONSchema, DefinitionSchema, Tree } from './types'
 import { constNodeType, typename } from './types'
 import { useNamespace } from '@/hooks'
 import { RefPrefixKeys } from '@/commons'
@@ -28,7 +28,7 @@ const props = withDefaults(
     // 根schema
     modelValue: JSONSchema
     // 引用模型的集合
-    definitions?: Definition[]
+    definitions?: DefinitionSchema[]
     readonly?: boolean
   }>(),
   {

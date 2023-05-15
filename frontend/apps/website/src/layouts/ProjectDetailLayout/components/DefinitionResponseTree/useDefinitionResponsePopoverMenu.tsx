@@ -5,13 +5,11 @@ import { ActiveNodeInfo } from '@/typings/common'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import NProgress from 'nprogress'
 import { Menu } from '@/components/typings'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionResponseStore from '@/store/definitionResponse'
 import { useActiveTree } from './useActiveTree'
 import { useParams } from '@/hooks/useParams'
-import createDefaultDefinition from '@/views/document/components/createDefaultDefinition'
+import { createDefaultResponseDefinition } from '@/views/document/components/createDefaultDefinition'
 import { useGoPage } from '@/hooks/useGoPage'
-import AcIconBIRobot from '~icons/bi/robot'
-import AcIconCarbonModelAlt from '~icons/carbon/model-alt'
 import { useI18n } from 'vue-i18n'
 import { ElCheckbox } from 'element-plus'
 import { hasRefInSchema } from '@/commons'
@@ -19,18 +17,18 @@ import { hasRefInSchema } from '@/commons'
  * 目录弹层菜单逻辑
  * @param treeIns 目录树
  */
-export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
+export const useDefinitionResponsePopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
   const { t } = useI18n()
 
-  const definitionStore = useDefinitionStore()
+  const definitionResponseStore = useDefinitionResponseStore()
   const { project_id } = useParams()
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
-  const { goSchemaEditPage } = useGoPage()
+  const { goResponseEditPage } = useGoPage()
 
-  const ROOT_MENUS: Menu[] = [
-    { text: t('app.schema.popoverMenus.aiGenerateSchema'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
-    { text: t('app.schema.popoverMenus.newSchema'), elIcon: markRaw(AcIconCarbonModelAlt), onClick: () => onCreateSchemaMenuClick() },
-  ]
+  // const ROOT_MENUS: Menu[] = [
+  //   { text: t('app.schema.popoverMenus.aiGenerateSchema'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
+  //   { text: t('app.schema.popoverMenus.newSchema'), elIcon: markRaw(AcIconCarbonModelAlt), onClick: () => onCreateSchemaMenuClick() },
+  // ]
 
   const SCHEMA_MENUS: Menu[] = [{ text: t('app.common.delete'), onClick: () => onDeleteMenuClick() }]
   const popoverMenus = ref<Array<Menu>>(SCHEMA_MENUS)
@@ -40,12 +38,6 @@ export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) 
 
   const onPopoverRefIconClick = (e: Event, node?: Node) => {
     popoverMenus.value = SCHEMA_MENUS
-
-    // 顶级添加菜单
-    if (!node) {
-      popoverMenus.value = ROOT_MENUS
-    }
-
     popoverRefEl.value = e.currentTarget as HTMLElement
     activeNodeInfo.value = { node, id: node?.data?.id }
     isShowPopoverMenu.value = true
@@ -66,7 +58,7 @@ export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) 
       title: t('app.common.deleteTip'),
       content: () => (
         <div>
-          <div class="break-all mb-4px">{t('app.schema.popoverMenus.confirmDeleteSchema', [data.name])}</div>
+          <div class="break-all mb-4px">{t('app.definitionResponse.popoverMenus.confirmDeleteDefinitionResponse', [data.name])}</div>
           {!hasRef && (
             <ElCheckbox
               size="small"
@@ -78,7 +70,7 @@ export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) 
               trueLabel={1}
               falseLabel={0}
             >
-              对引用此模型的内容解引用
+              对引用此相应的内容解引用
             </ElCheckbox>
           )}
         </div>
@@ -86,7 +78,7 @@ export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) 
       onOk: async () => {
         NProgress.start()
         try {
-          await definitionStore.deleteDefinition(project_id as string, data.id, hasRef === true ? 0 : isUnref.value)
+          await definitionResponseStore.deleteDefinition(project_id as string, data.id, hasRef === true ? 0 : isUnref.value)
           tree.remove(node)
           activeNodeInfo.value = null
           reactiveNode()
@@ -100,7 +92,7 @@ export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) 
   }
 
   /**
-   * 复制文档
+   * 复制
    */
   const onCopyMenuClick = async () => {
     const tree = unref(treeIns)
@@ -115,36 +107,23 @@ export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) 
   }
 
   /**
-   * 创建模型
+   * 创建
    */
-  const onCreateSchemaMenuClick = async () => {
+  const onCreateMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
     const tree = unref(treeIns)
-    const newDefinition: any = createDefaultDefinition({ name: t('app.schema.popoverMenus.unnamedSchema') })
+    const newDefinition: any = createDefaultResponseDefinition({ name: t('app.definitionResponse.popoverMenus.unnamedDefinitionResponse') })
 
     try {
       NProgress.start()
-      const newNode: any = await definitionStore.createDefinition({ project_id, ...newDefinition })
+      const newNode: any = await definitionResponseStore.createDefinition({ project_id, ...newDefinition })
       await nextTick()
       tree.setCurrentKey(newNode.id)
-      goSchemaEditPage(newNode.id)
+      goResponseEditPage(newNode.id)
       activeNode(newNode.id)
     } finally {
       NProgress.done()
     }
-  }
-
-  /**
-   * 打开AI modal
-   */
-  const onShowAIPromptModal = () => {
-    aiPromptModalRef.value.show()
-  }
-
-  const onCreateDocumentBySchema = () => {
-    const node = unref(activeNodeInfo)?.node as Node
-    const data = node?.data as CollectionNode
-    aiGenerateDocumentWithSchemaModalRef.value.show(data)
   }
 
   onClickOutside(popoverRefEl, () => {
@@ -160,6 +139,6 @@ export const useSchemaPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) 
     activeNodeInfo,
 
     onPopoverRefIconClick,
-    onCreateSchemaMenuClick,
+    onCreateMenuClick,
   }
 }

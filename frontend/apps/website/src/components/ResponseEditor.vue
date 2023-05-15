@@ -31,7 +31,7 @@
       <el-tab-pane name="add-tab" disabled class="ac-response__common">
         <template #label>
           <el-space @click="onShowCommonResponseModal">
-            <span>{{ $t('app.publicResponse.title') }}</span>
+            <span>{{ $t('app.definitionResponse.title') }}</span>
             <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px">{{ commonResponseCount }}</span>
           </el-space>
         </template>
@@ -43,11 +43,11 @@
 </template>
 
 <script setup lang="ts">
-import { Definition } from './APIEditor/types'
+import { DefinitionSchema } from './APIEditor/types'
 import ResponseForm from './ResponseForm.vue'
 import { RefPrefixKeys, getResponseStatusCodeBgColor } from '@/commons'
 import { uuid } from '@apicat/shared'
-import { createResponseDefaultContent } from '@/views/document/components/createHttpDocument'
+import { createDefaultResponseContent } from '@/views/document/components/createDefaultDefinition'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 import SelectCommonResponseModal from '@/views/document/components/SelectCommonResponseModal.vue'
 import { ElMessage } from 'element-plus'
@@ -55,7 +55,7 @@ import { isEmpty, debounce } from 'lodash-es'
 import { useI18n } from 'vue-i18n'
 
 const emits = defineEmits(['update:data'])
-const props = defineProps<{ data: Array<any>; definitions?: Definition[] }>()
+const props = defineProps<{ data: Array<any>; definitions?: DefinitionSchema[] }>()
 const { t } = useI18n()
 
 const createResponse = (item?: any) => {
@@ -65,7 +65,7 @@ const createResponse = (item?: any) => {
     name: 'Response Name',
     code: 200,
     description: '',
-    content: createResponseDefaultContent(),
+    content: createDefaultResponseContent(),
     ...item,
   }
 }

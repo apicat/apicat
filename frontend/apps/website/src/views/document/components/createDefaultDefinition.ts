@@ -1,5 +1,6 @@
 import { DefinitionTypeEnum } from '@/commons/constant'
-import { Definition, JSONSchema } from '@/components/APIEditor/types'
+import { DefinitionSchema, JSONSchema } from '@/components/APIEditor/types'
+import { DefinitionResponse } from '@/typings'
 
 export const createDefaultSchema = (overwrite?: Partial<JSONSchema>) => ({
   type: 'object',
@@ -10,7 +11,7 @@ export const createDefaultSchema = (overwrite?: Partial<JSONSchema>) => ({
   ...overwrite,
 })
 
-export const createDefaultDefinition = (overwrite?: Partial<Definition>) => ({
+export const createDefaultSchemaDefinition = (overwrite?: Partial<DefinitionSchema>) => ({
   name: '',
   description: '',
   parent_id: 0,
@@ -19,4 +20,20 @@ export const createDefaultDefinition = (overwrite?: Partial<Definition>) => ({
   ...overwrite,
 })
 
-export default createDefaultDefinition
+export const createDefaultResponseContent = () => ({
+  'application/json': {
+    schema: createDefaultSchema(),
+  },
+})
+
+export const createDefaultResponseDefinition = (overwrite?: Partial<DefinitionResponse>) => ({
+  name: '',
+  description: '',
+  parent_id: 0,
+  type: DefinitionTypeEnum.RESPONSE,
+  header: [],
+  content: createDefaultResponseContent(),
+  ...overwrite,
+})
+
+export default createDefaultSchemaDefinition

@@ -53,12 +53,12 @@ export const hasRefInSchema = (schema: JSONSchema) => {
 
 export const randomArray = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]
 
-export const DATA_KEY = '_id'
+export const ROW_KEY = '_id'
 
-export const markDataWithKey = (data: Record<string, any>): void => {
-  if (!data || data[DATA_KEY]) return
-  Object.defineProperty(data, DATA_KEY, {
-    value: uuid(),
+export const markDataWithKey = (data: Record<string, any>, rowKey = ROW_KEY): void => {
+  if (!data || data[rowKey]) return
+  Object.defineProperty(data, rowKey, {
+    value: data.id || uuid(),
     enumerable: false,
     configurable: false,
     writable: false,

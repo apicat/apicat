@@ -172,7 +172,7 @@ export default {
         unnamedSchema: 'Unnamed',
       },
     },
-    publicResponse: {
+    definitionResponse: {
       title: '响应',
       tips: {
         confirmDelete: '确认删除该公共响应吗？',
@@ -180,8 +180,8 @@ export default {
       },
       popoverMenus: {
         newGroup: '新建分类',
-        confirmDeletePublicResponse: '确定删除「{0}」响应吗？',
-        unnamedPublicResponse: '未命名响应',
+        confirmDeleteDefinitionResponse: '确定删除「{0}」响应吗？',
+        unnamedDefinitionResponse: '未命名响应',
       },
     },
     response: {

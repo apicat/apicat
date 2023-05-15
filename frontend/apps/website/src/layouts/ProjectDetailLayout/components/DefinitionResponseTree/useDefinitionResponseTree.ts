@@ -2,13 +2,12 @@ import { useApi } from '@/hooks/useApi'
 import type { CollectionNode } from '@/typings/project'
 import { storeToRefs } from 'pinia'
 import AcTree from '@/components/AcTree'
-import { moveDefinitionSchema } from '@/api/definitionSchema'
 import { TreeOptionProps } from '@/components/AcTree/tree.type'
 import { DocumentTypeEnum } from '@/commons/constant'
 import { useActiveTree } from './useActiveTree'
 import { useGoPage } from '@/hooks/useGoPage'
-import { SCHEMA_DETAIL_NAME, SCHEMA_EDIT_NAME } from '@/router'
-import useDefinitionStore from '@/store/definition'
+import { RESPONSE_DETAIL_NAME, RESPONSE_EDIT_NAME } from '@/router'
+import useDefinitionResponseStore from '@/store/definitionResponse'
 import { useProjectId } from '@/hooks/useProjectId'
 import { createTreeMaxDepthFn } from '@/commons'
 
@@ -21,15 +20,15 @@ const getTreeMaxDepth = createTreeMaxDepthFn('items')
  * 此处逻辑和文档树逻辑可以进行优化
  * @returns
  */
-export const useSchemaTree = () => {
-  const definitionStore = useDefinitionStore()
+export const useDefinitionResponseTree = () => {
+  const definitionResponseStore = useDefinitionResponseStore()
   const project_id = useProjectId()
-  const { goSchemaDetailPage, goSchemaEditPage } = useGoPage()
+  const { goResponseDetailPage } = useGoPage()
   const route = useRoute()
   const router = useRouter()
   const { params } = route
-  const { getDefinitions } = definitionStore
-  const { definitions } = storeToRefs(definitionStore)
+  const { getDefinitions } = definitionResponseStore
+  const { responses } = storeToRefs(definitionResponseStore)
   const [isLoading, getDefinitionsApi] = useApi(getDefinitions)
 
   const treeOptions: TreeOptionProps = {
@@ -55,7 +54,7 @@ export const useSchemaTree = () => {
 
     // 文档点击
     if (source._extend.isLeaf) {
-      goSchemaDetailPage(source.id)
+      goResponseDetailPage(source.id)
       return
     }
 
@@ -125,7 +124,7 @@ export const useSchemaTree = () => {
     }
 
     oldDraggingNodeInfo = null
-    moveDefinitionSchema(project_id as string, sortParams)
+    // moveDefinitionSchema(project_id as string, sortParams)
   }
 
   const updateTitle = (id: any, name: string) => {
@@ -135,25 +134,21 @@ export const useSchemaTree = () => {
     }
   }
 
-  const initSchemaTree = async (activeId?: any) => {
+  const initDefinitionResponseTree = async (activeId?: any) => {
     await getDefinitionsApi(project_id as string)
-    if (route.name === SCHEMA_DETAIL_NAME || route.name === SCHEMA_EDIT_NAME) {
-      router.currentRoute.value.params.shcema_id ? activeNode(activeId || params.shcema_id) : reactiveNode()
+    if (route.name === RESPONSE_DETAIL_NAME || route.name === RESPONSE_EDIT_NAME) {
+      router.currentRoute.value.params.response_id ? activeNode(activeId || params.response_id) : reactiveNode()
     }
   }
 
-  const redirecToSchemaEdit = (activeId: any) => {
-    goSchemaEditPage(activeId)
-    initSchemaTree(activeId)
-  }
+  onMounted(async () => await initDefinitionResponseTree())
+  onUnmounted(() => definitionResponseStore.$reset())
 
-  onMounted(async () => await initSchemaTree())
-  onUnmounted(() => definitionStore.$reset())
   return {
     isLoading,
     treeIns,
     treeOptions,
-    definitions,
+    definitions: responses,
 
     handleTreeNodeClick,
     allowDrop,
@@ -161,8 +156,6 @@ export const useSchemaTree = () => {
     onMoveNode,
     updateTitle,
 
-    initSchemaTree,
-
-    redirecToSchemaEdit,
+    initDefinitionResponseTree,
   }
 }

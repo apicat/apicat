@@ -30,7 +30,6 @@ import { getProjectNavigateList, ProjectNavigateListEnum } from '@/commons/const
 import BaseInfoSetting from './ProjectSettingPages/BaseInfoSetting.vue'
 import ServerUrlSetting from './ProjectSettingPages/ServerUrlSetting.vue'
 import GlobalParametersSetting from './ProjectSettingPages/GlobalParametersSetting.vue'
-import CommonResponseSetting from './ProjectSettingPages/CommonResponseSetting.vue'
 import ProjectExportPage from './ProjectSettingPages/ProjectExportPage.vue'
 import ProjectTrashPage from './ProjectSettingPages/ProjectTrashPage.vue'
 
@@ -38,7 +37,6 @@ const menus: ProjectNavigateObject = getProjectNavigateList({
   [ProjectNavigateListEnum.BaseInfoSetting]: { component: BaseInfoSetting },
   [ProjectNavigateListEnum.ServerUrlSetting]: { component: ServerUrlSetting },
   [ProjectNavigateListEnum.GlobalParamsSetting]: { component: GlobalParametersSetting },
-  [ProjectNavigateListEnum.ResponseParamsSetting]: { component: CommonResponseSetting },
   [ProjectNavigateListEnum.ProjectExport]: { component: ProjectExportPage },
   [ProjectNavigateListEnum.ProjectTrash]: { component: ProjectTrashPage },
 })

@@ -1,29 +1,23 @@
 import { getDefinitionSchemaList, updateDefinitionSchema, createDefinitionSchema, copyDefinitionSchema, deleteDefinitionSchema } from '@/api/definitionSchema'
-import { Definition } from '@/components/APIEditor/types'
+import { DefinitionTypeEnum, markDataWithKey } from '@/commons'
+import { DefinitionSchema } from '@/components/APIEditor/types'
 import { traverseTree } from '@apicat/shared'
 import { defineStore } from 'pinia'
 
 export const extendDocTreeFeild = (node = {} as any) => {
   node = node || {}
   node._extend = {
-    isLeaf: true,
+    isLeaf: node.type !== DefinitionTypeEnum.DIR,
     isEditable: false,
     isCurrent: false,
   }
-
-  Object.defineProperty(node.schema, '_id', {
-    value: node.id,
-    enumerable: false,
-    writable: false,
-    configurable: false,
-  })
-
+  markDataWithKey(node.schema)
   return node
 }
 
-export const useDefinitionStore = defineStore('definition', {
+export const useDefinitionStore = defineStore('definitionSchema', {
   state: () => ({
-    definitions: [] as Definition[],
+    definitions: [] as DefinitionSchema[],
     tempCreateSchemaParentId: undefined as number | undefined,
   }),
   actions: {

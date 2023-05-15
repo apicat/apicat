@@ -33,6 +33,7 @@ export const enum DocumentTypeEnum {
 export const enum DefinitionTypeEnum {
   DIR = 'category',
   SCHEMA = 'schema',
+  RESPONSE = 'response',
 }
 
 // 导出|导出状态
