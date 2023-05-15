@@ -39,6 +39,7 @@ type ResponseDetailData struct {
 	Name        string                 `json:"name" binding:"required,lte=255"`
 	Code        int                    `json:"code" binding:"required"`
 	Description string                 `json:"description" binding:"lte=255"`
+	Type        string                 `json:"type" binding:"required,oneof=category response"`
 	Header      []*spec.Schema         `json:"header,omitempty" binding:"omitempty,dive"`
 	Content     map[string]spec.Schema `json:"content,omitempty" binding:"required"`
 	Ref         string                 `json:"$ref,omitempty" binding:"omitempty,lte=255"`
