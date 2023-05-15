@@ -173,10 +173,15 @@ export default {
       },
     },
     publicResponse: {
-      title: '公共响应',
+      title: '响应',
       tips: {
         confirmDelete: '确认删除该公共响应吗？',
         unref: '对引用此响应的内容解引用',
+      },
+      popoverMenus: {
+        newGroup: '新建分类',
+        confirmDeletePublicResponse: '确定删除「{0}」响应吗？',
+        unnamedPublicResponse: '未命名响应',
       },
     },
     response: {

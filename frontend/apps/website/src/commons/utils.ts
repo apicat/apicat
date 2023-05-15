@@ -1,7 +1,8 @@
-import { HttpCodeColorMap, uuid } from '@apicat/shared'
+import { HttpCodeColorMap, traverseTree, uuid } from '@apicat/shared'
 import { compile } from 'path-to-regexp'
 import { HttpMethodTypeMap } from './constant'
 import { JSONSchema } from '@/components/APIEditor/types'
+import { memoize } from 'lodash-es'
 
 /**
  * 创建API模块get path
@@ -63,3 +64,18 @@ export const markDataWithKey = (data: Record<string, any>): void => {
     writable: false,
   })
 }
+
+export const createTreeMaxDepthFn = (subKey: string) =>
+  memoize(function (node) {
+    let maxLevel = 0
+    traverseTree(
+      (item: any) => {
+        if (!item._extend.isLeaf) {
+          maxLevel++
+        }
+      },
+      [node] as any[],
+      { subKey }
+    )
+    return maxLevel
+  })

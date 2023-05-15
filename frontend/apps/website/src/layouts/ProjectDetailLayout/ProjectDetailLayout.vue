@@ -7,6 +7,7 @@
         <DirectoryTree ref="directoryTree" />
         <div class="my-10px"></div>
         <SchemaTree ref="schemaTree" />
+        <div class="my-10px"></div>
       </div>
     </div>
     <div class="scroll-content" :class="ns.e('right')">

@@ -1,4 +1,4 @@
-import { getDefinitionList, updateDefinition, createDefinition, copyDefinition, deleteDefinition } from '@/api/definition'
+import { getDefinitionSchemaList, updateDefinitionSchema, createDefinitionSchema, copyDefinitionSchema, deleteDefinitionSchema } from '@/api/definitionSchema'
 import { Definition } from '@/components/APIEditor/types'
 import { traverseTree } from '@apicat/shared'
 import { defineStore } from 'pinia'
@@ -28,20 +28,20 @@ export const useDefinitionStore = defineStore('definition', {
   }),
   actions: {
     async getDefinitions(project_id: string) {
-      const tree = await getDefinitionList(project_id)
+      const tree = await getDefinitionSchemaList(project_id)
       this.definitions = traverseTree((item: any) => extendDocTreeFeild(item), tree) as any
       return this.definitions
     },
 
     async updateDefinition(data: any) {
-      await updateDefinition(data)
+      await updateDefinitionSchema(data)
       data.id = data.def_id
       this.updateDefinitionStore(data)
     },
 
     async createDefinition(data: any) {
       try {
-        const definition: any = await createDefinition(data)
+        const definition: any = await createDefinitionSchema(data)
         this.definitions.unshift(extendDocTreeFeild(definition))
         return definition
       } catch (error) {
@@ -50,7 +50,7 @@ export const useDefinitionStore = defineStore('definition', {
     },
 
     async copyDefinition(project_id: string, def_id: string | number) {
-      const definition: any = await copyDefinition(project_id, def_id)
+      const definition: any = await copyDefinitionSchema(project_id, def_id)
       const index = this.definitions.findIndex((item: any) => item.id === def_id)
       if (index !== -1) {
         this.definitions.splice(index + 1, 0, extendDocTreeFeild(definition))
@@ -69,7 +69,7 @@ export const useDefinitionStore = defineStore('definition', {
     },
 
     async deleteDefinition(project_id: string, def_id: string | number, is_unref = 1) {
-      await deleteDefinition(project_id as string, def_id, is_unref)
+      await deleteDefinitionSchema(project_id as string, def_id, is_unref)
     },
   },
 })

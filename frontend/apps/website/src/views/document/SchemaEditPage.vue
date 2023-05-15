@@ -16,7 +16,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { getDefinitionDetail } from '@/api/definition'
+import { getDefinitionSchemaDetail } from '@/api/definitionSchema'
 import SchmaEditor from './components/SchemaEditor.vue'
 import useDefinitionStore from '@/store/definition'
 import { storeToRefs } from 'pinia'
@@ -32,7 +32,7 @@ const { t } = useI18n()
 const route = useRoute()
 const definitionStore = useDefinitionStore()
 const { definitions } = storeToRefs(definitionStore)
-const [isLoading, getDefinitionDetailApi] = getDefinitionDetail()
+const [isLoading, getDefinitionDetailApi] = getDefinitionSchemaDetail()
 const { project_id, shcema_id } = useParams()
 const { goSchemaDetailPage } = useGoPage()
 const isUpdate = shcema_id !== undefined

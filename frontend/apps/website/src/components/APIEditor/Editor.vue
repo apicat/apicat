@@ -73,8 +73,8 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
   }
 
   if (schema.$ref != undefined) {
-    const id = schema.$ref.match(RefPrefixKeys.DefinitionsSchema.reg)?.[1]
-    const pId = parent?.schema.$ref?.match(RefPrefixKeys.DefinitionsSchema.reg)?.[1]
+    const id = schema.$ref.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
+    const pId = parent?.schema.$ref?.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
 
     const refId = parseInt(id as string, 10)
     const pRefId = parseInt(pId as string, 10)
@@ -186,7 +186,7 @@ function findTreeFromKey(n: Tree, k: string): Tree | undefined {
 function getSchemaSource(t: Tree) {
   if (t.refObj) {
     return {
-      $ref: `${RefPrefixKeys.DefinitionsSchema.key}${t.refObj.id}`,
+      $ref: `${RefPrefixKeys.DefinitionSchema.key}${t.refObj.id}`,
       description: t.schema.description,
     }
   }

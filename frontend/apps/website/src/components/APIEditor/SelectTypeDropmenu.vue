@@ -130,10 +130,7 @@ const changeSchemaTypeRef = (r: any) => {
     return
   }
 
-  // const sc = props.data.schema
-  // resetObject(sc)
-  // sc.$ref = `${RefPrefixKeys.DefinitionsSchema.key}${r}`
-  emits('change', { type: `${RefPrefixKeys.DefinitionsSchema.key}${r}`, isRef: true })
+  emits('change', { type: `${RefPrefixKeys.DefinitionSchema.key}${r}`, isRef: true })
 }
 
 const changeSchemaType = (type: string) => {
