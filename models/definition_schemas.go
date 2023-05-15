@@ -175,7 +175,7 @@ func DefinitionIdToName(content string, idToNameMap IdToNameMap) string {
 	return content
 }
 
-func DefinitionSchemasUnRef(d *DefinitionSchemas, isUnRef int) error {
+func DefinitionsSchemaUnRefByDefinitionsSchema(d *DefinitionSchemas, isUnRef int) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
 
 	definitions, _ := NewDefinitionSchemas()
@@ -210,7 +210,7 @@ func DefinitionSchemasUnRef(d *DefinitionSchemas, isUnRef int) error {
 	return nil
 }
 
-func DefinitionResponsesUnRef(d *DefinitionSchemas, isUnRef int) error {
+func DefinitionsSchemaUnRefByDefinitionsResponse(d *DefinitionSchemas, isUnRef int) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
 
 	definitionResponses, _ := NewDefinitionResponses()
@@ -245,7 +245,7 @@ func DefinitionResponsesUnRef(d *DefinitionSchemas, isUnRef int) error {
 	return nil
 }
 
-func CollectionsUnRef(d *DefinitionSchemas, isUnRef int) error {
+func DefinitionsSchemaUnRefByCollections(d *DefinitionSchemas, isUnRef int) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
 
 	collections, _ := NewCollections()

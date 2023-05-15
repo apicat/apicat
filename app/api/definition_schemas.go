@@ -245,19 +245,19 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 		return
 	}
 
-	if err := models.CollectionsUnRef(definition, isUnRefData.IsUnRef); err != nil {
+	if err := models.DefinitionsSchemaUnRefByCollections(definition, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	if err := models.DefinitionResponsesUnRef(definition, isUnRefData.IsUnRef); err != nil {
+	if err := models.DefinitionsSchemaUnRefByDefinitionsResponse(definition, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	if err := models.DefinitionSchemasUnRef(definition, isUnRefData.IsUnRef); err != nil {
+	if err := models.DefinitionsSchemaUnRefByDefinitionsSchema(definition, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
