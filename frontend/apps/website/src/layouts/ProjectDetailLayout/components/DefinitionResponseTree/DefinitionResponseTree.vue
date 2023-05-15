@@ -8,8 +8,8 @@
         <template #default="{ node, data }">
           <div class="flex justify-between ac-tree-node" :class="{ 'is-editable': data._extend.isEditable }">
             <div class="ac-tree-node__main" @click="handleTreeNodeClick(node, data, $event)">
-              <div class="ac-doc-node" :class="{ 'is-active': data._extend.isCurrent }" :id="'schema_tree_node_' + data.id">
-                <el-icon v-if="data._extend.isLeaf" class="ac-doc-node__icon" :size="17"><ac-icon-carbon-model-alt /></el-icon>
+              <div class="ac-doc-node" :class="{ 'is-active': data._extend.isCurrent }" :id="'response_tree_node_' + data.id">
+                <Iconfont v-if="data._extend.isLeaf" class="ac-doc-node__icon" icon="ac-response" />
                 <span class="ac-doc-node__label" v-show="!data._extend.isEditable" :title="data.name">{{ data.name }}</span>
               </div>
             </div>

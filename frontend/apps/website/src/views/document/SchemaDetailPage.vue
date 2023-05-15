@@ -22,7 +22,7 @@
 <script setup lang="ts">
 import SchmaEditor from './components/SchemaEditor.vue'
 import { getDefinitionSchemaDetail } from '@/api/definitionSchema'
-import { Definition } from '@/components/APIEditor/types'
+import { DefinitionSchema } from '@/components/APIEditor/types'
 import { useNamespace } from '@/hooks'
 import { useGoPage } from '@/hooks/useGoPage'
 import { useParams } from '@/hooks/useParams'
@@ -36,7 +36,7 @@ const { definitions } = storeToRefs(definitionStore)
 const [isLoading, getDefinitionDetailApi] = getDefinitionSchemaDetail()
 const { project_id } = useParams()
 const { goSchemaEditPage } = useGoPage()
-const definition = ref<Definition | null>(null)
+const definition = ref<DefinitionSchema | null>(null)
 const hasDocument = ref(true)
 
 const getDetail = async () => {

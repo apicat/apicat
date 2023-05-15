@@ -57,6 +57,5 @@ provide('schemaTree', {
 onMounted(async () => {
   await projectStore.getUrlServers(project_id as string)
   await globalParametersStore.getGlobalParameters(project_id as string)
-  await definitionResponseStore.getDefinitions(project_id as string)
 })
 </script>

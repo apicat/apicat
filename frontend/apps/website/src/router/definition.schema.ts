@@ -2,8 +2,8 @@ import { compile } from 'path-to-regexp'
 import { PROJECT_DETAIL_PATH } from './constant'
 import { RouteRecordRaw } from 'vue-router'
 
-export const SCHEMA_EDIT_NAME = 'schema.edit'
-export const SCHEMA_DETAIL_NAME = 'schema.detail'
+export const SCHEMA_EDIT_NAME = 'definition.schema.edit'
+export const SCHEMA_DETAIL_NAME = 'definition.schema.detail'
 
 export const SCHEMA_DETAIL_PATH = PROJECT_DETAIL_PATH + '/schema/:shcema_id?'
 export const SCHEMA_EDIT_PATH = PROJECT_DETAIL_PATH + '/schema/:shcema_id/edit'

@@ -27,7 +27,6 @@ import { ElMessage } from 'element-plus'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionStore from '@/store/definition'
 import { useI18n } from 'vue-i18n'
-import useCommonResponseStore from '@/store/commonResponse'
 import { DOCUMENT_EDIT_NAME } from '@/router'
 
 const { t } = useI18n()
@@ -36,7 +35,6 @@ const route = useRoute()
 const router = useRouter()
 const globalParametersStore = uesGlobalParametersStore()
 const definitionStore = useDefinitionStore()
-const commonResponseStore = useCommonResponseStore()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const [isLoadingForSaveBtn, updateCollectionApiWithLoading] = useApi(updateCollection)
@@ -78,12 +76,6 @@ const getDetail = async () => {
 
 globalParametersStore.$onAction(({ name, after }) => {
   if (name === 'deleteGlobalParameter') {
-    after(() => getDetail())
-  }
-})
-
-commonResponseStore.$onAction(({ name, after }) => {
-  if (name === 'updateResponseParam' || name === 'deleteResponseParam') {
     after(() => getDetail())
   }
 })

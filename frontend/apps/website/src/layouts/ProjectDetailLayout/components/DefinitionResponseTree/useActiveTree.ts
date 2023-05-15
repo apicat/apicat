@@ -1,24 +1,24 @@
 import { CollectionNode } from '@/typings/project'
 import AcTree from '@/components/AcTree'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionResponseStore from '@/store/definitionResponse'
 import { traverseTree } from '@apicat/shared'
 import { storeToRefs } from 'pinia'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-import { SCHEMA_DETAIL_NAME, DOCUMENT_DETAIL_NAME } from '@/router'
+import { RESPONSE_DETAIL_NAME, DOCUMENT_DETAIL_NAME } from '@/router'
 
 export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
-  const definitionStore = useDefinitionStore()
+  const definitionResponseStore = useDefinitionResponseStore()
   const router = useRouter()
   const route = useRoute()
-  const { definitions } = storeToRefs(definitionStore)
+  const { responses } = storeToRefs(definitionResponseStore)
   const { params } = route
   const directoryTree = inject('directoryTree') as any
 
   // 启动切换文档选中
   watch(
-    () => route.params.shcema_id,
+    () => route.params.response_id,
     () => {
-      activeNode(route.params.shcema_id)
+      activeNode(route.params.response_id)
     }
   )
 
@@ -30,7 +30,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
         item._extend!.isCurrent = false
         return false
       }
-    }, definitions.value as any)
+    }, responses.value as any)
 
     const id = parseInt(nodeId as string, 10)
     const node = treeIns.value?.getNode(id)
@@ -38,14 +38,13 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
     if (node && node.data) {
       ;(node.data as CollectionNode)._extend!.isCurrent = true
       treeIns.value?.setCurrentKey(id)
+      const el = document.querySelector('#response_tree_node_' + id)
+      el && scrollIntoView(el, { scrollMode: 'if-needed' })
     }
-    // scrollIntoView
-    const el = document.querySelector('#schema_tree_node_' + id)
-    el && scrollIntoView(el, { scrollMode: 'if-needed' })
   }
 
   const reactiveNode = () => {
-    if (!treeIns.value || !String(route.name).startsWith('schema')) {
+    if (!treeIns.value || !String(route.name).startsWith('definition.response')) {
       return
     }
 
@@ -55,7 +54,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
         hasCurrent = true
         return false
       }
-    }, definitions.value as any)
+    }, responses.value as any)
 
     // 没有选中模型时，进行自动切换
     if (!hasCurrent) {
@@ -67,13 +66,13 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
           node = _node
           return false
         }
-      }, definitions.value)
+      }, responses.value)
 
       // 存在模型
       if (node) {
-        params.shcema_id = node.key
+        params.response_id = node.key
         activeNode(node.key)
-        router.replace({ name: SCHEMA_DETAIL_NAME, params })
+        router.replace({ name: RESPONSE_DETAIL_NAME, params })
       } else {
         const { project_id } = params
         router.replace({ name: DOCUMENT_DETAIL_NAME, params: { project_id } })

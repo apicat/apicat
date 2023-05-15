@@ -36,12 +36,10 @@ import { getCollectionDetail } from '@/api/collection'
 import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
 import uesGlobalParametersStore from '@/store/globalParameters'
-import useCommonResponseStore from '@/store/commonResponse'
 
 const projectStore = uesProjectStore()
 const definitionStore = useDefinitionStore()
 const globalParametersStore = uesGlobalParametersStore()
-const commonResponseStore = useCommonResponseStore()
 const route = useRoute()
 const { project_id } = useParams()
 const { goDocumentEditPage } = useGoPage()
@@ -77,12 +75,6 @@ const getDetail = async (docId: string) => {
 globalParametersStore.$onAction(({ name, after }) => {
   // 删除全局参数
   if (name === 'deleteGlobalParameter') {
-    after(() => getDetail(route.params.doc_id as string))
-  }
-})
-
-commonResponseStore.$onAction(({ name, after }) => {
-  if (name === 'updateResponseParam' || name === 'deleteResponseParam') {
     after(() => getDetail(route.params.doc_id as string))
   }
 })

@@ -25,11 +25,6 @@ export const useDefinitionResponsePopoverMenu = (treeIns: Ref<InstanceType<typeo
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
   const { goResponseEditPage } = useGoPage()
 
-  // const ROOT_MENUS: Menu[] = [
-  //   { text: t('app.schema.popoverMenus.aiGenerateSchema'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
-  //   { text: t('app.schema.popoverMenus.newSchema'), elIcon: markRaw(AcIconCarbonModelAlt), onClick: () => onCreateSchemaMenuClick() },
-  // ]
-
   const SCHEMA_MENUS: Menu[] = [{ text: t('app.common.delete'), onClick: () => onDeleteMenuClick() }]
   const popoverMenus = ref<Array<Menu>>(SCHEMA_MENUS)
   const popoverRefEl = ref<Nullable<HTMLElement>>(null)
@@ -50,7 +45,6 @@ export const useDefinitionResponsePopoverMenu = (treeIns: Ref<InstanceType<typeo
     const node = unref(activeNodeInfo)?.node as Node
     const data = node?.data as any
     const tree = unref(treeIns)
-    const hasRef = hasRefInSchema(data.schema)
 
     const isUnref = ref(1)
 
@@ -59,26 +53,24 @@ export const useDefinitionResponsePopoverMenu = (treeIns: Ref<InstanceType<typeo
       content: () => (
         <div>
           <div class="break-all mb-4px">{t('app.definitionResponse.popoverMenus.confirmDeleteDefinitionResponse', [data.name])}</div>
-          {!hasRef && (
-            <ElCheckbox
-              size="small"
-              style={{ fontWeight: 'normal' }}
-              modelValue={isUnref.value}
-              onUpdate:modelValue={(val: any) => {
-                isUnref.value = val
-              }}
-              trueLabel={1}
-              falseLabel={0}
-            >
-              对引用此相应的内容解引用
-            </ElCheckbox>
-          )}
+          <ElCheckbox
+            size="small"
+            style={{ fontWeight: 'normal' }}
+            modelValue={isUnref.value}
+            onUpdate:modelValue={(val: any) => {
+              isUnref.value = val
+            }}
+            trueLabel={1}
+            falseLabel={0}
+          >
+            对引用此相应的内容解引用
+          </ElCheckbox>
         </div>
       ),
       onOk: async () => {
         NProgress.start()
         try {
-          await definitionResponseStore.deleteDefinition(project_id as string, data.id, hasRef === true ? 0 : isUnref.value)
+          await definitionResponseStore.deleteDefinition(project_id as string, data.id, isUnref.value)
           tree.remove(node)
           activeNodeInfo.value = null
           reactiveNode()

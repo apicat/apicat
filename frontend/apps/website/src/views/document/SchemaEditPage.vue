@@ -21,7 +21,7 @@ import SchmaEditor from './components/SchemaEditor.vue'
 import useDefinitionStore from '@/store/definition'
 import { storeToRefs } from 'pinia'
 import { useParams } from '@/hooks/useParams'
-import { Definition } from '@/components/APIEditor/types'
+import { DefinitionSchema } from '@/components/APIEditor/types'
 import { debounce, isEmpty } from 'lodash-es'
 import { useGoPage } from '@/hooks/useGoPage'
 import { ElMessage } from 'element-plus'
@@ -40,7 +40,7 @@ const isSaving = ref(false)
 const schemaTree: any = inject('schemaTree')
 const ns = useNamespace('document')
 
-const definition = ref<Definition | null>(null)
+const definition = ref<DefinitionSchema | null>(null)
 const isInvalidId = () => isNaN(parseInt(route.params.shcema_id as string, 10))
 
 const getDetail = async () => {
