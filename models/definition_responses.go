@@ -2,6 +2,9 @@ package models
 
 import (
 	"encoding/json"
+	"regexp"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/apicat/apicat/common/spec"
@@ -128,4 +131,73 @@ func DefinitionResponsesExport(projectID uint) spec.HTTPResponseDefines {
 	}
 
 	return specResponseDefines
+}
+
+func DefinitionsResponseUnRef(dr *DefinitionResponses) error {
+	ref := "\"$ref\":\"#/definitions/responses/" + strconv.Itoa(int(dr.ID)) + "\""
+
+	collections, _ := NewCollections()
+	collections.ProjectId = dr.ProjectID
+	collectionList, err := collections.List()
+	if err != nil {
+		return err
+	}
+
+	data := map[string]string{
+		"name":        dr.Name,
+		"description": dr.Description,
+		"header":      dr.Header,
+		"content":     dr.Content,
+	}
+
+	dataJson, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+
+	newStr := string(dataJson)[1 : len(string(dataJson))-1]
+
+	for _, collection := range collectionList {
+		if strings.Contains(collection.Content, ref) {
+			newContent := strings.Replace(collection.Content, ref, newStr, -1)
+			collection.Content = newContent
+
+			if err := collection.Update(); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func DefinitionsResponseDelRef(dr *DefinitionResponses) error {
+	re1 := regexp.MustCompile(`,{"code":\d+,"\$ref":"#/definitions/responses/` + strconv.Itoa(int(dr.ID)) + `"}`)
+	re2 := regexp.MustCompile(`{"code":\d+,"\$ref":"#/definitions/responses/` + strconv.Itoa(int(dr.ID)) + `"}`)
+
+	collections, _ := NewCollections()
+	collections.ProjectId = dr.ProjectID
+	collectionList, err := collections.List()
+	if err != nil {
+		return err
+	}
+
+	for _, collection := range collectionList {
+		matchRe1 := re1.FindString(collection.Content)
+		if matchRe1 != "" {
+			newContent := strings.Replace(collection.Content, matchRe1, "", -1)
+			collection.Content = newContent
+		} else {
+			matchRe2 := re2.FindString(collection.Content)
+			if matchRe2 != "" {
+				newContent := strings.Replace(collection.Content, matchRe2, "", -1)
+				collection.Content = newContent
+			}
+		}
+
+		if err := collection.Update(); err != nil {
+			return err
+		}
+	}
+	return nil
 }

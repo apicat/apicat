@@ -3,8 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"strconv"
-	"strings"
 
 	"github.com/apicat/apicat/common/spec"
 	"github.com/apicat/apicat/common/translator"
@@ -251,9 +249,6 @@ func DefinitionResponsesUpdate(ctx *gin.Context) {
 }
 
 func DefinitionResponsesDelete(ctx *gin.Context) {
-	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
-
 	cr := DefinitionResponsesID{}
 	definitionResponses, err := cr.CheckDefinitionResponses(ctx)
 	if err != nil {
@@ -268,65 +263,17 @@ func DefinitionResponsesDelete(ctx *gin.Context) {
 		return
 	}
 
-	header := []*spec.Schema{}
-	if err := json.Unmarshal([]byte(definitionResponses.Header), &header); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-		})
-		return
-	}
-	content := map[string]spec.Schema{}
-	if err := json.Unmarshal([]byte(definitionResponses.Content), &content); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-		})
-		return
+	if data.IsUnRef == 1 {
+		err = models.DefinitionsResponseUnRef(definitionResponses)
+	} else {
+		err = models.DefinitionsResponseDelRef(definitionResponses)
 	}
 
-	responseDetail := ResponseDetailData{
-		Name:        definitionResponses.Name,
-		Description: definitionResponses.Description,
-		Header:      header,
-		Content:     content,
-	}
-
-	collections, _ := models.NewCollections()
-	collections.ProjectId = project.ID
-	collectionList, err := collections.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.QueryFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.DeleteFailed"}),
 		})
 		return
-	}
-
-	ref := ",{\"$ref\":\"#/commons/responses/" + strconv.FormatUint(uint64(definitionResponses.ID), 10) + "\"}"
-	responseDetailJson, err := json.Marshal(responseDetail)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-		})
-		return
-	}
-
-	for _, collection := range collectionList {
-		if collection.Type == "http" {
-			if strings.Contains(collection.Content, ref) {
-				newStr := ""
-				if data.IsUnRef == 1 {
-					newStr = "," + string(responseDetailJson)
-				}
-
-				newContent := strings.Replace(collection.Content, ref, newStr, -1)
-				collection.Content = newContent
-				if err := collection.Update(); err != nil {
-					ctx.JSON(http.StatusBadRequest, gin.H{
-						"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.UpdateFailed"}),
-					})
-					return
-				}
-			}
-		}
 	}
 
 	if err := definitionResponses.Delete(); err != nil {
