@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/apicat/apicat/common/apicat_struct"
 	"github.com/apicat/apicat/common/spec"
 )
 
@@ -192,6 +193,8 @@ func DefinitionsResponseDelRef(dr *DefinitionResponses) error {
 		return err
 	}
 
+	emptyResponse := apicat_struct.TypeEmptyStructure()["response"]
+
 	for _, collection := range collectionList {
 		matchRe1 := re1.FindString(collection.Content)
 		if matchRe1 != "" {
@@ -200,7 +203,7 @@ func DefinitionsResponseDelRef(dr *DefinitionResponses) error {
 		} else {
 			matchRe2 := re2.FindString(collection.Content)
 			if matchRe2 != "" {
-				newContent := strings.Replace(collection.Content, matchRe2, "", -1)
+				newContent := strings.Replace(collection.Content, matchRe2, emptyResponse, -1)
 				collection.Content = newContent
 			}
 		}
