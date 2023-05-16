@@ -10,6 +10,7 @@
           <el-option v-for="code in HttpCodeList" :label="code.code + ' ' + code.desc" :value="code.code" />
         </el-select>
       </el-form-item>
+
       <el-form-item :label="$t('app.response.table.desc')">
         <el-input v-model="model.description" maxlength="300" />
       </el-form-item>

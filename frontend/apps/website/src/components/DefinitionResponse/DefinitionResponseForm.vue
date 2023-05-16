@@ -1,25 +1,26 @@
 <template>
   <div class="mt-10px">
-    <el-space fill>
-      <el-text>Header</el-text>
+    <ToggleHeading title="Header" :expand="responseRef.header && !!responseRef.header.length">
       <SimpleEditor v-model="responseRef.header" />
-    </el-space>
+    </ToggleHeading>
 
-    <div v-for="(_, ct) in responseRef.content" :key="ct">
-      <div class="flex justify-between my-8px">
-        <el-text>Content</el-text>
+    <ToggleHeading title="Content">
+      <template #extra>
         <el-select :modelValue="contentDefaultType" @change="changeContentType">
           <template #prefix>Content-Type</template>
           <el-option v-for="(_, cti) in contentTypes" :key="cti" :label="cti" :value="cti" />
         </el-select>
+      </template>
+
+      <div v-for="(_, ct) in responseRef.content" :key="ct" class="mt-10px">
+        <Editor :definitions="definitionSchemas" v-model="responseRef.content[ct].schema" v-if="isJsonSchema" />
+        <p class="my-10px">
+          <span class="mr-4px">{{ $t('app.response.tips.responseExample') }}</span>
+          <el-tag disable-transitions effect="plain">format:{{ contentTypes[ct] }}</el-tag>
+        </p>
+        <CodeEditor v-model="responseRef.content[ct].schema.example" :lang="contentTypes[ct]" />
       </div>
-      <Editor :definitions="definitionSchemas" v-model="responseRef.content[ct].schema" v-if="isJsonSchema" />
-      <p class="my-10px">
-        <span class="mr-4px">{{ $t('app.response.tips.responseExample') }}</span>
-        <el-tag disable-transitions effect="plain">format:{{ contentTypes[ct] }}</el-tag>
-      </p>
-      <CodeEditor v-model="responseRef.content[ct].schema.example" :lang="contentTypes[ct]" />
-    </div>
+    </ToggleHeading>
   </div>
 </template>
 

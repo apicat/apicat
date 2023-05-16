@@ -1,4 +1,4 @@
-import { HttpCodeColorMap, traverseTree, uuid } from '@apicat/shared'
+import { HttpCodeColorMap, traverseTree } from '@apicat/shared'
 import { compile } from 'path-to-regexp'
 import { HttpMethodTypeMap } from './constant'
 import { JSONSchema } from '@/components/APIEditor/types'
@@ -53,12 +53,14 @@ export const hasRefInSchema = (schema: JSONSchema) => {
 
 export const randomArray = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]
 
+export const uuid = () => Math.random().toString(36).substring(2, 9)
+
 export const ROW_KEY = '_id'
 
-export const markDataWithKey = (data: Record<string, any>, rowKey = ROW_KEY): void => {
+export const markDataWithKey = (data: Record<string, any>, rowKey = ROW_KEY, defaultValue?: any) => {
   if (!data || data[rowKey]) return
   Object.defineProperty(data, rowKey, {
-    value: data.id || uuid(),
+    value: defaultValue || data.id || uuid(),
     enumerable: false,
     configurable: false,
     writable: false,
