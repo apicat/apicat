@@ -39,7 +39,6 @@ declare module '@vue/runtime-core' {
     AcTag: typeof import('./../components/AcTag.vue')['default']
     AsyncMessageBox: typeof import('./../components/AsyncMessageBox.ts')['default']
     ClipboardHelper: typeof import('./../components/ClipboardHelper.ts')['default']
-    DefinitionResponse: typeof import('./../components/DefinitionResponse.vue')['default']
     ElButton: typeof import('element-plus/es')['ElButton']
     ElButtonGroup: typeof import('element-plus/es')['ElButtonGroup']
     ElCheckbox: typeof import('element-plus/es')['ElCheckbox']

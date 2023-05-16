@@ -86,17 +86,7 @@ export const useDefinitionResponsePopoverMenu = (treeIns: Ref<InstanceType<typeo
   /**
    * 复制
    */
-  const onCopyMenuClick = async () => {
-    const tree = unref(treeIns)
-    const node = unref(activeNodeInfo)?.node as Node
-    const data = node?.data as CollectionNode
-    try {
-      NProgress.start()
-      await definitionStore.copyDefinition(project_id as string, data.id)
-    } finally {
-      NProgress.done()
-    }
-  }
+  const onCopyMenuClick = async () => {}
 
   /**
    * 创建

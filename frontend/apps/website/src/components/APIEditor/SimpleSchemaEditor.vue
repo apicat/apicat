@@ -95,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Definition, JSONSchema } from './types'
+import type { DefinitionSchema, JSONSchema } from './types'
 import { computed } from 'vue'
 import { useSchemaList } from './useSchemaList'
 
@@ -103,7 +103,7 @@ const props = withDefaults(
   defineProps<{
     readonly?: boolean
     modelValue: JSONSchema
-    definitions?: Definition[]
+    definitions?: DefinitionSchema[]
     hasFile?: boolean
   }>(),
   {
