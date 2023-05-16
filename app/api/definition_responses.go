@@ -77,6 +77,7 @@ func DefinitionResponsesList(ctx *gin.Context) {
 			"id":          v.ID,
 			"name":        v.Name,
 			"description": v.Description,
+			"type":        v.Type,
 			"header":      header,
 			"content":     content,
 		})
@@ -112,6 +113,7 @@ func DefinitionResponsesDetail(ctx *gin.Context) {
 		"id":          definitionResponses.ID,
 		"name":        definitionResponses.Name,
 		"description": definitionResponses.Description,
+		"type":        definitionResponses.Type,
 		"header":      header,
 		"content":     content,
 	})
@@ -183,6 +185,7 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 		"id":          definitionResponses.ID,
 		"name":        definitionResponses.Name,
 		"description": definitionResponses.Description,
+		"type":        definitionResponses.Type,
 		"header":      data.Header,
 		"content":     data.Content,
 	})
