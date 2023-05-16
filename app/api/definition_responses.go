@@ -134,6 +134,7 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 	definitionResponses, _ := models.NewDefinitionResponses()
 	definitionResponses.ProjectID = project.ID
 	definitionResponses.Name = data.Name
+	definitionResponses.Type = data.Type
 
 	count, err := definitionResponses.GetCountByName()
 	if err != nil {
