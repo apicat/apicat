@@ -102,10 +102,10 @@ import CodeEditor from '@/components/APIEditor/CodeEditor.vue'
 import { HttpDocument } from '@/typings'
 import { useParameter } from './useParameter'
 import { useContentType } from './useContentType'
-import { Definition } from '../APIEditor/types'
+import { DefinitionSchema } from '../APIEditor/types'
 import GlobalParameter from './GlobalParameter.vue'
 
-const props = defineProps<{ modelValue: HttpDocument; definitions?: Definition[] }>()
+const props = defineProps<{ modelValue: HttpDocument; definitions?: DefinitionSchema[] }>()
 
 const {
   headers,

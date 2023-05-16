@@ -25,7 +25,7 @@ export const useDefinitionResponseStore = defineStore('definitionResponse', {
       return this.responses
     },
 
-    async updateDefinition(data: any) {
+    async updateDefinition(data: DefinitionResponse) {
       await updateDefinitionResponse(data)
       this.updateDefinitionStore(data)
     },
@@ -40,12 +40,13 @@ export const useDefinitionResponseStore = defineStore('definitionResponse', {
       }
     },
 
-    updateDefinitionStore(definition: any) {
-      const { id, name, description, content } = definition
-      const target = this.responses.find((item: any) => item.id === id)
+    updateDefinitionStore(definition: DefinitionResponse) {
+      const { id, name, description, content, header } = definition
+      const target = this.responses.find((item: DefinitionResponse) => item.id === id)
       if (target) {
         target.name = name
         target.description = description
+        target.header = header
         target.content = content
       }
     },

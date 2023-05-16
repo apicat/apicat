@@ -9,7 +9,7 @@ export const SCHEMA_DETAIL_PATH = PROJECT_DETAIL_PATH + '/schema/:shcema_id?'
 export const SCHEMA_EDIT_PATH = PROJECT_DETAIL_PATH + '/schema/:shcema_id/edit'
 
 export const getSchemaDetailPath = (project_id: number | string, shcema_id: number | string) => compile(SCHEMA_DETAIL_PATH)({ project_id, shcema_id })
-export const getSchemaEditPath = (project_id: number | string, shcema_id: number | string) => compile(SCHEMA_DETAIL_PATH)({ project_id, shcema_id }) + '/edit'
+export const getSchemaEditPath = (project_id: number | string, shcema_id: number | string) => compile(SCHEMA_EDIT_PATH)({ project_id, shcema_id })
 
 const SchemaEditPage = () => import('@/views/document/SchemaEditPage.vue')
 const SchemaDetailPage = () => import('@/views/document/SchemaDetailPage.vue')

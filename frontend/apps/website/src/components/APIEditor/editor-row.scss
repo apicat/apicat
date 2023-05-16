@@ -12,10 +12,6 @@ $block_row_ns: $namespace + '-schema-row';
   border: 1px var(--el-border-color-lighter) solid;
   border-radius: var(--el-border-radius-base);
   overflow: hidden;
-
-  &:focus-within {
-    box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
-  }
 }
 
 @include b(schema-row) {

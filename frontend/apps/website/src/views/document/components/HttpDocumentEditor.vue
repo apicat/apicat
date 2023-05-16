@@ -15,15 +15,15 @@ import { HttpDocument } from '@/typings'
 import RequestParamEditor from '@/components/RequestParamEditor'
 import { useNamespace } from '@/hooks/useNamespace'
 import ResponseEditor from '@/components/ResponseEditor.vue'
-import { Definition } from '@/components/APIEditor/types'
 import useDefinitionStore from '@/store/definition'
 import { storeToRefs } from 'pinia'
 import { HTTP_RESPONSE_NODE_KEY, HTTP_REQUEST_NODE_KEY } from './createHttpDocument'
+
 const ns = useNamespace('document')
 const definitionStore = useDefinitionStore()
 const { definitions } = storeToRefs(definitionStore)
 
-const props = defineProps<{ modelValue: HttpDocument; definitions?: Definition[] }>()
+const props = defineProps<{ modelValue: HttpDocument }>()
 const emit = defineEmits(['update:modelValue'])
 const httpDoc = useVModel(props, 'modelValue', emit)
 

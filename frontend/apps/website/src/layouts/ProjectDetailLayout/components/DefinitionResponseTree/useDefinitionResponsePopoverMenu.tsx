@@ -12,7 +12,7 @@ import { createDefaultResponseDefinition } from '@/views/document/components/cre
 import { useGoPage } from '@/hooks/useGoPage'
 import { useI18n } from 'vue-i18n'
 import { ElCheckbox } from 'element-plus'
-import { hasRefInSchema } from '@/commons'
+
 /**
  * 目录弹层菜单逻辑
  * @param treeIns 目录树

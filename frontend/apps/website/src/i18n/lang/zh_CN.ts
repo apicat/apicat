@@ -178,6 +178,10 @@ export default {
         confirmDelete: '确认删除该公共响应吗？',
         unref: '对引用此响应的内容解引用',
       },
+      form: {
+        title: '请输入响应标题',
+        desc: '请输入响应描述',
+      },
       popoverMenus: {
         newGroup: '新建分类',
         confirmDeleteDefinitionResponse: '确定删除「{0}」响应吗？',

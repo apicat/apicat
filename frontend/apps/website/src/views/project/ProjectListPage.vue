@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts" setup>
-import { getProjectDetailPath } from '@/router/document'
+import { getProjectDetailPath } from '@/router'
 import CreateProjectModal from './CreateProjectModal.vue'
 import uesProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'

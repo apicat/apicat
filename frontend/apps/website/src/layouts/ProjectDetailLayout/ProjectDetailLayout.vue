@@ -26,12 +26,10 @@ import DefinitionResponseTree from './components/DefinitionResponseTree'
 import uesProjectStore from '@/store/project'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { useParams } from '@/hooks/useParams'
-import useDefinitionResponseStore from '@/store/definitionResponse'
 
 const ns = useNamespace('doc-layout')
 const projectStore = uesProjectStore()
 const globalParametersStore = uesGlobalParametersStore()
-const definitionResponseStore = useDefinitionResponseStore()
 const { project_id } = useParams()
 
 const directoryTree = ref<InstanceType<typeof DirectoryTree>>()
@@ -52,6 +50,13 @@ provide('schemaTree', {
   reload: async () => await schemaTree.value?.reload(),
   reactiveNode: () => schemaTree.value?.reactiveNode(),
   redirecToSchemaDetail: (activeId?: any) => schemaTree.value?.redirecToSchemaEdit(activeId),
+})
+
+provide('definitionResponseTree', {
+  updateTitle: (id: any, title: string) => definitionResponseTree.value?.updateTitle(id, title),
+  activeNode: (id: any) => definitionResponseTree.value?.activeNode(id),
+  reload: async () => await definitionResponseTree.value?.reload(),
+  reactiveNode: () => definitionResponseTree.value?.reactiveNode(),
 })
 
 onMounted(async () => {

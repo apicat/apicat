@@ -157,8 +157,4 @@ watch(
     max-height: fit-content;
   }
 }
-
-.ac-code-editor:focus-within {
-  box-shadow: rgba(0, 0, 0, 0.1) 0 2px 4px;
-}
 </style>

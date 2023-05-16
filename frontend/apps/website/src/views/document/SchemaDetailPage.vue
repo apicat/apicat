@@ -68,8 +68,6 @@ definitionStore.$onAction(({ name, after, args }) => {
 watch(
   () => route.params.shcema_id,
   async () => await getDetail(),
-  {
-    immediate: true,
-  }
+  { immediate: true }
 )
 </script>
