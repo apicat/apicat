@@ -392,7 +392,8 @@ func (o *toOpenapi) toPaths(ver string, in *spec.Spec) (
 				item.RequestBody.Content[k] = sp
 			}
 			for _, v := range op.Res.List {
-				code, res := o.toResponse(in, v, ver)
+				res := o.toResponse(in, v.HTTPResponseDefine, ver)
+				code := strconv.Itoa(v.Code)
 				if item.Responses != nil {
 					item.Responses[code] = res
 				} else {
@@ -420,7 +421,7 @@ func (o *toOpenapi) toPaths(ver string, in *spec.Spec) (
 	}()
 }
 
-func (o *toOpenapi) toResponse(in *spec.Spec, def spec.HTTPResponse, ver string) (string, map[string]any) {
+func (o *toOpenapi) toResponse(in *spec.Spec, def spec.HTTPResponseDefine, ver string) map[string]any {
 	res := map[string]any{}
 	v := def
 	if def.Reference != nil {
@@ -428,7 +429,7 @@ func (o *toOpenapi) toResponse(in *spec.Spec, def spec.HTTPResponse, ver string)
 			if x := in.Definitions.Responses.LookupID(
 				toInt64(getRefName(*v.Reference)),
 			); x != nil {
-				return strconv.Itoa(def.Code), map[string]any{
+				return map[string]any{
 					"$ref": "#/components/responses/" + x.Name,
 				}
 			}
@@ -454,7 +455,7 @@ func (o *toOpenapi) toResponse(in *spec.Spec, def spec.HTTPResponse, ver string)
 		res["headers"] = headers
 	}
 	res["description"] = v.Description
-	return strconv.Itoa(v.Code), res
+	return res
 }
 
 func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
@@ -465,7 +466,24 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 		schemas[v.Name] = *s
 		o.schemaMapping[v.ID] = v.Name
 	}
+	respons := make(map[string]any)
+	for _, v := range in.Definitions.Responses {
+		res := o.toResponse(in, v, ver)
+		respons[v.Name] = res
+	}
+
+	globalParam := in.Globals.Parameters
+	m := globalParam.Map()
+	paramters := make(map[string]openAPIParamter)
+	for in, ps := range m {
+		for _, p := range ps {
+			paramters[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
+		}
+	}
+
 	return map[string]any{
-		"schemas": schemas,
+		"schemas":   schemas,
+		"responses": respons,
+		"paramters": paramters,
 	}
 }

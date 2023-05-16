@@ -89,6 +89,16 @@
             }
           }
         }
+      },
+      {
+        "id":100,
+        "name":"userlist",
+        "schema":{
+          "type":"array",
+          "items":{
+            "$ref":"#/definitions/schemas/4"
+          }
+        }
       }
     ],
     "parameters": [
@@ -279,7 +289,15 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/definitions/schemas/4"
+                  "type":"object",
+                  "properties":{
+                    "userlist":{
+                      "$ref": "#/definitions/schemas/100"
+                    },
+                    "somekeys":{
+                      "type":"string"
+                    }
+                  }
                 }
               }
             }
