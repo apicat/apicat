@@ -143,11 +143,21 @@ func DefinitionsResponseUnRef(dr *DefinitionResponses) error {
 		return err
 	}
 
-	data := map[string]string{
+	header := []interface{}{}
+	if err := json.Unmarshal([]byte(dr.Header), &header); err != nil {
+		return err
+	}
+
+	content := map[string]interface{}{}
+	if err := json.Unmarshal([]byte(dr.Content), &content); err != nil {
+		return err
+	}
+
+	data := map[string]interface{}{
 		"name":        dr.Name,
 		"description": dr.Description,
-		"header":      dr.Header,
-		"content":     dr.Content,
+		"header":      header,
+		"content":     content,
 	}
 
 	dataJson, err := json.Marshal(data)
