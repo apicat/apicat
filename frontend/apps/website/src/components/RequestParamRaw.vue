@@ -80,7 +80,7 @@ import JSONSchemaEditor from '@/components/APIEditor/Editor.vue'
 import CodeEditor from '@/components/APIEditor/CodeEditor.vue'
 import { RequestContentTypesMap } from '@/commons'
 import { useNodeAttrs, HTTP_REQUEST_NODE_KEY } from '@/hooks/useNodeAttrs'
-import { Definition } from './APIEditor/types'
+import { DefinitionSchema } from './APIEditor/types'
 import { HttpDocument } from '@/typings'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { storeToRefs } from 'pinia'
@@ -88,7 +88,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-const props = defineProps<{ doc: HttpDocument; definitions: Definition[] }>()
+const props = defineProps<{ doc: HttpDocument; definitions: DefinitionSchema[] }>()
 const request = useNodeAttrs(props, HTTP_REQUEST_NODE_KEY, 'doc')
 const globalParametersStore = uesGlobalParametersStore()
 const { parameters: globalParameters } = storeToRefs(globalParametersStore)

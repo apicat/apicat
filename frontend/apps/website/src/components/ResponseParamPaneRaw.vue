@@ -42,11 +42,11 @@ export const contentTypes: Record<string, string> = {
 import SimpleParameterEditor from '@/components/APIEditor/SimpleEditor.vue'
 import JSONSchemaEditor from '@/components/APIEditor/Editor.vue'
 import CodeEditor from '@/components/APIEditor/CodeEditor.vue'
-import { APICatSchemaObject, Definition, JSONSchema } from './APIEditor/types'
+import { APICatSchemaObject, DefinitionSchema, JSONSchema } from './APIEditor/types'
 
 const props = defineProps<{
   param: APICatResponse | any
-  definitions: Definition[]
+  definitions: DefinitionSchema[]
 }>()
 
 const contentTypes: Record<string, string> = {

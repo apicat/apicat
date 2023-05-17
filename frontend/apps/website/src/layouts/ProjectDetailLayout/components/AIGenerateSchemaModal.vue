@@ -19,7 +19,7 @@ import { useModal } from '@/hooks'
 import useApi from '@/hooks/useApi'
 import { useParams } from '@/hooks/useParams'
 import { FormInstance } from 'element-plus'
-import { aiGenerateDefinition } from '@/api/definition'
+import { aiGenerateDefinitionSchema } from '@/api/definitionSchema'
 import { useI18n } from 'vue-i18n'
 
 const emits = defineEmits(['ok'])
@@ -27,7 +27,7 @@ const { t } = useI18n()
 const aiPromptForm = ref<FormInstance>()
 
 const { dialogVisible, showModel, hideModel } = useModal(aiPromptForm as any)
-const [isLoading, aiGenerateDefinitionApi] = useApi(aiGenerateDefinition)
+const [isLoading, aiGenerateDefinitionApi] = useApi(aiGenerateDefinitionSchema)
 const { project_id } = useParams()
 
 let otherParams = {}

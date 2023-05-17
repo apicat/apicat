@@ -1,11 +1,8 @@
 import { useApi } from '@/hooks/useApi'
 import type { CollectionNode } from '@/typings/project'
 import { storeToRefs } from 'pinia'
-import { memoize } from 'lodash-es'
-
 import AcTree from '@/components/AcTree'
-import { moveDefinition } from '@/api/definition'
-import { traverseTree } from '@apicat/shared'
+import { moveDefinitionSchema } from '@/api/definitionSchema'
 import { TreeOptionProps } from '@/components/AcTree/tree.type'
 import { DocumentTypeEnum } from '@/commons/constant'
 import { useActiveTree } from './useActiveTree'
@@ -13,23 +10,12 @@ import { useGoPage } from '@/hooks/useGoPage'
 import { SCHEMA_DETAIL_NAME, SCHEMA_EDIT_NAME } from '@/router'
 import useDefinitionStore from '@/store/definition'
 import { useProjectId } from '@/hooks/useProjectId'
+import { createTreeMaxDepthFn } from '@/commons'
 
 /**
  * 获取节点树最大深度
  */
-const getTreeMaxDepth = memoize(function (node) {
-  let maxLevel = 0
-  traverseTree(
-    (item: any) => {
-      if (!item._extend.isLeaf) {
-        maxLevel++
-      }
-    },
-    [node] as CollectionNode[],
-    { subKey: 'items' }
-  )
-  return maxLevel
-})
+const getTreeMaxDepth = createTreeMaxDepthFn('items')
 
 /**
  * 此处逻辑和文档树逻辑可以进行优化
@@ -139,7 +125,7 @@ export const useSchemaTree = () => {
     }
 
     oldDraggingNodeInfo = null
-    moveDefinition(project_id as string, sortParams)
+    moveDefinitionSchema(project_id as string, sortParams)
   }
 
   const updateTitle = (id: any, name: string) => {

@@ -103,22 +103,22 @@ other = "全局参数删除失败"
 [AI.CollectionCreateFail]
 other = "接口创建失败，请稍后重试。"
 
-[CommonResponses.NameExists]
+[DefinitionResponses.NameExists]
 other = "公共响应名称存在"
 
-[CommonResponses.NotFound]
+[DefinitionResponses.NotFound]
 other = "公共响应不存在"
 
-[CommonResponses.QueryFailed]
+[DefinitionResponses.QueryFailed]
 other = "公共响应查询失败"
 
-[CommonResponses.CreateFailed]
+[DefinitionResponses.CreateFailed]
 other = "公共响应创建失败"
 
-[CommonResponses.UpdateFailed]
+[DefinitionResponses.UpdateFailed]
 other = "公共响应编辑失败"
 
-[CommonResponses.DeleteFailed]
+[DefinitionResponses.DeleteFailed]
 other = "公共响应删除失败"
 
 [Common.ContentParsingFailed]

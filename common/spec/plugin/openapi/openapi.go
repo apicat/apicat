@@ -44,17 +44,21 @@ func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 	if len(errors) > 0 {
 		return nil, fmt.Errorf("swagger version:%s parse faild", document.GetVersion())
 	}
-	sw := &Swagger{}
+	sw := &fromSwagger{}
 	schemas := sw.parseDefinetions(model.Model.Definitions)
 	responseDefinitions := sw.parseResponsesDefine(&model.Model)
-	paramters, paramemapping := sw.parseParamtersCommon(&model.Model)
+	paramters := sw.parseParamtersDefine(&model.Model)
+
+	globalparamters := spec.HTTPParameters{}
+	globalparamters.Fill()
+
 	return &spec.Spec{
 		ApiCat:      "2.0.1",
 		Info:        sw.parseInfo(model.Model.Info),
 		Servers:     sw.parseServers(&model.Model),
-		Collections: sw.parseCollections(&model.Model, model.Model.Paths, paramemapping),
-		Definitions: spec.Definitions{Schemas: schemas, Responses: responseDefinitions},
-		Common:      spec.Common{Parameters: paramters},
+		Definitions: spec.Definitions{Schemas: schemas, Responses: responseDefinitions, Parameters: paramters},
+		Globals:     spec.Global{Parameters: globalparamters},
+		Collections: sw.parseCollections(&model.Model, model.Model.Paths),
 	}, nil
 }
 
@@ -63,17 +67,16 @@ func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
 	if len(errors) > 0 {
 		return nil, fmt.Errorf("openapi version:%s parse faild", document.GetVersion())
 	}
-	o := &OpenAPI{}
-	paramters, paramemapping := o.parseParamtersCommon(model.Model.Components)
+	o := &fromOpenapi{}
+	globalparamters := spec.HTTPParameters{}
+	globalparamters.Fill()
 	return &spec.Spec{
 		ApiCat:      "2.0.1",
 		Info:        o.parseInfo(model.Model.Info),
 		Servers:     o.parseServers(model.Model.Servers),
+		Globals:     spec.Global{Parameters: globalparamters},
 		Definitions: o.parseDefinetions(model.Model.Components),
-		Collections: o.parseCollections(model.Model.Paths, paramemapping),
-		Common: spec.Common{
-			Parameters: paramters,
-		},
+		Collections: o.parseCollections(model.Model.Paths),
 	}, nil
 }
 
@@ -82,7 +85,7 @@ func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
 func Encode(in *spec.Spec, version string) ([]byte, error) {
 	switch version {
 	case "2.0":
-		sw := &Swagger{}
+		sw := &toSwagger{}
 		sp := sw.toBase(in)
 		paths, tags := sw.toPaths(in)
 		sp.Paths = paths
@@ -90,7 +93,7 @@ func Encode(in *spec.Spec, version string) ([]byte, error) {
 		return json.MarshalIndent(sp, "", "  ")
 	default:
 		if strings.HasPrefix(version, "3.") && len(strings.Split(version, ".")) == 3 {
-			op := &OpenAPI{}
+			op := &toOpenapi{}
 			sp := op.toBase(in, version)
 			paths, tag := op.toPaths(version, in)
 			sp.Paths = paths
@@ -131,14 +134,13 @@ func toParameter(p *spec.Schema, in string) openAPIParamter {
 	}
 }
 
+// toParameterGlobal 返回全局请求参数过滤后的openapi格式参数
 func toParameterGlobal(globalsParmaters spec.HTTPParameters, isSwagger bool, skip map[string][]string) []openAPIParamter {
 	var outs []openAPIParamter
 	skips := make(map[string]bool)
-	if skip != nil {
-		for k, v := range skip {
-			for _, x := range v {
-				skips[k+"|"+x] = true
-			}
+	for k, v := range skip {
+		for _, x := range v {
+			skips[k+"|"+x] = true
 		}
 	}
 	for in, ps := range globalsParmaters.Map() {
@@ -146,7 +148,7 @@ func toParameterGlobal(globalsParmaters spec.HTTPParameters, isSwagger bool, ski
 			if skips[in+"|"+v.Name] {
 				continue
 			}
-			ref := fmt.Sprintf("global-%s-%s", in, v.Name)
+			ref := fmt.Sprintf("%s-%s", in, v.Name)
 			if isSwagger {
 				ref = "#/parameters/" + ref
 			} else {
@@ -221,30 +223,33 @@ func walkHttpCollection(doc *spec.Spec) map[string]map[string]specPathItem {
 }
 
 // 将jsonschema 转为对应的 openaapi版本 主要是引用
-func toConvertJSONSchemaRef(v *jsonschema.Schema, ver string) {
-	if v.Reference != nil {
-		ref := getRefName(*v.Reference)
-		if ver[0] == '2' {
-			ref = fmt.Sprintf("#/definitions/%s", ref)
-		} else {
-			ref = fmt.Sprintf("#/components/schemas/%s", ref)
-		}
-		v.Reference = &ref
-		return
-	}
-	if v.Properties != nil {
-		for _, v := range v.Properties {
-			toConvertJSONSchemaRef(v, ver)
+func toConvertJSONSchemaRef(v *jsonschema.Schema, ver string, mapping map[int64]string) *jsonschema.Schema {
+	sh := *v
+	if sh.Reference != nil {
+		if id := toInt64(getRefName(*sh.Reference)); id > 0 {
+			var ref string
+			if ver[0] == '2' {
+				ref = fmt.Sprintf("#/definitions/%s", mapping[id])
+			} else {
+				ref = fmt.Sprintf("#/components/schemas/%s", mapping[id])
+			}
+			return &jsonschema.Schema{Reference: &ref}
 		}
 	}
-	if v.Items != nil {
-		if !v.Items.IsBool() {
-			toConvertJSONSchemaRef(v.Items.Value(), ver)
+	if sh.Properties != nil {
+		for k, v := range sh.Properties {
+			sh.Properties[k] = toConvertJSONSchemaRef(v, ver, mapping)
 		}
 	}
-	if v.AdditionalProperties != nil {
-		if !v.AdditionalProperties.IsBool() {
-			toConvertJSONSchemaRef(v.AdditionalProperties.Value(), ver)
+	if sh.Items != nil {
+		if !sh.Items.IsBool() {
+			sh.Items.SetValue(toConvertJSONSchemaRef(sh.Items.Value(), ver, mapping))
 		}
 	}
+	if sh.AdditionalProperties != nil {
+		if !sh.AdditionalProperties.IsBool() {
+			sh.AdditionalProperties.SetValue(toConvertJSONSchemaRef(sh.AdditionalProperties.Value(), ver, mapping))
+		}
+	}
+	return &sh
 }

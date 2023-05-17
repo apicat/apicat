@@ -7,9 +7,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/app/util"
 	"github.com/apicat/apicat/common/apicat_struct"
 	"github.com/apicat/apicat/common/spec"
+	"github.com/apicat/apicat/common/spec/jsonschema"
 	"gorm.io/gorm"
 )
 
@@ -95,11 +95,11 @@ func (d *DefinitionSchemas) Deleter() string {
 	return ""
 }
 
-func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) nameToIdMap {
-	SchemasMap := make(nameToIdMap)
+func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) virtualIDToIDMap {
+	schemasMap := virtualIDToIDMap{}
 
-	if schemas == nil {
-		return SchemasMap
+	if len(schemas) == 0 {
+		return schemasMap
 	}
 
 	for i, schema := range schemas {
@@ -110,9 +110,9 @@ func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 				Type:      "schema",
 			}
 			if record.Get() == nil {
-				SchemasMap[record.Name] = record.ID
+				schemasMap[schema.ID] = record.ID
 			} else {
-				record := &DefinitionSchemas{
+				ds := &DefinitionSchemas{
 					ProjectId:    projectID,
 					ParentId:     0,
 					Name:         schema.Name,
@@ -122,38 +122,34 @@ func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) nameToIdMap {
 					DisplayOrder: i,
 				}
 
-				if Conn.Create(record).Error == nil {
-					SchemasMap[record.Name] = record.ID
+				if ds.Create() == nil {
+					schemasMap[schema.ID] = ds.ID
 				}
 			}
 		}
 	}
 
-	return SchemasMap
+	return schemasMap
 }
 
 func DefinitionSchemasExport(projectID uint) spec.Schemas {
-	var definitions []*DefinitionSchemas
-	specDefinitionSchemas := make(spec.Schemas, 0)
+	definitions := []*DefinitionSchemas{}
+	specDefinitionSchemas := spec.Schemas{}
 
 	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err != nil {
 		return specDefinitionSchemas
 	}
 
-	idToNameMap := make(IdToNameMap)
-	for _, definition := range definitions {
-		idToNameMap[definition.ID] = definition.Name
-	}
-
-	for _, definition := range definitions {
-		definition.Schema = util.ReplaceIDToName(definition.Schema, idToNameMap, "#/definitions/schemas/")
-
-		schema := spec.Schema{}
-		schema.Name = definition.Name
-		schema.Description = definition.Description
-		json.Unmarshal([]byte(definition.Schema), &schema.Schema)
-
-		specDefinitionSchemas = append(specDefinitionSchemas, &schema)
+	for _, v := range definitions {
+		schema := &jsonschema.Schema{}
+		if err := json.Unmarshal([]byte(v.Schema), &schema); err == nil {
+			specDefinitionSchemas = append(specDefinitionSchemas, &spec.Schema{
+				ID:          int64(v.ID),
+				Name:        v.Name,
+				Description: v.Description,
+				Schema:      schema,
+			})
+		}
 	}
 
 	return specDefinitionSchemas
@@ -179,7 +175,7 @@ func DefinitionIdToName(content string, idToNameMap IdToNameMap) string {
 	return content
 }
 
-func DefinitionSchemasUnRef(d *DefinitionSchemas, isUnRef int) error {
+func DefinitionsSchemaUnRefByDefinitionsSchema(d *DefinitionSchemas, isUnRef int) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
 
 	definitions, _ := NewDefinitionSchemas()
@@ -214,12 +210,12 @@ func DefinitionSchemasUnRef(d *DefinitionSchemas, isUnRef int) error {
 	return nil
 }
 
-func CommonResponsesUnRef(d *DefinitionSchemas, isUnRef int) error {
+func DefinitionsSchemaUnRefByDefinitionsResponse(d *DefinitionSchemas, isUnRef int) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
 
-	commonResponses, _ := NewCommonResponses()
-	commonResponses.ProjectID = d.ProjectId
-	commonResponsesList, err := commonResponses.List()
+	definitionResponses, _ := NewDefinitionResponses()
+	definitionResponses.ProjectID = d.ProjectId
+	definitionResponsesList, err := definitionResponses.List()
 	if err != nil {
 		return err
 	}
@@ -230,17 +226,17 @@ func CommonResponsesUnRef(d *DefinitionSchemas, isUnRef int) error {
 	}
 	typeEmptyStructure := apicat_struct.TypeEmptyStructure()
 
-	for _, commonResponse := range commonResponsesList {
-		if strings.Contains(commonResponse.Content, ref) {
+	for _, definitionResponse := range definitionResponsesList {
+		if strings.Contains(definitionResponse.Content, ref) {
 			newStr := typeEmptyStructure[sourceJson["type"].(string)]
 			if isUnRef == 1 {
 				newStr = d.Schema
 			}
 
-			newContent := strings.Replace(commonResponse.Content, ref, newStr, -1)
-			commonResponse.Content = newContent
+			newContent := strings.Replace(definitionResponse.Content, ref, newStr, -1)
+			definitionResponse.Content = newContent
 
-			if err := commonResponse.Update(); err != nil {
+			if err := definitionResponse.Update(); err != nil {
 				return err
 			}
 		}
@@ -249,7 +245,7 @@ func CommonResponsesUnRef(d *DefinitionSchemas, isUnRef int) error {
 	return nil
 }
 
-func CollectionsUnRef(d *DefinitionSchemas, isUnRef int) error {
+func DefinitionsSchemaUnRefByCollections(d *DefinitionSchemas, isUnRef int) error {
 	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
 
 	collections, _ := NewCollections()

@@ -59,13 +59,13 @@ func initTable() {
 		&Projects{},
 		&Collections{},
 		&CollectionHistories{},
-		&DefinitionSchemas{},
 		&Servers{},
-		&Commons{},
 		&Tags{},
 		&TagToCollections{},
 		&GlobalParameters{},
-		&CommonResponses{},
+		&DefinitionSchemas{},
+		&DefinitionResponses{},
+		&DefinitionParameters{},
 		&Users{},
 	); err != nil {
 		panic("Failed to create database table.")

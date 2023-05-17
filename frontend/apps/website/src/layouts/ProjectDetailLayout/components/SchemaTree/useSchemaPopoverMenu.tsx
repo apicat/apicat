@@ -8,7 +8,7 @@ import { Menu } from '@/components/typings'
 import useDefinitionStore from '@/store/definition'
 import { useActiveTree } from './useActiveTree'
 import { useParams } from '@/hooks/useParams'
-import createDefaultDefinition from '@/views/document/components/createDefaultDefinition'
+import { createDefaultSchemaDefinition } from '@/views/document/components/createDefaultDefinition'
 import { useGoPage } from '@/hooks/useGoPage'
 import AIGenerateSchemaModal from '../AIGenerateSchemaModal.vue'
 import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModal.vue'
@@ -130,7 +130,7 @@ export const useSchemaPopoverMenu = (
   const onCreateSchemaMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
     const tree = unref(treeIns)
-    const newDefinition: any = createDefaultDefinition({ name: t('app.schema.popoverMenus.unnamedSchema') })
+    const newDefinition: any = createDefaultSchemaDefinition({ name: t('app.schema.popoverMenus.unnamedSchema') })
 
     try {
       NProgress.start()

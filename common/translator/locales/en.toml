@@ -103,22 +103,22 @@ other = "Global parameter deletion failed"
 [AI.CollectionCreateFail]
 other = "Interface creation failed, please try again later."
 
-[CommonResponses.NameExists]
+[DefinitionResponses.NameExists]
 other = "Public response name exists"
 
-[CommonResponses.NotFound]
+[DefinitionResponses.NotFound]
 other = "Public response does not exist"
 
-[CommonResponses.QueryFailed]
+[DefinitionResponses.QueryFailed]
 other = "Public response to query failed"
 
-[CommonResponses.CreateFailed]
+[DefinitionResponses.CreateFailed]
 other = "Public response creation failed"
 
-[CommonResponses.UpdateFailed]
+[DefinitionResponses.UpdateFailed]
 other = "Public response editing failed"
 
-[CommonResponses.DeleteFailed]
+[DefinitionResponses.DeleteFailed]
 other = "Public response deletion failed"
 
 [Common.ContentParsingFailed]

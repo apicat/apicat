@@ -12,9 +12,12 @@ import (
 	v3 "github.com/pb33f/libopenapi/datamodel/high/v3"
 )
 
-type OpenAPI struct{}
+type fromOpenapi struct {
+	schemaMapping    map[string]int64
+	paramtersMapping map[string]int64
+}
 
-func (o *OpenAPI) parseInfo(info *base.Info) *spec.Info {
+func (o *fromOpenapi) parseInfo(info *base.Info) *spec.Info {
 	return &spec.Info{
 		Title:       info.Title,
 		Description: info.Description,
@@ -22,7 +25,7 @@ func (o *OpenAPI) parseInfo(info *base.Info) *spec.Info {
 	}
 }
 
-func (o *OpenAPI) parseServers(servs []*v3.Server) []*spec.Server {
+func (o *fromOpenapi) parseServers(servs []*v3.Server) []*spec.Server {
 	srvs := make([]*spec.Server, len(servs))
 	for k, v := range servs {
 		srvs[k] = &spec.Server{
@@ -33,27 +36,24 @@ func (o *OpenAPI) parseServers(servs []*v3.Server) []*spec.Server {
 	return srvs
 }
 
-func (o *OpenAPI) parseParamtersCommon(comp *v3.Components) (spec.Schemas, map[string]string) {
-	mapping := make(map[string]string)
+func (o *fromOpenapi) parseParamtersDefine(comp *v3.Components) spec.Schemas {
+	o.paramtersMapping = map[string]int64{}
 	ps := make(spec.Schemas, 0)
 	if comp == nil {
-		return ps, mapping
+		return ps
 	}
-	repeat := map[string]struct {
-		SrcKey string
-		Count  int
-	}{}
-	for key, v := range comp.Parameters {
-		x := repeat[v.Name]
-		x.SrcKey = key
-		x.Count++
-		repeat[v.Name] = x
-	}
+	repeat := map[string]int{}
 	for _, v := range comp.Parameters {
-		if repeat[v.Name].Count != 1 {
+		repeat[v.Name]++
+	}
+	for k, v := range comp.Parameters {
+		if repeat[v.Name] > 1 {
 			continue
 		}
+		id := stringToUnid(k)
+		o.paramtersMapping[k] = id
 		var sp = &spec.Schema{
+			ID:       id,
 			Name:     v.Name,
 			Required: v.Required,
 		}
@@ -70,40 +70,39 @@ func (o *OpenAPI) parseParamtersCommon(comp *v3.Components) (spec.Schemas, map[s
 		sp.Schema.Deprecated = v.Deprecated
 		ps = append(ps, sp)
 	}
-	for k, v := range repeat {
-		if v.Count == 1 {
-			mapping[v.SrcKey] = k
-		}
-	}
-	return ps, mapping
+	return ps
 }
 
-func (o *OpenAPI) parseDefinetions(comp *v3.Components) spec.Definitions {
+func (o *fromOpenapi) parseDefinetions(comp *v3.Components) spec.Definitions {
 	if comp == nil {
-		return spec.Definitions{}
+		return spec.Definitions{
+			Schemas:    make(spec.Schemas, 0),
+			Parameters: make(spec.Schemas, 0),
+			Responses:  make(spec.HTTPResponseDefines, 0),
+		}
 	}
-	si := 0
-	schemas := make(spec.Schemas, len(comp.Schemas))
+	o.schemaMapping = map[string]int64{}
+	schemas := make(spec.Schemas, 0)
 	for k, v := range comp.Schemas {
 		js, err := jsonSchemaConverter(v)
 		if err != nil {
 			panic(err)
 		}
-		schemas[si] = &spec.Schema{
+		schemas = append(schemas, &spec.Schema{
+			ID:          stringToUnid(k),
 			Name:        k,
 			Description: k,
 			Schema:      js,
-		}
-		si++
+		})
 	}
-	si = 0
 	rets := make([]spec.HTTPResponseDefine, len(comp.Responses))
 	for k, v := range comp.Responses {
-		if v.Content == nil {
-			continue
+		id := stringToUnid(k)
+		def := spec.HTTPResponseDefine{
+			Header: make(spec.Schemas, 0),
+			Name:   k,
+			ID:     id,
 		}
-		var def spec.HTTPResponseDefine
-		def.Name = k
 		if v.Headers != nil {
 			for k, v := range v.Headers {
 				js, err := jsonSchemaConverter(v.Schema)
@@ -117,23 +116,26 @@ func (o *OpenAPI) parseDefinetions(comp *v3.Components) spec.Definitions {
 				})
 			}
 		}
-		def.Content = o.parseContent(v.Content)
-		rets[si] = def
-		si++
+		if v.Content != nil {
+			def.Content = o.parseContent(v.Content)
+		}
+		rets[id] = def
 	}
 	return spec.Definitions{
-		Schemas:   schemas,
-		Responses: rets,
+		Schemas:    schemas,
+		Responses:  rets,
+		Parameters: o.parseParamtersDefine(comp),
 	}
 }
 
-func (o *OpenAPI) parseParameters(inp []*v3.Parameter, commParamters map[string]string) spec.HTTPParameters {
+func (o *fromOpenapi) parseParameters(inp []*v3.Parameter) spec.HTTPParameters {
 	var rawparamter spec.HTTPParameters
+	rawparamter.Fill()
 	for _, v := range inp {
-		if g := v.GoLow(); g.IsReference() && commParamters != nil {
-			x, ok := commParamters[getRefName(g.GetReference())]
+		if g := v.GoLow(); g.IsReference() {
+			id, ok := o.paramtersMapping[getRefName(g.GetReference())]
 			if ok {
-				r := "#/commons/parameters/" + x
+				r := fmt.Sprintf("#/definitions/parameters/%d", id)
 				rawparamter.Add(v.In, &spec.Schema{
 					Reference: &r,
 				})
@@ -144,7 +146,6 @@ func (o *OpenAPI) parseParameters(inp []*v3.Parameter, commParamters map[string]
 			Name:     v.Name,
 			Required: v.Required,
 		}
-
 		sp.Schema = &jsonschema.Schema{}
 		if v.Schema != nil {
 			js, err := jsonSchemaConverter(v.Schema)
@@ -161,7 +162,7 @@ func (o *OpenAPI) parseParameters(inp []*v3.Parameter, commParamters map[string]
 	return rawparamter
 }
 
-func (o *OpenAPI) parseContent(mts map[string]*v3.MediaType) spec.HTTPBody {
+func (o *fromOpenapi) parseContent(mts map[string]*v3.MediaType) spec.HTTPBody {
 	if mts == nil {
 		return nil
 	}
@@ -179,15 +180,16 @@ func (o *OpenAPI) parseContent(mts map[string]*v3.MediaType) spec.HTTPBody {
 	return content
 }
 
-func (o *OpenAPI) parseeResoponse(responses map[string]*v3.Response) spec.HTTPResponsesNode {
+func (o *fromOpenapi) parseeResoponse(responses map[string]*v3.Response) spec.HTTPResponsesNode {
 	var outresponses spec.HTTPResponsesNode
 	for code, res := range responses {
 		c, _ := strconv.Atoi(code)
 		resp := spec.HTTPResponse{
-			Name:        res.Description,
-			Code:        c,
-			Description: res.Description,
+			Code: c,
 		}
+		resp.Name = res.Description
+		resp.Description = res.Description
+		resp.Header = make(spec.Schemas, 0)
 		if res.Headers != nil {
 			for k, v := range res.Headers {
 				js, err := jsonSchemaConverter(v.Schema)
@@ -207,7 +209,7 @@ func (o *OpenAPI) parseeResoponse(responses map[string]*v3.Response) spec.HTTPRe
 	return outresponses
 }
 
-func (o *OpenAPI) parseCollections(paths *v3.Paths, commParamters map[string]string) []*spec.CollectItem {
+func (o *fromOpenapi) parseCollections(paths *v3.Paths) []*spec.CollectItem {
 	collects := make([]*spec.CollectItem, 0)
 	for path, p := range paths.PathItems {
 		op := p.GetOperations()
@@ -229,7 +231,7 @@ func (o *OpenAPI) parseCollections(paths *v3.Paths, commParamters map[string]str
 
 			// request
 			var req spec.HTTPRequestNode
-			req.Parameters = o.parseParameters(info.Parameters, commParamters)
+			req.Parameters = o.parseParameters(info.Parameters)
 			if info.RequestBody != nil {
 				req.Content = o.parseContent(info.RequestBody.Content)
 			}
@@ -267,7 +269,11 @@ type openapiSpec struct {
 	Tags       []tagObject                           `json:"tags,omitempty"`
 }
 
-func (o *OpenAPI) toBase(in *spec.Spec, ver string) *openapiSpec {
+type toOpenapi struct {
+	schemaMapping map[int64]string
+}
+
+func (o *toOpenapi) toBase(in *spec.Spec, ver string) *openapiSpec {
 	return &openapiSpec{
 		Openapi: ver,
 		Info: &spec.Info{
@@ -294,53 +300,56 @@ type openapiPathItem struct {
 }
 
 // 3.0/3.1使用的jsonschema标准不太一样 3.1偏标准
-func (o *OpenAPI) convertJSONSchema(ver string, in *jsonschema.Schema) {
+func (o *toOpenapi) convertJSONSchema(ver string, in *jsonschema.Schema) *jsonschema.Schema {
 	if in == nil {
-		return
+		return nil
 	}
-	toConvertJSONSchemaRef(in, ver)
-	if in.Reference == nil && strings.HasPrefix(ver, "3.0") {
-		if in.Items != nil {
-			if !in.Items.IsBool() {
-				in.Items.SetValue(&jsonschema.Schema{})
-			}
-		}
-		if in.Properties != nil {
-			for _, v := range in.Properties {
-				o.convertJSONSchema(ver, v)
-			}
-		}
-		if in.AdditionalProperties != nil {
-			if !in.AdditionalProperties.IsBool() {
-				o.convertJSONSchema(ver, in.AdditionalProperties.Value())
-			}
-		}
-		in.Type.SetValue(in.Type.Value()[0])
-	}
-	if in.Type != nil {
-		t := in.Type.Value()
+	p := toConvertJSONSchemaRef(in, ver, o.schemaMapping)
+	// if p.Reference == nil && strings.HasPrefix(ver, "3.0") {
+	// 	if p.Items != nil {
+	// 		if !p.Items.IsBool() {
+	// 			p.Items.SetValue(&jsonschema.Schema{})
+	// 		}
+	// 	}
+	// 	if p.Properties != nil {
+	// 		for _, v := range p.Properties {
+	// 			o.convertJSONSchema(ver, v)
+	// 		}
+	// 	}
+	// 	if p.AdditionalProperties != nil {
+	// 		if !p.AdditionalProperties.IsBool() {
+	// 			o.convertJSONSchema(ver, p.AdditionalProperties.Value())
+	// 		}
+	// 	}
+	// 	p.Type.SetValue(p.Type.Value()[0])
+	// }
+	if p.Type != nil {
+		t := p.Type.Value()
 		if len(t) > 0 && t[0] == "file" {
 			// jsonschema 没有file
-			in.Type.SetValue("array")
-			in.Items = &jsonschema.ValueOrBoolean[*jsonschema.Schema]{}
-			in.Items.SetValue(&jsonschema.Schema{})
+			p.Type.SetValue("array")
+			p.Items = &jsonschema.ValueOrBoolean[*jsonschema.Schema]{}
+			p.Items.SetValue(&jsonschema.Schema{})
 		}
 	}
+	return p
 }
 
-func (o *OpenAPI) toReqParameters(spe *spec.Spec, ps spec.HTTPRequestNode, ver string) []openAPIParamter {
+func (o *toOpenapi) toReqParameters(spe *spec.Spec, ps spec.HTTPRequestNode, ver string) []openAPIParamter {
 	// var out []openAPIParamter
 	out := toParameterGlobal(spe.Globals.Parameters, false, ps.GlobalExcepts)
 	for in, params := range ps.Parameters.Map() {
 		for _, param := range params {
-			if param.Reference != nil {
-				param = spe.Common.Parameters.Lookup(getRefName(*param.Reference))
+			p := *param
+			if p.Reference != nil {
+				if defp := spe.Definitions.Parameters.LookupID(toInt64(getRefName(*p.Reference))); defp != nil {
+					p = *defp
+				}
 			}
-			o.convertJSONSchema(ver, param.Schema)
 			item := openAPIParamter{
-				Name:     param.Name,
-				Required: param.Required,
-				Schema:   param.Schema,
+				Name:     p.Name,
+				Required: p.Required,
+				Schema:   o.convertJSONSchema(ver, p.Schema),
 				In:       in,
 			}
 			out = append(out, item)
@@ -349,7 +358,7 @@ func (o *OpenAPI) toReqParameters(spe *spec.Spec, ps spec.HTTPRequestNode, ver s
 	return out
 }
 
-func (o *OpenAPI) toPaths(ver string, in *spec.Spec) (
+func (o *toOpenapi) toPaths(ver string, in *spec.Spec) (
 	map[string]map[string]openapiPathItem, []tagObject) {
 	var (
 		out  = make(map[string]map[string]openapiPathItem)
@@ -371,9 +380,8 @@ func (o *OpenAPI) toPaths(ver string, in *spec.Spec) (
 				tags[v] = struct{}{}
 			}
 			for k, v := range op.Req.Content {
-				o.convertJSONSchema(ver, v.Schema)
 				sp := &spec.Schema{
-					Schema:      v.Schema,
+					Schema:      o.convertJSONSchema(ver, v.Schema),
 					Description: v.Description,
 				}
 				if item.RequestBody == nil {
@@ -384,7 +392,8 @@ func (o *OpenAPI) toPaths(ver string, in *spec.Spec) (
 				item.RequestBody.Content[k] = sp
 			}
 			for _, v := range op.Res.List {
-				code, res := o.toResponse(in, v, ver)
+				res := o.toResponse(in, v.HTTPResponseDefine, ver)
+				code := strconv.Itoa(v.Code)
 				if item.Responses != nil {
 					item.Responses[code] = res
 				} else {
@@ -412,55 +421,69 @@ func (o *OpenAPI) toPaths(ver string, in *spec.Spec) (
 	}()
 }
 
-func (o *OpenAPI) toResponse(in *spec.Spec, def spec.HTTPResponse, ver string) (string, map[string]any) {
+func (o *toOpenapi) toResponse(in *spec.Spec, def spec.HTTPResponseDefine, ver string) map[string]any {
 	res := map[string]any{}
 	v := def
 	if def.Reference != nil {
-		switch {
-		case strings.HasPrefix(*v.Reference, "#/definitions/responses/"):
-			// openapi3 并没有define response
-			x := in.Definitions.Responses.Lookup(
-				getRefName(*v.Reference),
-			)
-			v.HTTPResponseDefine = *x
-			v.Reference = nil
-		case strings.HasPrefix(*v.Reference, "#/commons/responses/"):
-			x := in.Common.Responses.Lookup(
-				getRefName(*v.Reference),
-			)
-			v = *x
-		default:
-			panic(fmt.Sprintf("error response ref:%s", *def.Reference))
+		if strings.HasPrefix(*v.Reference, "#/definitions/responses/") {
+			if x := in.Definitions.Responses.LookupID(
+				toInt64(getRefName(*v.Reference)),
+			); x != nil {
+				return map[string]any{
+					"$ref": "#/components/responses/" + x.Name,
+				}
+			}
 		}
 	}
 	if v.Content != nil {
-		for _, xx := range v.Content {
-			o.convertJSONSchema(ver, xx.Schema)
+		c := make(map[string]*spec.Schema)
+		for k, xx := range v.Content {
+			x := *xx
+			x.Schema = o.convertJSONSchema(ver, x.Schema)
+			c[k] = &x
 		}
-		res["content"] = v.Content
+		res["content"] = c
 	}
 	if len(v.Header) > 0 {
 		headers := make(map[string]any)
 		for _, h := range v.Header {
-			o.convertJSONSchema(ver, h.Schema)
 			headers[h.Name] = map[string]any{
 				"description": h.Description,
-				"schema":      h.Schema,
+				"schema":      o.convertJSONSchema(ver, h.Schema),
 			}
 		}
 		res["headers"] = headers
 	}
 	res["description"] = v.Description
-	return strconv.Itoa(v.Code), res
+	return res
 }
 
-func (o *OpenAPI) toComponents(ver string, in *spec.Spec) map[string]any {
+func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 	schemas := make(map[string]jsonschema.Schema)
+	o.schemaMapping = map[int64]string{}
 	for _, v := range in.Definitions.Schemas {
-		o.convertJSONSchema(ver, v.Schema)
-		schemas[v.Name] = *v.Schema
+		s := o.convertJSONSchema(ver, v.Schema)
+		schemas[v.Name] = *s
+		o.schemaMapping[v.ID] = v.Name
 	}
+	respons := make(map[string]any)
+	for _, v := range in.Definitions.Responses {
+		res := o.toResponse(in, v, ver)
+		respons[v.Name] = res
+	}
+
+	globalParam := in.Globals.Parameters
+	m := globalParam.Map()
+	paramters := make(map[string]openAPIParamter)
+	for in, ps := range m {
+		for _, p := range ps {
+			paramters[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
+		}
+	}
+
 	return map[string]any{
-		"schemas": schemas,
+		"schemas":   schemas,
+		"responses": respons,
+		"paramters": paramters,
 	}
 }

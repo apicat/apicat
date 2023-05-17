@@ -63,10 +63,8 @@ func ServersImport(projectID uint, servers []*spec.Server) {
 }
 
 func ServersExport(projectID uint) []*spec.Server {
-	var (
-		servers     []*Servers
-		specServers []*spec.Server
-	)
+	servers := []*Servers{}
+	specServers := []*spec.Server{}
 	if err := Conn.Where("project_id = ?", projectID).Find(&servers).Error; err == nil {
 		for _, server := range servers {
 			specServers = append(specServers, &spec.Server{

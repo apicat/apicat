@@ -10,6 +10,7 @@
           <el-option v-for="code in HttpCodeList" :label="code.code + ' ' + code.desc" :value="code.code" />
         </el-select>
       </el-form-item>
+
       <el-form-item :label="$t('app.response.table.desc')">
         <el-input v-model="model.description" maxlength="300" />
       </el-form-item>
@@ -63,7 +64,7 @@ export const contentTypes: Record<string, string> = {
 <script setup lang="ts">
 import { useVModel } from '@vueuse/core'
 import { HttpCodeList } from '@apicat/shared'
-import type { APICatSchemaObject, Definition, JSONSchema } from './APIEditor/types'
+import type { APICatSchemaObject, DefinitionSchema, JSONSchema } from './APIEditor/types'
 import SimpleEditor from './APIEditor/SimpleEditor.vue'
 import Editor from './APIEditor/Editor.vue'
 import CodeEditor from './APIEditor/CodeEditor.vue'
@@ -74,7 +75,7 @@ import { APICatCommonResponse } from '@/typings'
 const props = defineProps<{
   modelValue: APICatResponse | APICatCommonResponse
   // 引用模型的集合
-  definitions?: Definition[]
+  definitions?: DefinitionSchema[]
 }>()
 
 const emit = defineEmits(['update:modelValue'])

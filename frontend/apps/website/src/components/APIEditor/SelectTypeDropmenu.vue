@@ -59,7 +59,7 @@
 
 <script setup lang="ts">
 import { computed, inject, ref, watchEffect } from 'vue'
-import type { Tree, Definition } from './types'
+import type { Tree, DefinitionSchema } from './types'
 import { basicTypes } from './types'
 import { RefPrefixKeys } from '@/commons'
 const props = defineProps<{
@@ -76,7 +76,7 @@ interface treeNode {
   children?: treeNode[]
 }
 
-const DefSchemas = inject('definitions') as () => Definition[]
+const DefSchemas = inject('definitions') as () => DefinitionSchema[]
 
 function listToTree(parentId: number): treeNode[] {
   const tree: treeNode[] = []
@@ -130,10 +130,7 @@ const changeSchemaTypeRef = (r: any) => {
     return
   }
 
-  // const sc = props.data.schema
-  // resetObject(sc)
-  // sc.$ref = `${RefPrefixKeys.DefinitionsSchema.key}${r}`
-  emits('change', { type: `${RefPrefixKeys.DefinitionsSchema.key}${r}`, isRef: true })
+  emits('change', { type: `${RefPrefixKeys.DefinitionSchema.key}${r}`, isRef: true })
 }
 
 const changeSchemaType = (type: string) => {

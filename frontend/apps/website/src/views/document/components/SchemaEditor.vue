@@ -12,13 +12,13 @@
 </template>
 <script setup lang="ts">
 import JSONSchemaEditor from '@/components/APIEditor/Editor.vue'
-import { Definition } from '@/components/APIEditor/types'
+import { DefinitionSchema } from '@/components/APIEditor/types'
 
 const props = defineProps<{
-  modelValue: Definition
+  modelValue: DefinitionSchema
   readonly?: boolean
   // 引用模型的集合
-  definitions?: Definition[]
+  definitions?: DefinitionSchema[]
 }>()
 
 const emit = defineEmits(['update:modelValue'])

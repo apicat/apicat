@@ -101,8 +101,12 @@ func AICreateCollection(ctx *gin.Context) {
 	}
 
 	currentProject, _ := ctx.Get("CurrentProject")
-	definitionSchemas := models.DefinitionSchemasImport(currentProject.(*models.Projects).ID, content.Definitions.Schemas)
-	records := models.CollectionsImport(currentProject.(*models.Projects).ID, data.ParentID, content.Collections, definitionSchemas)
+	refContentVirtualIDToId := &models.RefContentVirtualIDToId{
+		DefinitionSchemas:    models.DefinitionSchemasImport(currentProject.(*models.Projects).ID, content.Definitions.Schemas),
+		DefinitionResponses:  models.DefinitionResponsesImport(currentProject.(*models.Projects).ID, content.Definitions.Responses),
+		DefinitionParameters: models.DefinitionParametersImport(currentProject.(*models.Projects).ID, content.Definitions.Parameters),
+	}
+	records := models.CollectionsImport(currentProject.(*models.Projects).ID, data.ParentID, content.Collections, refContentVirtualIDToId)
 
 	if len(records) == 0 {
 		slog.DebugCtx(ctx, "CollectionsImport Failed")

@@ -33,6 +33,7 @@ export const enum DocumentTypeEnum {
 export const enum DefinitionTypeEnum {
   DIR = 'category',
   SCHEMA = 'schema',
+  RESPONSE = 'response',
 }
 
 // 导出|导出状态
@@ -68,8 +69,8 @@ export const getProjectNavigateList = (overwrite?: any): ProjectNavigateObject =
     [ProjectNavigateListEnum.BaseInfoSetting]: { text: t('app.project.setting.baseInfo'), icon: 'ac-IconPopoverSetting' },
     [ProjectNavigateListEnum.ServerUrlSetting]: { text: t('app.project.setting.serverUrl'), icon: 'ac-suffix-url' },
     [ProjectNavigateListEnum.GlobalParamsSetting]: { text: t('app.project.setting.globalParam'), icon: 'ac-canshuweihu' },
-    [ProjectNavigateListEnum.ResponseParamsSetting]: { text: t('app.project.setting.responseParam'), icon: 'ac-response' },
-    // [ProjectNavigateListEnum.ProjectExport]: { text: t('app.project.setting.export'), icon: 'ac-export' },
+    // [ProjectNavigateListEnum.ResponseParamsSetting]: { text: t('app.project.setting.responseParam'), icon: 'ac-response' },
+    [ProjectNavigateListEnum.ProjectExport]: { text: t('app.project.setting.export'), icon: 'ac-export' },
     [ProjectNavigateListEnum.ProjectTrash]: { text: t('app.project.setting.trash'), icon: 'ac-trash' },
   } as any
 
@@ -144,7 +145,11 @@ export const RefPrefixKeys = {
     key: '#/commons/responses/',
     reg: /#\/commons\/responses\/(.*)/,
   },
-  DefinitionsSchema: {
+  DefinitionResponse: {
+    key: '#/definitions/responses/',
+    reg: /#\/definitions\/responses\/(.*)/,
+  },
+  DefinitionSchema: {
     key: '#/definitions/schemas/',
     reg: /#\/definitions\/schemas\/(.*)/,
   },
