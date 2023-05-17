@@ -19,12 +19,9 @@ import useDefinitionStore from '@/store/definition'
 import { storeToRefs } from 'pinia'
 import { HTTP_RESPONSE_NODE_KEY, HTTP_REQUEST_NODE_KEY } from './createHttpDocument'
 import useDefinitionResponseStore from '@/store/definitionResponse'
-import { ElMessage } from 'element-plus'
-import { isEmpty } from 'lodash-es'
-import { useI18n } from 'vue-i18n'
 
 const ns = useNamespace('document')
-const { t } = useI18n()
+
 const definitionStore = useDefinitionStore()
 const { definitions } = storeToRefs(definitionStore)
 

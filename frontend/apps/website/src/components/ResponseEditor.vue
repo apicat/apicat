@@ -52,7 +52,6 @@ import ResponseRefForm from './ResponseRefForm.vue'
 import { RefPrefixKeys, getResponseStatusCodeBgColor, markDataWithKey } from '@/commons'
 import { createDefaultResponseContent } from '@/views/document/components/createDefaultDefinition'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
-import { useI18n } from 'vue-i18n'
 import SelectDefinitionResponse from './DefinitionResponse/SelectDefinitionResponse.vue'
 import { DefinitionResponse } from '@/typings'
 
