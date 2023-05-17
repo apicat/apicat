@@ -115,21 +115,19 @@ const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDr
 watch(
   [model, definitionResponses],
   ([data, responses]: any) => {
-    if (!data.length || !responses.length) {
+    if (!data.length) {
       return
     }
-
     for (const item of data) {
-      if (item.$ref) {
+      if (item.$ref && responses.length) {
         const id = item.$ref.match(RefPrefixKeys.DefinitionResponse.reg)?.[1]
         const resId = parseInt(id as string, 10)
         const response: any = responses.find((item: any) => item.id === resId)
-        response && markDataWithKey(item, 'name', response.name)
+        response && (item.name = response.name)
       }
 
       markDataWithKey(item)
     }
-
     !editableTabsValue.value && activeLastTab(data[0]._id)
   },
   { immediate: true, deep: true }

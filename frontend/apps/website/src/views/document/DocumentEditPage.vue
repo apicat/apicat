@@ -21,7 +21,7 @@ import { getCollectionDetail, updateCollection } from '@/api/collection'
 import HttpDocumentEditor from './components/HttpDocumentEditor.vue'
 import { useParams } from '@/hooks/useParams'
 import { useGoPage } from '@/hooks/useGoPage'
-import { debounce, isEmpty } from 'lodash-es'
+import { cloneDeep, debounce, isEmpty } from 'lodash-es'
 import useApi from '@/hooks/useApi'
 import { ElMessage } from 'element-plus'
 import uesGlobalParametersStore from '@/store/globalParameters'
@@ -61,7 +61,14 @@ const validResponseName = (responses: APICatCommonResponse[]) => {
 }
 
 const stringifyHttpDoc = (doc: any) => {
-  const data: any = { ...unref(doc) }
+  const data: any = cloneDeep(unref(doc))
+  const responseNode = data.content.find((node: any) => node.type === HTTP_RESPONSE_NODE_KEY)
+  responseNode.attrs.list = responseNode.attrs.list.map((item: any) => {
+    if (item.$ref) {
+      delete item.name
+    }
+    return item
+  })
   data.content = JSON.stringify(data.content)
   const { id: collection_id, ...rest } = data
   return { project_id, collection_id, ...rest }

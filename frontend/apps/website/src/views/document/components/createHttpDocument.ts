@@ -40,7 +40,7 @@ export const createHttpRequestNode = () => ({
   attrs: createRequestDefaultValue(),
 })
 
-export const createCommonResponse = (overwrite?: Partial<APICatResponse>) => ({
+export const createHttpResponse = (overwrite?: Partial<APICatResponse>) => ({
   name: '',
   code: 200,
   description: '',
@@ -48,12 +48,10 @@ export const createCommonResponse = (overwrite?: Partial<APICatResponse>) => ({
   ...overwrite,
 })
 
-export const createHttpResponse = createCommonResponse
-
 export const createHttpResponseNode = () => ({
   type: HTTP_RESPONSE_NODE_KEY,
   attrs: {
-    list: [createHttpResponse()],
+    list: [createHttpResponse({ name: 'Response Name' })],
   },
 })
 
