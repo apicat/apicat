@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { DefinitionResponse, HttpDocument } from '@/typings'
+import { HttpDocument } from '@/typings'
 import RequestParamEditor from '@/components/RequestParamEditor'
 import { useNamespace } from '@/hooks/useNamespace'
 import ResponseEditor from '@/components/ResponseEditor.vue'
@@ -19,8 +19,6 @@ import useDefinitionStore from '@/store/definition'
 import { storeToRefs } from 'pinia'
 import { HTTP_RESPONSE_NODE_KEY, HTTP_REQUEST_NODE_KEY } from './createHttpDocument'
 import useDefinitionResponseStore from '@/store/definitionResponse'
-import { cloneDeep } from 'lodash-es'
-import { RefPrefixKeys, markDataWithKey, uuid } from '@/commons'
 
 const ns = useNamespace('document')
 const definitionStore = useDefinitionStore()
@@ -57,22 +55,11 @@ const httpResponseList = computed({
     return response?.attrs?.list || []
   },
   set: (val) => {
-    const httpDocCopy = cloneDeep(httpDoc.value)
-    let response = httpDocCopy.content.find((node) => node.type === HTTP_RESPONSE_NODE_KEY)
+    let response = httpDoc.value.content.find((node) => node.type === HTTP_RESPONSE_NODE_KEY)
     if (!response) {
       response = { attrs: { list: [] } }
     }
-
-    // response.attrs.list = val.map((item: any) => {
-    //   if (item.$ref) {
-    //     const { code, $ref } = item
-    //     item = { code, $ref }
-    //   }
-    //   return { ...item }
-    // })
     response.attrs.list = val
-    console.log('response.attrs.list', response.attrs.list)
-    emit('update:modelValue', httpDocCopy)
   },
 })
 </script>

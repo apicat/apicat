@@ -21,7 +21,7 @@
     </h2>
 
     <el-tabs @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
-      <template v-for="(item, index) in localModel" :key="item._id + index">
+      <template v-for="(item, index) in model" :key="item._id">
         <el-tab-pane :name="item._id" :disabled="disabled">
           <template #label>
             <div
@@ -37,7 +37,8 @@
               <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
             </div>
           </template>
-          <ResponseForm v-model="model[index]" :definitions="definitions" />
+          <ResponseForm v-if="!item.$ref" v-model="model[index]" :definitions="definitions" />
+          <ResponseRefForm v-else v-model:response="model[index]" :definition-responses="definitionResponses" :definition-schemas="definitions" />
         </el-tab-pane>
       </template>
     </el-tabs>
@@ -47,17 +48,16 @@
 <script setup lang="ts">
 import { DefinitionSchema } from './APIEditor/types'
 import ResponseForm from './ResponseForm.vue'
+import ResponseRefForm from './ResponseRefForm.vue'
 import { RefPrefixKeys, getResponseStatusCodeBgColor, markDataWithKey } from '@/commons'
-import { uuid } from '@apicat/shared'
 import { createDefaultResponseContent } from '@/views/document/components/createDefaultDefinition'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 import { ElMessage } from 'element-plus'
-import { isEmpty, debounce, cloneDeep } from 'lodash-es'
+import { isEmpty } from 'lodash-es'
 import { useI18n } from 'vue-i18n'
 import SelectDefinitionResponse from './DefinitionResponse/SelectDefinitionResponse.vue'
 import { DefinitionResponse } from '@/typings'
 
-const emits = defineEmits(['update:data'])
 const props = defineProps<{ data: Array<any>; definitions?: DefinitionSchema[]; definitionResponses?: DefinitionResponse[] }>()
 const { t } = useI18n()
 
@@ -71,36 +71,10 @@ const createResponse = (item?: any) => {
   }
 }
 
-const { data, definitionResponses } = toRefs(props)
+const { definitionResponses } = toRefs(props)
 
-const model: any = ref([])
-
-watch(
-  data,
-  () => {
-    model.value = cloneDeep(data.value)
-  },
-  {
-    immediate: true,
-  }
-)
-
-const localModel = computed(() => {
-  return model.value.map((item: any) => {
-    if (item.$ref) {
-      const id = item.$ref.match(RefPrefixKeys.DefinitionResponse.reg)?.[1]
-      const resId = parseInt(id, 10)
-      const response = definitionResponses?.value?.find((response: DefinitionResponse) => response.id === resId)
-      if (response) {
-        item = { ...item, ...cloneDeep(response), id: undefined }
-      }
-    }
-    markDataWithKey(item)
-    return item
-  })
-})
-
-const editableTabsValue = ref(unref(model).length ? unref(model)[0]._id : null)
+const model = useVModel(props, 'data', undefined, { passive: true })
+const editableTabsValue = ref('')
 const isShow = computed(() => model.value.length > 0)
 const disabled = computed(() => model.value.filter((item: any) => !item._isCommonResponse).length <= 1)
 
@@ -118,7 +92,7 @@ const handleAddTab = () => {
 }
 
 const handleAddRefResponse = (response: DefinitionResponse) => {
-  const res = { ...response, code: 200, $ref: `${RefPrefixKeys.DefinitionResponse.key}${response.id}` }
+  const res = { code: 200, $ref: `${RefPrefixKeys.DefinitionResponse.key}${response.id}` }
   markDataWithKey(res)
   model.value.push(res)
   activeLastTab()
@@ -157,15 +131,27 @@ const validResponseName = () => {
   return true
 }
 
-// v-model
 watch(
-  model,
-  debounce(() => {
-    if (validResponseName()) {
-      // emits('update:data', [...model.value])
+  [model, definitionResponses],
+  ([data, responses]: any) => {
+    if (!data.length || !responses.length) {
+      return
     }
-  }, 300),
-  { deep: true }
+
+    for (const item of data) {
+      if (item.$ref) {
+        const id = item.$ref.match(RefPrefixKeys.DefinitionResponse.reg)?.[1]
+        const resId = parseInt(id as string, 10)
+        const response: any = responses.find((item: any) => item.id === resId)
+        response && markDataWithKey(item, 'name', response.name)
+      }
+
+      markDataWithKey(item)
+    }
+
+    !editableTabsValue.value && activeLastTab(data[0]._id)
+  },
+  { immediate: true, deep: true }
 )
 </script>
 <style lang="scss">
