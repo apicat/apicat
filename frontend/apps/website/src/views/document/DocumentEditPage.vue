@@ -29,6 +29,7 @@ import useDefinitionStore from '@/store/definition'
 import { useI18n } from 'vue-i18n'
 import { DOCUMENT_EDIT_NAME } from '@/router'
 import { HTTP_RESPONSE_NODE_KEY } from './components/createHttpDocument'
+import useDefinitionResponseStore from '@/store/definitionResponse'
 
 const { t } = useI18n()
 const { project_id } = useParams()
@@ -36,6 +37,7 @@ const route = useRoute()
 const router = useRouter()
 const globalParametersStore = uesGlobalParametersStore()
 const definitionStore = useDefinitionStore()
+const definitionResponseStore = useDefinitionResponseStore()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const [isLoadingForSaveBtn, updateCollectionApiWithLoading] = useApi(updateCollection)
@@ -102,6 +104,12 @@ globalParametersStore.$onAction(({ name, after }) => {
 })
 
 definitionStore.$onAction(({ name, after }) => {
+  if (name === 'deleteDefinition') {
+    after(() => getDetail())
+  }
+})
+
+definitionResponseStore.$onAction(({ name, after }) => {
   if (name === 'deleteDefinition') {
     after(() => getDetail())
   }
