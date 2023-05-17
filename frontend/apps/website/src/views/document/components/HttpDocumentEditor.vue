@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { HttpDocument } from '@/typings'
+import { APICatCommonResponse, HttpDocument } from '@/typings'
 import RequestParamEditor from '@/components/RequestParamEditor'
 import { useNamespace } from '@/hooks/useNamespace'
 import ResponseEditor from '@/components/ResponseEditor.vue'
@@ -19,8 +19,12 @@ import useDefinitionStore from '@/store/definition'
 import { storeToRefs } from 'pinia'
 import { HTTP_RESPONSE_NODE_KEY, HTTP_REQUEST_NODE_KEY } from './createHttpDocument'
 import useDefinitionResponseStore from '@/store/definitionResponse'
+import { ElMessage } from 'element-plus'
+import { isEmpty } from 'lodash-es'
+import { useI18n } from 'vue-i18n'
 
 const ns = useNamespace('document')
+const { t } = useI18n()
 const definitionStore = useDefinitionStore()
 const { definitions } = storeToRefs(definitionStore)
 
@@ -49,17 +53,8 @@ const onUrlChange = (paths: string[]) => {
   })
 }
 
-const httpResponseList = computed({
-  get: () => {
-    const response = httpDoc.value.content.find((node) => node.type === HTTP_RESPONSE_NODE_KEY)
-    return response?.attrs?.list || []
-  },
-  set: (val) => {
-    let response = httpDoc.value.content.find((node) => node.type === HTTP_RESPONSE_NODE_KEY)
-    if (!response) {
-      response = { attrs: { list: [] } }
-    }
-    response.attrs.list = val
-  },
+const httpResponseList = computed(() => {
+  const response = httpDoc.value.content.find((node) => node.type === HTTP_RESPONSE_NODE_KEY)
+  return response?.attrs?.list || []
 })
 </script>

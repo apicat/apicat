@@ -52,14 +52,11 @@ import ResponseRefForm from './ResponseRefForm.vue'
 import { RefPrefixKeys, getResponseStatusCodeBgColor, markDataWithKey } from '@/commons'
 import { createDefaultResponseContent } from '@/views/document/components/createDefaultDefinition'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
-import { ElMessage } from 'element-plus'
-import { isEmpty } from 'lodash-es'
 import { useI18n } from 'vue-i18n'
 import SelectDefinitionResponse from './DefinitionResponse/SelectDefinitionResponse.vue'
 import { DefinitionResponse } from '@/typings'
 
 const props = defineProps<{ data: Array<any>; definitions?: DefinitionSchema[]; definitionResponses?: DefinitionResponse[] }>()
-const { t } = useI18n()
 
 const createResponse = (item?: any) => {
   return {
@@ -117,19 +114,6 @@ const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDr
     }
   },
 })
-
-const validResponseName = () => {
-  let len = model.value.length
-  for (let i = 0; i < len; i++) {
-    const item = model.value[i]
-    if (isEmpty(item.name) && !item._isCommonResponse) {
-      ElMessage.error(t('app.response.rules.name'))
-      // activeLastTab(model.value[i]._id)
-      return false
-    }
-  }
-  return true
-}
 
 watch(
   [model, definitionResponses],
