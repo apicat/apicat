@@ -1,3 +1,5 @@
+import { isJSONSchemaContentType } from '@/commons'
+
 export const contentTypes: Record<string, string> = {
   'application/json': 'json',
   'application/xml': 'xml',
@@ -16,7 +18,7 @@ export const useDefinitionResponse = (props: any) => {
     return 'application/json'
   })
 
-  const isJsonSchema = computed(() => contentDefaultType.value == 'application/json' || contentDefaultType.value == 'application/xml')
+  const isJsonSchema = computed(() => isJSONSchemaContentType(contentDefaultType.value))
 
   const changeContentType = (v: string) => {
     const oldtype = contentDefaultType.value

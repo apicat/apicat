@@ -81,3 +81,5 @@ export const createTreeMaxDepthFn = (subKey: string) =>
     )
     return maxLevel
   })
+
+export const isJSONSchemaContentType = (contentType: string) => contentType == 'application/json' || contentType == 'application/xml'
