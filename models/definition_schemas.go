@@ -129,6 +129,17 @@ func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) virtualIDToID
 		}
 	}
 
+	definitionschemas := []*DefinitionSchemas{}
+	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitionschemas).Error; err != nil {
+		return schemasMap
+	}
+
+	for _, v := range definitionschemas {
+		schema := replaceVirtualIDToID(v.Schema, schemasMap, "#/definitions/schemas/")
+		v.Schema = schema
+		v.Save()
+	}
+
 	return schemasMap
 }
 
