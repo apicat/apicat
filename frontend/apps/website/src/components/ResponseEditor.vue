@@ -10,7 +10,7 @@
             </el-button>
           </template>
           <div class="clear-popover-space">
-            <p class="border-b cursor-pointer border-gray-lighter px-10px h-44px flex-y-center hover:bg-gray-100">
+            <p class="border-b cursor-pointer border-gray-lighter px-10px h-44px flex-y-center hover:bg-gray-100" @click="handleAddTab">
               <el-icon class="mr-4px"><ac-icon-ep-plus /></el-icon>
               新建响应
             </p>
