@@ -47,17 +47,17 @@ func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 	sw := &fromSwagger{}
 	schemas := sw.parseDefinetions(model.Model.Definitions)
 	responseDefinitions := sw.parseResponsesDefine(&model.Model)
-	paramters := sw.parseParamtersDefine(&model.Model)
+	parameters := sw.parseParametersDefine(&model.Model)
 
-	globalparamters := spec.HTTPParameters{}
-	globalparamters.Fill()
+	globalparameters := spec.HTTPParameters{}
+	globalparameters.Fill()
 
 	return &spec.Spec{
 		ApiCat:      "2.0.1",
 		Info:        sw.parseInfo(model.Model.Info),
 		Servers:     sw.parseServers(&model.Model),
-		Definitions: spec.Definitions{Schemas: schemas, Responses: responseDefinitions, Parameters: paramters},
-		Globals:     spec.Global{Parameters: globalparamters},
+		Definitions: spec.Definitions{Schemas: schemas, Responses: responseDefinitions, Parameters: parameters},
+		Globals:     spec.Global{Parameters: globalparameters},
 		Collections: sw.parseCollections(&model.Model, model.Model.Paths),
 	}, nil
 }
@@ -68,13 +68,13 @@ func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
 		return nil, fmt.Errorf("openapi version:%s parse faild", document.GetVersion())
 	}
 	o := &fromOpenapi{}
-	globalparamters := spec.HTTPParameters{}
-	globalparamters.Fill()
+	globalparameters := spec.HTTPParameters{}
+	globalparameters.Fill()
 	return &spec.Spec{
 		ApiCat:      "2.0.1",
 		Info:        o.parseInfo(model.Model.Info),
 		Servers:     o.parseServers(model.Model.Servers),
-		Globals:     spec.Global{Parameters: globalparamters},
+		Globals:     spec.Global{Parameters: globalparameters},
 		Definitions: o.parseDefinetions(model.Model.Components),
 		Collections: o.parseCollections(model.Model.Paths),
 	}, nil

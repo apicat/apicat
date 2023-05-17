@@ -15,8 +15,8 @@ import (
 )
 
 type fromSwagger struct {
-	schemaMapping    map[string]int64
-	paramtersMapping map[string]int64
+	schemaMapping     map[string]int64
+	parametersMapping map[string]int64
 }
 
 func (s *fromSwagger) parseInfo(info *base.Info) *spec.Info {
@@ -63,8 +63,8 @@ func (s *fromSwagger) parseDefinetions(defs *v2.Definitions) spec.Schemas {
 	return defines
 }
 
-func (s *fromSwagger) parseParamtersDefine(in *v2.Swagger) spec.Schemas {
-	s.paramtersMapping = make(map[string]int64)
+func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) spec.Schemas {
+	s.parametersMapping = make(map[string]int64)
 	ps := make(spec.Schemas, 0)
 	// mapping key:swagger paranmters key value:apicat paramter id
 	if in.Parameters == nil {
@@ -80,7 +80,7 @@ func (s *fromSwagger) parseParamtersDefine(in *v2.Swagger) spec.Schemas {
 			continue
 		}
 		id := stringToUnid(key)
-		s.paramtersMapping[key] = id
+		s.parametersMapping[key] = id
 		ps = append(ps, &spec.Schema{
 			ID:          id,
 			Name:        v.Name,
@@ -105,7 +105,7 @@ func (s *fromSwagger) parseContent(b *base.SchemaProxy) *jsonschema.Schema {
 }
 
 func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTPRequestNode {
-	// paramters := &spec.HttpParameters{}
+	// parameters := &spec.HttpParameters{}
 	request := spec.HTTPRequestNode{
 		Content: make(spec.HTTPBody),
 	}
@@ -415,7 +415,7 @@ func (s *toSwagger) toReqParameters(ps spec.HTTPRequestNode, spe *spec.Spec) []o
 	}
 	var hasBody bool
 	for ct, c := range ps.Content {
-		// contentType incloud form use paramters in
+		// contentType incloud form use parameters in
 		if strings.Contains(ct, "form") {
 			if c.Schema == nil {
 				continue

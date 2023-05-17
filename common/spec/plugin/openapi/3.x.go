@@ -13,8 +13,8 @@ import (
 )
 
 type fromOpenapi struct {
-	schemaMapping    map[string]int64
-	paramtersMapping map[string]int64
+	schemaMapping     map[string]int64
+	parametersMapping map[string]int64
 }
 
 func (o *fromOpenapi) parseInfo(info *base.Info) *spec.Info {
@@ -36,8 +36,8 @@ func (o *fromOpenapi) parseServers(servs []*v3.Server) []*spec.Server {
 	return srvs
 }
 
-func (o *fromOpenapi) parseParamtersDefine(comp *v3.Components) spec.Schemas {
-	o.paramtersMapping = map[string]int64{}
+func (o *fromOpenapi) parseParametersDefine(comp *v3.Components) spec.Schemas {
+	o.parametersMapping = map[string]int64{}
 	ps := make(spec.Schemas, 0)
 	if comp == nil {
 		return ps
@@ -51,7 +51,7 @@ func (o *fromOpenapi) parseParamtersDefine(comp *v3.Components) spec.Schemas {
 			continue
 		}
 		id := stringToUnid(k)
-		o.paramtersMapping[k] = id
+		o.parametersMapping[k] = id
 		var sp = &spec.Schema{
 			ID:       id,
 			Name:     v.Name,
@@ -124,7 +124,7 @@ func (o *fromOpenapi) parseDefinetions(comp *v3.Components) spec.Definitions {
 	return spec.Definitions{
 		Schemas:    schemas,
 		Responses:  rets,
-		Parameters: o.parseParamtersDefine(comp),
+		Parameters: o.parseParametersDefine(comp),
 	}
 }
 
@@ -133,7 +133,7 @@ func (o *fromOpenapi) parseParameters(inp []*v3.Parameter) spec.HTTPParameters {
 	rawparamter.Fill()
 	for _, v := range inp {
 		if g := v.GoLow(); g.IsReference() {
-			id, ok := o.paramtersMapping[getRefName(g.GetReference())]
+			id, ok := o.parametersMapping[getRefName(g.GetReference())]
 			if ok {
 				r := fmt.Sprintf("#/definitions/parameters/%d", id)
 				rawparamter.Add(v.In, &spec.Schema{
@@ -474,16 +474,16 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 
 	globalParam := in.Globals.Parameters
 	m := globalParam.Map()
-	paramters := make(map[string]openAPIParamter)
+	parameters := make(map[string]openAPIParamter)
 	for in, ps := range m {
 		for _, p := range ps {
-			paramters[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
+			parameters[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
 		}
 	}
 
 	return map[string]any{
-		"schemas":   schemas,
-		"responses": respons,
-		"paramters": paramters,
+		"schemas":    schemas,
+		"responses":  respons,
+		"parameters": parameters,
 	}
 }
