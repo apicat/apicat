@@ -1,5 +1,5 @@
 <template>
-  <div v-if="param.header">
+  <div v-if="param.header && param.header.length">
     <p class="mb-5px text-16px">Header</p>
     <SimpleParameterEditor :readonly="true" v-model="param.header" />
   </div>
