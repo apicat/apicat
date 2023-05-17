@@ -21,26 +21,24 @@
     </h2>
 
     <el-tabs @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
-      <template v-for="(item, index) in model" :key="item._id">
-        <el-tab-pane :name="item._id" :disabled="disabled">
-          <template #label>
-            <div
-              class="inline-flex items-center"
-              draggable="true"
-              @dragstart="onDragStart($event, index)"
-              @dragend="onDragEnd"
-              @dragover="onDragOver($event, index)"
-              @dragleave="onDragLeave($event, index)"
-              @drop="onDropHandler($event, index)"
-            >
-              <span class="mr-4px">{{ item.name || '&nbsp' }}</span>
-              <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
-            </div>
-          </template>
-          <ResponseForm v-if="!item.$ref" v-model="model[index]" :definitions="definitions" />
-          <ResponseRefForm v-else v-model:response="model[index]" :definition-responses="definitionResponses" :definition-schemas="definitions" />
-        </el-tab-pane>
-      </template>
+      <el-tab-pane v-for="(item, index) in model" :key="item._id + '_' + index" :name="item._id" :disabled="disabled">
+        <template #label>
+          <div
+            class="inline-flex items-center"
+            draggable="true"
+            @dragstart="onDragStart($event, index)"
+            @dragend="onDragEnd"
+            @dragover="onDragOver($event, index)"
+            @dragleave="onDragLeave($event, index)"
+            @drop="onDropHandler($event, index)"
+          >
+            <span class="mr-4px">{{ item.name || '&nbsp' }}</span>
+            <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
+          </div>
+        </template>
+        <ResponseForm v-if="!item.$ref" v-model="model[index]" :definitions="definitions" />
+        <ResponseRefForm v-else v-model:response="model[index]" :definition-responses="definitionResponses" :definition-schemas="definitions" />
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
