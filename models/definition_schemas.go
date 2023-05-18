@@ -187,7 +187,7 @@ func DefinitionIdToName(content string, idToNameMap IdToNameMap) string {
 }
 
 func DefinitionsSchemaUnRefByDefinitionsSchema(d *DefinitionSchemas, isUnRef int) error {
-	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
+	ref := "\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\""
 
 	definitions, _ := NewDefinitionSchemas()
 	definitions.ProjectId = d.ProjectId
@@ -209,7 +209,7 @@ func DefinitionsSchemaUnRefByDefinitionsSchema(d *DefinitionSchemas, isUnRef int
 				newStr = d.Schema
 			}
 
-			newContent := strings.Replace(definitions.Schema, ref, newStr, -1)
+			newContent := strings.Replace(definitions.Schema, ref, newStr[1:len(newStr)-1], -1)
 			definitions.Schema = newContent
 
 			if err := definitions.Save(); err != nil {
@@ -222,7 +222,7 @@ func DefinitionsSchemaUnRefByDefinitionsSchema(d *DefinitionSchemas, isUnRef int
 }
 
 func DefinitionsSchemaUnRefByDefinitionsResponse(d *DefinitionSchemas, isUnRef int) error {
-	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
+	ref := "\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\""
 
 	definitionResponses, _ := NewDefinitionResponses()
 	definitionResponses.ProjectID = d.ProjectId
@@ -244,7 +244,7 @@ func DefinitionsSchemaUnRefByDefinitionsResponse(d *DefinitionSchemas, isUnRef i
 				newStr = d.Schema
 			}
 
-			newContent := strings.Replace(definitionResponse.Content, ref, newStr, -1)
+			newContent := strings.Replace(definitionResponse.Content, ref, newStr[1:len(newStr)-1], -1)
 			definitionResponse.Content = newContent
 
 			if err := definitionResponse.Update(); err != nil {
@@ -257,7 +257,7 @@ func DefinitionsSchemaUnRefByDefinitionsResponse(d *DefinitionSchemas, isUnRef i
 }
 
 func DefinitionsSchemaUnRefByCollections(d *DefinitionSchemas, isUnRef int) error {
-	ref := "{\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\"}"
+	ref := "\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\""
 
 	collections, _ := NewCollections()
 	collections.ProjectId = d.ProjectId
@@ -279,7 +279,7 @@ func DefinitionsSchemaUnRefByCollections(d *DefinitionSchemas, isUnRef int) erro
 				newStr = d.Schema
 			}
 
-			newContent := strings.Replace(collection.Content, ref, newStr, -1)
+			newContent := strings.Replace(collection.Content, ref, newStr[1:len(newStr)-1], -1)
 			collection.Content = newContent
 
 			if err := collection.Update(); err != nil {
