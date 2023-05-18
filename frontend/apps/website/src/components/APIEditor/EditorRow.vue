@@ -253,7 +253,6 @@ const unlinkRefHandler = () => {
   const d = props.data
   if (d.refObj?.schema) {
     const s = cloneDeep(d.refObj.schema)
-
     if (!s.description) {
       s.description = props.data.schema.description
     }
@@ -262,10 +261,17 @@ const unlinkRefHandler = () => {
       return
     }
 
+    // unlink object
     if (d.parent?.schema.properties) {
-      // schema 整体替换的话 需要从上级替换 否则会失去引用
       d.parent.schema.properties[d.label] = s
     }
+
+    // unlink array item
+    if (d.parent?.schema.items && (d.parent?.schema.items as any).$ref) {
+      delete (d.parent?.schema.items as any).$ref
+      Object.assign(d.parent?.schema.items, s)
+    }
+
     changeNotify()
   }
 }
