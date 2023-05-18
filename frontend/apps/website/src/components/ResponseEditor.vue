@@ -21,7 +21,7 @@
     </h2>
 
     <el-tabs @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
-      <el-tab-pane v-for="(item, index) in model" :key="item._id + '_' + index" :name="item._id" :disabled="disabled">
+      <el-tab-pane v-for="(item, index) in model" :key="item.id" :name="item.id" :disabled="disabled">
         <template #label>
           <div
             class="inline-flex items-center"
@@ -32,11 +32,12 @@
             @dragleave="onDragLeave($event, index)"
             @drop="onDropHandler($event, index)"
           >
-            <span class="mr-4px">{{ item.name || '&nbsp' }}</span>
-            <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
+            <span class="mr-4px" v-if="!item.isRef">{{ item.data.name || '&nbsp' }}</span>
+            <span class="mr-4px" v-else>{{ item.responseRefObject.name || '&nbsp' }}</span>
+            <AcTag :style="getResponseStatusCodeBgColor(item.data.code)">{{ item.data.code }}</AcTag>
           </div>
         </template>
-        <ResponseForm v-if="!item.$ref" v-model="model[index]" :definitions="definitions" />
+        <ResponseForm v-if="!item.isRef" v-model="item.data" :definitions="definitions" />
         <ResponseRefForm v-else v-model:response="model[index]" :definition-responses="definitionResponses" :definition-schemas="definitions" />
       </el-tab-pane>
     </el-tabs>
@@ -47,7 +48,7 @@
 import { DefinitionSchema } from './APIEditor/types'
 import ResponseForm from './ResponseForm.vue'
 import ResponseRefForm from './ResponseRefForm.vue'
-import { RefPrefixKeys, getResponseStatusCodeBgColor, markDataWithKey } from '@/commons'
+import { RefPrefixKeys, getResponseStatusCodeBgColor } from '@/commons'
 import { createDefaultResponseContent } from '@/views/document/components/createDefaultDefinition'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 import SelectDefinitionResponse from './DefinitionResponse/SelectDefinitionResponse.vue'
@@ -65,38 +66,38 @@ const createResponse = (item?: any) => {
   }
 }
 
-const { definitionResponses } = toRefs(props)
+const { data, definitionResponses } = toRefs(props)
+const model: any = ref([])
+const idPrefix = 'response_tab_pane_'
 
-const model = useVModel(props, 'data', undefined, { passive: true })
+// const model = useVModel(props, 'data', undefined, { passive: true })
+
 const editableTabsValue = ref('')
 const isShow = computed(() => model.value.length > 0)
 const disabled = computed(() => model.value.filter((item: any) => !item._isCommonResponse).length <= 1)
 
-const activeLastTab = (_id?: string) => {
+const activeLastTab = async (id?: string) => {
+  await nextTick()
   const len = model.value.length
   const res = model.value[len - 1]
-  editableTabsValue.value = _id || res._id
+  editableTabsValue.value = id || res.id
 }
 
-const handleAddTab = () => {
-  const res = createResponse()
-  markDataWithKey(res)
-  model.value.push(res)
-  activeLastTab()
+const handleAddTab = async () => {
+  data.value.push(createResponse())
+  await activeLastTab()
 }
 
-const handleAddRefResponse = (response: DefinitionResponse) => {
-  const res = { code: 200, $ref: `${RefPrefixKeys.DefinitionResponse.key}${response.id}` }
-  markDataWithKey(res)
-  model.value.push(res)
-  activeLastTab()
+const handleAddRefResponse = async (response: DefinitionResponse) => {
+  data.value.push({ code: 200, $ref: `${RefPrefixKeys.DefinitionResponse.key}${response.id}` })
+  await activeLastTab()
 }
 
-const handleRemoveTab = (_id: any) => {
-  const index = model.value.findIndex((item: any) => item._id === _id)
-  model.value.splice(index, 1)
-  if (_id === editableTabsValue.value) {
-    activeLastTab()
+const handleRemoveTab = async (id: any) => {
+  const index = model.value.findIndex((item: any) => item.id === id)
+  data.value.splice(index, 1)
+  if (id === editableTabsValue.value) {
+    await activeLastTab()
   }
 }
 
@@ -113,22 +114,35 @@ const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDr
 })
 
 watch(
-  [model, definitionResponses],
-  ([data, responses]: any) => {
-    if (!data.length) {
+  [data, definitionResponses],
+  async ([newData, responses]: any) => {
+    if (!newData.length) {
       return
     }
-    for (const item of data) {
-      if (item.$ref && responses.length) {
+
+    model.value = newData.map((item: any, index: number) => {
+      const newItem = {
+        data: item,
+        isRef: item.$ref !== undefined,
+        id: item.id || `${idPrefix}${index}`,
+        responseRefObject: {},
+      }
+
+      if (newItem.isRef && responses.length) {
         const id = item.$ref.match(RefPrefixKeys.DefinitionResponse.reg)?.[1]
         const resId = parseInt(id as string, 10)
         const response: any = responses.find((item: any) => item.id === resId)
-        response && (item.name = response.name)
+        //set key for rerender
+        if (response) {
+          newItem.id = `${idPrefix}${index}${resId}`
+          newItem.responseRefObject = response || {}
+        }
       }
 
-      markDataWithKey(item)
-    }
-    !editableTabsValue.value && activeLastTab(data[0]._id)
+      return newItem
+    })
+
+    !editableTabsValue.value && model.value.length && (await activeLastTab(model.value[0].id))
   },
   { immediate: true, deep: true }
 )
