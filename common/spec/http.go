@@ -108,13 +108,12 @@ type HTTPResponse struct {
 
 type HTTPResponses []HTTPResponse
 
-func (h HTTPResponses) Lookup(name string) *HTTPResponse {
+func (h HTTPResponses) Map() map[int]HTTPResponseDefine {
+	m := make(map[int]HTTPResponseDefine)
 	for _, v := range h {
-		if v.Name == name {
-			return &v
-		}
+		m[v.Code] = v.HTTPResponseDefine
 	}
-	return nil
+	return m
 }
 
 type HTTPResponseDefine struct {
@@ -125,6 +124,8 @@ type HTTPResponseDefine struct {
 	Header      Schemas  `json:"header,omitempty"`
 	Reference   *string  `json:"$ref,omitempty"`
 }
+
+func (h *HTTPResponseDefine) Ref() bool { return h.Reference != nil }
 
 type HTTPResponseDefines []HTTPResponseDefine
 
@@ -144,4 +145,9 @@ func (h HTTPResponseDefines) LookupID(id int64) *HTTPResponseDefine {
 		}
 	}
 	return nil
+}
+
+type HTTPPart struct {
+	HTTPRequestNode
+	Responses HTTPResponses `json:"responses,omitempty"`
 }

@@ -81,17 +81,11 @@ func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) spec.Schemas {
 		}
 		id := stringToUnid(key)
 		s.parametersMapping[key] = id
-
-		required := true
-		if v.Required == nil || !*v.Required {
-			required = false
-		}
-
 		ps = append(ps, &spec.Schema{
 			ID:          id,
 			Name:        v.Name,
 			Description: v.Description,
-			Required:    required,
+			Required:    v.Required != nil && *v.Required,
 			Schema: &jsonschema.Schema{
 				Type:   jsonschema.CreateSliceOrOne(v.Type),
 				Format: v.Format,
@@ -126,11 +120,7 @@ func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTP
 	for _, v := range info.Parameters {
 		// 这里引用 #/parameters 暂时无法获取
 		// 直接展开
-		required := true
-		if v.Required == nil || !*v.Required {
-			required = false
-		}
-
+		required := v.Required != nil && *v.Required
 		switch v.In {
 		case "query", "header", "path":
 			request.Parameters.Add(v.In,
@@ -221,7 +211,7 @@ func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDe
 			Content: content,
 		})
 	}
-	return nil
+	return list
 }
 
 func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode {
@@ -382,10 +372,9 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 		out.BasePath = "/"
 	}
 	if len(in.Definitions.Responses) > 0 {
-		// todo
 		out.Responses = make(map[string]any)
 		for _, v := range in.Definitions.Responses {
-			out.Responses[v.Name] = v
+			out.Responses[v.Name] = s.parseResponse(in, v)
 		}
 	}
 	return out
@@ -487,7 +476,7 @@ func (s *toSwagger) convertJSONSchema(v *jsonschema.Schema) *jsonschema.Schema {
 	return toConvertJSONSchemaRef(v, "2.0", s.schemas)
 }
 
-func (s *toSwagger) parseResponse(in *spec.Spec, res spec.HTTPResponse) map[string]any {
+func (s *toSwagger) parseResponse(in *spec.Spec, res spec.HTTPResponseDefine) map[string]any {
 	if res.Reference != nil {
 		ref := *res.Reference
 		if strings.HasPrefix(ref, "#/definitions/responses/") {
@@ -528,7 +517,7 @@ func (s *toSwagger) toPathResponse(in *spec.Spec, resp []spec.HTTPResponse) (map
 	product := map[string]struct{}{}
 	reslist := make(map[string]any)
 	for _, r := range resp {
-		reslist[strconv.Itoa(r.Code)] = s.parseResponse(in, r)
+		reslist[strconv.Itoa(r.Code)] = s.parseResponse(in, r.HTTPResponseDefine)
 		for k := range r.Content {
 			if _, ok := product[k]; !ok {
 				product[k] = struct{}{}
