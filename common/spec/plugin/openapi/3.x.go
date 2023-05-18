@@ -403,6 +403,9 @@ func (o *toOpenapi) toPaths(ver string, in *spec.Spec) (
 				}
 			}
 			if len(op.Res.List) == 0 {
+				if item.Responses == nil {
+					item.Responses = make(map[string]any)
+				}
 				item.Responses["200"] = map[string]any{
 					"description": "success",
 				}
