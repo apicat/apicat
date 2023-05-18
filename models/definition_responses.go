@@ -39,7 +39,7 @@ func (dr *DefinitionResponses) List() ([]*DefinitionResponses, error) {
 	definitionResponsesQuery := Conn.Where("project_id = ?", dr.ProjectID)
 
 	var definitionResponses []*DefinitionResponses
-	return definitionResponses, definitionResponsesQuery.Find(&definitionResponses).Error
+	return definitionResponses, definitionResponsesQuery.Order("display_order asc").Order("id desc").Find(&definitionResponses).Error
 }
 
 func (dr *DefinitionResponses) GetCountByName() (int64, error) {
