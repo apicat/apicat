@@ -42,47 +42,49 @@
       <tbody>
         <slot name="before" />
 
-        <tr v-for="(data, index) in list" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
-          <td class="text-center" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" :draggable="draggable" v-show="draggable">
-            <el-icon class="mt-5px" v-if="!isEditPath">
-              <ac-icon-material-symbols-drag-indicator />
-            </el-icon>
-          </td>
-          <td>
-            <el-input v-if="!isEditPath" v-model="data._name" @input="(v) => onParamNameChange(data, v)" />
-            <span class="px-12px" v-else>{{ data.name }}</span>
-          </td>
-          <td :class="{ 'text-center': !isEditPath }">
-            <el-select v-if="!isEditPath" v-model="data.schema.type" @change="changeNotify(data)">
-              <el-option v-for="item in ['string', 'integer', 'number', 'array', 'boolean']" :key="item" :label="item" :value="item" />
-            </el-select>
-            <span class="px-11px" v-else>{{ data.schema.type }}</span>
-          </td>
+        <template v-for="(data, index) in list">
+          <tr v-if="!data.$ref" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
+            <td class="text-center" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" :draggable="draggable" v-show="draggable">
+              <el-icon class="mt-5px" v-if="!isEditPath">
+                <ac-icon-material-symbols-drag-indicator />
+              </el-icon>
+            </td>
+            <td>
+              <el-input v-if="!isEditPath" v-model="data._name" @input="(v) => onParamNameChange(data, v)" />
+              <span class="px-12px" v-else>{{ data.name }}</span>
+            </td>
+            <td :class="{ 'text-center': !isEditPath }">
+              <el-select v-if="!isEditPath" v-model="data.schema.type" @change="changeNotify(data)">
+                <el-option v-for="item in ['string', 'integer', 'number', 'array', 'boolean']" :key="item" :label="item" :value="item" />
+              </el-select>
+              <span class="px-11px" v-else>{{ data.schema.type }}</span>
+            </td>
 
-          <td class="text-center">
-            <el-checkbox size="small" v-model="data.required" @change="changeNotify(data)" tabindex="0" />
-          </td>
+            <td class="text-center">
+              <el-checkbox size="small" v-model="data.required" @change="changeNotify(data)" tabindex="0" />
+            </td>
 
-          <td>
-            <el-input v-model="data.schema.example" @input="changeNotify(data)" />
-          </td>
-          <td>
-            <el-input v-model="data.schema.description" @input="changeNotify(data)" />
-          </td>
-          <td class="text-center">
-            <slot v-if="!isEditPath" name="operate" :row="data" :index="index" :delHandler="delHandler">
-              <el-popconfirm title="delete this?" @confirm="delHandler(index)">
-                <template #reference>
-                  <el-button size="small" text circle tabindex="-1">
-                    <el-icon :size="14">
-                      <ac-icon-ep-delete />
-                    </el-icon>
-                  </el-button>
-                </template>
-              </el-popconfirm>
-            </slot>
-          </td>
-        </tr>
+            <td>
+              <el-input v-model="data.schema.example" @input="changeNotify(data)" />
+            </td>
+            <td>
+              <el-input v-model="data.schema.description" @input="changeNotify(data)" />
+            </td>
+            <td class="text-center">
+              <slot v-if="!isEditPath" name="operate" :row="data" :index="index" :delHandler="delHandler">
+                <el-popconfirm title="delete this?" @confirm="delHandler(index)">
+                  <template #reference>
+                    <el-button size="small" text circle tabindex="-1">
+                      <el-icon :size="14">
+                        <ac-icon-ep-delete />
+                      </el-icon>
+                    </el-button>
+                  </template>
+                </el-popconfirm>
+              </slot>
+            </td>
+          </tr>
+        </template>
 
         <tr v-if="!isEditPath">
           <td v-show="draggable"></td>
