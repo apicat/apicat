@@ -95,7 +95,7 @@ func (o *fromOpenapi) parseDefinetions(comp *v3.Components) spec.Definitions {
 			Schema:      js,
 		})
 	}
-	rets := make([]spec.HTTPResponseDefine, len(comp.Responses))
+	rets := []spec.HTTPResponseDefine{}
 	for k, v := range comp.Responses {
 		id := stringToUnid(k)
 		def := spec.HTTPResponseDefine{
@@ -119,7 +119,7 @@ func (o *fromOpenapi) parseDefinetions(comp *v3.Components) spec.Definitions {
 		if v.Content != nil {
 			def.Content = o.parseContent(v.Content)
 		}
-		rets[id] = def
+		rets = append(rets, def)
 	}
 	return spec.Definitions{
 		Schemas:    schemas,
