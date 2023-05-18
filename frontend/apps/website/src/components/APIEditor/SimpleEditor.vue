@@ -11,23 +11,26 @@
 
       <slot name="before" />
 
-      <tr v-for="(data, index) in list" :key="index">
-        <td>
-          <span class="break-all copy_text">{{ data.name }}</span>
-        </td>
-        <td class="text-center">
-          {{ data.schema.type }}
-        </td>
-        <td class="text-center">
-          {{ data.required ? $t('editor.table.yes') : $t('editor.table.no') }}
-        </td>
-        <td>
-          <span class="copy_text">{{ data.schema.example }}</span>
-        </td>
-        <td class="break-all">
-          {{ data.schema.description }}
-        </td>
-      </tr>
+      <!-- todo 公共参数未解析 data.$ref -->
+      <template v-for="(data, index) in list">
+        <tr v-if="!data.$ref" :key="index">
+          <td>
+            <span class="break-all copy_text">{{ data.name }}</span>
+          </td>
+          <td class="text-center">
+            {{ data.schema.type }}
+          </td>
+          <td class="text-center">
+            {{ data.required ? $t('editor.table.yes') : $t('editor.table.no') }}
+          </td>
+          <td>
+            <span class="copy_text">{{ data.schema.example }}</span>
+          </td>
+          <td class="break-all">
+            {{ data.schema.description }}
+          </td>
+        </tr>
+      </template>
     </table>
     <table class="w-full table-fixed" v-else>
       <tr @dragover="dragOverHandler($event, -1)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, -1)">
