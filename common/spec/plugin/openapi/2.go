@@ -81,11 +81,17 @@ func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) spec.Schemas {
 		}
 		id := stringToUnid(key)
 		s.parametersMapping[key] = id
+
+		required := true
+		if v.Required == nil || !*v.Required {
+			required = false
+		}
+
 		ps = append(ps, &spec.Schema{
 			ID:          id,
 			Name:        v.Name,
 			Description: v.Description,
-			Required:    *v.Required,
+			Required:    required,
 			Schema: &jsonschema.Schema{
 				Type:   jsonschema.CreateSliceOrOne(v.Type),
 				Format: v.Format,
@@ -120,13 +126,18 @@ func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTP
 	for _, v := range info.Parameters {
 		// 这里引用 #/parameters 暂时无法获取
 		// 直接展开
+		required := true
+		if v.Required == nil || !*v.Required {
+			required = false
+		}
+
 		switch v.In {
 		case "query", "header", "path":
 			request.Parameters.Add(v.In,
 				&spec.Schema{
 					Name:        v.Name,
 					Description: v.Description,
-					Required:    *v.Required,
+					Required:    required,
 					Schema: &jsonschema.Schema{
 						Type:   jsonschema.CreateSliceOrOne(v.Type),
 						Format: v.Format,
@@ -140,7 +151,7 @@ func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTP
 				Format:      v.Format,
 				Default:     v.Default,
 			}
-			if *v.Required {
+			if required {
 				formData.Required = append(formData.Required, v.Name)
 			}
 		case "body":
@@ -289,10 +300,14 @@ func (s *fromSwagger) parseCollections(in *v2.Swagger, paths *v2.Paths) []*spec.
 
 			// request
 			req := spec.WarpHTTPNode(s.parseRequest(in, info))
+			fmt.Printf("req: %v\n", req)
 			content = append(content, spec.MuseCreateNodeProxy(req))
+			fmt.Printf("content: %v\n", content)
 			// response
 			res := spec.WarpHTTPNode(s.parseResponse(info))
+			fmt.Printf("res: %v\n", res)
 			content = append(content, spec.MuseCreateNodeProxy(res))
+			fmt.Printf("content: %v\n", content)
 
 			title := info.Summary
 			if title == "" {
