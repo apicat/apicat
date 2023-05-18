@@ -300,14 +300,10 @@ func (s *fromSwagger) parseCollections(in *v2.Swagger, paths *v2.Paths) []*spec.
 
 			// request
 			req := spec.WarpHTTPNode(s.parseRequest(in, info))
-			fmt.Printf("req: %v\n", req)
 			content = append(content, spec.MuseCreateNodeProxy(req))
-			fmt.Printf("content: %v\n", content)
 			// response
 			res := spec.WarpHTTPNode(s.parseResponse(info))
-			fmt.Printf("res: %v\n", res)
 			content = append(content, spec.MuseCreateNodeProxy(res))
-			fmt.Printf("content: %v\n", content)
 
 			title := info.Summary
 			if title == "" {
