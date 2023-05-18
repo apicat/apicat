@@ -22,8 +22,7 @@
 <script setup lang="ts">
 import DefinitionResponseRaw from '@/components/DefinitionResponse/DefinitionResponseRaw.vue'
 import { HttpCodeList } from '@apicat/shared'
-import { APICatCommonResponse, DefinitionResponse } from '@/typings'
-import { RefPrefixKeys } from '@/commons'
+import { DefinitionResponse } from '@/typings'
 import { DefinitionSchema } from './APIEditor/types'
 
 const props = defineProps<{
@@ -34,14 +33,4 @@ const props = defineProps<{
 }>()
 
 const model = useVModel(props, 'response', undefined, { passive: true })
-// const { definitionResponses } = toRefs(props)
-// const definitionResponseRef: any = computed(() => {
-//   let response = {}
-//   if (model.value.$ref) {
-//     const id = model.value.$ref.match(RefPrefixKeys.DefinitionResponse.reg)?.[1]
-//     const resId = parseInt(id as string, 10)
-//     response = definitionResponses?.value?.find((item) => item.id === resId) || {}
-//   }
-//   return response
-// })
 </script>
