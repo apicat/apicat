@@ -2,6 +2,10 @@ package spec
 
 import "github.com/apicat/apicat/common/spec/jsonschema"
 
+type Referencer interface {
+	Ref() bool
+}
+
 type Schema struct {
 	ID          int64              `json:"id,omitempty"`
 	Name        string             `json:"name,omitempty"`
@@ -10,6 +14,8 @@ type Schema struct {
 	Schema      *jsonschema.Schema `json:"schema,omitempty"`
 	Reference   *string            `json:"$ref,omitempty"`
 }
+
+func (s *Schema) Ref() bool { return s.Reference != nil }
 
 type Schemas []*Schema
 
