@@ -185,7 +185,21 @@ func CreateMember(ctx *gin.Context) {
 	})
 }
 
+// DeleteMember deletes a project member by checking if the given member exists in the project.
 func DeleteMember(ctx *gin.Context) {
+	currentProject, _ := ctx.Get("CurrentProject")
+	currentUser, _ := ctx.Get("CurrentUser")
+
+	checkMember, _ := models.NewProjectMembers()
+	checkMember.UserID = currentUser.(*models.Users).ID
+	checkMember.ProjectID = currentProject.(*models.Projects).ID
+	if err := checkMember.Get(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
+		})
+		return
+	}
+
 	pmd := ProjectMemberIDData{}
 	pm, err := pmd.CheckMember(ctx)
 	if err != nil {
