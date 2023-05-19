@@ -42,7 +42,7 @@ type ProjectMemberData struct {
 }
 
 // MembersList handles GET requests to retrieve a list of members in the current project.
-func MembersList(ctx *gin.Context) {
+func ProjectMembersList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
@@ -145,7 +145,7 @@ type CreateProjectMemberData struct {
 	Authority string `json:"authority" binding:"required,oneof=manage write read"`
 }
 
-func CreateMember(ctx *gin.Context) {
+func ProjectMembersCreate(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
@@ -186,7 +186,7 @@ func CreateMember(ctx *gin.Context) {
 }
 
 // DeleteMember deletes a project member by checking if the given member exists in the project.
-func DeleteMember(ctx *gin.Context) {
+func ProjectMembersDelete(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	currentUser, _ := ctx.Get("CurrentUser")
 
@@ -220,7 +220,24 @@ type UpdateProjectMemberAuthData struct {
 }
 
 // UpdateMember updates the authority of a project member in the database.
-func UpdateMemberAuth(ctx *gin.Context) {
+func ProjectMembersAuthUpdate(ctx *gin.Context) {
+	// currentProject, _ := ctx.Get("CurrentProject")
+	// currentUser, _ := ctx.Get("CurrentUser")
+
+	// checkMember, _ := models.NewProjectMembers()
+	// checkMember.UserID = currentUser.(*models.Users).ID
+	// checkMember.ProjectID = currentProject.(*models.Projects).ID
+	// if err := checkMember.Get(); err != nil {
+	// 	ctx.JSON(http.StatusUnauthorized, gin.H{
+	// 		"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
+	// 	})
+	// 	return
+	// }
+
+	// if !slices.Contains([]string{"manage", "write", "read"}, v) {
+	// 	return
+	// }
+
 	pmd := ProjectMemberIDData{}
 	pm, err := pmd.CheckMember(ctx)
 	if err != nil {
