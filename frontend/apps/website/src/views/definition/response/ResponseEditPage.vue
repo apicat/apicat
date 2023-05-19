@@ -13,7 +13,7 @@
 
   <div :class="[ns.b(), { 'h-50vh': !response }]" v-loading="isLoading">
     <template v-if="response">
-      <input class="ac-document__title" type="text" v-input-limit v-model="response.name" maxlength="255" :placeholder="$t('app.definitionResponse.form.title')" />
+      <input class="ac-document__title" type="text" v-model="response.name" maxlength="255" :placeholder="$t('app.definitionResponse.form.title')" />
       <input class="ac-document__desc" type="text" v-model="response.description" maxlength="255" :placeholder="$t('app.definitionResponse.form.desc')" />
       <DefinitionResponseForm v-model:response="response" :definition-schemas="definitionSchemas" />
     </template>

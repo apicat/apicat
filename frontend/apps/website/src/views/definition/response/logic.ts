@@ -38,6 +38,12 @@ export const useDefinitionResponseLogic = () => {
     { immediate: true }
   )
 
+  definitionStore.$onAction(({ name, after }) => {
+    if (name === 'deleteDefinition') {
+      after(() => getDetail())
+    }
+  })
+
   return {
     isLoading,
     hasDocument,

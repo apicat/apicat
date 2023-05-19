@@ -15,8 +15,8 @@ import (
 )
 
 type fromSwagger struct {
-	schemaMapping    map[string]int64
-	paramtersMapping map[string]int64
+	schemaMapping     map[string]int64
+	parametersMapping map[string]int64
 }
 
 func (s *fromSwagger) parseInfo(info *base.Info) *spec.Info {
@@ -63,8 +63,8 @@ func (s *fromSwagger) parseDefinetions(defs *v2.Definitions) spec.Schemas {
 	return defines
 }
 
-func (s *fromSwagger) parseParamtersDefine(in *v2.Swagger) spec.Schemas {
-	s.paramtersMapping = make(map[string]int64)
+func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) spec.Schemas {
+	s.parametersMapping = make(map[string]int64)
 	ps := make(spec.Schemas, 0)
 	// mapping key:swagger paranmters key value:apicat paramter id
 	if in.Parameters == nil {
@@ -80,12 +80,12 @@ func (s *fromSwagger) parseParamtersDefine(in *v2.Swagger) spec.Schemas {
 			continue
 		}
 		id := stringToUnid(key)
-		s.paramtersMapping[key] = id
+		s.parametersMapping[key] = id
 		ps = append(ps, &spec.Schema{
 			ID:          id,
 			Name:        v.Name,
 			Description: v.Description,
-			Required:    *v.Required,
+			Required:    v.Required != nil && *v.Required,
 			Schema: &jsonschema.Schema{
 				Type:   jsonschema.CreateSliceOrOne(v.Type),
 				Format: v.Format,
@@ -105,7 +105,7 @@ func (s *fromSwagger) parseContent(b *base.SchemaProxy) *jsonschema.Schema {
 }
 
 func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTPRequestNode {
-	// paramters := &spec.HttpParameters{}
+	// parameters := &spec.HttpParameters{}
 	request := spec.HTTPRequestNode{
 		Content: make(spec.HTTPBody),
 	}
@@ -120,13 +120,14 @@ func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTP
 	for _, v := range info.Parameters {
 		// 这里引用 #/parameters 暂时无法获取
 		// 直接展开
+		required := v.Required != nil && *v.Required
 		switch v.In {
 		case "query", "header", "path":
 			request.Parameters.Add(v.In,
 				&spec.Schema{
 					Name:        v.Name,
 					Description: v.Description,
-					Required:    *v.Required,
+					Required:    required,
 					Schema: &jsonschema.Schema{
 						Type:   jsonschema.CreateSliceOrOne(v.Type),
 						Format: v.Format,
@@ -140,7 +141,7 @@ func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTP
 				Format:      v.Format,
 				Default:     v.Default,
 			}
-			if *v.Required {
+			if required {
 				formData.Required = append(formData.Required, v.Name)
 			}
 		case "body":
@@ -210,7 +211,7 @@ func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDe
 			Content: content,
 		})
 	}
-	return nil
+	return list
 }
 
 func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode {
@@ -371,10 +372,9 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 		out.BasePath = "/"
 	}
 	if len(in.Definitions.Responses) > 0 {
-		// todo
 		out.Responses = make(map[string]any)
 		for _, v := range in.Definitions.Responses {
-			out.Responses[v.Name] = v
+			out.Responses[v.Name] = s.parseResponse(in, v)
 		}
 	}
 	return out
@@ -415,7 +415,7 @@ func (s *toSwagger) toReqParameters(ps spec.HTTPRequestNode, spe *spec.Spec) []o
 	}
 	var hasBody bool
 	for ct, c := range ps.Content {
-		// contentType incloud form use paramters in
+		// contentType incloud form use parameters in
 		if strings.Contains(ct, "form") {
 			if c.Schema == nil {
 				continue
@@ -476,7 +476,7 @@ func (s *toSwagger) convertJSONSchema(v *jsonschema.Schema) *jsonschema.Schema {
 	return toConvertJSONSchemaRef(v, "2.0", s.schemas)
 }
 
-func (s *toSwagger) parseResponse(in *spec.Spec, res spec.HTTPResponse) map[string]any {
+func (s *toSwagger) parseResponse(in *spec.Spec, res spec.HTTPResponseDefine) map[string]any {
 	if res.Reference != nil {
 		ref := *res.Reference
 		if strings.HasPrefix(ref, "#/definitions/responses/") {
@@ -517,7 +517,7 @@ func (s *toSwagger) toPathResponse(in *spec.Spec, resp []spec.HTTPResponse) (map
 	product := map[string]struct{}{}
 	reslist := make(map[string]any)
 	for _, r := range resp {
-		reslist[strconv.Itoa(r.Code)] = s.parseResponse(in, r)
+		reslist[strconv.Itoa(r.Code)] = s.parseResponse(in, r.HTTPResponseDefine)
 		for k := range r.Content {
 			if _, ok := product[k]; !ok {
 				product[k] = struct{}{}

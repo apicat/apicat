@@ -41,19 +41,16 @@ const exportList = [
 
 const selectedRef: any = ref({
   type: exportList[0].type,
-  version: '',
+  version: 'openapi3.0.0',
 })
 
 const handleSelect = (selected: any, item: any) => {
   selected.type = item.type
-  if (selected.type !== ExportProjectTypes.OpenAPI) {
-    selected.version = ''
-  }
 }
 
 const handelExport = (selected: any) => {
   let type = selected.type
-  if (selected.version) {
+  if (selected.type === ExportProjectTypes.OpenAPI) {
     type = selected.version
   }
 

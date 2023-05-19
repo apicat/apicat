@@ -122,10 +122,11 @@ const globalPaths = computed(() =>
     .map((param) => ({ ...param, required: param.required ? t('app.table.yes') : t('app.table.no') }))
 )
 
-const hasHeader = computed(() => headers.value.length || globalHeaders.value.length)
-const hasCookie = computed(() => cookies.value.length || globalCookies.value.length)
-const hasQuery = computed(() => queries.value.length || globalQueries.value.length)
-const hasPath = computed(() => paths.value.length || globalPaths.value.length)
+// todo 公参数暂未实现，{$ref:'#definition/parameters/xxx'}
+const hasHeader = computed(() => (headers.value || []).filter((item: any) => !item.$ref).length || globalHeaders.value.length)
+const hasCookie = computed(() => (cookies.value || []).filter((item: any) => !item.$ref).length || globalCookies.value.length)
+const hasQuery = computed(() => (queries.value || []).filter((item: any) => !item.$ref).length || globalQueries.value.length)
+const hasPath = computed(() => (paths.value || []).filter((item: any) => !item.$ref).length || globalPaths.value.length)
 
 const contentType = computed(() => {
   if (!request.value.content) {

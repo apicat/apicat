@@ -36,10 +36,13 @@ import { getCollectionDetail } from '@/api/collection'
 import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
 import uesGlobalParametersStore from '@/store/globalParameters'
+import useDefinitionResponseStore from '@/store/definitionResponse'
 
 const projectStore = uesProjectStore()
 const definitionStore = useDefinitionStore()
 const globalParametersStore = uesGlobalParametersStore()
+const definitionResponseStore = useDefinitionResponseStore()
+
 const route = useRoute()
 const { project_id } = useParams()
 const { goDocumentEditPage } = useGoPage()
@@ -81,6 +84,12 @@ globalParametersStore.$onAction(({ name, after }) => {
 
 definitionStore.$onAction(({ name, after }) => {
   // 删除全局模型
+  if (name === 'deleteDefinition') {
+    after(() => getDetail(route.params.doc_id as string))
+  }
+})
+
+definitionResponseStore.$onAction(({ name, after }) => {
   if (name === 'deleteDefinition') {
     after(() => getDetail(route.params.doc_id as string))
   }

@@ -3,6 +3,10 @@ package spec
 import (
 	"bytes"
 	"encoding/json"
+	"strconv"
+	"strings"
+
+	"github.com/apicat/apicat/common/spec/jsonschema"
 )
 
 // Content 文档类型
@@ -36,6 +40,103 @@ type Spec struct {
 // 如果回调函数返回false等退出 否则继续遍历
 func (s *Spec) WalkCollections(f func(v *CollectItem) bool) {
 	walkCollectionHandle(s.Collections, f)
+}
+
+func (s *Spec) expendRef(v Referencer) {
+	if v == nil {
+		return
+	}
+	switch x := v.(type) {
+	case *jsonschema.Schema:
+		if x.Ref() {
+			x = s.Definitions.Schemas.LookupID(mustGetRefID(*x.Reference)).Schema
+		}
+		if x.Properties != nil {
+			for _, v := range x.Properties {
+				s.expendRef(v)
+			}
+		}
+		if x.Items != nil && !x.Items.IsBool() {
+			s.expendRef(x.Items.Value())
+		}
+	case *Schema:
+		if x.Ref() {
+			ps := strings.Split(*x.Reference, "/")
+			if len(ps) == 4 {
+				id, _ := strconv.ParseInt(ps[3], 10, 64)
+				switch ps[2] {
+				case "schemas":
+					x = s.Definitions.Schemas.LookupID(id)
+				case "parameters":
+					x = s.Definitions.Parameters.LookupID(id)
+				}
+			}
+		}
+		s.expendRef(x.Schema)
+	case *HTTPResponseDefine:
+		if x.Ref() {
+			x = s.Definitions.Responses.LookupID(mustGetRefID(*x.Reference))
+		}
+		for _, v := range x.Header {
+			s.expendRef(v)
+		}
+		for _, v := range x.Content {
+			s.expendRef(v)
+		}
+	}
+}
+
+// CollectionsMap 返回map结构的api路由定义
+// expend 是否展开内部引用
+func (s *Spec) CollectionsMap(expend bool) map[string]map[string]HTTPPart {
+	paths := map[string]map[string]HTTPPart{}
+	s.WalkCollections(func(v *CollectItem) bool {
+		if v.Type != ContentItemTypeHttp {
+			return true
+		}
+		var (
+			method string
+			path   string
+			part   HTTPPart
+		)
+		for _, item := range v.Content {
+			switch nx := item.Node.(type) {
+			case *HTTPNode[HTTPURLNode]:
+				method, path = nx.Attrs.Method, nx.Attrs.Path
+			case *HTTPNode[HTTPRequestNode]:
+				if expend {
+					mp := nx.Attrs.Parameters.Map()
+					for _, v := range mp {
+						for _, a := range v {
+							s.expendRef(a)
+						}
+					}
+					if nx.Attrs.Content != nil {
+						for _, a := range nx.Attrs.Content {
+							s.expendRef(a)
+						}
+					}
+				}
+				part.HTTPRequestNode = nx.Attrs
+			case *HTTPNode[HTTPResponsesNode]:
+				res := nx.Attrs.List
+				if expend {
+					for _, v := range res {
+						s.expendRef(&v.HTTPResponseDefine)
+					}
+				}
+				part.Responses = res
+			}
+		}
+		subs, ok := paths[path]
+		if !ok {
+			subs = make(map[string]HTTPPart)
+		}
+		subs[method] = part
+		paths[path] = subs
+		return true
+	})
+	return paths
 }
 
 func (s *Spec) Valid() error {
@@ -127,13 +228,14 @@ type Global struct {
 	Parameters HTTPParameters `json:"parameters,omitempty"`
 }
 
-// type Common struct {
-// 	Parameters Schemas       `json:"parameters,omitempty"`
-// 	Responses  HTTPResponses `json:"response,omitempty"`
-// }
-
 type Definitions struct {
 	Schemas    Schemas             `json:"schemas"`
 	Parameters Schemas             `json:"parameters"`
 	Responses  HTTPResponseDefines `json:"responses"`
+}
+
+func mustGetRefID(v string) int64 {
+	ps := strings.Split(v, "/")
+	id, _ := strconv.ParseInt(ps[len(ps)-1], 10, 64)
+	return id
 }

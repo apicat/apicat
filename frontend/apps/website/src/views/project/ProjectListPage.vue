@@ -5,6 +5,11 @@
     </p>
 
     <ul class="ac-project-list my-20px py-10px">
+      <li class="flex flex-col justify-between rounded cursor-pointer w-250px h-156px hover:shadow-lg bg-gray-110 px-20px py-16px" @click="handleShowModelClick">
+        <ac-icon-ep-plus class="text-18px" />
+        <p>{{ $t('app.project.createModal.title') }}</p>
+      </li>
+
       <li
         class="flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px"
         v-for="project in projectList"
@@ -14,11 +19,6 @@
           <Iconfont class="text-white" :icon="(project.cover as ProjectCover).coverIcon" :size="55" />
         </div>
         <p class="flex items-center flex-1 truncate px-16px">{{ project.title }}</p>
-      </li>
-
-      <li class="flex flex-col justify-between rounded cursor-pointer w-250px h-156px hover:shadow-lg bg-gray-110 px-20px py-16px" @click="handleShowModelClick">
-        <ac-icon-ep-plus class="text-18px" />
-        <p>{{ $t('app.project.createModal.title') }}</p>
       </li>
     </ul>
   </div>

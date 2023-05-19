@@ -8,7 +8,7 @@
 
     <el-form class="mt-10px" label-position="top" label-width="0" :model="form" :rules="rules" ref="aiPromptForm" @submit.prevent="handleSubmit(aiPromptForm)">
       <el-form-item prop="title">
-        <el-input size="large" v-model="form.title" :placeholder="$t('app.interface.form.modalTitle')" clearable />
+        <el-input size="large" ref="titleInputRef" v-model="form.title" :placeholder="$t('app.interface.form.modalTitle')" clearable />
       </el-form-item>
     </el-form>
     <el-button :loading="isLoading" type="primary" @click="handleSubmit(aiPromptForm)">生成</el-button>
@@ -26,6 +26,7 @@ const emits = defineEmits(['ok'])
 const { t } = useI18n()
 
 const aiPromptForm = ref<FormInstance>()
+const titleInputRef = ref()
 
 const { dialogVisible, showModel, hideModel } = useModal(aiPromptForm as any)
 const [isLoading, createCollectionByAIApi] = useApi(createCollectionByAI)
@@ -44,6 +45,7 @@ const rules = {
 const show = (params?: any) => {
   otherParams = { ...params }
   showModel()
+  setTimeout(() => titleInputRef.value.focus(), 0)
 }
 
 const handleSubmit = async (formEl: FormInstance | undefined) => {
