@@ -214,3 +214,33 @@ func DeleteMember(ctx *gin.Context) {
 
 	ctx.Status(http.StatusNoContent)
 }
+
+type UpdateProjectMemberAuthData struct {
+	Authority string `json:"authority" binding:"required,oneof=manage write read"`
+}
+
+// UpdateMember updates the authority of a project member in the database.
+func UpdateMemberAuth(ctx *gin.Context) {
+	pmd := ProjectMemberIDData{}
+	pm, err := pmd.CheckMember(ctx)
+	if err != nil {
+		return
+	}
+
+	data := UpdateProjectMemberAuthData{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	pm.Authority = data.Authority
+	if err := pm.Update(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.UpdateFailed"}),
+		})
+	}
+
+	ctx.Status(http.StatusCreated)
+}
