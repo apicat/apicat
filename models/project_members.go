@@ -31,3 +31,15 @@ func (pm *ProjectMembers) List() ([]ProjectMembers, error) {
 	var projectMembers []ProjectMembers
 	return projectMembers, Conn.Order("created_at desc").Find(&projectMembers).Error
 }
+
+func (pm *ProjectMembers) Create() error {
+	return Conn.Create(pm).Error
+}
+
+func (pm *ProjectMembers) Delete() error {
+	return Conn.Delete(pm).Error
+}
+
+func (pm *ProjectMembers) Update() error {
+	return Conn.Save(pm).Error
+}
