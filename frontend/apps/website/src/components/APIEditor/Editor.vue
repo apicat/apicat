@@ -74,7 +74,9 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
 
   if (schema.$ref != undefined) {
     const id = schema.$ref.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
-    const pId = parent?.schema.$ref?.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
+
+    const $ref = label !== constNodeType.items ? parent?.schema.$ref : item.parent?.parent?.schema.$ref
+    const pId = $ref?.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
 
     const refId = parseInt(id as string, 10)
     const pRefId = parseInt(pId as string, 10)
@@ -84,9 +86,19 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
     if (refschema && refschema.schema) {
       item.refObj = refschema
 
+      if (schema._id === refId) {
+        item.isSelf = true
+        return item
+      }
+
       schema = cloneDeep(refschema.schema)
 
-      // 如果是自己的引用，不进行递归，避免死循环
+      // items ref self
+      if (label === constNodeType.items) {
+        item.parent!.parent!.isSelf = true
+      }
+
+      // object ref self
       if (refId === parent?.schema._id || refId === pRefId) {
         item.isSelf = true
         return item

@@ -257,6 +257,12 @@ const unlinkRefHandler = () => {
       s.description = props.data.schema.description
     }
     if (props.data.label === constNodeType.root) {
+      Object.defineProperty(s, '_id', {
+        value: d.refObj.schema._id,
+        enumerable: false,
+        configurable: false,
+        writable: false,
+      })
       changeNotify(s)
       return
     }
