@@ -41,10 +41,6 @@ type ProjectMemberData struct {
 	CreatedAt string `json:"created_at"`
 }
 
-type GetProjectMemberData struct {
-	UserID uint `uri:"user_id" binding:"required"`
-}
-
 // MembersList handles GET requests to retrieve a list of members in the current project.
 func MembersList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
@@ -100,8 +96,12 @@ func MembersList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, membersList)
 }
 
-// MemberGet retrieves the details of a project member from the database and returns it as JSON.
-func MemberGet(ctx *gin.Context) {
+type GetProjectMemberData struct {
+	UserID uint `uri:"user_id" binding:"required"`
+}
+
+// MemberGet retrieves the project member data for a given user and project ID.
+func MemberGetByUserID(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
@@ -138,4 +138,65 @@ func MemberGet(ctx *gin.Context) {
 		Authority: pm.Authority,
 		CreatedAt: pm.CreatedAt.Format("2006-01-02 15:04:05"),
 	})
+}
+
+type CreateProjectMemberData struct {
+	UserID    uint   `json:"user_id" binding:"required"`
+	Authority string `json:"authority" binding:"required,oneof=manage write read"`
+}
+
+func CreateMember(ctx *gin.Context) {
+	currentProject, _ := ctx.Get("CurrentProject")
+	project, _ := currentProject.(*models.Projects)
+
+	data := CreateProjectMemberData{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	user, err := models.NewUsers(data.UserID)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.CreateFailed"}),
+		})
+		return
+	}
+
+	pm, _ := models.NewProjectMembers()
+	pm.UserID = user.ID
+	pm.ProjectID = project.ID
+	pm.Authority = data.Authority
+	if err := pm.Create(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.CreateFailed"}),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, ProjectMemberData{
+		ID:        pm.ID,
+		UserID:    user.ID,
+		Username:  user.Username,
+		Authority: pm.Authority,
+		CreatedAt: pm.CreatedAt.Format("2006-01-02 15:04:05"),
+	})
+}
+
+func DeleteMember(ctx *gin.Context) {
+	pmd := ProjectMemberIDData{}
+	pm, err := pmd.CheckMember(ctx)
+	if err != nil {
+		return
+	}
+
+	if err := pm.Delete(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.DeleteFailed"}),
+		})
+	}
+
+	ctx.Status(http.StatusNoContent)
 }
