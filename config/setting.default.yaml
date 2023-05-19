@@ -5,14 +5,28 @@ application:
 log:
   path: logs/
   level: debug
+# database support mysql and sqlite
+# database:
+#   driver: sqlite
+#   path: data/
+#   host: 127.0.0.1
+#   port: 3306
+#   user: root
+#   password: 
+#   dbname: apicat
+#   charset: utf8mb4
+
 database:
-  driver: sqlite
+  driver: mysql
+  # if driver is sqlite path wile be used.
   path: data/
-  host: 127.0.0.1
+  # if you use docker-compose host is mysql.
+  host: mysql 
   port: 3306
   user: root
-  password: 
+  password: 123456
   dbname: apicat
   charset: utf8mb4
+  
 openai:
   token: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx

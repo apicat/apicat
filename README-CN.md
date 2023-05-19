@@ -25,39 +25,24 @@ ApiCat 目前还在早期阶段，欢迎 Star 和 Watch 来关注项目的最新
 
 ## 安装部署
 
+
 ### 获取代码
 
 ```
 git clone https://github.com/apicat/apicat.git
 ```
 
-### 编译和启动服务
+#### 编译和启动服务
 
 ```
-# 进入项目
 cd apicat
-
-# 编译前端项目
-cd fronted # 到前端项目下
-pnpm install
-pnpm build
-
-# 更新整理依赖
-go mod tidy
-
-# 编译项目
-go build
-
-# 修改配置文件
-# 你可以复制 config/setting.default.yaml 的配置文件内容进行配置修改
-cp ./config/setting.default.yaml ./
-vim ./setting.default.yaml
-
-# 启动服务(默认配置)
-./apicat
-# 启动服务(自定义配置)
-./apicat -c setting.default.yaml
+docker build --no-cache . -t apicat:latest
+docker-compose up
 ```
+
+#### 访问
+
+- http://localhost:8000
 
 ## 交流
 
