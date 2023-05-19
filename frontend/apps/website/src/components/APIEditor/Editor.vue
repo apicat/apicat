@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import { computed, provide, ref, watch } from 'vue'
 import EditorRow from './EditorRow.vue'
-import type { JSONSchema, Definition, Tree } from './types'
+import type { JSONSchema, DefinitionSchema, Tree } from './types'
 import { constNodeType, typename } from './types'
 import { useNamespace } from '@/hooks'
 import { RefPrefixKeys } from '@/commons'
@@ -28,7 +28,7 @@ const props = withDefaults(
     // 根schema
     modelValue: JSONSchema
     // 引用模型的集合
-    definitions?: Definition[]
+    definitions?: DefinitionSchema[]
     readonly?: boolean
   }>(),
   {
@@ -73,8 +73,10 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
   }
 
   if (schema.$ref != undefined) {
-    const id = schema.$ref.match(RefPrefixKeys.DefinitionsSchema.reg)?.[1]
-    const pId = parent?.schema.$ref?.match(RefPrefixKeys.DefinitionsSchema.reg)?.[1]
+    const id = schema.$ref.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
+
+    const $ref = label !== constNodeType.items ? parent?.schema.$ref : item.parent?.parent?.schema.$ref
+    const pId = $ref?.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
 
     const refId = parseInt(id as string, 10)
     const pRefId = parseInt(pId as string, 10)
@@ -84,9 +86,19 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
     if (refschema && refschema.schema) {
       item.refObj = refschema
 
+      if (schema._id === refId) {
+        item.isSelf = true
+        return item
+      }
+
       schema = cloneDeep(refschema.schema)
 
-      // 如果是自己的引用，不进行递归，避免死循环
+      // items ref self
+      if (label === constNodeType.items) {
+        item.parent!.parent!.isSelf = true
+      }
+
+      // object ref self
       if (refId === parent?.schema._id || refId === pRefId) {
         item.isSelf = true
         return item
@@ -186,7 +198,7 @@ function findTreeFromKey(n: Tree, k: string): Tree | undefined {
 function getSchemaSource(t: Tree) {
   if (t.refObj) {
     return {
-      $ref: `${RefPrefixKeys.DefinitionsSchema.key}${t.refObj.id}`,
+      $ref: `${RefPrefixKeys.DefinitionSchema.key}${t.refObj.id}`,
       description: t.schema.description,
     }
   }

@@ -37,20 +37,20 @@ func InitApiRouter(r *gin.Engine) {
 
 	apiRouter := r.Group("/api").Use(translator.UseValidatori18n())
 	{
-		projects := apiRouter.(*gin.RouterGroup).Group("/projects", middleware.JWTAuthMiddleware())
-		{
-			projects.GET("", api.ProjectsList)
-			projects.GET("/:id", api.ProjectsGet)
-			projects.GET("/:id/data", api.ProjectDataGet)
-			projects.POST("/", api.ProjectsCreate)
-			projects.PUT("/:id", api.ProjectsUpdate)
-			projects.DELETE("/:id", api.ProjectsDelete)
-		}
-
 		account := apiRouter.(*gin.RouterGroup).Group("/account")
 		{
 			account.POST("/login/email", api.EmailLogin)
 			account.POST("/register/email", api.EmailRegister)
+		}
+
+		projects := apiRouter.(*gin.RouterGroup).Group("/projects")
+		{
+			projects.GET("", middleware.JWTAuthMiddleware(), api.ProjectsList)
+			projects.GET("/:id", middleware.JWTAuthMiddleware(), api.ProjectsGet)
+			projects.GET("/:id/data", api.ProjectDataGet)
+			projects.POST("", middleware.JWTAuthMiddleware(), api.ProjectsCreate)
+			projects.PUT("/:id", middleware.JWTAuthMiddleware(), api.ProjectsUpdate)
+			projects.DELETE("/:id", middleware.JWTAuthMiddleware(), api.ProjectsDelete)
 		}
 
 		user := apiRouter.(*gin.RouterGroup).Group("/user", middleware.JWTAuthMiddleware())
@@ -87,13 +87,13 @@ func InitApiRouter(r *gin.Engine) {
 				globalParameters.DELETE("/:parameter-id", api.GlobalParametersDelete)
 			}
 
-			commonResponses := project.(*gin.RouterGroup).Group("/common/responses")
+			definitionResponses := project.(*gin.RouterGroup).Group("/definition/responses")
 			{
-				commonResponses.GET("", api.CommonResponsesList)
-				commonResponses.GET("/:response-id", api.CommonResponsesDetail)
-				commonResponses.POST("", api.CommonResponsesCreate)
-				commonResponses.PUT("/:response-id", api.CommonResponsesUpdate)
-				commonResponses.DELETE("/:response-id", api.CommonResponsesDelete)
+				definitionResponses.GET("", api.DefinitionResponsesList)
+				definitionResponses.GET("/:response-id", api.DefinitionResponsesDetail)
+				definitionResponses.POST("", api.DefinitionResponsesCreate)
+				definitionResponses.PUT("/:response-id", api.DefinitionResponsesUpdate)
+				definitionResponses.DELETE("/:response-id", api.DefinitionResponsesDelete)
 			}
 
 			collections := project.(*gin.RouterGroup).Group("/collections")

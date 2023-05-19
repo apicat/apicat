@@ -1,7 +1,8 @@
-import { HttpCodeColorMap, uuid } from '@apicat/shared'
+import { HttpCodeColorMap, traverseTree } from '@apicat/shared'
 import { compile } from 'path-to-regexp'
 import { HttpMethodTypeMap } from './constant'
 import { JSONSchema } from '@/components/APIEditor/types'
+import { memoize } from 'lodash-es'
 
 /**
  * 创建API模块get path
@@ -52,14 +53,33 @@ export const hasRefInSchema = (schema: JSONSchema) => {
 
 export const randomArray = (arr: any[]) => arr[Math.floor(Math.random() * arr.length)]
 
-export const DATA_KEY = '_id'
+export const uuid = () => Math.random().toString(36).substring(2, 9)
 
-export const markDataWithKey = (data: Record<string, any>): void => {
-  if (!data || data[DATA_KEY]) return
-  Object.defineProperty(data, DATA_KEY, {
-    value: uuid(),
+export const ROW_KEY = '_id'
+
+export const markDataWithKey = (data: Record<string, any>, rowKey = ROW_KEY, defaultValue?: any) => {
+  if (!data || data[rowKey]) return
+  Object.defineProperty(data, rowKey, {
+    value: defaultValue || data.id || uuid(),
     enumerable: false,
     configurable: false,
     writable: false,
   })
 }
+
+export const createTreeMaxDepthFn = (subKey: string) =>
+  memoize(function (node) {
+    let maxLevel = 0
+    traverseTree(
+      (item: any) => {
+        if (!item._extend.isLeaf) {
+          maxLevel++
+        }
+      },
+      [node] as any[],
+      { subKey }
+    )
+    return maxLevel
+  })
+
+export const isJSONSchemaContentType = (contentType: string) => contentType == 'application/json' || contentType == 'application/xml'

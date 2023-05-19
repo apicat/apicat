@@ -1,7 +1,7 @@
 import { HttpMethodTypeMap } from '@/commons/constant'
 import type { APICatResponse } from '@/components/ResponseForm.vue'
 import { HttpDocument } from '@/typings'
-import { createDefaultSchema } from './createDefaultDefinition'
+import { createDefaultResponseContent, createDefaultSchema } from './createDefaultDefinition'
 
 /**
  * 创建默认HTTP文档数据格式
@@ -40,26 +40,18 @@ export const createHttpRequestNode = () => ({
   attrs: createRequestDefaultValue(),
 })
 
-export const createResponseDefaultContent = () => ({
-  'application/json': {
-    schema: createDefaultSchema(),
-  },
-})
-
-export const createCommonResponse = (overwrite?: Partial<APICatResponse>) => ({
+export const createHttpResponse = (overwrite?: Partial<APICatResponse>) => ({
   name: '',
   code: 200,
   description: '',
-  content: createResponseDefaultContent(),
+  content: createDefaultResponseContent(),
   ...overwrite,
 })
-
-export const createHttpResponse = createCommonResponse
 
 export const createHttpResponseNode = () => ({
   type: HTTP_RESPONSE_NODE_KEY,
   attrs: {
-    list: [createHttpResponse()],
+    list: [createHttpResponse({ name: 'Response Name' })],
   },
 })
 

@@ -5,7 +5,7 @@
     :close-on-click-modal="false"
     :close-on-press-escape="false"
     destroy-on-close
-    :title="$t('app.publicResponse.title')"
+    :title="$t('app.definitionResponse.title')"
     width="40%"
   >
     <el-input v-model="search" :placeholder="$t('app.response.fullname')" />
@@ -20,7 +20,7 @@
 </template>
 <script setup lang="ts">
 import { useModal } from '@/hooks'
-import useCommonResponseStore from '@/store/commonResponse'
+import useCommonResponseStore from '@/store/definitionResponse'
 import { storeToRefs } from 'pinia'
 
 const emits = defineEmits(['ok'])
@@ -30,17 +30,17 @@ const multipleSelection: any = ref([])
 const multipleTableRef = ref()
 
 const commonResponseStore = useCommonResponseStore()
-const { response } = storeToRefs(commonResponseStore)
+const { responses } = storeToRefs(commonResponseStore)
 
 const search = ref('')
-const filterResponse = computed(() => response.value.filter((data: any) => !search.value || data.name.toLowerCase().includes(search.value.toLowerCase())))
+const filterResponse = computed(() => responses.value.filter((data: any) => !search.value || data.name.toLowerCase().includes(search.value.toLowerCase())))
 
 const show = async (selectedNameList: number[]) => {
   showModel()
   await nextTick()
   multipleTableRef.value.clearSelection()
 
-  response.value
+  responses.value
     .filter((row) => selectedNameList.includes(row.id as any))
     .forEach((row) => {
       multipleTableRef.value.toggleRowSelection(row, true)

@@ -82,6 +82,7 @@ declare module '@vue/runtime-core' {
     ResponseForm: typeof import('./../components/ResponseForm.vue')['default']
     ResponseParamPaneRaw: typeof import('./../components/ResponseParamPaneRaw.vue')['default']
     ResponseParamTabsRaw: typeof import('./../components/ResponseParamTabsRaw.vue')['default']
+    ResponseRefForm: typeof import('./../components/ResponseRefForm.vue')['default']
     Result: typeof import('./../components/Result.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

@@ -8,7 +8,7 @@
 
     <el-form class="mt-10px" label-position="top" label-width="0" :model="form" :rules="rules" ref="aiPromptForm" @submit.prevent="handleSubmit(aiPromptForm)">
       <el-form-item prop="name">
-        <el-input size="large" v-model="form.name" :placeholder="$t('app.schema.tips.schemaInputTitle')" clearable />
+        <el-input size="large" ref="titleInputRef" v-model="form.name" :placeholder="$t('app.schema.tips.schemaInputTitle')" clearable />
       </el-form-item>
     </el-form>
     <el-button :loading="isLoading" type="primary" @click="handleSubmit(aiPromptForm)">{{ $t('app.common.generate') }}</el-button>
@@ -19,15 +19,16 @@ import { useModal } from '@/hooks'
 import useApi from '@/hooks/useApi'
 import { useParams } from '@/hooks/useParams'
 import { FormInstance } from 'element-plus'
-import { aiGenerateDefinition } from '@/api/definition'
+import { aiGenerateDefinitionSchema } from '@/api/definitionSchema'
 import { useI18n } from 'vue-i18n'
 
 const emits = defineEmits(['ok'])
 const { t } = useI18n()
 const aiPromptForm = ref<FormInstance>()
+const titleInputRef = ref()
 
 const { dialogVisible, showModel, hideModel } = useModal(aiPromptForm as any)
-const [isLoading, aiGenerateDefinitionApi] = useApi(aiGenerateDefinition)
+const [isLoading, aiGenerateDefinitionApi] = useApi(aiGenerateDefinitionSchema)
 const { project_id } = useParams()
 
 let otherParams = {}
@@ -44,6 +45,7 @@ const rules = {
 const show = (params?: any) => {
   otherParams = { ...params }
   showModel()
+  setTimeout(() => titleInputRef.value.focus(), 0)
 }
 
 const handleSubmit = async (formEl: FormInstance | undefined) => {

@@ -3,123 +3,102 @@
     <h2 class="relative flex justify-between text-16px font-500">
       {{ $t('app.response.title') }}
       <div class="absolute right-0 z-10 bg-white -bottom-30px">
-        <el-button link type="primary" @click="handleAddTab">
-          <el-icon><ac-icon-ep-plus /></el-icon>{{ $t('app.common.add') }}
-        </el-button>
+        <el-popover :width="250" trigger="hover" class="">
+          <template #reference>
+            <el-button link type="primary" @click="handleAddTab">
+              <el-icon><ac-icon-ep-plus /></el-icon>{{ $t('app.common.add') }}
+            </el-button>
+          </template>
+          <div class="clear-popover-space">
+            <p class="border-b cursor-pointer border-gray-lighter px-10px h-44px flex-y-center hover:bg-gray-100" @click="handleAddTab">
+              <el-icon class="mr-4px"><ac-icon-ep-plus /></el-icon>
+              新建响应
+            </p>
+            <SelectDefinitionResponse :responses="definitionResponses" @select="handleAddRefResponse" />
+          </div>
+        </el-popover>
       </div>
     </h2>
+
     <el-tabs @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
-      <template v-for="(item, index) in model" :key="item._id + index">
-        <el-tab-pane v-if="!item._isCommonResponse" :name="item._id" :disabled="disabled">
-          <template #label>
-            <div
-              class="inline-flex items-center"
-              draggable="true"
-              @dragstart="onDragStart($event, index)"
-              @dragend="onDragEnd"
-              @dragover="onDragOver($event, index)"
-              @dragleave="onDragLeave($event, index)"
-              @drop="onDropHandler($event, index)"
-            >
-              <span class="mr-4px">{{ item.name || '&nbsp' }}</span>
-              <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
-            </div>
-          </template>
-          <ResponseForm v-model="model[index]" :definitions="definitions" />
-        </el-tab-pane>
-      </template>
-      <el-tab-pane name="add-tab" disabled class="ac-response__common">
+      <el-tab-pane v-for="(item, index) in model" :key="item.id" :name="item.id" :disabled="disabled">
         <template #label>
-          <el-space @click="onShowCommonResponseModal">
-            <span>{{ $t('app.publicResponse.title') }}</span>
-            <span class="inline-block leading-none bg-gray-200 rounded px-4px py-2px">{{ commonResponseCount }}</span>
-          </el-space>
+          <div
+            class="inline-flex items-center"
+            draggable="true"
+            @dragstart="onDragStart($event, index)"
+            @dragend="onDragEnd"
+            @dragover="onDragOver($event, index)"
+            @dragleave="onDragLeave($event, index)"
+            @drop="onDropHandler($event, index)"
+          >
+            <span class="mr-4px" v-if="!item.isRef">{{ item.data.name || '&nbsp' }}</span>
+            <span class="mr-4px" v-else>{{ item.responseRefObject.name || '&nbsp' }}</span>
+            <AcTag :style="getResponseStatusCodeBgColor(item.data.code)">{{ item.data.code }}</AcTag>
+          </div>
         </template>
+        <ResponseForm v-if="!item.isRef" v-model="item.data" :definitions="definitions" />
+        <ResponseRefForm v-else v-model:response="model[index]" :definition-responses="definitionResponses" :definition-schemas="definitions" />
       </el-tab-pane>
     </el-tabs>
   </div>
-
-  <SelectCommonResponseModal ref="selectCommonResponseModalRef" @ok="handleCommonResponseSelectFinish" />
 </template>
 
 <script setup lang="ts">
-import { Definition } from './APIEditor/types'
+import { DefinitionSchema } from './APIEditor/types'
 import ResponseForm from './ResponseForm.vue'
+import ResponseRefForm from './ResponseRefForm.vue'
 import { RefPrefixKeys, getResponseStatusCodeBgColor } from '@/commons'
-import { uuid } from '@apicat/shared'
-import { createResponseDefaultContent } from '@/views/document/components/createHttpDocument'
+import { createDefaultResponseContent } from '@/views/document/components/createDefaultDefinition'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
-import SelectCommonResponseModal from '@/views/document/components/SelectCommonResponseModal.vue'
-import { ElMessage } from 'element-plus'
-import { isEmpty, debounce } from 'lodash-es'
-import { useI18n } from 'vue-i18n'
+import SelectDefinitionResponse from './DefinitionResponse/SelectDefinitionResponse.vue'
+import { DefinitionResponse } from '@/typings'
 
-const emits = defineEmits(['update:data'])
-const props = defineProps<{ data: Array<any>; definitions?: Definition[] }>()
-const { t } = useI18n()
+const props = defineProps<{ data: Array<any>; definitions?: DefinitionSchema[]; definitionResponses?: DefinitionResponse[] }>()
 
 const createResponse = (item?: any) => {
   return {
-    _id: uuid(),
-    _isCommonResponse: false,
     name: 'Response Name',
     code: 200,
     description: '',
-    content: createResponseDefaultContent(),
+    content: createDefaultResponseContent(),
     ...item,
   }
 }
 
-const createCommonRefResponse = (name: string) => ({ $ref: `${RefPrefixKeys.CommonResponse.key}${name}`, _id: uuid(), _isCommonResponse: true, _refName: name })
+const { data, definitionResponses } = toRefs(props)
+const model: any = ref([])
+const idPrefix = 'response_tab_pane_'
 
-const model: any = ref(
-  (props.data || []).map((item: any) => {
-    const newItem = { ...item, _id: uuid(), name: item.name || 'Response Name' }
-    newItem._isCommonResponse = false
-    if (newItem.$ref && newItem.$ref.startsWith(RefPrefixKeys.CommonResponse.key)) {
-      newItem._isCommonResponse = true
-      newItem._refName = newItem.$ref.match(RefPrefixKeys.CommonResponse.reg)?.[1]
-    }
-    return newItem
-  })
-)
+// const model = useVModel(props, 'data', undefined, { passive: true })
 
-const commonResponseCount = computed(() => model.value.filter((item: any) => item._isCommonResponse).length)
-
-const selectCommonResponseModalRef = ref<InstanceType<typeof SelectCommonResponseModal>>()
-const editableTabsValue = ref(unref(model).length ? unref(model)[0]._id : null)
+const editableTabsValue = ref('')
 const isShow = computed(() => model.value.length > 0)
 const disabled = computed(() => model.value.filter((item: any) => !item._isCommonResponse).length <= 1)
 
-const activeLastTab = (_id?: string) => {
+const activeLastTab = async (id?: string) => {
+  await nextTick()
   const len = model.value.length
   const res = model.value[len - 1]
-  editableTabsValue.value = _id || res._id
+  editableTabsValue.value = id || res.id
 }
 
-const handleAddTab = () => {
-  model.value.push(createResponse())
-  activeLastTab()
+const handleAddTab = async () => {
+  data.value.push(createResponse())
+  await activeLastTab()
 }
 
-const handleRemoveTab = (_id: any) => {
-  const index = model.value.findIndex((item: any) => item._id === _id)
-  model.value.splice(index, 1)
-  if (_id === editableTabsValue.value) {
-    activeLastTab()
+const handleAddRefResponse = async (response: DefinitionResponse) => {
+  data.value.push({ code: 200, $ref: `${RefPrefixKeys.DefinitionResponse.key}${response.id}` })
+  await activeLastTab()
+}
+
+const handleRemoveTab = async (id: any) => {
+  const index = model.value.findIndex((item: any) => item.id === id)
+  data.value.splice(index, 1)
+  if (id === editableTabsValue.value) {
+    await activeLastTab()
   }
-}
-
-const onShowCommonResponseModal = () => {
-  const names = model.value.filter((item: any) => item._isCommonResponse).map((item: any) => parseInt(item._refName, 10))
-  selectCommonResponseModalRef.value?.show(names)
-}
-
-const handleCommonResponseSelectFinish = (selectedIds: string[]) => {
-  model.value = model.value.filter((item: any) => !item._isCommonResponse)
-  selectedIds.forEach((id) => {
-    model.value.push(createCommonRefResponse(id))
-  })
 }
 
 const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop({
@@ -134,38 +113,38 @@ const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDr
   },
 })
 
-const validResponseName = () => {
-  let len = model.value.length
-  for (let i = 0; i < len; i++) {
-    const item = model.value[i]
-    if (isEmpty(item.name) && !item._isCommonResponse) {
-      ElMessage.error(t('app.response.rules.name'))
-      // activeLastTab(model.value[i]._id)
-      return false
-    }
-  }
-  return true
-}
-
-// v-model
 watch(
-  model,
-  debounce(() => {
-    if (validResponseName()) {
-      const normalResponse: any = []
-      const commonResponse: any = []
-
-      model.value.forEach(({ _id, _isCommonResponse, _refName, ...other }: any) => {
-        if (_isCommonResponse) {
-          commonResponse.push(toRaw(other))
-        } else {
-          normalResponse.push(toRaw(other))
-        }
-      })
-      emits('update:data', [...normalResponse, ...commonResponse])
+  [data, definitionResponses],
+  async ([newData, responses]: any) => {
+    if (!newData.length) {
+      return
     }
-  }, 300),
-  { deep: true }
+
+    model.value = newData.map((item: any, index: number) => {
+      const newItem = {
+        data: item,
+        isRef: item.$ref !== undefined,
+        id: item.id || `${idPrefix}${index}`,
+        responseRefObject: {},
+      }
+
+      if (newItem.isRef && responses.length) {
+        const id = item.$ref.match(RefPrefixKeys.DefinitionResponse.reg)?.[1]
+        const resId = parseInt(id as string, 10)
+        const response: any = responses.find((item: any) => item.id === resId)
+        //set key for rerender
+        if (response) {
+          newItem.id = `${idPrefix}${index}${resId}`
+          newItem.responseRefObject = response || {}
+        }
+      }
+
+      return newItem
+    })
+
+    !editableTabsValue.value && model.value.length && (await activeLastTab(model.value[0].id))
+  },
+  { immediate: true, deep: true }
 )
 </script>
 <style lang="scss">

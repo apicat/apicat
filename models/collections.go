@@ -7,7 +7,6 @@ import (
 
 	"strconv"
 
-	"github.com/apicat/apicat/app/util"
 	"github.com/apicat/apicat/common/spec"
 	"gorm.io/gorm"
 )
@@ -105,8 +104,8 @@ func (c *Collections) Restore() error {
 	return Conn.Unscoped().Model(c).Updates(map[string]interface{}{"project_id": c.ProjectId, "parent_id": c.ParentId, "display_order": 0, "deleted_at": nil}).Error
 }
 
-func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem, definitionSchemas nameToIdMap) []*Collections {
-	collectionList := make([]*Collections, 0)
+func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem, refContentNameToId *RefContentVirtualIDToId) []*Collections {
+	collectionList := []*Collections{}
 
 	for i, collection := range collections {
 		if len(collection.Items) > 0 {
@@ -118,13 +117,15 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 			}
 			if err := category.Create(); err == nil {
 				collectionList = append(collectionList, category)
-				children := CollectionsImport(projectID, category.ID, collection.Items, definitionSchemas)
+				children := CollectionsImport(projectID, category.ID, collection.Items, refContentNameToId)
 				collectionList = append(collectionList, children...)
 			}
 		} else {
 			if collectionByte, err := json.Marshal(collection.Content); err == nil {
 				collectionStr := string(collectionByte)
-				collectionStr = replaceNameToID(collectionStr, definitionSchemas, "#/definitions/schemas/")
+				collectionStr = replaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionSchemas, "#/definitions/schemas/")
+				collectionStr = replaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionResponses, "#/definitions/responses/")
+				collectionStr = replaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionParameters, "#/definitions/parameters/")
 
 				record := &Collections{
 					ProjectId:    projectID,
@@ -141,13 +142,14 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 			}
 		}
 	}
+
 	return collectionList
 }
 
-func replaceNameToID(content string, nameIDMap nameToIdMap, prefix string) string {
-	for name, id := range nameIDMap {
-		oldStr := prefix + name
-		newStr := prefix + strconv.FormatUint(uint64(id), 10)
+func replaceVirtualIDToID(content string, nameIDMap virtualIDToIDMap, prefix string) string {
+	for virtualID, id := range nameIDMap {
+		oldStr := prefix + strconv.Itoa(int(virtualID))
+		newStr := prefix + strconv.Itoa(int(id))
 
 		content = strings.Replace(content, oldStr, newStr, -1)
 	}
@@ -155,8 +157,8 @@ func replaceNameToID(content string, nameIDMap nameToIdMap, prefix string) strin
 }
 
 func CollectionsExport(projectID uint) []*spec.CollectItem {
-	var collections []*Collections
-	collectItems := make([]*spec.CollectItem, 0)
+	collections := []*Collections{}
+	collectItems := []*spec.CollectItem{}
 
 	if err := Conn.Where("project_id = ?", projectID).Find(&collections).Error; err == nil {
 		parentCollection := &Collections{ID: 0}
@@ -167,36 +169,7 @@ func CollectionsExport(projectID uint) []*spec.CollectItem {
 }
 
 func collectionsTree(collections []*Collections, parentCollection *Collections, projectID uint) []*spec.CollectItem {
-	collectItems := make([]*spec.CollectItem, 0)
-
-	gpMap := GlobalParametersIDToNameMap{
-		Header: IdToNameMap{},
-		Cookie: IdToNameMap{},
-		Query:  IdToNameMap{},
-		Path:   IdToNameMap{},
-	}
-
-	gpMap.GlobalParametersIDToNameMapInit(projectID)
-	var definitions []*DefinitionSchemas
-
-	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err != nil {
-		return collectItems
-	}
-
-	definitionsIdToNameMap := make(IdToNameMap)
-	for _, definition := range definitions {
-		definitionsIdToNameMap[definition.ID] = definition.Name
-	}
-
-	var commonResponses []*CommonResponses
-
-	if err := Conn.Where("project_id = ?", projectID).Find(&commonResponses).Error; err != nil {
-		return collectItems
-	}
-	commonResponsesIdToNameMap := make(IdToNameMap)
-	for _, commonResponse := range commonResponses {
-		commonResponsesIdToNameMap[commonResponse.ID] = commonResponse.Name
-	}
+	collectItems := []*spec.CollectItem{}
 
 	for _, collection := range collections {
 		if collection.ParentId == parentCollection.ID {
@@ -219,10 +192,6 @@ func collectionsTree(collections []*Collections, parentCollection *Collections, 
 			}
 
 			if collection.Type != "category" {
-				collection.Content = GlobalParametersExceptsIDToName(collection.Content, gpMap)
-				collection.Content = util.ReplaceIDToName(collection.Content, definitionsIdToNameMap, "#/definitions/schemas/")
-				collection.Content = util.ReplaceIDToName(collection.Content, commonResponsesIdToNameMap, "#/commons/responses/")
-
 				content := []*spec.NodeProxy{}
 				if json.Unmarshal([]byte(collection.Content), &content) == nil {
 					collectItem.Content = content

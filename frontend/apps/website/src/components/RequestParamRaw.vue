@@ -80,7 +80,7 @@ import JSONSchemaEditor from '@/components/APIEditor/Editor.vue'
 import CodeEditor from '@/components/APIEditor/CodeEditor.vue'
 import { RequestContentTypesMap } from '@/commons'
 import { useNodeAttrs, HTTP_REQUEST_NODE_KEY } from '@/hooks/useNodeAttrs'
-import { Definition } from './APIEditor/types'
+import { DefinitionSchema } from './APIEditor/types'
 import { HttpDocument } from '@/typings'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { storeToRefs } from 'pinia'
@@ -88,7 +88,7 @@ import { useI18n } from 'vue-i18n'
 
 const { t } = useI18n()
 
-const props = defineProps<{ doc: HttpDocument; definitions: Definition[] }>()
+const props = defineProps<{ doc: HttpDocument; definitions: DefinitionSchema[] }>()
 const request = useNodeAttrs(props, HTTP_REQUEST_NODE_KEY, 'doc')
 const globalParametersStore = uesGlobalParametersStore()
 const { parameters: globalParameters } = storeToRefs(globalParametersStore)
@@ -122,10 +122,11 @@ const globalPaths = computed(() =>
     .map((param) => ({ ...param, required: param.required ? t('app.table.yes') : t('app.table.no') }))
 )
 
-const hasHeader = computed(() => headers.value.length || globalHeaders.value.length)
-const hasCookie = computed(() => cookies.value.length || globalCookies.value.length)
-const hasQuery = computed(() => queries.value.length || globalQueries.value.length)
-const hasPath = computed(() => paths.value.length || globalPaths.value.length)
+// todo 公参数暂未实现，{$ref:'#definition/parameters/xxx'}
+const hasHeader = computed(() => (headers.value || []).filter((item: any) => !item.$ref).length || globalHeaders.value.length)
+const hasCookie = computed(() => (cookies.value || []).filter((item: any) => !item.$ref).length || globalCookies.value.length)
+const hasQuery = computed(() => (queries.value || []).filter((item: any) => !item.$ref).length || globalQueries.value.length)
+const hasPath = computed(() => (paths.value || []).filter((item: any) => !item.$ref).length || globalPaths.value.length)
 
 const contentType = computed(() => {
   if (!request.value.content) {

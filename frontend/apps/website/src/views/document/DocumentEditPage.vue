@@ -16,19 +16,20 @@
 </template>
 
 <script setup lang="ts">
-import { HttpDocument } from '@/typings'
+import { APICatCommonResponse, HttpDocument } from '@/typings'
 import { getCollectionDetail, updateCollection } from '@/api/collection'
 import HttpDocumentEditor from './components/HttpDocumentEditor.vue'
 import { useParams } from '@/hooks/useParams'
 import { useGoPage } from '@/hooks/useGoPage'
-import { debounce, isEmpty } from 'lodash-es'
+import { cloneDeep, debounce, isEmpty } from 'lodash-es'
 import useApi from '@/hooks/useApi'
 import { ElMessage } from 'element-plus'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionStore from '@/store/definition'
 import { useI18n } from 'vue-i18n'
-import useCommonResponseStore from '@/store/commonResponse'
 import { DOCUMENT_EDIT_NAME } from '@/router'
+import { HTTP_RESPONSE_NODE_KEY } from './components/createHttpDocument'
+import useDefinitionResponseStore from '@/store/definitionResponse'
 
 const { t } = useI18n()
 const { project_id } = useParams()
@@ -36,7 +37,7 @@ const route = useRoute()
 const router = useRouter()
 const globalParametersStore = uesGlobalParametersStore()
 const definitionStore = useDefinitionStore()
-const commonResponseStore = useCommonResponseStore()
+const definitionResponseStore = useDefinitionResponseStore()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const [isLoadingForSaveBtn, updateCollectionApiWithLoading] = useApi(updateCollection)
@@ -48,8 +49,28 @@ const httpDoc: Ref<HttpDocument | null> = ref(null)
 
 const directoryTree: any = inject('directoryTree')
 
+const validResponseName = (responses: APICatCommonResponse[]) => {
+  let len = responses.length
+
+  for (let i = 0; i < len; i++) {
+    const item = responses[i]
+    if (!item.$ref && isEmpty(item.name)) {
+      ElMessage.error(t('app.response.rules.name'))
+      return false
+    }
+  }
+  return true
+}
+
 const stringifyHttpDoc = (doc: any) => {
-  const data: any = { ...unref(doc) }
+  const data: any = cloneDeep(unref(doc))
+  const responseNode = data.content.find((node: any) => node.type === HTTP_RESPONSE_NODE_KEY)
+  responseNode.attrs.list = responseNode.attrs.list.map((item: any) => {
+    if (item.$ref) {
+      delete item.name
+    }
+    return item
+  })
   data.content = JSON.stringify(data.content)
   const { id: collection_id, ...rest } = data
   return { project_id, collection_id, ...rest }
@@ -82,13 +103,16 @@ globalParametersStore.$onAction(({ name, after }) => {
   }
 })
 
-commonResponseStore.$onAction(({ name, after }) => {
-  if (name === 'updateResponseParam' || name === 'deleteResponseParam') {
-    after(() => getDetail())
+definitionStore.$onAction(({ name, after }) => {
+  if (name === 'deleteDefinition') {
+    after(async () => {
+      await definitionResponseStore.getDefinitions(project_id as string)
+      await getDetail()
+    })
   }
 })
 
-definitionStore.$onAction(({ name, after }) => {
+definitionResponseStore.$onAction(({ name, after }) => {
   if (name === 'deleteDefinition') {
     after(() => getDetail())
   }
@@ -104,6 +128,12 @@ watch(
 
     if (isEmpty(newVal.title)) {
       ElMessage.error(t('app.interface.form.title'))
+      return
+    }
+
+    const responsesNode = unref(httpDoc)?.content.find((node) => node.type === HTTP_RESPONSE_NODE_KEY)
+
+    if (!validResponseName(responsesNode.attrs.list || [])) {
       return
     }
 

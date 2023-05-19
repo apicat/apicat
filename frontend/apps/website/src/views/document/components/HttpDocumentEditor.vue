@@ -5,27 +5,32 @@
     <div class="ac-editor mt-10px">
       <RequestMethodEditor class="mb-10px" v-model="httpDoc" @url-change="onUrlChange" />
       <RequestParamEditor class="mb-10px" v-model="httpDoc" :definitions="definitions" />
-      <ResponseEditor v-model:data="httpResponseList" :definitions="definitions" />
+      <ResponseEditor v-model:data="httpResponseList" :definitions="definitions" :definition-responses="responses" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { HttpDocument } from '@/typings'
+import { APICatCommonResponse, HttpDocument } from '@/typings'
 import RequestParamEditor from '@/components/RequestParamEditor'
 import { useNamespace } from '@/hooks/useNamespace'
 import ResponseEditor from '@/components/ResponseEditor.vue'
-import { Definition } from '@/components/APIEditor/types'
 import useDefinitionStore from '@/store/definition'
 import { storeToRefs } from 'pinia'
 import { HTTP_RESPONSE_NODE_KEY, HTTP_REQUEST_NODE_KEY } from './createHttpDocument'
+import useDefinitionResponseStore from '@/store/definitionResponse'
+
 const ns = useNamespace('document')
+
 const definitionStore = useDefinitionStore()
 const { definitions } = storeToRefs(definitionStore)
 
-const props = defineProps<{ modelValue: HttpDocument; definitions?: Definition[] }>()
+const definitionResponseStore = useDefinitionResponseStore()
+const { responses } = storeToRefs(definitionResponseStore)
+
+const props = defineProps<{ modelValue: HttpDocument }>()
 const emit = defineEmits(['update:modelValue'])
-const httpDoc = useVModel(props, 'modelValue', emit)
+const httpDoc = useVModel(props, 'modelValue', emit, { passive: false })
 
 const onUrlChange = (paths: string[]) => {
   const request = httpDoc.value.content.find((node) => node.type === HTTP_REQUEST_NODE_KEY)
@@ -45,17 +50,8 @@ const onUrlChange = (paths: string[]) => {
   })
 }
 
-const httpResponseList = computed({
-  get: () => {
-    const response = httpDoc.value.content.find((node) => node.type === HTTP_RESPONSE_NODE_KEY)
-    return response?.attrs?.list || []
-  },
-  set: (val) => {
-    let response = httpDoc.value.content.find((node) => node.type === HTTP_RESPONSE_NODE_KEY)
-    if (!response) {
-      response = { attrs: { list: [] } }
-    }
-    response.attrs.list = val
-  },
+const httpResponseList = computed(() => {
+  const response = httpDoc.value.content.find((node) => node.type === HTTP_RESPONSE_NODE_KEY)
+  return response?.attrs?.list || []
 })
 </script>

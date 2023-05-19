@@ -17,21 +17,20 @@
 <script setup lang="ts">
 import { getResponseStatusCodeBgColor } from '@/commons'
 import ResponseParamPaneRaw from './ResponseParamPaneRaw.vue'
-import { Definition } from './APIEditor/types'
+import { DefinitionSchema } from './APIEditor/types'
 import { APICatCommonResponse, HttpDocument } from '@/typings'
 import { HTTP_RESPONSE_NODE_KEY, useNodeAttrs } from '@/hooks/useNodeAttrs'
 import { APICatResponse } from './ResponseForm.vue'
 import { uuid } from '@apicat/shared'
-import useCommonResponseStore from '@/store/commonResponse'
+import useDefinitionResponseStore from '@/store/definitionResponse'
 import { storeToRefs } from 'pinia'
 
-const props = defineProps<{ doc: HttpDocument; definitions: Definition[] }>()
+const props = defineProps<{ doc: HttpDocument; definitions: DefinitionSchema[] }>()
 const responseNode = useNodeAttrs(props, HTTP_RESPONSE_NODE_KEY, 'doc')
-const commonResponseStore = useCommonResponseStore()
+const definitionResponseStore = useDefinitionResponseStore()
 
-// const model = ref<{ list: APICatResponse[] }>({ list: [] })
 const editableTabsValue = ref()
-const { response } = storeToRefs(commonResponseStore)
+const { responses } = storeToRefs(definitionResponseStore)
 
 const model = computed(() => {
   const list = responseNode.value.list.map((item: APICatResponse & APICatCommonResponse) => {
@@ -40,7 +39,7 @@ const model = computed(() => {
     // common response
     if (newItem.$ref) {
       const responseId = parseInt(newItem.$ref.split('/').pop() as string, 10)
-      const responseDetail = response.value.find((item) => item.id === responseId)
+      const responseDetail = responses.value.find((item) => item.id === responseId)
       newItem = { ...newItem, ...responseDetail, id: newItem.id }
     }
     return newItem

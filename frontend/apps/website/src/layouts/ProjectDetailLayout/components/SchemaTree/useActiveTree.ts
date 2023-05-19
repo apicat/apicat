@@ -38,14 +38,14 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
     if (node && node.data) {
       ;(node.data as CollectionNode)._extend!.isCurrent = true
       treeIns.value?.setCurrentKey(id)
+      // scrollIntoView
+      const el = document.querySelector('#schema_tree_node_' + id)
+      el && scrollIntoView(el, { scrollMode: 'if-needed' })
     }
-    // scrollIntoView
-    const el = document.querySelector('#schema_tree_node_' + id)
-    el && scrollIntoView(el, { scrollMode: 'if-needed' })
   }
 
   const reactiveNode = () => {
-    if (!treeIns.value || !String(route.name).startsWith('schema')) {
+    if (!treeIns.value || !String(route.name).startsWith('definition.schema')) {
       return
     }
 

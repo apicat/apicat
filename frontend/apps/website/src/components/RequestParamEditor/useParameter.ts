@@ -71,10 +71,11 @@ export const useParameter = (props: any, propKey?: string) => {
     },
   })
 
-  const headersCount = computed(() => headers.value.length + globalHeaders.value.filter((i) => i.isUse).length || '')
-  const cookiesCount = computed(() => cookies.value.length + globalCookies.value.filter((i) => i.isUse).length || '')
-  const queriesCount = computed(() => queries.value.length + globalQueries.value.filter((i) => i.isUse).length || '')
-  const pathsCount = computed(() => paths.value.length + globalPaths.value.filter((i) => i.isUse).length || '')
+  // todo 公参数暂未实现，{$ref:'#definition/parameters/xxx'}
+  const headersCount = computed(() => (headers.value || []).filter((item: any) => !item.$ref).length + globalHeaders.value.filter((i) => i.isUse).length || '')
+  const cookiesCount = computed(() => (cookies.value || []).filter((item: any) => !item.$ref).length + globalCookies.value.filter((i) => i.isUse).length || '')
+  const queriesCount = computed(() => (queries.value || []).filter((item: any) => !item.$ref).length + globalQueries.value.filter((i) => i.isUse).length || '')
+  const pathsCount = computed(() => (paths.value || []).filter((item: any) => !item.$ref).length + globalPaths.value.filter((i) => i.isUse).length || '')
 
   return {
     headers,

@@ -2,8 +2,8 @@
   <div class="ac-sce-simple">
     <table class="w-full table-fixed readonly" v-if="readonly">
       <tr>
-        <th style="width: 38%">{{ $t('editor.table.paramName') }}</th>
-        <th style="width: 150px">{{ $t('editor.table.paramType') }}</th>
+        <th style="width: 40%">{{ $t('editor.table.paramName') }}</th>
+        <th class="text-center" style="width: 150px">{{ $t('editor.table.paramType') }}</th>
         <th class="text-center" style="width: 80px">{{ $t('editor.table.required') }}</th>
         <th style="width: 38%">{{ $t('editor.table.paramExample') }}</th>
         <th style="width: 38%">{{ $t('editor.table.paramDesc') }}</th>
@@ -12,7 +12,7 @@
         <td>
           <span class="break-all copy_text">{{ data.name }}</span>
         </td>
-        <td>
+        <td class="text-center">
           {{ data.schema.type }}
         </td>
         <td class="text-center">
@@ -95,7 +95,7 @@
 </template>
 
 <script setup lang="ts">
-import type { Definition, JSONSchema } from './types'
+import type { DefinitionSchema, JSONSchema } from './types'
 import { computed } from 'vue'
 import { useSchemaList } from './useSchemaList'
 
@@ -103,7 +103,7 @@ const props = withDefaults(
   defineProps<{
     readonly?: boolean
     modelValue: JSONSchema
-    definitions?: Definition[]
+    definitions?: DefinitionSchema[]
     hasFile?: boolean
   }>(),
   {
