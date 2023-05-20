@@ -38,6 +38,10 @@ type ExportProject struct {
 	Download string `form:"download" binding:"omitempty,oneof=true false"`
 }
 
+type TranslateProject struct {
+	MemberID uint `json:"member_id" binding:"required,lte=255"`
+}
+
 func ProjectsList(ctx *gin.Context) {
 	project, _ := models.NewProjects()
 	projects, err := project.List(ctx)
@@ -354,4 +358,55 @@ func ProjectExit(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusNoContent)
+}
+
+func ProjectTransfer(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if currentMember.(*models.ProjectMembers).Authority != models.ProjectMembersManage {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
+	data := TranslateProject{}
+	if err := ctx.ShouldBindJSON(&data); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	pm, err := models.NewProjectMembers(data.MemberID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
+		})
+		return
+	}
+
+	if pm.ProjectID != currentMember.(*models.ProjectMembers).ProjectID {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
+		})
+		return
+	}
+
+	currentMember.(*models.ProjectMembers).Authority = models.ProjectMembersWrite
+	if err := currentMember.(*models.ProjectMembers).Update(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
+		})
+		return
+	}
+
+	pm.Authority = models.ProjectMembersManage
+	if err := pm.Update(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusCreated)
 }
