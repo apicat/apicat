@@ -18,8 +18,8 @@ func CheckMember() gin.HandlerFunc {
 		member.ProjectID = project.(*models.Projects).ID
 
 		if err := member.Get(); err != nil {
-			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
+			ctx.JSON(http.StatusForbidden, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 			})
 			ctx.Abort()
 		}

@@ -16,6 +16,12 @@ type ProjectMembers struct {
 	DeletedAt gorm.DeletedAt
 }
 
+var (
+	ProjectMembersManage = "manage"
+	ProjectMembersWrite  = "write"
+	ProjectMembersRead   = "read"
+)
+
 func NewProjectMembers(ids ...uint) (*ProjectMembers, error) {
 	members := &ProjectMembers{}
 	if len(ids) > 0 {

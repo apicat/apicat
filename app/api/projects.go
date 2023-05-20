@@ -10,6 +10,7 @@ import (
 	"github.com/apicat/apicat/common/spec/plugin/openapi"
 	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/models"
+	"golang.org/x/exp/slices"
 	"golang.org/x/exp/slog"
 
 	"github.com/gin-gonic/gin"
@@ -333,4 +334,24 @@ func ProjectDataGet(ctx *gin.Context) {
 	} else {
 		ctx.Data(http.StatusOK, "application/json", content)
 	}
+}
+
+// ProjectExit handles the exit of a project member.
+func ProjectExit(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !slices.Contains([]string{models.ProjectMembersWrite, models.ProjectMembersRead}, currentMember.(*models.ProjectMembers).Authority) {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
+	if err := currentMember.(*models.ProjectMembers).Delete(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.ExitFail"}),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
 }
