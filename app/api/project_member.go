@@ -146,8 +146,16 @@ type CreateProjectMemberData struct {
 }
 
 func ProjectMembersCreate(ctx *gin.Context) {
+	// 项目管理员才添加成员
+	currentMember, _ := ctx.Get("CurrentMember")
+	if currentMember.(*models.ProjectMembers).Authority != "manage" {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
 
 	data := CreateProjectMemberData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -165,9 +173,19 @@ func ProjectMembersCreate(ctx *gin.Context) {
 		return
 	}
 
+	checkPm, _ := models.NewProjectMembers()
+	checkPm.UserID = user.ID
+	checkPm.ProjectID = currentProject.(*models.Projects).ID
+	if err := checkPm.Get(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.AlreadyExists"}),
+		})
+		return
+	}
+
 	pm, _ := models.NewProjectMembers()
 	pm.UserID = user.ID
-	pm.ProjectID = project.ID
+	pm.ProjectID = currentProject.(*models.Projects).ID
 	pm.Authority = data.Authority
 	if err := pm.Create(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
