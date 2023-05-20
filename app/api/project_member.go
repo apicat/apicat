@@ -8,29 +8,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProjectMemberIDData struct {
-	MemberID uint `uri:"member-id" binding:"required"`
+type GetPathUserID struct {
+	UserID uint `uri:"user-id" binding:"required"`
 }
 
-// CheckMember checks if a project member exists given their member ID.
-// Return: A pointer to ProjectMembers and an error, if any.
-func (pmd *ProjectMemberIDData) CheckMember(ctx *gin.Context) (*models.ProjectMembers, error) {
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&pmd)); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
-		})
-		return nil, err
-	}
+type CreateProjectMemberData struct {
+	UserID    uint   `json:"user_id" binding:"required"`
+	Authority string `json:"authority" binding:"required,oneof=manage write read"`
+}
 
-	member, err := models.NewProjectMembers(pmd.MemberID)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
-		})
-		return nil, err
-	}
-
-	return member, nil
+type UpdateProjectMemberAuthData struct {
+	Authority string `json:"authority" binding:"required,oneof=manage write read"`
 }
 
 type ProjectMemberData struct {
@@ -44,18 +32,9 @@ type ProjectMemberData struct {
 // MembersList handles GET requests to retrieve a list of members in the current project.
 func ProjectMembersList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
-
-	data := ProjectMemberIDData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
 
 	member, _ := models.NewProjectMembers()
-	member.ProjectID = project.ID
+	member.ProjectID = currentProject.(*models.Projects).ID
 	members, err := member.List()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -96,16 +75,11 @@ func ProjectMembersList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, membersList)
 }
 
-type GetProjectMemberUserID struct {
-	UserID uint `uri:"user_id" binding:"required"`
-}
-
 // MemberGet retrieves the project member data for a given user and project ID.
 func MemberGetByUserID(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
 
-	data := GetProjectMemberUserID{}
+	data := GetPathUserID{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -123,7 +97,7 @@ func MemberGetByUserID(ctx *gin.Context) {
 
 	pm, _ := models.NewProjectMembers()
 	pm.UserID = user.ID
-	pm.ProjectID = project.ID
+	pm.ProjectID = currentProject.(*models.Projects).ID
 	if err := pm.Get(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
@@ -140,11 +114,7 @@ func MemberGetByUserID(ctx *gin.Context) {
 	})
 }
 
-type CreateProjectMemberData struct {
-	UserID    uint   `json:"user_id" binding:"required"`
-	Authority string `json:"authority" binding:"required,oneof=manage write read"`
-}
-
+// ProjectMembersCreate projects the creation of a new member.
 func ProjectMembersCreate(ctx *gin.Context) {
 	// 项目管理员才添加成员
 	currentMember, _ := ctx.Get("CurrentMember")
@@ -154,8 +124,6 @@ func ProjectMembersCreate(ctx *gin.Context) {
 		})
 		return
 	}
-
-	currentProject, _ := ctx.Get("CurrentProject")
 
 	data := CreateProjectMemberData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -173,10 +141,10 @@ func ProjectMembersCreate(ctx *gin.Context) {
 		return
 	}
 
-	checkPm, _ := models.NewProjectMembers()
-	checkPm.UserID = user.ID
-	checkPm.ProjectID = currentProject.(*models.Projects).ID
-	if err := checkPm.Get(); err != nil {
+	checkMember, _ := models.NewProjectMembers()
+	checkMember.UserID = user.ID
+	checkMember.ProjectID = currentMember.(*models.ProjectMembers).ProjectID
+	if err := checkMember.Get(); err == nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.AlreadyExists"}),
 		})
@@ -185,7 +153,7 @@ func ProjectMembersCreate(ctx *gin.Context) {
 
 	pm, _ := models.NewProjectMembers()
 	pm.UserID = user.ID
-	pm.ProjectID = currentProject.(*models.Projects).ID
+	pm.ProjectID = currentMember.(*models.ProjectMembers).ProjectID
 	pm.Authority = data.Authority
 	if err := pm.Create(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -205,22 +173,29 @@ func ProjectMembersCreate(ctx *gin.Context) {
 
 // DeleteMember deletes a project member by checking if the given member exists in the project.
 func ProjectMembersDelete(ctx *gin.Context) {
-	currentProject, _ := ctx.Get("CurrentProject")
-	currentUser, _ := ctx.Get("CurrentUser")
-
-	checkMember, _ := models.NewProjectMembers()
-	checkMember.UserID = currentUser.(*models.Users).ID
-	checkMember.ProjectID = currentProject.(*models.Projects).ID
-	if err := checkMember.Get(); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
+	currentMember, _ := ctx.Get("CurrentMember")
+	if currentMember.(*models.ProjectMembers).Authority != "manage" {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
-	pmd := ProjectMemberIDData{}
-	pm, err := pmd.CheckMember(ctx)
-	if err != nil {
+	data := GetPathUserID{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	pm, _ := models.NewProjectMembers()
+	pm.UserID = data.UserID
+	pm.ProjectID = currentMember.(*models.ProjectMembers).ProjectID
+	if err := pm.Get(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
+		})
 		return
 	}
 
@@ -233,44 +208,47 @@ func ProjectMembersDelete(ctx *gin.Context) {
 	ctx.Status(http.StatusNoContent)
 }
 
-type UpdateProjectMemberAuthData struct {
-	Authority string `json:"authority" binding:"required,oneof=manage write read"`
-}
-
 // UpdateMember updates the authority of a project member in the database.
 func ProjectMembersAuthUpdate(ctx *gin.Context) {
-	// currentProject, _ := ctx.Get("CurrentProject")
-	// currentUser, _ := ctx.Get("CurrentUser")
-
-	// checkMember, _ := models.NewProjectMembers()
-	// checkMember.UserID = currentUser.(*models.Users).ID
-	// checkMember.ProjectID = currentProject.(*models.Projects).ID
-	// if err := checkMember.Get(); err != nil {
-	// 	ctx.JSON(http.StatusUnauthorized, gin.H{
-	// 		"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
-	// 	})
+	// if !slices.Contains([]string{"manage", "write", "read"}, currentMember.(*models.ProjectMembers).Authority) {
 	// 	return
 	// }
 
-	// if !slices.Contains([]string{"manage", "write", "read"}, v) {
-	// 	return
-	// }
-
-	pmd := ProjectMemberIDData{}
-	pm, err := pmd.CheckMember(ctx)
-	if err != nil {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if currentMember.(*models.ProjectMembers).Authority != "manage" {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
 		return
 	}
 
-	data := UpdateProjectMemberAuthData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	data := GetPathUserID{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	pm.Authority = data.Authority
+	pm, _ := models.NewProjectMembers()
+	pm.UserID = data.UserID
+	pm.ProjectID = currentMember.(*models.ProjectMembers).ProjectID
+	if err := pm.Get(); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
+		})
+		return
+	}
+
+	bodyData := UpdateProjectMemberAuthData{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&bodyData)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	pm.Authority = bodyData.Authority
 	if err := pm.Update(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.UpdateFailed"}),
