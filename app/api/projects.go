@@ -125,6 +125,17 @@ func ProjectsCreate(ctx *gin.Context) {
 		return
 	}
 
+	pm, _ := models.NewProjectMembers()
+	pm.ProjectID = project.ID
+	pm.UserID = user.ID
+	pm.Authority = models.ProjectMembersManage
+	if err := pm.Create(); err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.CreateFail"}),
+		})
+		return
+	}
+
 	// 进行数据导入工作
 	if data.Data != "" {
 		models.ServersImport(project.ID, content.Servers)
