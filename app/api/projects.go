@@ -160,6 +160,14 @@ func ProjectsCreate(ctx *gin.Context) {
 }
 
 func ProjectsUpdate(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if currentMember.(*models.ProjectMembers).Authority != models.ProjectMembersManage {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	CurrentUser, _ := ctx.Get("CurrentUser")
 	user, _ := CurrentUser.(*models.Users)
 	if user.Role == "user" {
@@ -208,6 +216,14 @@ func ProjectsUpdate(ctx *gin.Context) {
 }
 
 func ProjectsDelete(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if currentMember.(*models.ProjectMembers).Authority != models.ProjectMembersManage {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	CurrentUser, _ := ctx.Get("CurrentUser")
 	user, _ := CurrentUser.(*models.Users)
 	if user.Role == "user" {
