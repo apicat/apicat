@@ -47,11 +47,8 @@ func InitApiRouter(r *gin.Engine) {
 		projects := apiRouter.Group("/projects")
 		{
 			projects.GET("", middleware.JWTAuthMiddleware(), api.ProjectsList)
-			projects.GET("/:id", middleware.JWTAuthMiddleware(), api.ProjectsGet)
-			projects.GET("/:id/data", api.ProjectDataGet)
 			projects.POST("", middleware.JWTAuthMiddleware(), api.ProjectsCreate)
-			projects.PUT("/:id", middleware.JWTAuthMiddleware(), api.ProjectsUpdate)
-			projects.DELETE("/:id", middleware.JWTAuthMiddleware(), api.ProjectsDelete)
+			projects.GET("/:id/data", api.ProjectDataGet)
 		}
 
 		user := apiRouter.Group("/user")
@@ -65,6 +62,15 @@ func InitApiRouter(r *gin.Engine) {
 		project := apiRouter.Group("/projects/:id")
 		project.Use(middleware.JWTAuthMiddleware(), middleware.CheckProject(), middleware.CheckMember())
 		{
+			projects := project.Group("")
+			{
+				projects.GET("", api.ProjectsGet)
+				projects.PUT("", api.ProjectsUpdate)
+				projects.DELETE("", api.ProjectsDelete)
+				projects.DELETE("/exit", api.ProjectExit)
+				projects.PUT("/transfer", api.ProjectTransfer)
+			}
+
 			definitionSchemas := project.Group("/definition/schemas")
 			{
 				definitionSchemas.GET("", api.DefinitionSchemasList)
