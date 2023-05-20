@@ -130,6 +130,9 @@ other = "名称已存在"
 [Common.TypeDoesNotExist]
 other = "类型不存在"
 
+[Common.InsufficientPermissions]
+other = "权限不足"
+
 [Collections.QueryFailed]
 other = "集合查询失败"
 
@@ -162,3 +165,21 @@ other = "账号不存在"
 
 [User.WrongPassword]
 other = "密码错误"
+
+[ProjectMember.NotFound]
+other = "项目成员信息不存在"
+
+[ProjectMember.QueryFailed]
+other = "项目成员信息查询失败"
+
+[ProjectMember.CreateFailed]
+other = "项目成员创建失败"
+
+[ProjectMember.UpdateFailed]
+other = "项目成员修改失败"
+
+[ProjectMember.DeleteFailed]
+other = "项目成员删除失败"
+
+[ProjectMember.AlreadyExists]
+other = "项目成员已存在"
