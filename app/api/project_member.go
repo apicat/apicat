@@ -96,7 +96,7 @@ func ProjectMembersList(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, membersList)
 }
 
-type GetProjectMemberData struct {
+type GetProjectMemberUserID struct {
 	UserID uint `uri:"user_id" binding:"required"`
 }
 
@@ -105,7 +105,7 @@ func MemberGetByUserID(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
-	data := GetProjectMemberData{}
+	data := GetProjectMemberUserID{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
