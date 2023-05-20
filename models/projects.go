@@ -57,6 +57,10 @@ func (p *Projects) List(ctx context.Context) ([]Projects, error) {
 }
 
 func (p *Projects) Delete() error {
+	if err := DeleteAllMembersByProjectID(p.ID); err != nil {
+		return err
+	}
+
 	return Conn.Delete(p).Error
 }
 

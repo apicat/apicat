@@ -53,3 +53,7 @@ func (pm *ProjectMembers) Delete() error {
 func (pm *ProjectMembers) Update() error {
 	return Conn.Save(pm).Error
 }
+
+func DeleteAllMembersByProjectID(projectID uint) error {
+	return Conn.Where("project_id = ?", projectID).Delete(&ProjectMembers{}).Error
+}
