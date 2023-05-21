@@ -63,6 +63,22 @@ function changeEvent(root?: JSONSchema) {
   }
 }
 
+function isRefSelf(tree: Tree, refId: string): boolean {
+  let parent: any = tree.parent
+
+  while (parent) {
+    if (parent.schema.$ref) {
+      const parentRefId = parent.schema.$ref.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
+      if (parentRefId === refId) {
+        return true
+      }
+    }
+    parent = parent.parent
+  }
+
+  return false
+}
+
 function convertTreeData(parent: Tree | undefined, key: string, label: string, schema: JSONSchema): Tree {
   const item: Tree = {
     key,
@@ -74,15 +90,8 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
 
   if (schema.$ref != undefined) {
     const id = schema.$ref.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
-
-    const $ref = label !== constNodeType.items ? parent?.schema.$ref : item.parent?.parent?.schema.$ref
-    const pId = $ref?.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
-
     const refId = parseInt(id as string, 10)
-    const pRefId = parseInt(pId as string, 10)
-
     const refschema = props.definitions?.find((v) => v.id === refId)
-
     if (refschema && refschema.schema) {
       item.refObj = refschema
 
@@ -93,13 +102,8 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
 
       schema = cloneDeep(refschema.schema)
 
-      // items ref self
-      if (label === constNodeType.items) {
-        item.parent!.parent!.isSelf = true
-      }
-
       // object ref self
-      if (refId === parent?.schema._id || refId === pRefId) {
+      if (refId === parent?.schema._id || isRefSelf(item, id!)) {
         item.isSelf = true
         return item
       }
