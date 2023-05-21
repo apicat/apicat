@@ -16,6 +16,12 @@ other = "项目导出失败，请稍后重试。"
 [Projects.NotFound]
 other = "项目不存在"
 
+[Projects.ExitFail]
+other = "退出项目失败"
+
+[Projects.TransferFail]
+other = "退出项目失败"
+
 [DefinitionSchemas.QueryFailed]
 other = "模型查询失败"
 
