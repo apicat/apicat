@@ -237,6 +237,7 @@ export default {
       required: '必须',
       defaultValue: '默认值',
       paramDesc: '参数说明',
+      paramMock: 'Mock',
       paramExample: '示例值',
       yes: '是',
       no: '否',

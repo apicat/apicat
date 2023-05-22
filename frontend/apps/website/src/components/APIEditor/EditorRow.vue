@@ -16,7 +16,6 @@
     <div :class="ns.e('content')" @dragover.prevent="dragOverHandler" @dragleave.prevent="dragLeaveHandler" @drop.prevent="dropHandler">
       <div :class="[ns.e('item'), ns.e('name')]">
         <span :style="{ width: level * 16 + 'px' }" class="indent-spance"></span>
-
         <el-icon :class="ns.e('expand')" v-if="data.children" @click="toggleExpandHandler"><ac-icon-ep-arrow-right-bold /></el-icon>
         <span v-else class="el-icon"></span>
 
@@ -24,6 +23,7 @@
           <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
           <EditorInput v-else ref="labelInputRef" style="margin-left: -4px" placeholder="name" :value="data.label" :disabled="isRefChildren(data)" @change="changeName" />
         </template>
+
         <template v-else>
           <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
           <span v-else class="copy_text">{{ data.label }}</span>
@@ -47,6 +47,7 @@
             </template>
           </el-dropdown>
         </template>
+
         <template v-else>
           <el-text v-if="data.refObj" type="primary">{{ data.refObj.name }}</el-text>
           <span v-else>{{ data.type }}</span>
@@ -66,6 +67,7 @@
             <el-checkbox v-else size="small" :disabled="isRefChildren(data)" :checked="data.parent?.schema.required?.includes(data.label)" @change="changeRequired" />
           </el-tooltip>
         </template>
+
         <template v-else>
           <span v-if="data.parent?.type === 'object'">
             <span v-if="isRefChildren(data)">{{ data.parent?.refObj?.schema.required?.includes(data.label) ? $t('editor.table.yes') : $t('editor.table.no') }}</span>
@@ -84,6 +86,7 @@
             @change="(v) => changeSchemaField('example', v)"
           />
         </template>
+
         <template v-else>
           <span v-if="['number', 'integer', 'boolean', 'string'].includes(data.type)" class="copy_text">{{ data.schema.example }}</span>
         </template>
@@ -98,9 +101,14 @@
             @change="(v) => changeSchemaField('description', v)"
           />
         </template>
+
         <template v-else>
           <span class="copy_text">{{ data.schema.description }}</span>
         </template>
+      </div>
+
+      <div :class="[ns.e('item'), ns.e('mock'), { 'cursor-pointer': !readonly }]" @click="mockHandler($event, data)">
+        <span>{{ data.schema['x-apicat-mock'] }}</span>
       </div>
 
       <div :class="[ns.e('item'), ns.e('operation')]" v-if="!readonly">
@@ -154,6 +162,7 @@ const intentLineStyle = computed(() => {
   let left = props.level * 16 + 6
   return { left: left + 'px' }
 })
+
 const toggleExpandHandler = () => {
   if (!props.data.children) {
     return
@@ -249,6 +258,7 @@ const resetShowRef = (flag: boolean) => {
     showRefModal.value = false
   }
 }
+
 const unlinkRefHandler = () => {
   const d = props.data
   if (d.refObj?.schema) {
@@ -295,6 +305,14 @@ const addChildHandler = () => {
     }
     props.data.schema['x-apicat-orders']?.push('')
   }
+}
+
+const mockHandler = (e: PointerEvent, row: Tree) => {
+  if (props.readonly) {
+    return
+  }
+
+  console.log(e, row)
 }
 
 // addchildren auto focus

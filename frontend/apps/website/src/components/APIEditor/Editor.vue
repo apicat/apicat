@@ -7,6 +7,7 @@
         <div :class="nsRow.e('required')">{{ $t('editor.table.required') }}</div>
         <div :class="nsRow.e('example')">{{ $t('editor.table.paramExample') }}</div>
         <div :class="nsRow.e('description')">{{ $t('editor.table.paramDesc') }}</div>
+        <div :class="nsRow.e('mock')">{{ $t('editor.table.paramMock') }}</div>
         <div :class="nsRow.e('operation')" v-if="!readonly"></div>
       </div>
     </div>

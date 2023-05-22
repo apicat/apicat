@@ -30,7 +30,7 @@ $block_row_ns: $namespace + '-schema-row';
     @include e(content) {
       > div {
         height: 100%;
-        @apply flex-y-center border-l border-solid border-gray-lighter px-12px;
+        @apply flex-y-center border-l border-solid border-gray-lighter px-20px;
       }
     }
   }
@@ -111,6 +111,10 @@ $block_row_ns: $namespace + '-schema-row';
 
     @include e(description) {
       flex: 1 0 60px;
+    }
+
+    @include e(mock) {
+      flex: 1 0 40px;
     }
 
     @include e(operation) {

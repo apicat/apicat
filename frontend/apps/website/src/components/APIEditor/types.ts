@@ -13,6 +13,7 @@ export declare interface JSONSchema {
   default?: any
   $ref?: string
   'x-apicat-orders'?: string[]
+  'x-apicat-mock'?: string
 }
 
 export const basicTypes = ['string', 'boolean', 'number', 'integer', 'object', 'array']
