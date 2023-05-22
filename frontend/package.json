@@ -28,5 +28,9 @@
     "unplugin-vue-components": "^0.24.1",
     "vite": "^4.2.1",
     "vue": "^3.2.47"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
   }
 }
