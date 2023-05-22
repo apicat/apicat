@@ -6,7 +6,7 @@
       :class="[ns.e('item'), { 'border-t': menu.divided, 'text-blue-primary': menu[rowKey] === activeMenuKey }]"
       @click="onMenuClick(menu, keyOrIndex)"
     >
-      <i v-if="menu.icon" class="mr-1 ac-iconfont" :class="[ns.e('icon'), menu.icon]" />
+      <i v-if="menu.icon" class="mr-1 ac-iconfont" :class="[ns.e('icon'), menu.icon]"></i>
       <el-icon v-if="menu.elIcon" class="mr-1" :size="menu.size"><component :is="menu.elIcon" /></el-icon>
       <img v-if="menu.image" class="mr-1" :class="ns.e('icon')" :src="menu.image" />
       {{ menu.text }}
@@ -18,7 +18,7 @@ import { useNamespace } from '@/hooks/useNamespace'
 import { Menu } from './typings'
 
 interface Props {
-  menus: Menu[] | { [key: string]: any }
+  menus: Menu[] | Record<string, any>
   rowKey?: string
   activeMenuKey?: any
   size?: string
