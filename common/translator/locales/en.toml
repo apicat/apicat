@@ -16,6 +16,12 @@ other = "Project export failed, please try again later."
 [Projects.NotFound]
 other = "Item does not exist"
 
+[Projects.ExitFail]
+other = "Failed to exit project"
+
+[Projects.TransferFail]
+other = "Failed to transfer project"
+
 [DefinitionSchemas.QueryFailed]
 other = "Model query failed"
 

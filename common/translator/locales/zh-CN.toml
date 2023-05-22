@@ -20,7 +20,7 @@ other = "项目不存在"
 other = "退出项目失败"
 
 [Projects.TransferFail]
-other = "退出项目失败"
+other = "移交项目失败"
 
 [DefinitionSchemas.QueryFailed]
 other = "模型查询失败"
