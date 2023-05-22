@@ -10,7 +10,6 @@ import (
 	"github.com/apicat/apicat/common/spec/plugin/openapi"
 	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/models"
-	"golang.org/x/exp/slices"
 	"golang.org/x/exp/slog"
 
 	"github.com/gin-gonic/gin"
@@ -161,7 +160,7 @@ func ProjectsCreate(ctx *gin.Context) {
 
 func ProjectsUpdate(ctx *gin.Context) {
 	currentMember, _ := ctx.Get("CurrentMember")
-	if currentMember.(*models.ProjectMembers).Authority != models.ProjectMembersManage {
+	if !currentMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -217,7 +216,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 
 func ProjectsDelete(ctx *gin.Context) {
 	currentMember, _ := ctx.Get("CurrentMember")
-	if currentMember.(*models.ProjectMembers).Authority != models.ProjectMembersManage {
+	if !currentMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -370,7 +369,7 @@ func ProjectDataGet(ctx *gin.Context) {
 // ProjectExit handles the exit of a project member.
 func ProjectExit(ctx *gin.Context) {
 	currentMember, _ := ctx.Get("CurrentMember")
-	if !slices.Contains([]string{models.ProjectMembersWrite, models.ProjectMembersRead}, currentMember.(*models.ProjectMembers).Authority) {
+	if currentMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -389,7 +388,7 @@ func ProjectExit(ctx *gin.Context) {
 
 func ProjectTransfer(ctx *gin.Context) {
 	currentMember, _ := ctx.Get("CurrentMember")
-	if currentMember.(*models.ProjectMembers).Authority != models.ProjectMembersManage {
+	if !currentMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})

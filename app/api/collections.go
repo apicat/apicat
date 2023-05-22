@@ -118,6 +118,14 @@ func CollectionsGet(ctx *gin.Context) {
 }
 
 func CollectionsCreate(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	data := CollectionCreate{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -156,6 +164,14 @@ func CollectionsCreate(ctx *gin.Context) {
 }
 
 func CollectionsUpdate(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	cc := CollectionCheck{}
 	collection, err := cc.CheckCollection(ctx)
 	if err != nil {
@@ -183,6 +199,14 @@ func CollectionsUpdate(ctx *gin.Context) {
 }
 
 func CollectionsCopy(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	cc := CollectionCheck{}
 	collection, err := cc.CheckCollection(ctx)
 	if err != nil {
@@ -219,6 +243,14 @@ func CollectionsCopy(ctx *gin.Context) {
 }
 
 func CollectionsMovement(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	data := CollectionMovement{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -249,6 +281,14 @@ func CollectionsMovement(ctx *gin.Context) {
 }
 
 func CollectionsDelete(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	cc := CollectionCheck{}
 	collection, err := cc.CheckCollection(ctx)
 	if err != nil {

@@ -43,6 +43,14 @@ func TrashsList(ctx *gin.Context) {
 }
 
 func TrashsRecover(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	trashsRecoverQuery := TrashsRecoverQuery{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&trashsRecoverQuery)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

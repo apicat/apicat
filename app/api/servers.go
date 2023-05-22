@@ -39,6 +39,14 @@ func UrlList(ctx *gin.Context) {
 }
 
 func UrlSettings(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 

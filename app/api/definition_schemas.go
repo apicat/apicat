@@ -95,6 +95,14 @@ func DefinitionSchemasList(ctx *gin.Context) {
 }
 
 func DefinitionSchemasCreate(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	var data DefinitionSchemaCreate
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -155,6 +163,14 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 }
 
 func DefinitionSchemasUpdate(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	var (
 		uriData DefinitionSchemaID
 		data    DefinitionSchemaUpdate
@@ -219,6 +235,14 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 }
 
 func DefinitionSchemasDelete(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	var data DefinitionSchemaID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
@@ -315,6 +339,14 @@ func DefinitionSchemasGet(ctx *gin.Context) {
 }
 
 func DefinitionSchemasCopy(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	var data DefinitionSchemaID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
@@ -376,6 +408,14 @@ func DefinitionSchemasCopy(ctx *gin.Context) {
 }
 
 func DefinitionSchemasMove(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	var data DefinitionSchemaMove
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {

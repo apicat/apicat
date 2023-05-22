@@ -34,6 +34,14 @@ type AICreateApiNameStructure struct {
 }
 
 func AICreateCollection(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	var (
 		openapiContent string
 		schema         *models.DefinitionSchemas
@@ -130,6 +138,14 @@ func AICreateCollection(ctx *gin.Context) {
 }
 
 func AICreateSchema(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	var (
 		openapiContent string
 		err            error
@@ -217,6 +233,14 @@ func AICreateSchema(ctx *gin.Context) {
 }
 
 func AICreateApiNames(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	var (
 		openapiContent string
 		err            error

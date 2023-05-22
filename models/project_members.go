@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
 
@@ -56,4 +57,12 @@ func (pm *ProjectMembers) Update() error {
 
 func DeleteAllMembersByProjectID(projectID uint) error {
 	return Conn.Where("project_id = ?", projectID).Delete(&ProjectMembers{}).Error
+}
+
+func (pm *ProjectMembers) MemberIsManage() bool {
+	return pm.Authority == ProjectMembersManage
+}
+
+func (pm *ProjectMembers) MemberHasWritePermission() bool {
+	return slices.Contains([]string{ProjectMembersManage, ProjectMembersWrite}, pm.Authority)
 }
