@@ -3,7 +3,7 @@
     <el-popover placement="bottom" width="250px">
       <template #reference>
         <div :class="ns.e('img')">
-          <img src="@/assets/images/icon-project.png" :alt="projectDetailInfo?.title" />
+          <img src="@/assets/images/logo-square.svg" :alt="projectDetailInfo?.title" />
           <router-link to="/main">
             <el-icon :class="ns.e('back')"><ac-icon-ep-arrow-left-bold /></el-icon>
           </router-link>
@@ -56,10 +56,6 @@ $document-padding: 40px;
 
   @include e(img) {
     @apply flex-none w-32px h-32px mr-10px cursor-pointer;
-
-    img {
-      @apply rounded-full overflow-hidden;
-    }
   }
 
   @include e(back) {

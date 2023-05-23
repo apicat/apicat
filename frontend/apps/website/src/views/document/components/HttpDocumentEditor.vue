@@ -11,7 +11,7 @@
 </template>
 
 <script setup lang="ts">
-import { APICatCommonResponse, HttpDocument } from '@/typings'
+import { HttpDocument } from '@/typings'
 import RequestParamEditor from '@/components/RequestParamEditor'
 import { useNamespace } from '@/hooks/useNamespace'
 import ResponseEditor from '@/components/ResponseEditor.vue'
