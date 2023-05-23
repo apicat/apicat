@@ -88,7 +88,7 @@
         </template>
 
         <template v-else>
-          <span v-if="['number', 'integer', 'boolean', 'string'].includes(data.type)" class="copy_text">{{ data.schema.example }}</span>
+          <span v-if="['number', 'integer', 'boolean', 'string'].includes(data.type)" class="truncate copy_text">{{ data.schema.example }}</span>
         </template>
       </div>
 
@@ -107,7 +107,7 @@
         </template>
       </div>
 
-      <div :class="[ns.e('item'), ns.e('mock'), { 'cursor-pointer': !readonly }]" @click="mockHandler($event, data)">
+      <div :class="[ns.e('item'), ns.e('mock'), { 'cursor-pointer': !readonly, 'cursor-not-allowed': !isAllowMock(data) }]" @click="mockHandler($event, data)">
         <span>{{ data.schema['x-apicat-mock'] }}</span>
       </div>
 
@@ -142,7 +142,7 @@
 import { computed, inject, nextTick, onMounted, ref, shallowRef } from 'vue'
 import SelectTypeDropmenu from './SelectTypeDropmenu.vue'
 import EditorInput from './EditorInput.vue'
-import { JSONSchema, constNodeType } from './types'
+import { JSONSchema, allowMockTypes, basicTypes, constNodeType } from './types'
 import type { Tree } from './types'
 import { CheckboxValueType, ElMessage } from 'element-plus'
 import { useNamespace } from '@/hooks'
@@ -175,6 +175,22 @@ function isRefChildren(v: Tree): boolean {
     return v.parent.refObj ? true : isRefChildren(v.parent)
   }
   return false
+}
+
+function isAllowMock(data: Tree) {
+  if (data.refObj) {
+    return false
+  }
+
+  if (isRefChildren(data)) {
+    return false
+  }
+
+  if (!allowMockTypes.includes(data.type)) {
+    return false
+  }
+
+  return true
 }
 
 function isConstNode(v: string) {
@@ -308,7 +324,7 @@ const addChildHandler = () => {
 }
 
 const mockHandler = (e: MouseEvent, row: Tree) => {
-  if (props.readonly) {
+  if (props.readonly || !isAllowMock(row)) {
     return
   }
 
