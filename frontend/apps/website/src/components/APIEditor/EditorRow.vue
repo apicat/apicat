@@ -307,7 +307,7 @@ const addChildHandler = () => {
   }
 }
 
-const mockHandler = (e: PointerEvent, row: Tree) => {
+const mockHandler = (e: MouseEvent, row: Tree) => {
   if (props.readonly) {
     return
   }

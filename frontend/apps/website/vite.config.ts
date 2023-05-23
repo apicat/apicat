@@ -48,6 +48,7 @@ export default () => {
     css: {
       preprocessorOptions: {
         scss: {
+          charset: false,
           additionalData: `@use "@/styles/element/index.scss" as *;`,
         },
       },
