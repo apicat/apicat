@@ -35,6 +35,10 @@ func InitApiRouter(r *gin.Engine) {
 		ctx.FileFromFS("dist/", http.FS(frontend.FrontDist))
 	})
 
+	mocksrv := api.NewMockServer()
+
+	r.Any("/mock/:id/*path", mocksrv.Handler)
+
 	apiRouter := r.Group("/api").Use(translator.UseValidatori18n())
 	{
 		account := apiRouter.(*gin.RouterGroup).Group("/account")
@@ -60,7 +64,10 @@ func InitApiRouter(r *gin.Engine) {
 			user.PUT("/password", api.ChangePassword)
 		}
 
-		project := apiRouter.(*gin.RouterGroup).Group("/projects/:id", middleware.JWTAuthMiddleware()).Use(middleware.CheckProject())
+		project := apiRouter.(*gin.RouterGroup).Group("/projects/:id", middleware.JWTAuthMiddleware()).Use(
+			middleware.CheckProject(),
+			mocksrv.ClearCache(),
+		)
 		{
 			definitionSchemas := project.(*gin.RouterGroup).Group("/definition/schemas")
 			{
