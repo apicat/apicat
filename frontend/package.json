@@ -1,7 +1,6 @@
 {
   "name": "apicat-web",
   "private": true,
-  "packageManager": "pnpm@7.27.0",
   "workspaces": [
     "apps/*",
     "packages/*"
