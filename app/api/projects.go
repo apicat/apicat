@@ -29,7 +29,7 @@ type UpdateProject struct {
 }
 
 type ProjectID struct {
-	ID string `uri:"id" binding:"required"`
+	ID string `uri:"project-id" binding:"required"`
 }
 
 type ExportProject struct {
