@@ -12,6 +12,7 @@
           <el-input
             :prefix-icon="search"
             size="small"
+            class="mb-10px"
             v-model="mockQuery"
             @keydown.down.stop.prevent="onSelectMockRuleByKeyDown('next')"
             @keydown.up.stop.prevent="onSelectMockRuleByKeyDown('prev')"
@@ -56,12 +57,13 @@
 <script>
 import { ElButton, ElDialog, ElForm, ElFormItem, ElInput } from 'element-plus'
 import { Search } from '@element-plus/icons-vue'
-import { getMockRules, PARAM_TYPES } from './constants'
+import { getMockRules } from './constants'
 import MockRuleParser from './parser'
 import MockValidator from './valid'
 import { debounce } from 'lodash-es'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 import { markRaw } from 'vue'
+import { $emit } from '@apicat/shared'
 
 const MOCK_RULES = getMockRules()
 
@@ -70,7 +72,7 @@ let lastCursorPos = {
   y: 0,
 }
 
-export default {
+export default defineComponent({
   name: 'MockRules',
   components: {
     ElButton,
@@ -126,7 +128,7 @@ export default {
     'form.mock_rule': debounce(function () {
       if (this.form.mock_rule) {
         const result = MockValidator.validate(this.form.mock_rule, this.paramType)
-        !result.length && this.getCurrentMockRule(this.form)
+        !result.length && this.getCurrentMockRule(this.form.mock_rule)
       }
     }, 300),
   },
@@ -199,19 +201,18 @@ export default {
 
     show(node) {
       this.visible = true
-      this.generateMockRulesByParamType(node)
-      this.getCurrentMockRule(node)
-      this.form.mock_rule = node.mock_rule || ''
+      this.form.mock_rule = node.mockRule || ''
+      this.generateMockRulesByParamType(node.mockType)
+      this.getCurrentMockRule(node.mockRule)
     },
 
-    generateMockRulesByParamType(node) {
-      const paramType = PARAM_TYPES.valueOf(node.type).toLowerCase()
-      const defaultMockRule = (MOCK_RULES[paramType] || { rules: [] }).rules
+    generateMockRulesByParamType(mockType) {
+      const defaultMockRule = (MOCK_RULES[mockType] || { rules: [] }).rules
       let rules = []
 
       if (defaultMockRule && defaultMockRule.length) {
         rules = defaultMockRule
-        this.paramType = paramType
+        this.paramType = mockType
       } else {
         Object.keys(MOCK_RULES).forEach((key) => {
           let _rules = MOCK_RULES[key].rules || []
@@ -223,24 +224,27 @@ export default {
       this.mockRules = this.allMockRules.concat([])
     },
 
-    getCurrentMockRule(node) {
-      const { type: ruleName } = MockRuleParser.getRuleName(node.mock_rule)
+    getCurrentMockRule(rule) {
+      const { type: ruleName } = MockRuleParser.getRuleName(rule)
       const key = `${this.paramType}-${ruleName}`
       this.currentRule = this.allMockRules.find((item) => item.key === key)
 
-      this.currentRule &&
-        this.$nextTick(() => {
-          let node = document.getElementById('ac-mock-rule__item' + this.currentRule.key)
-          if (node) {
-            node.scrollIntoView ? node.scrollIntoView({ behavior: 'smooth', block: 'nearest' }) : scrollIntoView(node, { behavior: 'smooth', block: 'nearest' })
-          }
-        })
+      if (!this.currentRule) {
+        this.onRuleItemClick(this.allMockRules[0])
+      }
+
+      this.$nextTick(() => {
+        let node = document.getElementById('ac-mock-rule__item' + this.currentRule.key)
+        if (node) {
+          node.scrollIntoView ? node.scrollIntoView({ behavior: 'smooth', block: 'nearest' }) : scrollIntoView(node, { behavior: 'smooth', block: 'nearest' })
+        }
+      })
     },
 
     onOkBtnClick() {
       this.$refs['mockForm'].validate((valid) => {
         if (valid) {
-          this.$emit('on-ok', this.form.mock_rule)
+          $emit(this, 'on-ok', this.form.mock_rule)
           this.visible = false
         }
       })
@@ -253,9 +257,9 @@ export default {
       this.mockQuery = ''
     },
   },
-}
+})
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @use './style.scss';
 </style>

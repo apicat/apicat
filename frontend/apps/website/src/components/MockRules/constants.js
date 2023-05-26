@@ -2,26 +2,6 @@
 
 import { parseImage, parseBoolean } from './parser'
 
-// form data 基础类型，mock数据类型 1.int 2.float 3.string 4.array 5.object 6.boolean 7.file
-export const PARAM_TYPES = {
-  TYPES: [
-    { text: 'Int', value: 1 },
-    { text: 'Float', value: 2 },
-    { text: 'String', value: 3 },
-    { text: 'Array', value: 4 },
-    { text: 'Object', value: 5 },
-    { text: 'ArrayObject', value: 8 },
-    { text: 'Boolean', value: 6 },
-    { text: 'File', value: 7 },
-  ],
-  valueOf(value) {
-    return (this.TYPES.find((item) => item.value === value) || { text: '' }).text
-  },
-  VALUES: {
-    ARRAY: 4,
-  },
-}
-
 // 正整数
 export const RE_STR_NORMAL_NUMBER = '(\\-?(\\d|[1-9]\\d+))'
 
@@ -125,86 +105,34 @@ const mockRules = {
       },
       {
         searchKey: '',
-        name: 'cparagraph',
-        cnName: '中文段落',
-        allow: { actionText: '句子个数', range: { min: 1, max: 15 }, regexp: createRangeRegExp('cparagraph') },
+        name: 'phrase',
+        cnName: '英文短语',
+        allow: { actionText: '单词个数', range: { min: 1, max: 15 }, regexp: createRangeRegExp('phrase') },
         syntax: [
-          'cparagraph',
-          '随机生成大于等于3小于等于7个句子的中文段落',
-          'cparagraph|len',
-          '生成指定句子个数的中文段落',
-          'cparagraph|min-max',
-          '随机生成大于等于min小于等于max个句子的中文段落',
+          'phrase',
+          '随机生成大于等于3小于等于7个单词的英文短语',
+          'phrase|len',
+          '生成指定单词个数的英文短语',
+          'phrase|min-max',
+          '随机生成大于等于min小于等于max个单词的英文短语',
         ],
         example: [
-          'cparagraph',
-          '-> 燥卜簇嬉藏扯逻梅久狡双红宦蛤拉酣概些。捏腰勋橱谈失猿阻怨精你昆蓖呜。臣毅娄韩缸某均铭等斟吹辨码挣勘豁瓶意。袒瞻朵害侵赚箭歼弄割酌聚湖。奶曹礼贝做币毅绣邮卦慎澎芋。北妆惦期漂禾舷费鞋兑器床摊。',
-          'cparagraph|2',
-          '-> 蓉熟战半进箍柬娘齐蒲熊成十近筷柔。肴栅喷述看所做蔫泼媳隘篷擎卦谆片度。',
-          'cparagraph|1-3',
-          '-> 监妖认机传秧尽赞榛再纠弓逝泼千肆愚镰。恭砖闽尔牌躁坟沽袄厢杜舰偏换约。',
+          'phrase',
+          '-> Omylxk Ubcdefghij Cfkpuz Kcegikm',
+          'phrase|5',
+          '-> Bslewpi Tbcde Xslewpibtm Thovdkrygn Ymylxk',
+          'phrase|3-5',
+          '-> Pgmsyflr Qwtqnkheb Sup Yxvtrpnljh',
         ],
-      },
-      {
-        searchKey: '',
-        name: 'csentence',
-        cnName: '中文句子',
-        allow: { actionText: '汉字个数', range: { min: 1, max: 30 }, regexp: createRangeRegExp('csentence') },
-        syntax: [
-          'csentence',
-          '随机生成大于等于12小于等于18个汉字的中文句子',
-          'csentence|len',
-          '生成指定汉字个数的中文句子',
-          'csentence|min-max',
-          '随机生成大于等于min小于等于max个汉字的中文句子',
-        ],
-        example: ['csentence', '-> 袋瞪未审供赂答欧庞到遥翻淑。', 'csentence|5', '-> 夏斧皇衡中。', 'csentence|3-5', '-> 努壶心敷泣。'],
-      },
-      {
-        searchKey: '',
-        name: 'cword',
-        cnName: '中文词语',
-        allow: { actionText: '汉字个数', range: { min: 1, max: 10 }, regexp: createRangeRegExp('cword') },
-        syntax: [
-          'cword',
-          '随机生成大于等于1小于等于4个汉字的中文词语',
-          'cword|len',
-          '生成指定汉字个数的中文词语',
-          'cword|min-max',
-          '随机生成大于等于min小于等于max个汉字的中文词语',
-        ],
-        example: ['cword', '-> 闪', 'cword|3', '-> 批纱人', 'cword|3-5', '-> 撤蓬喻爆隆'],
-      },
-      {
-        searchKey: '',
-        name: 'ctitle',
-        cnName: '中文标题',
-        allow: { actionText: '汉字个数', range: { min: 1, max: 20 }, regexp: createRangeRegExp('ctitle') },
-        syntax: [
-          'ctitle',
-          '随机生成大于等于3小于等于7个汉字的中文标题',
-          'ctitle|len',
-          '生成指定汉字个数的中文标题',
-          'ctitle|min-max',
-          '随机生成大于等于min小于等于max个汉字的中文标题',
-        ],
-        example: ['ctitle', '-> 徊疚述坷毯蔫', 'ctitle|3', '-> 滤儿疯', 'ctitle|3-5', '-> 廊狼贿'],
-      },
-
-      {
-        searchKey: '',
-        name: 'mobile',
-        cnName: '手机号',
-        syntax: ['mobile', '随机生成一个国内手机号码'],
-        example: ['mobile', '-> 13333333333'],
       },
       {
         searchKey: '',
         name: 'phone',
-        cnName: '座机号',
-        syntax: ['phone', '随机生成一个国内座机号码'],
-        example: ['phone', '-> (029)88888888'],
+        cnName: '手机号',
+        syntax: ['phone', '随机生成一个国内手机号码'],
+        example: ['phone', '-> 13333333333'],
       },
+
       {
         searchKey: '',
         name: 'idcard',
@@ -227,11 +155,18 @@ const mockRules = {
         example: ['domain', '-> apicat.net'],
       },
       {
-        searchKey: '',
-        name: 'ip',
-        cnName: 'IP地址',
-        syntax: ['ip', '随机生成一个ip地址'],
-        example: ['ip', '-> 127.0.0.1'],
+        searchKey: 'ip ipv6',
+        name: 'ipv6',
+        cnName: 'IPv6地址',
+        syntax: ['ipv6', '随机生成一个ipv6地址'],
+        example: ['ipv6', '-> 2001:0db8:3c4d:0015:0000:0000:1a2f:1a2b'],
+      },
+      {
+        searchKey: 'ip ipv4',
+        name: 'ipv4',
+        cnName: 'IPv4地址',
+        syntax: ['ipv4', '随机生成一个ipv4地址'],
+        example: ['ipv4', '-> 127.0.0.1'],
       },
       {
         searchKey: '',
@@ -242,10 +177,17 @@ const mockRules = {
       },
       {
         searchKey: '',
-        name: 'province',
-        cnName: '省份',
-        syntax: ['province', '随机生成一个省份名称'],
-        example: ['province', '-> 陕西省'],
+        name: 'provinceorstate',
+        cnName: '省',
+        syntax: ['provinceorstate', '随机生成一个省名称'],
+        example: ['provinceorstate', '-> 陕西省'],
+      },
+      {
+        searchKey: '',
+        name: 'street',
+        cnName: '街道',
+        syntax: ['street', '随机生成街道名称'],
+        example: ['street', '-> 因看大街吴云 商场64-4号'],
       },
       {
         searchKey: '',
@@ -254,19 +196,13 @@ const mockRules = {
         syntax: ['city', '随机生成一个城市名称'],
         example: ['city', '-> 西安'],
       },
+
       {
-        searchKey: '',
-        name: 'province_city',
-        cnName: '省市',
-        syntax: ['province_city', '随机生成一个省市名称'],
-        example: ['province_city', '-> 陕西省西安市'],
-      },
-      {
-        searchKey: '',
-        name: 'province_city_district',
+        searchKey: '地址',
+        name: 'address',
         cnName: '省市区',
-        syntax: ['province_city_district', '随机生成一个省市区名称'],
-        example: ['province_city_district', '-> 陕西省西安市新城区'],
+        syntax: ['address', '随机生成一个详细地址'],
+        example: ['address', '-> 陕西省西安市新城区还用场集小区1栋0单元975号'],
       },
       {
         searchKey: '',
@@ -274,6 +210,27 @@ const mockRules = {
         cnName: '邮政编码',
         syntax: ['zipcode', '随机生成一个邮政编码'],
         example: ['zipcode', '-> 710000'],
+      },
+      {
+        searchKey: '',
+        name: 'longitude',
+        cnName: '经度',
+        syntax: ['longitude', '随机生成一个经度'],
+        example: ['longitude', '-> 116.397128'],
+      },
+      {
+        searchKey: '',
+        name: 'latitude',
+        cnName: '维度',
+        syntax: ['latitude', '随机生成一个维度'],
+        example: ['latitude', '-> 39.916527'],
+      },
+      {
+        searchKey: 'longitude latitude',
+        name: 'longitude&latitude',
+        cnName: '经纬度',
+        syntax: ['longitude&latitude', '随机生成一个经纬度'],
+        example: ['longitude&latitude', '-> 116.397128, 39.916527'],
       },
       {
         searchKey: '',
@@ -316,6 +273,13 @@ const mockRules = {
         cnName: '时间戳',
         syntax: ['timestamp', '随机生成一个时间戳'],
         example: ['timestamp', '-> 1584406800'],
+      },
+      {
+        searchKey: '',
+        name: 'now',
+        cnName: '当前时间',
+        syntax: ['now', '当前时间'],
+        example: ['now', '-> 2022-05-22 13:00:32'],
       },
 
       {
@@ -374,16 +338,39 @@ const mockRules = {
           '-> http://mock.apicat.net/image/200x200.png',
         ],
       },
+      // {
+      //   searchKey: 'file',
+      //   name: 'fileurl',
+      //   cnName: '文件链接',
+      //   allow: { regexp: createOneOfRegExp('fileurl', ['word', 'excel', 'csv', 'md']) },
+      //   syntax: ['fileurl', '生成一个markdown的文件链接', 'fileurl|type', '生成一个指定类型的文件链接，类型type只支持word、excel、csv、md'],
+      //   example: ['fileurl', '-> http://mock.apicat.net/file/welcome_to_use_apicat.md', 'fileurl|csv', '-> http://mock.apicat.net/file/welcome_to_use_apicat.csv'],
+      // },
       {
-        searchKey: 'file',
-        name: 'fileurl',
-        cnName: '文件链接',
-        allow: { regexp: createOneOfRegExp('fileurl', ['word', 'excel', 'csv', 'md']) },
-        syntax: ['fileurl', '生成一个markdown的文件链接', 'fileurl|type', '生成一个指定类型的文件链接，类型type只支持word、excel、csv、md'],
-        example: ['fileurl', '-> http://mock.apicat.net/file/welcome_to_use_apicat.md', 'fileurl|csv', '-> http://mock.apicat.net/file/welcome_to_use_apicat.csv'],
+        searchKey: '',
+        name: 'color',
+        cnName: '颜色',
+        allow: { regexp: createOneOfRegExp('color', ['rgb', 'rgba', 'hsl', 'hex']) },
+        syntax: ['color', '默认生成hex颜色', 'color|type', '随机生成颜色值，类型type只支持rgb、rgba、hsl、hex'],
+        example: ['color', '-> #002211', 'color|rgb', '-> rgb(255,0,123)'],
+      },
+
+      {
+        searchKey: '状态码',
+        name: 'httpcode',
+        cnName: 'http状态码',
+        syntax: ['httpcode', '随机生成一个http状态码'],
+        example: ['httpcode', '-> 200'],
+      },
+      {
+        searchKey: 'http 请求方法',
+        name: 'httpmethod',
+        cnName: 'http请求方法',
+        syntax: ['httpmethod', '随机生成一个http请求方法'],
+        example: ['httpmethod', '-> DELETE'],
       },
     ],
-    int: [
+    integer: [
       {
         searchKey: '',
         name: 'int',
@@ -561,7 +548,7 @@ const mockRules = {
         example: ['image', '-> 返回一个200*150的jpeg图片流', 'image|200*200', '-> 返回一个200*200的jpeg图片流', 'image|600*400,png', '-> 返回一个600*400的png图片流'],
       },
     ],
-    float: [
+    number: [
       {
         searchKey: '',
         name: 'float',
@@ -618,6 +605,7 @@ export const getMockRules = () => {
     rules[key] = obj
   })
 
+  console.log(rules)
   mockRules.isUse = true
 
   return rules

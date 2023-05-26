@@ -1,3 +1,5 @@
+@use 'sass:color' as *;
+
 $mock-prefix: ac-mock;
 $rule-query-input-padding: 16px;
 $rule-query-input-height: 28px;
@@ -64,7 +66,7 @@ $rule-list-max-height: 340px;
     }
 
     &.hover {
-      background-color: fade(var(--primary-color), 6%);
+      background-color: adjust(#006bff, $alpha: -0.9);
     }
   }
 

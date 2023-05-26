@@ -26,7 +26,7 @@
 
         <template v-else>
           <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
-          <span v-else class="copy_text">{{ data.label }}</span>
+          <span v-else class="copy_text" :title="data.label">{{ data.label }}</span>
         </template>
       </div>
 
@@ -103,12 +103,16 @@
         </template>
 
         <template v-else>
-          <span class="copy_text">{{ data.schema.description }}</span>
+          <span class="copy_text" :title="data.schema.description">{{ data.schema.description }}</span>
         </template>
       </div>
 
-      <div :class="[ns.e('item'), ns.e('mock'), { 'cursor-pointer': !readonly, 'cursor-not-allowed': !isAllowMock(data) }]" @click="mockHandler($event, data)">
-        <span>{{ data.schema['x-apicat-mock'] }}</span>
+      <div
+        :class="[ns.e('item'), ns.e('mock'), { 'cursor-pointer': !readonly, 'cursor-not-allowed': !isAllowMock(data) }]"
+        @click="mockHandler($event, data)"
+        :title="data.schema['x-apicat-mock']"
+      >
+        {{ data.schema['x-apicat-mock'] }}
       </div>
 
       <div :class="[ns.e('item'), ns.e('operation')]" v-if="!readonly">
@@ -147,6 +151,7 @@ import type { Tree } from './types'
 import { CheckboxValueType, ElMessage } from 'element-plus'
 import { useNamespace } from '@/hooks'
 import { cloneDeep } from 'lodash-es'
+import { guessMockRule, mockRulesModal } from '@/components/MockRules'
 
 const props = defineProps<{
   level: number
@@ -226,12 +231,20 @@ const changeType = ({ type, isRef }: any) => {
   resetObject(sc)
   if (!isRef) {
     sc.type = type
+    sc['x-apicat-mock'] = guessMockRule({ name: props.data.label, mockType: type })
+
     if (sc.type == 'array') {
       sc.items = {
         type: 'string',
+        'x-apicat-mock': 'string',
       }
     } else if (sc.type == 'object') {
       sc.properties = {}
+    }
+
+    // todo array | object mock?
+    if (sc.type === 'array' || sc.type === 'object') {
+      delete sc['x-apicat-mock']
     }
   } else {
     sc.$ref = type
@@ -328,7 +341,15 @@ const mockHandler = (e: MouseEvent, row: Tree) => {
     return
   }
 
-  console.log(e, row)
+  mockRulesModal.show({
+    model: {
+      mockRule: row.schema['x-apicat-mock'],
+      mockType: row.schema.type,
+    },
+    onOk: (rule: string) => {
+      row.schema['x-apicat-mock'] = rule
+    },
+  })
 }
 
 // addchildren auto focus
