@@ -369,6 +369,14 @@ const mockRules = {
         syntax: ['httpmethod', '随机生成一个http请求方法'],
         example: ['httpmethod', '-> DELETE'],
       },
+      {
+        searchKey: '数字占位符 占位符',
+        name: 'numberpattern',
+        cnName: '数字占位',
+        allow: { regexp: /^numberpattern\|[#-]+$/ },
+        syntax: ['numberpattern|###-######-#', '231-200312-1'],
+        example: ['numberpattern|###-##', '-> 123-12'],
+      },
     ],
     integer: [
       {
