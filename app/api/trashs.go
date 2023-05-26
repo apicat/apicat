@@ -36,6 +36,7 @@ func TrashsList(ctx *gin.Context) {
 			"title":      v.Title,
 			"type":       v.Type,
 			"deleted_at": v.DeletedAt.Time.Format("2006-01-02 15:04:05"),
+			"deleted_by": v.Deleter(),
 		})
 	}
 
