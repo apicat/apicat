@@ -1,4 +1,3 @@
-import { API_URL } from '@/commons'
 import Ajax from './Ajax'
 
 export interface MockRequestParams {
@@ -7,6 +6,6 @@ export interface MockRequestParams {
 
 export const mockApiPath = (project_id: string, mock_path: string): string => `/mock/${project_id}${mock_path}`
 
-export const mockServerPath = location.origin + API_URL
+export const mockServerPath = location.origin
 
 export const getMockData = (requestPath: string, data?: MockRequestParams) => Ajax.get(requestPath + '?' + new URLSearchParams(data as any).toString())

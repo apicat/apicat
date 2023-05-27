@@ -60,6 +60,10 @@ export default () => {
           target: 'http://127.0.0.1:8000',
           changeOrigin: true,
         },
+        '/mock': {
+          target: 'http://127.0.0.1:8000',
+          changeOrigin: true,
+        },
       },
     },
     define: {
