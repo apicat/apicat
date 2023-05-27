@@ -622,7 +622,6 @@ export const getMockRules = () => {
     rules[key] = obj
   })
 
-  console.log(rules)
   mockRules.isUse = true
 
   return rules

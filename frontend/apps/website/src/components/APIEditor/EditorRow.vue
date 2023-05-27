@@ -327,6 +327,7 @@ const addChildHandler = () => {
     }
     props.data.schema.properties[''] = {
       type: 'string',
+      'x-apicat-mock': 'string',
     }
     props.data.schema['x-apicat-orders']?.push('')
   }

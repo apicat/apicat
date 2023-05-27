@@ -86,7 +86,6 @@ var Diff = {
   validateRange(inputRule, allow, result) {
     const parse = allow.parse || MockRuleParser.parseString
     const rule = parse(inputRule, allow.regexp)
-    console.log(rule)
 
     // 范围校验
     if (allow.range !== undefined) {
