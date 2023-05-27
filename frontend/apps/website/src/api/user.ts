@@ -1,6 +1,5 @@
 import { UserInfo } from '@/typings/user'
 import Ajax from './Ajax'
-import useApi from '@/hooks/useApi'
 
 // 用户登录
 export const userEmailLogin = (data: Partial<UserInfo>) => Ajax.post('/account/login/email', { ...data })

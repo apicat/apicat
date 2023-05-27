@@ -21,6 +21,7 @@ export default {
       deleteTip: '删除提示',
       confirmDelete: '确认删除{msg}吗？',
       copyAllPath: '复制完整URL',
+      fetchMockData: '获取Mock数据',
       saving: '保存中...',
       savedCloud: '已保存在云端',
       preview: '预览',

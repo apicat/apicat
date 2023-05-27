@@ -378,6 +378,34 @@ const mockRules = {
         syntax: ['numberpattern|{pattern}', 'pattern为#和-组合的方式'],
         example: ['numberpattern|###-######-#', '-> 111-222222-3'],
       },
+      {
+        searchKey: '名字 姓 名',
+        name: 'firstname',
+        cnName: '姓',
+        syntax: ['firstname', '随机生成一个姓'],
+        example: ['firstname', '-> 张'],
+      },
+      {
+        searchKey: '名字 姓 名',
+        name: 'name',
+        cnName: '名字',
+        syntax: ['name', '随机生成一个名字'],
+        example: ['name', '-> 张爱军'],
+      },
+      {
+        searchKey: '名字 姓 名',
+        name: 'lastname',
+        cnName: '名',
+        syntax: ['lastname', '随机生成一个名'],
+        example: ['lastname', '-> 发财'],
+      },
+      {
+        searchKey: '性别',
+        name: 'gender',
+        cnName: '性别',
+        syntax: ['gender', '随机生成性别'],
+        example: ['gender', '-> 男'],
+      },
     ],
     integer: [
       {
@@ -391,7 +419,7 @@ const mockRules = {
       {
         searchKey: '字增 ID',
         name: 'autoincrement',
-        cnName: '数字占位',
+        cnName: '自增',
         allow: { range: { min: -1000000, max: 1000000 }, regexp: createIntegerRangeRegExp('autoincrement') },
         syntax: ['autoincrement|{begin?},{step?}', 'begin起始值,默认 1', 'step步长,默认 1'],
         example: ['autoincrement', '-> 1,2,3,....', 'autoincrement|100', '-> 100,101,102,...', 'autoincrement|100,2', '-> 100,102,104,...'],

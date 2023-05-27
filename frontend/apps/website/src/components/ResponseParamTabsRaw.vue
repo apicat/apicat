@@ -8,6 +8,7 @@
             <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
           </el-space>
         </template>
+        <ResponseMockRaw :doc="doc" :code="item.code" />
         <ResponseParamPaneRaw :param="item" :definitions="definitions" />
       </el-tab-pane>
     </el-tabs>

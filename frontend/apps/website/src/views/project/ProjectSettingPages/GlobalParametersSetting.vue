@@ -41,7 +41,7 @@
       <el-checkbox size="small" style="font-weight: normal" v-model="isUnRef" :true-label="1" :false-label="0">对引用此参数的内容解引用</el-checkbox>
       <div class="flex justify-end">
         <el-button size="small" text @click="hidePopover">{{ $t('app.common.cancel') }}</el-button>
-        <el-button size="small" type="primary" @click="handelConfirmDelete">{{ $t('app.common.confirm') }}</el-button>
+        <el-button size="small" type="primary" @click="handleConfirmDelete">{{ $t('app.common.confirm') }}</el-button>
       </div>
     </div>
   </el-popover>
@@ -74,7 +74,7 @@ const onClickDeleteIcon = (param: any, index: number, delHandler: any, e: Pointe
   showPopover(e.target as HTMLElement)
 }
 
-const handelConfirmDelete = async () => {
+const handleConfirmDelete = async () => {
   if (currentDeleteParam) {
     const { param, index, delHandler } = currentDeleteParam
     hidePopover()
