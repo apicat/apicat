@@ -107,12 +107,8 @@
         </template>
       </div>
 
-      <div
-        :class="[ns.e('item'), ns.e('mock'), { 'cursor-pointer': !readonly, 'cursor-not-allowed': !isAllowMock(data) }]"
-        @click="mockHandler($event, data)"
-        :title="data.schema['x-apicat-mock']"
-      >
-        {{ data.schema['x-apicat-mock'] }}
+      <div :class="[ns.e('item'), ns.e('mock'), { 'cursor-pointer': !readonly, 'cursor-not-allowed': !isAllowMock(data) }]" @click="mockHandler($event, data)">
+        <span class="truncate" :title="data.schema['x-apicat-mock']"> {{ data.schema['x-apicat-mock'] }}</span>
       </div>
 
       <div :class="[ns.e('item'), ns.e('operation')]" v-if="!readonly">

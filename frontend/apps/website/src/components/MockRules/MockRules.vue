@@ -196,7 +196,7 @@ export default defineComponent({
 
     onRuleItemClick(rule) {
       this.currentRule = rule
-      this.form.mock_rule = rule.default || rule.name
+      this.form.mock_rule = rule.defaultValue || rule.name
     },
 
     show(node) {

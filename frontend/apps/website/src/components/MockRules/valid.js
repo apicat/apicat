@@ -86,6 +86,7 @@ var Diff = {
   validateRange(inputRule, allow, result) {
     const parse = allow.parse || MockRuleParser.parseString
     const rule = parse(inputRule, allow.regexp)
+    console.log(rule)
 
     // 范围校验
     if (allow.range !== undefined) {
@@ -190,7 +191,7 @@ var Diff = {
     }
   },
 
-  validateInt: function (inputRule, allow, result) {
+  validateInteger: function (inputRule, allow, result) {
     const rule = MockRuleParser.parseNumber(inputRule)
 
     // 范围校验
@@ -270,8 +271,8 @@ var Diff = {
     }
   },
 
-  validateFloat: function (inputRule, allow, result) {
-    this.validateInt(inputRule, allow, result)
+  validateNumber: function (inputRule, allow, result) {
+    this.validateInteger(inputRule, allow, result)
   },
 
   validateFile: function (inputRule, allow, result) {

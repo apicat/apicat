@@ -5,13 +5,14 @@ import { parseImage, parseBoolean } from './parser'
 // 正整数
 export const RE_STR_NORMAL_NUMBER = '(\\-?(\\d|[1-9]\\d+))'
 
+// 正则组合 校验语法
 export const createDateTimeRegExp = (name) => new RegExp(`^${name}((\\|(y-m-d|y\\/m\\/d)) h:i:s)?$`, 'i')
 export const createDateRegExp = (name) => new RegExp(`^${name}(\\|(y-m-d|y\\/m\\/d))?$`, 'i')
 export const createTimeRegExp = (name) => new RegExp(`^${name}(\\|h:i:s)?$`, 'i')
-export const createImageRegExp = (name) => new RegExp(`^${name}(\\|((\\d|[1-9]\\d+)\\*(\\d|[1-9]\\d+)),(\\w+))?(\\|((\\d|[1-9]\\d+)\\*(\\d|[1-9]\\d+)))?$`)
+export const createImageRegExp = (name) => new RegExp(`^${name}(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)))?(\\|(\\d|[1-9]\\d+))?$`)
 export const createOneOfRegExp = (name, types) => new RegExp(`^${name}(\\|(${types.join('|')}))?$`)
 export const createRangeRegExp = (name) => new RegExp(`^(${name})(\\|((\\-?(\\d|[1-9]\\d+))\\-(\\d|[1-9]\\d+)|(\\-?(\\d|[1-9]\\d+))))?$`)
-export const createNumberRangeRegExp = (name) => new RegExp(`^${name}(\\|\\-?((\\d|[1-9]\\d+)~\\-?(\\d|[1-9]\\d+)|\\-?(\\d|[1-9]\\d+)))?$`)
+export const createIntegerRangeRegExp = (name) => new RegExp(`^${name}(\\|\\-?((\\d|[1-9]\\d+),\\-?(\\d|[1-9]\\d+)|\\-?(\\d|[1-9]\\d+)))?$`)
 export const creatFloatRangeRegExp = (name) => new RegExp(`^${name}(\\|\\-?((\\d|[1-9]\\d+)~\\-?(\\d|[1-9]\\d+)|\\-?(\\d|[1-9]\\d+))(?:\\.(\\d+-?\\d*)))?$`)
 
 /**
@@ -25,28 +26,28 @@ const mockRules = {
         searchKey: '',
         name: 'string',
         cnName: '字符串',
-        allow: { range: { min: 1, max: 10000 }, regexp: createRangeRegExp('string') },
+        allow: { range: { min: 1, max: 10000 }, regexp: createIntegerRangeRegExp('string') },
         syntax: [
           'string',
           '随机生成大于等于3小于等于10长度的英文字符串',
           'string|len',
           '生成指定长度的英文字符串',
-          'string|min-max',
+          'string|min,max',
           '随机生成大于等于min小于等于max长度的英文字符串',
         ],
-        example: ['string', '-> cegikmoq', 'string|3', '-> wtq', 'string|1-5', '-> xvt'],
+        example: ['string', '-> cegikmoq', 'string|3', '-> wtq', 'string|1,5', '-> xvt'],
       },
       {
         searchKey: '',
         name: 'paragraph',
         cnName: '英文段落',
-        allow: { actionText: '句子个数', range: { min: 1, max: 20 }, regexp: createRangeRegExp('paragraph') },
+        allow: { actionText: '句子个数', range: { min: 1, max: 20 }, regexp: createIntegerRangeRegExp('paragraph') },
         syntax: [
           'paragraph',
           '随机生成大于等于3小于等于7个句子的英文段落',
           'paragraph|len',
           '生成指定句子个数的段落',
-          'paragraph|min-max',
+          'paragraph|min,max',
           '随机生成大于等于min小于等于max个句子的英文段落',
         ],
         example: [
@@ -62,7 +63,7 @@ const mockRules = {
         searchKey: '',
         name: 'sentence',
         cnName: '英文句子',
-        allow: { actionText: '单词个数', range: { min: 1, max: 30 }, regexp: createRangeRegExp('sentence') },
+        allow: { actionText: '单词个数', range: { min: 1, max: 30 }, regexp: createIntegerRangeRegExp('sentence') },
         syntax: [
           'sentence',
           '随机生成大于等于12小于等于18个单词的英文句子',
@@ -76,7 +77,7 @@ const mockRules = {
           '-> Okufpz hovdkr fkpuzf pfukzpfukz aaaaaaaa gmsyf odrgu fkpuzfkp lwitf rjbs eim nbocpdqer mylx hovdk.',
           'sentence|5',
           '-> Mjsclu xvtrpn slewp xvtrpn slewp.',
-          'sentence|3-5',
+          'sentence|3,5',
           '-> Epfukzpf lwitfqcn upkfzupk.',
         ],
       },
@@ -84,36 +85,36 @@ const mockRules = {
         searchKey: '',
         name: 'word',
         cnName: '英文单词',
-        allow: { actionText: '字母个数', range: { min: 1, max: 20 }, regexp: createRangeRegExp('word') },
+        allow: { actionText: '字母个数', range: { min: 1, max: 20 }, regexp: createIntegerRangeRegExp('word') },
         syntax: ['word', '随机生成大于等于3小于等于10个字母的英文单词', 'word|len', '生成指定字母个数的单词', 'word|min-max', '随机生成大于等于min小于等于max个字母的英文单词'],
-        example: ['word', '-> aaa', 'word|5', '-> slewp', 'word|3-5', '-> yxwvu'],
+        example: ['word', '-> aaa', 'word|5', '-> slewp', 'word|3,5', '-> yxwvu'],
       },
       {
         searchKey: '',
         name: 'title',
         cnName: '英文标题',
-        allow: { actionText: '单词个数', range: { min: 1, max: 15 }, regexp: createRangeRegExp('title') },
+        allow: { actionText: '单词个数', range: { min: 1, max: 15 }, regexp: createIntegerRangeRegExp('title') },
         syntax: [
           'title',
           '随机生成大于等于3小于等于7个单词的英文标题',
           'title|len',
           '生成指定单词个数的英文标题',
-          'title|min-max',
+          'title|min,max',
           '随机生成大于等于min小于等于max个单词的英文标题',
         ],
-        example: ['title', '-> Omylxk Ubcdefghij Cfkpuz Kcegikm', 'title|5', '-> Bslewpi Tbcde Xslewpibtm Thovdkrygn Ymylxk', 'title|3-5', '-> Pgmsyflr Qwtqnkheb Sup Yxvtrpnljh'],
+        example: ['title', '-> Omylxk Ubcdefghij Cfkpuz Kcegikm', 'title|5', '-> Bslewpi Tbcde Xslewpibtm Thovdkrygn Ymylxk', 'title|3,5', '-> Pgmsyflr Qwtqnkheb Sup Yxvtrpnljh'],
       },
       {
         searchKey: '',
         name: 'phrase',
         cnName: '英文短语',
-        allow: { actionText: '单词个数', range: { min: 1, max: 15 }, regexp: createRangeRegExp('phrase') },
+        allow: { actionText: '单词个数', range: { min: 1, max: 15 }, regexp: createIntegerRangeRegExp('phrase') },
         syntax: [
           'phrase',
           '随机生成大于等于3小于等于7个单词的英文短语',
           'phrase|len',
           '生成指定单词个数的英文短语',
-          'phrase|min-max',
+          'phrase|min,max',
           '随机生成大于等于min小于等于max个单词的英文短语',
         ],
         example: [
@@ -121,7 +122,7 @@ const mockRules = {
           '-> Omylxk Ubcdefghij Cfkpuz Kcegikm',
           'phrase|5',
           '-> Bslewpi Tbcde Xslewpibtm Thovdkrygn Ymylxk',
-          'phrase|3-5',
+          'phrase|3,5',
           '-> Pgmsyflr Qwtqnkheb Sup Yxvtrpnljh',
         ],
       },
@@ -284,58 +285,58 @@ const mockRules = {
 
       {
         searchKey: '',
-        name: 'dataimage',
+        name: 'imagedata',
         cnName: '图片数据',
         allow: {
           isSwap: true,
           range: { min: 20, max: 1024, minActionText: '图片宽度', maxActionText: '图片高度' },
           parse: parseImage,
-          oneOfTypes: ['jpeg', 'png'],
-          regexp: createImageRegExp('dataimage'),
+          // oneOfTypes: ['jpeg', 'png'],
+          regexp: createImageRegExp('imagedata'),
         },
         syntax: [
-          'dataimage',
-          '生成一个200*150的jpeg Base64编码的图片',
-          'dataimage|width*height',
-          '生成一个指定宽高的jpeg Base64编码的图片',
-          'dataimage|width*height,type',
-          '生成一个指定宽高和类型的Base64编码的图片，类型type只支持jpeg和png',
+          'imagedata|{width?},{height?}',
+          '生成一个128*128的Base64编码图片',
+          'imagedata|width',
+          '生成一个宽高相等的Base64编码图片',
+          'imagedata|width,height',
+          '生成一个指定宽和高的Base64编码图片',
         ],
         example: [
-          'dataimage',
-          '-> data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAM...',
-          'dataimage|200*200',
-          '-> data:image/jpeg;base64,iVBORw0KGgoAAAANSUhEUgAAAM...',
-          'dataimage|600*400,png',
+          'imagedata',
+          '-> data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAM...',
+          'imagedata|200',
+          '-> data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAM...',
+          'imagedata|600*400',
           '-> data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAM...',
         ],
       },
       {
-        searchKey: 'image',
+        searchKey: 'image url',
         name: 'imageurl',
         cnName: '图片链接',
         allow: {
           isSwap: true,
           range: { min: 20, max: 1024, minActionText: '图片宽度', maxActionText: '图片高度' },
           parse: parseImage,
-          oneOfTypes: ['jpeg', 'png'],
+          // oneOfTypes: ['jpeg', 'png'],
           regexp: createImageRegExp('imageurl'),
         },
         syntax: [
-          'imageurl',
-          '生成一个200*150的jpeg图片链接',
-          'imageurl|width*height',
-          '生成一个指定宽高的jpeg图片链接',
-          'imageurl|width*height,type',
-          '生成一个指定宽高和类型的图片链接，类型type只支持jpeg和png',
+          'imageurl|{width?},{height?}',
+          '生成一个128*128的图片链接地址',
+          'imageurl|width',
+          '生成一个宽高相等的图片链接地址',
+          'imageurl|width,height',
+          '生成一个指定宽和高的图片链接地址',
         ],
         example: [
           'imageurl',
-          '-> http://mock.apicat.net/image/200x150.jpeg',
-          'imageurl|200*200',
-          '-> http://mock.apicat.net/image/200x200.jpeg',
-          'imageurl|200*200,png',
+          '-> http://mock.apicat.net/image/128x128.png',
+          'imageurl|200',
           '-> http://mock.apicat.net/image/200x200.png',
+          'imageurl|200,210',
+          '-> http://mock.apicat.net/image/200x210.png',
         ],
       },
       // {
@@ -354,7 +355,6 @@ const mockRules = {
         syntax: ['color', '默认生成hex颜色', 'color|type', '随机生成颜色值，类型type只支持rgb、rgba、hsl、hex'],
         example: ['color', '-> #002211', 'color|rgb', '-> rgb(255,0,123)'],
       },
-
       {
         searchKey: '状态码',
         name: 'httpcode',
@@ -372,20 +372,29 @@ const mockRules = {
       {
         searchKey: '数字占位符 占位符',
         name: 'numberpattern',
+        defaultValue: 'numberpattern|###-######-#',
         cnName: '数字占位',
         allow: { regexp: /^numberpattern\|[#-]+$/ },
-        syntax: ['numberpattern|###-######-#', '231-200312-1'],
-        example: ['numberpattern|###-##', '-> 123-12'],
+        syntax: ['numberpattern|{pattern}', 'pattern为#和-组合的方式'],
+        example: ['numberpattern|###-######-#', '-> 111-222222-3'],
       },
     ],
     integer: [
       {
         searchKey: '',
-        name: 'int',
+        name: 'integer',
         cnName: '整数',
-        allow: { range: { min: -1000000, max: 1000000 }, regexp: createNumberRangeRegExp('int') },
-        syntax: ['int', '随机生成0-1000的整数', 'int|count', '生成指定数值的整数', 'int|min~max', '随机生成大于等于min小于等于max的整数'],
-        example: ['int', '-> 123', 'int|123', '-> 123', 'int|1~10', '-> 5', 'int|-100~-50', '-> -66'],
+        allow: { range: { min: -1000000, max: 1000000 }, regexp: createIntegerRangeRegExp('integer') },
+        syntax: ['integer', '随机生成0-1000的整数', 'integer|count', '生成指定数值的整数', 'integer|min,max', '随机生成大于等于min小于等于max的整数'],
+        example: ['integer', '-> 123', 'integer|123', '-> 123', 'integer|1,10', '-> 5'],
+      },
+      {
+        searchKey: '字增 ID',
+        name: 'autoincrement',
+        cnName: '数字占位',
+        allow: { range: { min: -1000000, max: 1000000 }, regexp: createIntegerRangeRegExp('autoincrement') },
+        syntax: ['autoincrement|{begin?},{step?}', 'begin起始值,默认 1', 'step步长,默认 1'],
+        example: ['autoincrement', '-> 1,2,3,....', 'autoincrement|100', '-> 100,101,102,...', 'autoincrement|100,2', '-> 100,102,104,...'],
       },
       {
         searchKey: '',
@@ -542,7 +551,7 @@ const mockRules = {
           isSwap: true,
           range: { min: 20, max: 1024, minActionText: '图片宽度', maxActionText: '图片高度' },
           parse: parseImage,
-          oneOfTypes: ['jpeg', 'png'],
+          // oneOfTypes: ['jpeg', 'png'],
           regexp: createImageRegExp('image'),
         },
         syntax: [
