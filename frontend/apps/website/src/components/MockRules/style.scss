@@ -45,7 +45,7 @@ $rule-list-max-height: 340px;
 
   &-rule__list {
     padding: 0;
-    margin: $rule-query-input-padding - $rule-query-input-padding 0 -$rule-query-input-padding;
+    margin: 0;
     list-style: none;
     max-height: $rule-list-max-height;
     overflow: scroll;

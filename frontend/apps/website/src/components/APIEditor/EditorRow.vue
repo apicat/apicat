@@ -142,12 +142,13 @@
 import { computed, inject, nextTick, onMounted, ref, shallowRef } from 'vue'
 import SelectTypeDropmenu from './SelectTypeDropmenu.vue'
 import EditorInput from './EditorInput.vue'
-import { JSONSchema, allowMockTypes, basicTypes, constNodeType } from './types'
+import { JSONSchema, allowMockTypes, constNodeType } from './types'
 import type { Tree } from './types'
 import { CheckboxValueType, ElMessage } from 'element-plus'
 import { useNamespace } from '@/hooks'
 import { cloneDeep } from 'lodash-es'
-import { guessMockRule, mockRulesModal } from '@/components/MockRules'
+import { mockRulesModal } from '@/components/MockRules'
+import { guessMockRule } from '@/components/MockRules/utils'
 
 const props = defineProps<{
   level: number
@@ -340,6 +341,7 @@ const mockHandler = (e: MouseEvent, row: Tree) => {
 
   mockRulesModal.show({
     model: {
+      name: row.label,
       mockRule: row.schema['x-apicat-mock'],
       mockType: row.schema.type,
     },

@@ -1,7 +1,9 @@
 <template>
   <tr v-for="item in data" :key="item.id" :class="{ disabled: !readonly && !item.isUse }">
     <td v-if="!readonly"></td>
-    <td class="px-12px" :class="{ copy_text: readonly }">{{ item.name }}</td>
+    <td class="px-12px">
+      <span :class="{ copy_text: readonly }">{{ item.name }}</span>
+    </td>
     <td class="px-12px" :class="{ 'text-center': readonly }">{{ item.schema.type }}</td>
     <td class="text-center">{{ item.required }}</td>
     <td class="px-12px">{{ item.schema.example }}</td>

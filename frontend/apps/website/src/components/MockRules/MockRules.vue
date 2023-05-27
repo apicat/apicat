@@ -60,6 +60,7 @@ import { Search } from '@element-plus/icons-vue'
 import { getMockRules } from './constants'
 import MockRuleParser from './parser'
 import MockValidator from './valid'
+import { guessMockRule } from './utils'
 import { debounce } from 'lodash-es'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 import { markRaw } from 'vue'
@@ -201,6 +202,9 @@ export default defineComponent({
 
     show(node) {
       this.visible = true
+      if (!node.mockRule) {
+        node.mockRule = guessMockRule(node)
+      }
       this.form.mock_rule = node.mockRule || ''
       this.generateMockRulesByParamType(node.mockType)
       this.getCurrentMockRule(node.mockRule)

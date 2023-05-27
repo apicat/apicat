@@ -18,11 +18,12 @@
 <script setup lang="ts">
 import { computed, provide, ref, watch } from 'vue'
 import EditorRow from './EditorRow.vue'
-import type { JSONSchema, DefinitionSchema, Tree } from './types'
+import { JSONSchema, DefinitionSchema, Tree, allowMockTypes } from './types'
 import { constNodeType, typename } from './types'
 import { useNamespace } from '@/hooks'
 import { RefPrefixKeys } from '@/commons'
 import { cloneDeep } from 'lodash-es'
+import { guessMockRule } from '../MockRules/utils'
 
 const props = withDefaults(
   defineProps<{
@@ -138,6 +139,12 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
       if (schema.items) {
         item.children = [convertTreeData(item, `${key}.${constNodeType.items}`, constNodeType.items, schema.items as JSONSchema)]
       }
+  }
+
+  // default mock
+  const mock = item.schema['x-apicat-mock']
+  if (!mock && allowMockTypes.includes(item.type)) {
+    item.schema['x-apicat-mock'] = guessMockRule({ name: item.label, mockType: item.type })
   }
 
   // default expand children

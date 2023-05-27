@@ -17,7 +17,7 @@ export declare interface JSONSchema {
 }
 
 export const basicTypes = ['string', 'boolean', 'number', 'integer', 'object', 'array']
-export const allowMockTypes = basicTypes.filter((t) => t !== 'object')
+export const allowMockTypes = basicTypes.filter((t) => t !== 'object' && t !== 'array')
 export function typename(type: string | string[] | undefined) {
   if (type === undefined) {
     return 'any'
