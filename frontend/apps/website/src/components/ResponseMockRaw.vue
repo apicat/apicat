@@ -1,8 +1,6 @@
 <template>
   <div :class="[ns.b(), ns.is('readonly')]">
-    <label v-if="nodeAttrs.method" :class="ns.e('method')" :style="{ backgroundColor: getRequestMethodColor(nodeAttrs.method) }">
-      {{ nodeAttrs.method.toUpperCase() }}
-    </label>
+    <label :class="ns.e('method')" :style="{ backgroundColor: getRequestMethodColor(nodeAttrs.method) }"> Mock </label>
 
     <div :class="ns.e('server')">
       <span class="copy_text">{{ mockServerPath }}</span>
