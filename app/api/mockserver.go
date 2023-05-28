@@ -68,8 +68,11 @@ func (m *MockServer) Handler(c *gin.Context) {
 func (m *MockServer) ClearCache() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		if ctx.Request.Method != http.MethodGet {
-			ctx.Next()
-			m.cache.Delete(ctx.Param("id"))
+			p, ok := ctx.Get("CurrentProject")
+			if ok {
+				ctx.Next()
+				m.cache.Delete(p.(*models.Projects).ID)
+			}
 		}
 	}
 }

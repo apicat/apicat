@@ -38,7 +38,7 @@ git clone https://github.com/apicat/apicat.git
 cd apicat
 
 # Compile the front-end code
-cd fronted
+cd frontend 
 pnpm install
 pnpm build
 
