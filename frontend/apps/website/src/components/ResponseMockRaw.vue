@@ -9,7 +9,7 @@
     </div>
     <p :class="ns.e('path')" class="copy_text">{{ pathRef }}</p>
     <el-tooltip :content="$t('app.common.fetchMockData')">
-      <i :class="ns.e('copy')" v-if="!isFetchMockData" @click="handlerMock(fullPath)">
+      <i :class="ns.e('copy')" v-if="!isFetchMockData" @click="handlerMock(fullPath, nodeAttrs.method)">
         <ac-icon-quill:send />
       </i>
       <i :class="ns.e('copy')" v-if="isFetchMockData">
@@ -41,10 +41,10 @@ const pathRef = computed(() => mockApiPath(project_id as string, nodeAttrs.value
 const fullPath = computed(() => mockServerPath + pathRef.value)
 const isFetchMockData = ref(false)
 
-const handlerMock = async (path: string) => {
+const handlerMock = async (path: string, method: string) => {
   isFetchMockData.value = true
   try {
-    const data: any = await getMockData(path, nodeAttrs.value.method, { mock_response_code: props.code as string })
+    const data: any = await getMockData(path, method, { mock_response_code: props.code as string })
 
     AsyncMsgBox({
       title: 'Mock Data',
