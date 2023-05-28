@@ -8,4 +8,10 @@ export const mockApiPath = (project_id: string, mock_path: string): string => `/
 
 export const mockServerPath = location.origin
 
-export const getMockData = (requestPath: string, data?: MockRequestParams) => Ajax.get(requestPath + '?' + new URLSearchParams(data as any).toString())
+export const getMockData = async (requestPath: string, method: string, data?: MockRequestParams) => {
+  const requestFn = (Ajax as any)[method]
+  if (!requestFn) {
+    throw Error(`Method ${method} not found`)
+  }
+  return await requestFn(requestPath + '?' + new URLSearchParams(data as any).toString())
+}

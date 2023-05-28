@@ -44,7 +44,7 @@ const isFetchMockData = ref(false)
 const handlerMock = async (path: string) => {
   isFetchMockData.value = true
   try {
-    const data: any = await getMockData(path, { mock_response_code: props.code as string })
+    const data: any = await getMockData(path, nodeAttrs.value.method, { mock_response_code: props.code as string })
 
     AsyncMsgBox({
       title: 'Mock Data',
