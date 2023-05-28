@@ -49,7 +49,7 @@ func (s *Spec) expendRef(v Referencer) {
 	switch x := v.(type) {
 	case *jsonschema.Schema:
 		if x.Ref() {
-			x = s.Definitions.Schemas.LookupID(mustGetRefID(*x.Reference)).Schema
+			*x = *(s.Definitions.Schemas.LookupID(mustGetRefID(*x.Reference)).Schema)
 		}
 		if x.Properties != nil {
 			for _, v := range x.Properties {
@@ -66,16 +66,16 @@ func (s *Spec) expendRef(v Referencer) {
 				id, _ := strconv.ParseInt(ps[3], 10, 64)
 				switch ps[2] {
 				case "schemas":
-					x = s.Definitions.Schemas.LookupID(id)
+					*x = *(s.Definitions.Schemas.LookupID(id))
 				case "parameters":
-					x = s.Definitions.Parameters.LookupID(id)
+					*x = *(s.Definitions.Parameters.LookupID(id))
 				}
 			}
 		}
 		s.expendRef(x.Schema)
 	case *HTTPResponseDefine:
 		if x.Ref() {
-			x = s.Definitions.Responses.LookupID(mustGetRefID(*x.Reference))
+			*x = *(s.Definitions.Responses.LookupID(mustGetRefID(*x.Reference)))
 		}
 		for _, v := range x.Header {
 			s.expendRef(v)

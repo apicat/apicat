@@ -28,6 +28,7 @@ func NewMockServer() *MockServer {
 // [method] /mock/{id}/path*
 func (m *MockServer) Handler(c *gin.Context) {
 	p := &models.Projects{}
+	slog.InfoCtx(c, "mock", slog.String("path", c.Param("path")))
 	if err := p.Get(c.Param("id")); err != nil {
 		c.Writer.WriteHeader(http.StatusNotFound)
 		return
@@ -82,6 +83,7 @@ func (m *MockServer) getRequestRoutesSchemaOrCache(id uint) map[string]map[strin
 	specObj.Definitions.Schemas = models.DefinitionSchemasExport(id)
 	specObj.Definitions.Parameters = models.DefinitionParametersExport(id)
 	specObj.Definitions.Responses = models.DefinitionResponsesExport(id)
+	specObj.Collections = models.CollectionsExport(id)
 	newcm := specObj.CollectionsMap(true)
 	m.cache.Store(id, newcm)
 	return newcm
@@ -106,7 +108,7 @@ func (m *MockServer) matchRoute(c *gin.Context, routes map[string]map[string]spe
 			continue
 		}
 		// match method
-		h, ok := methods[c.Request.Method]
+		h, ok := methods[strings.ToLower(c.Request.Method)]
 		if ok {
 			slog.InfoCtx(c, "find route", slog.String("path", path))
 			return &h
