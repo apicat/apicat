@@ -406,6 +406,15 @@ const mockRules = {
         syntax: ['gender', '随机生成性别'],
         example: ['gender', '-> 男'],
       },
+      {
+        searchKey: 'one of 单选',
+        name: 'oneof',
+        defaultValue: 'oneof|0,1',
+        cnName: '单选',
+        allow: { regexp: /^oneof\|([^,]+(,[^,]+)*)$/ },
+        syntax: ['oneof|{value?}...', 'value1,value2中随机选择一个。语法:以英文逗号","分割数据。'],
+        example: ['oneof|男,女', '-> 女', 'oneof|1,"a b",a,b', '-> a'],
+      },
     ],
     integer: [
       {

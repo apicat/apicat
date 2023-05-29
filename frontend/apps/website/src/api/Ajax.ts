@@ -16,6 +16,12 @@ const baseConfig = {
 
 export const DefaultAjax = axios.create(baseConfig)
 export const QuietAjax = axios.create(baseConfig)
+export const MockAjax = axios.create({
+  ...baseConfig,
+  validateStatus: function () {
+    return true
+  },
+})
 
 const onRequest = (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
   const token = Storage.get(Storage.KEYS.TOKEN)
@@ -54,6 +60,9 @@ DefaultAjax.interceptors.response.use((response: AxiosResponse) => {
 
 QuietAjax.interceptors.request.use(onRequest, onErrorResponse)
 QuietAjax.interceptors.response.use((response: AxiosResponse) => response.data, onErrorResponse)
+
+MockAjax.interceptors.request.use(onRequest, onErrorResponse)
+MockAjax.interceptors.response.use((response: AxiosResponse) => response.data)
 
 // 默认请求实例
 export default DefaultAjax

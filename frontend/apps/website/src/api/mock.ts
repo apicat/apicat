@@ -1,4 +1,4 @@
-import Ajax from './Ajax'
+import { MockAjax } from './Ajax'
 
 export interface MockRequestParams {
   mock_response_code?: string
@@ -9,7 +9,7 @@ export const mockApiPath = (project_id: string, mock_path: string): string => `/
 export const mockServerPath = location.origin
 
 export const getMockData = async (requestPath: string, method: string, data?: MockRequestParams) => {
-  const requestFn = (Ajax as any)[method.toLowerCase()]
+  const requestFn = (MockAjax as any)[method.toLowerCase()]
   if (!requestFn) {
     throw Error(`Method ${method} not found`)
   }
