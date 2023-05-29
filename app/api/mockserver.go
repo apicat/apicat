@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -87,7 +88,7 @@ func (m *MockServer) getRequestRoutesSchemaOrCache(id uint) map[string]map[strin
 	specObj.Definitions.Parameters = models.DefinitionParametersExport(id)
 	specObj.Definitions.Responses = models.DefinitionResponsesExport(id)
 	specObj.Collections = models.CollectionsExport(id)
-	newcm := specObj.CollectionsMap(true)
+	newcm := specObj.CollectionsMap(true, 3)
 	m.cache.Store(id, newcm)
 	return newcm
 }
@@ -132,9 +133,27 @@ func (m *MockServer) renderMockResponse(c *gin.Context, res spec.HTTPResponse) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		c.Writer.Header().Set("Content-Type", k)
+		if res.Header != nil {
+			for _, h := range res.Header {
+				if !h.Required {
+					// 如果非必填 则不一定返回他
+					if !datagen.Boolean() {
+						continue
+					}
+				}
+				hb, _ := json.Marshal(h.Schema)
+				headerdata, err := datagen.JSONSchemaGen(hb, &datagen.GenOption{
+					DatagenKey: "x-apicat-mock",
+				})
+				if err != nil {
+					continue
+				}
+				c.Header(v.Name, fmt.Sprintf("%v", headerdata))
+			}
+		}
+		c.Header("Content-Type", k)
 		c.Writer.WriteHeader(res.Code)
-		c.Writer.Write(responsedata)
+		json.NewEncoder(c.Writer).Encode(responsedata) // nolint
 		return
 	}
 	// no content?
