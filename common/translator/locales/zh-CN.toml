@@ -103,6 +103,9 @@ other = "全局参数删除失败"
 [AI.CollectionCreateFail]
 other = "接口创建失败，请稍后重试。"
 
+[AI.SchemaCreateFail]
+other = "模型创建失败，请稍后重试。"
+
 [DefinitionResponses.NameExists]
 other = "公共响应名称存在"
 

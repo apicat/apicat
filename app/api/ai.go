@@ -161,7 +161,7 @@ func AICreateSchema(ctx *gin.Context) {
 	if err != nil || openapiContent == "" {
 		slog.DebugCtx(ctx, "CreateSchema Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.SchemaCreateFail"}),
 		})
 		return
 	}
@@ -170,7 +170,7 @@ func AICreateSchema(ctx *gin.Context) {
 	if err := json.Unmarshal([]byte(openapiContent), js); err != nil {
 		slog.DebugCtx(ctx, "JSON Unmarshal Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.SchemaCreateFail"}),
 		})
 		return
 	}
@@ -183,7 +183,7 @@ func AICreateSchema(ctx *gin.Context) {
 	if err != nil {
 		slog.DebugCtx(ctx, "definitions search Failed", slog.String("err", err.Error()), slog.String("ProjectId", strconv.FormatUint(uint64(definition.ProjectId), 10)), slog.String("Name", definition.Name))
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.SchemaCreateFail"}),
 		})
 		return
 	}
