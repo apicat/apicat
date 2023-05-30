@@ -95,6 +95,10 @@ func (m *MockServer) getRequestRoutesSchemaOrCache(id uint) map[string]map[strin
 
 func (m *MockServer) matchRoute(c *gin.Context, routes map[string]map[string]spec.HTTPPart) *spec.HTTPPart {
 	p := strings.Split(c.Param("path"), "/")
+	matched := map[string]struct {
+		vars int
+		data spec.HTTPPart
+	}{}
 	for path, methods := range routes {
 		rp := strings.Split(path, "/")
 		if len(rp) != len(p) {
@@ -102,10 +106,15 @@ func (m *MockServer) matchRoute(c *gin.Context, routes map[string]map[string]spe
 		}
 		// match path
 		var flag bool
+		var hasVar int
 		for k, v := range rp {
-			if v != p[k] && v[0] != '{' {
-				flag = true
-				break
+			if v != p[k] {
+				if v[0] == '{' {
+					hasVar++
+				} else {
+					flag = true
+					break
+				}
 			}
 		}
 		if flag {
@@ -114,9 +123,20 @@ func (m *MockServer) matchRoute(c *gin.Context, routes map[string]map[string]spe
 		// match method
 		h, ok := methods[strings.ToLower(c.Request.Method)]
 		if ok {
-			slog.InfoCtx(c, "find route", slog.String("path", path))
-			return &h
+			if hasVar > 0 {
+				matched[path] = struct {
+					vars int
+					data spec.HTTPPart
+				}{hasVar, h}
+			} else {
+				slog.InfoCtx(c, "find route", slog.String("path", path), slog.String("mockpath", c.Param("path")))
+				return &h
+			}
 		}
+	}
+	for path, v := range matched {
+		slog.InfoCtx(c, "find route", slog.String("path", path), slog.String("mockpath", c.Param("path")))
+		return &v.data
 	}
 	return nil
 }
