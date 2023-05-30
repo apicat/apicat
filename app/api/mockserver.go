@@ -168,7 +168,7 @@ func (m *MockServer) renderMockResponse(c *gin.Context, res spec.HTTPResponse) {
 				if err != nil {
 					continue
 				}
-				c.Header(v.Name, fmt.Sprintf("%v", headerdata))
+				c.Header(h.Name, fmt.Sprintf("%v", headerdata))
 			}
 		}
 		c.Header("Content-Type", k)

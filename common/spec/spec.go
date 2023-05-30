@@ -65,7 +65,10 @@ func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 				return
 			}
 			parentRef = append(parentRef, *x.Reference)
-			*x = *(s.Definitions.Schemas.LookupID(mustGetRefID(*x.Reference)).Schema)
+			b, _ := json.Marshal(*(s.Definitions.Schemas.LookupID(mustGetRefID(*x.Reference)).Schema))
+			var s jsonschema.Schema
+			json.Unmarshal(b, &s)
+			*x = s
 		}
 		if x.Properties != nil {
 			for _, v := range x.Properties {
@@ -73,7 +76,9 @@ func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 			}
 		}
 		if x.Items != nil && !x.Items.IsBool() {
-			s.expendRef(x.Items.Value(), max, parentRef...)
+			v := *x.Items.Value()
+			s.expendRef(&v, max, parentRef...)
+			x.Items.SetValue(&v)
 		}
 	case *Schema:
 		if x.Ref() {
@@ -93,11 +98,11 @@ func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 		if x.Ref() {
 			*x = *(s.Definitions.Responses.LookupID(mustGetRefID(*x.Reference)))
 		}
-		for _, v := range x.Header {
-			s.expendRef(v, max, parentRef...)
+		for k := range x.Header {
+			s.expendRef(x.Header[k], max, parentRef...)
 		}
-		for _, v := range x.Content {
-			s.expendRef(v, max, parentRef...)
+		for k := range x.Content {
+			s.expendRef(x.Content[k], max, parentRef...)
 		}
 	}
 }
@@ -124,13 +129,13 @@ func (s *Spec) CollectionsMap(expend bool, refexpendMaxCount int) map[string]map
 				if expend {
 					mp := nx.Attrs.Parameters.Map()
 					for _, v := range mp {
-						for _, a := range v {
-							s.expendRef(a, refexpendMaxCount)
+						for k := range v {
+							s.expendRef(v[k], refexpendMaxCount)
 						}
 					}
 					if nx.Attrs.Content != nil {
-						for _, a := range nx.Attrs.Content {
-							s.expendRef(a, refexpendMaxCount)
+						for k := range nx.Attrs.Content {
+							s.expendRef(nx.Attrs.Content[k], refexpendMaxCount)
 						}
 					}
 				}
@@ -138,8 +143,9 @@ func (s *Spec) CollectionsMap(expend bool, refexpendMaxCount int) map[string]map
 			case *HTTPNode[HTTPResponsesNode]:
 				res := nx.Attrs.List
 				if expend {
-					for _, v := range res {
+					for i, v := range res {
 						s.expendRef(&v.HTTPResponseDefine, refexpendMaxCount)
+						res[i] = v
 					}
 				}
 				part.Responses = res
