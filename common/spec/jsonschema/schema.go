@@ -11,6 +11,7 @@ type Schema struct {
 	Type *SliceOrOneValue[string] `json:"type,omitempty"`
 
 	XOrder []string `json:"x-apicat-orders,omitempty"`
+	XMock  string   `json:"x-apicat-mock,omitempty"`
 	// 3.1 schema or bool
 	Items *ValueOrBoolean[*Schema] `json:"items,omitempty"`
 

@@ -13,7 +13,7 @@
     </div>
   </div>
 
-  <el-button type="primary" class="mt-20px" @click="handelExport(selectedRef)">{{ $t('app.common.export') }}</el-button>
+  <el-button type="primary" class="mt-20px" @click="handleExport(selectedRef)">{{ $t('app.common.export') }}</el-button>
 </template>
 <script setup lang="ts">
 import swaggerLogo from '@/assets/images/logo-swagger@2x.png'
@@ -48,7 +48,7 @@ const handleSelect = (selected: any, item: any) => {
   selected.type = item.type
 }
 
-const handelExport = (selected: any) => {
+const handleExport = (selected: any) => {
   let type = selected.type
   if (selected.type === ExportProjectTypes.OpenAPI) {
     type = selected.version

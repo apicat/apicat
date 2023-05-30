@@ -9,13 +9,13 @@
     width="40%"
   >
     <el-input v-model="search" :placeholder="$t('app.response.fullname')" />
-    <el-table ref="multipleTableRef" :data="filterResponse" class="w-full" @selection-change="handleSelectionChange" @row-click="handelRowClick">
+    <el-table ref="multipleTableRef" :data="filterResponse" class="w-full" @selection-change="handleSelectionChange" @row-click="handleRowClick">
       <el-table-column type="selection" width="55" />
       <el-table-column property="name" :label="$t('app.response.table.name')" />
       <el-table-column property="code" :label="$t('app.response.table.code')" width="120" />
       <el-table-column property="description" :label="$t('app.response.table.desc')" show-overflow-tooltip />
     </el-table>
-    <el-button type="primary" class="mt-20px" @click="handelConfrim">{{ $t('app.common.confirm') }}</el-button>
+    <el-button type="primary" class="mt-20px" @click="handleConfrim">{{ $t('app.common.confirm') }}</el-button>
   </el-dialog>
 </template>
 <script setup lang="ts">
@@ -51,12 +51,12 @@ const handleSelectionChange = (val: any) => {
   multipleSelection.value = val
 }
 
-const handelRowClick = (row: any) => {
+const handleRowClick = (row: any) => {
   const hasItem = multipleSelection.value.find((item: any) => item.id === row.id)
   multipleTableRef.value!.toggleRowSelection(row, !hasItem)
 }
 
-const handelConfrim = () => {
+const handleConfrim = () => {
   emits(
     'ok',
     multipleSelection.value.map((item: any) => item.id)

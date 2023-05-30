@@ -21,7 +21,7 @@
 
     <el-space direction="vertical" fill v-if="model.header" :size="14">
       <el-text>Header</el-text>
-      <SimpleEditor v-model="model.header" />
+      <SimpleEditor v-model="model.header" allow-mock />
     </el-space>
 
     <el-space direction="vertical" fill :size="4" v-for="(_, ct) in model.content" :key="ct">

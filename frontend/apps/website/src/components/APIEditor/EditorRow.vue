@@ -16,7 +16,6 @@
     <div :class="ns.e('content')" @dragover.prevent="dragOverHandler" @dragleave.prevent="dragLeaveHandler" @drop.prevent="dropHandler">
       <div :class="[ns.e('item'), ns.e('name')]">
         <span :style="{ width: level * 16 + 'px' }" class="indent-spance"></span>
-
         <el-icon :class="ns.e('expand')" v-if="data.children" @click="toggleExpandHandler"><ac-icon-ep-arrow-right-bold /></el-icon>
         <span v-else class="el-icon"></span>
 
@@ -24,9 +23,10 @@
           <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
           <EditorInput v-else ref="labelInputRef" style="margin-left: -4px" placeholder="name" :value="data.label" :disabled="isRefChildren(data)" @change="changeName" />
         </template>
+
         <template v-else>
           <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
-          <span v-else class="copy_text">{{ data.label }}</span>
+          <span v-else class="copy_text" :title="data.label">{{ data.label }}</span>
         </template>
       </div>
 
@@ -47,6 +47,7 @@
             </template>
           </el-dropdown>
         </template>
+
         <template v-else>
           <el-text v-if="data.refObj" type="primary">{{ data.refObj.name }}</el-text>
           <span v-else>{{ data.type }}</span>
@@ -66,6 +67,7 @@
             <el-checkbox v-else size="small" :disabled="isRefChildren(data)" :checked="data.parent?.schema.required?.includes(data.label)" @change="changeRequired" />
           </el-tooltip>
         </template>
+
         <template v-else>
           <span v-if="data.parent?.type === 'object'">
             <span v-if="isRefChildren(data)">{{ data.parent?.refObj?.schema.required?.includes(data.label) ? $t('editor.table.yes') : $t('editor.table.no') }}</span>
@@ -84,8 +86,9 @@
             @change="(v) => changeSchemaField('example', v)"
           />
         </template>
+
         <template v-else>
-          <span v-if="['number', 'integer', 'boolean', 'string'].includes(data.type)" class="copy_text">{{ data.schema.example }}</span>
+          <span v-if="['number', 'integer', 'boolean', 'string'].includes(data.type)" class="truncate copy_text">{{ data.schema.example }}</span>
         </template>
       </div>
 
@@ -98,9 +101,14 @@
             @change="(v) => changeSchemaField('description', v)"
           />
         </template>
+
         <template v-else>
-          <span class="copy_text">{{ data.schema.description }}</span>
+          <span class="copy_text" :title="data.schema.description">{{ data.schema.description }}</span>
         </template>
+      </div>
+
+      <div :class="[ns.e('item'), ns.e('mock'), { 'cursor-pointer': !readonly, 'cursor-not-allowed': !isAllowMock(data) }]" @click="mockHandler($event, data)">
+        <span class="truncate" :title="data.schema['x-apicat-mock']"> {{ data.schema['x-apicat-mock'] }}</span>
       </div>
 
       <div :class="[ns.e('item'), ns.e('operation')]" v-if="!readonly">
@@ -134,11 +142,13 @@
 import { computed, inject, nextTick, onMounted, ref, shallowRef } from 'vue'
 import SelectTypeDropmenu from './SelectTypeDropmenu.vue'
 import EditorInput from './EditorInput.vue'
-import { JSONSchema, constNodeType } from './types'
+import { JSONSchema, allowMockTypes, constNodeType } from './types'
 import type { Tree } from './types'
 import { CheckboxValueType, ElMessage } from 'element-plus'
 import { useNamespace } from '@/hooks'
 import { cloneDeep } from 'lodash-es'
+import { mockRulesModal } from '@/components/MockRules'
+import { guessMockRule } from '@/components/MockRules/utils'
 
 const props = defineProps<{
   level: number
@@ -154,6 +164,7 @@ const intentLineStyle = computed(() => {
   let left = props.level * 16 + 6
   return { left: left + 'px' }
 })
+
 const toggleExpandHandler = () => {
   if (!props.data.children) {
     return
@@ -166,6 +177,22 @@ function isRefChildren(v: Tree): boolean {
     return v.parent.refObj ? true : isRefChildren(v.parent)
   }
   return false
+}
+
+function isAllowMock(data: Tree) {
+  if (data.refObj) {
+    return false
+  }
+
+  if (isRefChildren(data)) {
+    return false
+  }
+
+  if (!allowMockTypes.includes(data.type)) {
+    return false
+  }
+
+  return true
 }
 
 function isConstNode(v: string) {
@@ -201,12 +228,20 @@ const changeType = ({ type, isRef }: any) => {
   resetObject(sc)
   if (!isRef) {
     sc.type = type
+    sc['x-apicat-mock'] = guessMockRule({ name: props.data.label, mockType: type })
+
     if (sc.type == 'array') {
       sc.items = {
         type: 'string',
+        'x-apicat-mock': 'string',
       }
     } else if (sc.type == 'object') {
       sc.properties = {}
+    }
+
+    // todo array | object mock?
+    if (sc.type === 'array' || sc.type === 'object') {
+      delete sc['x-apicat-mock']
     }
   } else {
     sc.$ref = type
@@ -249,6 +284,7 @@ const resetShowRef = (flag: boolean) => {
     showRefModal.value = false
   }
 }
+
 const unlinkRefHandler = () => {
   const d = props.data
   if (d.refObj?.schema) {
@@ -292,9 +328,27 @@ const addChildHandler = () => {
     }
     props.data.schema.properties[''] = {
       type: 'string',
+      'x-apicat-mock': 'string',
     }
     props.data.schema['x-apicat-orders']?.push('')
   }
+}
+
+const mockHandler = (e: MouseEvent, row: Tree) => {
+  if (props.readonly || !isAllowMock(row)) {
+    return
+  }
+
+  mockRulesModal.show({
+    model: {
+      name: row.label,
+      mockRule: row.schema['x-apicat-mock'],
+      mockType: row.schema.type,
+    },
+    onOk: (rule: string) => {
+      row.schema['x-apicat-mock'] = rule
+    },
+  })
 }
 
 // addchildren auto focus

@@ -1,7 +1,8 @@
 import { ElMessage } from 'element-plus'
-import { APICatSchemaObjectCustom } from './types'
+import { APICatSchemaObjectCustom, allowMockTypes } from './types'
 import { debounce } from 'lodash-es'
 import { useI18n } from 'vue-i18n'
+import { guessMockRule } from '@/components/MockRules/utils'
 
 export const useSchemaList = (
   props: any,
@@ -59,7 +60,7 @@ export const useSchemaList = (
     let newItem: APICatSchemaObjectCustom = {
       name: v,
       required: false,
-      schema: { type: 'string' },
+      schema: { type: 'string', 'x-apicat-mock': guessMockRule({ name: v, mockType: 'string' }) },
     }
 
     try {
@@ -86,6 +87,23 @@ export const useSchemaList = (
     changeNotify()
   }
 
+  const changeParamType = (data: APICatSchemaObjectCustom) => {
+    data.schema['x-apicat-mock'] = guessMockRule({ name: data.name, mockType: data.schema.type })
+    if (!isAllowMock(data)) {
+      delete data.schema['x-apicat-mock']
+    }
+
+    changeNotify(data)
+  }
+
+  const isAllowMock = (data: APICatSchemaObjectCustom) => {
+    if (!allowMockTypes.includes(data.schema.type as string)) {
+      return false
+    }
+
+    return true
+  }
+
   return {
     newname,
     model,
@@ -93,5 +111,7 @@ export const useSchemaList = (
     addHandler,
     delHandler,
     changeNotify,
+    changeParamType,
+    isAllowMock,
   }
 }

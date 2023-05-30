@@ -13,9 +13,11 @@ export declare interface JSONSchema {
   default?: any
   $ref?: string
   'x-apicat-orders'?: string[]
+  'x-apicat-mock'?: string
 }
 
 export const basicTypes = ['string', 'boolean', 'number', 'integer', 'object', 'array']
+export const allowMockTypes = basicTypes.filter((t) => t !== 'object')
 export function typename(type: string | string[] | undefined) {
   if (type === undefined) {
     return 'any'

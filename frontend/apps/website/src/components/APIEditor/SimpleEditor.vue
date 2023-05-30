@@ -1,79 +1,79 @@
 <template>
-  <div class="ac-sce-simple">
-    <table class="w-full table-fixed readonly" v-if="readonly">
-      <tr>
-        <th style="width: 40%">{{ $t('editor.table.paramName') }}</th>
-        <th class="text-center" style="width: 150px">{{ $t('editor.table.paramType') }}</th>
-        <th class="text-center" style="width: 80px">{{ $t('editor.table.required') }}</th>
-        <th style="width: 38%">{{ $t('editor.table.paramExample') }}</th>
-        <th style="width: 38%">{{ $t('editor.table.paramDesc') }}</th>
-      </tr>
+  <div :class="[nsEditor.b(), { [nsEditor.is('readlony')]: readonly }]">
+    <div :class="[nsRow.b(), nsRow.m('header')]">
+      <div :class="nsRow.e('content')" @dragover="dragOverHandler($event, -1)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, -1)">
+        <div :class="[nsRow.e('item'), nsRow.e('name')]">{{ $t('editor.table.paramName') }}</div>
+        <div :class="[nsRow.e('item'), nsRow.e('type')]">{{ $t('editor.table.paramType') }}</div>
+        <div :class="[nsRow.e('item'), nsRow.e('required')]">{{ $t('editor.table.required') }}</div>
+        <div :class="[nsRow.e('item'), nsRow.e('example')]">{{ $t('editor.table.paramExample') }}</div>
+        <div :class="[nsRow.e('item'), nsRow.e('description')]">{{ $t('editor.table.paramDesc') }}</div>
+        <div v-if="allowMock" :class="[nsRow.e('item'), nsRow.e('mock')]">{{ $t('editor.table.paramMock') }}</div>
+        <div :class="[nsRow.e('item'), nsRow.e('operation')]" v-if="!readonly"></div>
+      </div>
+    </div>
 
-      <slot name="before" />
+    <slot name="before"></slot>
 
-      <!-- todo 公共参数未解析 data.$ref -->
-      <template v-for="(data, index) in list">
-        <tr v-if="!data.$ref" :key="index">
-          <td>
-            <span class="break-all copy_text">{{ data.name }}</span>
-          </td>
-          <td class="text-center">
+    <template v-if="readonly" v-for="(data, index) in list" :key="index">
+      <div :class="[nsRow.b()]" v-if="!data.$ref">
+        <div :class="nsRow.e('content')">
+          <div :class="[nsRow.e('item'), nsRow.e('name')]">
+            <span class="copy_text" :title="data.name">{{ data.name }}</span>
+          </div>
+          <div :class="[nsRow.e('item'), nsRow.e('type')]">
             {{ data.schema.type }}
-          </td>
-          <td class="text-center">
+          </div>
+          <div :class="[nsRow.e('item'), nsRow.e('required')]">
             {{ data.required ? $t('editor.table.yes') : $t('editor.table.no') }}
-          </td>
-          <td>
-            <span class="copy_text">{{ data.schema.example }}</span>
-          </td>
-          <td class="break-all">
-            {{ data.schema.description }}
-          </td>
-        </tr>
-      </template>
-    </table>
-    <table class="w-full table-fixed" v-else>
-      <tr @dragover="dragOverHandler($event, -1)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, -1)">
-        <th class="text-center" style="width: 1px" v-show="draggable"></th>
-        <th style="width: 34%">{{ $t('editor.table.paramName') }}</th>
-        <th style="width: 150px">{{ $t('editor.table.paramType') }}</th>
-        <th class="text-center" style="width: 80px">{{ $t('editor.table.required') }}</th>
-        <th style="width: 34%">{{ $t('editor.table.paramExample') }}</th>
-        <th style="width: 38%">{{ $t('editor.table.paramDesc') }}</th>
-        <th class="text-center" style="width: 50px"></th>
-      </tr>
-      <tbody>
-        <slot name="before" />
+          </div>
+          <div :class="[nsRow.e('item'), nsRow.e('example')]">
+            <span class="copy_text" :title="data.schema.example">{{ data.schema.example }}</span>
+          </div>
+          <div :class="[nsRow.e('item'), nsRow.e('description')]">
+            <span class="copy_text" :title="data.schema.description">{{ data.schema.description }}</span>
+          </div>
+          <div v-if="allowMock" :class="[nsRow.e('item'), nsRow.e('mock')]">
+            <span class="truncate" :title="data.schema['x-apicat-mock']"> {{ data.schema['x-apicat-mock'] }}</span>
+          </div>
+        </div>
+      </div>
+    </template>
 
-        <template v-for="(data, index) in list">
-          <tr v-if="!data.$ref" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
-            <td class="text-center" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" :draggable="draggable" v-show="draggable">
-              <el-icon class="mt-5px" v-if="!isEditPath">
+    <template v-else>
+      <template v-for="(data, index) in list" :key="index">
+        <div :class="[nsRow.b()]" v-if="!data.$ref">
+          <div :class="nsRow.e('content')" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">
+            <div :class="[nsRow.e('item'), nsRow.e('name')]">
+              <el-icon v-if="!isEditPath" :class="nsRow.e('drag')" @dragstart="dragStartHandler($event, index)" @dragend="dragEndHandler" :draggable="draggable">
                 <ac-icon-material-symbols-drag-indicator />
               </el-icon>
-            </td>
-            <td>
               <el-input v-if="!isEditPath" v-model="data._name" @input="(v) => onParamNameChange(data, v)" />
               <span class="px-12px" v-else>{{ data.name }}</span>
-            </td>
-            <td :class="{ 'text-center': !isEditPath }">
-              <el-select v-if="!isEditPath" v-model="data.schema.type" @change="changeNotify(data)">
+            </div>
+            <div :class="[nsRow.e('item'), nsRow.e('type')]">
+              <el-select v-if="!isEditPath" v-model="data.schema.type" @change="changeParamType(data)">
                 <el-option v-for="item in ['string', 'integer', 'number', 'array', 'boolean']" :key="item" :label="item" :value="item" />
               </el-select>
               <span class="px-11px" v-else>{{ data.schema.type }}</span>
-            </td>
-
-            <td class="text-center">
+            </div>
+            <div :class="[nsRow.e('item'), nsRow.e('required')]">
               <el-checkbox size="small" v-model="data.required" @change="changeNotify(data)" tabindex="0" />
-            </td>
-
-            <td>
+            </div>
+            <div :class="[nsRow.e('item'), nsRow.e('example')]">
               <el-input v-model="data.schema.example" @input="changeNotify(data)" />
-            </td>
-            <td>
+            </div>
+            <div :class="[nsRow.e('item'), nsRow.e('description')]">
               <el-input v-model="data.schema.description" @input="changeNotify(data)" />
-            </td>
-            <td class="text-center">
+            </div>
+            <div
+              v-if="allowMock"
+              :class="[nsRow.e('item'), nsRow.e('mock'), { 'cursor-pointer': !readonly, 'cursor-not-allowed': !isAllowMock(data) }]"
+              @click="mockHandler($event, data)"
+            >
+              <span class="truncate" :title="data.schema['x-apicat-mock']"> {{ data.schema['x-apicat-mock'] }}</span>
+            </div>
+
+            <div :class="[nsRow.e('item'), nsRow.e('operation')]">
               <slot v-if="!isEditPath" name="operate" :row="data" :index="index" :delHandler="delHandler">
                 <el-popconfirm title="delete this?" @confirm="delHandler(index)">
                   <template #reference>
@@ -85,36 +85,39 @@
                   </template>
                 </el-popconfirm>
               </slot>
-            </td>
-          </tr>
-        </template>
-
-        <tr v-if="!isEditPath">
-          <td v-show="draggable"></td>
-          <td>
-            <el-input v-model="newname" :placeholder="$t('editor.table.addParam')" @keyup.enter="addHandler(newname)">
-              <template #suffix>
-                <el-icon>
-                  <ac-icon-mi-enter />
-                </el-icon>
-              </template>
-            </el-input>
-          </td>
-          <td colspan="5"></td>
-        </tr>
-      </tbody>
-    </table>
+            </div>
+          </div>
+        </div>
+      </template>
+      <div :class="[nsRow.b()]" v-if="!isEditPath">
+        <div :class="nsRow.e('content')">
+          <el-input :class="[nsRow.e('quickly-input')]" v-model="newname" :placeholder="$t('editor.table.addParam')" @keyup.enter="addHandler(newname)">
+            <template #suffix>
+              <el-icon>
+                <ac-icon-mi-enter />
+              </el-icon>
+            </template>
+          </el-input>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import type { APICatSchemaObject } from './types'
+import { useNamespace } from '@/hooks'
+import { APICatSchemaObject } from './types'
 import { useSchemaList } from './useSchemaList'
+import { mockRulesModal } from '@/components/MockRules'
+
+const nsEditor = useNamespace('simple-editor')
+const nsRow = useNamespace('simple-row')
 
 const props = withDefaults(
   defineProps<{
     readonly?: boolean
     isEditPath?: boolean
+    allowMock?: boolean
     draggable?: boolean
     modelValue: APICatSchemaObject[]
     emptyText?: string
@@ -133,7 +136,7 @@ const props = withDefaults(
 
 const emits = defineEmits(['update:modelValue'])
 
-const { newname, model, delHandler, addHandler, onParamNameChange, changeNotify } = useSchemaList(props, emits, (models) =>
+const { newname, model, delHandler, addHandler, isAllowMock, changeParamType, onParamNameChange, changeNotify } = useSchemaList(props, emits, (models) =>
   models.map((item) => {
     const newItem = toRaw({ ...item })
     delete newItem._name
@@ -146,12 +149,29 @@ const list = computed(() => {
   return model.value
 })
 
+const mockHandler = (e: MouseEvent, row: APICatSchemaObject) => {
+  if (props.readonly || !isAllowMock(row)) {
+    return
+  }
+
+  mockRulesModal.show({
+    model: {
+      name: row.name,
+      mockRule: row.schema['x-apicat-mock'],
+      mockType: row.schema.type,
+    },
+    onOk: (rule: string) => {
+      row.schema['x-apicat-mock'] = rule
+    },
+  })
+}
+
 const dragKey = 'application/apicat-sortable'
 
 const dragStartHandler = (ev: DragEvent, i: number) => {
   if (ev.dataTransfer) {
     ev.dataTransfer.dropEffect = 'move'
-    const nodeEle = (ev.target as Element).parentElement
+    const nodeEle = (ev.target as Element).parentElement!.parentElement
     if (nodeEle) {
       nodeEle.classList.add('dragging')
       ev.dataTransfer.setDragImage(nodeEle, 0, 0)
@@ -176,7 +196,7 @@ const dragLeaveHandler = (ev: DragEvent) => {
 }
 
 const dragEndHandler = (ev: DragEvent) => {
-  const nodeEle = (ev.target as Element).parentElement
+  const nodeEle = (ev.target as Element).parentElement!.parentElement
   if (nodeEle) {
     nodeEle.classList.remove('dragging')
     nodeEle.style.borderBottom = ''
@@ -197,3 +217,7 @@ const dropHandler = (ev: DragEvent, i: number) => {
   }
 }
 </script>
+
+<style lang="scss">
+@use './simple-editor-row.scss';
+</style>
