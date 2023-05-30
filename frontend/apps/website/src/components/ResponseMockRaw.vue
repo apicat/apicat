@@ -7,7 +7,7 @@
     </div>
     <p :class="ns.e('path')" class="copy_text">{{ nodeAttrs.path }}</p>
 
-    <el-tooltip :content="$t('app.common.fetchMockData')">
+    <el-tooltip :content="$t('app.common.fetchMockData')" :auto-close="2000">
       <i :class="ns.e('copy')" v-if="!isFetchMockData" @click="handlerMock(fullPath, nodeAttrs.method)">
         <ac-icon-quill:send />
       </i>
