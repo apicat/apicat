@@ -11,7 +11,7 @@ export const createImageRegExp = (name) => new RegExp(`^${name}(\\|((\\d|[1-9]\\
 export const createOneOfRegExp = (name, types) => new RegExp(`^${name}(\\|(${types.join('|')}))?$`)
 export const createStringRangeRegExp = (name) => new RegExp(`^${name}(\\((${mockSupportedLang.join('|')})\\))?(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
 export const createIntegerRangeRegExp = (name) => new RegExp(`^${name}(\\|\\-?((\\d|[1-9]\\d+),\\-?(\\d|[1-9]\\d+)|\\-?(\\d|[1-9]\\d+)))?$`)
-export const creatFloatRangeRegExp = (name) => new RegExp(`^${name}(\\|\\-?((\\d|[1-9]\\d+)~\\-?(\\d|[1-9]\\d+)|\\-?(\\d|[1-9]\\d+))(?:\\.(\\d+-?\\d*)))?$`)
+export const creatFloatRangeRegExp = (name) => new RegExp(`^${name}(\\|((-?\\d+(\\.\\d+)?)|((-?\\d+(\\.\\d+)?),(-?\\d+(\\.\\d+)?),([1-9]\\d*))))$`)
 export const creatLangRegExp = (name) => new RegExp(`^${name}(\\((${mockSupportedLang.join('|')})\\))?$`)
 
 /**
@@ -532,20 +532,18 @@ const mockRules = {
           prefix: '整数',
           actionText: '整数',
           range: { min: -1000000, max: 1000000 },
-          decimal: { min: 1, max: 10 },
           regexp: creatFloatRangeRegExp('float'),
         },
         syntax: [
+          'float|{min?},{max?},{fixed?}',
           'float',
-          '随机生成0-1000的整数和1-3位随机小数的浮点数',
-          'float|count.dcount',
-          '生成指定数值的整数,小数部分保留dcount位的随机小数',
-          'float|count.dmin-dmax',
-          '生成指定数值的整数,小数部分保留大于等于dmin小于等于dmax位的随机小数',
-          'float|min~max.dmin-dmax',
-          '随机生成大于等于min小于等于max的整数,小数部分保留大于等于dmin小于等于dmax位的随机小数',
+          '随机一个浮点数',
+          'float|浮点数',
+          '生成指定的浮点数',
+          'float|min,max,fixed',
+          '随机生成大于等于min小于等于max的整数,小数部分保留fixed位的随机小数',
         ],
-        example: ['float', '-> 123.456', 'float|3.2', '-> 3.14', 'float|123.1-3', '-> 123.4', 'float|1~10.1-2', '-> 3.1'],
+        example: ['float', '// 随机一个浮点数', 'float|102.01', '-> 102.01', 'float|10000,20000,4', '-> 13886.1021'],
       },
     ],
   },
