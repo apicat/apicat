@@ -7,15 +7,19 @@ const RE_NORMAL_NUMBER = /^(\d|[1-9]\d+)$/
 const parseName = (name, isRemoveSpace = true) => {
   name = (name === undefined ? '' : name + '').replace(isRemoveSpace ? /\s*/g : '', '')
   var rules = name.split('|')
-  var type = undefined
+  var type = undefined,
+    lang = undefined
 
   if (rules[0] && rules.length <= 2 && !/\|$/.test(name)) {
-    type = rules[0]
+    const result = rules[0].match(new RegExp(`^(\\w*)(\\((\\w*)\\))?$`, 'i'))
+    type = result ? result[1] : undefined
+    lang = result ? result[3] : undefined
   }
 
   return {
     rules,
     type,
+    lang,
   }
 }
 
@@ -74,18 +78,16 @@ export default {
     if (reg) {
       var matched = name.match(reg) || []
 
-      range = matched[3] && matched[3].split('-')
-      min = matched[4] ? +matched[4] : undefined
+      range = matched[4] && matched[4].split(',')
+      min = matched[5] ? +matched[5] : undefined
       max = matched[6] ? +matched[6] : undefined
       count = matched[7] ? +matched[7] : undefined
 
       return {
-        type: matched[1],
-        // 取值范围
+        lang: matched[2],
         range,
         min,
         max,
-        // min-max
         count,
       }
     }
@@ -94,7 +96,7 @@ export default {
 
     var ruleRight = rules[1]
 
-    range = ruleRight && ruleRight.split('-')
+    range = ruleRight && ruleRight.split(',')
 
     // 正常规则
     if (range && range.length <= 2) {
@@ -105,11 +107,9 @@ export default {
 
     return {
       type,
-      // 取值范围
       range,
       min,
       max,
-      // min-max
       count,
     }
   },

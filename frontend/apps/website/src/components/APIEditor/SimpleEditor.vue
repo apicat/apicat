@@ -15,7 +15,7 @@
     <slot name="before"></slot>
 
     <template v-if="readonly" v-for="(data, index) in list" :key="index">
-      <div :class="[nsRow.b()]">
+      <div :class="[nsRow.b()]" v-if="!data.$ref">
         <div :class="nsRow.e('content')">
           <div :class="[nsRow.e('item'), nsRow.e('name')]">
             <span class="copy_text" :title="data.name">{{ data.name }}</span>

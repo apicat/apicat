@@ -1,19 +1,18 @@
 // 默认值
 
-import { parseImage, parseBoolean } from './parser'
+import { parseImage } from './parser'
 
-// 正整数
-export const RE_STR_NORMAL_NUMBER = '(\\-?(\\d|[1-9]\\d+))'
-
+export const mockSupportedLang = ['en', 'zh']
 // 正则组合 校验语法
 export const createDateTimeRegExp = (name) => new RegExp(`^${name}((\\|(y-m-d|y\\/m\\/d)) h:i:s)?$`, 'i')
 export const createDateRegExp = (name) => new RegExp(`^${name}(\\|(y-m-d|y\\/m\\/d))?$`, 'i')
 export const createTimeRegExp = (name) => new RegExp(`^${name}(\\|h:i:s)?$`, 'i')
 export const createImageRegExp = (name) => new RegExp(`^${name}(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)))?(\\|(\\d|[1-9]\\d+))?$`)
 export const createOneOfRegExp = (name, types) => new RegExp(`^${name}(\\|(${types.join('|')}))?$`)
-export const createRangeRegExp = (name) => new RegExp(`^(${name})(\\|((\\-?(\\d|[1-9]\\d+))\\-(\\d|[1-9]\\d+)|(\\-?(\\d|[1-9]\\d+))))?$`)
+export const createStringRangeRegExp = (name) => new RegExp(`^${name}(\\((${mockSupportedLang.join('|')})\\))?(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
 export const createIntegerRangeRegExp = (name) => new RegExp(`^${name}(\\|\\-?((\\d|[1-9]\\d+),\\-?(\\d|[1-9]\\d+)|\\-?(\\d|[1-9]\\d+)))?$`)
 export const creatFloatRangeRegExp = (name) => new RegExp(`^${name}(\\|\\-?((\\d|[1-9]\\d+)~\\-?(\\d|[1-9]\\d+)|\\-?(\\d|[1-9]\\d+))(?:\\.(\\d+-?\\d*)))?$`)
+export const creatLangRegExp = (name) => new RegExp(`^${name}(\\((${mockSupportedLang.join('|')})\\))?$`)
 
 /**
  * mock 语法列表
@@ -26,7 +25,7 @@ const mockRules = {
         searchKey: '',
         name: 'string',
         cnName: '字符串',
-        allow: { range: { min: 1, max: 10000 }, regexp: createIntegerRangeRegExp('string') },
+        allow: { range: { min: 1, max: 10000 }, regexp: createStringRangeRegExp('string') },
         syntax: [
           'string',
           '随机生成大于等于3小于等于10长度的英文字符串',
@@ -41,7 +40,7 @@ const mockRules = {
         searchKey: '',
         name: 'paragraph',
         cnName: '英文段落',
-        allow: { actionText: '句子个数', range: { min: 1, max: 20 }, regexp: createIntegerRangeRegExp('paragraph') },
+        allow: { actionText: '句子个数', range: { min: 1, max: 20 }, regexp: createStringRangeRegExp('paragraph') },
         syntax: [
           'paragraph',
           '随机生成大于等于3小于等于7个句子的英文段落',
@@ -63,7 +62,7 @@ const mockRules = {
         searchKey: '',
         name: 'sentence',
         cnName: '英文句子',
-        allow: { actionText: '单词个数', range: { min: 1, max: 30 }, regexp: createIntegerRangeRegExp('sentence') },
+        allow: { actionText: '单词个数', range: { min: 1, max: 30 }, regexp: createStringRangeRegExp('sentence') },
         syntax: [
           'sentence',
           '随机生成大于等于12小于等于18个单词的英文句子',
@@ -85,7 +84,7 @@ const mockRules = {
         searchKey: '',
         name: 'word',
         cnName: '英文单词',
-        allow: { actionText: '字母个数', range: { min: 1, max: 20 }, regexp: createIntegerRangeRegExp('word') },
+        allow: { actionText: '字母个数', range: { min: 1, max: 20 }, regexp: createStringRangeRegExp('word') },
         syntax: ['word', '随机生成大于等于3小于等于10个字母的英文单词', 'word|len', '生成指定字母个数的单词', 'word|min,max', '随机生成大于等于min小于等于max个字母的英文单词'],
         example: ['word', '-> aaa', 'word|5', '-> slewp', 'word|3,5', '-> yxwvu'],
       },
@@ -93,7 +92,7 @@ const mockRules = {
         searchKey: '',
         name: 'title',
         cnName: '英文标题',
-        allow: { actionText: '单词个数', range: { min: 1, max: 15 }, regexp: createIntegerRangeRegExp('title') },
+        allow: { actionText: '单词个数', range: { min: 1, max: 15 }, regexp: createStringRangeRegExp('title') },
         syntax: [
           'title',
           '随机生成大于等于3小于等于7个单词的英文标题',
@@ -107,16 +106,9 @@ const mockRules = {
       {
         searchKey: '',
         name: 'phrase',
-        cnName: '英文短语',
-        allow: { actionText: '单词个数', range: { min: 1, max: 15 }, regexp: createIntegerRangeRegExp('phrase') },
-        syntax: [
-          'phrase',
-          '随机生成大于等于3小于等于7个单词的英文短语',
-          'phrase|len',
-          '生成指定单词个数的英文短语',
-          'phrase|min,max',
-          '随机生成大于等于min小于等于max个单词的英文短语',
-        ],
+        cnName: '短语',
+        allow: { actionText: '短语个数', range: { min: 1, max: 15 }, regexp: createStringRangeRegExp('phrase') },
+        syntax: ['phrase', '随机生成大于等于3小于等于7个的英文短语', 'phrase|len', '生成指定个数的英文短语', 'phrase|min,max', '随机生成大于等于min小于等于max个的英文短语'],
         example: [
           'phrase',
           '-> Omylxk Ubcdefghij Cfkpuz Kcegikm',
@@ -130,6 +122,7 @@ const mockRules = {
         searchKey: '',
         name: 'phone',
         cnName: '手机号',
+        allow: { regexp: creatLangRegExp('phone') },
         syntax: ['phone', '随机生成一个国内手机号码'],
         example: ['phone', '-> 13333333333'],
       },
@@ -138,6 +131,7 @@ const mockRules = {
         searchKey: '',
         name: 'idcard',
         cnName: '身份证号',
+        allow: { regexp: creatLangRegExp('idcard') },
         syntax: ['idcard', '随机生成一个身份证号码'],
         example: ['idcard', '-> 610102202003170019'],
       },
@@ -180,6 +174,7 @@ const mockRules = {
         searchKey: '',
         name: 'provinceorstate',
         cnName: '省',
+        allow: { regexp: creatLangRegExp('provinceorstate') },
         syntax: ['provinceorstate', '随机生成一个省名称'],
         example: ['provinceorstate', '-> 陕西省'],
       },
@@ -187,6 +182,7 @@ const mockRules = {
         searchKey: '',
         name: 'street',
         cnName: '街道',
+        allow: { regexp: creatLangRegExp('street') },
         syntax: ['street', '随机生成街道名称'],
         example: ['street', '-> 因看大街吴云 商场64-4号'],
       },
@@ -194,6 +190,7 @@ const mockRules = {
         searchKey: '',
         name: 'city',
         cnName: '城市',
+        allow: { regexp: creatLangRegExp('city') },
         syntax: ['city', '随机生成一个城市名称'],
         example: ['city', '-> 西安'],
       },
@@ -202,6 +199,7 @@ const mockRules = {
         searchKey: '地址',
         name: 'address',
         cnName: '省市区',
+        allow: { regexp: creatLangRegExp('address') },
         syntax: ['address', '随机生成一个详细地址'],
         example: ['address', '-> 陕西省西安市新城区还用场集小区1栋0单元975号'],
       },
@@ -209,6 +207,7 @@ const mockRules = {
         searchKey: '',
         name: 'zipcode',
         cnName: '邮政编码',
+        allow: { regexp: creatLangRegExp('zipcode') },
         syntax: ['zipcode', '随机生成一个邮政编码'],
         example: ['zipcode', '-> 710000'],
       },
@@ -282,7 +281,6 @@ const mockRules = {
         syntax: ['now', '当前时间'],
         example: ['now', '-> 2022-05-22 13:00:32'],
       },
-
       {
         searchKey: '',
         name: 'imagedata',
@@ -291,7 +289,6 @@ const mockRules = {
           isSwap: true,
           range: { min: 20, max: 1024, minActionText: '图片宽度', maxActionText: '图片高度' },
           parse: parseImage,
-          // oneOfTypes: ['jpeg', 'png'],
           regexp: createImageRegExp('imagedata'),
         },
         syntax: [
@@ -339,14 +336,6 @@ const mockRules = {
           '-> http://mock.apicat.net/image/200x210.png',
         ],
       },
-      // {
-      //   searchKey: 'file',
-      //   name: 'fileurl',
-      //   cnName: '文件链接',
-      //   allow: { regexp: createOneOfRegExp('fileurl', ['word', 'excel', 'csv', 'md']) },
-      //   syntax: ['fileurl', '生成一个markdown的文件链接', 'fileurl|type', '生成一个指定类型的文件链接,类型type只支持word、excel、csv、md'],
-      //   example: ['fileurl', '-> http://mock.apicat.net/file/welcome_to_use_apicat.md', 'fileurl|csv', '-> http://mock.apicat.net/file/welcome_to_use_apicat.csv'],
-      // },
       {
         searchKey: '',
         name: 'color',
@@ -382,6 +371,7 @@ const mockRules = {
         searchKey: '名字 姓 名',
         name: 'firstname',
         cnName: '姓',
+        allow: { regexp: creatLangRegExp('firstname') },
         syntax: ['firstname', '随机生成一个姓'],
         example: ['firstname', '-> 张'],
       },
@@ -389,6 +379,7 @@ const mockRules = {
         searchKey: '名字 姓 名',
         name: 'name',
         cnName: '名字',
+        allow: { regexp: creatLangRegExp('name') },
         syntax: ['name', '随机生成一个名字'],
         example: ['name', '-> 张爱军'],
       },
@@ -396,6 +387,7 @@ const mockRules = {
         searchKey: '名字 姓 名',
         name: 'lastname',
         cnName: '名',
+        allow: { regexp: creatLangRegExp('lastname') },
         syntax: ['lastname', '随机生成一个名'],
         example: ['lastname', '-> 发财'],
       },
@@ -403,6 +395,7 @@ const mockRules = {
         searchKey: '性别',
         name: 'gender',
         cnName: '性别',
+        allow: { regexp: creatLangRegExp('gender') },
         syntax: ['gender', '随机生成性别'],
         example: ['gender', '-> 男'],
       },
@@ -435,15 +428,17 @@ const mockRules = {
       },
       {
         searchKey: '',
-        name: 'mobile',
+        name: 'phone',
         cnName: '手机号',
-        syntax: ['mobile', '随机生成一个国内手机号码'],
-        example: ['mobile', '-> 13333333333'],
+        allow: { regexp: creatLangRegExp('phone') },
+        syntax: ['phone', '随机生成一个国内手机号码'],
+        example: ['phone', '-> 13333333333'],
       },
       {
         searchKey: '',
         name: 'idcard',
         cnName: '身份证号',
+        allow: { regexp: creatLangRegExp('idcard') },
         syntax: ['idcard', '随机生成一个身份证号码'],
         example: ['idcard', '-> 610102202003170019'],
       },
@@ -451,6 +446,7 @@ const mockRules = {
         searchKey: '',
         name: 'zipcode',
         cnName: '邮政编码',
+        allow: { regexp: creatLangRegExp('zipcode') },
         syntax: ['zipcode', '随机生成一个邮政编码'],
         example: ['zipcode', '-> 710000'],
       },
@@ -468,34 +464,12 @@ const mockRules = {
         name: 'boolean',
         cnName: '布尔值',
         allow: {
-          range: { min: 0, max: 100 },
-          parse: parseBoolean,
-          regexp: createOneOfRegExp('boolean', ['true', 'false', RE_STR_NORMAL_NUMBER]),
+          // range: { min: 0, max: 100 },
+          // parse: parseBoolean,
+          regexp: createOneOfRegExp('boolean', ['true', 'false']),
         },
-        syntax: [
-          'boolean',
-          '随机生成一个50%概率的true or false',
-          'boolean|value',
-          'value为true or false,代表生成指定的布尔值',
-          'boolean|probability',
-          'probability为0-100的整数,代表生成true的概率,1表示1%,99表示99%',
-        ],
-        example: [
-          'boolean',
-          '-> true',
-          'boolean|true',
-          '-> true',
-          'boolean|false',
-          '-> false',
-          'boolean|0',
-          '-> false',
-          'boolean|25',
-          '-> false',
-          'boolean|99',
-          '-> true',
-          'boolean|100',
-          '-> true',
-        ],
+        syntax: ['boolean', '随机生成一个50%概率的true or false', 'boolean|value', 'value为true or false,代表生成指定的布尔值'],
+        example: ['boolean', '-> true', 'boolean|true', '-> true', 'boolean|false', '-> false'],
       },
     ],
     array: [
@@ -503,27 +477,10 @@ const mockRules = {
         searchKey: '',
         name: 'array',
         cnName: '数组',
-        allow: { range: { min: 0, max: 50, minActionText: '最小长度', maxActionText: '最大长度' }, regexp: createIntegerRangeRegExp('array') },
-        syntax: ['array', '数组内的所有元素,随机循环1-5次', 'array|count', '数组内的所有元素循环count次', 'array|min,max', '数组内的所有元素,随机循环大于等于min小于等于max次'],
-        example: [
-          '// 数组arr1',
-          'arr1 = [string|1]',
-          '// 数组arr1的规则及结果',
-          'array',
-          '-> ["a", "b", "c"]',
-          '',
-          '// 数组arr2',
-          'arr2 = [string|1, number|1-9]',
-          '// 数组arr2的规则及结果',
-          'array|3',
-          '-> ["a", 1, "z", 8, "y", 6]',
-          '',
-          '// 数组arr3',
-          'arr3 = [string|1, number|1-9]',
-          '// 数组arr3的规则及结果',
-          'array|1-3',
-          '-> ["a", 1, "z", 8]',
-        ],
+        // allow: { range: { min: 0, max: 50, minActionText: '最小长度', maxActionText: '最大长度' }, regexp: createIntegerRangeRegExp('array') },
+        // syntax: ['array', '数组内的所有元素,随机循环1-5次', 'array|count', '数组内的所有元素循环count次', 'array|min,max', '数组内的所有元素,随机循环大于等于min小于等于max次'],
+        syntax: ['array', '数组内的所有元素,随机循环次数'],
+        example: ['// 数组arr1', 'arr1 = [string|1]', '// 数组arr1的规则及结果', 'array', '-> ["a", "b", "c"]'],
       },
     ],
     object: [

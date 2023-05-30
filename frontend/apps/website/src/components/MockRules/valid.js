@@ -1,4 +1,4 @@
-import { getMockRules } from './constants'
+import { getMockRules, mockSupportedLang } from './constants'
 import MockRuleParser from './parser'
 
 export default {
@@ -44,14 +44,17 @@ var Diff = {
 
   name: function (inputRule, result) {
     var length = result.length
-    var name = MockRuleParser.getRuleName(inputRule).type
+    var { type: name, lang } = MockRuleParser.getRuleName(inputRule)
     var filter = (rule) => {
       var isExist = rule.name === name
       this.currentMockRule = isExist ? rule : null
       return isExist
     }
 
+    var filterLang = (supportedLang) => supportedLang === lang
+
     Assert.oneOf(this.currentTypeMockRules, filter, result, '语法有误')
+    lang && Assert.oneOf(mockSupportedLang, filterLang, result, `mock 国际化 仅支持「${mockSupportedLang.join('、')}」`)
 
     var isValid = result.length === length
     this.mockRuleName = isValid ? name : null
@@ -70,6 +73,7 @@ var Diff = {
         const regexp = allow.regexp
         const range = allow.range
         const validate = this[`validate${(alias || this.mockType).replace(/^\S/, (s) => s.toUpperCase())}`]
+
         // 有正则 || 有范围
         if (regexp && regexp.test(inputRule)) {
           validate && validate.call(this, inputRule, allow, result)

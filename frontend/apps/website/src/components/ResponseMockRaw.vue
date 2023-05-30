@@ -3,9 +3,10 @@
     <label :class="ns.e('method')" :style="{ backgroundColor: getRequestMethodColor(nodeAttrs.method) }"> Mock </label>
 
     <div :class="ns.e('server')">
-      <span class="copy_text">{{ mockServerPath }}</span>
+      <span class="copy_text">{{ mockServerPathRef }}</span>
     </div>
-    <p :class="ns.e('path')" class="copy_text">{{ pathRef }}</p>
+    <p :class="ns.e('path')" class="copy_text">{{ nodeAttrs.path }}</p>
+
     <el-tooltip :content="$t('app.common.fetchMockData')">
       <i :class="ns.e('copy')" v-if="!isFetchMockData" @click="handlerMock(fullPath, nodeAttrs.method)">
         <ac-icon-quill:send />
@@ -35,8 +36,9 @@ const props = defineProps<{ doc: HttpDocument; code: string | number }>()
 const { project_id } = useParams()
 const ns = useNamespace('http-method')
 const nodeAttrs = useNodeAttrs(props, HTTP_URL_NODE_KEY, 'doc')
-const pathRef = computed(() => mockApiPath(project_id as string, nodeAttrs.value.path))
-const fullPath = computed(() => mockServerPath + pathRef.value)
+const mockServerPathRef = computed(() => mockServerPath + mockApiPath(project_id as string))
+const fullPath = computed(() => mockServerPathRef.value + nodeAttrs.value.path)
+
 const isFetchMockData = ref(false)
 
 const handlerMock = async (path: string, method: string) => {
