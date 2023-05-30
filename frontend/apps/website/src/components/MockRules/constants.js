@@ -11,7 +11,7 @@ export const createImageRegExp = (name) => new RegExp(`^${name}(\\|((\\d|[1-9]\\
 export const createOneOfRegExp = (name, types) => new RegExp(`^${name}(\\|(${types.join('|')}))?$`)
 export const createStringRangeRegExp = (name) => new RegExp(`^${name}(\\((${mockSupportedLang.join('|')})\\))?(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
 export const createIntegerRangeRegExp = (name) => new RegExp(`^${name}(\\|\\-?((\\d|[1-9]\\d+),\\-?(\\d|[1-9]\\d+)|\\-?(\\d|[1-9]\\d+)))?$`)
-export const creatFloatRangeRegExp = (name) => new RegExp(`^${name}(\\|((-?\\d+(\\.\\d+)?)|((-?\\d+(\\.\\d+)?),(-?\\d+(\\.\\d+)?),([1-9]\\d*))))$`)
+export const creatFloatRangeRegExp = (name) => new RegExp(`^${name}(\\|((-?\\d+(\\.\\d+)?)|((-?\\d+(\\.\\d+)?),(-?\\d+(\\.\\d+)?),([1-9]\\d*))))?$`)
 export const creatLangRegExp = (name) => new RegExp(`^${name}(\\((${mockSupportedLang.join('|')})\\))?$`)
 
 /**
