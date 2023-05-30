@@ -171,7 +171,7 @@ const mockRules = {
         example: ['email', '-> helloworld@gmail.com'],
       },
       {
-        searchKey: '',
+        searchKey: '省份',
         name: 'provinceorstate',
         cnName: '省',
         allow: { regexp: creatLangRegExp('provinceorstate') },
@@ -179,12 +179,12 @@ const mockRules = {
         example: ['provinceorstate', '-> 陕西省'],
       },
       {
-        searchKey: '',
-        name: 'street',
-        cnName: '街道',
-        allow: { regexp: creatLangRegExp('street') },
-        syntax: ['street', '随机生成街道名称'],
-        example: ['street', '-> 因看大街吴云 商场64-4号'],
+        searchKey: '省份 城市',
+        name: 'provinceorstate&city',
+        cnName: '省市',
+        allow: { regexp: creatLangRegExp('provinceorstate&city') },
+        syntax: ['provinceorstate&city', '随机生成一个省市名称'],
+        example: ['provinceorstate&city', '-> 陕西省 西安市'],
       },
       {
         searchKey: '',
@@ -194,7 +194,14 @@ const mockRules = {
         syntax: ['city', '随机生成一个城市名称'],
         example: ['city', '-> 西安'],
       },
-
+      {
+        searchKey: '',
+        name: 'street',
+        cnName: '街道',
+        allow: { regexp: creatLangRegExp('street') },
+        syntax: ['street', '随机生成街道名称'],
+        example: ['street', '-> 因看大街吴云 商场64-4号'],
+      },
       {
         searchKey: '地址',
         name: 'address',
@@ -316,7 +323,6 @@ const mockRules = {
           isSwap: true,
           range: { min: 20, max: 1024, minActionText: '图片宽度', maxActionText: '图片高度' },
           parse: parseImage,
-          // oneOfTypes: ['jpeg', 'png'],
           regexp: createImageRegExp('imageurl'),
         },
         syntax: [
@@ -408,6 +414,14 @@ const mockRules = {
         syntax: ['oneof|{value?}...', 'value1,value2中随机选择一个。语法:以英文逗号","分割数据。'],
         example: ['oneof|男,女', '-> 女', 'oneof|1,"a b",a,b', '-> a'],
       },
+      {
+        searchKey: '字增 ID',
+        name: 'autoincrement',
+        cnName: '自增',
+        allow: { isSwap: true, range: { min: -1000000, max: 1000000 }, regexp: createIntegerRangeRegExp('autoincrement') },
+        syntax: ['autoincrement|{begin?},{step?}', 'begin起始值,默认 1', 'step步长,默认 1'],
+        example: ['autoincrement', '-> 1,2,3,....', 'autoincrement|100', '-> 100,101,102,...', 'autoincrement|100,2', '-> 100,102,104,...'],
+      },
     ],
     integer: [
       {
@@ -422,7 +436,7 @@ const mockRules = {
         searchKey: '字增 ID',
         name: 'autoincrement',
         cnName: '自增',
-        allow: { range: { min: -1000000, max: 1000000 }, regexp: createIntegerRangeRegExp('autoincrement') },
+        allow: { isSwap: true, range: { min: -1000000, max: 1000000 }, regexp: createIntegerRangeRegExp('autoincrement') },
         syntax: ['autoincrement|{begin?},{step?}', 'begin起始值,默认 1', 'step步长,默认 1'],
         example: ['autoincrement', '-> 1,2,3,....', 'autoincrement|100', '-> 100,101,102,...', 'autoincrement|100,2', '-> 100,102,104,...'],
       },

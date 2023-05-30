@@ -49,10 +49,11 @@ const handlerMock = async (path: string, method: string) => {
     AsyncMsgBox({
       title: 'Mock Data',
       width: '50vw',
+      draggable: true,
       showCancelButton: false,
       showConfirmButton: false,
       customStyle: { '--el-messagebox-width': '50vw' },
-      message: () => <CodeEditor modelValue={JSON.stringify(data, null, 2)} lang="json" readonly />,
+      message: () => <CodeEditor style={{ maxHeight: '500px' }} modelValue={JSON.stringify(data, null, 2)} lang="json" readonly />,
     })
   } catch (error) {
     //

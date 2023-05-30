@@ -11,7 +11,7 @@ const parseName = (name, isRemoveSpace = true) => {
     lang = undefined
 
   if (rules[0] && rules.length <= 2 && !/\|$/.test(name)) {
-    const result = rules[0].match(new RegExp(`^(\\w*)(\\((\\w*)\\))?$`, 'i'))
+    const result = rules[0].match(new RegExp(`^([\\w&]+)(\\((\\w*)\\))?$`, 'i'))
     type = result ? result[1] : undefined
     lang = result ? result[3] : undefined
   }
