@@ -29,7 +29,7 @@ const mockRules = {
         cnName: '字符串',
         allow: {
           range: { min: 1, max: 10000 },
-          oneOfTypes: ['number', 'upper', 'letter', 'ansic'],
+          oneOfTypes: ['upper', 'letter', 'ansic'],
           regexp: createOneOfWithRangeRegExp('string'),
           parse: parseStringWithType,
         },
