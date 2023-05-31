@@ -34,9 +34,9 @@ const mockRules = {
         },
         syntax: [
           'string|{type?},{min?},{max?}',
-          'type: number、upper、letter、ansic、number',
+          'type: number、upper、letter、ansic',
           'type为空时,默认为[a-zA-Z0-9]随机生成',
-          'number 随机长度的数字',
+          'number 随机长度的字符串类型数字',
           'upper 随机长度的大写字符串',
           'letter 随机长度的小写字符串',
           'ansic 随机大小写字母数字以及一些特殊符号',
