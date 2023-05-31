@@ -106,11 +106,11 @@ export const parseStringWithType = (name, reg) => {
   if (reg) {
     var matched = name.match(reg) || []
 
-    oneOfType = matched[4] || matched[9] || undefined
-    range = matched[5] && matched[5].split(',')
-    min = matched[6] ? +matched[6] : matched[8] ? +matched[8] : undefined
-    max = matched[7] ? +matched[7] : undefined
-    count = matched[8] ? +matched[8] : undefined
+    oneOfType = matched[4] || matched[10] || undefined
+    range = matched[6] && matched[6].split(',')
+    min = matched[7] ? +matched[7] : undefined
+    max = matched[8] ? +matched[8] : undefined
+    count = matched[9] ? +matched[9] : undefined
   }
 
   return {

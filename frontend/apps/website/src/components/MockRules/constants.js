@@ -8,7 +8,7 @@ export const createDateTimeRegExp = (name) => new RegExp(`^${name}(\\|.{1,30})?$
 export const createImageRegExp = (name) => new RegExp(`^${name}(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)))?(\\|(\\d|[1-9]\\d+))?$`)
 export const createOneOfRegExp = (name, types) => new RegExp(`^${name}(\\|(${types.join('|')}))?$`)
 export const createOneOfWithRangeRegExp = (name, types) =>
-  new RegExp(`^${name}(\\|(((${types.join('|')}),)?((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+))|(${types.join('|')})))?$`)
+  new RegExp(`^${name}(\\|(((${types.join('|')}),)?(((\\d|[1-9]\\d+),(\\d|[1-9]\\d+))|(\\d|[1-9]\\d+))|(${types.join('|')})))?$`)
 // export const createOneOfWithRangeRegExp = (name) => new RegExp(`^${name}(\\|((\\w+),)((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
 export const createStringRangeRegExp = (name) => new RegExp(`^${name}(\\((${mockSupportedLang.join('|')})\\))?(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
 export const createIntegerRangeRegExp = (name) => new RegExp(`^${name}(\\|\\-?((\\d|[1-9]\\d+),\\-?(\\d|[1-9]\\d+)|\\-?(\\d|[1-9]\\d+)))?$`)
