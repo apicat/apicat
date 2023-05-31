@@ -44,7 +44,7 @@ const isFetchMockData = ref(false)
 const handlerMock = async (path: string, method: string) => {
   isFetchMockData.value = true
   try {
-    const data: any = await getMockData(path, method, { mock_response_code: props.code as string })
+    const { data, headers }: any = await getMockData(path, method, { mock_response_code: props.code as string })
 
     AsyncMsgBox({
       title: 'Mock Data',
@@ -53,7 +53,14 @@ const handlerMock = async (path: string, method: string) => {
       showCancelButton: false,
       showConfirmButton: false,
       customStyle: { '--el-messagebox-width': '50vw' },
-      message: () => <CodeEditor style={{ maxHeight: '500px' }} modelValue={JSON.stringify(data, null, 2)} lang="json" readonly />,
+      message: () => (
+        <div>
+          <h3 class="-mt-4px mb-6px fw500 text-14px">Response Header</h3>
+          <CodeEditor style={{ maxHeight: '200px' }} modelValue={JSON.stringify(headers, null, 2)} lang="json" readonly />
+          <h3 class="my-6px fw500 text-14px">Response Body</h3>
+          <CodeEditor style={{ maxHeight: '400px' }} modelValue={JSON.stringify(data, null, 2)} lang="json" readonly />
+        </div>
+      ),
     })
   } catch (error) {
     //

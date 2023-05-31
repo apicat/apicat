@@ -62,7 +62,7 @@ QuietAjax.interceptors.request.use(onRequest, onErrorResponse)
 QuietAjax.interceptors.response.use((response: AxiosResponse) => response.data, onErrorResponse)
 
 MockAjax.interceptors.request.use(onRequest, onErrorResponse)
-MockAjax.interceptors.response.use((response: AxiosResponse) => response.data)
+// MockAjax.interceptors.response.use((response: AxiosResponse) => response.data)
 
 // 默认请求实例
 export default DefaultAjax
