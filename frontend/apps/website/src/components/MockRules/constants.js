@@ -446,14 +446,6 @@ const mockRules = {
         syntax: ['oneof|{value?}...', 'value1,value2中随机选择一个。语法:以英文逗号","分割数据。'],
         example: ['oneof|男,女', '-> 女', 'oneof|1,"a b",a,b', '-> a'],
       },
-      {
-        searchKey: '字增 ID',
-        name: 'autoincrement',
-        cnName: '自增',
-        allow: { isSwap: true, range: { min: -1000000, max: 1000000 }, regexp: createIntegerRangeRegExp('autoincrement') },
-        syntax: ['autoincrement|{begin?},{step?}', 'begin起始值,默认 1', 'step步长,默认 1'],
-        example: ['autoincrement', '-> 1,2,3,....', 'autoincrement|100', '-> 100,101,102,...', 'autoincrement|100,2', '-> 100,102,104,...'],
-      },
     ],
     integer: [
       {
