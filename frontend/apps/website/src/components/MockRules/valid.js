@@ -71,17 +71,26 @@ var Diff = {
         Assert.equal(this.mockRuleName, inputRule, result, `${this.currentMockRule.name} 语法有误`)
       } else {
         const regexp = allow.regexp
-        const range = allow.range
+        // const range = allow.range
         const validate = this[`validate${(alias || this.mockType).replace(/^\S/, (s) => s.toUpperCase())}`]
 
-        // 有正则 || 有范围
-        if (regexp && regexp.test(inputRule)) {
-          validate && validate.call(this, inputRule, allow, result)
-        } else if (!regexp && range !== null) {
-          validate && validate.call(this, inputRule, allow, result)
-        } else {
+        if (regexp && !regexp.test(inputRule)) {
           result.push(`${this.currentMockRule.name} 语法有误`)
+          return
         }
+
+        validate && validate.call(this, inputRule, allow, result)
+
+        // // 有正则 || 有范围
+        // if (regexp && regexp.test(inputRule)) {
+        //   validate && validate.call(this, inputRule, allow, result)
+        // } else if (!regexp && range) {
+        //   validate && validate.call(this, inputRule, allow, result)
+        // } else if (regexp && range) {
+        //   validate && validate.call(this, inputRule, allow, result)
+        // } else {
+        //   result.push(`${this.currentMockRule.name} 语法有误`)
+        // }
       }
     }
     return result.length === length
@@ -156,8 +165,7 @@ var Diff = {
 
     // 格式校验
     if (allow.oneOfTypes && rule.oneOfType && allow.oneOfTypes.indexOf(rule.oneOfType) === -1) {
-      let typeText = allow.typeText || '图片'
-      result.push(`${this.currentMockRule.name} 不支持的${typeText}类型`)
+      result.push(`${rule.oneOfType} 类型错误，${this.currentMockRule.name}仅支持${allow.oneOfTypes.join('、')}类型`)
       return
     }
   },

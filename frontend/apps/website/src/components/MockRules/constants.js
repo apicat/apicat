@@ -1,6 +1,6 @@
 // 默认值
 
-import { parseImage } from './parser'
+import { parseImage, parseStringWithType } from './parser'
 
 export const mockSupportedLang = ['en', 'zh']
 // 正则组合 校验语法
@@ -9,6 +9,8 @@ export const createDateRegExp = (name) => new RegExp(`^${name}(\\|(y-m-d|y\\/m\\
 export const createTimeRegExp = (name) => new RegExp(`^${name}(\\|h:i:s)?$`, 'i')
 export const createImageRegExp = (name) => new RegExp(`^${name}(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)))?(\\|(\\d|[1-9]\\d+))?$`)
 export const createOneOfRegExp = (name, types) => new RegExp(`^${name}(\\|(${types.join('|')}))?$`)
+// export const createOneOfWithRangeRegExp = (name, types) => new RegExp(`^${name}(\\|((${types.join('|')}),)?((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
+export const createOneOfWithRangeRegExp = (name) => new RegExp(`^${name}(\\|((\\w+),)((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
 export const createStringRangeRegExp = (name) => new RegExp(`^${name}(\\((${mockSupportedLang.join('|')})\\))?(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
 export const createIntegerRangeRegExp = (name) => new RegExp(`^${name}(\\|\\-?((\\d|[1-9]\\d+),\\-?(\\d|[1-9]\\d+)|\\-?(\\d|[1-9]\\d+)))?$`)
 export const creatFloatRangeRegExp = (name) => new RegExp(`^${name}(\\|((-?\\d+(\\.\\d+)?)|((-?\\d+(\\.\\d+)?),(-?\\d+(\\.\\d+)?),([1-9]\\d*))))?$`)
@@ -25,14 +27,25 @@ const mockRules = {
         searchKey: '',
         name: 'string',
         cnName: '字符串',
-        allow: { range: { min: 1, max: 10000 }, regexp: createStringRangeRegExp('string') },
+        allow: {
+          range: { min: 1, max: 10000 },
+          oneOfTypes: ['number', 'upper', 'letter', 'ansic'],
+          regexp: createOneOfWithRangeRegExp('string'),
+          parse: parseStringWithType,
+        },
         syntax: [
-          'string(lang?)|{min?},{max?}',
-          'lang: zh、en, 默认en',
+          'string|{type?},{min?},{max?}',
+          'type:',
+          'upper 大写',
+          'letter 小写',
+          'ansic 大小写字母数字以及一些特殊符号',
+          'number 随机长度的数字',
+          'string // 随机长度的字符',
+          'string|number // 随机长度的数字',
+          'string|letter,10  // 长度为10的小写字母',
+          'string|letter,10,20  // 长度为10-20的小写字母',
           'string',
           '随机生成大于等于3小于等于10长度的英文字符串',
-          'string(lang?)',
-          '随机生成指定语言的字符串',
           'string|len',
           '生成指定长度的英文字符串',
           'string|min,max',
@@ -506,8 +519,6 @@ const mockRules = {
         searchKey: '',
         name: 'array',
         cnName: '数组',
-        // allow: { range: { min: 0, max: 50, minActionText: '最小长度', maxActionText: '最大长度' }, regexp: createIntegerRangeRegExp('array') },
-        // syntax: ['array', '数组内的所有元素,随机循环1-5次', 'array|count', '数组内的所有元素循环count次', 'array|min,max', '数组内的所有元素,随机循环大于等于min小于等于max次'],
         syntax: ['array', '数组内的所有元素,随机循环次数'],
         example: ['// 数组arr1', 'arr1 = [string|1]', '// 数组arr1的规则及结果', 'array', '-> ["a", "b", "c"]'],
       },

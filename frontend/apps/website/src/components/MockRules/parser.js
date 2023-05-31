@@ -64,6 +64,34 @@ export const parseBoolean = (name, reg) => {
   return name
 }
 
+/**
+ * string|{type},min,max解析
+ * @param {*} name
+ * @param {*} reg
+ * @returns
+ */
+export const parseStringWithType = (name, reg) => {
+  var range, min, max, count, oneOfType
+
+  if (reg) {
+    var matched = name.match(reg) || []
+
+    oneOfType = matched[3] ? matched[3] : undefined
+    range = matched[4] && matched[4].split(',')
+    min = matched[5] ? +matched[5] : undefined
+    max = matched[6] ? +matched[6] : undefined
+    count = matched[7] ? +matched[7] : undefined
+  }
+
+  return {
+    oneOfType,
+    range,
+    min,
+    max,
+    count,
+  }
+}
+
 export default {
   getRuleName(name) {
     return parseName(name)
