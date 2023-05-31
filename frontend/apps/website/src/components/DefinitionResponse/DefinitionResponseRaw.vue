@@ -1,7 +1,7 @@
 <template>
   <div v-if="responseRef.header && responseRef.header.length">
     <p class="mb-5px text-16px mt-10px">Header</p>
-    <SimpleParameterEditor :readonly="true" v-model="responseRef.header" />
+    <SimpleParameterEditor :readonly="true" v-model="responseRef.header" allow-mock />
   </div>
 
   <div v-for="(_, contentTypeKey) in responseRef.content" :key="contentDefaultType">

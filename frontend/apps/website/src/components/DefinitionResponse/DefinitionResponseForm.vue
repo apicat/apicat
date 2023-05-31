@@ -1,7 +1,7 @@
 <template>
   <div class="mt-10px">
     <ToggleHeading title="Header" :expand="responseRef.header && !!responseRef.header.length">
-      <SimpleEditor v-model="responseRef.header" />
+      <SimpleEditor v-model="responseRef.header" allow-mock />
     </ToggleHeading>
 
     <ToggleHeading title="Content">
