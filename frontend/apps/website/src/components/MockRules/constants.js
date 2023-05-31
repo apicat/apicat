@@ -4,9 +4,7 @@ import { parseImage, parseStringWithType } from './parser'
 
 export const mockSupportedLang = ['en', 'zh']
 // 正则组合 校验语法
-export const createDateTimeRegExp = (name) => new RegExp(`^${name}((\\|(y-m-d|y\\/m\\/d)) h:i:s)?$`, 'i')
-export const createDateRegExp = (name) => new RegExp(`^${name}(\\|(y-m-d|y\\/m\\/d))?$`, 'i')
-export const createTimeRegExp = (name) => new RegExp(`^${name}(\\|h:i:s)?$`, 'i')
+export const createDateTimeRegExp = (name) => new RegExp(`^${name}(\\|.{1,30})?$`)
 export const createImageRegExp = (name) => new RegExp(`^${name}(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)))?(\\|(\\d|[1-9]\\d+))?$`)
 export const createOneOfRegExp = (name, types) => new RegExp(`^${name}(\\|(${types.join('|')}))?$`)
 // export const createOneOfWithRangeRegExp = (name, types) => new RegExp(`^${name}(\\|((${types.join('|')}),)?((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
@@ -271,35 +269,33 @@ const mockRules = {
         searchKey: '',
         name: 'date',
         cnName: '日期',
-        allow: { regexp: createDateRegExp('date') },
-        syntax: ['date', '随机生成一个(Y-M-D)格式的日期', 'date|format', '随机生成一个指定格式的日期,format为(YyMmDd)的排列组合'],
-        example: ['date', '-> 2020-03-17', 'date|Y-M-D', '-> 2020-03-17', 'date|y-m-d', '-> 20-3-17', 'date|Y/M/D', '-> 2020/03/17', 'date|y/m/d ', '-> 20/3/17'],
+        allow: { regexp: createDateTimeRegExp('date') },
+        syntax: ['date|{format?}'],
+        example: ['date', '-> 2020-03-17', 'date|YYYY年MM月dd日', '-> 2020年01月20日', 'date|YYYY-MM-dd', '-> 2020-03-17', 'date|YYYY/MM/dd', '-> 2020/03/17'],
       },
       {
         searchKey: '',
         name: 'time',
         cnName: '时间',
-        allow: { regexp: createTimeRegExp('time') },
-        syntax: ['time', '随机生成一个(H:I:S)格式的时间', 'time|format', '随机生成一个指定格式的时间,format为(HhIiSs)的排列组合'],
-        example: ['time', '-> 09:00:00', 'time|H:I:S', '-> 09:00:00', 'time|h:i:s', '-> 9:0:0'],
+        allow: { regexp: createDateTimeRegExp('time') },
+        syntax: ['time', '随机生成一个(HH:mm:ss)格式的时间', 'time|format', '随机生成一个指定格式的时间'],
+        example: ['time', '-> 09:00:00', 'time|HH:mm:ss', '-> 09:00:00'],
       },
       {
         searchKey: '',
         name: 'datetime',
         cnName: '日期时间',
         allow: { regexp: createDateTimeRegExp('datetime') },
-        syntax: ['datetime', '随机生成一个(Y-M-D H:I:S)格式的日期时间', 'datetime|format', '随机生成一个指定格式的日期时间,format为(YyMmDd HhIiSs)的排列组合'],
+        syntax: ['datetime|{format?}'],
         example: [
           'datetime',
-          '-> 2020-03-17 09:00:00',
-          'datetime|Y-M-D H:I:S',
-          '-> 2020-03-17 09:00:00',
-          'datetime|y-m-d h:i:s',
-          '-> 20-3-17 9:0:0',
-          'datetime|Y/M/D H:I:S',
-          '-> 2020/03/17 09:00:00',
-          'datetime|y/m/d h:i:s',
-          '-> 20/3/17 9:0:0',
+          '-> 2006-01-02T15:04:05Z07:00',
+          'datetime|"YYYY年MM月dd日 HH:mm"',
+          '-> 2020年01月20日 12:00',
+          'date|YYYY-MM-dd',
+          '-> 2020-03-17',
+          'date|YYYY/MM/dd',
+          '-> 2020/03/17',
         ],
       },
       {
@@ -312,6 +308,7 @@ const mockRules = {
       {
         searchKey: '',
         name: 'now',
+        allow: { regexp: createDateTimeRegExp('now') },
         cnName: '当前时间',
         syntax: ['now', '当前时间'],
         example: ['now', '-> 2022-05-22 13:00:32'],
