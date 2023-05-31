@@ -13,7 +13,7 @@ import (
 type ContentType string
 
 const (
-	ContentItemTypeDir  ContentType = "dir"
+	ContentItemTypeDir  ContentType = "category"
 	ContentItemTypeHttp             = "http"
 	ContentItemTypeDoc              = "doc"
 )

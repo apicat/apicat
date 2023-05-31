@@ -109,7 +109,7 @@ func (m *MockServer) matchRoute(c *gin.Context, routes map[string]map[string]spe
 		var hasVar int
 		for k, v := range rp {
 			if v != p[k] {
-				if v[0] == '{' {
+				if len(v) > 0 && v[0] == '{' {
 					hasVar++
 				} else {
 					flag = true
