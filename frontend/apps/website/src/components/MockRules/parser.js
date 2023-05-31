@@ -69,8 +69,9 @@ export const parseBoolean = (name, reg) => {
  * @param {*} name
  * @param {*} reg
  * @returns
+ * for: (name) => new RegExp(`^${name}(\\|((\\w+),)((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
  */
-export const parseStringWithType = (name, reg) => {
+export const parseStringWithOneOfType = (name, reg) => {
   var range, min, max, count, oneOfType
 
   if (reg) {
@@ -81,6 +82,35 @@ export const parseStringWithType = (name, reg) => {
     min = matched[5] ? +matched[5] : undefined
     max = matched[6] ? +matched[6] : undefined
     count = matched[7] ? +matched[7] : undefined
+  }
+
+  return {
+    oneOfType,
+    range,
+    min,
+    max,
+    count,
+  }
+}
+
+/**
+ *
+ * @param {*} name
+ * @param {*} reg
+ * @returns
+ * for: (name, types) => new RegExp(`^${name}(\\|(((${types.join('|')}),)?((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+))|(${types.join('|')})))?$`)
+ */
+export const parseStringWithType = (name, reg) => {
+  var range, min, max, count, oneOfType
+
+  if (reg) {
+    var matched = name.match(reg) || []
+
+    oneOfType = matched[4] || matched[9] || undefined
+    range = matched[5] && matched[5].split(',')
+    min = matched[6] ? +matched[6] : matched[8] ? +matched[8] : undefined
+    max = matched[7] ? +matched[7] : undefined
+    count = matched[8] ? +matched[8] : undefined
   }
 
   return {

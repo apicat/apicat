@@ -7,8 +7,9 @@ export const mockSupportedLang = ['en', 'zh']
 export const createDateTimeRegExp = (name) => new RegExp(`^${name}(\\|.{1,30})?$`)
 export const createImageRegExp = (name) => new RegExp(`^${name}(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)))?(\\|(\\d|[1-9]\\d+))?$`)
 export const createOneOfRegExp = (name, types) => new RegExp(`^${name}(\\|(${types.join('|')}))?$`)
-// export const createOneOfWithRangeRegExp = (name, types) => new RegExp(`^${name}(\\|((${types.join('|')}),)?((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
-export const createOneOfWithRangeRegExp = (name) => new RegExp(`^${name}(\\|((\\w+),)((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
+export const createOneOfWithRangeRegExp = (name, types) =>
+  new RegExp(`^${name}(\\|(((${types.join('|')}),)?((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+))|(${types.join('|')})))?$`)
+// export const createOneOfWithRangeRegExp = (name) => new RegExp(`^${name}(\\|((\\w+),)((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
 export const createStringRangeRegExp = (name) => new RegExp(`^${name}(\\((${mockSupportedLang.join('|')})\\))?(\\|((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
 export const createIntegerRangeRegExp = (name) => new RegExp(`^${name}(\\|\\-?((\\d|[1-9]\\d+),\\-?(\\d|[1-9]\\d+)|\\-?(\\d|[1-9]\\d+)))?$`)
 export const creatFloatRangeRegExp = (name) => new RegExp(`^${name}(\\|((-?\\d+(\\.\\d+)?)|((-?\\d+(\\.\\d+)?),(-?\\d+(\\.\\d+)?),([1-9]\\d*))))?$`)
@@ -27,29 +28,35 @@ const mockRules = {
         cnName: '字符串',
         allow: {
           range: { min: 1, max: 10000 },
-          oneOfTypes: ['upper', 'letter', 'ansic'],
-          regexp: createOneOfWithRangeRegExp('string'),
+          // oneOfTypes: ['upper', 'letter', 'ansic', 'number'],
+          regexp: createOneOfWithRangeRegExp('string', ['upper', 'letter', 'ansic', 'number']),
           parse: parseStringWithType,
         },
         syntax: [
           'string|{type?},{min?},{max?}',
-          'type:',
-          'upper 大写',
-          'letter 小写',
-          'ansic 大小写字母数字以及一些特殊符号',
+          'type: number、upper、letter、ansic、number',
+          'type为空时,默认为[a-zA-Z0-9]随机生成',
           'number 随机长度的数字',
-          'string // 随机长度的字符',
-          'string|number // 随机长度的数字',
-          'string|letter,10  // 长度为10的小写字母',
-          'string|letter,10,20  // 长度为10-20的小写字母',
-          'string',
-          '随机生成大于等于3小于等于10长度的英文字符串',
-          'string|len',
-          '生成指定长度的英文字符串',
-          'string|min,max',
-          '随机生成大于等于min小于等于max长度的英文字符串',
+          'upper 随机长度的大写字符串',
+          'letter 随机长度的小写字符串',
+          'ansic 随机大小写字母数字以及一些特殊符号',
         ],
-        example: ['string', '-> cegikmoq', 'string|3', '-> wtq', 'string|1,5', '-> xvt'],
+        example: [
+          'string',
+          '-> cegikmoq',
+          'string|3',
+          '-> wtq',
+          'string|1,5',
+          '-> xvt',
+          'string|number',
+          '-> 1234567890',
+          'string|number,1,3',
+          '-> 02',
+          'string|upper',
+          '-> GILXLDRTLX',
+          'string|upper,1,3',
+          '-> GI',
+        ],
       },
       {
         searchKey: '',
