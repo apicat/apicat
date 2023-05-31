@@ -390,6 +390,13 @@ const mockRules = {
         example: ['httpmethod', '-> DELETE'],
       },
       {
+        searchKey: 'uuid id',
+        name: 'uuid',
+        cnName: '唯一ID',
+        syntax: ['uuid', '随机生成一个uuid字符串'],
+        example: ['uuid', '-> 9b271dc8-abb9-19b0-f5f4-43225ff7968c'],
+      },
+      {
         searchKey: '数字占位符 占位符',
         name: 'numberpattern',
         defaultValue: 'numberpattern|###-######-#',
