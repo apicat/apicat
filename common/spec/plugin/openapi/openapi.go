@@ -21,7 +21,7 @@ func Decode(data []byte) (out *spec.Spec, err error) {
 		}
 	}()
 	docment, docerr := libopenapi.NewDocument(data)
-	if err != nil {
+	if docerr != nil {
 		err = docerr
 		return
 	}
