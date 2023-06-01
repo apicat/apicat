@@ -71,17 +71,26 @@ var Diff = {
         Assert.equal(this.mockRuleName, inputRule, result, `${this.currentMockRule.name} 语法有误`)
       } else {
         const regexp = allow.regexp
-        const range = allow.range
+        // const range = allow.range
         const validate = this[`validate${(alias || this.mockType).replace(/^\S/, (s) => s.toUpperCase())}`]
 
-        // 有正则 || 有范围
-        if (regexp && regexp.test(inputRule)) {
-          validate && validate.call(this, inputRule, allow, result)
-        } else if (!regexp && range !== null) {
-          validate && validate.call(this, inputRule, allow, result)
-        } else {
+        if (regexp && !regexp.test(inputRule)) {
           result.push(`${this.currentMockRule.name} 语法有误`)
+          return
         }
+
+        validate && validate.call(this, inputRule, allow, result)
+
+        // // 有正则 || 有范围
+        // if (regexp && regexp.test(inputRule)) {
+        //   validate && validate.call(this, inputRule, allow, result)
+        // } else if (!regexp && range) {
+        //   validate && validate.call(this, inputRule, allow, result)
+        // } else if (regexp && range) {
+        //   validate && validate.call(this, inputRule, allow, result)
+        // } else {
+        //   result.push(`${this.currentMockRule.name} 语法有误`)
+        // }
       }
     }
     return result.length === length
@@ -156,8 +165,7 @@ var Diff = {
 
     // 格式校验
     if (allow.oneOfTypes && rule.oneOfType && allow.oneOfTypes.indexOf(rule.oneOfType) === -1) {
-      let typeText = allow.typeText || '图片'
-      result.push(`${this.currentMockRule.name} 不支持的${typeText}类型`)
+      result.push(`${rule.oneOfType} 类型错误，${this.currentMockRule.name}仅支持${allow.oneOfTypes.join('、')}类型`)
       return
     }
   },
@@ -205,20 +213,43 @@ var Diff = {
 
       // |min-max
       if (rule.min !== undefined && rule.max !== undefined) {
-        if (rule.min > rule.max) {
-          result.push(`${this.currentMockRule.name} ${prefix}最小范围不能大于最大范围`)
-          return
-        }
+        // isSwap 允许最大值,最小值位置交替
+        if (allow.isSwap) {
+          if (rule.min < min) {
+            result.push(`${this.currentMockRule.name} ${minActionText}不能小于${min}`)
+            return
+          }
 
-        // 小于最小值
-        if (rule.min < min) {
-          result.push(`${this.currentMockRule.name} ${actionText}不能小于${min}`)
-          return
-        }
+          if (rule.min > max) {
+            result.push(`${this.currentMockRule.name} ${minActionText}不能大于${max}`)
+            return
+          }
 
-        if (rule.max > max) {
-          result.push(`${this.currentMockRule.name} ${actionText}不能大于${max}`)
-          return
+          if (rule.max < min) {
+            result.push(`${this.currentMockRule.name} ${maxActionText}不能小于${min}`)
+            return
+          }
+
+          if (rule.max > max) {
+            result.push(`${this.currentMockRule.name} ${maxActionText}不能大于${max}`)
+            return
+          }
+        } else {
+          if (rule.min > rule.max) {
+            result.push(`${this.currentMockRule.name} ${prefix}最小范围不能大于最大范围`)
+            return
+          }
+
+          // 小于最小值
+          if (rule.min < min) {
+            result.push(`${this.currentMockRule.name} ${actionText}不能小于${min}`)
+            return
+          }
+
+          if (rule.max > max) {
+            result.push(`${this.currentMockRule.name} ${actionText}不能大于${max}`)
+            return
+          }
         }
       }
 
@@ -231,44 +262,6 @@ var Diff = {
         if (rule.count > max) {
           result.push(`${this.currentMockRule.name} ${actionText}不能大于${max}`)
           return
-        }
-      }
-
-      // .decimal
-      if (rule.decimal && allow.decimal) {
-        const { min: dmin, max: dmax } = allow.decimal
-
-        // dmin-dmax
-        if (rule.dmin !== undefined && rule.dmax !== undefined) {
-          if (rule.dmin > rule.dmax) {
-            result.push(`${this.currentMockRule.name} 小数位最小位数不能大于最大位数`)
-            return
-          }
-
-          // 小于最小值
-          if (rule.dmin < dmin) {
-            result.push(`${this.currentMockRule.name} 小数位不能小于${dmin}位`)
-            return
-          }
-
-          if (rule.dmax > dmax) {
-            result.push(`${this.currentMockRule.name} 小数位不能大于${dmax}位`)
-            return
-          }
-        }
-
-        // dcount
-        if (rule.dmin !== undefined && rule.dmax === undefined) {
-          // 小于最小值
-          if (rule.dmin < dmin) {
-            result.push(`${this.currentMockRule.name} 小数位不能小于${dmin}位`)
-            return
-          }
-
-          if (rule.dmin > dmax) {
-            result.push(`${this.currentMockRule.name} 小数位不能大于${dmax}位`)
-            return
-          }
         }
       }
     }

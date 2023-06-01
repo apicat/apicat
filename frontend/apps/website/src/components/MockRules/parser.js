@@ -11,7 +11,7 @@ const parseName = (name, isRemoveSpace = true) => {
     lang = undefined
 
   if (rules[0] && rules.length <= 2 && !/\|$/.test(name)) {
-    const result = rules[0].match(new RegExp(`^(\\w*)(\\((\\w*)\\))?$`, 'i'))
+    const result = rules[0].match(new RegExp(`^([\\w&]+)(\\((\\w*)\\))?$`, 'i'))
     type = result ? result[1] : undefined
     lang = result ? result[3] : undefined
   }
@@ -62,6 +62,64 @@ export const parseBoolean = (name, reg) => {
   }
 
   return name
+}
+
+/**
+ * string|{type},min,max解析
+ * @param {*} name
+ * @param {*} reg
+ * @returns
+ * for: (name) => new RegExp(`^${name}(\\|((\\w+),)((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+)))?$`)
+ */
+export const parseStringWithOneOfType = (name, reg) => {
+  var range, min, max, count, oneOfType
+
+  if (reg) {
+    var matched = name.match(reg) || []
+
+    oneOfType = matched[3] ? matched[3] : undefined
+    range = matched[4] && matched[4].split(',')
+    min = matched[5] ? +matched[5] : undefined
+    max = matched[6] ? +matched[6] : undefined
+    count = matched[7] ? +matched[7] : undefined
+  }
+
+  return {
+    oneOfType,
+    range,
+    min,
+    max,
+    count,
+  }
+}
+
+/**
+ *
+ * @param {*} name
+ * @param {*} reg
+ * @returns
+ * for: (name, types) => new RegExp(`^${name}(\\|(((${types.join('|')}),)?((\\d|[1-9]\\d+),(\\d|[1-9]\\d+)|(\\d|[1-9]\\d+))|(${types.join('|')})))?$`)
+ */
+export const parseStringWithType = (name, reg) => {
+  var range, min, max, count, oneOfType
+
+  if (reg) {
+    var matched = name.match(reg) || []
+
+    oneOfType = matched[4] || matched[10] || undefined
+    range = matched[6] && matched[6].split(',')
+    min = matched[7] ? +matched[7] : undefined
+    max = matched[8] ? +matched[8] : undefined
+    count = matched[9] ? +matched[9] : undefined
+  }
+
+  return {
+    oneOfType,
+    range,
+    min,
+    max,
+    count,
+  }
 }
 
 export default {

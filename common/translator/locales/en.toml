@@ -103,6 +103,9 @@ other = "Global parameter deletion failed"
 [AI.CollectionCreateFail]
 other = "Interface creation failed, please try again later."
 
+[AI.SchemaCreateFail]
+other = "Model creation failed, please try again later."
+
 [DefinitionResponses.NameExists]
 other = "Public response name exists"
 
