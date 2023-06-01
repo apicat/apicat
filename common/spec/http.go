@@ -84,9 +84,9 @@ func (HTTPURLNode) Name() string {
 type HTTPBody map[string]*Schema
 
 type HTTPRequestNode struct {
-	GlobalExcepts map[string][]string `json:"globalExcepts,omitempty"`
-	Parameters    HTTPParameters      `json:"parameters,omitempty"`
-	Content       HTTPBody            `json:"content,omitempty"`
+	GlobalExcepts map[string][]int64 `json:"globalExcepts,omitempty"`
+	Parameters    HTTPParameters     `json:"parameters,omitempty"`
+	Content       HTTPBody           `json:"content,omitempty"`
 }
 
 func (HTTPRequestNode) Name() string {
