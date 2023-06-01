@@ -23,6 +23,8 @@ const createAsyncMsgBox =
           done()
         }
       },
+    }).catch(() => {
+      //
     })
   }
 

@@ -21,7 +21,7 @@
     </h2>
 
     <el-tabs @tab-remove="handleRemoveTab" editable v-model="editableTabsValue">
-      <el-tab-pane v-for="(item, index) in model" :key="item.id" :name="item.id" :disabled="disabled">
+      <el-tab-pane v-for="(item, index) in model" :key="item.id + index" :name="item.id" :disabled="disabled">
         <template #label>
           <div
             class="inline-flex items-center"
@@ -48,7 +48,7 @@
 import { DefinitionSchema } from './APIEditor/types'
 import ResponseForm from './ResponseForm.vue'
 import ResponseRefForm from './ResponseRefForm.vue'
-import { RefPrefixKeys, getResponseStatusCodeBgColor } from '@/commons'
+import { RefPrefixKeys, getResponseStatusCodeBgColor, markDataWithKey, uuid } from '@/commons'
 import { createDefaultResponseContent } from '@/views/document/components/createDefaultDefinition'
 import { useDragAndDrop } from '@/hooks/useDragAndDrop'
 import SelectDefinitionResponse from './DefinitionResponse/SelectDefinitionResponse.vue'
@@ -68,9 +68,6 @@ const createResponse = (item?: any) => {
 
 const { data, definitionResponses } = toRefs(props)
 const model: any = ref([])
-const idPrefix = 'response_tab_pane_'
-
-// const model = useVModel(props, 'data', undefined, { passive: true })
 
 const editableTabsValue = ref('')
 const isShow = computed(() => model.value.length > 0)
@@ -103,12 +100,12 @@ const handleRemoveTab = async (id: any) => {
 
 const { onDragStart, onDragOver, onDragLeave, onDragEnd, onDropHandler } = useDragAndDrop({
   onDrop: (dragIndex: number, dropIndex: number, offset: number) => {
-    const dropItem = model.value[dropIndex]
-    const dragItemArr = model.value.splice(dragIndex, 1)
+    const dropItem = data.value[dropIndex]
+    const dragItemArr = data.value.splice(dragIndex, 1)
     if (dragItemArr.length) {
-      let i = model.value.indexOf(dropItem)
+      let i = data.value.indexOf(dropItem)
       if (offset < 0) i += 1
-      model.value.splice(i < 0 ? 0 : i, 0, dragItemArr[0])
+      data.value.splice(i < 0 ? 0 : i, 0, dragItemArr[0])
     }
   },
 })
@@ -121,10 +118,12 @@ watch(
     }
 
     model.value = newData.map((item: any, index: number) => {
-      const newItem = {
+      item.$ref === undefined && markDataWithKey(item, '$id')
+
+      const newItem: any = {
         data: item,
         isRef: item.$ref !== undefined,
-        id: item.id || `${idPrefix}${index}`,
+        id: item.$id || `uuid_${index}`,
         responseRefObject: {},
       }
 
@@ -134,7 +133,8 @@ watch(
         const response: any = responses.find((item: any) => item.id === resId)
         //set key for rerender
         if (response) {
-          newItem.id = `${idPrefix}${index}${resId}`
+          markDataWithKey(item, '$id')
+          newItem.id = item.$id
           newItem.responseRefObject = response || {}
         }
       }
@@ -142,7 +142,9 @@ watch(
       return newItem
     })
 
-    !editableTabsValue.value && model.value.length && (await activeLastTab(model.value[0].id))
+    if (!editableTabsValue.value && model.value.length && !model.value[0].id.startsWith('uuid_')) {
+      await activeLastTab(model.value[0].id)
+    }
   },
   { immediate: true, deep: true }
 )

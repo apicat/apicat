@@ -48,6 +48,7 @@ export default () => {
     css: {
       preprocessorOptions: {
         scss: {
+          charset: false,
           additionalData: `@use "@/styles/element/index.scss" as *;`,
         },
       },
@@ -56,6 +57,10 @@ export default () => {
       open: true,
       proxy: {
         '/api': {
+          target: 'http://127.0.0.1:8000',
+          changeOrigin: true,
+        },
+        '/mock': {
           target: 'http://127.0.0.1:8000',
           changeOrigin: true,
         },

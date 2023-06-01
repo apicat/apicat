@@ -13,7 +13,7 @@ import (
 type ContentType string
 
 const (
-	ContentItemTypeDir  ContentType = "dir"
+	ContentItemTypeDir  ContentType = "category"
 	ContentItemTypeHttp             = "http"
 	ContentItemTypeDoc              = "doc"
 )
@@ -42,22 +42,43 @@ func (s *Spec) WalkCollections(f func(v *CollectItem) bool) {
 	walkCollectionHandle(s.Collections, f)
 }
 
-func (s *Spec) expendRef(v Referencer) {
+func refDept(r string, refs ...string) int {
+	var n int
+	for _, v := range refs {
+		if v == r {
+			n++
+		}
+	}
+	return n
+}
+
+func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 	if v == nil {
 		return
 	}
 	switch x := v.(type) {
 	case *jsonschema.Schema:
 		if x.Ref() {
-			x = s.Definitions.Schemas.LookupID(mustGetRefID(*x.Reference)).Schema
+			// 重复出现的递归次数
+			count := refDept(*x.Reference, parentRef...)
+			if count > max {
+				return
+			}
+			parentRef = append(parentRef, *x.Reference)
+			b, _ := json.Marshal(*(s.Definitions.Schemas.LookupID(mustGetRefID(*x.Reference)).Schema))
+			var s jsonschema.Schema
+			json.Unmarshal(b, &s)
+			*x = s
 		}
 		if x.Properties != nil {
 			for _, v := range x.Properties {
-				s.expendRef(v)
+				s.expendRef(v, max, parentRef...)
 			}
 		}
 		if x.Items != nil && !x.Items.IsBool() {
-			s.expendRef(x.Items.Value())
+			v := *x.Items.Value()
+			s.expendRef(&v, max, parentRef...)
+			x.Items.SetValue(&v)
 		}
 	case *Schema:
 		if x.Ref() {
@@ -66,29 +87,30 @@ func (s *Spec) expendRef(v Referencer) {
 				id, _ := strconv.ParseInt(ps[3], 10, 64)
 				switch ps[2] {
 				case "schemas":
-					x = s.Definitions.Schemas.LookupID(id)
+					*x = *(s.Definitions.Schemas.LookupID(id))
 				case "parameters":
-					x = s.Definitions.Parameters.LookupID(id)
+					*x = *(s.Definitions.Parameters.LookupID(id))
 				}
 			}
 		}
-		s.expendRef(x.Schema)
+		s.expendRef(x.Schema, max, parentRef...)
 	case *HTTPResponseDefine:
 		if x.Ref() {
-			x = s.Definitions.Responses.LookupID(mustGetRefID(*x.Reference))
+			*x = *(s.Definitions.Responses.LookupID(mustGetRefID(*x.Reference)))
 		}
-		for _, v := range x.Header {
-			s.expendRef(v)
+		for k := range x.Header {
+			s.expendRef(x.Header[k], max, parentRef...)
 		}
-		for _, v := range x.Content {
-			s.expendRef(v)
+		for k := range x.Content {
+			s.expendRef(x.Content[k], max, parentRef...)
 		}
 	}
 }
 
 // CollectionsMap 返回map结构的api路由定义
 // expend 是否展开内部引用
-func (s *Spec) CollectionsMap(expend bool) map[string]map[string]HTTPPart {
+// refexpendMaxCount 引用最大解开次数 防止递归引用死循环
+func (s *Spec) CollectionsMap(expend bool, refexpendMaxCount int) map[string]map[string]HTTPPart {
 	paths := map[string]map[string]HTTPPart{}
 	s.WalkCollections(func(v *CollectItem) bool {
 		if v.Type != ContentItemTypeHttp {
@@ -107,13 +129,13 @@ func (s *Spec) CollectionsMap(expend bool) map[string]map[string]HTTPPart {
 				if expend {
 					mp := nx.Attrs.Parameters.Map()
 					for _, v := range mp {
-						for _, a := range v {
-							s.expendRef(a)
+						for k := range v {
+							s.expendRef(v[k], refexpendMaxCount)
 						}
 					}
 					if nx.Attrs.Content != nil {
-						for _, a := range nx.Attrs.Content {
-							s.expendRef(a)
+						for k := range nx.Attrs.Content {
+							s.expendRef(nx.Attrs.Content[k], refexpendMaxCount)
 						}
 					}
 				}
@@ -121,8 +143,9 @@ func (s *Spec) CollectionsMap(expend bool) map[string]map[string]HTTPPart {
 			case *HTTPNode[HTTPResponsesNode]:
 				res := nx.Attrs.List
 				if expend {
-					for _, v := range res {
-						s.expendRef(&v.HTTPResponseDefine)
+					for i, v := range res {
+						s.expendRef(&v.HTTPResponseDefine, refexpendMaxCount)
+						res[i] = v
 					}
 				}
 				part.Responses = res

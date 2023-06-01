@@ -179,6 +179,9 @@ importers:
       '@iconify-json/ph':
         specifier: ^1.1.5
         version: 1.1.5
+      '@iconify-json/quill':
+        specifier: ^1.1.6
+        version: 1.1.6
       '@iconify-json/ri':
         specifier: ^1.1.7
         version: 1.1.7
@@ -989,6 +992,12 @@ packages:
 
   /@iconify-json/ph@1.1.5:
     resolution: {integrity: sha512-iLXq3nohfGge22gL2tZmQ2WHBKkKkIbGWrkuyC8arckS4PWaONyh4A+uDPtSek9QbYDvi9AE2+NxWkNZhANotA==}
+    dependencies:
+      '@iconify/types': 2.0.0
+    dev: true
+
+  /@iconify-json/quill@1.1.6:
+    resolution: {integrity: sha512-6zw3SJ7yUqvQKhhNABf19aU6+EVIT6lwcRNhxbtUlqoh2T7UG90NJR9Vgkp20wb1SEZBAfC3Zz8uqGkbaKqkUQ==}
     dependencies:
       '@iconify/types': 2.0.0
     dev: true

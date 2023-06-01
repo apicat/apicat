@@ -2,12 +2,13 @@
   <div :class="nsEditor.b()">
     <div :class="[nsRow.b(), nsRow.m('header')]">
       <div :class="nsRow.e('content')">
-        <div :class="nsRow.e('name')">{{ $t('editor.table.paramName') }}</div>
-        <div :class="nsRow.e('type')">{{ $t('editor.table.paramType') }}</div>
-        <div :class="nsRow.e('required')">{{ $t('editor.table.required') }}</div>
-        <div :class="nsRow.e('example')">{{ $t('editor.table.paramExample') }}</div>
-        <div :class="nsRow.e('description')">{{ $t('editor.table.paramDesc') }}</div>
-        <div :class="nsRow.e('operation')" v-if="!readonly"></div>
+        <div :class="[nsRow.e('item'), nsRow.e('name')]">{{ $t('editor.table.paramName') }}</div>
+        <div :class="[nsRow.e('item'), nsRow.e('type')]">{{ $t('editor.table.paramType') }}</div>
+        <div :class="[nsRow.e('item'), nsRow.e('required')]">{{ $t('editor.table.required') }}</div>
+        <div :class="[nsRow.e('item'), nsRow.e('example')]">{{ $t('editor.table.paramExample') }}</div>
+        <div :class="[nsRow.e('item'), nsRow.e('description')]">{{ $t('editor.table.paramDesc') }}</div>
+        <div :class="[nsRow.e('item'), nsRow.e('mock')]">{{ $t('editor.table.paramMock') }}</div>
+        <div :class="[nsRow.e('item'), nsRow.e('operation')]" v-if="!readonly"></div>
       </div>
     </div>
     <EditorRow :level="1" :data="root" :readonly="readonly" />
@@ -17,11 +18,12 @@
 <script setup lang="ts">
 import { computed, provide, ref, watch } from 'vue'
 import EditorRow from './EditorRow.vue'
-import type { JSONSchema, DefinitionSchema, Tree } from './types'
+import { JSONSchema, DefinitionSchema, Tree, allowMockTypes } from './types'
 import { constNodeType, typename } from './types'
 import { useNamespace } from '@/hooks'
 import { RefPrefixKeys } from '@/commons'
 import { cloneDeep } from 'lodash-es'
+import { guessMockRule } from '../MockRules/utils'
 
 const props = withDefaults(
   defineProps<{
@@ -42,6 +44,7 @@ const nsRow = useNamespace('schema-row')
 const emits = defineEmits(['update:modelValue'])
 const expandKeys = ref<Set<string>>(new Set([constNodeType.root]))
 const localSchema = ref(props.modelValue)
+
 watch(
   () => props.modelValue,
   () => {
@@ -136,6 +139,12 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
       if (schema.items) {
         item.children = [convertTreeData(item, `${key}.${constNodeType.items}`, constNodeType.items, schema.items as JSONSchema)]
       }
+  }
+
+  // default mock
+  const mock = item.schema['x-apicat-mock']
+  if (!mock && allowMockTypes.includes(item.type)) {
+    item.schema['x-apicat-mock'] = guessMockRule({ name: item.label, mockType: item.type })
   }
 
   // default expand children

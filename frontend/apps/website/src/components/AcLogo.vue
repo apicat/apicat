@@ -1,7 +1,7 @@
 <template>
   <div :class="ns.b()">
-    <img :class="ns.e('img')" src="@/assets/images/logo-apicat.png" alt="ApiCat" />
-    <span v-if="!pure" :class="ns.e('text')">ApiCat</span>
+    <img v-if="pure" :class="ns.e('img')" src="@/assets/images/logo-square.svg" alt="ApiCat" />
+    <img v-else :class="[ns.e('img'), ns.is('text')]" src="@/assets/images/logo-text.svg" alt="ApiCat" />
   </div>
 </template>
 <script setup>
@@ -27,21 +27,11 @@ const ns = useNamespace('logo')
   @apply inline-flex items-center;
 
   @include e(img) {
-    width: 46px;
-  }
+    width: 40px;
 
-  @include e(text) {
-    font-size: 24px;
-    color: rgb(36, 36, 36);
-    letter-spacing: 0;
-    max-width: 188px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    overflow: hidden;
-    font-weight: 400;
-    font-family: AVANTGA, sans-serif;
-    margin-top: 8px;
-    margin-left: 10px;
+    @include when(text) {
+      width: 140px;
+    }
   }
 }
 </style>

@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
@@ -28,6 +29,7 @@ func NewMockServer() *MockServer {
 // [method] /mock/{id}/path*
 func (m *MockServer) Handler(c *gin.Context) {
 	p := &models.Projects{}
+	slog.InfoCtx(c, "mock", slog.String("path", c.Param("path")))
 	if err := p.Get(c.Param("id")); err != nil {
 		c.Writer.WriteHeader(http.StatusNotFound)
 		return
@@ -85,13 +87,18 @@ func (m *MockServer) getRequestRoutesSchemaOrCache(id uint) map[string]map[strin
 	specObj.Definitions.Schemas = models.DefinitionSchemasExport(id)
 	specObj.Definitions.Parameters = models.DefinitionParametersExport(id)
 	specObj.Definitions.Responses = models.DefinitionResponsesExport(id)
-	newcm := specObj.CollectionsMap(true)
+	specObj.Collections = models.CollectionsExport(id)
+	newcm := specObj.CollectionsMap(true, 3)
 	m.cache.Store(id, newcm)
 	return newcm
 }
 
 func (m *MockServer) matchRoute(c *gin.Context, routes map[string]map[string]spec.HTTPPart) *spec.HTTPPart {
 	p := strings.Split(c.Param("path"), "/")
+	matched := map[string]struct {
+		vars int
+		data spec.HTTPPart
+	}{}
 	for path, methods := range routes {
 		rp := strings.Split(path, "/")
 		if len(rp) != len(p) {
@@ -99,21 +106,37 @@ func (m *MockServer) matchRoute(c *gin.Context, routes map[string]map[string]spe
 		}
 		// match path
 		var flag bool
+		var hasVar int
 		for k, v := range rp {
-			if v != p[k] && v[0] != '{' {
-				flag = true
-				break
+			if v != p[k] {
+				if len(v) > 0 && v[0] == '{' {
+					hasVar++
+				} else {
+					flag = true
+					break
+				}
 			}
 		}
 		if flag {
 			continue
 		}
 		// match method
-		h, ok := methods[c.Request.Method]
+		h, ok := methods[strings.ToLower(c.Request.Method)]
 		if ok {
-			slog.InfoCtx(c, "find route", slog.String("path", path))
-			return &h
+			if hasVar > 0 {
+				matched[path] = struct {
+					vars int
+					data spec.HTTPPart
+				}{hasVar, h}
+			} else {
+				slog.InfoCtx(c, "find route", slog.String("path", path), slog.String("mockpath", c.Param("path")))
+				return &h
+			}
 		}
+	}
+	for path, v := range matched {
+		slog.InfoCtx(c, "find route", slog.String("path", path), slog.String("mockpath", c.Param("path")))
+		return &v.data
 	}
 	return nil
 }
@@ -130,9 +153,27 @@ func (m *MockServer) renderMockResponse(c *gin.Context, res spec.HTTPResponse) {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
-		c.Writer.Header().Set("Content-Type", k)
+		if res.Header != nil {
+			for _, h := range res.Header {
+				if !h.Required {
+					// 如果非必填 则不一定返回他
+					if !datagen.Boolean() {
+						continue
+					}
+				}
+				hb, _ := json.Marshal(h.Schema)
+				headerdata, err := datagen.JSONSchemaGen(hb, &datagen.GenOption{
+					DatagenKey: "x-apicat-mock",
+				})
+				if err != nil {
+					continue
+				}
+				c.Header(h.Name, fmt.Sprintf("%v", headerdata))
+			}
+		}
+		c.Header("Content-Type", k)
 		c.Writer.WriteHeader(res.Code)
-		c.Writer.Write(responsedata)
+		json.NewEncoder(c.Writer).Encode(responsedata) // nolint
 		return
 	}
 	// no content?

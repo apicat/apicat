@@ -35,7 +35,7 @@
         <th class="text-center" style="width: 80px">{{ $t('editor.table.required') }}</th>
         <th style="width: 34%">{{ $t('editor.table.paramExample') }}</th>
         <th style="width: 38%">{{ $t('editor.table.paramDesc') }}</th>
-        <th class="text-center" style="width: 30px"></th>
+        <th class="text-center" style="width: 32px"></th>
       </tr>
       <tbody>
         <tr v-for="(data, index) in flatValues" :key="index" @dragover="dragOverHandler($event, index)" @dragleave="dragLeaveHandler" @drop="dropHandler($event, index)">

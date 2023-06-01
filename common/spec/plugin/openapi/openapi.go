@@ -21,7 +21,7 @@ func Decode(data []byte) (out *spec.Spec, err error) {
 		}
 	}()
 	docment, docerr := libopenapi.NewDocument(data)
-	if err != nil {
+	if docerr != nil {
 		err = docerr
 		return
 	}
@@ -135,17 +135,17 @@ func toParameter(p *spec.Schema, in string) openAPIParamter {
 }
 
 // toParameterGlobal 返回全局请求参数过滤后的openapi格式参数
-func toParameterGlobal(globalsParmaters spec.HTTPParameters, isSwagger bool, skip map[string][]string) []openAPIParamter {
+func toParameterGlobal(globalsParmaters spec.HTTPParameters, isSwagger bool, skip map[string][]int64) []openAPIParamter {
 	var outs []openAPIParamter
 	skips := make(map[string]bool)
 	for k, v := range skip {
 		for _, x := range v {
-			skips[k+"|"+x] = true
+			skips[fmt.Sprintf("%s|_%d", k, x)] = true
 		}
 	}
 	for in, ps := range globalsParmaters.Map() {
 		for _, v := range ps {
-			if skips[in+"|"+v.Name] {
+			if skips[fmt.Sprintf("%s|_%d", in, v.ID)] {
 				continue
 			}
 			ref := fmt.Sprintf("%s-%s", in, v.Name)

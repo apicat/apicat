@@ -45,6 +45,7 @@ import { useProjectId } from '@/hooks/useProjectId'
 import uesProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'
 import { useI18n } from 'vue-i18n'
+import { cloneDeep } from 'lodash-es'
 
 const ns = useNamespace('url-list')
 const { t } = useI18n()
@@ -105,7 +106,7 @@ const { initSortable } = useSortable(sortableList, {
 
 onMounted(async () => {
   const urls = await getProjectServerUrlListApi(project_id)
-  form.urls = urls.concat([])
+  form.urls = cloneDeep(urls)
   initSortable()
 })
 </script>

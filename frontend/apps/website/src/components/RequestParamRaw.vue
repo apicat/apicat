@@ -1,64 +1,40 @@
 <template>
   <ToggleHeading :title="$t('app.request.title')" v-if="hasHeader || hasCookie || hasQuery || hasPath || hasBody">
     <ToggleHeading title="Header" v-if="hasHeader">
-      <SimpleParameterEditor :readonly="true" v-model="headers">
+      <SimpleParameterEditor readonly v-model="headers">
         <template #before>
-          <tr v-for="item in globalHeaders" :key="item.id">
-            <td class="px-12px copy_text">{{ item.name }}</td>
-            <td class="px-12px">{{ item.schema.type }}</td>
-            <td class="text-center">{{ item.required }}</td>
-            <td class="px-12px copy_text">{{ item.schema.example }}</td>
-            <td class="px-12px copy_text">{{ item.schema.description }}</td>
-          </tr>
+          <GlobalParameter :data="globalHeaders" readonly />
         </template>
       </SimpleParameterEditor>
     </ToggleHeading>
     <ToggleHeading title="Cookie" v-if="hasCookie">
-      <SimpleParameterEditor :readonly="true" v-model="cookies">
+      <SimpleParameterEditor readonly v-model="cookies">
         <template #before>
-          <tr v-for="item in globalCookies" :key="item.id">
-            <td class="px-12px copy_text">{{ item.name }}</td>
-            <td class="px-12px">{{ item.schema.type }}</td>
-            <td class="text-center">{{ item.required }}</td>
-            <td class="px-12px copy_text">{{ item.schema.example }}</td>
-            <td class="px-12px copy_text">{{ item.schema.description }}</td>
-          </tr>
+          <GlobalParameter :data="globalCookies" readonly />
         </template>
       </SimpleParameterEditor>
     </ToggleHeading>
     <ToggleHeading title="Query" v-if="hasQuery">
-      <SimpleParameterEditor :readonly="true" v-model="queries">
+      <SimpleParameterEditor readonly v-model="queries">
         <template #before>
-          <tr v-for="item in globalQueries" :key="item.id">
-            <td class="px-12px copy_text">{{ item.name }}</td>
-            <td class="px-12px">{{ item.schema.type }}</td>
-            <td class="text-center">{{ item.required }}</td>
-            <td class="px-12px copy_text">{{ item.schema.example }}</td>
-            <td class="px-12px copy_text">{{ item.schema.description }}</td>
-          </tr>
+          <GlobalParameter :data="globalQueries" readonly />
         </template>
       </SimpleParameterEditor>
     </ToggleHeading>
     <ToggleHeading title="Path" v-if="hasPath">
-      <SimpleParameterEditor :readonly="true" v-model="paths">
+      <SimpleParameterEditor readonly v-model="paths">
         <template #before>
-          <tr v-for="item in globalPaths" :key="item.id">
-            <td class="px-12px copy_text">{{ item.name }}</td>
-            <td class="px-12px">{{ item.schema.type }}</td>
-            <td class="text-center">{{ item.required }}</td>
-            <td class="px-12px copy_text">{{ item.schema.example }}</td>
-            <td class="px-12px copy_text">{{ item.schema.description }}</td>
-          </tr>
+          <GlobalParameter :data="globalPaths" readonly />
         </template>
       </SimpleParameterEditor>
     </ToggleHeading>
     <ToggleHeading :title="bodyTitle" v-if="hasBody">
       <div v-if="contentType === RequestContentTypesMap['form-data'] || contentType === RequestContentTypesMap['x-www-form-urlencoded']">
-        <SimpleSchemaEditor :readonly="true" v-model="contentVal.schema" />
+        <SimpleSchemaEditor readonly v-model="contentVal.schema" />
       </div>
 
       <div v-if="isJsonSchema">
-        <JSONSchemaEditor :readonly="true" v-model="contentVal.schema" :definitions="definitions" />
+        <JSONSchemaEditor readonly v-model="contentVal.schema" :definitions="definitions" />
       </div>
 
       <div v-if="contentType === RequestContentTypesMap.raw">
@@ -66,7 +42,7 @@
       </div>
 
       <div v-if="contentType === RequestContentTypesMap.binary">
-        <FileUploaderWrapper :readonly="true" class="flex items-center justify-center bg-gray-100 border border-gray-200 border-solid rounded cursor-pointer h-30px">
+        <FileUploaderWrapper readonly class="flex items-center justify-center bg-gray-100 border border-gray-200 border-solid rounded cursor-pointer h-30px">
           <span class="truncate px-6px"> {{ contentVal.schema.example }}</span>
         </FileUploaderWrapper>
       </div>
@@ -78,6 +54,7 @@ import SimpleParameterEditor from '@/components/APIEditor/SimpleEditor.vue'
 import SimpleSchemaEditor from '@/components/APIEditor/SimpleSchemaEditor.vue'
 import JSONSchemaEditor from '@/components/APIEditor/Editor.vue'
 import CodeEditor from '@/components/APIEditor/CodeEditor.vue'
+import GlobalParameter from './RequestParamEditor/GlobalParameter.vue'
 import { RequestContentTypesMap } from '@/commons'
 import { useNodeAttrs, HTTP_REQUEST_NODE_KEY } from '@/hooks/useNodeAttrs'
 import { DefinitionSchema } from './APIEditor/types'
