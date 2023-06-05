@@ -118,6 +118,14 @@ func CollectionsGet(ctx *gin.Context) {
 }
 
 func CollectionsCreate(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	data := CollectionCreate{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -135,6 +143,7 @@ func CollectionsCreate(ctx *gin.Context) {
 	collection.Title = data.Title
 	collection.Type = data.Type
 	collection.Content = data.Content
+	collection.CreatedBy = currentMember.(*models.ProjectMembers).UserID
 	if err := collection.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
@@ -156,6 +165,14 @@ func CollectionsCreate(ctx *gin.Context) {
 }
 
 func CollectionsUpdate(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	cc := CollectionCheck{}
 	collection, err := cc.CheckCollection(ctx)
 	if err != nil {
@@ -172,6 +189,7 @@ func CollectionsUpdate(ctx *gin.Context) {
 
 	collection.Title = data.Title
 	collection.Content = data.Content
+	collection.UpdatedBy = currentMember.(*models.ProjectMembers).UserID
 	if err := collection.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.UpdateFailed"}),
@@ -183,6 +201,14 @@ func CollectionsUpdate(ctx *gin.Context) {
 }
 
 func CollectionsCopy(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	cc := CollectionCheck{}
 	collection, err := cc.CheckCollection(ctx)
 	if err != nil {
@@ -196,6 +222,7 @@ func CollectionsCopy(ctx *gin.Context) {
 		Type:         collection.Type,
 		Content:      collection.Content,
 		DisplayOrder: collection.DisplayOrder,
+		CreatedBy:    currentMember.(*models.ProjectMembers).UserID,
 	}
 
 	if err := newCollection.Create(); err != nil {
@@ -219,6 +246,14 @@ func CollectionsCopy(ctx *gin.Context) {
 }
 
 func CollectionsMovement(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	data := CollectionMovement{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -249,13 +284,21 @@ func CollectionsMovement(ctx *gin.Context) {
 }
 
 func CollectionsDelete(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	cc := CollectionCheck{}
 	collection, err := cc.CheckCollection(ctx)
 	if err != nil {
 		return
 	}
 
-	if err := models.Deletes(collection.ID, models.Conn); err != nil {
+	if err := models.Deletes(collection.ID, models.Conn, currentMember.(*models.ProjectMembers).UserID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
 		})

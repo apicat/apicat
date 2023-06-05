@@ -29,12 +29,16 @@ type UpdateProject struct {
 }
 
 type ProjectID struct {
-	ID string `uri:"id" binding:"required"`
+	ID string `uri:"project-id" binding:"required"`
 }
 
 type ExportProject struct {
 	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi3.0.0 openapi3.0.1 openapi3.0.2 openapi3.1.0"`
 	Download string `form:"download" binding:"omitempty,oneof=true false"`
+}
+
+type TranslateProject struct {
+	MemberID uint `json:"member_id" binding:"required,lte=255"`
 }
 
 func ProjectsList(ctx *gin.Context) {
@@ -120,6 +124,17 @@ func ProjectsCreate(ctx *gin.Context) {
 		return
 	}
 
+	pm, _ := models.NewProjectMembers()
+	pm.ProjectID = project.ID
+	pm.UserID = user.ID
+	pm.Authority = models.ProjectMembersManage
+	if err := pm.Create(); err != nil {
+		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.CreateFail"}),
+		})
+		return
+	}
+
 	// 进行数据导入工作
 	if data.Data != "" {
 		models.ServersImport(project.ID, content.Servers)
@@ -144,6 +159,14 @@ func ProjectsCreate(ctx *gin.Context) {
 }
 
 func ProjectsUpdate(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberIsManage() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	CurrentUser, _ := ctx.Get("CurrentUser")
 	user, _ := CurrentUser.(*models.Users)
 	if user.Role == "user" {
@@ -192,6 +215,14 @@ func ProjectsUpdate(ctx *gin.Context) {
 }
 
 func ProjectsDelete(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberIsManage() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	CurrentUser, _ := ctx.Get("CurrentUser")
 	user, _ := CurrentUser.(*models.Users)
 	if user.Role == "user" {
@@ -333,4 +364,75 @@ func ProjectDataGet(ctx *gin.Context) {
 	} else {
 		ctx.Data(http.StatusOK, "application/json", content)
 	}
+}
+
+// ProjectExit handles the exit of a project member.
+func ProjectExit(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if currentMember.(*models.ProjectMembers).MemberIsManage() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
+	if err := currentMember.(*models.ProjectMembers).Delete(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.ExitFail"}),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}
+
+func ProjectTransfer(ctx *gin.Context) {
+	currentMember, _ := ctx.Get("CurrentMember")
+	if !currentMember.(*models.ProjectMembers).MemberIsManage() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
+	data := TranslateProject{}
+	if err := ctx.ShouldBindJSON(&data); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	pm, err := models.NewProjectMembers(data.MemberID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
+		})
+		return
+	}
+
+	if pm.ProjectID != currentMember.(*models.ProjectMembers).ProjectID {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
+		})
+		return
+	}
+
+	currentMember.(*models.ProjectMembers).Authority = models.ProjectMembersWrite
+	if err := currentMember.(*models.ProjectMembers).Update(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
+		})
+		return
+	}
+
+	pm.Authority = models.ProjectMembersManage
+	if err := pm.Update(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusCreated)
 }

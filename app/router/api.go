@@ -39,37 +39,43 @@ func InitApiRouter(r *gin.Engine) {
 
 	r.Any("/mock/:id/*path", mocksrv.Handler)
 
-	apiRouter := r.Group("/api").Use(translator.UseValidatori18n())
+	apiRouter := r.Group("/api")
+	apiRouter.Use(translator.UseValidatori18n())
 	{
-		account := apiRouter.(*gin.RouterGroup).Group("/account")
+		account := apiRouter.Group("/account")
 		{
 			account.POST("/login/email", api.EmailLogin)
 			account.POST("/register/email", api.EmailRegister)
 		}
 
-		projects := apiRouter.(*gin.RouterGroup).Group("/projects")
+		projects := apiRouter.Group("/projects")
 		{
 			projects.GET("", middleware.JWTAuthMiddleware(), api.ProjectsList)
-			projects.GET("/:id", middleware.JWTAuthMiddleware(), api.ProjectsGet)
-			projects.GET("/:id/data", api.ProjectDataGet)
 			projects.POST("", middleware.JWTAuthMiddleware(), api.ProjectsCreate)
-			projects.PUT("/:id", middleware.JWTAuthMiddleware(), api.ProjectsUpdate)
-			projects.DELETE("/:id", middleware.JWTAuthMiddleware(), api.ProjectsDelete)
+			projects.GET("/:project-id/data", api.ProjectDataGet)
 		}
 
-		user := apiRouter.(*gin.RouterGroup).Group("/user", middleware.JWTAuthMiddleware())
+		user := apiRouter.Group("/user")
+		user.Use(middleware.JWTAuthMiddleware())
 		{
 			user.GET("", api.GetUserInfo)
 			user.PUT("", api.SetUserInfo)
 			user.PUT("/password", api.ChangePassword)
 		}
 
-		project := apiRouter.(*gin.RouterGroup).Group("/projects/:id", middleware.JWTAuthMiddleware()).Use(
-			middleware.CheckProject(),
-			mocksrv.ClearCache(),
-		)
+		project := apiRouter.Group("/projects/:project-id")
+		project.Use(middleware.JWTAuthMiddleware(), middleware.CheckProject(), middleware.CheckMember(), mocksrv.ClearCache())
 		{
-			definitionSchemas := project.(*gin.RouterGroup).Group("/definition/schemas")
+			projects := project.Group("")
+			{
+				projects.GET("", api.ProjectsGet)
+				projects.PUT("", api.ProjectsUpdate)
+				projects.DELETE("", api.ProjectsDelete)
+				projects.DELETE("/exit", api.ProjectExit)
+				projects.PUT("/transfer", api.ProjectTransfer)
+			}
+
+			definitionSchemas := project.Group("/definition/schemas")
 			{
 				definitionSchemas.GET("", api.DefinitionSchemasList)
 				definitionSchemas.POST("", api.DefinitionSchemasCreate)
@@ -80,13 +86,13 @@ func InitApiRouter(r *gin.Engine) {
 				definitionSchemas.PUT("/movement", api.DefinitionSchemasMove)
 			}
 
-			servers := project.(*gin.RouterGroup).Group("/servers")
+			servers := project.Group("/servers")
 			{
 				servers.GET("", api.UrlList)
 				servers.PUT("", api.UrlSettings)
 			}
 
-			globalParameters := project.(*gin.RouterGroup).Group("/global/parameters")
+			globalParameters := project.Group("/global/parameters")
 			{
 				globalParameters.GET("", api.GlobalParametersList)
 				globalParameters.POST("", api.GlobalParametersCreate)
@@ -94,7 +100,7 @@ func InitApiRouter(r *gin.Engine) {
 				globalParameters.DELETE("/:parameter-id", api.GlobalParametersDelete)
 			}
 
-			definitionResponses := project.(*gin.RouterGroup).Group("/definition/responses")
+			definitionResponses := project.Group("/definition/responses")
 			{
 				definitionResponses.GET("", api.DefinitionResponsesList)
 				definitionResponses.GET("/:response-id", api.DefinitionResponsesDetail)
@@ -103,7 +109,7 @@ func InitApiRouter(r *gin.Engine) {
 				definitionResponses.DELETE("/:response-id", api.DefinitionResponsesDelete)
 			}
 
-			collections := project.(*gin.RouterGroup).Group("/collections")
+			collections := project.Group("/collections")
 			{
 				collections.GET("", api.CollectionsList)
 				collections.GET("/:collection-id", api.CollectionsGet)
@@ -114,17 +120,25 @@ func InitApiRouter(r *gin.Engine) {
 				collections.DELETE("/:collection-id", api.CollectionsDelete)
 			}
 
-			trashs := project.(*gin.RouterGroup).Group("/trashs")
+			trashs := project.Group("/trashs")
 			{
 				trashs.GET("", api.TrashsList)
 				trashs.PUT("", api.TrashsRecover)
 			}
 
-			ai := project.(*gin.RouterGroup).Group("/ai")
+			ai := project.Group("/ai")
 			{
 				ai.GET("/collections/name", api.AICreateApiNames)
 				ai.POST("/collections", api.AICreateCollection)
 				ai.POST("/schemas", api.AICreateSchema)
+			}
+
+			projectMember := project.Group("/members")
+			{
+				projectMember.GET("", api.ProjectMembersList)
+				projectMember.POST("", api.ProjectMembersCreate)
+				projectMember.PUT("/authority/:user-id", api.ProjectMembersAuthUpdate)
+				projectMember.DELETE("/authority/:user-id", api.ProjectMembersDelete)
 			}
 		}
 	}

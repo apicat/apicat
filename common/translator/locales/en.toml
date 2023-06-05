@@ -16,6 +16,12 @@ other = "Project export failed, please try again later."
 [Projects.NotFound]
 other = "Item does not exist"
 
+[Projects.ExitFail]
+other = "Failed to exit project"
+
+[Projects.TransferFail]
+other = "Failed to transfer project"
+
 [DefinitionSchemas.QueryFailed]
 other = "Model query failed"
 
@@ -133,6 +139,9 @@ other = "Name already exists"
 [Common.TypeDoesNotExist]
 other = "Type does not exist"
 
+[Common.InsufficientPermissions]
+other = "Insufficient permissions"
+
 [Collections.QueryFailed]
 other = "Collection query failed"
 
@@ -165,3 +174,21 @@ other = "Account does not exist"
 
 [User.WrongPassword]
 other = "Wrong password"
+
+[ProjectMember.NotFound]
+other = "Project member information does not exist"
+
+[ProjectMember.QueryFailed]
+other = "Project member information query failed"
+
+[ProjectMember.CreateFailed]
+other = "Project member creation failed"
+
+[ProjectMember.UpdateFailed]
+other = "Project member modification failed"
+
+[ProjectMember.DeleteFailed]
+other = "Project member delete failed"
+
+[ProjectMember.AlreadyExists]
+other = "Project member already exists"

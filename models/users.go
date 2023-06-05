@@ -49,3 +49,8 @@ func (u *Users) Delete() error {
 func (u *Users) Save() error {
 	return Conn.Save(u).Error
 }
+
+func UserListByIDs(ids []uint) ([]*Users, error) {
+	var users []*Users
+	return users, Conn.Where("id in (?)", ids).Find(&users).Error
+}

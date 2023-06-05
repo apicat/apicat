@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
 
@@ -15,6 +16,12 @@ type ProjectMembers struct {
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
 }
+
+var (
+	ProjectMembersManage = "manage"
+	ProjectMembersWrite  = "write"
+	ProjectMembersRead   = "read"
+)
 
 func NewProjectMembers(ids ...uint) (*ProjectMembers, error) {
 	members := &ProjectMembers{}
@@ -30,4 +37,32 @@ func NewProjectMembers(ids ...uint) (*ProjectMembers, error) {
 func (pm *ProjectMembers) List() ([]ProjectMembers, error) {
 	var projectMembers []ProjectMembers
 	return projectMembers, Conn.Order("created_at desc").Find(&projectMembers).Error
+}
+
+func (pm *ProjectMembers) Get() error {
+	return Conn.Take(pm).Error
+}
+
+func (pm *ProjectMembers) Create() error {
+	return Conn.Create(pm).Error
+}
+
+func (pm *ProjectMembers) Delete() error {
+	return Conn.Delete(pm).Error
+}
+
+func (pm *ProjectMembers) Update() error {
+	return Conn.Save(pm).Error
+}
+
+func DeleteAllMembersByProjectID(projectID uint) error {
+	return Conn.Where("project_id = ?", projectID).Delete(&ProjectMembers{}).Error
+}
+
+func (pm *ProjectMembers) MemberIsManage() bool {
+	return pm.Authority == ProjectMembersManage
+}
+
+func (pm *ProjectMembers) MemberHasWritePermission() bool {
+	return slices.Contains([]string{ProjectMembersManage, ProjectMembersWrite}, pm.Authority)
 }

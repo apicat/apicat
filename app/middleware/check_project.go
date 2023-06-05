@@ -10,7 +10,7 @@ import (
 )
 
 type ProjectID struct {
-	ID string `uri:"id" binding:"required,lte=255"`
+	ID string `uri:"project-id" binding:"required,lte=255"`
 }
 
 func CheckProject() gin.HandlerFunc {
