@@ -29,12 +29,17 @@ func NewUsers(ids ...uint) (*Users, error) {
 }
 
 func (u *Users) GetByEmail(email string) error {
-	return Conn.Where("email = ?", email).Take(u).Error
+	return Conn.Unscoped().Where("email = ?", email).Take(u).Error
 }
 
-func (u *Users) List() ([]Users, error) {
+func (u *Users) List(page, pageSize int) ([]Users, error) {
 	var users []Users
-	return users, Conn.Order("created_at desc").Find(&users).Error
+
+	if page == 0 && pageSize == 0 {
+		return users, Conn.Unscoped().Order("created_at desc").Find(&users).Error
+	}
+
+	return users, Conn.Unscoped().Limit(pageSize).Offset((page - 1) * pageSize).Order("created_at desc").Find(&users).Error
 }
 
 func (u *Users) Count() (int64, error) {

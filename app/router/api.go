@@ -63,6 +63,12 @@ func InitApiRouter(r *gin.Engine) {
 			user.PUT("/password", api.ChangePassword)
 		}
 
+		users := apiRouter.Group("/users")
+		users.Use(middleware.JWTAuthMiddleware())
+		{
+			users.GET("", api.GetUsers)
+		}
+
 		project := apiRouter.Group("/projects/:project-id")
 		project.Use(middleware.JWTAuthMiddleware(), middleware.CheckProject(), middleware.CheckMember(), mocksrv.ClearCache())
 		{
