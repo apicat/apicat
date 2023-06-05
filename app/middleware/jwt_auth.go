@@ -57,6 +57,14 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 			return
 		}
 
+		if user.DeletedAt.Valid {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.AccountDisabled"}),
+			})
+			ctx.Abort()
+			return
+		}
+
 		//将当前请求的username信息保存到请求的上下文c上
 		ctx.Set("CurrentUser", user)
 		//后续的处理函数可以通过c.Get("CurrentUser")来获取请求的用户信息
