@@ -66,3 +66,8 @@ func (pm *ProjectMembers) MemberIsManage() bool {
 func (pm *ProjectMembers) MemberHasWritePermission() bool {
 	return slices.Contains([]string{ProjectMembersManage, ProjectMembersWrite}, pm.Authority)
 }
+
+func GetUserInvolvedProject(UserID uint) ([]ProjectMembers, error) {
+	var projectMembers []ProjectMembers
+	return projectMembers, Conn.Where("user_id = ?", UserID).Order("created_at desc").Find(&projectMembers).Error
+}

@@ -62,7 +62,6 @@ func InitApiRouter(r *gin.Engine) {
 			members.POST("/", api.AddMember)
 			members.PUT("/:user-id", api.SetMember)
 			members.DELETE("/:user-id", api.DeleteMember)
-			members.GET("/involved_project", api.MemberInvolvedProjects)
 		}
 
 		user := apiRouter.Group("/user")
