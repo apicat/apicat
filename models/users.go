@@ -12,6 +12,7 @@ type Users struct {
 	Username  string `gorm:"type:varchar(255);not null;comment:用户名"`
 	Password  string `gorm:"type:varchar(255);not null;comment:密码"`
 	Role      string `gorm:"type:varchar(255);not null;comment:角色:superadmin,admin,user"`
+	IsEnabled int    `gorm:"type:tinyint(1);not null;default:1;comment:是否启用:0停用,1启用"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt gorm.DeletedAt
@@ -36,10 +37,10 @@ func (u *Users) List(page, pageSize int) ([]Users, error) {
 	var users []Users
 
 	if page == 0 && pageSize == 0 {
-		return users, Conn.Unscoped().Order("created_at desc").Find(&users).Error
+		return users, Conn.Order("created_at desc").Find(&users).Error
 	}
 
-	return users, Conn.Unscoped().Limit(pageSize).Offset((page - 1) * pageSize).Order("created_at desc").Find(&users).Error
+	return users, Conn.Limit(pageSize).Offset((page - 1) * pageSize).Order("created_at desc").Find(&users).Error
 }
 
 func (u *Users) Count() (int64, error) {
