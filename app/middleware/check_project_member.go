@@ -8,7 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CheckMember() gin.HandlerFunc {
+func CheckProjectMember() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		project, _ := ctx.Get("CurrentProject")
 		user, _ := ctx.Get("CurrentUser")
@@ -24,6 +24,6 @@ func CheckMember() gin.HandlerFunc {
 			ctx.Abort()
 		}
 
-		ctx.Set("CurrentMember", member)
+		ctx.Set("CurrentProjectMember", member)
 	}
 }

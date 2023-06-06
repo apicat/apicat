@@ -44,8 +44,8 @@ func TrashsList(ctx *gin.Context) {
 }
 
 func TrashsRecover(ctx *gin.Context) {
-	currentMember, _ := ctx.Get("CurrentMember")
-	if !currentMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
+	if !CurrentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
