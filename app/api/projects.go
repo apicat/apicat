@@ -71,7 +71,7 @@ func ProjectsList(ctx *gin.Context) {
 		for _, v := range projects {
 			if i == v.ID {
 				projectsList = append(projectsList, gin.H{
-					"id":          v.ID,
+					"id":          v.PublicId,
 					"title":       v.Title,
 					"description": v.Description,
 					"cover":       v.Cover,
