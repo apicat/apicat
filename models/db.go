@@ -67,6 +67,7 @@ func initTable() {
 		&DefinitionResponses{},
 		&DefinitionParameters{},
 		&Users{},
+		&ProjectMembers{},
 	); err != nil {
 		panic("Failed to create database table.")
 	}
