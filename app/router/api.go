@@ -55,18 +55,21 @@ func InitApiRouter(r *gin.Engine) {
 			projects.GET("/:project-id/data", api.ProjectDataGet)
 		}
 
+		users := apiRouter.Group("/users")
+		users.Use(middleware.JWTAuthMiddleware())
+		{
+			users.GET("", api.GetUsers)
+		}
+
 		user := apiRouter.Group("/user")
 		user.Use(middleware.JWTAuthMiddleware())
 		{
 			user.GET("", api.GetUserInfo)
 			user.PUT("", api.SetUserInfo)
 			user.PUT("/password", api.ChangePassword)
-		}
-
-		users := apiRouter.Group("/users")
-		users.Use(middleware.JWTAuthMiddleware())
-		{
-			users.GET("", api.GetUsers)
+			user.POST("/", api.AddUser)
+			user.PUT("/:user-id", api.SetUser)
+			user.DELETE("/:user-id", api.DeleteUser)
 		}
 
 		project := apiRouter.Group("/projects/:project-id")
