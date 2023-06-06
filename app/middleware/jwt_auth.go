@@ -57,7 +57,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 			return
 		}
 
-		if user.DeletedAt.Valid {
+		if user.IsEnabled == 0 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.AccountDisabled"}),
 			})
