@@ -88,7 +88,7 @@ func GetMembers(ctx *gin.Context) {
 		"current_page": data.Page,
 		"total_page":   int(math.Ceil(float64(totalUsers) / float64(data.PageSize))),
 		"total_member": totalUsers,
-		"member":       userList,
+		"members":      userList,
 	})
 }
 
