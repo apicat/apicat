@@ -291,7 +291,13 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 }
 
 func ProjectMembersWithout(ctx *gin.Context) {
-	currentProject, _ := ctx.Get("CurrentProject")
+	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
+	if !CurrentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
 
 	user, _ := models.NewUsers()
 	users, err := user.List(0, 0)
@@ -303,7 +309,7 @@ func ProjectMembersWithout(ctx *gin.Context) {
 	}
 
 	projectMember, _ := models.NewProjectMembers()
-	projectMember.ProjectID = currentProject.(*models.Projects).ID
+	projectMember.ProjectID = CurrentProjectMember.(*models.ProjectMembers).ProjectID
 	projectMembers, err := projectMember.List(0, 0)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
