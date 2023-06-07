@@ -46,7 +46,7 @@ import { useI18n } from 'vue-i18n'
 const authForm = shallowRef()
 
 const { t } = useI18n()
-const form: UserInfo = reactive({
+const form: Partial<UserInfo> = reactive({
   email: '',
   password: '',
 })

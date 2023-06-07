@@ -118,6 +118,26 @@ export default {
         trash: '回收站',
       },
     },
+    member: {
+      title: '成员',
+      tips: {
+        addMember: '添加成员',
+        editMember: '编辑成员',
+        removeMember: '删除成员',
+        deleteMemberTip: '确定删除该成员吗？',
+      },
+      form: {
+        title: '成员列表',
+        name: '名称',
+        email: '邮箱',
+        password: '密码',
+        role: '团队角色',
+        accountStatus: '账号状态',
+        accountStatusNormal: '正常',
+        accountStatusLock: '禁用',
+      },
+      rules: {},
+    },
     serverUrl: {
       rules: {
         invalid: '请输入有效的链接地址',

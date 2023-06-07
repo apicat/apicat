@@ -3,7 +3,7 @@ import { router } from '@/router'
 import { MAIN_PATH, LOGIN_PATH } from '@/router'
 import Storage from '@/commons/storage'
 import { userEmailLogin, userRegister, modifyUserInfo, modifyPassword } from '@/api/user'
-import { UserInfo } from '@/typings/user'
+import { UserInfo, UserRoleInTeam, UserRoleInTeamMap } from '@/typings/user'
 import { pinia } from '@/plugins'
 
 interface UserState {
@@ -21,6 +21,16 @@ export const useUserStore = defineStore({
 
   getters: {
     isLogin: (state) => !!state.token,
+    isSuperAdmin: (state) => state.userInfo.role === UserRoleInTeam.SUPER_ADMIN,
+    userRoles: () =>
+      Object.keys(UserRoleInTeamMap)
+        .filter((key: string) => key !== UserRoleInTeam.SUPER_ADMIN)
+        .map((key: string) => {
+          return {
+            text: (UserRoleInTeamMap as any)[key],
+            value: key,
+          }
+        }),
   },
 
   actions: {

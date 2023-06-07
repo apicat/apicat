@@ -31,22 +31,32 @@ const onRequest = (config: InternalAxiosRequestConfig): InternalAxiosRequestConf
 
 const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
   const useUserStore = useUserStoreWithOut()
-
+  let errorMsg = ''
   if (axios.isAxiosError(error)) {
     const { response = { data: {} } } = error
     const { status } = (error.response as AxiosResponse) ?? {}
 
-    // "Login required"
-    if (status === 401) {
-      useUserStore.logout()
-      setTimeout(() => router.replace(LOGIN_PATH), 0)
-    }
+    switch (status) {
+      case 401: // 未登录
+        useUserStore.logout()
+        setTimeout(() => router.replace(LOGIN_PATH), 0)
+        break
 
-    ElMessage.error(response.data.message || 'server error')
-  } else {
-    ElMessage.error(error.message || 'server error')
+      case 403: // 无权限
+        alert('无权限')
+        break
+
+      case 400: // bad request
+        errorMsg = response.data.message
+        break
+
+      default:
+        errorMsg = error.message
+        break
+    }
   }
 
+  ElMessage.error(errorMsg || 'server error')
   return Promise.reject(error)
 }
 
@@ -62,7 +72,6 @@ QuietAjax.interceptors.request.use(onRequest, onErrorResponse)
 QuietAjax.interceptors.response.use((response: AxiosResponse) => response.data, onErrorResponse)
 
 MockAjax.interceptors.request.use(onRequest, onErrorResponse)
-// MockAjax.interceptors.response.use((response: AxiosResponse) => response.data)
 
 // 默认请求实例
 export default DefaultAjax
