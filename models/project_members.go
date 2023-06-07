@@ -34,9 +34,14 @@ func NewProjectMembers(ids ...uint) (*ProjectMembers, error) {
 	return members, nil
 }
 
-func (pm *ProjectMembers) List() ([]ProjectMembers, error) {
+func (pm *ProjectMembers) List(page, pageSize int) ([]ProjectMembers, error) {
 	var projectMembers []ProjectMembers
-	return projectMembers, Conn.Order("created_at desc").Find(&projectMembers).Error
+
+	if page == 0 && pageSize == 0 {
+		return projectMembers, Conn.Order("created_at desc").Find(&projectMembers).Error
+	}
+
+	return projectMembers, Conn.Limit(pageSize).Offset((page - 1) * pageSize).Order("created_at desc").Find(&projectMembers).Error
 }
 
 func (pm *ProjectMembers) Get() error {
@@ -53,6 +58,11 @@ func (pm *ProjectMembers) Delete() error {
 
 func (pm *ProjectMembers) Update() error {
 	return Conn.Save(pm).Error
+}
+
+func (pm *ProjectMembers) Count() (int64, error) {
+	var count int64
+	return count, Conn.Model(&ProjectMembers{}).Count(&count).Error
 }
 
 func DeleteAllMembersByProjectID(projectID uint) error {

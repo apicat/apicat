@@ -1,12 +1,18 @@
 package api
 
 import (
+	"math"
 	"net/http"
 
 	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
+
+type ProjectMembersListData struct {
+	Page     int `form:"page" binding:"omitempty,gte=1"`
+	PageSize int `form:"page_size" binding:"omitempty,gte=1,lte=100"`
+}
 
 type GetPathUserID struct {
 	UserID uint `uri:"user-id" binding:"required"`
@@ -33,9 +39,32 @@ type ProjectMemberData struct {
 func ProjectMembersList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 
+	var data GetMembersData
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	if data.Page <= 0 {
+		data.Page = 1
+	}
+	if data.PageSize <= 0 {
+		data.PageSize = 15
+	}
+
 	member, _ := models.NewProjectMembers()
+	totalMember, err := member.Count()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
+		})
+		return
+	}
+
 	member.ProjectID = currentProject.(*models.Projects).ID
-	members, err := member.List()
+	members, err := member.List(data.Page, data.PageSize)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
@@ -71,6 +100,12 @@ func ProjectMembersList(ctx *gin.Context) {
 			CreatedAt: v.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"current_page":         data.Page,
+		"total_page":           int(math.Ceil(float64(totalMember) / float64(data.PageSize))),
+		"total_project_member": totalMember,
+		"project_members":      membersList,
+	})
 
 	ctx.JSON(http.StatusOK, membersList)
 }
