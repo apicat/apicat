@@ -55,6 +55,7 @@ func ProjectMembersList(ctx *gin.Context) {
 	}
 
 	member, _ := models.NewProjectMembers()
+	member.ProjectID = currentProject.(*models.Projects).ID
 	totalMember, err := member.Count()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -287,4 +288,42 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusCreated)
+}
+
+func ProjectMembersWithout(ctx *gin.Context) {
+	currentProject, _ := ctx.Get("CurrentProject")
+
+	user, _ := models.NewUsers()
+	users, err := user.List(0, 0)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
+		})
+		return
+	}
+
+	projectMember, _ := models.NewProjectMembers()
+	projectMember.ProjectID = currentProject.(*models.Projects).ID
+	projectMembers, err := projectMember.List(0, 0)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
+		})
+		return
+	}
+
+	result := []map[string]any{}
+	for _, u := range users {
+		for _, pm := range projectMembers {
+			if u.ID != pm.UserID {
+				result = append(result, map[string]any{
+					"user_id":  u.ID,
+					"username": u.Username,
+					"email":    u.Email,
+				})
+			}
+		}
+	}
+
+	ctx.JSON(http.StatusOK, result)
 }
