@@ -157,6 +157,9 @@ other = "集合删除失败"
 [Auth.TokenParsingFailed]
 other = "登录状态异常，请重新登录"
 
+[Auth.AccountDisabled]
+other = "该账号已被管理员停用"
+
 [User.LoginFailed]
 other = "登录失败"
 
@@ -171,9 +174,21 @@ other = "邮箱已存在"
 
 [User.AccountDoesNotExist]
 other = "账号不存在"
-
+ 
 [User.WrongPassword]
 other = "密码错误"
+
+[Member.QueryFailed]
+other = "成员信息查询失败"
+
+[Member.CreateFailed]
+other = "添加成员失败"
+
+[Member.UpdateFailed]
+other = "修改成员失败"
+
+[Member.DeleteFailed]
+other = "删除成员失败"
 
 [ProjectMember.NotFound]
 other = "项目成员信息不存在"
