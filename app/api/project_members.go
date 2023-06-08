@@ -317,9 +317,9 @@ func ProjectMembersWithout(ctx *gin.Context) {
 		return
 	}
 
-	pmMap := map[uint]*models.ProjectMembers{}
+	pmMap := map[uint]models.ProjectMembers{}
 	for _, v := range projectMembers {
-		pmMap[v.UserID] = &v
+		pmMap[v.UserID] = v
 	}
 
 	result := []map[string]any{}

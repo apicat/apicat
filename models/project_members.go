@@ -38,7 +38,7 @@ func (pm *ProjectMembers) List(page, pageSize int) ([]ProjectMembers, error) {
 	var projectMembers []ProjectMembers
 
 	if page == 0 && pageSize == 0 {
-		return projectMembers, Conn.Order("created_at desc").Find(&projectMembers).Error
+		return projectMembers, Conn.Where("project_id = ?", pm.ProjectID).Order("created_at desc").Find(&projectMembers).Error
 	}
 
 	return projectMembers, Conn.Where("project_id = ?", pm.ProjectID).Limit(pageSize).Offset((page - 1) * pageSize).Order("created_at desc").Find(&projectMembers).Error
