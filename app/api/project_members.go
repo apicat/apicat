@@ -86,21 +86,24 @@ func ProjectMembersList(ctx *gin.Context) {
 		return
 	}
 
-	userIDToNameMap := map[uint]string{}
+	userIDToNameMap := map[uint]map[string]any{}
 	for _, v := range users {
-		userIDToNameMap[v.ID] = v.Username
+		userIDToNameMap[v.ID]["username"] = v.Username
+		userIDToNameMap[v.ID]["is_enabled"] = v.IsEnabled
 	}
 
-	membersList := []*ProjectMemberData{}
+	membersList := []any{}
 	for _, v := range members {
-		membersList = append(membersList, &ProjectMemberData{
-			ID:        v.ID,
-			UserID:    v.UserID,
-			Username:  userIDToNameMap[v.UserID],
-			Authority: v.Authority,
-			CreatedAt: v.CreatedAt.Format("2006-01-02 15:04:05"),
+		membersList = append(membersList, map[string]any{
+			"id":         v.ID,
+			"user_id":    v.UserID,
+			"username":   userIDToNameMap[v.UserID]["username"],
+			"authority":  v.Authority,
+			"is_enabled": userIDToNameMap[v.UserID]["is_enabled"],
+			"created_at": v.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"current_page":         data.Page,
 		"total_page":           int(math.Ceil(float64(totalMember) / float64(data.PageSize))),

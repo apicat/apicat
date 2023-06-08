@@ -178,9 +178,7 @@ func SetMember(ctx *gin.Context) {
 	if data.Role != "" {
 		user.Role = data.Role
 	}
-	if data.IsEnabled != 0 {
-		user.IsEnabled = data.IsEnabled
-	}
+	user.IsEnabled = data.IsEnabled
 	if data.Password != "" {
 		hashedPassword, err := auth.HashPassword(data.Password)
 		if err != nil {
