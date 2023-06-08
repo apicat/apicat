@@ -19,7 +19,7 @@ type GetPathUserID struct {
 }
 
 type CreateProjectMemberData struct {
-	UserID    uint   `json:"user_id" binding:"required"`
+	UserIDs   []uint `json:"user_ids" binding:"required,gt=0,dive,required"`
 	Authority string `json:"authority" binding:"required,oneof=manage write read"`
 }
 
@@ -170,44 +170,40 @@ func ProjectMembersCreate(ctx *gin.Context) {
 		return
 	}
 
-	user, err := models.NewUsers(data.UserID)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.CreateFailed"}),
+	result := []gin.H{}
+	for _, v := range data.UserIDs {
+		user, err := models.NewUsers(v)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.CreateFailed"}),
+			})
+			return
+		}
+
+		pm, _ := models.NewProjectMembers()
+		pm.UserID = user.ID
+		pm.ProjectID = CurrentProjectMember.(*models.ProjectMembers).ProjectID
+		if err := pm.GetByUserIDAndProjectID(); err == nil {
+			continue
+		}
+
+		pm.Authority = data.Authority
+		if err := pm.Create(); err != nil {
+			continue
+		}
+
+		result = append(result, gin.H{
+			"id":         pm.ID,
+			"user_id":    user.ID,
+			"username":   user.Username,
+			"email":      user.Email,
+			"is_enabled": user.IsEnabled,
+			"authority":  pm.Authority,
+			"created_at": pm.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
-		return
 	}
 
-	checkMember, _ := models.NewProjectMembers()
-	checkMember.UserID = user.ID
-	checkMember.ProjectID = CurrentProjectMember.(*models.ProjectMembers).ProjectID
-	if err := checkMember.GetByUserIDAndProjectID(); err == nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.AlreadyExists"}),
-		})
-		return
-	}
-
-	pm, _ := models.NewProjectMembers()
-	pm.UserID = user.ID
-	pm.ProjectID = CurrentProjectMember.(*models.ProjectMembers).ProjectID
-	pm.Authority = data.Authority
-	if err := pm.Create(); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.CreateFailed"}),
-		})
-		return
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"id":         pm.ID,
-		"user_id":    user.ID,
-		"username":   user.Username,
-		"email":      user.Email,
-		"is_enabled": user.IsEnabled,
-		"authority":  pm.Authority,
-		"created_at": pm.CreatedAt.Format("2006-01-02 15:04:05"),
-	})
+	ctx.JSON(http.StatusOK, result)
 }
 
 // DeleteMember deletes a project member by checking if the given member exists in the project.
