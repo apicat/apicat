@@ -95,8 +95,8 @@ func DefinitionSchemasList(ctx *gin.Context) {
 }
 
 func DefinitionSchemasCreate(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -163,8 +163,8 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 }
 
 func DefinitionSchemasUpdate(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -235,8 +235,8 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 }
 
 func DefinitionSchemasDelete(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -339,8 +339,8 @@ func DefinitionSchemasGet(ctx *gin.Context) {
 }
 
 func DefinitionSchemasCopy(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -408,8 +408,8 @@ func DefinitionSchemasCopy(ctx *gin.Context) {
 }
 
 func DefinitionSchemasMove(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})

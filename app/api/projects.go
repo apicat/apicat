@@ -178,8 +178,8 @@ func ProjectsCreate(ctx *gin.Context) {
 }
 
 func ProjectsUpdate(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -234,8 +234,8 @@ func ProjectsUpdate(ctx *gin.Context) {
 }
 
 func ProjectsDelete(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -400,15 +400,15 @@ func ProjectDataGet(ctx *gin.Context) {
 
 // ProjectExit handles the exit of a project member.
 func ProjectExit(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if CurrentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
-	if err := CurrentProjectMember.(*models.ProjectMembers).Delete(); err != nil {
+	if err := currentProjectMember.(*models.ProjectMembers).Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.ExitFail"}),
 		})
@@ -419,8 +419,8 @@ func ProjectExit(ctx *gin.Context) {
 }
 
 func ProjectTransfer(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -443,15 +443,15 @@ func ProjectTransfer(ctx *gin.Context) {
 		return
 	}
 
-	if pm.ProjectID != CurrentProjectMember.(*models.ProjectMembers).ProjectID {
+	if pm.ProjectID != currentProjectMember.(*models.ProjectMembers).ProjectID {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
 		})
 		return
 	}
 
-	CurrentProjectMember.(*models.ProjectMembers).Authority = models.ProjectMembersWrite
-	if err := CurrentProjectMember.(*models.ProjectMembers).Update(); err != nil {
+	currentProjectMember.(*models.ProjectMembers).Authority = models.ProjectMembersWrite
+	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
 		})

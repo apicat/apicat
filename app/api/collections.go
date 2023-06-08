@@ -118,8 +118,8 @@ func CollectionsGet(ctx *gin.Context) {
 }
 
 func CollectionsCreate(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -143,7 +143,7 @@ func CollectionsCreate(ctx *gin.Context) {
 	collection.Title = data.Title
 	collection.Type = data.Type
 	collection.Content = data.Content
-	collection.CreatedBy = CurrentProjectMember.(*models.ProjectMembers).UserID
+	collection.CreatedBy = currentProjectMember.(*models.ProjectMembers).UserID
 	if err := collection.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
@@ -165,8 +165,8 @@ func CollectionsCreate(ctx *gin.Context) {
 }
 
 func CollectionsUpdate(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -189,7 +189,7 @@ func CollectionsUpdate(ctx *gin.Context) {
 
 	collection.Title = data.Title
 	collection.Content = data.Content
-	collection.UpdatedBy = CurrentProjectMember.(*models.ProjectMembers).UserID
+	collection.UpdatedBy = currentProjectMember.(*models.ProjectMembers).UserID
 	if err := collection.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.UpdateFailed"}),
@@ -201,8 +201,8 @@ func CollectionsUpdate(ctx *gin.Context) {
 }
 
 func CollectionsCopy(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -222,7 +222,7 @@ func CollectionsCopy(ctx *gin.Context) {
 		Type:         collection.Type,
 		Content:      collection.Content,
 		DisplayOrder: collection.DisplayOrder,
-		CreatedBy:    CurrentProjectMember.(*models.ProjectMembers).UserID,
+		CreatedBy:    currentProjectMember.(*models.ProjectMembers).UserID,
 	}
 
 	if err := newCollection.Create(); err != nil {
@@ -246,8 +246,8 @@ func CollectionsCopy(ctx *gin.Context) {
 }
 
 func CollectionsMovement(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -284,8 +284,8 @@ func CollectionsMovement(ctx *gin.Context) {
 }
 
 func CollectionsDelete(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -298,7 +298,7 @@ func CollectionsDelete(ctx *gin.Context) {
 		return
 	}
 
-	if err := models.Deletes(collection.ID, models.Conn, CurrentProjectMember.(*models.ProjectMembers).UserID); err != nil {
+	if err := models.Deletes(collection.ID, models.Conn, currentProjectMember.(*models.ProjectMembers).UserID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
 		})

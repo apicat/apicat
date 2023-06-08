@@ -154,8 +154,8 @@ func MemberGetByUserID(ctx *gin.Context) {
 // ProjectMembersCreate projects the creation of a new member.
 func ProjectMembersCreate(ctx *gin.Context) {
 	// 项目管理员才添加成员
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -182,7 +182,7 @@ func ProjectMembersCreate(ctx *gin.Context) {
 
 		pm, _ := models.NewProjectMembers()
 		pm.UserID = user.ID
-		pm.ProjectID = CurrentProjectMember.(*models.ProjectMembers).ProjectID
+		pm.ProjectID = currentProjectMember.(*models.ProjectMembers).ProjectID
 		if err := pm.GetByUserIDAndProjectID(); err == nil {
 			continue
 		}
@@ -208,8 +208,8 @@ func ProjectMembersCreate(ctx *gin.Context) {
 
 // DeleteMember deletes a project member by checking if the given member exists in the project.
 func ProjectMembersDelete(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -226,7 +226,7 @@ func ProjectMembersDelete(ctx *gin.Context) {
 
 	pm, _ := models.NewProjectMembers()
 	pm.UserID = data.UserID
-	pm.ProjectID = CurrentProjectMember.(*models.ProjectMembers).ProjectID
+	pm.ProjectID = currentProjectMember.(*models.ProjectMembers).ProjectID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
@@ -245,8 +245,8 @@ func ProjectMembersDelete(ctx *gin.Context) {
 
 // UpdateMember updates the authority of a project member in the database.
 func ProjectMembersAuthUpdate(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -263,7 +263,7 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 
 	pm, _ := models.NewProjectMembers()
 	pm.UserID = data.UserID
-	pm.ProjectID = CurrentProjectMember.(*models.ProjectMembers).ProjectID
+	pm.ProjectID = currentProjectMember.(*models.ProjectMembers).ProjectID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
@@ -290,8 +290,8 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 }
 
 func ProjectMembersWithout(ctx *gin.Context) {
-	CurrentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !CurrentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
@@ -308,7 +308,7 @@ func ProjectMembersWithout(ctx *gin.Context) {
 	}
 
 	projectMember, _ := models.NewProjectMembers()
-	projectMember.ProjectID = CurrentProjectMember.(*models.ProjectMembers).ProjectID
+	projectMember.ProjectID = currentProjectMember.(*models.ProjectMembers).ProjectID
 	projectMembers, err := projectMember.List(0, 0)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
