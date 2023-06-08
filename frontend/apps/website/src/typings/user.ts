@@ -20,7 +20,6 @@ export declare interface UserInfo {
   role: UserRoleInTeam
   username?: string
   password?: string
-  start_using?: 0 | 1
   is_enabled?: 0 | 1
   created_at?: string
   updated_at?: string

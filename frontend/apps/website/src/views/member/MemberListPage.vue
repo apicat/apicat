@@ -50,13 +50,14 @@
 </template>
 <script setup lang="ts">
 import { useTable } from '@/hooks/useTable'
-import { getMembers, deleteMember } from '@/api/member'
+import { getMembers, deleteMember, updateMember } from '@/api/member'
 import { useI18n } from 'vue-i18n'
 import AddMemberModal from './AddMemberModal.vue'
 import { UserInfo, UserRoleInTeamMap } from '@/typings/user'
 import { usePopover } from '@/hooks/usePopover'
 import { useUserStore } from '@/store/user'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
+import NProgress from 'nprogress'
 
 const { t } = useI18n()
 const buttonRefMap: Record<number, any> = {}
@@ -69,6 +70,7 @@ const {
   isShow: isShowRoleDropdownMenu,
   popoverRefEl,
   showPopover,
+  hidePopover,
 } = usePopover({
   onHide: () => {
     currentChangeUser.value = null
@@ -124,7 +126,21 @@ const handleRemove = (user: UserInfo) => {
   })
 }
 
-const handelChangeUserRole = (role: any) => {
-  console.log('修改成员权限', currentChangeUser.value, role)
+const handelChangeUserRole = async (role: any) => {
+  if (!currentChangeUser.value) {
+    return
+  }
+
+  const { id, is_enabled } = currentChangeUser.value
+  NProgress.start()
+  try {
+    await updateMember({ id, role: role.value, is_enabled })
+    hidePopover()
+    await getTableData()
+  } catch (error) {
+    //
+  } finally {
+    NProgress.done()
+  }
 }
 </script>
