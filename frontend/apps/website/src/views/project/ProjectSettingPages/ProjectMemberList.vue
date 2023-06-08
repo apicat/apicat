@@ -1,28 +1,32 @@
 <template>
   <div class="container flex flex-col justify-center">
+    <AddProjectMember v-if="isManager" ref="addProjectMemberRef" @ok="getTableData" />
+
     <AcSimpleTable isShowPager v-model:page="currentPage" v-model:page-size="pageSize" :columns="columns" :table-data="data" :loading="isLoading" :total="total">
       <template #auth>
         <el-table-column :label="$t('app.project.list.auth')">
           <template #default="{ row }">
-            <div v-if="!isManager && !row.isSelf" :ref="(el) => setButtonRef(el, row)" class="inline-flex items-center cursor-pointer" @click="showRoleDropdownMenu(row)">
-              <span>{{ (MemberAuthorityMap as any)[row.role] }}</span>
+            <div v-if="isManager && !row.isSelf" :ref="(el) => setButtonRef(el, row)" class="inline-flex items-center cursor-pointer" @click="showRoleDropdownMenu(row)">
+              <span>{{ (MemberAuthorityMap as any)[row.authority] }}</span>
               <el-icon :class="['m-4px']">
                 <ac-icon-ep-arrow-down />
               </el-icon>
             </div>
             <div v-else>
-              <span>{{ (MemberAuthorityMap as any)[row.role] }}</span>
+              <span>{{ (MemberAuthorityMap as any)[row.authority] }}</span>
             </div>
           </template>
         </el-table-column>
       </template>
 
-      <template #operation v-if="isSuperAdmin">
+      <template #operation v-if="isManager">
         <el-table-column :label="$t('app.table.operation')">
           <template #default="{ row }">
             <template v-if="!row.isSelf">
-              <el-button link size="small" @click="handlerTransferProject(row)">{{ $t('app.project.member.transferProject') }}</el-button>
               <el-button link type="danger" size="small" @click="handlerRemoveMember(row)">{{ $t('app.project.member.deleteMember') }}</el-button>
+              <el-button link size="small" v-if="row.authority === MemberAuthorityInProject.WRITE" @click="handlerTransferProject(row)">{{
+                $t('app.project.member.transferProject')
+              }}</el-button>
             </template>
           </template>
         </el-table-column>
@@ -43,22 +47,24 @@
 </template>
 <script setup lang="ts">
 import { useTable } from '@/hooks/useTable'
-import { getMembersInProject, addMemberToProject, deleteMemberFromProject, updateMemberAuthorityInProject, transferProject } from '@/api/project'
+import { getMembersInProject, deleteMemberFromProject, updateMemberAuthorityInProject, transferProject } from '@/api/project'
 import { useI18n } from 'vue-i18n'
-import { MemberAuthorityMap, ProjectMember } from '@/typings/member'
+import { MemberAuthorityMap, ProjectMember, MemberAuthorityInProject } from '@/typings/member'
 import { usePopover } from '@/hooks/usePopover'
 import { useUserStore } from '@/store/user'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import NProgress from 'nprogress'
 import { useParams } from '@/hooks/useParams'
 import uesProjectStore from '@/store/project'
+import AddProjectMember from '../AddProjectMember.vue'
 
 const { t } = useI18n()
 const { project_id } = useParams()
 const buttonRefMap: Record<number, any> = {}
-const { userInfo, isSuperAdmin, userRoles } = useUserStore()
+const { userInfo } = useUserStore()
 const { projectAuths, isManager } = uesProjectStore()
 const currentChangeUser = ref<ProjectMember | null>()
+const addProjectMemberRef = ref<InstanceType<typeof AddProjectMember>>()
 
 const {
   isShow: isShowRoleDropdownMenu,
@@ -72,8 +78,6 @@ const {
 })
 
 const { currentPage, pageSize, total, data, isLoading, getTableData } = useTable(getMembersInProject(project_id as string), {
-  dataKey: 'project_members',
-  totalKey: 'total_project_member',
   isLoaded: true,
   transform: (member: ProjectMember): ProjectMember => {
     member.isSelf = member.user_id === userInfo.id
@@ -112,6 +116,7 @@ const handlerRemoveMember = (member: ProjectMember) => {
     onOk: async () => {
       await deleteMemberFromProject(project_id as string, member.user_id!)
       await getTableData()
+      addProjectMemberRef.value?.refreshMemberList()
     },
   })
 }

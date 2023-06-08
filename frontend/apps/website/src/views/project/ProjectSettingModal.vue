@@ -25,7 +25,6 @@
 import ModalLayout from '@/layouts/ModalLayout.vue'
 import { useModal } from '@/hooks'
 import { Menu } from '@/components/typings'
-import { ProjectNavigateObject } from '@/typings/project'
 import { getProjectNavigateList, ProjectNavigateListEnum } from '@/commons/constant'
 import BaseInfoSetting from './ProjectSettingPages/BaseInfoSetting.vue'
 import ProjectMemberList from './ProjectSettingPages/ProjectMemberList.vue'
@@ -33,39 +32,18 @@ import ServerUrlSetting from './ProjectSettingPages/ServerUrlSetting.vue'
 import GlobalParametersSetting from './ProjectSettingPages/GlobalParametersSetting.vue'
 import ProjectExportPage from './ProjectSettingPages/ProjectExportPage.vue'
 import ProjectTrashPage from './ProjectSettingPages/ProjectTrashPage.vue'
-import uesProjectStore from '@/store/project'
-import { storeToRefs } from 'pinia'
 
-const projectStore = uesProjectStore()
-const { isManager } = storeToRefs(projectStore)
-
-const menus: ComputedRef<ProjectNavigateObject> = computed(() => {
-  const menus = getProjectNavigateList({
-    [ProjectNavigateListEnum.BaseInfoSetting]: { component: BaseInfoSetting },
-    [ProjectNavigateListEnum.ProjectMemberList]: { component: ProjectMemberList },
-    [ProjectNavigateListEnum.ServerUrlSetting]: { component: ServerUrlSetting },
-    [ProjectNavigateListEnum.GlobalParamsSetting]: { component: GlobalParametersSetting },
-    [ProjectNavigateListEnum.ProjectExport]: { component: ProjectExportPage },
-    [ProjectNavigateListEnum.ProjectTrash]: { component: ProjectTrashPage },
-  })
-
-  if (!isManager.value) {
-    menus[ProjectNavigateListEnum.QuitProject] = {
-      text: '退出项目',
-      type: ProjectNavigateListEnum.QuitProject,
-      action: handlerQuitProject,
-    }
-  }
-
-  return menus
+const menus = getProjectNavigateList({
+  [ProjectNavigateListEnum.BaseInfoSetting]: { component: BaseInfoSetting },
+  [ProjectNavigateListEnum.ProjectMemberList]: { component: ProjectMemberList },
+  [ProjectNavigateListEnum.ServerUrlSetting]: { component: ServerUrlSetting },
+  [ProjectNavigateListEnum.GlobalParamsSetting]: { component: GlobalParametersSetting },
+  [ProjectNavigateListEnum.ProjectExport]: { component: ProjectExportPage },
+  [ProjectNavigateListEnum.ProjectTrash]: { component: ProjectTrashPage },
 })
 
-const handlerQuitProject = async () => {
-  console.log('退出项目')
-}
-
 const activeTab = shallowRef<{ menu: any; type: ProjectNavigateListEnum }>({
-  menu: menus.value[ProjectNavigateListEnum.BaseInfoSetting],
+  menu: menus[ProjectNavigateListEnum.BaseInfoSetting],
   type: ProjectNavigateListEnum.BaseInfoSetting,
 })
 
@@ -84,7 +62,7 @@ const onMenuTabClick = async (menu: Menu, type: ProjectNavigateListEnum) => {
 }
 
 const show = (type: ProjectNavigateListEnum) => {
-  onMenuTabClick(menus.value[type], type)
+  onMenuTabClick(menus[type], type)
   showModel()
 }
 

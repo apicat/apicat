@@ -81,8 +81,6 @@ const {
 })
 
 const { currentPage, pageSize, total, data, isLoading, getTableData } = useTable(getMembers, {
-  dataKey: 'members',
-  totalKey: 'total_member',
   isLoaded: true,
   transform: (user: UserInfo): UserInfo => {
     user.accountStatus = user.is_enabled ? t('app.member.form.accountStatusNormal') : t('app.member.form.accountStatusLock')

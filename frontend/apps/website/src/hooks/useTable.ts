@@ -13,7 +13,7 @@ interface UseTableOptions {
 }
 
 export const useTable = (_api: any, options: UseTableOptions) => {
-  const { isLoaded = true, searchParam = {}, dataKey = 'records', totalKey = 'total_page', pageSize = 15, transform } = options
+  const { isLoaded = true, searchParam = {}, dataKey = 'records', totalKey = 'total', pageSize = 15, transform } = options
 
   const [isLoading, api] = useApi(_api, { isShowMessage: false })
 

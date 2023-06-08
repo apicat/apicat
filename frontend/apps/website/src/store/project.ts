@@ -4,6 +4,7 @@ import { MemberAuthorityInProject, MemberAuthorityMap } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
 import { getProjectDefaultCover } from '@/views/project/logic/useProjectCover'
 import { defineStore } from 'pinia'
+import { pinia } from '@/plugins'
 
 interface ProjectState {
   projects: ProjectInfo[]
@@ -43,6 +44,8 @@ export const uesProjectStore = defineStore('project', {
     isManager: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.MANAGER,
 
     isWriter: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.WRITE,
+
+    isReader: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.READ,
   },
   actions: {
     async getProjects() {
@@ -52,11 +55,16 @@ export const uesProjectStore = defineStore('project', {
 
     async getProjectDetailInfo(project_id: string): Promise<ProjectInfo> {
       const project = await getProjectDetail(project_id)
+      this.setCurrentProjectInfo(project as any)
       return project as any
     },
 
-    setCurrentProjectInfo(info: ProjectInfo) {
-      this.projectDetailInfo = { ...this.projectDetailInfo, ...info }
+    setCurrentProjectInfo(info?: ProjectInfo) {
+      this.projectDetailInfo = info ? { ...this.projectDetailInfo, ...info } : null
+    },
+
+    clearCurrentProjectInfo() {
+      this.setCurrentProjectInfo()
     },
 
     async getUrlServers(project_id: string) {
@@ -73,3 +81,5 @@ export const uesProjectStore = defineStore('project', {
 })
 
 export default uesProjectStore
+
+export const uesProjectStoreWithOut = () => uesProjectStore(pinia)

@@ -159,7 +159,6 @@ const handleSubmit = async (formEl: FormInstance | undefined) => {
     const valid = await formEl.validate()
     if (valid) {
       const project: ProjectInfo = await createProjectApi(toRaw(form))
-      projectStore.setCurrentProjectInfo(project)
       router.push(getProjectDetailPath(project.id))
     }
   } catch (error) {

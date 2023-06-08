@@ -31,6 +31,7 @@ const onRequest = (config: InternalAxiosRequestConfig): InternalAxiosRequestConf
 
 const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
   const useUserStore = useUserStoreWithOut()
+
   let errorMsg = ''
   if (axios.isAxiosError(error)) {
     const { response = { data: {} } } = error
@@ -43,7 +44,8 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
         break
 
       case 403: // 无权限
-        alert('无权限')
+        errorMsg = response.data.message
+        // setTimeout(() => location.reload(), 2000)
         break
 
       case 400: // bad request

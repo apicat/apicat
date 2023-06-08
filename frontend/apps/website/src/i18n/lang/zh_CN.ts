@@ -83,6 +83,10 @@ export default {
     },
     project: {
       title: '项目',
+      tips: {
+        quitProjectTitle: '退出项目',
+        quitProject: '确定退出该项目吗？',
+      },
       list: {
         title: '项目列表',
         tabTitle: '项目',
@@ -99,6 +103,7 @@ export default {
         title: '请输入项目名称',
         titleMinLength: '项目名称不能少于两个字',
         desc: '请输入项目描述信息',
+        chooseMember: '请选择成员',
       },
       createModal: {
         title: '创建项目',
@@ -110,6 +115,7 @@ export default {
       setting: {
         title: '项目管理',
         baseInfo: '项目设置',
+        quitProject: '退出项目',
         serverUrl: 'URL设置',
         globalParam: '全局参数设置',
         responseParam: '公共响应设置',
