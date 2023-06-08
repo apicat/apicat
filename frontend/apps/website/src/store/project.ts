@@ -1,5 +1,6 @@
 import { getProjectList, getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList } from '@/api/project'
 import { ProjectListCoverBgColors, ProjectListCoverIcons } from '@/commons'
+import { MemberAuthorityInProject, MemberAuthorityMap } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
 import { getProjectDefaultCover } from '@/views/project/logic/useProjectCover'
 import { defineStore } from 'pinia'
@@ -27,6 +28,21 @@ export const uesProjectStore = defineStore('project', {
         }
         return info
       }),
+
+    projectAuths: () => {
+      return Object.keys(MemberAuthorityMap)
+        .filter((key: string) => key !== MemberAuthorityInProject.MANAGER)
+        .map((key: string) => {
+          return {
+            text: (MemberAuthorityMap as any)[key],
+            value: key,
+          }
+        })
+    },
+
+    isManager: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.MANAGER,
+
+    isWriter: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.WRITE,
   },
   actions: {
     async getProjects() {

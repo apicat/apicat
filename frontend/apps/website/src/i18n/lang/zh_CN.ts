@@ -86,6 +86,7 @@ export default {
       list: {
         title: '项目列表',
         tabTitle: '项目',
+        auth: '项目权限',
       },
       form: {
         cover: '项目封面',
@@ -112,10 +113,19 @@ export default {
         serverUrl: 'URL设置',
         globalParam: '全局参数设置',
         responseParam: '公共响应设置',
+        member: '项目成员',
         export: '导出项目',
         deleteProject: '删除该项目',
         deleteProjectTip: '确定删除该项目吗？<br/> <span style="color:var(--el-color-danger)">项目删除后，相关人员将无法操作该项目。</span>',
         trash: '回收站',
+      },
+      member: {
+        title: '项目成员',
+        addMember: '添加成员',
+        transferProject: '移交项目',
+        deleteMember: '删除成员',
+        chooseMember: '选择成员',
+        chooseAuth: '选择权限',
       },
     },
     member: {

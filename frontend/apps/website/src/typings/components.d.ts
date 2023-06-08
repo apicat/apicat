@@ -91,7 +91,6 @@ declare module '@vue/runtime-core' {
     Result: typeof import('./../components/Result.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    SimpleTable: typeof import('./../components/SimpleTable.vue')['default']
     ToggleHeading: typeof import('./../components/ToggleHeading.vue')['default']
     Typings: typeof import('./../components/typings.ts')['default']
   }

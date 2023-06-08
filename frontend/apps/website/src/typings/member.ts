@@ -8,16 +8,19 @@ export const enum MemberAuthorityInProject {
   READ = 'read',
 }
 
+export const MemberAuthorityMap = {
+  [MemberAuthorityInProject.MANAGER]: '管理',
+  [MemberAuthorityInProject.WRITE]: '可写',
+  [MemberAuthorityInProject.READ]: '可读',
+}
+
 export declare interface ProjectMember {
-  /**
-   * 成员id
-   */
   id?: number
-  /**
-   * 用户id
-   */
   user_id?: number
-  authority: MemberAuthorityInProject
+  authority?: MemberAuthorityInProject
   username?: string
+  email?: string
   created_at?: string
+
+  isSelf?: boolean
 }

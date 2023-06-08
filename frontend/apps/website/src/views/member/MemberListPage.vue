@@ -33,8 +33,8 @@
         <el-table-column :label="$t('app.table.operation')">
           <template #default="{ row }">
             <template v-if="!row.isSelf">
-              <el-button link size="small" @click="handelEditUser(row)">{{ $t('app.member.tips.editMember') }}</el-button>
-              <el-button link type="danger" size="small" @click="handleRemove(row)">{{ $t('app.member.tips.removeMember') }}</el-button>
+              <el-button link size="small" @click="handlerEditUser(row)">{{ $t('app.member.tips.editMember') }}</el-button>
+              <el-button link type="danger" size="small" @click="handlerRemove(row)">{{ $t('app.member.tips.removeMember') }}</el-button>
             </template>
           </template>
         </el-table-column>
@@ -46,7 +46,7 @@
   <UpdateMemberModal ref="updateMemberModal" @ok="getTableData" />
 
   <el-popover :visible="isShowRoleDropdownMenu" :virtual-ref="popoverRefEl" trigger="click" virtual-triggering>
-    <PopperMenu :active-menu-key="currentChangeUser?.role" row-key="value" :menus="userRoles" size="small" class="clear-popover-space" @menu-click="handelChangeUserRole" />
+    <PopperMenu :active-menu-key="currentChangeUser?.role" row-key="value" :menus="userRoles" size="small" class="clear-popover-space" @menu-click="handlerChangeUserRole" />
   </el-popover>
 </template>
 <script setup lang="ts">
@@ -118,7 +118,7 @@ const setButtonRef = (el: any, user: UserInfo) => {
   buttonRefMap[user.id!] = el
 }
 
-const handleRemove = (user: UserInfo) => {
+const handlerRemove = (user: UserInfo) => {
   AsyncMsgBox({
     title: t('app.common.deleteTip'),
     content: t('app.member.tips.deleteMemberTip'),
@@ -129,7 +129,7 @@ const handleRemove = (user: UserInfo) => {
   })
 }
 
-const handelChangeUserRole = async (role: any) => {
+const handlerChangeUserRole = async (role: any) => {
   if (!currentChangeUser.value) {
     return
   }
@@ -147,7 +147,7 @@ const handelChangeUserRole = async (role: any) => {
   }
 }
 
-const handelEditUser = async (user: UserInfo) => {
+const handlerEditUser = async (user: UserInfo) => {
   updateMemberModal.value?.show(user)
 }
 </script>
