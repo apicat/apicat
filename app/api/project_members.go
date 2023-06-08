@@ -88,8 +88,10 @@ func ProjectMembersList(ctx *gin.Context) {
 
 	userIDToNameMap := map[uint]map[string]any{}
 	for _, v := range users {
-		userIDToNameMap[v.ID]["username"] = v.Username
-		userIDToNameMap[v.ID]["is_enabled"] = v.IsEnabled
+		userIDToNameMap[v.ID] = map[string]any{
+			"username":   v.Username,
+			"is_enabled": v.IsEnabled,
+		}
 	}
 
 	membersList := []any{}
