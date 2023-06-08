@@ -147,7 +147,7 @@ func InitApiRouter(r *gin.Engine) {
 				projectMember.GET("", api.ProjectMembersList)
 				projectMember.POST("", api.ProjectMembersCreate)
 				projectMember.PUT("/authority/:user-id", api.ProjectMembersAuthUpdate)
-				projectMember.DELETE("/authority/:user-id", api.ProjectMembersDelete)
+				projectMember.DELETE("/:user-id", api.ProjectMembersDelete)
 				projectMember.GET("/without", api.ProjectMembersWithout)
 			}
 		}
