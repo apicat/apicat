@@ -30,7 +30,7 @@ func NewUsers(ids ...uint) (*Users, error) {
 }
 
 func (u *Users) GetByEmail(email string) error {
-	return Conn.Unscoped().Where("email = ?", email).Take(u).Error
+	return Conn.Where("email = ?", email).Take(u).Error
 }
 
 func (u *Users) List(page, pageSize int) ([]Users, error) {

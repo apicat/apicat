@@ -27,10 +27,10 @@ type UserIDData struct {
 }
 
 type SetMemberData struct {
-	Email     string `json:"email" binding:"required,email,lte=255"`
+	Email     string `json:"email" binding:"omitempty,email,lte=255"`
 	Password  string `json:"password" binding:"omitempty,gte=6,lte=255"`
-	Role      string `json:"role" binding:"required,oneof=admin user"`
-	IsEnabled int    `json:"is_enabled" binding:"oneof=0 1"`
+	Role      string `json:"role" binding:"omitempty,oneof=admin user"`
+	IsEnabled int    `json:"is_enabled" binding:"required,oneof=0 1"`
 }
 
 func GetMembers(ctx *gin.Context) {
@@ -172,9 +172,15 @@ func SetMember(ctx *gin.Context) {
 		return
 	}
 
-	user.Email = data.Email
-	user.Role = data.Role
-	user.IsEnabled = data.IsEnabled
+	if data.Email != "" {
+		user.Email = data.Email
+	}
+	if data.Role != "" {
+		user.Role = data.Role
+	}
+	if data.IsEnabled != 0 {
+		user.IsEnabled = data.IsEnabled
+	}
 	if data.Password != "" {
 		hashedPassword, err := auth.HashPassword(data.Password)
 		if err != nil {
