@@ -107,13 +107,11 @@ func ProjectMembersList(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"current_page":         data.Page,
-		"total_page":           int(math.Ceil(float64(totalMember) / float64(data.PageSize))),
-		"total_project_member": totalMember,
-		"project_members":      membersList,
+		"current_page": data.Page,
+		"total_page":   int(math.Ceil(float64(totalMember) / float64(data.PageSize))),
+		"total":        totalMember,
+		"records":      membersList,
 	})
-
-	ctx.JSON(http.StatusOK, membersList)
 }
 
 // MemberGet retrieves the project member data for a given user and project ID.

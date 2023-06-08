@@ -87,8 +87,8 @@ func GetMembers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"current_page": data.Page,
 		"total_page":   int(math.Ceil(float64(totalUsers) / float64(data.PageSize))),
-		"total_member": totalUsers,
-		"members":      userList,
+		"total":        totalUsers,
+		"records":      userList,
 	})
 }
 
