@@ -443,6 +443,13 @@ func ProjectTransfer(ctx *gin.Context) {
 		return
 	}
 
+	if pm.Authority != models.ProjectMembersWrite {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.TransferFail"}),
+		})
+		return
+	}
+
 	if pm.ProjectID != currentProjectMember.(*models.ProjectMembers).ProjectID {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
