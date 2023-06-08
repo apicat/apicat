@@ -44,8 +44,8 @@ func (pm *ProjectMembers) List(page, pageSize int) ([]ProjectMembers, error) {
 	return projectMembers, Conn.Where("project_id = ?", pm.ProjectID).Limit(pageSize).Offset((page - 1) * pageSize).Order("created_at desc").Find(&projectMembers).Error
 }
 
-func (pm *ProjectMembers) Get() error {
-	return Conn.Take(pm).Error
+func (pm *ProjectMembers) GetByUserIDAndProjectID() error {
+	return Conn.Where("user_id = ? and project_id = ?", pm.UserID, pm.ProjectID).Take(pm).Error
 }
 
 func (pm *ProjectMembers) Create() error {

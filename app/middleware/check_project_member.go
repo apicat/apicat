@@ -17,7 +17,7 @@ func CheckProjectMember() gin.HandlerFunc {
 		member.UserID = user.(*models.Users).ID
 		member.ProjectID = project.(*models.Projects).ID
 
-		if err := member.Get(); err != nil {
+		if err := member.GetByUserIDAndProjectID(); err != nil {
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 			})

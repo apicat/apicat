@@ -298,7 +298,7 @@ func ProjectsGet(ctx *gin.Context) {
 	projectMember, _ := models.NewProjectMembers()
 	projectMember.ProjectID = project.ID
 	projectMember.UserID = currentUser.(*models.Users).ID
-	if err := projectMember.Get(); err != nil {
+	if err := projectMember.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
 		})

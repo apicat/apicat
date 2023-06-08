@@ -86,12 +86,9 @@ func ProjectMembersList(ctx *gin.Context) {
 		return
 	}
 
-	userIDToNameMap := map[uint]map[string]any{}
+	userIDToNameMap := map[uint]*models.Users{}
 	for _, v := range users {
-		userIDToNameMap[v.ID] = map[string]any{
-			"username":   v.Username,
-			"is_enabled": v.IsEnabled,
-		}
+		userIDToNameMap[v.ID] = v
 	}
 
 	membersList := []any{}
@@ -99,9 +96,10 @@ func ProjectMembersList(ctx *gin.Context) {
 		membersList = append(membersList, map[string]any{
 			"id":         v.ID,
 			"user_id":    v.UserID,
-			"username":   userIDToNameMap[v.UserID]["username"],
+			"username":   userIDToNameMap[v.UserID].Username,
 			"authority":  v.Authority,
-			"is_enabled": userIDToNameMap[v.UserID]["is_enabled"],
+			"is_enabled": userIDToNameMap[v.UserID].IsEnabled,
+			"email":      userIDToNameMap[v.UserID].Email,
 			"created_at": v.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
@@ -137,7 +135,7 @@ func MemberGetByUserID(ctx *gin.Context) {
 	pm, _ := models.NewProjectMembers()
 	pm.UserID = user.ID
 	pm.ProjectID = currentProject.(*models.Projects).ID
-	if err := pm.Get(); err != nil {
+	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
 		})
@@ -183,7 +181,7 @@ func ProjectMembersCreate(ctx *gin.Context) {
 	checkMember, _ := models.NewProjectMembers()
 	checkMember.UserID = user.ID
 	checkMember.ProjectID = CurrentProjectMember.(*models.ProjectMembers).ProjectID
-	if err := checkMember.Get(); err == nil {
+	if err := checkMember.GetByUserIDAndProjectID(); err == nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.AlreadyExists"}),
 		})
@@ -201,12 +199,14 @@ func ProjectMembersCreate(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, ProjectMemberData{
-		ID:        pm.ID,
-		UserID:    user.ID,
-		Username:  user.Username,
-		Authority: pm.Authority,
-		CreatedAt: pm.CreatedAt.Format("2006-01-02 15:04:05"),
+	ctx.JSON(http.StatusOK, gin.H{
+		"id":         pm.ID,
+		"user_id":    user.ID,
+		"username":   user.Username,
+		"email":      user.Email,
+		"is_enabled": user.IsEnabled,
+		"authority":  pm.Authority,
+		"created_at": pm.CreatedAt.Format("2006-01-02 15:04:05"),
 	})
 }
 
@@ -231,7 +231,7 @@ func ProjectMembersDelete(ctx *gin.Context) {
 	pm, _ := models.NewProjectMembers()
 	pm.UserID = data.UserID
 	pm.ProjectID = CurrentProjectMember.(*models.ProjectMembers).ProjectID
-	if err := pm.Get(); err != nil {
+	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
 		})
@@ -268,7 +268,7 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 	pm, _ := models.NewProjectMembers()
 	pm.UserID = data.UserID
 	pm.ProjectID = CurrentProjectMember.(*models.ProjectMembers).ProjectID
-	if err := pm.Get(); err != nil {
+	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
 		})
