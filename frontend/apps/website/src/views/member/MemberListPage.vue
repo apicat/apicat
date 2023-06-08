@@ -33,7 +33,7 @@
         <el-table-column :label="$t('app.table.operation')">
           <template #default="{ row }">
             <template v-if="!row.isSelf">
-              <el-button link size="small">{{ $t('app.member.tips.editMember') }}</el-button>
+              <el-button link size="small" @click="handelEditUser(row)">{{ $t('app.member.tips.editMember') }}</el-button>
               <el-button link type="danger" size="small" @click="handleRemove(row)">{{ $t('app.member.tips.removeMember') }}</el-button>
             </template>
           </template>
@@ -43,6 +43,7 @@
   </div>
 
   <AddMemberModal ref="addMemberModal" @ok="getTableData" />
+  <UpdateMemberModal ref="updateMemberModal" @ok="getTableData" />
 
   <el-popover :visible="isShowRoleDropdownMenu" :virtual-ref="popoverRefEl" trigger="click" virtual-triggering>
     <PopperMenu :active-menu-key="currentChangeUser?.role" row-key="value" :menus="userRoles" size="small" class="clear-popover-space" @menu-click="handelChangeUserRole" />
@@ -58,6 +59,7 @@ import { usePopover } from '@/hooks/usePopover'
 import { useUserStore } from '@/store/user'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import NProgress from 'nprogress'
+import UpdateMemberModal from './UpdateMemberModal.vue'
 
 const { t } = useI18n()
 const buttonRefMap: Record<number, any> = {}
@@ -65,6 +67,7 @@ const { userInfo, isSuperAdmin, userRoles } = useUserStore()
 const currentChangeUser = ref<UserInfo | null>()
 
 const addMemberModal = ref<InstanceType<typeof AddMemberModal>>()
+const updateMemberModal = ref<InstanceType<typeof UpdateMemberModal>>()
 
 const {
   isShow: isShowRoleDropdownMenu,
@@ -142,5 +145,9 @@ const handelChangeUserRole = async (role: any) => {
   } finally {
     NProgress.done()
   }
+}
+
+const handelEditUser = async (user: UserInfo) => {
+  updateMemberModal.value?.show(user)
 }
 </script>
