@@ -4,7 +4,7 @@
       <p class="ac-header-operate__title">{{ httpDoc.title }}</p>
     </div>
 
-    <div class="ac-header-operate__btns">
+    <div class="ac-header-operate__btns" v-if="!isReader">
       <el-button type="primary" @click="goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
     </div>
   </div>
@@ -48,7 +48,7 @@ const { project_id } = useParams()
 const { goDocumentEditPage } = useGoPage()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
-const { urlServers } = storeToRefs(projectStore)
+const { urlServers, isReader } = storeToRefs(projectStore)
 const { definitions } = storeToRefs(definitionStore)
 
 const hasDocument = ref(false)
