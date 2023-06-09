@@ -224,6 +224,13 @@ func ProjectMembersDelete(ctx *gin.Context) {
 		return
 	}
 
+	if data.UserID == currentProjectMember.(*models.ProjectMembers).UserID {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.DeleteFailed"}),
+		})
+		return
+	}
+
 	pm, _ := models.NewProjectMembers()
 	pm.UserID = data.UserID
 	pm.ProjectID = currentProjectMember.(*models.ProjectMembers).ProjectID
