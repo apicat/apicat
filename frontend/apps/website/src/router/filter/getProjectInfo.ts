@@ -1,6 +1,8 @@
 import uesProjectStore from '@/store/project'
 import { Router } from 'vue-router'
-import { PROJECT_DETAIL_PATH_NAME } from '../constant'
+import { NOT_FOUND_PATH, NO_PERMISSION_PATH, PROJECT_DETAIL_PATH_NAME } from '../constant'
+import { ProjectInfo } from '@/typings'
+import { MemberAuthorityInProject } from '@/typings/member'
 
 export const setupGetProjectInfoFilter = (router: Router) => {
   router.beforeEach(async (to, from, next) => {
@@ -11,7 +13,17 @@ export const setupGetProjectInfoFilter = (router: Router) => {
       const project_id = to.params.project_id
       if (!projectStore.projectDetailInfo || projectStore.projectDetailInfo.id !== project_id) {
         try {
-          await projectStore.getProjectDetailInfo(project_id as string)
+          const projectInfo: ProjectInfo = await projectStore.getProjectDetailInfo(project_id as string)
+
+          if (!projectInfo) {
+            return next(NOT_FOUND_PATH)
+          }
+
+          // 不在此项目中，无权限
+          if (projectInfo.authority === MemberAuthorityInProject.NONE) {
+            return next(NO_PERMISSION_PATH)
+          }
+
           return next()
         } catch (error) {
           router.replace('/main')

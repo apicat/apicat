@@ -52,15 +52,20 @@ const getDetail = async () => {
     return
   }
   hasDocument.value = true
-  const data = await getDefinitionDetailApi({ project_id, def_id })
 
-  Object.defineProperty(data.schema, '_id', {
-    value: data.id,
-    enumerable: false,
-    configurable: false,
-    writable: false,
-  })
-  definition.value = data
+  try {
+    const data = await getDefinitionDetailApi({ project_id, def_id })
+
+    Object.defineProperty(data.schema, '_id', {
+      value: data.id,
+      enumerable: false,
+      configurable: false,
+      writable: false,
+    })
+    definition.value = data
+  } catch (error) {
+    //
+  }
 }
 
 definitionStore.$onAction(({ name, after, args }) => {

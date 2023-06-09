@@ -57,12 +57,14 @@ import NProgress from 'nprogress'
 import { useParams } from '@/hooks/useParams'
 import uesProjectStore from '@/store/project'
 import AddProjectMember from '../AddProjectMember.vue'
+import { storeToRefs } from 'pinia'
 
 const { t } = useI18n()
 const { project_id } = useParams()
 const buttonRefMap: Record<number, any> = {}
 const { userInfo } = useUserStore()
-const { projectAuths, isManager } = uesProjectStore()
+const projectStore = uesProjectStore()
+const { projectAuths, isManager } = storeToRefs(projectStore)
 const currentChangeUser = ref<ProjectMember | null>()
 const addProjectMemberRef = ref<InstanceType<typeof AddProjectMember>>()
 
@@ -144,9 +146,10 @@ const handlerChangeUserRole = async (role: any) => {
 const handlerTransferProject = async (member: ProjectMember) => {
   AsyncMsgBox({
     title: t('app.common.deleteTip'),
-    content: '确定移交项目给该成员?',
+    content: t('app.project.tips.transferProjectToMember'),
     onOk: async () => {
       await transferProject(project_id as string, member.id!)
+      await projectStore.getProjectDetailInfo(project_id as string)
       await getTableData()
     },
   })

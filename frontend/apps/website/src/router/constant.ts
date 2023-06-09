@@ -6,6 +6,7 @@ export const MAIN_PATH_ALIAS = '/home'
 export const MAIN_PATH_NAME = 'main'
 
 export const NO_PERMISSION_PATH = '/403'
+export const NOT_FOUND_PATH = '/404'
 
 export const LOGIN_PATH = '/login'
 export const REGISTER_PATH = '/register'

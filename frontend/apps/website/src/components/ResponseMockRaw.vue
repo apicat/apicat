@@ -71,7 +71,7 @@ const handlerMock = async (path: string, method: string) => {
         <h3 class="my-6px fw500 text-14px">Response Body</h3>
         <CodeEditor style={{ maxHeight: '400px' }} modelValue={JSON.stringify(mockDataRef.value, null, 2)} lang="json" readonly />
         <div class="text-right mt-20px">
-          <el-button loading={isFetchMockData.value} onClick={async () => fetchMockData(path, method)} icon={<ac-icon-ep-refresh />}>
+          <el-button loading={isFetchMockData.value} onClick={() => fetchMockData(path, method)} icon={<ac-icon-ep-refresh />}>
             Refresh
           </el-button>
         </div>

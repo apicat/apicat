@@ -65,12 +65,17 @@ import { FormInstance } from 'element-plus'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import { useI18n } from 'vue-i18n'
 import { useProjectCover } from '../logic/useProjectCover'
+import { storeToRefs } from 'pinia'
 
 const { t } = useI18n()
 const router = useRouter()
-const { projectDetailInfo, setCurrentProjectInfo, isManager } = uesProjectStore()
+const projectStore = uesProjectStore()
+const { projectDetailInfo, setCurrentProjectInfo } = projectStore
+const { isManager } = storeToRefs(projectStore)
+
 const [isLoading, updateProjectBaseInfoApi] = updateProjectBaseInfo()
 const [isDeleteLoading, deleleProjectApi] = deleleProject()
+
 const form: ProjectInfo = reactive({
   id: projectDetailInfo!.id,
   title: projectDetailInfo!.title,

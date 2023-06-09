@@ -71,7 +71,7 @@ const getDetail = async (docId: string) => {
     hasDocument.value = true
     httpDoc.value = await getCollectionDetailApi({ project_id, collection_id: doc_id })
   } catch (error) {
-    console.error(error)
+    //
   }
 }
 

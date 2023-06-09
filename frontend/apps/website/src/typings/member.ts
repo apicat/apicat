@@ -6,6 +6,7 @@ export const enum MemberAuthorityInProject {
   MANAGER = 'manage',
   WRITE = 'write',
   READ = 'read',
+  NONE = 'none',
 }
 
 export const MemberAuthorityMap = {
