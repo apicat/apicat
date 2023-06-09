@@ -26,6 +26,7 @@ export default {
       savedCloud: '已保存在云端',
       preview: '预览',
       goHome: '回到首页',
+      goProjectList: '返回项目列表',
       setting: '设置',
       register: '注册',
       registerAccount: '注册账号',
@@ -33,6 +34,7 @@ export default {
     },
     tips: {
       notFound: '啊哦，网页走丢了，正在努力寻找中…',
+      noPermission: '暂无权限访问…',
       copyed: '复制成功',
     },
     table: {

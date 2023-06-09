@@ -2,9 +2,7 @@ import { RouteRecordRaw } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'
 import { pojectsRoute } from './projects'
 import { membersRoute } from './members'
-
-export const MAIN_PATH = '/main'
-export const MAIN_PATH_NAME = 'main'
+import { MAIN_PATH, MAIN_PATH_NAME } from './constant'
 
 export const mainRoute: RouteRecordRaw = {
   name: MAIN_PATH_NAME,
