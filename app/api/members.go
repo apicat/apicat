@@ -23,7 +23,7 @@ type AddMemberData struct {
 }
 
 type UserIDData struct {
-	UserID int `uri:"user-id" binding:"required,gte=1"`
+	UserID uint `uri:"user-id" binding:"required,gte=1"`
 }
 
 type SetMemberData struct {
@@ -93,6 +93,14 @@ func GetMembers(ctx *gin.Context) {
 }
 
 func AddMember(ctx *gin.Context) {
+	currentUser, _ := ctx.Get("CurrentUser")
+	if currentUser.(*models.Users).Role != "superadmin" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	var data AddMemberData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -141,6 +149,14 @@ func AddMember(ctx *gin.Context) {
 }
 
 func SetMember(ctx *gin.Context) {
+	currentUser, _ := ctx.Get("CurrentUser")
+	if currentUser.(*models.Users).Role != "superadmin" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	var userIDData UserIDData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&userIDData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -157,7 +173,7 @@ func SetMember(ctx *gin.Context) {
 		return
 	}
 
-	user, err := models.NewUsers(uint(userIDData.UserID))
+	user, err := models.NewUsers(userIDData.UserID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.UpdateFailed"}),
@@ -201,6 +217,14 @@ func SetMember(ctx *gin.Context) {
 }
 
 func DeleteMember(ctx *gin.Context) {
+	currentUser, _ := ctx.Get("CurrentUser")
+	if currentUser.(*models.Users).Role != "superadmin" {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	var userIDData UserIDData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&userIDData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -209,7 +233,14 @@ func DeleteMember(ctx *gin.Context) {
 		return
 	}
 
-	user, err := models.NewUsers(uint(userIDData.UserID))
+	if currentUser.(*models.Users).ID == userIDData.UserID {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
+		})
+		return
+	}
+
+	user, err := models.NewUsers(userIDData.UserID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
