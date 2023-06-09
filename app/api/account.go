@@ -103,7 +103,7 @@ func EmailRegister(ctx *gin.Context) {
 	if userCount == 0 {
 		user.Role = "superadmin"
 	} else {
-		user.Role = "user"
+		user.Role = "admin"
 	}
 
 	if err := user.Save(); err != nil {
