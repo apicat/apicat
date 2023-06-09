@@ -52,6 +52,7 @@ func InitApiRouter(r *gin.Engine) {
 		{
 			projects.GET("", middleware.JWTAuthMiddleware(), api.ProjectsList)
 			projects.POST("", middleware.JWTAuthMiddleware(), api.ProjectsCreate)
+			projects.GET("/:project-id", middleware.JWTAuthMiddleware(), api.ProjectsGet)
 			projects.GET("/:project-id/data", api.ProjectDataGet)
 		}
 
@@ -77,7 +78,6 @@ func InitApiRouter(r *gin.Engine) {
 		{
 			projects := project.Group("")
 			{
-				projects.GET("", api.ProjectsGet)
 				projects.PUT("", api.ProjectsUpdate)
 				projects.DELETE("", api.ProjectsDelete)
 				projects.DELETE("/exit", api.ProjectExit)
