@@ -1,6 +1,6 @@
 import { useUserStoreWithOut } from '@/store/user'
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { API_URL, REQUEST_TIMEOUT } from '@/commons/constant'
+import { API_URL, PERMISSION_CHANGE_CODE, REQUEST_TIMEOUT } from '@/commons/constant'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Storage from '@/commons/storage'
 import { LOGIN_PATH, router } from '@/router'
@@ -15,7 +15,7 @@ const baseConfig = {
   },
 }
 
-let IS_SHOW_AUTH_CHANGE_MODAL = false
+let isShowPermissionChangeModal = false
 
 export const DefaultAjax = axios.create(baseConfig)
 export const QuietAjax = axios.create(baseConfig)
@@ -49,27 +49,46 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
         break
 
       case 403: // 无权限
+        const { code } = response.data
         errorMsg = ''
 
-        if (IS_SHOW_AUTH_CHANGE_MODAL) {
+        if (isShowPermissionChangeModal) {
           ElMessage.closeAll()
           return Promise.reject(error)
         }
 
-        ElMessageBox({
-          type: 'warning',
-          message: t('app.tips.permissionChange'),
-          title: t('app.tips.permissionChangeTitle'),
-          'show-close': false,
-          'close-on-click-modal': false,
-          'close-on-press-escape': false,
-          'show-cancel-button': false,
-          confirmButtonText: '刷新',
-          callback() {
-            IS_SHOW_AUTH_CHANGE_MODAL = true
-            location.reload()
-          },
-        } as any)
+        code === PERMISSION_CHANGE_CODE.USER_PREMISSION_ERROR &&
+          ElMessageBox({
+            type: 'warning',
+            title: t('app.tips.permissionChangeTitle'),
+            message: t('app.user.tips.permissionChange'),
+            'show-close': false,
+            'close-on-click-modal': false,
+            'close-on-press-escape': false,
+            'show-cancel-button': false,
+            confirmButtonText: '刷新',
+            callback() {
+              isShowPermissionChangeModal = true
+              useUserStore.clearUserInfo()
+              location.reload()
+            },
+          } as any)
+
+        code === PERMISSION_CHANGE_CODE.MEMBER_PREMISSION_ERROR &&
+          ElMessageBox({
+            type: 'warning',
+            title: t('app.tips.permissionChangeTitle'),
+            message: t('app.project.tips.permissionChange'),
+            'show-close': false,
+            'close-on-click-modal': false,
+            'close-on-press-escape': false,
+            'show-cancel-button': false,
+            confirmButtonText: '刷新',
+            callback() {
+              isShowPermissionChangeModal = true
+              location.reload()
+            },
+          } as any)
 
         break
 

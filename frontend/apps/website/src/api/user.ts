@@ -11,3 +11,5 @@ export const logout = () => Ajax.post('/logout')
 export const modifyPassword = (data = {}) => Ajax.put('/user/self/password', { ...data })
 
 export const modifyUserInfo = (data = {}) => Ajax.put('/user/self', { ...data })
+// 获取用户信息
+export const getUserInfo = () => Ajax.get('/user/self')

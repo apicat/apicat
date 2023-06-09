@@ -4,7 +4,7 @@
       {{ $t('app.project.list.tabTitle') }}
     </p>
 
-    <ul class="ac-project-list my-20px py-10px">
+    <ul class="ac-project-list my-20px py-10px" v-if="!isNormalUser">
       <li class="flex flex-col justify-between rounded cursor-pointer w-250px h-156px hover:shadow-lg bg-gray-110 px-20px py-16px" @click="handleShowModelClick">
         <ac-icon-ep-plus class="text-18px" />
         <p>{{ $t('app.project.createModal.title') }}</p>
@@ -33,10 +33,12 @@ import uesProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'
 import { storeToRefs } from 'pinia'
 import { ProjectCover } from '@/typings'
+import { useUserStore } from '@/store/user'
 
 const createProjectModal = ref<InstanceType<typeof CreateProjectModal>>()
 const handleShowModelClick = () => createProjectModal.value!.show()
 const projectStore = uesProjectStore()
+const { isNormalUser } = useUserStore()
 const { projectList } = storeToRefs(projectStore)
 const [isLoading, getProjectListApi] = useApi(projectStore.getProjects)
 

@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { router } from '@/router'
 import { MAIN_PATH, LOGIN_PATH } from '@/router'
 import Storage from '@/commons/storage'
-import { userEmailLogin, userRegister, modifyUserInfo, modifyPassword } from '@/api/user'
+import { userEmailLogin, userRegister, modifyUserInfo, modifyPassword, getUserInfo } from '@/api/user'
 import { UserInfo, UserRoleInTeam, UserRoleInTeamMap } from '@/typings/user'
 import { pinia } from '@/plugins'
 
@@ -22,6 +22,7 @@ export const useUserStore = defineStore({
   getters: {
     isLogin: (state) => !!state.token,
     isSuperAdmin: (state) => state.userInfo.role === UserRoleInTeam.SUPER_ADMIN,
+    isNormalUser: (state) => state.userInfo.role === UserRoleInTeam.USER,
     userRoles: () =>
       Object.keys(UserRoleInTeamMap)
         .filter((key: string) => key !== UserRoleInTeam.SUPER_ADMIN)
@@ -54,6 +55,15 @@ export const useUserStore = defineStore({
         this.updateUserInfo(data.user)
         this.goHome()
         return data
+      } catch (error) {
+        //
+      }
+    },
+
+    async getUserInfo() {
+      try {
+        const user: any = await getUserInfo()
+        this.updateUserInfo(user)
       } catch (error) {
         //
       }
@@ -98,6 +108,10 @@ export const useUserStore = defineStore({
     updateUserInfo(user: UserInfo) {
       this.$patch({ userInfo: { ...this.userInfo, ...user } })
       Storage.set(Storage.KEYS.USER, this.userInfo)
+    },
+
+    clearUserInfo() {
+      Storage.remove(Storage.KEYS.USER)
     },
   },
 })

@@ -5,6 +5,16 @@ import { useI18n } from 'vue-i18n'
 // API请求前缀
 export const API_URL = '/api'
 
+// 权限变更状态码
+export const enum PERMISSION_CHANGE_CODE {
+  // 用户权限变更
+  USER_PREMISSION_ERROR = 101,
+  // 项目中的成员权限变更
+  MEMBER_PREMISSION_ERROR = 201,
+  // 目标成员在项目中的权限发生变更
+  TARGET_MEMBER_PREMISSION_ERROR = 202,
+}
+
 // 请求超时时长
 export const REQUEST_TIMEOUT = 1000 * 60
 

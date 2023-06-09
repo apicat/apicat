@@ -86,6 +86,7 @@ const { currentPage, pageSize, total, data, isLoading, getTableData } = useTable
     user.accountStatus = user.is_enabled ? t('app.member.form.accountStatusNormal') : t('app.member.form.accountStatusLock')
     user.accountStatusType = user.is_enabled ? '' : 'info'
     user.isSelf = user.id === userInfo.id
+    user.username = user.isSelf ? `${user.username}(我)` : user.username
     return user
   },
 })
