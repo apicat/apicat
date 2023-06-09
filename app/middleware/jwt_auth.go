@@ -40,7 +40,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 			return
 		}
 
-		if mc.User == nil {
+		if mc.UserID == 0 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
 			})
@@ -48,7 +48,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 			return
 		}
 
-		user, err := models.NewUsers(mc.User.ID)
+		user, err := models.NewUsers(mc.UserID)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
