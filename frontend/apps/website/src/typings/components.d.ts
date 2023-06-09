@@ -27,6 +27,7 @@ declare module '@vue/runtime-core' {
     AcIconEpLoading: typeof import('~icons/ep/loading')['default']
     AcIconEpMoreFilled: typeof import('~icons/ep/more-filled')['default']
     AcIconEpPlus: typeof import('~icons/ep/plus')['default']
+    AcIconEpRefresh: typeof import('~icons/ep/refresh')['default']
     AcIconEpSort: typeof import('~icons/ep/sort')['default']
     AcIconIcOutlineContentCopy: typeof import('~icons/ic/outline-content-copy')['default']
     AcIconIcSharpCloudQueue: typeof import('~icons/ic/sharp-cloud-queue')['default']
