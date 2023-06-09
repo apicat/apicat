@@ -2,7 +2,7 @@
   <div class="container flex flex-col justify-center mx-auto px-20px">
     <div class="flex justify-between border-b border-solid border-gray-lighter py-20px mt-20px text-20px">
       <p>{{ $t('app.member.form.title') }}</p>
-      <el-button type="primary" @click="addMemberModal?.show()">{{ $t('app.member.tips.addMember') }}</el-button>
+      <el-button v-if="isSuperAdmin" type="primary" @click="addMemberModal?.show()">{{ $t('app.member.tips.addMember') }}</el-button>
     </div>
     <AcSimpleTable class="mt-40px" isShowPager v-model:page="currentPage" v-model:page-size="pageSize" :columns="columns" :table-data="data" :loading="isLoading" :total="total">
       <template #accountStatus>
