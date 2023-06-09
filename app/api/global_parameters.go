@@ -6,6 +6,7 @@ import (
 
 	"github.com/apicat/apicat/common/apicat_struct"
 	"github.com/apicat/apicat/common/translator"
+	"github.com/apicat/apicat/enum"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
@@ -100,6 +101,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -171,6 +173,7 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -237,6 +240,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return

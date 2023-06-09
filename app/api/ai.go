@@ -11,6 +11,7 @@ import (
 	"github.com/apicat/apicat/common/spec/plugin/openapi"
 	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/config"
+	"github.com/apicat/apicat/enum"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"
@@ -37,6 +38,7 @@ func AICreateCollection(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -141,6 +143,7 @@ func AICreateSchema(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -236,6 +239,7 @@ func AICreateApiNames(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return

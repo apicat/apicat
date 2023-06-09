@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/apicat/apicat/common/translator"
+	"github.com/apicat/apicat/enum"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
@@ -157,6 +158,7 @@ func ProjectMembersCreate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -211,6 +213,7 @@ func ProjectMembersDelete(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -255,6 +258,7 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -300,6 +304,7 @@ func ProjectMembersWithout(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
