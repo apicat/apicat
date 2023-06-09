@@ -6,10 +6,10 @@ const createAsyncMsgBox =
     cb = cb || onOk
     message = message || content
     return $msgbox({
+      showCancelButton: true,
       ...rest,
       title: title,
       message,
-      showCancelButton: true,
       beforeClose: function (action, instance, done) {
         if (action === 'confirm') {
           instance.confirmButtonLoading = true

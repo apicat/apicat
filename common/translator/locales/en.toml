@@ -157,6 +157,9 @@ other = "Collection delete failed"
 [Auth.TokenParsingFailed]
 other = "Login is unusual, please login again"
 
+[Auth.AccountDisabled]
+other = "This account has been disabled by an administrator"
+
 [User.LoginFailed]
 other = "Login failed"
 
@@ -174,6 +177,18 @@ other = "Account does not exist"
 
 [User.WrongPassword]
 other = "Wrong password"
+
+[Member.QueryFailed]
+other = "Member information query failed"
+
+[Member.CreateFailed]
+other = "Failed to add member"
+
+[Member.UpdateFailed]
+other = "Failed to modify member"
+
+[Member.DeleteFailed]
+other = "Failed to delete member"
 
 [ProjectMember.NotFound]
 other = "Project member information does not exist"

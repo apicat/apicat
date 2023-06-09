@@ -4,13 +4,12 @@ import (
 	"errors"
 	"time"
 
-	"github.com/apicat/apicat/models"
 	"github.com/dgrijalva/jwt-go"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type MyClaims struct {
-	User *models.Users `json:"user"`
+	UserID uint `json:"user_id"`
 	jwt.StandardClaims
 }
 
@@ -21,9 +20,9 @@ const TokenExpireDuration = time.Hour * 24 * 30
 var MySecret = []byte("这是一段用于生成token的密钥")
 
 // 生成JWT
-func GenerateToken(user *models.Users) (string, error) {
+func GenerateToken(userID uint) (string, error) {
 	c := MyClaims{
-		user,
+		userID,
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(TokenExpireDuration).Unix(),
 			Issuer:    "apicat",

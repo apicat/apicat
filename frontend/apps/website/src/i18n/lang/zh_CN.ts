@@ -26,6 +26,7 @@ export default {
       savedCloud: '已保存在云端',
       preview: '预览',
       goHome: '回到首页',
+      goProjectList: '返回项目列表',
       setting: '设置',
       register: '注册',
       registerAccount: '注册账号',
@@ -33,6 +34,9 @@ export default {
     },
     tips: {
       notFound: '啊哦，网页走丢了，正在努力寻找中…',
+      noPermission: '暂无权限访问…',
+      permissionChangeTitle: '权限变更提示',
+      permissionChange: '您所在的项目权限发生变更，请刷新后操作。',
       copyed: '复制成功',
     },
     table: {
@@ -83,9 +87,15 @@ export default {
     },
     project: {
       title: '项目',
+      tips: {
+        quitProjectTitle: '退出项目',
+        quitProject: '确定退出该项目吗？',
+        transferProjectToMember: '确定移交项目给该成员？',
+      },
       list: {
         title: '项目列表',
         tabTitle: '项目',
+        auth: '项目权限',
       },
       form: {
         cover: '项目封面',
@@ -98,6 +108,7 @@ export default {
         title: '请输入项目名称',
         titleMinLength: '项目名称不能少于两个字',
         desc: '请输入项目描述信息',
+        chooseMember: '请选择成员',
       },
       createModal: {
         title: '创建项目',
@@ -109,14 +120,44 @@ export default {
       setting: {
         title: '项目管理',
         baseInfo: '项目设置',
+        quitProject: '退出项目',
         serverUrl: 'URL设置',
         globalParam: '全局参数设置',
         responseParam: '公共响应设置',
+        member: '项目成员',
         export: '导出项目',
         deleteProject: '删除该项目',
         deleteProjectTip: '确定删除该项目吗？<br/> <span style="color:var(--el-color-danger)">项目删除后，相关人员将无法操作该项目。</span>',
         trash: '回收站',
       },
+      member: {
+        title: '项目成员',
+        addMember: '添加成员',
+        transferProject: '移交项目',
+        deleteMember: '删除成员',
+        chooseMember: '选择成员',
+        chooseAuth: '选择权限',
+      },
+    },
+    member: {
+      title: '成员',
+      tips: {
+        addMember: '添加成员',
+        editMember: '编辑成员',
+        removeMember: '删除成员',
+        deleteMemberTip: '确定删除该成员吗？',
+      },
+      form: {
+        title: '成员列表',
+        name: '名称',
+        email: '邮箱',
+        password: '密码',
+        role: '团队角色',
+        accountStatus: '账号状态',
+        accountStatusNormal: '正常',
+        accountStatusLock: '禁用',
+      },
+      rules: {},
     },
     serverUrl: {
       rules: {

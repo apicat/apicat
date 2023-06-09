@@ -20,15 +20,26 @@ const userSettingMenus = [
   { elIcon: markRaw(AcIconUserSetting), text: t('app.user.nav.userSetting'), size: 18, onClick: onUserSettingIconClick },
   { elIcon: markRaw(AcIconLogout), text: t('app.user.nav.logout'), size: 18, onClick: handleLogout },
 ]
+
+const navMenus: Array<{ name: string; path: string; icon: string }> = [
+  { name: t('app.project.title'), path: '/projects', icon: 'ac-xiangmu' },
+  { name: t('app.member.title'), path: '/members', icon: 'ac-xiangmu' },
+]
 </script>
 
 <template>
   <aside :class="ns.b()">
     <AcLogo pure />
     <main class="flex-1 w-full mt-30px px-5px">
-      <router-link to="/projects" class="flex flex-col items-center rounded hover:bg-gray-110 pt-10px pb-11px" active-class="font-500 bg-gray-110">
-        <Iconfont :size="28" icon="ac-xiangmu" />
-        <p>{{ $t('app.project.title') }}</p>
+      <router-link
+        v-for="menu in navMenus"
+        :key="menu.path"
+        :to="menu.path"
+        class="flex flex-col items-center rounded hover:bg-gray-110 pt-10px pb-11px mb-10px"
+        active-class="font-500 bg-gray-110"
+      >
+        <Iconfont :size="28" :icon="menu.icon" />
+        <p>{{ menu.name }}</p>
       </router-link>
     </main>
 

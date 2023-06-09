@@ -1,12 +1,16 @@
 import { DocumentTypeEnum, ProjectNavigateObject } from '@/commons/constant'
+import { MemberAuthorityInProject } from './member'
 
-export interface ProjectCover {
+export declare interface ProjectCover {
   type: 'icon' | 'url'
   coverBgColor?: string
   coverIcon?: string
   coverUrl?: string
 }
 
+/**
+ * 项目信息
+ */
 export declare interface ProjectInfo {
   /**
    * 创建时间
@@ -24,7 +28,15 @@ export declare interface ProjectInfo {
    * 项目名称
    */
   title: string
+  /**
+   * 项目封面
+   */
   cover?: string | ProjectCover
+
+  /**
+   * 当前成员在此项目的权限
+   */
+  authority?: MemberAuthorityInProject
 }
 
 /**
@@ -59,7 +71,7 @@ export declare interface CollectionNode {
 /**
  * schema 节点
  */
-export interface SchemaNode {
+export declare interface SchemaNode {
   /**
    * 模型描述
    */
@@ -87,7 +99,7 @@ export type { ProjectNavigateObject }
 /**
  * trash_list
  */
-export interface TrashModel {
+export declare interface TrashModel {
   /**
    * 删除时间
    */

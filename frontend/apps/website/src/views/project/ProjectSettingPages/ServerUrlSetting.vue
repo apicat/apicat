@@ -5,7 +5,7 @@
         <el-row class="flex-1">
           <el-col :span="14" class="pr-2">
             <el-form-item :prop="'urls.' + index + '.url'" :rules="rules.urlItem">
-              <el-input v-model.trim="item.url" :placeholder="$t('app.form.serverUrl.url')" maxlength="255" clearable />
+              <el-input :disabled="isReader" v-model.trim="item.url" :placeholder="$t('app.form.serverUrl.url')" maxlength="255" clearable />
             </el-form-item>
           </el-col>
 
@@ -22,7 +22,7 @@
       </el-form-item>
     </div>
 
-    <el-form-item label="">
+    <el-form-item label="" v-if="!isReader">
       <el-col :span="20">
         <el-button class="add-child-btn mt-2.5 w-full" @click="onAddNavItemBtnClick">
           {{ $t('app.common.add') }}
@@ -30,7 +30,7 @@
       </el-col>
     </el-form-item>
 
-    <el-form-item class="mt-5 mb-0">
+    <el-form-item class="mt-5 mb-0" v-if="!isReader">
       <el-button type="primary" :loading="isLoading" @click="handleSubmit(navFormRef)"> {{ $t('app.common.save') }} </el-button>
     </el-form-item>
   </el-form>
@@ -46,11 +46,13 @@ import uesProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'
 import { useI18n } from 'vue-i18n'
 import { cloneDeep } from 'lodash-es'
+import { storeToRefs } from 'pinia'
 
 const ns = useNamespace('url-list')
 const { t } = useI18n()
 const project_id = useProjectId()
 const projectStore = uesProjectStore()
+const { isReader } = storeToRefs(projectStore)
 const navFormRef = shallowRef()
 const [isLoading, saveProjectServerUrlListApi] = useApi(projectStore.saveProjectServerUrlListApi)
 const [isLoadingUrls, getProjectServerUrlListApi] = useApi(projectStore.getUrlServers)

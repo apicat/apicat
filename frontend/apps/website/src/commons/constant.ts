@@ -46,13 +46,15 @@ export const enum ImportOrExportState {
 /**
  * 项目布局中导航菜单
  */
-export const enum ProjectNavigateListEnum {
+export enum ProjectNavigateListEnum {
   BaseInfoSetting = 'BaseInfoSetting',
+  ProjectMemberList = 'ProjectMemberList',
   ServerUrlSetting = 'ServerUrlSetting',
   GlobalParamsSetting = 'GlobalParamsSetting',
   ResponseParamsSetting = 'ResponseParamsSetting',
   ProjectExport = 'ProjectExport',
   ProjectTrash = 'ProjectTrash',
+  QuitProject = 'QuitProject',
 }
 
 export type ProjectNavigateObject = { [key in ProjectNavigateListEnum]: Menu }
@@ -67,9 +69,9 @@ export const getProjectNavigateList = (overwrite?: any): ProjectNavigateObject =
 
   const navs = {
     [ProjectNavigateListEnum.BaseInfoSetting]: { text: t('app.project.setting.baseInfo'), icon: 'ac-IconPopoverSetting' },
+    [ProjectNavigateListEnum.ProjectMemberList]: { text: t('app.project.setting.member'), icon: 'ac-response' },
     [ProjectNavigateListEnum.ServerUrlSetting]: { text: t('app.project.setting.serverUrl'), icon: 'ac-suffix-url' },
     [ProjectNavigateListEnum.GlobalParamsSetting]: { text: t('app.project.setting.globalParam'), icon: 'ac-canshuweihu' },
-    // [ProjectNavigateListEnum.ResponseParamsSetting]: { text: t('app.project.setting.responseParam'), icon: 'ac-response' },
     [ProjectNavigateListEnum.ProjectExport]: { text: t('app.project.setting.export'), icon: 'ac-export' },
     [ProjectNavigateListEnum.ProjectTrash]: { text: t('app.project.setting.trash'), icon: 'ac-trash' },
   } as any

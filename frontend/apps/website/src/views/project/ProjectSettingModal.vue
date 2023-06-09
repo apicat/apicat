@@ -25,27 +25,36 @@
 import ModalLayout from '@/layouts/ModalLayout.vue'
 import { useModal } from '@/hooks'
 import { Menu } from '@/components/typings'
-import { ProjectNavigateObject } from '@/typings/project'
 import { getProjectNavigateList, ProjectNavigateListEnum } from '@/commons/constant'
 import BaseInfoSetting from './ProjectSettingPages/BaseInfoSetting.vue'
+import ProjectMemberList from './ProjectSettingPages/ProjectMemberList.vue'
 import ServerUrlSetting from './ProjectSettingPages/ServerUrlSetting.vue'
 import GlobalParametersSetting from './ProjectSettingPages/GlobalParametersSetting.vue'
 import ProjectExportPage from './ProjectSettingPages/ProjectExportPage.vue'
 import ProjectTrashPage from './ProjectSettingPages/ProjectTrashPage.vue'
 
-const menus: ProjectNavigateObject = getProjectNavigateList({
+const menus = getProjectNavigateList({
   [ProjectNavigateListEnum.BaseInfoSetting]: { component: BaseInfoSetting },
+  [ProjectNavigateListEnum.ProjectMemberList]: { component: ProjectMemberList },
   [ProjectNavigateListEnum.ServerUrlSetting]: { component: ServerUrlSetting },
   [ProjectNavigateListEnum.GlobalParamsSetting]: { component: GlobalParametersSetting },
   [ProjectNavigateListEnum.ProjectExport]: { component: ProjectExportPage },
   [ProjectNavigateListEnum.ProjectTrash]: { component: ProjectTrashPage },
 })
 
-const activeTab = shallowRef<{ menu: any; type: ProjectNavigateListEnum }>({ menu: menus[ProjectNavigateListEnum.BaseInfoSetting], type: ProjectNavigateListEnum.BaseInfoSetting })
+const activeTab = shallowRef<{ menu: any; type: ProjectNavigateListEnum }>({
+  menu: menus[ProjectNavigateListEnum.BaseInfoSetting],
+  type: ProjectNavigateListEnum.BaseInfoSetting,
+})
 
 const { dialogVisible, showModel } = useModal()
 
-const onMenuTabClick = (menu: Menu, type: ProjectNavigateListEnum) => {
+const onMenuTabClick = async (menu: Menu, type: ProjectNavigateListEnum) => {
+  if (menu.action) {
+    await menu.action()
+    return
+  }
+
   activeTab.value = {
     type,
     menu,

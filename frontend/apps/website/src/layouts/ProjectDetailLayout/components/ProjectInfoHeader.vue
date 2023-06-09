@@ -24,17 +24,50 @@ import { useNamespace } from '@/hooks/useNamespace'
 import ProjectSettingModal from '@/views/project/ProjectSettingModal.vue'
 import { Menu } from '@/components/typings'
 import { getProjectNavigateList, ProjectNavigateListEnum } from '@/commons/constant'
-import { ProjectNavigateObject } from '@/typings/project'
 import { storeToRefs } from 'pinia'
+import { AsyncMsgBox } from '@/components/AsyncMessageBox'
+import { useI18n } from 'vue-i18n'
+import { quitProject } from '@/api/project'
+import { useUserStore } from '@/store/user'
 
 const ns = useNamespace('project-info')
 const projectSettingModalRef = ref<InstanceType<typeof ProjectSettingModal>>()
 const projectStore = uesProjectStore()
-const { projectDetailInfo } = storeToRefs(projectStore)
+const { projectDetailInfo, isManager } = storeToRefs(projectStore)
+const { t } = useI18n()
 
-const allMenus: ProjectNavigateObject = getProjectNavigateList()
+const allMenus = computed(() => {
+  const menus = getProjectNavigateList()
+  if (!isManager.value) {
+    menus[ProjectNavigateListEnum.QuitProject] = {
+      text: t('app.project.setting.quitProject'),
+      icon: 'ac-trash',
+      action: handlerQuitProject,
+    }
+  }
+  return menus
+})
 
-const onMenuItemClick = (menu: Menu, key: ProjectNavigateListEnum) => unref(projectSettingModalRef)!.show(key)
+const handlerQuitProject = async () => {
+  AsyncMsgBox({
+    title: t('app.project.tips.quitProjectTitle'),
+    content: t('app.project.tips.quitProject'),
+    onOk: async () => {
+      try {
+        await quitProject(projectDetailInfo.value?.id! as string)
+        projectStore.clearCurrentProjectInfo()
+        useUserStore().goHome()
+      } catch (error) {}
+    },
+  })
+}
+
+const onMenuItemClick = async (menu: Menu, key: ProjectNavigateListEnum) => {
+  if (menu.action) {
+    return await menu.action()
+  }
+  unref(projectSettingModalRef)!.show(key)
+}
 </script>
 
 <style lang="scss" scoped>

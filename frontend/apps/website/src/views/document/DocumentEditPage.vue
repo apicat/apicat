@@ -93,7 +93,7 @@ const getDetail = async () => {
   try {
     httpDoc.value = await getCollectionDetailApi({ project_id, collection_id: route.params.doc_id })
   } catch (error) {
-    console.error(error)
+    //
   }
 }
 

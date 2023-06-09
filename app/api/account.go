@@ -44,7 +44,7 @@ func EmailLogin(ctx *gin.Context) {
 		return
 	}
 
-	token, err := auth.GenerateToken(user)
+	token, err := auth.GenerateToken(user.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.LoginFailed"}),
@@ -103,7 +103,7 @@ func EmailRegister(ctx *gin.Context) {
 	if userCount == 0 {
 		user.Role = "superadmin"
 	} else {
-		user.Role = "admin"
+		user.Role = "user"
 	}
 
 	if err := user.Save(); err != nil {
@@ -113,7 +113,7 @@ func EmailRegister(ctx *gin.Context) {
 		return
 	}
 
-	token, err := auth.GenerateToken(user)
+	token, err := auth.GenerateToken(user.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.RegistrationFailed"}),
