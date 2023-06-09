@@ -120,7 +120,7 @@ func DefinitionResponsesDetail(ctx *gin.Context) {
 }
 
 func DefinitionResponsesCreate(ctx *gin.Context) {
-	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -201,7 +201,7 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 }
 
 func DefinitionResponsesUpdate(ctx *gin.Context) {
-	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -269,7 +269,7 @@ func DefinitionResponsesUpdate(ctx *gin.Context) {
 }
 
 func DefinitionResponsesDelete(ctx *gin.Context) {
-	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),

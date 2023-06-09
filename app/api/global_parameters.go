@@ -97,7 +97,7 @@ func GlobalParametersList(ctx *gin.Context) {
 }
 
 func GlobalParametersCreate(ctx *gin.Context) {
-	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -168,7 +168,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 }
 
 func GlobalParametersUpdate(ctx *gin.Context) {
-	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -234,7 +234,7 @@ type IsUnRefData struct {
 }
 
 func GlobalParametersDelete(ctx *gin.Context) {
-	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),

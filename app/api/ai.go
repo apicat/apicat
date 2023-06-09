@@ -34,7 +34,7 @@ type AICreateApiNameStructure struct {
 }
 
 func AICreateCollection(ctx *gin.Context) {
-	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -138,7 +138,7 @@ func AICreateCollection(ctx *gin.Context) {
 }
 
 func AICreateSchema(ctx *gin.Context) {
-	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -233,7 +233,7 @@ func AICreateSchema(ctx *gin.Context) {
 }
 
 func AICreateApiNames(ctx *gin.Context) {
-	currentProjectMember, _ := ctx.Get("currentProjectMember")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
