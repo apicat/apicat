@@ -184,17 +184,20 @@ func SetMember(ctx *gin.Context) {
 		return
 	}
 
+	if data.Email != "" {
+		checkUser, _ := models.NewUsers()
+		if err := checkUser.GetByEmail(data.Email); err == nil && checkUser.ID != userIDData.UserID {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.MailboxAlreadyExists"}),
+			})
+			return
+		}
+	}
+
 	user, err := models.NewUsers(userIDData.UserID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.UpdateFailed"}),
-		})
-		return
-	}
-
-	if err := user.GetByEmail(data.Email); err == nil && user.ID != userIDData.UserID {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.MailboxAlreadyExists"}),
 		})
 		return
 	}
