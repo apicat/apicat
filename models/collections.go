@@ -75,7 +75,7 @@ func Deletes(id uint, db *gorm.DB, deletedBy uint) error {
 			return err
 		}
 
-		if err := Conn.Unscoped().Model(collection).Updates(map[string]interface{}{"deleted_by": deletedBy}).Error; err != nil {
+		if err := tx.Unscoped().Model(collection).Updates(map[string]interface{}{"deleted_by": deletedBy}).Error; err != nil {
 			return err
 		}
 
