@@ -1,8 +1,8 @@
 @font-face {
   font-family: "ac-iconfont"; /* Project id 3982489 */
-  src: url('iconfont.woff2?t=1686542117527') format('woff2'),
-       url('iconfont.woff?t=1686542117527') format('woff'),
-       url('iconfont.ttf?t=1686542117527') format('truetype');
+  src: url('iconfont.woff2?t=1686565472751') format('woff2'),
+       url('iconfont.woff?t=1686565472751') format('woff'),
+       url('iconfont.ttf?t=1686565472751') format('truetype');
 }
 
 .ac-iconfont {
@@ -11,6 +11,10 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.ac-wuquanxian:before {
+  content: "\e6d5";
 }
 
 .ac-members:before {
