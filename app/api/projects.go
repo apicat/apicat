@@ -439,7 +439,7 @@ func ProjectTransfer(ctx *gin.Context) {
 	if pm.Authority != models.ProjectMembersWrite {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.TargetProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.TransferFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
 		})
 		return
 	}
@@ -447,7 +447,7 @@ func ProjectTransfer(ctx *gin.Context) {
 	if pm.ProjectID != currentProjectMember.(*models.ProjectMembers).ProjectID {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.TargetProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.TransferFail"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
 		})
 		return
 	}
