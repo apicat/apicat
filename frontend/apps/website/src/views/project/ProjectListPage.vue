@@ -4,8 +4,12 @@
       {{ $t('app.project.list.tabTitle') }}
     </p>
 
-    <ul class="ac-project-list my-20px py-10px" v-if="!isNormalUser">
-      <li class="flex flex-col justify-between rounded cursor-pointer w-250px h-156px hover:shadow-lg bg-gray-110 px-20px py-16px" @click="handleShowModelClick">
+    <ul class="ac-project-list my-20px py-10px">
+      <li
+        v-if="!isNormalUser"
+        class="flex flex-col justify-between rounded cursor-pointer w-250px h-156px hover:shadow-lg bg-gray-110 px-20px py-16px"
+        @click="handleShowModelClick"
+      >
         <ac-icon-ep-plus class="text-18px" />
         <p>{{ $t('app.project.createModal.title') }}</p>
       </li>

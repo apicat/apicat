@@ -71,9 +71,8 @@ export const useUserStore = defineStore({
 
     async modifyUserInfo(form: UserInfo) {
       try {
-        const { token, user }: any = await modifyUserInfo(form)
+        const user: any = await modifyUserInfo(form)
         this.updateUserInfo(user)
-        this.updateToken(token)
       } catch (error) {
         //
       }
@@ -81,8 +80,7 @@ export const useUserStore = defineStore({
 
     async modifyUserPassword(form: UserInfo) {
       try {
-        const { token }: any = await modifyPassword(form)
-        this.updateToken(token)
+        await modifyPassword(form)
       } catch (error) {
         //
       }

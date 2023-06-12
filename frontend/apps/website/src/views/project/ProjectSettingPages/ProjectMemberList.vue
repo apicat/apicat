@@ -83,6 +83,7 @@ const { currentPage, pageSize, total, data, isLoading, getTableData } = useTable
   isLoaded: true,
   transform: (member: ProjectMember): ProjectMember => {
     member.isSelf = member.user_id === userInfo.id
+    member.username = member.isSelf ? `${member.username}(我)` : member.username
     return member
   },
 })
@@ -148,7 +149,12 @@ const handlerTransferProject = async (member: ProjectMember) => {
     title: t('app.common.deleteTip'),
     content: t('app.project.tips.transferProjectToMember'),
     onOk: async () => {
-      await transferProject(project_id as string, member.id!)
+      try {
+        await transferProject(project_id as string, member.id!)
+      } catch (error) {
+        console.log(error)
+      }
+
       await projectStore.getProjectDetailInfo(project_id as string)
       await getTableData()
     },
