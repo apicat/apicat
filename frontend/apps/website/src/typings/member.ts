@@ -18,10 +18,12 @@ export const MemberAuthorityMap = {
 export declare interface ProjectMember {
   id?: number
   user_id?: number
+  is_enabled?: number
   authority?: MemberAuthorityInProject
   username?: string
   email?: string
   created_at?: string
 
   isSelf?: boolean
+  accountStatus?: string
 }

@@ -11,10 +11,10 @@
 
           <el-col :span="6">
             <el-form-item :prop="'urls.' + index + '.description'">
-              <el-input v-model.trim="item.description" :placeholder="$t('app.form.serverUrl.desc')" maxlength="255" clearable />
+              <el-input :disabled="isReader" v-model.trim="item.description" :placeholder="$t('app.form.serverUrl.desc')" maxlength="255" clearable />
             </el-form-item>
           </el-col>
-          <el-col :span="4" class="flex items-center pl-4 operate">
+          <el-col :span="4" class="flex items-center pl-4 operate" v-if="!isReader">
             <el-icon class="icon-reorder mr-10px"><ac-icon-ep-sort /></el-icon>
             <el-icon @click="onRemoveNavItemIconClick(index)"><ac-icon-ep-delete /></el-icon>
           </el-col>

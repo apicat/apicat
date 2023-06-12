@@ -29,6 +29,9 @@ export const setupGetProjectInfoFilter = (router: Router) => {
           router.replace('/main')
         }
       }
+    } else {
+      // 非项目页，清空项目信息
+      projectStore.clearCurrentProjectInfo()
     }
 
     next()

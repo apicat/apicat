@@ -5,6 +5,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import Storage from '@/commons/storage'
 import { LOGIN_PATH, router } from '@/router'
 import { i18n } from '@/i18n'
+import { TargetMemberPermissionError } from './error'
 
 axios.defaults.timeout = REQUEST_TIMEOUT
 
@@ -66,7 +67,7 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
             'close-on-click-modal': false,
             'close-on-press-escape': false,
             'show-cancel-button': false,
-            confirmButtonText: '刷新',
+            confirmButtonText: t('app.common.confirm'),
             callback() {
               isShowPermissionChangeModal = true
               useUserStore.clearUserInfo()
@@ -83,13 +84,16 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
             'close-on-click-modal': false,
             'close-on-press-escape': false,
             'show-cancel-button': false,
-            confirmButtonText: '刷新',
+            confirmButtonText: t('app.common.confirm'),
             callback() {
               isShowPermissionChangeModal = true
               location.reload()
             },
           } as any)
 
+        if (code === PERMISSION_CHANGE_CODE.TARGET_MEMBER_PREMISSION_ERROR) {
+          error = new TargetMemberPermissionError()
+        }
         break
 
       case 400: // bad request
