@@ -8,6 +8,7 @@ import (
 
 	"github.com/apicat/apicat/common/auth"
 	"github.com/apicat/apicat/common/translator"
+	"github.com/apicat/apicat/enum"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
@@ -96,7 +97,8 @@ func GetMembers(ctx *gin.Context) {
 func AddMember(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 	if currentUser.(*models.Users).Role != "superadmin" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.MemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -152,7 +154,8 @@ func AddMember(ctx *gin.Context) {
 func SetMember(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 	if currentUser.(*models.Users).Role != "superadmin" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.MemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -220,7 +223,8 @@ func SetMember(ctx *gin.Context) {
 func DeleteMember(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 	if currentUser.(*models.Users).Role != "superadmin" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.MemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
