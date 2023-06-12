@@ -384,7 +384,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 			})
 			return
 		}
-
-		ctx.Status(http.StatusNoContent)
 	}
+
+	ctx.Status(http.StatusNoContent)
 }
