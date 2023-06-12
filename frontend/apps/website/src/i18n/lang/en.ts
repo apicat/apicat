@@ -94,6 +94,7 @@ export default {
         transferProjectToMember: 'Are you sure you want to transfer the item to that member?',
         targetMemberPermissionError: 'This membership has changed, please try again.',
         permissionChange: 'You have changed your project permissions. You will need to refresh this action.',
+        noData: 'No project information available',
       },
       list: {
         title: 'List of items',

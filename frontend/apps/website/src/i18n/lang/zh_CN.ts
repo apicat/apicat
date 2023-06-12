@@ -96,6 +96,7 @@ export default {
         transferProjectToMember: '确定移交项目给该成员？',
         targetMemberPermissionError: '该成员权限发生变更，请重试。',
         permissionChange: '您所在的项目权限发生变更，需刷新后操作。',
+        noData: '暂无项目信息',
       },
       list: {
         title: '项目列表',

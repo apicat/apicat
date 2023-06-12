@@ -1,7 +1,7 @@
 <template>
   <el-dialog v-model="dialogVisible" :title="$t('app.member.tips.addMember')" :width="300" align-center :close-on-click-modal="false">
     <!-- 内容 -->
-    <el-form label-position="top" label-width="100px" :model="form" :rules="rules" ref="fromRef" @submit.prevent="handleSubmit(fromRef)">
+    <el-form label-position="top" label-width="100px" :model="form" :rules="rules" ref="fromRef" @submit.prevent="handleSubmit(fromRef)" @keyup.enter="handleSubmit(fromRef)">
       <el-form-item :label="$t('app.form.user.email')" prop="email">
         <el-input v-model="form.email" :placeholder="$t('app.rules.email.required')" clearable />
       </el-form-item>

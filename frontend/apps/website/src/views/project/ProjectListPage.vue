@@ -25,6 +25,7 @@
         <p class="flex items-center flex-1 truncate px-16px">{{ project.title }}</p>
       </li>
     </ul>
+    <el-empty v-if="isNormalUser && !projectList.length" :image-size="200" :description="$t('app.project.tips.noData')" />
   </div>
 
   <CreateProjectModal ref="createProjectModal" />

@@ -7,7 +7,7 @@ import { UserInfo, UserRoleInTeam, UserRoleInTeamMap } from '@/typings/user'
 import { pinia } from '@/plugins'
 
 interface UserState {
-  userInfo: UserInfo
+  userInfo: UserInfo | null
   token: string | null
 }
 
@@ -16,13 +16,13 @@ export const useUserStore = defineStore({
 
   state: (): UserState => ({
     token: Storage.get(Storage.KEYS.TOKEN) || null,
-    userInfo: Storage.get(Storage.KEYS.USER) || null,
+    userInfo: null,
   }),
 
   getters: {
     isLogin: (state) => !!state.token,
-    isSuperAdmin: (state) => state.userInfo.role === UserRoleInTeam.SUPER_ADMIN,
-    isNormalUser: (state) => state.userInfo.role === UserRoleInTeam.USER,
+    isSuperAdmin: (state) => state.userInfo?.role === UserRoleInTeam.SUPER_ADMIN,
+    isNormalUser: (state) => state.userInfo?.role === UserRoleInTeam.USER,
     userRoles: () =>
       Object.keys(UserRoleInTeamMap)
         .filter((key: string) => key !== UserRoleInTeam.SUPER_ADMIN)
@@ -60,10 +60,11 @@ export const useUserStore = defineStore({
       }
     },
 
-    async getUserInfo() {
+    async getUserInfo(): Promise<UserInfo | void> {
       try {
         const user: any = await getUserInfo()
         this.updateUserInfo(user)
+        return user
       } catch (error) {
         //
       }
@@ -105,11 +106,6 @@ export const useUserStore = defineStore({
     // 更新个人信息
     updateUserInfo(user: UserInfo) {
       this.$patch({ userInfo: { ...this.userInfo, ...user } })
-      Storage.set(Storage.KEYS.USER, this.userInfo)
-    },
-
-    clearUserInfo() {
-      Storage.remove(Storage.KEYS.USER)
     },
   },
 })

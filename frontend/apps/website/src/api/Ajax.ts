@@ -70,7 +70,6 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
             confirmButtonText: t('app.common.confirm'),
             callback() {
               isShowPermissionChangeModal = true
-              useUserStore.clearUserInfo()
               location.reload()
             },
           } as any)
@@ -100,7 +99,7 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
         break
 
       default:
-        errorMsg = error.message || 'server error'
+        errorMsg = errorMsg || error.message || 'server error'
         break
     }
   }
