@@ -93,6 +93,7 @@ const { currentPage, pageSize, total, data, isLoading, getTableData } = useTable
   transform: (member: ProjectMember): ProjectMember => {
     member.isSelf = member.user_id === userInfo.id
     member.accountStatus = member.is_enabled ? t('app.member.form.accountStatusNormal') : t('app.member.form.accountStatusLock')
+    member.accountStatusType = member.is_enabled ? '' : 'info'
     member.username = member.isSelf ? `${member.username}(我)` : member.username
     return member
   },

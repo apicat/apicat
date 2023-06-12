@@ -26,4 +26,5 @@ export declare interface ProjectMember {
 
   isSelf?: boolean
   accountStatus?: string
+  accountStatusType?: string
 }
