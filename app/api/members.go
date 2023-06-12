@@ -30,7 +30,7 @@ type SetMemberData struct {
 	Email     string `json:"email" binding:"omitempty,email,lte=255"`
 	Password  string `json:"password" binding:"omitempty,gte=6,lte=255"`
 	Role      string `json:"role" binding:"omitempty,oneof=admin user"`
-	IsEnabled int    `json:"is_enabled" binding:"required,oneof=0 1"`
+	IsEnabled int    `json:"is_enabled" binding:"oneof=0 1"`
 }
 
 func GetMembers(ctx *gin.Context) {
