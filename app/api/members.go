@@ -181,7 +181,7 @@ func SetMember(ctx *gin.Context) {
 		return
 	}
 
-	if err := user.GetByEmail(data.Email); err == nil {
+	if err := user.GetByEmail(data.Email); err == nil && user.ID != userIDData.UserID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.MailboxAlreadyExists"}),
 		})
