@@ -80,7 +80,7 @@ export default {
     },
     user: {
       tips: {
-        permissionChange: '用户权限发生变更，请刷新后操作。',
+        permissionChange: '用户权限发生变更，需刷新后操作。',
       },
       nav: {
         userSetting: '个人设置',
@@ -94,7 +94,8 @@ export default {
         quitProjectTitle: '退出项目',
         quitProject: '确定退出该项目吗？',
         transferProjectToMember: '确定移交项目给该成员？',
-        permissionChange: '您所在的项目权限发生变更，请刷新后操作。',
+        targetMemberPermissionError: '该成员权限发生变更，请重试。',
+        permissionChange: '您所在的项目权限发生变更，需刷新后操作。',
       },
       list: {
         title: '项目列表',
