@@ -261,7 +261,7 @@ func AICreateApiNames(ctx *gin.Context) {
 	schema, err := models.NewDefinitionSchemas(data.SchemaID)
 	if err != nil {
 		slog.DebugCtx(ctx, "DefinitionSchemas get failed", slog.String("err", err.Error()), slog.String("SchemaID", strconv.Itoa(int(data.SchemaID))))
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
 		})
 		return
