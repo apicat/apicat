@@ -169,6 +169,13 @@ func SetMember(ctx *gin.Context) {
 		return
 	}
 
+	if currentUser.(*models.Users).ID == userIDData.UserID {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.UpdateFailed"}),
+		})
+		return
+	}
+
 	var data SetMemberData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
