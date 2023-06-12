@@ -7,7 +7,7 @@ import { UserInfo, UserRoleInTeam, UserRoleInTeamMap } from '@/typings/user'
 import { pinia } from '@/plugins'
 
 interface UserState {
-  userInfo: UserInfo | null
+  userInfo: UserInfo | Record<string, any>
   token: string | null
 }
 
@@ -16,7 +16,7 @@ export const useUserStore = defineStore({
 
   state: (): UserState => ({
     token: Storage.get(Storage.KEYS.TOKEN) || null,
-    userInfo: null,
+    userInfo: {},
   }),
 
   getters: {
