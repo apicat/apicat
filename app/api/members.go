@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"math"
 	"net/http"
 	"strings"
@@ -244,6 +245,38 @@ func DeleteMember(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
+		})
+		return
+	}
+
+	// Determine whether the member to be deleted is an administrator of a project
+	pm, err := models.GetUserInvolvedProject(user.ID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
+		})
+		return
+	}
+
+	ps := []models.ProjectMembers{}
+	for _, v := range pm {
+		if v.Authority == models.ProjectMembersManage {
+			ps = append(ps, v)
+		}
+	}
+	if len(ps) > 0 {
+		tm := translator.Trasnlate(ctx, &translator.TT{ID: "Member.IsProjectManage"})
+		pns := []string{}
+		for _, v := range ps {
+			if project, err := models.NewProjects(v.ProjectID); err == nil {
+				pns = append(pns, project.Title)
+			}
+		}
+
+		pn := strings.Join(pns, "、")
+
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf(tm, pn),
 		})
 		return
 	}

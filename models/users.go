@@ -49,6 +49,17 @@ func (u *Users) Count() (int64, error) {
 }
 
 func (u *Users) Delete() error {
+	pms, err := GetUserInvolvedProject(u.ID)
+	if err != nil {
+		return err
+	}
+
+	for _, pm := range pms {
+		if err := pm.Delete(); err != nil {
+			return err
+		}
+	}
+
 	return Conn.Delete(u).Error
 }
 
