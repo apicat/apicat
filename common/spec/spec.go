@@ -119,8 +119,11 @@ func (s *Spec) CollectionsMap(expend bool, refexpendMaxCount int) map[string]map
 		var (
 			method string
 			path   string
-			part   HTTPPart
 		)
+		part := HTTPPart{
+			Title: v.Title,
+			ID:    v.ID,
+		}
 		for _, item := range v.Content {
 			switch nx := item.Node.(type) {
 			case *HTTPNode[HTTPURLNode]:
