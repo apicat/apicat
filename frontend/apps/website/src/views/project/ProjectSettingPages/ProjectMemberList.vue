@@ -89,6 +89,7 @@ const {
 })
 
 const { currentPage, pageSize, total, data, isLoading, getTableData } = useTable(getMembersInProject(project_id as string), {
+  pageSize: 10,
   isLoaded: true,
   transform: (member: ProjectMember): ProjectMember => {
     member.isSelf = member.user_id === userInfo.id
