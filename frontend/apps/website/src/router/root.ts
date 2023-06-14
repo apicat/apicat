@@ -1,7 +1,5 @@
 import { RouteRecordRaw } from 'vue-router'
-
-export const ROOT_PATH = '/'
-export const ROOT_PATH_NAME = 'root'
+import { ROOT_PATH, ROOT_PATH_NAME } from './constant'
 
 export const rootRoute: RouteRecordRaw = {
   name: ROOT_PATH_NAME,

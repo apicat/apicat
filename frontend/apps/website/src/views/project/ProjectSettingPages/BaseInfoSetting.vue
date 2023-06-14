@@ -6,7 +6,7 @@
       </div>
     </el-form-item>
 
-    <el-form-item v-if="bgColorRef && iconRef">
+    <el-form-item v-if="bgColorRef && iconRef && isManager">
       <el-form-item :label="$t('app.project.form.coverColor')" class="flex-1 mr-10px">
         <AcSelect v-model="bgColorRef" class="w-full" :options="projectCoverBgColorsOptions">
           <template #default="{ selected }">
@@ -21,7 +21,7 @@
         </AcSelect>
       </el-form-item>
 
-      <el-form-item :label="$t('app.project.form.coverIcon')" class="flex-1 mr-10px">
+      <el-form-item v-if="isManager" :label="$t('app.project.form.coverIcon')" class="flex-1 mr-10px">
         <AcSelect v-model="iconRef" class="w-full" :options="projectCoverIcons">
           <template #default="{ selected }">
             <div class="flex-center wh-full">
@@ -39,16 +39,23 @@
     </el-form-item>
 
     <el-form-item :label="$t('app.project.form.title')" prop="title" class="hide_required">
-      <el-input v-model="form.title" :placeholder="$t('app.project.form.title')" clearable maxlength="255" />
+      <el-input :disabled="!isManager" v-model="form.title" :placeholder="$t('app.project.form.title')" clearable maxlength="255" />
     </el-form-item>
 
     <el-form-item :label="$t('app.project.form.desc')">
-      <el-input v-model="form.description" :placeholder="$t('app.project.form.desc')" type="textarea" :autosize="{ minRows: 4, maxRows: 4 }" maxlength="255" />
+      <el-input
+        :disabled="!isManager"
+        v-model="form.description"
+        :placeholder="$t('app.project.form.desc')"
+        type="textarea"
+        :autosize="{ minRows: 4, maxRows: 4 }"
+        maxlength="255"
+      />
     </el-form-item>
 
-    <el-button type="primary" @click="handleSubmit(projectFormRef)" :loading="isLoading">{{ $t('app.common.save') }}</el-button>
+    <el-button v-if="isManager" type="primary" @click="handleSubmit(projectFormRef)" :loading="isLoading">{{ $t('app.common.save') }}</el-button>
   </el-form>
-  <el-button class="absolute bottom-30px right-30px" type="danger" link @click="handleRemove" :loading="isDeleteLoading">{{ $t('app.project.setting.deleteProject') }}</el-button>
+  <el-button v-if="isManager" class="absolute bottom-30px right-30px" type="danger" link @click="handleRemove">{{ $t('app.project.setting.deleteProject') }}</el-button>
 </template>
 <script setup lang="tsx">
 import { deleleProject, updateProjectBaseInfo } from '@/api/project'
@@ -58,10 +65,14 @@ import { FormInstance } from 'element-plus'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import { useI18n } from 'vue-i18n'
 import { useProjectCover } from '../logic/useProjectCover'
+import { storeToRefs } from 'pinia'
 
 const { t } = useI18n()
 const router = useRouter()
-const { projectDetailInfo, setCurrentProjectInfo } = uesProjectStore()
+const projectStore = uesProjectStore()
+const { projectDetailInfo, setCurrentProjectInfo } = projectStore
+const { isManager } = storeToRefs(projectStore)
+
 const [isLoading, updateProjectBaseInfoApi] = updateProjectBaseInfo()
 const [isDeleteLoading, deleleProjectApi] = deleleProject()
 

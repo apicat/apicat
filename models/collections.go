@@ -53,7 +53,7 @@ func (c *Collections) Update() error {
 	return Conn.Save(c).Error
 }
 
-func Deletes(id uint, db *gorm.DB) error {
+func Deletes(id uint, db *gorm.DB, deletedBy uint) error {
 	collection := Collections{}
 	if err := Conn.Where("id = ?", id).First(&collection).Error; err != nil {
 		return err
@@ -66,7 +66,7 @@ func Deletes(id uint, db *gorm.DB) error {
 
 	return Conn.Transaction(func(tx *gorm.DB) error {
 		for _, subNode := range collections {
-			if err := Deletes(subNode.ID, tx); err != nil {
+			if err := Deletes(subNode.ID, tx, deletedBy); err != nil {
 				return err
 			}
 		}
@@ -75,20 +75,39 @@ func Deletes(id uint, db *gorm.DB) error {
 			return err
 		}
 
+		if err := tx.Unscoped().Model(collection).Updates(map[string]interface{}{"deleted_by": deletedBy}).Error; err != nil {
+			return err
+		}
+
 		return nil
 	})
 }
 
 func (c *Collections) Creator() string {
-	return ""
+	user, err := NewUsers(c.CreatedBy)
+	if err != nil {
+		return ""
+	}
+
+	return user.Username
 }
 
 func (c *Collections) Updater() string {
-	return ""
+	user, err := NewUsers(c.UpdatedBy)
+	if err != nil {
+		return ""
+	}
+
+	return user.Username
 }
 
 func (c *Collections) Deleter() string {
-	return ""
+	user, err := NewUsers(c.DeletedBy)
+	if err != nil {
+		return ""
+	}
+
+	return user.Username
 }
 
 func (c *Collections) TrashList() ([]*Collections, error) {
@@ -101,7 +120,7 @@ func (c *Collections) GetUnscopedCollections() error {
 }
 
 func (c *Collections) Restore() error {
-	return Conn.Unscoped().Model(c).Updates(map[string]interface{}{"project_id": c.ProjectId, "parent_id": c.ParentId, "display_order": 0, "deleted_at": nil}).Error
+	return Conn.Unscoped().Model(c).Updates(map[string]interface{}{"project_id": c.ProjectId, "parent_id": c.ParentId, "display_order": 0, "deleted_at": nil, "deleted_by": 0}).Error
 }
 
 func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem, refContentNameToId *RefContentVirtualIDToId) []*Collections {

@@ -29,7 +29,11 @@ export const useDefinitionResponseLogic = () => {
     }
     hasDocument.value = true
 
-    response.value = await getDefinitionResponseDetailRequest({ project_id, id })
+    try {
+      response.value = await getDefinitionResponseDetailRequest({ project_id, id })
+    } catch (error) {
+      //
+    }
   }
 
   watch(

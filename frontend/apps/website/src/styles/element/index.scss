@@ -11,14 +11,15 @@
   ),
   $border-radius: (
     'base': 5px,
-    // 'small': 2px,
-    // 'round': 20px,
-    // 'circle': 100%,,,,,,,,
   ),
   $mask-color: (
     '': #fff,
   ),
   $dialog: (
     'border-radius': var(--el-border-radius-base),
+  ),
+  $table: (
+    'header-bg-color': #f2f2f2,
+    'row-hover-bg-color': #f2f2f2,
   )
 );

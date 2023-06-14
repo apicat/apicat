@@ -1,6 +1,7 @@
 import type { RouteRecordRaw } from 'vue-router'
 import { compile } from 'path-to-regexp'
 import { PROJECT_DETAIL_PATH } from './constant'
+import { MemberAuthorityInProject } from '@/typings/member'
 
 export const DOCUMENT_DETAIL_PATH = PROJECT_DETAIL_PATH + '/doc/:doc_id?'
 export const DOCUMENT_EDIT_PATH = PROJECT_DETAIL_PATH + '/doc/:doc_id/edit'
@@ -24,4 +25,7 @@ export const documentEditRoute: RouteRecordRaw = {
   name: DOCUMENT_EDIT_NAME,
   path: DOCUMENT_EDIT_PATH,
   component: DocumentEditPage,
+  meta: {
+    editableRoles: [MemberAuthorityInProject.MANAGER, MemberAuthorityInProject.WRITE],
+  },
 }

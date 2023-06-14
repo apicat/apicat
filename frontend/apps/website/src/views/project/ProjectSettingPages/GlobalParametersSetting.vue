@@ -1,7 +1,13 @@
 <template>
   <div v-loading="isLoading">
     <ToggleHeading title="Header" type="card">
-      <SimpleParameterEditor v-model="parameters.header" :draggable="false" :on-create="(raw) => onCreateParams(raw, 'header')" :on-change="(raw) => onUpdateParams(raw, 'header')">
+      <SimpleParameterEditor
+        :readonly="isReader"
+        v-model="parameters.header"
+        :draggable="false"
+        :on-create="(raw) => onCreateParams(raw, 'header')"
+        :on-change="(raw) => onUpdateParams(raw, 'header')"
+      >
         <template #operate="{ row, index, delHandler }">
           <el-icon @click="(e) => onClickDeleteIcon(row, index, delHandler, e)" class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
         </template>
@@ -9,7 +15,13 @@
     </ToggleHeading>
 
     <ToggleHeading title="Cookie" type="card">
-      <SimpleParameterEditor v-model="parameters.cookie" :draggable="false" :on-create="(raw) => onCreateParams(raw, 'cookie')" :on-change="(raw) => onUpdateParams(raw, 'cookie')">
+      <SimpleParameterEditor
+        :readonly="isReader"
+        v-model="parameters.cookie"
+        :draggable="false"
+        :on-create="(raw) => onCreateParams(raw, 'cookie')"
+        :on-change="(raw) => onUpdateParams(raw, 'cookie')"
+      >
         <template #operate="{ row, index, delHandler }">
           <el-icon @click="(e) => onClickDeleteIcon(row, index, delHandler, e)" class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
         </template>
@@ -17,7 +29,13 @@
     </ToggleHeading>
 
     <ToggleHeading title="Query" type="card">
-      <SimpleParameterEditor v-model="parameters.query" :draggable="false" :on-create="(raw) => onCreateParams(raw, 'query')" :on-change="(raw) => onUpdateParams(raw, 'query')">
+      <SimpleParameterEditor
+        :readonly="isReader"
+        v-model="parameters.query"
+        :draggable="false"
+        :on-create="(raw) => onCreateParams(raw, 'query')"
+        :on-change="(raw) => onUpdateParams(raw, 'query')"
+      >
         <template #operate="{ row, index, delHandler }">
           <el-icon @click="(e) => onClickDeleteIcon(row, index, delHandler, e)" class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
         </template>
@@ -25,7 +43,13 @@
     </ToggleHeading>
 
     <ToggleHeading title="Path" type="card">
-      <SimpleParameterEditor v-model="parameters.path" :draggable="false" :on-create="(raw) => onCreateParams(raw, 'path')" :on-change="(raw) => onUpdateParams(raw, 'path')">
+      <SimpleParameterEditor
+        :readonly="isReader"
+        v-model="parameters.path"
+        :draggable="false"
+        :on-create="(raw) => onCreateParams(raw, 'path')"
+        :on-change="(raw) => onUpdateParams(raw, 'path')"
+      >
         <template #operate="{ row, index, delHandler }">
           <el-icon @click="(e) => onClickDeleteIcon(row, index, delHandler, e)" class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
         </template>
@@ -54,9 +78,11 @@ import useApi from '@/hooks/useApi'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { storeToRefs } from 'pinia'
 import { usePopover } from '@/hooks/usePopover'
+import uesProjectStore from '@/store/project'
 
 const project_id = useProjectId()
 const globalParametersStore = uesGlobalParametersStore()
+const { isReader } = storeToRefs(uesProjectStore())
 const { parameters } = storeToRefs(globalParametersStore)
 const [isLoading, getCommonParamListApi] = useApi(globalParametersStore.getGlobalParameters)
 let currentDeleteParam: { param: any; index: number; delHandler: any } | null = null

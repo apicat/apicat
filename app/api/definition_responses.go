@@ -6,6 +6,7 @@ import (
 
 	"github.com/apicat/apicat/common/spec"
 	"github.com/apicat/apicat/common/translator"
+	"github.com/apicat/apicat/enum"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
@@ -120,6 +121,15 @@ func DefinitionResponsesDetail(ctx *gin.Context) {
 }
 
 func DefinitionResponsesCreate(ctx *gin.Context) {
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
@@ -193,6 +203,15 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 }
 
 func DefinitionResponsesUpdate(ctx *gin.Context) {
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	data := ResponseDetailData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -253,6 +272,15 @@ func DefinitionResponsesUpdate(ctx *gin.Context) {
 }
 
 func DefinitionResponsesDelete(ctx *gin.Context) {
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	cr := DefinitionResponsesID{}
 	definitionResponses, err := cr.CheckDefinitionResponses(ctx)
 	if err != nil {
