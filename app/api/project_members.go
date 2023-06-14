@@ -179,10 +179,7 @@ func ProjectMembersCreate(ctx *gin.Context) {
 	for _, v := range data.UserIDs {
 		user, err := models.NewUsers(v)
 		if err != nil {
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.CreateFailed"}),
-			})
-			return
+			continue
 		}
 
 		pm, _ := models.NewProjectMembers()
