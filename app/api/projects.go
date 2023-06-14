@@ -430,7 +430,7 @@ func ProjectTransfer(ctx *gin.Context) {
 
 	pm, err := models.NewProjectMembers(data.MemberID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
 		})
 		return
