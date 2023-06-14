@@ -1,4 +1,4 @@
-package markdown
+package export
 
 import (
 	"bytes"
@@ -12,77 +12,77 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func Encode(in *spec.Spec) ([]byte, error) {
+func Markdown(in *spec.Spec) ([]byte, error) {
 	paths := in.CollectionsMap(true, 2)
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "# %s\n", in.Info.Title)
-	buf.WriteString(in.Info.Description)
-	buf.WriteString("\n\n## servers\n")
-	for _, v := range in.Servers {
-		fmt.Fprintf(&buf, "- **%s** `%s`\n", v.Description, v.URL)
-	}
-	buf.WriteString("\n## apis\n")
-	buildtoc(&buf, 0, in.Collections)
-	for path, items := range paths {
-		for method, item := range items {
-			rednerHttpPart(&buf, path, method, item)
-		}
-	}
-	return buf.Bytes(), nil
-}
+	fmt.Fprintf(&buf, "%s\n\nversion: `%s`\n\n", in.Info.Description, in.Info.Version)
 
-func buildtoc(buf *bytes.Buffer, lvl int, cs []*spec.CollectItem) {
-	for _, item := range cs {
-		switch item.Type {
-		case spec.ContentItemTypeDir:
-			if len(item.Items) > 0 {
-				fmt.Fprintf(buf, "%s- %s\n", strings.Repeat("/t", lvl), item.Title)
-				buildtoc(buf, lvl+1, item.Items)
-			}
-		case spec.ContentItemTypeDoc:
-			// todo
-		case spec.ContentItemTypeHttp:
-			fmt.Fprintf(buf, "%s- [%s](#%d)\n", strings.Repeat("/t", lvl), item.Title, item.ID)
+	if len(in.Servers) > 0 {
+		buf.WriteString("\n\n## Servers\n")
+		for _, v := range in.Servers {
+			fmt.Fprintf(&buf, "- **%s** `%s`\n", v.Description, v.URL)
 		}
 	}
+
+	list := make([][2]string, 0)
+	for path, items := range paths {
+		for method := range items {
+			list = append(list, [2]string{path, method})
+		}
+	}
+
+	buf.WriteString("\n## Table of APIs\n")
+	for k, v := range list {
+		item := paths[v[0]][v[1]]
+		fmt.Fprintf(&buf, "%d. [%s](#api-%d)\n", k+1, item.Title, k+1)
+	}
+
+	buf.WriteString("\n\n")
+
+	for k, v := range list {
+		item := paths[v[0]][v[1]]
+		rednerHttpPart(&buf, k+1, v[0], v[1], item)
+	}
+
+	return buf.Bytes(), nil
 }
 
 var jsonschemaHeaderCols = []string{"name", "type", "required", "comment"}
 var paramsHeaderCols = []string{"name", "in", "type", "required", "comment"}
 
-func rednerHttpPart(buf *bytes.Buffer, path, method string, part spec.HTTPPart) {
-	fmt.Fprintf(buf, "### <span id=\"%d\">%s</span>\n", part.ID, part.Title)
-	fmt.Fprintf(buf, "- method: **`%s`**\n", method)
-	fmt.Fprintf(buf, "- path: **`%s`**\n", path)
-	fmt.Fprintf(buf, "\n>%s\n", "")
-	fmt.Fprintf(buf, "\n**parameters**\n\n")
+func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTTPPart) {
+	fmt.Fprintf(buf, "## <span id=\"api-%d\">%d. %s</span>\n", i, i, part.Title)
+	fmt.Fprintf(buf, "### Path\n [%s](%s)\n", path, path)
+	fmt.Fprintf(buf, "### Method\n %s\n", strings.ToUpper(method))
+	fmt.Fprintf(buf, "### Parameters\n")
 	renderTableHeader(buf, paramsHeaderCols)
 	for k, v := range part.Parameters.Map() {
 		for _, item := range v {
-			buf.WriteString("| **")
+			buf.WriteString("|")
 			renderString(buf, item.Name)
-			buf.WriteString("** | ")
+			buf.WriteString("|**")
 			buf.WriteString(k)
-			buf.WriteString(" | ")
+			buf.WriteString("**|`")
 			buf.WriteString(item.Schema.Type.Value()[0])
-			buf.WriteString(" | ")
+			buf.WriteString("` | ")
 			if item.Required {
-				buf.WriteString("yes")
+				buf.WriteString("*")
 			}
 			buf.WriteString(" | ")
 			renderString(buf, item.Schema.Description)
 			buf.WriteByte('\n')
 		}
 	}
-	fmt.Fprintf(buf, "\n**body**\n\n")
+	fmt.Fprintf(buf, "### Request Body\n")
 	for k, v := range part.Content {
-		fmt.Fprintf(buf, "contentType `%s`\n", k)
+		fmt.Fprintf(buf, "ContentType `%s`\n", k)
 		renderTableHeader(buf, jsonschemaHeaderCols)
 		renderSchema(buf, "`root`", 0, true, v.Schema)
 		if strings.Contains(k, "json") {
 			b, _ := json.Marshal(v.Schema)
 			if rx, err := datagen.JSONSchemaGen(b, &datagen.GenOption{DatagenKey: "x-apicat-mock"}); err == nil {
-				buf.WriteString("example\n\n")
+				buf.WriteString("\n\nExample\n\n")
 				buf.WriteString("\n```json\n")
 				mockexample, _ := json.MarshalIndent(rx, "", "  ")
 				buf.Write(mockexample)
@@ -91,19 +91,17 @@ func rednerHttpPart(buf *bytes.Buffer, path, method string, part spec.HTTPPart) 
 		}
 	}
 
-	fmt.Fprintf(buf, "\n**response**\n\n")
+	fmt.Fprintf(buf, "### Responses\n")
 	for _, res := range part.Responses {
-		fmt.Fprintf(buf, "%s\n\n", res.Name)
-		fmt.Fprintf(buf, "- statusCode: `%d`\n", res.Code)
+		fmt.Fprintf(buf, "StatusCode `%d` \n> %s\n\n", res.Code, res.Description)
 		for k, v := range res.Content {
-			fmt.Fprintf(buf, "- contentType `%s`\n\n", k)
+			fmt.Fprintf(buf, " ContentType `%s`\n\n", k)
 			renderTableHeader(buf, jsonschemaHeaderCols)
 			renderSchema(buf, "`root`", 0, true, v.Schema)
-
 			if strings.Contains(k, "json") {
 				b, _ := json.Marshal(v.Schema)
 				if rx, err := datagen.JSONSchemaGen(b, &datagen.GenOption{DatagenKey: "x-apicat-mock"}); err == nil {
-					buf.WriteString("example\n\n")
+					buf.WriteString("\n\nExample\n\n")
 					buf.WriteString("\n```json\n")
 					mockexample, _ := json.MarshalIndent(rx, "", "  ")
 					buf.Write(mockexample)
@@ -114,7 +112,7 @@ func rednerHttpPart(buf *bytes.Buffer, path, method string, part spec.HTTPPart) 
 		}
 	}
 
-	buf.WriteString("\n------------\n")
+	buf.WriteString("\n\n------------\n")
 }
 
 func renderSchema(buf *bytes.Buffer, name string, lvl int, required bool, s *jsonschema.Schema) {
@@ -130,23 +128,21 @@ func renderSchema(buf *bytes.Buffer, name string, lvl int, required bool, s *jso
 			renderSchema(buf, k, lvl+1, slices.Contains(s.Required, k), v)
 		}
 	case "array":
-		renderSchema(buf, "`item`", lvl, required, s.Items.Value())
+		renderSchema(buf, "`item`", lvl+1, required, s.Items.Value())
 	}
 }
 
 func renderSchemaItem(buf *bytes.Buffer, name, typ, desc string, lvl int, required bool) {
 	buf.WriteByte('|')
 	buf.WriteString(strings.Repeat("·", lvl*4))
-	buf.WriteString("**")
-	renderString(buf, name)
-	buf.WriteString("**")
+	buf.WriteString(name)
 	buf.WriteByte('|')
 	buf.WriteByte('`')
 	buf.WriteString(typ)
 	buf.WriteByte('`')
 	buf.WriteByte('|')
 	if required {
-		buf.WriteString("yes")
+		buf.WriteString("*")
 	}
 	buf.WriteByte('|')
 	renderString(buf, desc)
