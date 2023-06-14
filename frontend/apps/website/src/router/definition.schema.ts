@@ -1,6 +1,7 @@
 import { compile } from 'path-to-regexp'
 import { PROJECT_DETAIL_PATH } from './constant'
 import { RouteRecordRaw } from 'vue-router'
+import { MemberAuthorityInProject } from '@/typings/member'
 
 export const SCHEMA_EDIT_NAME = 'definition.schema.edit'
 export const SCHEMA_DETAIL_NAME = 'definition.schema.detail'
@@ -24,4 +25,7 @@ export const schemaEditRoute: RouteRecordRaw = {
   name: SCHEMA_EDIT_NAME,
   path: SCHEMA_EDIT_PATH,
   component: SchemaEditPage,
+  meta: {
+    editableRoles: [MemberAuthorityInProject.MANAGER, MemberAuthorityInProject.WRITE],
+  },
 }

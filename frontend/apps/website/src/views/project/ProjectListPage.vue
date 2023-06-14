@@ -5,7 +5,11 @@
     </p>
 
     <ul class="ac-project-list my-20px py-10px">
-      <li class="flex flex-col justify-between rounded cursor-pointer w-250px h-156px hover:shadow-lg bg-gray-110 px-20px py-16px" @click="handleShowModelClick">
+      <li
+        v-if="!isNormalUser"
+        class="flex flex-col justify-between rounded cursor-pointer w-250px h-156px hover:shadow-lg bg-gray-110 px-20px py-16px"
+        @click="handleShowModelClick"
+      >
         <ac-icon-ep-plus class="text-18px" />
         <p>{{ $t('app.project.createModal.title') }}</p>
       </li>
@@ -21,6 +25,7 @@
         <p class="flex items-center flex-1 truncate px-16px">{{ project.title }}</p>
       </li>
     </ul>
+    <el-empty v-if="isNormalUser && !projectList.length" :image-size="200" :description="$t('app.project.tips.noData')" />
   </div>
 
   <CreateProjectModal ref="createProjectModal" />
@@ -33,10 +38,12 @@ import uesProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'
 import { storeToRefs } from 'pinia'
 import { ProjectCover } from '@/typings'
+import { useUserStore } from '@/store/user'
 
 const createProjectModal = ref<InstanceType<typeof CreateProjectModal>>()
 const handleShowModelClick = () => createProjectModal.value!.show()
 const projectStore = uesProjectStore()
+const { isNormalUser } = useUserStore()
 const { projectList } = storeToRefs(projectStore)
 const [isLoading, getProjectListApi] = useApi(projectStore.getProjects)
 

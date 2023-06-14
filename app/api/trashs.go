@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/apicat/apicat/common/translator"
+	"github.com/apicat/apicat/enum"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
@@ -36,6 +37,7 @@ func TrashsList(ctx *gin.Context) {
 			"title":      v.Title,
 			"type":       v.Type,
 			"deleted_at": v.DeletedAt.Time.Format("2006-01-02 15:04:05"),
+			"deleted_by": v.Deleter(),
 		})
 	}
 
@@ -43,6 +45,15 @@ func TrashsList(ctx *gin.Context) {
 }
 
 func TrashsRecover(ctx *gin.Context) {
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	trashsRecoverQuery := TrashsRecoverQuery{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&trashsRecoverQuery)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

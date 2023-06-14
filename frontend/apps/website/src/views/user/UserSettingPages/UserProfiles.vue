@@ -27,8 +27,7 @@ const { t } = useI18n()
 const formRef = ref()
 
 const userStore = useUserStore()
-
-const userInfo: Ref<UserInfo> = ref({ ...userStore.userInfo })
+const userInfo: Ref<UserInfo | Record<string, any>> = ref({})
 
 const rules = {
   username: [{ required: true, message: t('app.rules.username.required'), trigger: 'blur' }],
@@ -57,4 +56,11 @@ const onSubmit = async () => {
     //
   }
 }
+
+onMounted(async () => {
+  const user = await userStore.getUserInfo()
+  if (user) {
+    userInfo.value = { ...user }
+  }
+})
 </script>

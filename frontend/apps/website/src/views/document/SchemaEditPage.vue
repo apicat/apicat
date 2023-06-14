@@ -59,7 +59,7 @@ const getDetail = async () => {
     })
     definition.value = data
   } catch (error) {
-    console.error(error)
+    //
   }
 }
 

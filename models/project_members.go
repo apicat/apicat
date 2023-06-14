@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"golang.org/x/exp/slices"
 	"gorm.io/gorm"
 )
 
@@ -16,6 +17,12 @@ type ProjectMembers struct {
 	DeletedAt gorm.DeletedAt
 }
 
+var (
+	ProjectMembersManage = "manage"
+	ProjectMembersWrite  = "write"
+	ProjectMembersRead   = "read"
+)
+
 func NewProjectMembers(ids ...uint) (*ProjectMembers, error) {
 	members := &ProjectMembers{}
 	if len(ids) > 0 {
@@ -27,7 +34,50 @@ func NewProjectMembers(ids ...uint) (*ProjectMembers, error) {
 	return members, nil
 }
 
-func (pm *ProjectMembers) List() ([]ProjectMembers, error) {
+func (pm *ProjectMembers) List(page, pageSize int) ([]ProjectMembers, error) {
 	var projectMembers []ProjectMembers
-	return projectMembers, Conn.Order("created_at desc").Find(&projectMembers).Error
+
+	if page == 0 && pageSize == 0 {
+		return projectMembers, Conn.Where("project_id = ?", pm.ProjectID).Order("created_at desc").Find(&projectMembers).Error
+	}
+
+	return projectMembers, Conn.Where("project_id = ?", pm.ProjectID).Limit(pageSize).Offset((page - 1) * pageSize).Order("created_at desc").Find(&projectMembers).Error
+}
+
+func (pm *ProjectMembers) GetByUserIDAndProjectID() error {
+	return Conn.Where("user_id = ? and project_id = ?", pm.UserID, pm.ProjectID).Take(pm).Error
+}
+
+func (pm *ProjectMembers) Create() error {
+	return Conn.Create(pm).Error
+}
+
+func (pm *ProjectMembers) Delete() error {
+	return Conn.Delete(pm).Error
+}
+
+func (pm *ProjectMembers) Update() error {
+	return Conn.Save(pm).Error
+}
+
+func (pm *ProjectMembers) Count() (int64, error) {
+	var count int64
+	return count, Conn.Model(&ProjectMembers{}).Where("project_id = ?", pm.ProjectID).Count(&count).Error
+}
+
+func DeleteAllMembersByProjectID(projectID uint) error {
+	return Conn.Where("project_id = ?", projectID).Delete(&ProjectMembers{}).Error
+}
+
+func (pm *ProjectMembers) MemberIsManage() bool {
+	return pm.Authority == ProjectMembersManage
+}
+
+func (pm *ProjectMembers) MemberHasWritePermission() bool {
+	return slices.Contains([]string{ProjectMembersManage, ProjectMembersWrite}, pm.Authority)
+}
+
+func GetUserInvolvedProject(UserID uint) ([]ProjectMembers, error) {
+	var projectMembers []ProjectMembers
+	return projectMembers, Conn.Where("user_id = ?", UserID).Order("created_at desc").Find(&projectMembers).Error
 }

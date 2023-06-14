@@ -4,7 +4,7 @@
       <p class="ac-header-operate__title">{{ definition.name }}</p>
     </div>
 
-    <div class="ac-header-operate__btns">
+    <div class="ac-header-operate__btns" v-if="!isReader">
       <el-button type="primary" @click="() => goSchemaEditPage()">{{ $t('app.common.edit') }}</el-button>
     </div>
   </div>
@@ -27,15 +27,20 @@ import { useNamespace } from '@/hooks'
 import { useGoPage } from '@/hooks/useGoPage'
 import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
+import uesProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
 
 const ns = useNamespace('document')
 const route = useRoute()
 const definitionStore = useDefinitionStore()
-const { definitions } = storeToRefs(definitionStore)
-const [isLoading, getDefinitionDetailApi] = getDefinitionSchemaDetail()
+const projectStore = uesProjectStore()
 const { project_id } = useParams()
 const { goSchemaEditPage } = useGoPage()
+
+const { definitions } = storeToRefs(definitionStore)
+const { isReader } = storeToRefs(projectStore)
+const [isLoading, getDefinitionDetailApi] = getDefinitionSchemaDetail()
+
 const definition = ref<DefinitionSchema | null>(null)
 const hasDocument = ref(true)
 
@@ -47,15 +52,20 @@ const getDetail = async () => {
     return
   }
   hasDocument.value = true
-  const data = await getDefinitionDetailApi({ project_id, def_id })
 
-  Object.defineProperty(data.schema, '_id', {
-    value: data.id,
-    enumerable: false,
-    configurable: false,
-    writable: false,
-  })
-  definition.value = data
+  try {
+    const data = await getDefinitionDetailApi({ project_id, def_id })
+
+    Object.defineProperty(data.schema, '_id', {
+      value: data.id,
+      enumerable: false,
+      configurable: false,
+      writable: false,
+    })
+    definition.value = data
+  } catch (error) {
+    //
+  }
 }
 
 definitionStore.$onAction(({ name, after, args }) => {

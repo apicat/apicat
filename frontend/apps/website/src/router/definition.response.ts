@@ -1,6 +1,7 @@
 import { compile } from 'path-to-regexp'
 import { PROJECT_DETAIL_PATH } from './constant'
 import { RouteRecordRaw } from 'vue-router'
+import { MemberAuthorityInProject } from '@/typings/member'
 
 export const RESPONSE_DETAIL_NAME = 'definition.response.detail'
 export const RESPONSE_DETAIL_PATH = PROJECT_DETAIL_PATH + '/response/:response_id?'
@@ -24,4 +25,7 @@ export const definitionResponseEditRoute: RouteRecordRaw = {
   name: RESPONSE_EDIT_NAME,
   path: RESPONSE_EDIT_PATH,
   component: ResponseEditPage,
+  meta: {
+    editableRoles: [MemberAuthorityInProject.MANAGER, MemberAuthorityInProject.WRITE],
+  },
 }

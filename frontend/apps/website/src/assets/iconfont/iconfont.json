@@ -6,6 +6,20 @@
   "description": "open source apicat icons",
   "glyphs": [
     {
+      "icon_id": "10319825",
+      "name": "无权限",
+      "font_class": "wuquanxian",
+      "unicode": "e6d5",
+      "unicode_decimal": 59093
+    },
+    {
+      "icon_id": "217376",
+      "name": "Members",
+      "font_class": "members",
+      "unicode": "e637",
+      "unicode_decimal": 58935
+    },
+    {
       "icon_id": "2733951",
       "name": "单据模型",
       "font_class": "danjumoxing",

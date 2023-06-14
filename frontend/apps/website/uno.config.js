@@ -23,7 +23,7 @@ export default defineConfig({
         45: 'rgba(0,0,0,.45)',
         lighter: '#eceeef',
         100: '#fafafa',
-        110: '#F2F2F2',
+        110: '#f2f2f2',
       },
     },
     height: {

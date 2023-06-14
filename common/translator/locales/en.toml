@@ -16,6 +16,12 @@ other = "Project export failed, please try again later."
 [Projects.NotFound]
 other = "Item does not exist"
 
+[Projects.ExitFail]
+other = "Failed to exit project"
+
+[Projects.TransferFail]
+other = "Failed to transfer project"
+
 [DefinitionSchemas.QueryFailed]
 other = "Model query failed"
 
@@ -133,6 +139,9 @@ other = "Name already exists"
 [Common.TypeDoesNotExist]
 other = "Type does not exist"
 
+[Common.InsufficientPermissions]
+other = "Insufficient permissions"
+
 [Collections.QueryFailed]
 other = "Collection query failed"
 
@@ -147,6 +156,9 @@ other = "Collection delete failed"
 
 [Auth.TokenParsingFailed]
 other = "Login is unusual, please login again"
+
+[Auth.AccountDisabled]
+other = "This account has been disabled by an administrator"
 
 [User.LoginFailed]
 other = "Login failed"
@@ -165,3 +177,36 @@ other = "Account does not exist"
 
 [User.WrongPassword]
 other = "Wrong password"
+
+[Member.QueryFailed]
+other = "Member information query failed"
+
+[Member.CreateFailed]
+other = "Failed to add member"
+
+[Member.UpdateFailed]
+other = "Failed to modify member"
+
+[Member.DeleteFailed]
+other = "Failed to delete member"
+
+[Member.IsProjectManage]
+other = "User is administrator of the following project：%s"
+
+[ProjectMember.NotFound]
+other = "Project member information does not exist"
+
+[ProjectMember.QueryFailed]
+other = "Project member information query failed"
+
+[ProjectMember.CreateFailed]
+other = "Project member creation failed"
+
+[ProjectMember.UpdateFailed]
+other = "Project member modification failed"
+
+[ProjectMember.DeleteFailed]
+other = "Project member delete failed"
+
+[ProjectMember.AlreadyExists]
+other = "Project member already exists"
