@@ -1,7 +1,7 @@
 <template>
   <el-form :inline="true" :model="form" ref="fromRef" :rules="rules">
     <el-form-item :label="$t('app.project.member.chooseMember')" prop="user_ids">
-      <el-select v-model="form.user_ids" :placeholder="$t('app.project.member.chooseMember')" filterable multiple>
+      <el-select v-model="form.user_ids" :placeholder="$t('app.project.member.chooseMember')" filterable multiple collapse-tags collapse-tags-tooltip>
         <el-option v-for="member in members" :label="member.username" :value="member.user_id!" />
       </el-select>
     </el-form-item>

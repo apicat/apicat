@@ -20,10 +20,12 @@ export default {
       deleteTip: 'Delete tips',
       confirmDelete: 'Are you sure you want to delete{msg}?',
       copyAllPath: 'Copy Full URL',
+      fetchMockData: 'Get Mock data',
       saving: 'Saving...',
       savedCloud: 'Saved cloud',
       preview: 'Preview',
       goHome: 'Back to homepage',
+      goProjectList: 'Return to list of items',
       setting: 'Settings',
       register: 'Sign Up',
       registerAccount: 'Sign Up',
@@ -31,6 +33,8 @@ export default {
     },
     tips: {
       notFound: 'Oops, page not found. We are looking for it...',
+      noPermission: 'Unauthorized access…',
+      permissionChangeTitle: 'Permissions Change Hint',
       copyed: 'Successfully copied',
     },
     table: {
@@ -73,6 +77,9 @@ export default {
       },
     },
     user: {
+      tips: {
+        permissionChange: 'User permissions changed, then reload the action.',
+      },
       nav: {
         userSetting: 'Personal Settings',
         modifyPassword: 'Change Password',
@@ -81,9 +88,18 @@ export default {
     },
     project: {
       title: 'Project',
+      tips: {
+        quitProjectTitle: 'Exit Project',
+        quitProject: 'Are you sure you want to exit this project?',
+        transferProjectToMember: 'Are you sure you want to transfer the item to that member?',
+        targetMemberPermissionError: 'This membership has changed, please try again.',
+        permissionChange: 'You have changed your project permissions. You will need to refresh this action.',
+        noData: 'No project information available',
+      },
       list: {
         title: 'List of items',
         tabTitle: 'Project',
+        auth: 'Project Permissions',
       },
       form: {
         cover: 'Project cover',
@@ -96,6 +112,7 @@ export default {
         title: 'Please enter project name',
         titleMinLength: 'Project name must not be less than two characters',
         desc: 'Please enter project description',
+        chooseMember: 'Please select a member',
       },
       createModal: {
         title: 'Create Project',
@@ -107,15 +124,45 @@ export default {
       setting: {
         title: 'Project management',
         baseInfo: 'Project Settings',
+        quitProject: 'Exit Project',
         serverUrl: 'URL Settings',
         globalParam: 'Global Parameter Settings',
         responseParam: 'Public Response Settings',
+        member: 'Project members',
         export: 'Export items',
         deleteProject: 'Delete this item',
         deleteProjectTip:
           'Are you sure you want to delete this item?<br/> <span style="color:var(--el-color-danger)">Project deletes will not be able to operate this project.</span>',
         trash: 'Recycle Bin',
       },
+      member: {
+        title: 'Project members',
+        addMember: 'Add Member',
+        transferProject: 'Transfer of projects',
+        deleteMember: 'Delete member',
+        chooseMember: 'Select a member',
+        chooseAuth: 'Select permissions',
+      },
+    },
+    member: {
+      title: 'Members',
+      tips: {
+        addMember: 'Add Member',
+        editMember: 'Edit Member',
+        removeMember: 'Delete member',
+        deleteMemberTip: 'Are you sure you want to delete this member?',
+      },
+      form: {
+        title: 'Member list',
+        name: 'Name',
+        email: 'Email',
+        password: 'Password',
+        role: 'Team Roles',
+        accountStatus: 'Account Status',
+        accountStatusNormal: 'Normal',
+        accountStatusLock: 'Disabled',
+      },
+      rules: {},
     },
     serverUrl: {
       rules: {
@@ -172,11 +219,20 @@ export default {
         unnamedSchema: 'Unnamed',
       },
     },
-    publicResponse: {
-      title: 'Public Response',
+    definitionResponse: {
+      title: 'Response',
       tips: {
         confirmDelete: 'Are you sure you want to delete this public response?',
         unref: 'Unquote the content of this response',
+      },
+      form: {
+        title: 'Please enter response title',
+        desc: 'Please enter response description',
+      },
+      popoverMenus: {
+        newGroup: 'New Category',
+        confirmDeleteDefinitionResponse: "Are you sure you want to delete the `{0}' response?",
+        unnamedDefinitionResponse: 'Unnamed Response',
       },
     },
     response: {
@@ -228,6 +284,7 @@ export default {
       required: 'Required',
       defaultValue: 'Default value',
       paramDesc: 'Parameter Description',
+      paramMock: 'Mock',
       paramExample: 'Example value',
       yes: 'Y',
       no: 'N',

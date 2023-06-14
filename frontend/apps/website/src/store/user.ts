@@ -2,12 +2,12 @@ import { defineStore } from 'pinia'
 import { router } from '@/router'
 import { MAIN_PATH, LOGIN_PATH } from '@/router'
 import Storage from '@/commons/storage'
-import { userEmailLogin, userRegister, modifyUserInfo, modifyPassword } from '@/api/user'
+import { userEmailLogin, userRegister, modifyUserInfo, modifyPassword, getUserInfo } from '@/api/user'
 import { UserInfo, UserRoleInTeam, UserRoleInTeamMap } from '@/typings/user'
 import { pinia } from '@/plugins'
 
 interface UserState {
-  userInfo: UserInfo
+  userInfo: UserInfo | Record<string, any>
   token: string | null
 }
 
@@ -16,12 +16,13 @@ export const useUserStore = defineStore({
 
   state: (): UserState => ({
     token: Storage.get(Storage.KEYS.TOKEN) || null,
-    userInfo: Storage.get(Storage.KEYS.USER) || null,
+    userInfo: {},
   }),
 
   getters: {
     isLogin: (state) => !!state.token,
-    isSuperAdmin: (state) => state.userInfo.role === UserRoleInTeam.SUPER_ADMIN,
+    isSuperAdmin: (state) => state.userInfo?.role === UserRoleInTeam.SUPER_ADMIN,
+    isNormalUser: (state) => state.userInfo?.role === UserRoleInTeam.USER,
     userRoles: () =>
       Object.keys(UserRoleInTeamMap)
         .filter((key: string) => key !== UserRoleInTeam.SUPER_ADMIN)
@@ -59,11 +60,20 @@ export const useUserStore = defineStore({
       }
     },
 
+    async getUserInfo(): Promise<UserInfo | void> {
+      try {
+        const user: any = await getUserInfo()
+        this.updateUserInfo(user)
+        return user
+      } catch (error) {
+        //
+      }
+    },
+
     async modifyUserInfo(form: UserInfo) {
       try {
-        const { token, user }: any = await modifyUserInfo(form)
+        const user: any = await modifyUserInfo(form)
         this.updateUserInfo(user)
-        this.updateToken(token)
       } catch (error) {
         //
       }
@@ -71,8 +81,7 @@ export const useUserStore = defineStore({
 
     async modifyUserPassword(form: UserInfo) {
       try {
-        const { token }: any = await modifyPassword(form)
-        this.updateToken(token)
+        await modifyPassword(form)
       } catch (error) {
         //
       }
@@ -97,7 +106,6 @@ export const useUserStore = defineStore({
     // 更新个人信息
     updateUserInfo(user: UserInfo) {
       this.$patch({ userInfo: { ...this.userInfo, ...user } })
-      Storage.set(Storage.KEYS.USER, this.userInfo)
     },
   },
 })

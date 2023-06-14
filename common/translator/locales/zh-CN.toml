@@ -190,6 +190,9 @@ other = "修改成员失败"
 [Member.DeleteFailed]
 other = "删除成员失败"
 
+[Member.IsProjectManage]
+other = "用户是以下项目的管理员：%s"
+
 [ProjectMember.NotFound]
 other = "项目成员信息不存在"
 

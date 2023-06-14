@@ -190,6 +190,9 @@ other = "Failed to modify member"
 [Member.DeleteFailed]
 other = "Failed to delete member"
 
+[Member.IsProjectManage]
+other = "User is administrator of the following project：%s"
+
 [ProjectMember.NotFound]
 other = "Project member information does not exist"
 

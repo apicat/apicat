@@ -36,7 +36,7 @@ export default {
       notFound: '啊哦，网页走丢了，正在努力寻找中…',
       noPermission: '暂无权限访问…',
       permissionChangeTitle: '权限变更提示',
-      permissionChange: '您所在的项目权限发生变更，请刷新后操作。',
+
       copyed: '复制成功',
     },
     table: {
@@ -79,6 +79,9 @@ export default {
       },
     },
     user: {
+      tips: {
+        permissionChange: '用户权限发生变更，需刷新后操作。',
+      },
       nav: {
         userSetting: '个人设置',
         modifyPassword: '修改密码',
@@ -91,6 +94,9 @@ export default {
         quitProjectTitle: '退出项目',
         quitProject: '确定退出该项目吗？',
         transferProjectToMember: '确定移交项目给该成员？',
+        targetMemberPermissionError: '该成员权限发生变更，请重试。',
+        permissionChange: '您所在的项目权限发生变更，需刷新后操作。',
+        noData: '暂无项目信息',
       },
       list: {
         title: '项目列表',

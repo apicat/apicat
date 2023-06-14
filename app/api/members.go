@@ -1,12 +1,14 @@
 package api
 
 import (
+	"fmt"
 	"math"
 	"net/http"
 	"strings"
 
 	"github.com/apicat/apicat/common/auth"
 	"github.com/apicat/apicat/common/translator"
+	"github.com/apicat/apicat/enum"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +32,7 @@ type SetMemberData struct {
 	Email     string `json:"email" binding:"omitempty,email,lte=255"`
 	Password  string `json:"password" binding:"omitempty,gte=6,lte=255"`
 	Role      string `json:"role" binding:"omitempty,oneof=admin user"`
-	IsEnabled int    `json:"is_enabled" binding:"required,oneof=0 1"`
+	IsEnabled int    `json:"is_enabled" binding:"oneof=0 1"`
 }
 
 func GetMembers(ctx *gin.Context) {
@@ -95,7 +97,8 @@ func GetMembers(ctx *gin.Context) {
 func AddMember(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 	if currentUser.(*models.Users).Role != "superadmin" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.MemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -151,7 +154,8 @@ func AddMember(ctx *gin.Context) {
 func SetMember(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 	if currentUser.(*models.Users).Role != "superadmin" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.MemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -165,6 +169,13 @@ func SetMember(ctx *gin.Context) {
 		return
 	}
 
+	if currentUser.(*models.Users).ID == userIDData.UserID {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.UpdateFailed"}),
+		})
+		return
+	}
+
 	var data SetMemberData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -173,17 +184,20 @@ func SetMember(ctx *gin.Context) {
 		return
 	}
 
+	if data.Email != "" {
+		checkUser, _ := models.NewUsers()
+		if err := checkUser.GetByEmail(data.Email); err == nil && checkUser.ID != userIDData.UserID {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.MailboxAlreadyExists"}),
+			})
+			return
+		}
+	}
+
 	user, err := models.NewUsers(userIDData.UserID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.UpdateFailed"}),
-		})
-		return
-	}
-
-	if err := user.GetByEmail(data.Email); err == nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.MailboxAlreadyExists"}),
 		})
 		return
 	}
@@ -219,7 +233,8 @@ func SetMember(ctx *gin.Context) {
 func DeleteMember(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 	if currentUser.(*models.Users).Role != "superadmin" {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.MemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -242,8 +257,40 @@ func DeleteMember(ctx *gin.Context) {
 
 	user, err := models.NewUsers(userIDData.UserID)
 	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
+		})
+		return
+	}
+
+	// Determine whether the member to be deleted is an administrator of a project
+	pm, err := models.GetUserInvolvedProject(user.ID)
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
+		})
+		return
+	}
+
+	ps := []models.ProjectMembers{}
+	for _, v := range pm {
+		if v.Authority == models.ProjectMembersManage {
+			ps = append(ps, v)
+		}
+	}
+	if len(ps) > 0 {
+		tm := translator.Trasnlate(ctx, &translator.TT{ID: "Member.IsProjectManage"})
+		pns := []string{}
+		for _, v := range ps {
+			if project, err := models.NewProjects(v.ProjectID); err == nil {
+				pns = append(pns, project.Title)
+			}
+		}
+
+		pn := strings.Join(pns, "、")
+
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": fmt.Sprintf(tm, pn),
 		})
 		return
 	}

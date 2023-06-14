@@ -29,6 +29,7 @@ import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import { useI18n } from 'vue-i18n'
 import { quitProject } from '@/api/project'
 import { useUserStore } from '@/store/user'
+import AcIconLogout from '~icons/mdi/logout'
 
 const ns = useNamespace('project-info')
 const projectSettingModalRef = ref<InstanceType<typeof ProjectSettingModal>>()
@@ -41,7 +42,7 @@ const allMenus = computed(() => {
   if (!isManager.value) {
     menus[ProjectNavigateListEnum.QuitProject] = {
       text: t('app.project.setting.quitProject'),
-      icon: 'ac-trash',
+      elIcon: markRaw(AcIconLogout),
       action: handlerQuitProject,
     }
   }

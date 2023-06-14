@@ -23,7 +23,7 @@ const userSettingMenus = [
 
 const navMenus: Array<{ name: string; path: string; icon: string }> = [
   { name: t('app.project.title'), path: '/projects', icon: 'ac-xiangmu' },
-  { name: t('app.member.title'), path: '/members', icon: 'ac-xiangmu' },
+  { name: t('app.member.title'), path: '/members', icon: 'ac-members' },
 ]
 </script>
 

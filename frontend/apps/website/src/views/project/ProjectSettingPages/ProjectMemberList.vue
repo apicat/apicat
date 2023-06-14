@@ -3,6 +3,13 @@
     <AddProjectMember v-if="isManager" ref="addProjectMemberRef" @ok="getTableData" />
 
     <AcSimpleTable isShowPager v-model:page="currentPage" v-model:page-size="pageSize" :columns="columns" :table-data="data" :loading="isLoading" :total="total">
+      <template #accountStatus>
+        <el-table-column :label="$t('app.member.form.accountStatus')" width="100" align="center">
+          <template #default="{ row }">
+            <el-tag disable-transitions :type="row.accountStatusType">{{ row.accountStatus }}</el-tag>
+          </template>
+        </el-table-column>
+      </template>
       <template #auth>
         <el-table-column :label="$t('app.project.list.auth')">
           <template #default="{ row }">
@@ -58,6 +65,8 @@ import { useParams } from '@/hooks/useParams'
 import uesProjectStore from '@/store/project'
 import AddProjectMember from '../AddProjectMember.vue'
 import { storeToRefs } from 'pinia'
+import { TargetMemberPermissionError } from '@/api/error'
+import { ElMessage } from 'element-plus'
 
 const { t } = useI18n()
 const { project_id } = useParams()
@@ -80,9 +89,13 @@ const {
 })
 
 const { currentPage, pageSize, total, data, isLoading, getTableData } = useTable(getMembersInProject(project_id as string), {
+  pageSize: 10,
   isLoaded: true,
   transform: (member: ProjectMember): ProjectMember => {
     member.isSelf = member.user_id === userInfo.id
+    member.accountStatus = member.is_enabled ? t('app.member.form.accountStatusNormal') : t('app.member.form.accountStatusLock')
+    member.accountStatusType = member.is_enabled ? '' : 'info'
+    member.username = member.isSelf ? `${member.username}(我)` : member.username
     return member
   },
 })
@@ -95,6 +108,9 @@ const columns: any = [
   {
     label: t('app.member.form.email'),
     prop: 'email',
+  },
+  {
+    slot: 'accountStatus',
   },
   {
     slot: 'auth',
@@ -148,9 +164,16 @@ const handlerTransferProject = async (member: ProjectMember) => {
     title: t('app.common.deleteTip'),
     content: t('app.project.tips.transferProjectToMember'),
     onOk: async () => {
-      await transferProject(project_id as string, member.id!)
-      await projectStore.getProjectDetailInfo(project_id as string)
-      await getTableData()
+      try {
+        await transferProject(project_id as string, member.id!)
+      } catch (error) {
+        if (error instanceof TargetMemberPermissionError) {
+          ElMessage.error(t('app.project.tips.targetMemberPermissionError'))
+        }
+      } finally {
+        await projectStore.getProjectDetailInfo(project_id as string)
+        await getTableData()
+      }
     },
   })
 }
