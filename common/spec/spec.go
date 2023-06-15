@@ -64,8 +64,12 @@ func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 			if count > max {
 				return
 			}
+			refv := s.Definitions.Schemas.LookupID(mustGetRefID(*x.Reference))
+			if refv == nil || refv.Schema == nil {
+				return
+			}
 			parentRef = append(parentRef, *x.Reference)
-			b, _ := json.Marshal(*(s.Definitions.Schemas.LookupID(mustGetRefID(*x.Reference)).Schema))
+			b, _ := json.Marshal(*refv.Schema)
 			var s jsonschema.Schema
 			json.Unmarshal(b, &s)
 			*x = s
@@ -87,16 +91,25 @@ func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 				id, _ := strconv.ParseInt(ps[3], 10, 64)
 				switch ps[2] {
 				case "schemas":
-					*x = *(s.Definitions.Schemas.LookupID(id))
+					if refv := s.Definitions.Schemas.LookupID(id); refv != nil {
+						*x = *refv
+					}
 				case "parameters":
-					*x = *(s.Definitions.Parameters.LookupID(id))
+					if refv := s.Definitions.Parameters.LookupID(id); refv != nil {
+						*x = *refv
+					}
 				}
 			}
 		}
 		s.expendRef(x.Schema, max, parentRef...)
 	case *HTTPResponseDefine:
 		if x.Ref() {
-			*x = *(s.Definitions.Responses.LookupID(mustGetRefID(*x.Reference)))
+			refv := s.Definitions.Responses.LookupID(mustGetRefID(*x.Reference))
+			if refv == nil {
+				*x = HTTPResponseDefine{}
+			} else {
+				*x = *refv
+			}
 		}
 		for k := range x.Header {
 			s.expendRef(x.Header[k], max, parentRef...)
@@ -119,8 +132,11 @@ func (s *Spec) CollectionsMap(expend bool, refexpendMaxCount int) map[string]map
 		var (
 			method string
 			path   string
-			part   HTTPPart
 		)
+		part := HTTPPart{
+			Title: v.Title,
+			ID:    v.ID,
+		}
 		for _, item := range v.Content {
 			switch nx := item.Node.(type) {
 			case *HTTPNode[HTTPURLNode]:
