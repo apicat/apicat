@@ -3,20 +3,17 @@
 </template>
 
 <script setup lang="ts">
-import { EditorView } from 'codemirror'
 import { Compartment } from '@codemirror/state'
 import { indentWithTab } from '@codemirror/commands'
 import { json } from '@codemirror/lang-json'
 import { xml } from '@codemirror/lang-xml'
 import { html } from '@codemirror/lang-html'
 
-import { keymap, highlightSpecialChars, drawSelection, lineNumbers, dropCursor, rectangularSelection, crosshairCursor } from '@codemirror/view'
+import { EditorView, keymap, highlightSpecialChars, drawSelection, lineNumbers, dropCursor, rectangularSelection, crosshairCursor } from '@codemirror/view'
 import { Extension, EditorState } from '@codemirror/state'
 import { defaultHighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching, foldGutter, foldKeymap } from '@codemirror/language'
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
-import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
-import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
-import { lintKeymap } from '@codemirror/lint'
+import { history, historyKeymap } from '@codemirror/commands'
+import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
 
 import { onMounted, onUnmounted, shallowRef, watch } from 'vue'
 
@@ -83,8 +80,7 @@ const basicSetup: Extension = (() => [
   autocompletion(),
   rectangularSelection(),
   crosshairCursor(),
-  highlightSelectionMatches(),
-  keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...searchKeymap, ...historyKeymap, ...foldKeymap, ...completionKeymap, ...lintKeymap]),
+  keymap.of([...historyKeymap]),
 ])()
 
 onMounted(() => {

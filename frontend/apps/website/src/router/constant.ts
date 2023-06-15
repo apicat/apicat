@@ -15,4 +15,4 @@ export const PROJECT_LIST_ROOT_PATH_NAME = 'projects'
 export const PROJECT_LIST_ROOT_PATH = '/projects'
 
 export const PROJECT_DETAIL_PATH_NAME = 'project.detail'
-export const PROJECT_DETAIL_PATH = '/proejct/:project_id'
+export const PROJECT_DETAIL_PATH = '/project/:project_id'
