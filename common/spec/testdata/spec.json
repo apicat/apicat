@@ -64,7 +64,8 @@
           "required": ["id"],
           "properties": {
             "id": {
-              "type": "number"
+              "type": "number",
+              "description":"test..."
             },
             "name": {
               "type": "string"
@@ -129,7 +130,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "#/definitions/schemas/response"
+              "$ref": "#/definitions/schemas/5"
             }
           }
         },
@@ -150,7 +151,7 @@
         "content": {
           "application/json": {
             "schema": {
-              "$ref": "#/definitions/schemas/response"
+              "$ref": "#/definitions/schemas/5"
             }
           }
         }
@@ -181,7 +182,7 @@
     {
       "title": "这是文件夹里的一个接口",
       "id": 1,
-      "parentid": 0,
+      "parentid": 4,
       "type": "http",
       "tag": ["bbb"],
       "content": [
