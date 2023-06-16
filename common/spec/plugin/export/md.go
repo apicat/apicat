@@ -78,6 +78,9 @@ func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTT
 	for k, v := range part.Content {
 		fmt.Fprintf(buf, "ContentType `%s`\n", k)
 		renderTableHeader(buf, jsonschemaHeaderCols)
+		if v.Schema == nil {
+			continue
+		}
 		renderSchema(buf, "`root`", 0, true, v.Schema)
 		if strings.Contains(k, "json") {
 			b, _ := json.Marshal(v.Schema)
@@ -97,6 +100,9 @@ func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTT
 		for k, v := range res.Content {
 			fmt.Fprintf(buf, " ContentType `%s`\n\n", k)
 			renderTableHeader(buf, jsonschemaHeaderCols)
+			if v.Schema == nil {
+				continue
+			}
 			renderSchema(buf, "`root`", 0, true, v.Schema)
 			if strings.Contains(k, "json") {
 				b, _ := json.Marshal(v.Schema)
@@ -116,6 +122,9 @@ func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTT
 }
 
 func renderSchema(buf *bytes.Buffer, name string, lvl int, required bool, s *jsonschema.Schema) {
+	if s.Type == nil {
+		return
+	}
 	typ := s.Type.Value()
 	if len(typ) > 1 {
 		renderSchemaItem(buf, name, "any", s.Description, lvl, required)

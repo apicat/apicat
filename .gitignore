@@ -18,6 +18,7 @@ apicat
 .vscode/
 data/*.db
 logs/
+.DS_Store
 
 setting.default.yaml
 setting.example.yaml

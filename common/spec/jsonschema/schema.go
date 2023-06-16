@@ -54,7 +54,7 @@ type Schema struct {
 	Reference *string `json:"$ref,omitempty"`
 }
 
-func (s *Schema) Ref() bool { return s.Reference != nil }
+func (s *Schema) Ref() bool { return s != nil && s.Reference != nil }
 
 var coreTypes = []string{
 	"string",
