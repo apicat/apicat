@@ -170,7 +170,7 @@ const CodeGenerateSupportedLanguages: CodeGenerateLanguage[] = [
   {
     sort: 100,
     logo: 'logo.svg',
-    name: 'javascript proptypes',
+    name: 'javascript-proptypes',
     options: [
       { name: 'acronym-style', description: '字段命名风格' },
       { name: 'converters', description: '使用哪种 converters 来生成 (默认为 top-level)' },
