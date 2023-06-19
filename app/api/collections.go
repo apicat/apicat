@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/apicat/apicat/app/util"
 	"github.com/apicat/apicat/common/spec"
 	"github.com/apicat/apicat/common/spec/plugin/export"
 	"github.com/apicat/apicat/common/spec/plugin/openapi"
@@ -394,10 +395,5 @@ func CollectionDataGet(ctx *gin.Context) {
 		return
 	}
 
-	if data.Download == "true" {
-		ctx.Header("Content-Disposition", "attachment; filename="+project.Title+"-"+collection.Title+"-"+data.Type+".json")
-		ctx.Data(http.StatusOK, "application/octet-stream", content)
-	} else {
-		ctx.Data(http.StatusOK, "application/json", content)
-	}
+	util.ExportResponse(data.Type, data.Download, project.Title+"-"+data.Type, content, ctx)
 }
