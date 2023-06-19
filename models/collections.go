@@ -224,3 +224,58 @@ func collectionsTree(collections []*Collections, parentCollection *Collections, 
 
 	return collectItems
 }
+
+// CollectionExport 返回单篇文档导出的 apicat 结构
+// project 导出集合所属项目 model
+// collection 导出的集合 model
+func CollectionExport(project *Projects, collection *Collections) *spec.Spec {
+	apicatData := &spec.Spec{}
+	apicatData.ApiCat = "apicat"
+	apicatData.Info = &spec.Info{
+		ID:          project.PublicId,
+		Title:       project.Title,
+		Description: project.Description,
+		Version:     "1.0.0",
+	}
+
+	collectItem := &spec.CollectItem{
+		ID:       int64(collection.ID),
+		ParentID: int64(collection.ParentId),
+		Title:    collection.Title,
+		Type:     spec.ContentType(collection.Type),
+	}
+	content := []*spec.NodeProxy{}
+	if json.Unmarshal([]byte(collection.Content), &content) == nil {
+		collectItem.Content = content
+	}
+
+	apicatData.Collections = []*spec.CollectItem{collectItem}
+	apicatData.Servers = ServersExport(project.ID)
+	apicatData.Globals.Parameters = GlobalParametersExport(project.ID)
+	apicatData.Definitions.Schemas = DefinitionSchemasExport(project.ID)
+	apicatData.Definitions.Parameters = DefinitionParametersExport(project.ID)
+	apicatData.Definitions.Responses = DefinitionResponsesExport(project.ID)
+
+	paths := apicatData.CollectionsMap(true, 1)
+	for _, path := range paths {
+		for _, v := range path {
+			for _, i := range content {
+				switch nx := i.Node.(type) {
+				case *spec.HTTPNode[spec.HTTPRequestNode]:
+					nx.Attrs.Parameters = v.Parameters
+					nx.Attrs.Content = v.Content
+				case *spec.HTTPNode[spec.HTTPResponsesNode]:
+					nx.Attrs.List = v.Responses
+				}
+			}
+		}
+	}
+
+	apicatData.Definitions = spec.Definitions{
+		Schemas:    spec.Schemas{},
+		Parameters: spec.Schemas{},
+		Responses:  spec.HTTPResponseDefines{},
+	}
+
+	return apicatData
+}

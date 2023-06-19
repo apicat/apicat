@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/apicat/apicat/common/spec"
+	"github.com/apicat/apicat/common/spec/plugin/export"
 	"github.com/apicat/apicat/common/spec/plugin/openapi"
 	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/enum"
@@ -34,7 +35,7 @@ type ProjectID struct {
 }
 
 type ExportProject struct {
-	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi3.0.0 openapi3.0.1 openapi3.0.2 openapi3.1.0"`
+	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi3.0.0 openapi3.0.1 openapi3.0.2 openapi3.1.0 HTML md"`
 	Download string `form:"download" binding:"omitempty,oneof=true false"`
 }
 
@@ -368,6 +369,10 @@ func ProjectDataGet(ctx *gin.Context) {
 		content, err = openapi.Encode(apicatData, "3.0.2")
 	case "openapi3.1.0":
 		content, err = openapi.Encode(apicatData, "3.1.0")
+	case "HTML":
+		content, err = export.HTML(apicatData)
+	case "md":
+		content, err = export.Markdown(apicatData)
 	default:
 		content, err = apicatData.ToJSON(spec.JSONOption{Indent: "  "})
 	}
