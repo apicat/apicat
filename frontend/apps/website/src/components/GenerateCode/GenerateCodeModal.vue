@@ -1,7 +1,7 @@
 <template>
   <el-dialog v-model="dialogVisible" append-to-body :close-on-click-modal="false" class="fullscree hide-header" destroy-on-close center width="70%">
     <div class="flex overflow-hidden rounded h-600px">
-      <div class="flex flex-col py-5 w-240px bg-gray-lighter">
+      <div class="flex flex-col py-5 w-240px">
         <div class="px-5 pb-5 text-lg font-medium">生成模型代码</div>
         <div class="flex-1 px-5 overflow-y-auto">
           <ElSelect v-model="currentLang" class="w-full">
