@@ -11,8 +11,8 @@ import { html } from '@codemirror/lang-html'
 
 import { EditorView, keymap, highlightSpecialChars, drawSelection, lineNumbers, dropCursor, rectangularSelection, crosshairCursor } from '@codemirror/view'
 import { Extension, EditorState } from '@codemirror/state'
-import { defaultHighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching, foldGutter, foldKeymap } from '@codemirror/language'
-import { history, historyKeymap } from '@codemirror/commands'
+import { defaultHighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching, foldGutter } from '@codemirror/language'
+import { history, historyKeymap, defaultKeymap } from '@codemirror/commands'
 import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
 
 import { onMounted, onUnmounted, shallowRef, watch } from 'vue'
@@ -66,7 +66,6 @@ const fixedHeightEditor = EditorView.baseTheme({
 
 const basicSetup: Extension = (() => [
   lineNumbers(),
-  // highlightActiveLineGutter(),
   highlightSpecialChars(),
   history(),
   foldGutter(),
@@ -80,16 +79,15 @@ const basicSetup: Extension = (() => [
   autocompletion(),
   rectangularSelection(),
   crosshairCursor(),
-  keymap.of([...historyKeymap]),
+  keymap.of([...historyKeymap, ...defaultKeymap, indentWithTab]),
 ])()
 
 onMounted(() => {
   const exts = [
     basicSetup,
     fixedHeightEditor,
-    keymap.of([indentWithTab]),
     language.of(langs[props.lang]),
-    EditorView.editable.of(!props.readonly),
+    EditorState.readOnly.of(props.readonly),
     EditorView.updateListener.of((update) => {
       if (update.docChanged) {
         emits('update:modelValue', view.state.doc.toString())

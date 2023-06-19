@@ -16,10 +16,13 @@
   </Result>
 
   <div :class="[ns.b(), { 'h-20vh': !definition && hasDocument }]" v-loading="isLoading">
+    <div class="text-right"><el-button @click="onShowCodeGenerate" :icon="AcIconoirCode">Code Generate</el-button></div>
     <SchmaEditor v-if="definition" :readonly="true" v-model="definition" :definitions="definitions" />
+    <GenerateCodeModal ref="generateCodeModalRef" />
   </div>
 </template>
 <script setup lang="ts">
+import AcIconoirCode from '~icons/pepicons-pop/code'
 import SchmaEditor from './components/SchemaEditor.vue'
 import { getDefinitionSchemaDetail } from '@/api/definitionSchema'
 import { DefinitionSchema } from '@/components/APIEditor/types'
@@ -29,6 +32,8 @@ import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
 import uesProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
+
+const GenerateCodeModal = defineAsyncComponent(() => import('@/components/GenerateCode/GenerateCodeModal.vue'))
 
 const ns = useNamespace('document')
 const route = useRoute()
@@ -43,6 +48,7 @@ const [isLoading, getDefinitionDetailApi] = getDefinitionSchemaDetail()
 
 const definition = ref<DefinitionSchema | null>(null)
 const hasDocument = ref(true)
+const generateCodeModalRef = ref<InstanceType<typeof GenerateCodeModal>>()
 
 const getDetail = async () => {
   const def_id = parseInt(route.params.shcema_id as string, 10)
@@ -66,6 +72,10 @@ const getDetail = async () => {
   } catch (error) {
     //
   }
+}
+
+const onShowCodeGenerate = () => {
+  generateCodeModalRef.value?.show()
 }
 
 definitionStore.$onAction(({ name, after, args }) => {
