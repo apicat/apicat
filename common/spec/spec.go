@@ -53,6 +53,10 @@ func refDept(r string, refs ...string) int {
 }
 
 func (s *Spec) ExpendRef(v Referencer, max int, parentRef ...string) {
+	s.expendRef(v, max, parentRef...)
+}
+
+func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 	if v == nil {
 		return
 	}
@@ -76,12 +80,12 @@ func (s *Spec) ExpendRef(v Referencer, max int, parentRef ...string) {
 		}
 		if x.Properties != nil {
 			for _, v := range x.Properties {
-				s.ExpendRef(v, max, parentRef...)
+				s.expendRef(v, max, parentRef...)
 			}
 		}
 		if x.Items != nil && !x.Items.IsBool() {
 			v := *x.Items.Value()
-			s.ExpendRef(&v, max, parentRef...)
+			s.expendRef(&v, max, parentRef...)
 			x.Items.SetValue(&v)
 		}
 	case *Schema:
@@ -101,7 +105,7 @@ func (s *Spec) ExpendRef(v Referencer, max int, parentRef ...string) {
 				}
 			}
 		}
-		s.ExpendRef(x.Schema, max, parentRef...)
+		s.expendRef(x.Schema, max, parentRef...)
 	case *HTTPResponseDefine:
 		if x.Ref() {
 			refv := s.Definitions.Responses.LookupID(mustGetRefID(*x.Reference))
@@ -112,10 +116,10 @@ func (s *Spec) ExpendRef(v Referencer, max int, parentRef ...string) {
 			}
 		}
 		for k := range x.Header {
-			s.ExpendRef(x.Header[k], max, parentRef...)
+			s.expendRef(x.Header[k], max, parentRef...)
 		}
 		for k := range x.Content {
-			s.ExpendRef(x.Content[k], max, parentRef...)
+			s.expendRef(x.Content[k], max, parentRef...)
 		}
 	}
 }
@@ -146,12 +150,12 @@ func (s *Spec) CollectionsMap(expend bool, refexpendMaxCount int) map[string]map
 					mp := nx.Attrs.Parameters.Map()
 					for _, v := range mp {
 						for k := range v {
-							s.ExpendRef(v[k], refexpendMaxCount)
+							s.expendRef(v[k], refexpendMaxCount)
 						}
 					}
 					if nx.Attrs.Content != nil {
 						for k := range nx.Attrs.Content {
-							s.ExpendRef(nx.Attrs.Content[k], refexpendMaxCount)
+							s.expendRef(nx.Attrs.Content[k], refexpendMaxCount)
 						}
 					}
 				}
@@ -160,7 +164,7 @@ func (s *Spec) CollectionsMap(expend bool, refexpendMaxCount int) map[string]map
 				res := nx.Attrs.List
 				if expend {
 					for i, v := range res {
-						s.ExpendRef(&v.HTTPResponseDefine, refexpendMaxCount)
+						s.expendRef(&v.HTTPResponseDefine, refexpendMaxCount)
 						res[i] = v
 					}
 				}
