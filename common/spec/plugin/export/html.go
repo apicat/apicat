@@ -68,6 +68,7 @@ var htmllayout = `<!DOCTYPE html>
 	h4{font-size: 1.2em;}
 	h2,h3,h4,h5,h6{font-weight: 500;}
 	li+li{margin-top:.25em}
+	ol,ul{margin: 0;padding-left:2em}
 	pre>code{border-radius: 10px;line-height:1.45;}
 	code{font-size:85%%;background-color: #eaeef3;color: #00193a;border-radius: 4px;padding:.2em .4em;font-family: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;}     
     hr{height: 1px;border:none;border-top:4px #eee solid;margin:4em 0}
