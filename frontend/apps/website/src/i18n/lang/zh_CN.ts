@@ -32,6 +32,7 @@ export default {
       registerAccount: '注册账号',
       login: '登录',
       generateModelCode: '生成模型代码',
+      generateCode: '生成代码',
       copyCode: '复制代码',
       code: '代码',
     },

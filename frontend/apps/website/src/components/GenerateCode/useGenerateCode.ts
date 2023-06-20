@@ -14,6 +14,7 @@ export const useGenerateCode = () => {
   const apicatSchema: Ref<DefinitionSchema | null> = ref(null)
   const currentLanguage: Ref<string> = ref(Storage.get(Storage.KEYS.CODE_GENERATE_LANGUAGE) || languages[0].label)
   const currentLanguageOptions: Ref<Record<string, any>> = ref({})
+  const currentLanguageForCodeMirror: Ref<string> = ref('')
 
   const currentLanguageOptionRender = computed(() => {
     const render = languages.find((item) => item.label === currentLanguage.value)
@@ -26,6 +27,7 @@ export const useGenerateCode = () => {
     })
 
     currentLanguageOptions.value = defaultValues
+    currentLanguageForCodeMirror.value = render?.name || ''
 
     return render
   })
@@ -37,7 +39,7 @@ export const useGenerateCode = () => {
 
   const getInputData = useMemoize(async (dataModelName: string, jsonSchemaString: string) => {
     const schemaInput = new JSONSchemaInput(new FetchingJSONSchemaStore())
-    await schemaInput.addSource({ name: dataModelName, schema: jsonSchemaString })
+    await schemaInput.addSource({ name: dataModelName || 'ApiCat', schema: jsonSchemaString })
     const inputData = new InputData()
     inputData.addInput(schemaInput)
     return inputData
@@ -74,6 +76,7 @@ export const useGenerateCode = () => {
   return {
     languages,
     currentLanguage,
+    currentLanguageForCodeMirror,
     currentLanguageOptionRender,
     currentLanguageOptions,
     code,

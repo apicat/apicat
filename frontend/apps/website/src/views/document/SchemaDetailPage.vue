@@ -18,7 +18,9 @@
   <div :class="[ns.b(), { 'h-20vh': !definition && hasDocument }]" v-loading="isLoading">
     <template v-if="definition">
       <h4>{{ definition.description }}</h4>
-      <div class="text-right"><el-button @click="onShowCodeGenerate" :icon="AcIconoirCode">Code Generate</el-button></div>
+      <div class="text-right">
+        <el-button @click="onShowCodeGenerate" :icon="AcIconoirCode">{{ $t('app.common.generateCode') }}</el-button>
+      </div>
       <div class="ac-editor mt-10px"></div>
       <JSONSchemaEditor readonly v-model="definition.schema" :definitions="definitions" />
     </template>

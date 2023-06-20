@@ -59,7 +59,7 @@
         <div class="text-base font-medium pb-10px">{{ currentLanguage }} {{ $t('app.common.code') }}</div>
         <el-button class="text-right mb-10px copy_text" :data-text="code">{{ $t('app.common.copyCode') }}</el-button>
         <div class="flex-1 pb-5 overflow-scroll">
-          <CodeEditor readonly style="max-height: fit-content" class="h-full" :model-value="code" />
+          <CodeEditor readonly style="max-height: fit-content" class="h-full" :model-value="code" :lang="currentLanguageForCodeMirror" />
         </div>
       </div>
     </div>
@@ -73,7 +73,7 @@ import { DefinitionSchema } from '../APIEditor/types'
 
 const { dialogVisible, showModel } = useModal()
 const [isShowMoreMenu, toggleMoreMenu] = useToggle()
-const { code, dataModelName, apicatSchema, languages, currentLanguage, currentLanguageOptionRender, currentLanguageOptions } = useGenerateCode()
+const { code, dataModelName, apicatSchema, languages, currentLanguage, currentLanguageOptionRender, currentLanguageOptions, currentLanguageForCodeMirror } = useGenerateCode()
 
 defineExpose({
   show: async (definitionSchema: DefinitionSchema) => {
