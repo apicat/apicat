@@ -62,6 +62,9 @@ func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 	}
 	switch x := v.(type) {
 	case *jsonschema.Schema:
+		if x == nil {
+			return
+		}
 		if x.Ref() {
 			// 重复出现的递归次数
 			count := refDept(*x.Reference, parentRef...)
