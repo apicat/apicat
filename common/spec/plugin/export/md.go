@@ -56,7 +56,7 @@ func Markdown(in *spec.Spec) ([]byte, error) {
 
 	for k, v := range list {
 		item := paths[v[0]][v[1]]
-		rednerHttpPart(&buf, k+1, v[0], v[1], item)
+		rednerHttpPart(&buf, k+1, v[0], v[1], item, in.Globals.Parameters)
 	}
 
 	return buf.Bytes(), nil
@@ -65,11 +65,30 @@ func Markdown(in *spec.Spec) ([]byte, error) {
 var jsonschemaHeaderCols = []string{"name", "type", "required", "comment"}
 var paramsHeaderCols = []string{"name", "in", "type", "required", "comment"}
 
-func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTTPPart) {
+func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTTPPart, globls spec.HTTPParameters) {
 	fmt.Fprintf(buf, "## <span id=\"api-%d\">%d. %s</span>\n", i, i, part.Title)
 	fmt.Fprintf(buf, "### Path\n [%s](%s)\n", path, path)
 	fmt.Fprintf(buf, "### Method\n %s\n", strings.ToUpper(method))
+
+	skips := make(map[string]bool)
+	for k, v := range part.GlobalExcepts {
+		for _, x := range v {
+			skips[fmt.Sprintf("%s|_%d", k, x)] = true
+		}
+	}
+
+	// globls
 	params := part.Parameters.Map()
+	for in, ps := range globls.Map() {
+		for _, v := range ps {
+			if skips[fmt.Sprintf("%s|_%d", in, v.ID)] {
+				continue
+			}
+			x := v
+			params[in] = append(params[in], x)
+		}
+	}
+
 	if len(params) > 0 {
 		var renderHeader bool
 		for k, v := range params {
