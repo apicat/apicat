@@ -18,6 +18,8 @@
 <script setup lang="ts">
 import swaggerLogo from '@/assets/images/logo-swagger@2x.png'
 import openApiLogo from '@/assets/images/logo-openapis.svg'
+import htmlLogo from '@/assets/images/logo-html@2x.png'
+import mdLogo from '@/assets/images/logo-markdown@2x.png'
 import { ExportProjectTypes } from '@/commons/constant'
 import { exportProject } from '@/api/project'
 import { useProjectId } from '@/hooks/useProjectId'
@@ -37,6 +39,8 @@ const exportList = [
       { label: '3.1.0', value: 'openapi3.1.0' },
     ],
   },
+  { logo: htmlLogo, text: 'HTML', type: ExportProjectTypes.HTML },
+  { logo: mdLogo, text: 'Markdown', type: ExportProjectTypes.MARKDOWN },
 ]
 
 const selectedRef: any = ref({

@@ -101,6 +101,8 @@ export const getProjectNavigateList = (overwrite?: any): ProjectNavigateObject =
 export const enum ExportProjectTypes {
   Swagger = 'swagger',
   OpenAPI = 'openapi',
+  HTML = 'HTML',
+  MARKDOWN = 'md',
 }
 
 export const enum CommonParameterType {
