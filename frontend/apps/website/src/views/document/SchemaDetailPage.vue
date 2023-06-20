@@ -16,14 +16,20 @@
   </Result>
 
   <div :class="[ns.b(), { 'h-20vh': !definition && hasDocument }]" v-loading="isLoading">
-    <div class="text-right"><el-button @click="onShowCodeGenerate" :icon="AcIconoirCode">Code Generate</el-button></div>
-    <SchmaEditor v-if="definition" :readonly="true" v-model="definition" :definitions="definitions" />
-    <GenerateCodeModal ref="generateCodeModalRef" />
+    <template v-if="definition">
+      <h4>{{ definition.description }}</h4>
+      <div class="text-right"><el-button @click="onShowCodeGenerate" :icon="AcIconoirCode">Code Generate</el-button></div>
+      <div class="ac-editor mt-10px"></div>
+      <JSONSchemaEditor readonly v-model="definition.schema" :definitions="definitions" />
+    </template>
   </div>
+
+  <GenerateCodeModal ref="generateCodeModalRef" />
 </template>
+
 <script setup lang="ts">
 import AcIconoirCode from '~icons/pepicons-pop/code'
-import SchmaEditor from './components/SchemaEditor.vue'
+import JSONSchemaEditor from '@/components/APIEditor/Editor.vue'
 import { getDefinitionSchemaDetail } from '@/api/definitionSchema'
 import { DefinitionSchema } from '@/components/APIEditor/types'
 import { useNamespace } from '@/hooks'
@@ -75,7 +81,7 @@ const getDetail = async () => {
 }
 
 const onShowCodeGenerate = () => {
-  generateCodeModalRef.value?.show()
+  generateCodeModalRef.value?.show(toRaw(definition.value)!)
 }
 
 definitionStore.$onAction(({ name, after, args }) => {

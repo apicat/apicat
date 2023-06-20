@@ -31,12 +31,14 @@ export default {
       register: '注册',
       registerAccount: '注册账号',
       login: '登录',
+      generateModelCode: '生成模型代码',
+      copyCode: '复制代码',
+      code: '代码',
     },
     tips: {
       notFound: '啊哦，网页走丢了，正在努力寻找中…',
       noPermission: '暂无权限访问…',
       permissionChangeTitle: '权限变更提示',
-
       copyed: '复制成功',
     },
     table: {
@@ -259,6 +261,14 @@ export default {
       tips: {
         noRequestBody: '该请求没有Body体',
         selectFile: '请选择文件',
+      },
+    },
+    codeGen: {
+      model: {
+        name: '数据模型名',
+      },
+      rules: {
+        name: '请输入数据模型名',
       },
     },
   },

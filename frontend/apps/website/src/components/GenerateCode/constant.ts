@@ -26,6 +26,7 @@ export interface TargetLanguageOption {
   isEnumOption?: boolean
   isStringOption?: boolean
   isBooleanOption?: boolean
+  isPrimaryOption?: boolean
 }
 
 export interface CodeGenerateLanguage {
@@ -33,11 +34,44 @@ export interface CodeGenerateLanguage {
   logo: string
   name: string
   options: TargetLanguageOption[]
+  primaryOptions?: TargetLanguageOption[]
+  secondaryOptions?: TargetLanguageOption[]
   targetLanguage: TargetLanguage
   label: string
 }
 
 const CodeGenerateSupportedLanguages: CodeGenerateLanguage[] = [
+  {
+    sort: 0,
+    logo: 'logo.svg',
+    name: 'typescript',
+    options: [
+      { name: 'just-types', description: '只生成类型定义' },
+      { name: 'nice-property-names', description: '属性名转为 JavaScripty 风格' },
+      { name: 'explicit-unions', description: 'Explicitly name unions' },
+      { name: 'runtime-typecheck', description: '运行时校验 JSON.parse 结果' },
+      { name: 'runtime-typecheck-ignore-unknown-properties', description: '运行时忽略未定义的属性校验' },
+      { name: 'acronym-style', description: '字段命名风格' },
+      { name: 'converters', description: '使用哪种 converters 来生成 (默认为 top-level)' },
+      { name: 'raw-type', description: '原始输入类型 (默认为 json)' },
+      { name: 'prefer-unions', description: '使用 union type 替代枚举' },
+    ],
+    label: 'TypeScript',
+    targetLanguage: new TypeScriptTargetLanguage(),
+  },
+  {
+    sort: 5,
+    logo: 'logo.svg',
+    name: 'go',
+    options: [
+      { name: 'just-types', description: '只生成 Types' },
+      { name: 'package', description: '生成包名' },
+      { name: 'multi-file-output', description: '将每个顶级对象呈现为其自己的 Go 文件' },
+      { name: 'just-types-and-package', description: '只要 types 和 package' },
+    ],
+    label: 'Go',
+    targetLanguage: new GoTargetLanguage(),
+  },
   {
     sort: 10,
     logo: 'logo.svg',
@@ -57,19 +91,7 @@ const CodeGenerateSupportedLanguages: CodeGenerateLanguage[] = [
     label: 'C#',
     targetLanguage: new CSharpTargetLanguage(),
   },
-  {
-    sort: 20,
-    logo: 'logo.svg',
-    name: 'go',
-    options: [
-      { name: 'just-types', description: '只生成 Types' },
-      { name: 'package', description: '生成包名' },
-      { name: 'multi-file-output', description: '将每个顶级对象呈现为其自己的 Go 文件' },
-      { name: 'just-types-and-package', description: '只要 types 和 package' },
-    ],
-    label: 'Go',
-    targetLanguage: new GoTargetLanguage(),
-  },
+
   {
     sort: 30,
     logo: 'logo.svg',
@@ -91,7 +113,7 @@ const CodeGenerateSupportedLanguages: CodeGenerateLanguage[] = [
       { name: 'namespace', description: '生成的 namespace' },
       { name: 'code-format', description: '生成带 getters/setters 的 class, 而不是 structs' },
       { name: 'wstring', description: '使用 Utf-16 std::wstring 存储 strings, 而不是 Utf-8 std::string' },
-      { name: 'msbuildPermissive', description: '将 to_json 和 from_json 类型移动到 nlohmann::details 命名空间中，以便 msbuild 可以在禁用一致性模式时构建它' },
+      // { name: 'msbuildPermissive', description: '将 to_json 和 from_json 类型移动到 nlohmann::details 命名空间中，以便 msbuild 可以在禁用一致性模式时构建它' },
       { name: 'const-style', description: '将 const 放置在左侧/西侧 (const T) 还是右侧/东侧 (T const)' },
       { name: 'source-style', description: '源代码生成类型，是单个文件还是多个文件' },
       { name: 'include-location', description: '将 json.hpp 定位为全局还是本地文件' },
@@ -135,30 +157,13 @@ const CodeGenerateSupportedLanguages: CodeGenerateLanguage[] = [
     label: 'Java',
     targetLanguage: new JavaTargetLanguage(),
   },
-  {
-    sort: 80,
-    logo: 'logo.svg',
-    name: 'typescript',
-    options: [
-      { name: 'just-types', description: '只生成类型定义' },
-      { name: 'nice-property-names', description: '属性名转为 JavaScripty 风格' },
-      { name: 'explicit-unions', description: 'Explicitly name unions' },
-      { name: 'runtime-typecheck', description: '运行时校验 JSON.parse 结果' },
-      { name: 'runtime-typecheck-ignore-unknown-properties', description: '运行时忽略未定义的属性校验' },
-      { name: 'acronym-style', description: '字段命名风格' },
-      { name: 'converters', description: '使用哪种 converters 来生成 (默认为 top-level)' },
-      { name: 'raw-type', description: '原始输入类型 (默认为 json)' },
-      { name: 'prefer-unions', description: '使用 union type 替代枚举' },
-    ],
-    label: 'TypeScript',
-    targetLanguage: new TypeScriptTargetLanguage(),
-  },
+
   {
     sort: 90,
     logo: 'logo.svg',
     name: 'javascript',
     options: [
-      { name: 'runtime-typecheck', description: '运行时校验 JSON.parse 结果' },
+      { name: 'runtime-typecheck', description: '运行时校验 JSON.parse 结果', defaultValue: false },
       { name: 'runtime-typecheck-ignore-unknown-properties', description: '运行时忽略未定义的属性校验' },
       { name: 'acronym-style', description: '字段命名风格' },
       { name: 'converters', description: '使用哪种 converters 来生成 (默认为 top-level)' },
@@ -206,7 +211,7 @@ const CodeGenerateSupportedLanguages: CodeGenerateLanguage[] = [
       { name: 'initializers', description: 'Generate initializers and mutators' },
       { name: 'coding-keys', description: '在 Codable 类型中明确 CodingKey 值' },
       { name: 'access-level', description: 'Access level' },
-      { name: 'url-session', description: 'URLSession task 扩展' },
+      // { name: 'url-session', description: 'URLSession task 扩展' },
       { name: 'alamofire', description: 'Alamofire 扩展' },
       { name: 'support-linux', description: '支持 Linux' },
       { name: 'type-prefix', description: 'type names 的前缀' },
@@ -304,7 +309,24 @@ export const getAllCodeGenerateSupportedLanguages = () => {
   return _chche
     ? _chche
     : (_chche = CodeGenerateSupportedLanguages.map((item: CodeGenerateLanguage): CodeGenerateLanguage => {
-        item.options = item.options.map((opt: TargetLanguageOption) => initOptionDefaultValueMapper(opt, item.targetLanguage))
+        const options = item.options.map((opt: TargetLanguageOption) => initOptionDefaultValueMapper(opt, item.targetLanguage))
+        const primaryOpt: TargetLanguageOption[] = []
+        const secondaryOpt: TargetLanguageOption[] = []
+
+        options.forEach((i: TargetLanguageOption) => {
+          if (i.isPrimaryOption) {
+            primaryOpt.push(i)
+          } else {
+            secondaryOpt.push(i)
+          }
+        })
+        const compare = (pre: TargetLanguageOption) => (pre.isBooleanOption ? 1 : -1)
+        primaryOpt.sort(compare)
+        secondaryOpt.sort(compare)
+
+        item.primaryOptions = primaryOpt
+        item.secondaryOptions = secondaryOpt
+        item.options = [...primaryOpt, ...secondaryOpt]
         return item
       }))
 }
@@ -333,11 +355,15 @@ const initOptionDefaultValueMapper = (option: TargetLanguageOption, targetLangua
 
   const optionDefinition = targetLanguage.optionDefinitions.find((i: OptionDefinition) => i.name === option.name)
 
+  // not support option
   if (!optionDefinition) {
+    // console.warn(`not support option: ${option.name}`)
     return option
   }
 
   option.defaultValue = option.defaultValue !== undefined ? option.defaultValue : optionDefinition.defaultValue
+
+  option.isPrimaryOption = optionDefinition.kind === 'primary'
 
   if (optionDefinition.type === String && optionDefinition.legalValues) {
     option.isEnumOption = true

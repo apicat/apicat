@@ -163,6 +163,8 @@ export const RefPrefixKeys = {
   },
   DefinitionSchema: {
     key: '#/definitions/schemas/',
+    replaceForCodeGenerate: '#/definitions/schemas_',
+    refForCodeGeneratePrefix: 'schemas_',
     reg: /#\/definitions\/schemas\/(.*)/,
   },
 }
