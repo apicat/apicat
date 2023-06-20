@@ -21,9 +21,9 @@ func ExportResponse(exportType, download, filename string, content []byte, ctx *
 	default:
 		switch exportType {
 		case "HTML":
-			ctx.Data(http.StatusOK, "text/html", content)
+			ctx.Data(http.StatusOK, "text/html; charset=utf-8", content)
 		case "md":
-			ctx.Data(http.StatusOK, "text/markdown", content)
+			ctx.Data(http.StatusOK, "text/markdown; charset=utf-8", content)
 		default:
 			ctx.Data(http.StatusOK, "application/json", content)
 		}
