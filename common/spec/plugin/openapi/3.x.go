@@ -456,9 +456,11 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 	schemas := make(map[string]jsonschema.Schema)
 	o.schemaMapping = map[int64]string{}
 	for _, v := range in.Definitions.Schemas {
+		o.schemaMapping[v.ID] = v.Name
+	}
+	for _, v := range in.Definitions.Schemas {
 		s := o.convertJSONSchema(ver, v.Schema)
 		schemas[v.Name] = *s
-		o.schemaMapping[v.ID] = v.Name
 	}
 	respons := make(map[string]any)
 	for _, v := range in.Definitions.Responses {
