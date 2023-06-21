@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/apicat/apicat/common/spec"
@@ -32,17 +33,30 @@ func Markdown(in *spec.Spec) ([]byte, error) {
 		}
 	}
 
+	sort.Slice(list, func(i, j int) bool {
+		v, x := list[i], list[j]
+		a, b := paths[v[0]][v[1]], paths[x[0]][x[1]]
+		return a.Dir < b.Dir
+	})
+
 	buf.WriteString("\n## Table of APIs\n")
+	var lastdir string
 	for k, v := range list {
 		item := paths[v[0]][v[1]]
-		fmt.Fprintf(&buf, "%d. [%s](#api-%d)\n", k+1, item.Title, k+1)
+		if item.Dir != lastdir {
+			if item.Dir != "" {
+				fmt.Fprintf(&buf, "- %s\n", item.Dir)
+			}
+			lastdir = item.Dir
+		}
+		fmt.Fprintf(&buf, "  - **%s** [%d.%s](#api-%d)\n", strings.ToUpper(v[1]), k+1, item.Title, k+1)
 	}
 
 	buf.WriteString("\n\n")
 
 	for k, v := range list {
 		item := paths[v[0]][v[1]]
-		rednerHttpPart(&buf, k+1, v[0], v[1], item)
+		rednerHttpPart(&buf, k+1, v[0], v[1], item, in.Globals.Parameters)
 	}
 
 	return buf.Bytes(), nil
@@ -51,45 +65,75 @@ func Markdown(in *spec.Spec) ([]byte, error) {
 var jsonschemaHeaderCols = []string{"name", "type", "required", "comment"}
 var paramsHeaderCols = []string{"name", "in", "type", "required", "comment"}
 
-func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTTPPart) {
+func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTTPPart, globls spec.HTTPParameters) {
 	fmt.Fprintf(buf, "## <span id=\"api-%d\">%d. %s</span>\n", i, i, part.Title)
 	fmt.Fprintf(buf, "### Path\n [%s](%s)\n", path, path)
 	fmt.Fprintf(buf, "### Method\n %s\n", strings.ToUpper(method))
-	fmt.Fprintf(buf, "### Parameters\n")
-	renderTableHeader(buf, paramsHeaderCols)
-	for k, v := range part.Parameters.Map() {
-		for _, item := range v {
-			buf.WriteString("|")
-			renderString(buf, item.Name)
-			buf.WriteString("|**")
-			buf.WriteString(k)
-			buf.WriteString("**|`")
-			buf.WriteString(item.Schema.Type.Value()[0])
-			buf.WriteString("` | ")
-			if item.Required {
-				buf.WriteString("*")
-			}
-			buf.WriteString(" | ")
-			renderString(buf, item.Schema.Description)
-			buf.WriteByte('\n')
+
+	skips := make(map[string]bool)
+	for k, v := range part.GlobalExcepts {
+		for _, x := range v {
+			skips[fmt.Sprintf("%s|_%d", k, x)] = true
 		}
 	}
-	fmt.Fprintf(buf, "### Request Body\n")
-	for k, v := range part.Content {
-		fmt.Fprintf(buf, "ContentType `%s`\n", k)
-		renderTableHeader(buf, jsonschemaHeaderCols)
-		if v.Schema == nil {
-			continue
+
+	// globls
+	params := part.Parameters.Map()
+	for in, ps := range globls.Map() {
+		for _, v := range ps {
+			if skips[fmt.Sprintf("%s|_%d", in, v.ID)] {
+				continue
+			}
+			x := v
+			params[in] = append(params[in], x)
 		}
-		renderSchema(buf, "`root`", 0, true, v.Schema)
-		if strings.Contains(k, "json") {
-			b, _ := json.Marshal(v.Schema)
-			if rx, err := datagen.JSONSchemaGen(b, &datagen.GenOption{DatagenKey: "x-apicat-mock"}); err == nil {
-				buf.WriteString("\n\nExample\n\n")
-				buf.WriteString("\n```json\n")
-				mockexample, _ := json.MarshalIndent(rx, "", "  ")
-				buf.Write(mockexample)
-				buf.WriteString("\n```\n\n")
+	}
+
+	if len(params) > 0 {
+		var renderHeader bool
+		for k, v := range params {
+			for _, item := range v {
+				if !renderHeader {
+					fmt.Fprintf(buf, "### Parameters\n")
+					renderTableHeader(buf, paramsHeaderCols)
+					renderHeader = true
+				}
+
+				buf.WriteString("|")
+				renderString(buf, item.Name)
+				buf.WriteString("|**")
+				buf.WriteString(k)
+				buf.WriteString("**|`")
+				buf.WriteString(item.Schema.Type.Value()[0])
+				buf.WriteString("` | ")
+				if item.Required {
+					buf.WriteString("*")
+				}
+				buf.WriteString(" | ")
+				renderString(buf, item.Schema.Description)
+				buf.WriteByte('\n')
+			}
+		}
+	}
+
+	if len(part.Content) > 0 {
+		fmt.Fprintf(buf, "### Request Body\n")
+		for k, v := range part.Content {
+			fmt.Fprintf(buf, "ContentType `%s`\n", k)
+			renderTableHeader(buf, jsonschemaHeaderCols)
+			if v.Schema == nil {
+				continue
+			}
+			renderSchema(buf, "`root`", 0, true, v.Schema)
+			if strings.Contains(k, "json") {
+				b, _ := json.Marshal(v.Schema)
+				if rx, err := datagen.JSONSchemaGen(b, &datagen.GenOption{DatagenKey: "x-apicat-mock"}); err == nil {
+					buf.WriteString("\n\nExample\n\n")
+					buf.WriteString("\n```json\n")
+					mockexample, _ := json.MarshalIndent(rx, "", "  ")
+					buf.Write(mockexample)
+					buf.WriteString("\n```\n\n")
+				}
 			}
 		}
 	}

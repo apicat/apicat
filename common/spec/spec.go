@@ -38,8 +38,8 @@ type Spec struct {
 
 // WalkCollections 遍历集合
 // 如果回调函数返回false等退出 否则继续遍历
-func (s *Spec) WalkCollections(f func(v *CollectItem) bool) {
-	walkCollectionHandle(s.Collections, f)
+func (s *Spec) WalkCollections(f func(*CollectItem, []string) bool) {
+	walkCollectionHandle(s.Collections, []string{}, f)
 }
 
 func refDept(r string, refs ...string) int {
@@ -132,7 +132,7 @@ func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 // refexpendMaxCount 引用最大解开次数 防止递归引用死循环
 func (s *Spec) CollectionsMap(expend bool, refexpendMaxCount int) map[string]map[string]HTTPPart {
 	paths := map[string]map[string]HTTPPart{}
-	s.WalkCollections(func(v *CollectItem) bool {
+	s.WalkCollections(func(v *CollectItem, p []string) bool {
 		if v.Type != ContentItemTypeHttp {
 			return true
 		}
@@ -143,6 +143,7 @@ func (s *Spec) CollectionsMap(expend bool, refexpendMaxCount int) map[string]map
 		part := HTTPPart{
 			Title: v.Title,
 			ID:    v.ID,
+			Dir:   strings.Join(p, "/"),
 		}
 		for _, item := range v.Content {
 			switch nx := item.Node.(type) {
@@ -232,16 +233,16 @@ type CollectItem struct {
 	Items    []*CollectItem `json:"items,omitempty"`
 }
 
-func walkCollectionHandle(list []*CollectItem,
-	f func(v *CollectItem) bool) bool {
+func walkCollectionHandle(list []*CollectItem, p []string,
+	f func(*CollectItem, []string) bool) bool {
 	for _, v := range list {
 		switch v.Type {
 		case ContentItemTypeDir:
-			if !walkCollectionHandle(v.Items, f) {
+			if !walkCollectionHandle(v.Items, append(p, v.Title), f) {
 				return false
 			}
 		default:
-			if !f(v) {
+			if !f(v, p) {
 				return false
 			}
 		}
