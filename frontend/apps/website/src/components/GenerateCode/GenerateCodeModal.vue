@@ -31,14 +31,14 @@
             </template>
 
             <el-divider v-if="currentLanguageOptionRender && currentLanguageOptionRender.secondaryOptions!.length">
-              <span class="font-normal text-gray-400 cursor-pointer flex-y-center text-12px" @click="toggleMoreMenu()">
-                更多
+              <!-- <span class="font-normal text-gray-400 cursor-pointer flex-y-center text-12px" @click="toggleMoreMenu()">
+                {{ $t('app.common.more') }}
                 <el-icon size="12" class="origin-center transition-base" :class="{ 'rotate-90': isShowMoreMenu }"><ac-icon-ep-arrow-right /></el-icon>
-              </span>
+              </span> -->
             </el-divider>
 
             <template v-if="currentLanguageOptionRender" v-for="item in currentLanguageOptionRender.secondaryOptions">
-              <div v-show="isShowMoreMenu">
+              <div>
                 <el-form-item v-if="!item.isBooleanOption" :label="item.description">
                   <ElInput v-if="item.isStringOption" v-model="currentLanguageOptions[item.name]" />
                   <ElSelect v-if="item.isEnumOption" v-model="currentLanguageOptions[item.name]" class="w-full">
@@ -57,7 +57,6 @@
       </div>
       <div class="flex flex-col flex-1 px-5 overflow-hidden pt-16px">
         <div class="text-base font-medium pb-10px">{{ currentLanguage }} {{ $t('app.common.code') }}</div>
-        <el-button class="text-right mb-10px copy_text" :data-text="code">{{ $t('app.common.copyCode') }}</el-button>
         <div class="flex-1 pb-5 overflow-scroll">
           <CodeEditor readonly style="max-height: fit-content" class="h-full" :model-value="code" :lang="currentLanguageForCodeMirror" />
         </div>

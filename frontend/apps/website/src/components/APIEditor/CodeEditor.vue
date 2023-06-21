@@ -1,5 +1,13 @@
 <template>
-  <div ref="domRef" :class="['ac-code-editor', { readonly: readonly }]"></div>
+  <div :class="['ac-code-editor', { readonly: readonly }]">
+    <div class="sticky z-10 text-right top-4px">
+      <button class="copy-btn" @click="handlerCopy">
+        <el-icon class="mr-2px"><ac-icon-ep-copy-document /></el-icon>
+        <span>{{ $t('app.common.copy') }}</span>
+      </button>
+    </div>
+    <div ref="domRef"></div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -12,6 +20,7 @@ import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
 import { useLanguageExtension } from '@/hooks/useCodeMirrorLang'
 
 import { onMounted, onUnmounted, shallowRef, watch } from 'vue'
+import { useCopy } from '@/hooks/useCopy'
 
 const props = withDefaults(
   defineProps<{
@@ -52,6 +61,8 @@ const fixedHeightEditor = EditorView.baseTheme({
     outline: 0,
   },
 })
+
+const handlerCopy = () => useCopy(viewRef.value?.state.doc.toString() || '')
 
 const basicSetup: Extension = (() => [
   languageExtension,
@@ -120,97 +131,18 @@ watch(
   max-height: 400px;
   overflow-y: scroll;
   background: #f5f5f5;
+  position: relative;
 
   &.readonly {
     max-height: fit-content;
   }
 
-  .cm-link {
-    color: #032f62;
-    text-decoration: underline;
+  &:hover .copy-btn {
+    display: flex;
   }
 
-  .cm-heading {
-    font-weight: bold;
-  }
-
-  .cm-emphasis {
-    font-style: italic;
-  }
-
-  .cm-strong {
-    font-weight: bold;
-  }
-
-  .cm-keyword {
-    color: #708;
-  }
-
-  .cm-atom,
-  .cm-bool,
-  .cm-url,
-  .cm-contentSeparator,
-  .cm-labelName {
-    color: #219;
-  }
-
-  .cm-literal,
-  .cm-inserted {
-    color: #164;
-  }
-
-  .cm-deleted {
-    color: #b31d28;
-    background-color: #ffeef0;
-  }
-
-  .cm-inserted {
-    color: #22863a;
-    background-color: #f0fff4;
-  }
-
-  .cm-comment {
-    color: #6a737d;
-  }
-
-  .cm-operator {
-    color: #d73a49;
-  }
-
-  .cm-propertyName {
-    color: #005cc5;
-  }
-
-  .cm-keyword {
-    color: #d73a49;
-  }
-
-  .cm-string {
-    color: #28a745;
-  }
-
-  .cm-string2 {
-    color: #28a745;
-  }
-
-  .cm-typeName {
-    color: #005cc5;
-  }
-
-  .cm-function.cm-definition {
-    color: #6f42c1;
-  }
-
-  .cm-variableName.cm-definition {
-    color: #e36209;
-  }
-
-  .cm-invalid {
-    color: #b31d28;
-  }
-
-  .cm-number {
-    color: #005cc5;
+  .copy-btn {
+    @apply absolute top-4px right-4px hidden items-center rounded bg-zinc-200 px-6px py-2px text-14px;
   }
 }
 </style>

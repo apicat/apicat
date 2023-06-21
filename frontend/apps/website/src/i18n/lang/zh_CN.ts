@@ -35,6 +35,7 @@ export default {
       generateCode: '生成代码',
       copyCode: '复制代码',
       code: '代码',
+      more: '更多',
     },
     tips: {
       notFound: '啊哦，网页走丢了，正在努力寻找中…',
