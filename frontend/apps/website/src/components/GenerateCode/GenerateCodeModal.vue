@@ -30,12 +30,12 @@
               </el-form-item>
             </template>
 
-            <el-divider v-if="currentLanguageOptionRender && currentLanguageOptionRender.secondaryOptions!.length">
-              <!-- <span class="font-normal text-gray-400 cursor-pointer flex-y-center text-12px" @click="toggleMoreMenu()">
+            <!-- <el-divider v-if="currentLanguageOptionRender && currentLanguageOptionRender.secondaryOptions!.length">
+              <span class="font-normal text-gray-400 cursor-pointer flex-y-center text-12px" @click="toggleMoreMenu()">
                 {{ $t('app.common.more') }}
                 <el-icon size="12" class="origin-center transition-base" :class="{ 'rotate-90': isShowMoreMenu }"><ac-icon-ep-arrow-right /></el-icon>
-              </span> -->
-            </el-divider>
+              </span>
+            </el-divider> -->
 
             <template v-if="currentLanguageOptionRender" v-for="item in currentLanguageOptionRender.secondaryOptions">
               <div>
