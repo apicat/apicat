@@ -1,36 +1,26 @@
 <template>
-  <div ref="domRef" :class="['ac-code-editor', { readonly: readonly }]"></div>
+  <div :class="['ac-code-editor', { readonly: readonly }]">
+    <div class="sticky z-10 text-right top-4px">
+      <button class="copy-btn" @click="handlerCopy">
+        <el-icon class="mr-2px"><ac-icon-ep-copy-document /></el-icon>
+        <span>{{ $t('app.common.copy') }}</span>
+      </button>
+    </div>
+    <div ref="domRef"></div>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { EditorView } from 'codemirror'
-import { Compartment } from '@codemirror/state'
 import { indentWithTab } from '@codemirror/commands'
-import { json } from '@codemirror/lang-json'
-import { xml } from '@codemirror/lang-xml'
-import { html } from '@codemirror/lang-html'
-
-import { keymap, highlightSpecialChars, drawSelection, lineNumbers, dropCursor, rectangularSelection, crosshairCursor } from '@codemirror/view'
+import { EditorView, keymap, highlightSpecialChars, drawSelection, lineNumbers, dropCursor, rectangularSelection, crosshairCursor } from '@codemirror/view'
 import { Extension, EditorState } from '@codemirror/state'
-import { defaultHighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching, foldGutter, foldKeymap } from '@codemirror/language'
-import { defaultKeymap, history, historyKeymap } from '@codemirror/commands'
-import { searchKeymap, highlightSelectionMatches } from '@codemirror/search'
-import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from '@codemirror/autocomplete'
-import { lintKeymap } from '@codemirror/lint'
+import { defaultHighlightStyle, syntaxHighlighting, indentOnInput, bracketMatching, foldGutter } from '@codemirror/language'
+import { history, historyKeymap, defaultKeymap } from '@codemirror/commands'
+import { autocompletion, closeBrackets } from '@codemirror/autocomplete'
+import { useLanguageExtension } from '@/hooks/useCodeMirrorLang'
 
 import { onMounted, onUnmounted, shallowRef, watch } from 'vue'
-
-interface langType {
-  [key: string]: Extension
-}
-const langs: langType = {
-  json: json(),
-  xml: xml(),
-  html: html(),
-  raw: [],
-}
-let view: EditorView
-let language = new Compartment()
+import { useCopy } from '@/hooks/useCopy'
 
 const props = withDefaults(
   defineProps<{
@@ -45,9 +35,14 @@ const props = withDefaults(
   }
 )
 
-const emits = defineEmits(['update:modelValue'])
+let view: EditorView
 
+const emits = defineEmits(['update:modelValue'])
+const { lang } = toRefs(props)
+const viewRef: Ref<EditorView | null> = shallowRef(null)
 const domRef = shallowRef()
+
+const languageExtension = useLanguageExtension(lang, viewRef)
 
 const fixedHeightEditor = EditorView.baseTheme({
   '&': { fontSize: '14px' },
@@ -67,9 +62,11 @@ const fixedHeightEditor = EditorView.baseTheme({
   },
 })
 
+const handlerCopy = () => useCopy(viewRef.value?.state.doc.toString() || '')
+
 const basicSetup: Extension = (() => [
+  languageExtension,
   lineNumbers(),
-  // highlightActiveLineGutter(),
   highlightSpecialChars(),
   history(),
   foldGutter(),
@@ -83,17 +80,14 @@ const basicSetup: Extension = (() => [
   autocompletion(),
   rectangularSelection(),
   crosshairCursor(),
-  highlightSelectionMatches(),
-  keymap.of([...closeBracketsKeymap, ...defaultKeymap, ...searchKeymap, ...historyKeymap, ...foldKeymap, ...completionKeymap, ...lintKeymap]),
+  keymap.of([...historyKeymap, ...defaultKeymap, indentWithTab]),
 ])()
 
 onMounted(() => {
   const exts = [
     basicSetup,
     fixedHeightEditor,
-    keymap.of([indentWithTab]),
-    language.of(langs[props.lang]),
-    EditorView.editable.of(!props.readonly),
+    EditorState.readOnly.of(props.readonly),
     EditorView.updateListener.of((update) => {
       if (update.docChanged) {
         emits('update:modelValue', view.state.doc.toString())
@@ -105,28 +99,13 @@ onMounted(() => {
     extensions: exts,
     parent: domRef.value,
   })
+
+  viewRef.value = view
 })
 
 onUnmounted(() => {
   view?.destroy()
 })
-
-onUnmounted(() => {
-  view?.destroy()
-})
-
-watch(
-  () => props.lang,
-  () => {
-    let langext = langs[props.lang]
-    if (!langext) {
-      langext = []
-    }
-    view?.dispatch({
-      effects: language.reconfigure(langext),
-    })
-  }
-)
 
 watch(
   () => props.modelValue,
@@ -152,9 +131,18 @@ watch(
   max-height: 400px;
   overflow-y: scroll;
   background: #f5f5f5;
+  position: relative;
 
   &.readonly {
     max-height: fit-content;
+  }
+
+  &:hover .copy-btn {
+    display: flex;
+  }
+
+  .copy-btn {
+    @apply absolute top-4px right-4px hidden items-center rounded bg-zinc-200 px-6px py-2px text-14px;
   }
 }
 </style>

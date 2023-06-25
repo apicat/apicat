@@ -52,6 +52,10 @@ func refDept(r string, refs ...string) int {
 	return n
 }
 
+func (s *Spec) ExpendRef(v Referencer, max int, parentRef ...string) {
+	s.expendRef(v, max, parentRef...)
+}
+
 func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 	if v == nil {
 		return

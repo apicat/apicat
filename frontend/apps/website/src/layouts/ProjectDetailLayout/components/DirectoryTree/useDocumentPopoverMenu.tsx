@@ -47,6 +47,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
   const { project_id } = useParams()
   const { goDocumentEditPage } = useGoPage()
   const schemaTree = inject('schemaTree') as any
+  const exportModal = inject('exportModal') as any
 
   const ROOT_MENUS: Menu[] = [
     { text: t('app.interface.popoverMenus.aiGenerateInterface'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
@@ -69,6 +70,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
 
   const DOC_MORE_OPERATE_MENUS: Menu[] = [
     { text: t('app.common.copy'), onClick: () => onCopyMenuClick() },
+    { text: t('app.common.export'), onClick: () => onExportMenuClick() },
     { text: t('app.common.delete'), onClick: () => onDeleteMenuClick() },
   ]
 
@@ -249,6 +251,16 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
     const source = node?.data as CollectionNode
     const parent_id = !node ? 0 : source.id
     aiPromptModalRef.value.show({ parent_id })
+  }
+
+  /**
+   * 导出
+   */
+  const onExportMenuClick = () => {
+    const tree = unref(treeIns)
+    const node = unref(activeNodeInfo)?.node as Node
+    const data = node?.data as CollectionNode
+    exportModal.exportDocument(project_id as string, data.id)
   }
 
   onClickOutside(popoverRefEl, () => {

@@ -6,6 +6,7 @@
 
     <div class="ac-header-operate__btns" v-if="!isReader">
       <el-button type="primary" @click="goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
+      <el-button @click="handleExport()">{{ $t('app.common.export') }}</el-button>
     </div>
   </div>
 
@@ -54,6 +55,7 @@ const { definitions } = storeToRefs(definitionStore)
 const hasDocument = ref(false)
 const ns = useNamespace('document')
 const httpDoc: Ref<HttpDocument | null> = ref(null)
+const exportModal = inject('exportModal') as any
 
 const getDetail = async (docId: string) => {
   const doc_id = parseInt(docId, 10)
@@ -73,6 +75,10 @@ const getDetail = async (docId: string) => {
   } catch (error) {
     //
   }
+}
+
+const handleExport = () => {
+  exportModal.exportDocument()
 }
 
 globalParametersStore.$onAction(({ name, after }) => {

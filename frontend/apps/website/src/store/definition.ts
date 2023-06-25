@@ -1,6 +1,6 @@
 import { getDefinitionSchemaList, updateDefinitionSchema, createDefinitionSchema, copyDefinitionSchema, deleteDefinitionSchema } from '@/api/definitionSchema'
-import { DefinitionTypeEnum, markDataWithKey } from '@/commons'
-import { DefinitionSchema } from '@/components/APIEditor/types'
+import { DefinitionTypeEnum, RefPrefixKeys, markDataWithKey } from '@/commons'
+import { DefinitionSchema, JSONSchema } from '@/components/APIEditor/types'
 import { traverseTree } from '@apicat/shared'
 import { defineStore } from 'pinia'
 
@@ -20,7 +20,30 @@ export const useDefinitionStore = defineStore('definitionSchema', {
     definitions: [] as DefinitionSchema[],
     tempCreateSchemaParentId: undefined as number | undefined,
   }),
+  getters: {
+    definitionsForCodeGenerate: (state): Record<string, JSONSchema> => {
+      const definitions: Record<string, JSONSchema> = {}
+
+      state.definitions.forEach((item: DefinitionSchema) => {
+        ;(item.schema as JSONSchema & { title: string }).title = item.name
+        definitions[`${RefPrefixKeys.DefinitionSchema.refForCodeGeneratePrefix}${item.id}`] = item.schema
+      })
+
+      return definitions
+    },
+  },
   actions: {
+    transformSchemaForCodeGenerate(definitionSchema: DefinitionSchema): string {
+      try {
+        const schema = definitionSchema.schema || {}
+        let json = JSON.stringify({ ...schema, description: definitionSchema.description || schema.description, definitions: this.definitionsForCodeGenerate })
+        json = json.replaceAll(RefPrefixKeys.DefinitionSchema.key, RefPrefixKeys.DefinitionSchema.replaceForCodeGenerate)
+        return json
+      } catch (error) {
+        return JSON.stringify({ type: 'object' })
+      }
+    },
+
     async getDefinitions(project_id: string) {
       const tree = await getDefinitionSchemaList(project_id)
       this.definitions = traverseTree((item: any) => extendDocTreeFeild(item), tree) as any
@@ -67,5 +90,7 @@ export const useDefinitionStore = defineStore('definitionSchema', {
     },
   },
 })
+
+export const useDefinitionSchemaStore = useDefinitionStore
 
 export default useDefinitionStore

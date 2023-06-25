@@ -16,11 +16,22 @@
   </Result>
 
   <div :class="[ns.b(), { 'h-20vh': !definition && hasDocument }]" v-loading="isLoading">
-    <SchmaEditor v-if="definition" :readonly="true" v-model="definition" :definitions="definitions" />
+    <template v-if="definition">
+      <h4>{{ definition.description }}</h4>
+      <div class="text-right">
+        <el-button @click="onShowCodeGenerate" :icon="AcIconoirCode">{{ $t('app.common.generateCode') }}</el-button>
+      </div>
+      <div class="ac-editor mt-10px"></div>
+      <JSONSchemaEditor readonly v-model="definition.schema" :definitions="definitions" />
+    </template>
   </div>
+
+  <GenerateCodeModal ref="generateCodeModalRef" />
 </template>
+
 <script setup lang="ts">
-import SchmaEditor from './components/SchemaEditor.vue'
+import AcIconoirCode from '~icons/pepicons-pop/code'
+import JSONSchemaEditor from '@/components/APIEditor/Editor.vue'
 import { getDefinitionSchemaDetail } from '@/api/definitionSchema'
 import { DefinitionSchema } from '@/components/APIEditor/types'
 import { useNamespace } from '@/hooks'
@@ -29,6 +40,8 @@ import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
 import uesProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
+
+const GenerateCodeModal = defineAsyncComponent(() => import('@/components/GenerateCode/GenerateCodeModal.vue'))
 
 const ns = useNamespace('document')
 const route = useRoute()
@@ -43,6 +56,7 @@ const [isLoading, getDefinitionDetailApi] = getDefinitionSchemaDetail()
 
 const definition = ref<DefinitionSchema | null>(null)
 const hasDocument = ref(true)
+const generateCodeModalRef = ref<InstanceType<typeof GenerateCodeModal>>()
 
 const getDetail = async () => {
   const def_id = parseInt(route.params.shcema_id as string, 10)
@@ -66,6 +80,10 @@ const getDetail = async () => {
   } catch (error) {
     //
   }
+}
+
+const onShowCodeGenerate = () => {
+  generateCodeModalRef.value?.show(toRaw(definition.value)!)
 }
 
 definitionStore.$onAction(({ name, after, args }) => {

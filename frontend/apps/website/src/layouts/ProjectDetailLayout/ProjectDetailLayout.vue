@@ -15,9 +15,11 @@
       <router-view />
     </div>
   </main>
+  <ExportDocumentModal ref="exportDocumentModal" />
 </template>
 
 <script setup lang="ts">
+import ExportDocumentModal from '@/views/component/ExportDocumentModal.vue'
 import { useNamespace } from '@/hooks/useNamespace'
 import ProjectInfoHeader from './components/ProjectInfoHeader.vue'
 import DirectoryTree from './components/DirectoryTree'
@@ -35,6 +37,7 @@ const { project_id } = useParams()
 const directoryTree = ref<InstanceType<typeof DirectoryTree>>()
 const schemaTree = ref<InstanceType<typeof SchemaTree>>()
 const definitionResponseTree = ref<InstanceType<typeof DefinitionResponseTree>>()
+const exportDocumentModal = ref<InstanceType<typeof ExportDocumentModal>>()
 
 provide('directoryTree', {
   updateTitle: (id: any, title: string) => directoryTree.value?.updateTitle(id, title),
@@ -57,6 +60,10 @@ provide('definitionResponseTree', {
   activeNode: (id: any) => definitionResponseTree.value?.activeNode(id),
   reload: async () => await definitionResponseTree.value?.reload(),
   reactiveNode: () => definitionResponseTree.value?.reactiveNode(),
+})
+
+provide('exportModal', {
+  exportDocument: (project_id?: string, doc_id?: string) => exportDocumentModal.value?.show(project_id, doc_id),
 })
 
 onMounted(async () => {
