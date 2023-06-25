@@ -4,6 +4,8 @@ interface StorageKeys {
   TOKEN: string
   USER: string
   LOCALE: string
+  CODE_GENERATE_CONFIG: string
+  CODE_GENERATE_LANGUAGE: string
 }
 
 const Storage = {
@@ -11,6 +13,8 @@ const Storage = {
     TOKEN: `${STORAGE_PREFIX}.token`,
     USER: `${STORAGE_PREFIX}.user`,
     LOCALE: `${STORAGE_PREFIX}.locale`,
+    CODE_GENERATE_CONFIG: `${STORAGE_PREFIX}.code.generate`,
+    CODE_GENERATE_LANGUAGE: `${STORAGE_PREFIX}.code.gen.lang`,
   } as StorageKeys,
 
   get(key: string, isSession?: boolean) {

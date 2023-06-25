@@ -107,8 +107,8 @@ const projectStore = uesProjectStore()
 
 const projectFormRef = ref<FormInstance>()
 const fileUploaderWrapper = ref()
+const isLoading = ref(false)
 const { dialogVisible, showModel } = useModal(projectFormRef as any)
-const [isLoading, createProjectApi] = createProject()
 
 const selectedProjectType = ref('blank')
 
@@ -158,11 +158,12 @@ const handleSubmit = async (formEl: FormInstance | undefined) => {
   try {
     const valid = await formEl.validate()
     if (valid) {
-      const project: ProjectInfo = await createProjectApi(toRaw(form))
-      router.push(getProjectDetailPath(project.id))
+      isLoading.value = true
+      const project: ProjectInfo = await createProject(toRaw(form))
+      await router.push(getProjectDetailPath(project.id))
     }
   } catch (error) {
-    //
+    isLoading.value = false
   }
 }
 
