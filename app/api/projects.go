@@ -6,7 +6,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/apicat/apicat/app/util"
 	"github.com/apicat/apicat/common/spec"
+	"github.com/apicat/apicat/common/spec/plugin/export"
 	"github.com/apicat/apicat/common/spec/plugin/openapi"
 	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/enum"
@@ -34,7 +36,7 @@ type ProjectID struct {
 }
 
 type ExportProject struct {
-	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi3.0.0 openapi3.0.1 openapi3.0.2 openapi3.1.0"`
+	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi3.0.0 openapi3.0.1 openapi3.0.2 openapi3.1.0 HTML md"`
 	Download string `form:"download" binding:"omitempty,oneof=true false"`
 }
 
@@ -368,6 +370,10 @@ func ProjectDataGet(ctx *gin.Context) {
 		content, err = openapi.Encode(apicatData, "3.0.2")
 	case "openapi3.1.0":
 		content, err = openapi.Encode(apicatData, "3.1.0")
+	case "HTML":
+		content, err = export.HTML(apicatData)
+	case "md":
+		content, err = export.Markdown(apicatData)
 	default:
 		content, err = apicatData.ToJSON(spec.JSONOption{Indent: "  "})
 	}
@@ -381,12 +387,7 @@ func ProjectDataGet(ctx *gin.Context) {
 		return
 	}
 
-	if data.Download == "true" {
-		ctx.Header("Content-Disposition", "attachment; filename="+project.Title+"-"+data.Type+".json")
-		ctx.Data(http.StatusOK, "application/octet-stream", content)
-	} else {
-		ctx.Data(http.StatusOK, "application/json", content)
-	}
+	util.ExportResponse(data.Type, data.Download, project.Title+"-"+data.Type, content, ctx)
 }
 
 // ProjectExit handles the exit of a project member.

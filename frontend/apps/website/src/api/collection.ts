@@ -10,6 +10,7 @@ import {
 import Ajax, { QuietAjax } from './Ajax'
 import useApi from '@/hooks/useApi'
 import { isEmpty } from 'lodash-es'
+import { API_URL } from '@/commons/constant'
 
 export const getCollectionList = (project_id: string) => Ajax.get(`/projects/${project_id}/collections`)
 
@@ -35,6 +36,9 @@ export const copyCollection = async (project_id: string, collection_id: string |
 export const moveCollection = async (project_id: string, sortParams: { target: any; origin: any }) => QuietAjax.put(`/projects/${project_id}/collections/movement`, sortParams)
 
 export const deleteCollection = async (project_id: string, collection_id: string | number) => Ajax.delete(`/projects/${project_id}/collections/${collection_id}`)
+
+export const exportCollection = ({ project_id, collection_id, ...params }: any) =>
+  `${API_URL}/projects/${project_id}/collections/${collection_id}/data?${new URLSearchParams(params).toString()}`
 
 const mergeHttpMethod = (node: any) => {
   const defaultVal = createHttpUrlNode().attrs

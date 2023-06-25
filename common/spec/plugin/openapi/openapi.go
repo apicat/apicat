@@ -179,7 +179,7 @@ type specPathItem struct {
 func walkHttpCollection(doc *spec.Spec) map[string]map[string]specPathItem {
 	paths := make(map[string]map[string]specPathItem)
 	doc.WalkCollections(
-		func(v *spec.CollectItem) bool {
+		func(v *spec.CollectItem, _ []string) bool {
 			if v.Type != spec.ContentItemTypeHttp {
 				return true
 			}

@@ -1,17 +1,33 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 
+	"github.com/apicat/apicat/app/util"
+	"github.com/apicat/apicat/common/spec"
+	"github.com/apicat/apicat/common/spec/plugin/export"
+	"github.com/apicat/apicat/common/spec/plugin/openapi"
 	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/enum"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/exp/slog"
 )
 
 type CollectionCheck struct {
 	CollectionID uint `uri:"collection-id" binding:"required,gt=0"`
+}
+
+type CollectionDataGetData struct {
+	ProjectID    string `uri:"project-id" binding:"required,gt=0"`
+	CollectionID uint   `uri:"collection-id" binding:"required,gt=0"`
+}
+
+type ExportCollection struct {
+	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi3.0.0 openapi3.0.1 openapi3.0.2 openapi3.1.0 HTML md"`
+	Download string `form:"download" binding:"omitempty,oneof=true false"`
 }
 
 func (cc *CollectionCheck) CheckCollection(ctx *gin.Context) (*models.Collections, error) {
@@ -311,4 +327,73 @@ func CollectionsDelete(ctx *gin.Context) {
 		return
 	}
 	ctx.Status(http.StatusNoContent)
+}
+
+func CollectionDataGet(ctx *gin.Context) {
+	uriData := CollectionDataGetData{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	data := ExportCollection{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	project, err := models.NewProjects(uriData.ProjectID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+	collection, err := models.NewCollections(uriData.CollectionID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	apicatData := models.CollectionExport(project, collection)
+	if apicatDataContent, err := json.Marshal(apicatData); err == nil {
+		slog.InfoCtx(ctx, "Export", slog.String("apicat", string(apicatDataContent)))
+	}
+
+	var content []byte
+	switch data.Type {
+	case "swagger":
+		content, err = openapi.Encode(apicatData, "2.0")
+	case "openapi3.0.0":
+		content, err = openapi.Encode(apicatData, "3.0.0")
+	case "openapi3.0.1":
+		content, err = openapi.Encode(apicatData, "3.0.1")
+	case "openapi3.0.2":
+		content, err = openapi.Encode(apicatData, "3.0.2")
+	case "openapi3.1.0":
+		content, err = openapi.Encode(apicatData, "3.1.0")
+	case "HTML":
+		content, err = export.HTML(apicatData)
+	case "md":
+		content, err = export.Markdown(apicatData)
+	default:
+		content, err = apicatData.ToJSON(spec.JSONOption{Indent: "  "})
+	}
+
+	slog.InfoCtx(ctx, "Export", slog.String(data.Type, string(content)))
+
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.ExportFail"}),
+		})
+		return
+	}
+
+	util.ExportResponse(data.Type, data.Download, project.Title+"-"+data.Type, content, ctx)
 }

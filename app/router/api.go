@@ -54,6 +54,7 @@ func InitApiRouter(r *gin.Engine) {
 			projects.POST("", middleware.JWTAuthMiddleware(), api.ProjectsCreate)
 			projects.GET("/:project-id", middleware.JWTAuthMiddleware(), api.ProjectsGet)
 			projects.GET("/:project-id/data", api.ProjectDataGet)
+			projects.GET("/:project-id/collections/:collection-id/data", api.CollectionDataGet)
 		}
 
 		members := apiRouter.Group("/members")

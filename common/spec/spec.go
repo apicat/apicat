@@ -38,8 +38,8 @@ type Spec struct {
 
 // WalkCollections 遍历集合
 // 如果回调函数返回false等退出 否则继续遍历
-func (s *Spec) WalkCollections(f func(v *CollectItem) bool) {
-	walkCollectionHandle(s.Collections, f)
+func (s *Spec) WalkCollections(f func(*CollectItem, []string) bool) {
+	walkCollectionHandle(s.Collections, []string{}, f)
 }
 
 func refDept(r string, refs ...string) int {
@@ -52,20 +52,31 @@ func refDept(r string, refs ...string) int {
 	return n
 }
 
+func (s *Spec) ExpendRef(v Referencer, max int, parentRef ...string) {
+	s.expendRef(v, max, parentRef...)
+}
+
 func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 	if v == nil {
 		return
 	}
 	switch x := v.(type) {
 	case *jsonschema.Schema:
+		if x == nil {
+			return
+		}
 		if x.Ref() {
 			// 重复出现的递归次数
 			count := refDept(*x.Reference, parentRef...)
 			if count > max {
 				return
 			}
+			refv := s.Definitions.Schemas.LookupID(mustGetRefID(*x.Reference))
+			if refv == nil || refv.Schema == nil {
+				return
+			}
 			parentRef = append(parentRef, *x.Reference)
-			b, _ := json.Marshal(*(s.Definitions.Schemas.LookupID(mustGetRefID(*x.Reference)).Schema))
+			b, _ := json.Marshal(*refv.Schema)
 			var s jsonschema.Schema
 			json.Unmarshal(b, &s)
 			*x = s
@@ -87,16 +98,25 @@ func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 				id, _ := strconv.ParseInt(ps[3], 10, 64)
 				switch ps[2] {
 				case "schemas":
-					*x = *(s.Definitions.Schemas.LookupID(id))
+					if refv := s.Definitions.Schemas.LookupID(id); refv != nil {
+						*x = *refv
+					}
 				case "parameters":
-					*x = *(s.Definitions.Parameters.LookupID(id))
+					if refv := s.Definitions.Parameters.LookupID(id); refv != nil {
+						*x = *refv
+					}
 				}
 			}
 		}
 		s.expendRef(x.Schema, max, parentRef...)
 	case *HTTPResponseDefine:
 		if x.Ref() {
-			*x = *(s.Definitions.Responses.LookupID(mustGetRefID(*x.Reference)))
+			refv := s.Definitions.Responses.LookupID(mustGetRefID(*x.Reference))
+			if refv == nil {
+				*x = HTTPResponseDefine{}
+			} else {
+				*x = *refv
+			}
 		}
 		for k := range x.Header {
 			s.expendRef(x.Header[k], max, parentRef...)
@@ -112,15 +132,19 @@ func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 // refexpendMaxCount 引用最大解开次数 防止递归引用死循环
 func (s *Spec) CollectionsMap(expend bool, refexpendMaxCount int) map[string]map[string]HTTPPart {
 	paths := map[string]map[string]HTTPPart{}
-	s.WalkCollections(func(v *CollectItem) bool {
+	s.WalkCollections(func(v *CollectItem, p []string) bool {
 		if v.Type != ContentItemTypeHttp {
 			return true
 		}
 		var (
 			method string
 			path   string
-			part   HTTPPart
 		)
+		part := HTTPPart{
+			Title: v.Title,
+			ID:    v.ID,
+			Dir:   strings.Join(p, "/"),
+		}
 		for _, item := range v.Content {
 			switch nx := item.Node.(type) {
 			case *HTTPNode[HTTPURLNode]:
@@ -209,16 +233,16 @@ type CollectItem struct {
 	Items    []*CollectItem `json:"items,omitempty"`
 }
 
-func walkCollectionHandle(list []*CollectItem,
-	f func(v *CollectItem) bool) bool {
+func walkCollectionHandle(list []*CollectItem, p []string,
+	f func(*CollectItem, []string) bool) bool {
 	for _, v := range list {
 		switch v.Type {
 		case ContentItemTypeDir:
-			if !walkCollectionHandle(v.Items, f) {
+			if !walkCollectionHandle(v.Items, append(p, v.Title), f) {
 				return false
 			}
 		default:
-			if !f(v) {
+			if !f(v, p) {
 				return false
 			}
 		}

@@ -148,6 +148,9 @@ func (h HTTPResponseDefines) LookupID(id int64) *HTTPResponseDefine {
 }
 
 type HTTPPart struct {
+	Title string
+	ID    int64
+	Dir   string
 	HTTPRequestNode
 	Responses HTTPResponses `json:"responses,omitempty"`
 }
