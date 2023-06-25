@@ -256,7 +256,7 @@ func CollectionExport(project *Projects, collection *Collections) *spec.Spec {
 	apicatData.Definitions.Parameters = DefinitionParametersExport(project.ID)
 	apicatData.Definitions.Responses = DefinitionResponsesExport(project.ID)
 
-	paths := apicatData.CollectionsMap(true, 1)
+	paths := apicatData.CollectionsMap(true, 2)
 	for _, path := range paths {
 		for _, v := range path {
 			for _, i := range content {
