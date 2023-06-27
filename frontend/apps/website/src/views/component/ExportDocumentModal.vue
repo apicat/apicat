@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" append-to-body :close-on-click-modal="false" align-center destroy-on-close title="导出文档" width="600px">
+  <el-dialog v-model="dialogVisible" append-to-body :close-on-click-modal="false" align-center destroy-on-close title="导出文档" width="540px">
     <div class="mt-10px"></div>
     <ProjectExportPage :project_id="projectId" :doc_id="docId" export-type="collection" />
   </el-dialog>

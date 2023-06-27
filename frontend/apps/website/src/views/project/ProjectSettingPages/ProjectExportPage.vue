@@ -26,6 +26,22 @@ import { ExportProjectTypes } from '@/commons/constant'
 import { exportProject } from '@/api/project'
 import { useParams } from '@/hooks/useParams'
 import { exportCollection } from '@/api/collection'
+interface ExportParams {
+  type: ExportProjectTypes
+  version: string
+  params: Record<string, any>
+}
+
+interface ExportItem {
+  logo: string
+  text: string
+  type: ExportProjectTypes
+  params?: Record<string, any>
+  versions?: Array<{
+    label: string
+    value: string
+  }>
+}
 
 const props = withDefaults(
   defineProps<{
@@ -40,7 +56,7 @@ const props = withDefaults(
 
 let { project_id, doc_id } = useParams()
 
-const exportList = [
+const exportList: ExportItem[] = [
   { logo: swaggerLogo, text: 'Swagger 2.0', type: ExportProjectTypes.Swagger },
   {
     logo: openApiLogo,
@@ -53,21 +69,24 @@ const exportList = [
       { label: '3.1.0', value: 'openapi3.1.0' },
     ],
   },
-  { logo: htmlLogo, text: 'HTML', type: ExportProjectTypes.HTML },
-  { logo: mdLogo, text: 'Markdown', type: ExportProjectTypes.MARKDOWN },
+  { logo: htmlLogo, text: 'HTML', type: ExportProjectTypes.HTML, params: { download: true } },
+  { logo: mdLogo, text: 'Markdown', type: ExportProjectTypes.MARKDOWN, params: { download: true } },
 ]
 
-const selectedRef: any = ref({
+const selectedRef: Ref<ExportParams> = ref({
   type: exportList[0].type,
   version: 'openapi3.0.0',
+  params: {},
 })
 
-const handleSelect = (selected: any, item: any) => {
+const handleSelect = (selected: ExportParams, item: any) => {
   selected.type = item.type
+  selected.params = item.params || {}
 }
 
-const handleExport = (selected: any) => {
-  let type = selected.type
+const handleExport = (selected: ExportParams) => {
+  let type: string = selected.type
+
   if (selected.type === ExportProjectTypes.OpenAPI) {
     type = selected.version
   }
@@ -75,7 +94,9 @@ const handleExport = (selected: any) => {
   project_id = props.project_id || (project_id as string)
   doc_id = props.doc_id || (doc_id as string)
 
-  const exportUrl = props.exportType === 'project' ? exportProject({ project_id, type }) : exportCollection({ project_id, collection_id: doc_id, type })
+  const params = { type, ...selected.params }
+
+  const exportUrl = props.exportType === 'project' ? exportProject({ project_id, ...params }) : exportCollection({ project_id, collection_id: doc_id, ...params })
   window.open(exportUrl)
 }
 </script>
