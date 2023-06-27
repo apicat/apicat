@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <iconfont icon="ac-wuquanxian" size="300" class="not-found-image" />
+    <iconfont icon="ac-lock" size="300" class="not-found-image" />
     <p class="not-found-tip">
       {{ $t('app.tips.noPermission') }}<router-link class="text-blue-600" :to="MAIN_PATH">{{ $t('app.common.goProjectList') }}</router-link>
     </p>

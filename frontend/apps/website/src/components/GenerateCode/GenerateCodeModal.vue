@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" append-to-body :close-on-click-modal="false" class="fullscree hide-header" destroy-on-close center width="960px">
+  <el-dialog v-model="dialogVisible" append-to-body :close-on-click-modal="false" class="fullscree hide-header" destroy-on-close align-center width="960px">
     <div class="flex overflow-hidden rounded h-600px">
       <div class="flex flex-col py-5 w-240px">
         <div class="px-5 pb-5 text-lg font-medium">{{ $t('app.common.generateModelCode') }}</div>
@@ -29,13 +29,6 @@
                 <div class="flex-1 leading-none ml-4px pt-2px">{{ item.description }}</div>
               </el-form-item>
             </template>
-
-            <!-- <el-divider v-if="currentLanguageOptionRender && currentLanguageOptionRender.secondaryOptions!.length">
-              <span class="font-normal text-gray-400 cursor-pointer flex-y-center text-12px" @click="toggleMoreMenu()">
-                {{ $t('app.common.more') }}
-                <el-icon size="12" class="origin-center transition-base" :class="{ 'rotate-90': isShowMoreMenu }"><ac-icon-ep-arrow-right /></el-icon>
-              </span>
-            </el-divider> -->
 
             <template v-if="currentLanguageOptionRender" v-for="item in currentLanguageOptionRender.secondaryOptions">
               <div>

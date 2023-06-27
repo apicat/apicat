@@ -78,8 +78,8 @@ export const getProjectNavigateList = (overwrite?: any): ProjectNavigateObject =
   const { t } = useI18n()
 
   const navs = {
-    [ProjectNavigateListEnum.BaseInfoSetting]: { text: t('app.project.setting.baseInfo'), icon: 'ac-IconPopoverSetting' },
-    [ProjectNavigateListEnum.ProjectMemberList]: { text: t('app.project.setting.member'), icon: 'ac-response' },
+    [ProjectNavigateListEnum.BaseInfoSetting]: { text: t('app.project.setting.baseInfo'), icon: 'ac-setting' },
+    [ProjectNavigateListEnum.ProjectMemberList]: { text: t('app.project.setting.member'), icon: 'ac-members' },
     [ProjectNavigateListEnum.ServerUrlSetting]: { text: t('app.project.setting.serverUrl'), icon: 'ac-suffix-url' },
     [ProjectNavigateListEnum.GlobalParamsSetting]: { text: t('app.project.setting.globalParam'), icon: 'ac-canshuweihu' },
     [ProjectNavigateListEnum.ProjectExport]: { text: t('app.project.setting.export'), icon: 'ac-export' },
