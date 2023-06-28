@@ -219,3 +219,6 @@ other = "重置项目分享密钥失败"
 
 [ProjectShare.AccessPasswordError]
 other = "访问密码错误"
+
+[ProjectShare.PublicProject]
+other = "公开项目不需要分享"
