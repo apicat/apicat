@@ -39,6 +39,11 @@ export const enum DocumentTypeEnum {
   DOC = 'doc',
   HTTP = 'http',
 }
+// Collection visibility
+export const enum CollectionVisibilityEnum {
+  PRIVATE = 0,
+  PUBLIC = 1,
+}
 
 export const enum DefinitionTypeEnum {
   DIR = 'category',
