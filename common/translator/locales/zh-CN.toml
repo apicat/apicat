@@ -217,5 +217,5 @@ other = "修改项目分享状态失败"
 [ProjectShare.ResetKeyFail]
 other = "重置项目分享密钥失败"
 
-[ProjectShare.ResetKeyFail]
+[ProjectShare.AccessPasswordError]
 other = "访问密码错误"
