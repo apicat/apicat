@@ -48,13 +48,31 @@ func InitApiRouter(r *gin.Engine) {
 			account.POST("/register/email", api.EmailRegister)
 		}
 
-		projects := apiRouter.Group("/projects")
+		noAuthProjects := apiRouter.Group("/projects")
 		{
-			projects.GET("", middleware.JWTAuthMiddleware(), api.ProjectsList)
-			projects.POST("", middleware.JWTAuthMiddleware(), api.ProjectsCreate)
-			projects.GET("/:project-id", middleware.JWTAuthMiddleware(), api.ProjectsGet)
-			projects.GET("/:project-id/data", api.ProjectDataGet)
-			projects.GET("/:project-id/collections/:collection-id/data", api.CollectionDataGet)
+			noAuthProjects.GET("/:project-id/data", api.ProjectDataGet)
+			noAuthProjects.GET("/:project-id/collections/:collection-id/data", api.CollectionDataGet)
+		}
+
+		halfAuthProjects := apiRouter.Group("/projects")
+		halfAuthProjects.Use(middleware.CheckMemberHalfLogin())
+		{
+			halfAuthProjects.GET("/:project-id", api.ProjectsGet)
+			halfAuthProjects.GET("/:project-id/status", api.ProjectStatus)
+		}
+
+		authProjects := apiRouter.Group("/projects")
+		authProjects.Use(middleware.CheckMember())
+		{
+			authProjects.GET("", api.ProjectsList)
+			authProjects.POST("", api.ProjectsCreate)
+		}
+
+		collections := apiRouter.Group("//projects/:project-id/collections")
+		collections.Use(middleware.JWTAuthMiddleware(), middleware.CheckProject(), middleware.CheckProjectMember(), mocksrv.ClearCache())
+		{
+			collections.GET("", api.CollectionsList)
+			collections.GET("/:collection-id", api.CollectionsGet)
 		}
 
 		members := apiRouter.Group("/members")
@@ -121,8 +139,8 @@ func InitApiRouter(r *gin.Engine) {
 
 			collections := project.Group("/collections")
 			{
-				collections.GET("", api.CollectionsList)
-				collections.GET("/:collection-id", api.CollectionsGet)
+				// collections.GET("", api.CollectionsList)
+				// collections.GET("/:collection-id", api.CollectionsGet)
 				collections.POST("", api.CollectionsCreate)
 				collections.PUT("/:collection-id", api.CollectionsUpdate)
 				collections.POST("/:collection-id", api.CollectionsCopy)
@@ -150,6 +168,11 @@ func InitApiRouter(r *gin.Engine) {
 				projectMember.PUT("/authority/:user-id", api.ProjectMembersAuthUpdate)
 				projectMember.DELETE("/:user-id", api.ProjectMembersDelete)
 				projectMember.GET("/without", api.ProjectMembersWithout)
+			}
+
+			share := project.Group("/share")
+			{
+				share.PUT("", api.ProjectSharingSwitch)
 			}
 		}
 	}
