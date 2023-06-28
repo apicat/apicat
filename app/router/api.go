@@ -74,14 +74,14 @@ func InitApiRouter(r *gin.Engine) {
 		onlyLogin := apiRouter.Group("")
 		onlyLogin.Use(middleware.CheckMember())
 		{
-			user := apiRouter.Group("/user")
+			user := onlyLogin.Group("/user")
 			{
 				user.GET("/self", api.GetUserInfo)
 				user.PUT("/self", api.SetUserInfo)
 				user.PUT("/self/password", api.ChangePassword)
 			}
 
-			members := apiRouter.Group("/members")
+			members := onlyLogin.Group("/members")
 			{
 				members.GET("", api.GetMembers)
 				members.POST("/", api.AddMember)
