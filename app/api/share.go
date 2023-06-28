@@ -66,7 +66,7 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 	}
 }
 
-func ResetShareSecretKey(ctx *gin.Context) {
+func ProjectShareResetSecretKey(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 
 	var (

@@ -178,7 +178,7 @@ func InitApiRouter(r *gin.Engine) {
 			share := project.Group("/share")
 			{
 				share.PUT("", api.ProjectSharingSwitch)
-				share.PUT("/reset_share_secretkey", api.ResetShareSecretKey)
+				share.PUT("/reset_share_secretkey", api.ProjectShareResetSecretKey)
 			}
 		}
 	}
