@@ -57,7 +57,7 @@ func CheckMember() func(ctx *gin.Context) {
 		}
 
 		//将当前请求的username信息保存到请求的上下文c上
-		ctx.Set("CurrentMember", user)
+		ctx.Set("CurrentUser", user)
 		//后续的处理函数可以通过c.Get("CurrentUser")来获取请求的用户信息
 		ctx.Next()
 	}

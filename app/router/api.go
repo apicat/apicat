@@ -52,6 +52,7 @@ func InitApiRouter(r *gin.Engine) {
 		{
 			noAuthProjects.GET("/:project-id/data", api.ProjectDataGet)
 			noAuthProjects.GET("/:project-id/collections/:collection-id/data", api.CollectionDataGet)
+			noAuthProjects.POST("/:project-id/share/secretkey_check", api.ProjectShareSecretkeyCheck)
 		}
 
 		halfAuthProjects := apiRouter.Group("/projects")
@@ -68,7 +69,7 @@ func InitApiRouter(r *gin.Engine) {
 			authProjects.POST("", api.ProjectsCreate)
 		}
 
-		collections := apiRouter.Group("//projects/:project-id/collections")
+		collections := apiRouter.Group("/projects/:project-id/collections")
 		collections.Use(middleware.JWTAuthMiddleware(), middleware.CheckProject(), middleware.CheckProjectMember(), mocksrv.ClearCache())
 		{
 			collections.GET("", api.CollectionsList)
@@ -173,6 +174,7 @@ func InitApiRouter(r *gin.Engine) {
 			share := project.Group("/share")
 			{
 				share.PUT("", api.ProjectSharingSwitch)
+				share.PUT("/reset_share_secretkey", api.ResetShareSecretKey)
 			}
 		}
 	}

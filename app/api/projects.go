@@ -100,6 +100,7 @@ func ProjectsGet(ctx *gin.Context) {
 		return
 	}
 
+	authority := "none"
 	project, err := models.NewProjects(data.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -108,13 +109,16 @@ func ProjectsGet(ctx *gin.Context) {
 		return
 	}
 
-	projectMember, _ := models.NewProjectMembers()
-	projectMember.ProjectID = project.ID
-	projectMember.UserID = currentUser.(*models.Users).ID
+	if project.Visibility == 0 {
+		if currentUser != nil {
+			projectMember, _ := models.NewProjectMembers()
+			projectMember.ProjectID = project.ID
+			projectMember.UserID = currentUser.(*models.Users).ID
 
-	authority := "none"
-	if err := projectMember.GetByUserIDAndProjectID(); err == nil {
-		authority = projectMember.Authority
+			if err := projectMember.GetByUserIDAndProjectID(); err == nil {
+				authority = projectMember.Authority
+			}
+		}
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -470,4 +474,46 @@ func ProjectTransfer(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusCreated)
+}
+
+func ProjectStatus(ctx *gin.Context) {
+	currentProject, _ := ctx.Get("CurrentProject")
+	currentUser, currentUserExists := ctx.Get("CurrentUser")
+
+	var (
+		authority  string
+		visibility string
+		has_shared bool
+	)
+
+	if currentProject.(*models.Projects).Visibility == 0 {
+		visibility = "private"
+	} else {
+		visibility = "public"
+	}
+
+	if currentProject.(*models.Projects).SharePassword == "" {
+		has_shared = false
+	} else {
+		has_shared = true
+	}
+
+	if !currentUserExists {
+		authority = "none"
+	} else {
+		pm, _ := models.NewProjectMembers()
+		pm.ProjectID = currentProject.(*models.Projects).ID
+		pm.UserID = currentUser.(*models.Users).ID
+		if err := pm.GetByUserIDAndProjectID(); err != nil {
+			authority = "none"
+		} else {
+			authority = pm.Authority
+		}
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"authority":  authority,
+		"visibility": visibility,
+		"has_shared": has_shared,
+	})
 }
