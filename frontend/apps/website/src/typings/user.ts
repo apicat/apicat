@@ -11,7 +11,7 @@ export const enum UserRoleInTeam {
 export const UserRoleInTeamMap = {
   [UserRoleInTeam.SUPER_ADMIN]: '超级管理员',
   [UserRoleInTeam.ADMIN]: '管理员',
-  [UserRoleInTeam.USER]: '普通用户',
+  [UserRoleInTeam.USER]: '普通成员',
 }
 
 export declare interface UserInfo {

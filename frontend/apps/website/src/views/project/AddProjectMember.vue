@@ -1,7 +1,17 @@
 <template>
   <el-form :inline="true" :model="form" ref="fromRef" :rules="rules">
-    <el-form-item :label="$t('app.project.member.chooseMember')" prop="user_ids">
-      <el-select v-model="form.user_ids" :placeholder="$t('app.project.member.chooseMember')" filterable multiple collapse-tags collapse-tags-tooltip>
+    <el-form-item :label="$t('app.project.member.chooseMember')" prop="user_ids" class="w-260px">
+      <el-select
+        ref="selectRef"
+        v-model="form.user_ids"
+        :placeholder="$t('app.project.member.chooseMember')"
+        filterable
+        multiple
+        collapse-tags
+        collapse-tags-tooltip
+        class="w-full"
+        @change="handleMemberChange"
+      >
         <el-option v-for="member in members" :label="member.username" :value="member.user_id!" />
       </el-select>
     </el-form-item>
@@ -37,12 +47,17 @@ const form = reactive({
   authority: MemberAuthorityInProject.READ,
   user_ids: [],
 })
+const selectRef = ref()
 
 const rules = {
   user_ids: [{ required: true, message: t('app.project.member.chooseMember') }],
 }
 
 const members = shallowRef<ProjectMember[]>([])
+
+const handleMemberChange = () => {
+  selectRef.value.query = ''
+}
 
 const onSubmit = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
