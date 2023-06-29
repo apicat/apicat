@@ -281,3 +281,7 @@ func CollectionExport(project *Projects, collection *Collections) *spec.Spec {
 
 	return apicatData
 }
+
+func (c *Collections) GetByPublicId() error {
+	return Conn.Where("public_id = ?", c.PublicId).First(c).Error
+}

@@ -52,10 +52,18 @@ func InitApiRouter(r *gin.Engine) {
 			}
 
 			project := notLogin.Group("/projects")
+			project.Use(middleware.CheckProject())
 			{
 				project.GET("/:project-id/data", api.ProjectDataGet)
 				project.GET("/:project-id/collections/:collection-id/data", api.CollectionDataGet)
 				project.POST("/:project-id/share/secretkey_check", api.ProjectShareSecretkeyCheck)
+				project.POST("/:project-id/collections/:collection-id/share/secretkey_check", api.DocShareSecretkeyCheck)
+
+			}
+
+			share := notLogin.Group("/share")
+			{
+				share.GET("/collections/:doc-id/status", api.ProjectDataGet)
 			}
 		}
 
@@ -151,6 +159,9 @@ func InitApiRouter(r *gin.Engine) {
 				collections.POST("/:collection-id", api.CollectionsCopy)
 				collections.PUT("/movement", api.CollectionsMovement)
 				collections.DELETE("/:collection-id", api.CollectionsDelete)
+				collections.GET("/:collection-id/share", api.DocStatus)
+				collections.PUT("/:collection-id/share", api.DocSharingSwitch)
+				collections.PUT("/:collection-id/share/reset_share_secretkey", api.DocShareResetSecretKey)
 			}
 
 			trashs := project.Group("/trashs")

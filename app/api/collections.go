@@ -397,3 +397,43 @@ func CollectionDataGet(ctx *gin.Context) {
 
 	util.ExportResponse(data.Type, data.Download, project.Title+"-"+data.Type, content, ctx)
 }
+
+func DocStatus(ctx *gin.Context) {
+	currentProject, _ := ctx.Get("CurrentProject")
+
+	var (
+		uriData     CollectionDataGetData
+		visibility  string
+		docPublicID string
+		secretKey   string
+	)
+
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	collection, err := models.NewCollections(uriData.CollectionID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
+		})
+		return
+	}
+
+	if currentProject.(*models.Projects).Visibility == 0 {
+		visibility = "private"
+		docPublicID = collection.PublicId
+		secretKey = collection.SharePassword
+	} else {
+		visibility = "public"
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"visibility":    visibility,
+		"doc_public_id": docPublicID,
+		"secret_key":    secretKey,
+	})
+}
