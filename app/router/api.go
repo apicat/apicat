@@ -55,15 +55,20 @@ func InitApiRouter(r *gin.Engine) {
 			project.Use(middleware.CheckProject())
 			{
 				project.GET("/:project-id/data", api.ProjectDataGet)
-				project.GET("/:project-id/collections/:collection-id/data", api.CollectionDataGet)
 				project.POST("/:project-id/share/secretkey_check", api.ProjectShareSecretkeyCheck)
-				project.POST("/:project-id/collections/:collection-id/share/secretkey_check", api.DocShareSecretkeyCheck)
 
+			}
+
+			collection := notLogin.Group("/projects/:project-id/collections")
+			project.Use(middleware.CheckProject())
+			{
+				collection.GET("/:collection-id/data", api.CollectionDataGet)
+				collection.POST("/:collection-id/share/secretkey_check", api.DocShareSecretkeyCheck)
 			}
 
 			share := notLogin.Group("/share")
 			{
-				share.GET("/collections/:doc-id/status", api.ProjectDataGet)
+				share.GET("/collections/:doc-id/status", api.DocShareStatus)
 			}
 		}
 
@@ -72,9 +77,17 @@ func InitApiRouter(r *gin.Engine) {
 		halfLogin.Use(middleware.CheckMemberHalfLogin())
 		{
 			project := halfLogin.Group("/projects")
+			project.Use(middleware.CheckProject())
 			{
 				project.GET("/:project-id", api.ProjectsGet)
 				project.GET("/:project-id/status", api.ProjectStatus)
+			}
+
+			collection := halfLogin.Group("/projects/:project-id/collections")
+			collection.Use(middleware.CheckProject(), middleware.CheckMemberHalfLogin(), middleware.CheckProjectMemberHalfLogin(), mocksrv.ClearCache())
+			{
+				collection.GET("", api.CollectionsList)
+				collection.GET("/:collection-id", api.CollectionsGet)
 			}
 		}
 
@@ -114,6 +127,8 @@ func InitApiRouter(r *gin.Engine) {
 				projects.DELETE("", api.ProjectsDelete)
 				projects.DELETE("/exit", api.ProjectExit)
 				projects.PUT("/transfer", api.ProjectTransfer)
+				projects.PUT("/share", api.ProjectSharingSwitch)
+				projects.PUT("/share/reset_share_secretkey", api.ProjectShareResetSecretKey)
 			}
 
 			definitionSchemas := project.Group("/definition/schemas")
@@ -152,8 +167,6 @@ func InitApiRouter(r *gin.Engine) {
 
 			collections := project.Group("/collections")
 			{
-				collections.GET("", api.CollectionsList)
-				collections.GET("/:collection-id", api.CollectionsGet)
 				collections.POST("", api.CollectionsCreate)
 				collections.PUT("/:collection-id", api.CollectionsUpdate)
 				collections.POST("/:collection-id", api.CollectionsCopy)
@@ -184,12 +197,6 @@ func InitApiRouter(r *gin.Engine) {
 				projectMember.PUT("/authority/:user-id", api.ProjectMembersAuthUpdate)
 				projectMember.DELETE("/:user-id", api.ProjectMembersDelete)
 				projectMember.GET("/without", api.ProjectMembersWithout)
-			}
-
-			share := project.Group("/share")
-			{
-				share.PUT("", api.ProjectSharingSwitch)
-				share.PUT("/reset_share_secretkey", api.ProjectShareResetSecretKey)
 			}
 		}
 	}
