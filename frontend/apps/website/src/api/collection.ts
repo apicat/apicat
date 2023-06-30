@@ -143,6 +143,8 @@ export const createCollectionByAI = async ({ project_id, ...params }: any, axios
 
 export const createCollectionWithSchemaByAI = async ({ project_id, schema_id }: any) => Ajax.get(`/projects/${project_id}/ai/collections/name?schema_id=${schema_id}`)
 
-export const getCollectionShareDetail = ({ project_id, collection_id, ...params }: any) => Ajax.post(`/projects/${project_id}/collections/${collection_id}/share_detail`, params)
+export const getCollectionShareDetail = ({ project_id, collection_id }: any) => Ajax.get(`/projects/${project_id}/collections/${collection_id}/share`)
 
 export const resetSecretToCollection = ({ project_id, collection_id, ...params }: any) => Ajax.post(`/projects/${project_id}/collections/${collection_id}/share_secretkey`, params)
+
+export const switchCollectionShareStatus = ({ project_id, collection_id, ...params }: any) => Ajax.post(`/projects/${project_id}/collections/${collection_id}/share`, params)

@@ -6,7 +6,8 @@
 
     <div class="ac-header-operate__btns" v-if="!isReader">
       <el-button type="primary" @click="goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
-      <el-button @click="handleExport()">{{ $t('app.common.export') }}</el-button>
+      <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" />
+      <Iconfont icon="ac-export cursor-pointer" :size="18" @click="handleExport()" />
     </div>
   </div>
 
@@ -25,6 +26,7 @@
       <ResponseParamTabsRaw :doc="httpDoc" :definitions="definitions" />
     </div>
   </div>
+  <DocumentShareModal ref="documentShareModalRef" />
 </template>
 <script setup lang="ts">
 import { HttpDocument } from '@/typings'
@@ -38,6 +40,7 @@ import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionResponseStore from '@/store/definitionResponse'
+import DocumentShareModal from './components/DocumentShareModal.vue'
 
 const projectStore = uesProjectStore()
 const definitionStore = useDefinitionStore()
@@ -45,12 +48,14 @@ const globalParametersStore = uesGlobalParametersStore()
 const definitionResponseStore = useDefinitionResponseStore()
 
 const route = useRoute()
-const { project_id } = useParams()
+const { project_id, doc_id } = useParams()
 const { goDocumentEditPage } = useGoPage()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const { urlServers, isReader } = storeToRefs(projectStore)
 const { definitions } = storeToRefs(definitionStore)
+
+const documentShareModalRef = ref<InstanceType<typeof DocumentShareModal>>()
 
 const hasDocument = ref(false)
 const ns = useNamespace('document')
@@ -79,6 +84,10 @@ const getDetail = async (docId: string) => {
 
 const handleExport = () => {
   exportModal.exportDocument()
+}
+
+const handleShare = () => {
+  documentShareModalRef.value?.show({ project_id, collection_id: doc_id })
 }
 
 globalParametersStore.$onAction(({ name, after }) => {

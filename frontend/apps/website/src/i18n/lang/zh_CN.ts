@@ -36,6 +36,8 @@ export default {
       copyCode: '复制代码',
       code: '代码',
       more: '更多',
+      on: '开',
+      off: '关',
     },
     tips: {
       notFound: '啊哦，网页走丢了，正在努力寻找中…',

@@ -40,3 +40,8 @@ export const updateMemberAuthorityInProject = async (project_id: string, user_id
 export const quitProject = async (project_id: string) => Ajax.delete(`/projects/${project_id}/exit`)
 // 移交项目
 export const transferProject = async (project_id: string, member_id: number) => Ajax.put(`/projects/${project_id}/transfer`, { member_id })
+
+// 私有项目秘钥校验
+export const checkProjectShareSecret = async ({ project_id, secret_key }: Record<string, any>) => Ajax.post(`/projects/${project_id}/share/secretkey_check`, { secret_key })
+// 重置分享项目访问秘钥
+export const resetProjectShareSecret = async ({ project_id }: Record<string, any>) => Ajax.put(`/projects/${project_id}/share/reset_share_secretkey`)

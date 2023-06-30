@@ -39,10 +39,10 @@ export const enum DocumentTypeEnum {
   DOC = 'doc',
   HTTP = 'http',
 }
-// Collection visibility
+// Collection visibility private-私有项目文档，public-公开项目文档
 export const enum CollectionVisibilityEnum {
-  PRIVATE = 0,
-  PUBLIC = 1,
+  PRIVATE = 'private',
+  PUBLIC = 'public',
 }
 
 export const enum DefinitionTypeEnum {

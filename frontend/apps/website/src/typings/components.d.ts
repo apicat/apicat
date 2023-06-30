@@ -9,6 +9,7 @@ export {}
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    AcBacktop: typeof import('./../components/AcBacktop.vue')['default']
     AcIcon: typeof import('./../components/AcIcon.vue')['default']
     AcIconBiRobot: typeof import('~icons/bi/robot')['default']
     AcIconCarbonModelAlt: typeof import('~icons/carbon/model-alt')['default']

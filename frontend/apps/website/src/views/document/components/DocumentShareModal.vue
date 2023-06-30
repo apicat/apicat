@@ -1,12 +1,12 @@
 <template>
-  <el-dialog v-model="dialogVisible" title="分享文档" :width="540" append-to-body align-center class="fullscree hide-header">
-    <div v-loading="isLoadingForShareStatus">
+  <el-dialog v-model="dialogVisible" title="分享文档" :width="540" append-to-body align-center class="fullscree">
+    <div v-loading="isLoadingForShareStatus" class="mb-3">
       <div v-if="shareInfo.visibility === CollectionVisibilityEnum.PUBLIC">
-        <el-form label-position="top" class="px-6 py-3">
+        <el-form label-position="top" class="px-6">
           <el-form-item label="">
             <el-input readonly v-model="shareInfo.link">
               <template #append>
-                <el-button type="primary" @click="handleCopy">{{ elCopyTextRef }}</el-button>
+                <el-button type="primary" @click="handleCopy">{{ isCopied ? elCopiedText : elCopyTextRef }}</el-button>
               </template>
             </el-input>
           </el-form-item>
@@ -14,12 +14,19 @@
       </div>
 
       <div v-if="shareInfo.visibility === CollectionVisibilityEnum.PRIVATE">
-        <div class="flex items-center px-6" :class="{ 'py-3': !isShareForSwitchStatus, 'pt-3': isShareForSwitchStatus }">
+        <div class="flex items-center px-6">
           <div class="flex-1">
             <h4>开启分享</h4>
             <div class="ivu-list-item-meta-description">开启分享后，获得链接的人可以访问接口内容。</div>
           </div>
-          <el-switch :loading="isLoadingForSwitchShareStatus" v-model="isShareForSwitchStatus" @change="onShareStatusSwitch" inline-prompt active-text="开" inactive-text="关" />
+          <el-switch
+            :loading="isLoadingForSwitchShareStatus"
+            v-model="isShareForSwitchStatus"
+            @change="onShareStatusSwitch"
+            inline-prompt
+            :active-text="$t('app.common.on')"
+            :inactive-text="$t('app.common.off')"
+          />
         </div>
 
         <el-divider v-if="isShareForSwitchStatus" />
@@ -28,14 +35,14 @@
           <el-form-item label="文档链接">
             <el-input readonly v-model="shareInfo.link">
               <template #append>
-                <el-button type="primary" @click="handleCopy">{{ elCopyTextRef }}</el-button>
+                <el-button type="primary" @click="handleCopy">{{ isCopied ? elCopiedText : elCopyTextRef }}</el-button>
               </template>
             </el-input>
           </el-form-item>
 
           <el-form-item label="密码">
             <el-form-item prop="date" class="mr-1">
-              <el-input readonly v-model="shareInfo.password" />
+              <el-input readonly v-model="shareInfo.secret_key" />
             </el-form-item>
             <el-button :loading="isLoadingForResetSecret" @click="onResetPasswordBtnClick">重置密码</el-button>
           </el-form-item>
@@ -46,34 +53,62 @@
 </template>
 
 <script setup lang="ts">
-import { getCollectionShareDetail, resetSecretToCollection } from '@/api/collection'
+import { getCollectionShareDetail, resetSecretToCollection, switchCollectionShareStatus } from '@/api/collection'
 import { CollectionVisibilityEnum } from '@/commons'
 import { useModal } from '@/hooks'
 import useApi from '@/hooks/useApi'
 import useClipboard from '@/hooks/useClipboard'
 
+export type CollectionShareDetailParams = {
+  project_id: string
+  collection_id: string
+}
+
+type CollectionShareInfo = {
+  link: string
+  secret_key: string
+  visibility: CollectionVisibilityEnum
+}
+
 // 分享信息
-const shareInfo: Ref<{ link: string; password: string; visibility: CollectionVisibilityEnum }> = ref({
-  link: '',
-  password: '',
-  visibility: CollectionVisibilityEnum.PUBLIC,
+const shareInfo: Ref<CollectionShareInfo> = ref({
+  link: 'https://apicat.net/doc/488a8d0db7420aa269ac99fb1f4afe22',
+  secret_key: '',
+  visibility: CollectionVisibilityEnum.PRIVATE,
 })
 
 const copyTextRef = computed(() => {
   const info = unref(shareInfo)
-  return info.visibility === CollectionVisibilityEnum.PUBLIC ? info.link : [`文档链接：${info.link}`, `密码：${info.password}`].join('\n')
+  return info.visibility === CollectionVisibilityEnum.PUBLIC ? info.link : [`文档链接：${info.link}`, `密码：${info.secret_key}`].join('\n')
 })
 
-const { dialogVisible, showModel, hideModel } = useModal()
-const { handleCopy, elCopyTextRef } = useClipboard(copyTextRef, '复制链接', '复制链接和密码')
+const elCopyTextRef = computed(() => {
+  const info = unref(shareInfo)
+  return info.visibility === CollectionVisibilityEnum.PUBLIC ? '复制链接' : '复制链接和密码'
+})
+
+const { dialogVisible, showModel } = useModal()
+const { handleCopy, isCopied, elCopiedText } = useClipboard(copyTextRef)
 
 const [isLoadingForShareStatus, getCollectionShareDetailApi] = useApi(getCollectionShareDetail)
 const [isLoadingForResetSecret, resetSecretToCollectionApi] = useApi(resetSecretToCollection)
-const [isLoadingForSwitchShareStatus, resetSecretToCollectionApi2] = useApi(resetSecretToCollection)
+const [isLoadingForSwitchShareStatus, switchCollectionShareStatusApi] = useApi(switchCollectionShareStatus)
 
 const isShareForSwitchStatus = ref(false)
 
+const fetchCollectionShareDetail = async (params: CollectionShareDetailParams) => {
+  const { visibility, collection_temp_id, secret_key } = await getCollectionShareDetailApi(params)
+}
 const onResetPasswordBtnClick = async () => {}
 
 const onShareStatusSwitch = async () => {}
+
+const show = (params: CollectionShareDetailParams) => {
+  showModel()
+  fetchCollectionShareDetail(params)
+}
+
+defineExpose({
+  show,
+})
 </script>
