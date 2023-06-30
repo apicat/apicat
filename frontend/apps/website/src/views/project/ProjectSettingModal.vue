@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="dialogVisible" append-to-body :close-on-click-modal="false" class="fullscree hide-header" align-center destroy-on-close width="70%">
+  <el-dialog v-model="dialogVisible" append-to-body :close-on-click-modal="false" class="fullscree hide-header" align-center destroy-on-close width="1000px">
     <ModalLayout v-loading="isLoading">
       <template #nav>
         <p class="text-16px text-gray-950 font-500">{{ $t('app.project.setting.title') }}</p>
