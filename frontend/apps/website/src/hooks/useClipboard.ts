@@ -5,11 +5,12 @@ export const useClipboard = (
   elCopyText = '',
   elCopiedText = '',
   timeout = 1000
-): { handleCopy: () => Promise<void>; elCopyTextRef: Ref<string> } => {
+): { handleCopy: () => Promise<void>; elCopyTextRef: Ref<string>; isCopied: Ref<boolean>; elCopiedText: string } => {
   const { t } = useI18n()
+  const isCopied: Ref<boolean> = ref(false)
 
   elCopyText = elCopyText || t('app.common.copy')
-  elCopiedText = (elCopiedText || t('app.tips.copyed')) + '!'
+  elCopiedText = elCopiedText || t('app.tips.copyed')
 
   const elCopyTextRef = ref(elCopyText)
   let timer: ReturnType<typeof setTimeout> | null = null
@@ -26,15 +27,19 @@ export const useClipboard = (
     }
 
     elCopyTextRef.value = elCopiedText
+    isCopied.value = true
     timer && clearTimeout(timer)
     timer = setTimeout(() => {
+      isCopied.value = false
       elCopyTextRef.value = elCopyText
     }, timeout)
   }
 
   return {
-    handleCopy,
     elCopyTextRef,
+    elCopiedText,
+    isCopied,
+    handleCopy,
   }
 }
 
