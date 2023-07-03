@@ -1,6 +1,7 @@
 import { RouteRecordRaw } from 'vue-router'
 import MainLayout from '@/layouts/MainLayout.vue'
 import { compile } from 'path-to-regexp'
+import { getProjectDetailPath } from './project.detail'
 
 /**
  * 项目密钥校验
@@ -39,3 +40,4 @@ export const shareDocumentRoute: RouteRecordRaw = {
  * @returns
  */
 export const getDocumentShareLink = (doc_public_id: string) => window.origin + (doc_public_id ? compile(DOCUMENT_SHARE_PATH)({ doc_public_id }) : '')
+export const getProjectShareLink = (project_public_id: string) => window.origin + getProjectDetailPath(project_public_id)

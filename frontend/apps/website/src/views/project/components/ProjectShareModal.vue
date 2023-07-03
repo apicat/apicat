@@ -58,7 +58,7 @@ import { ProjectVisibilityEnum } from '@/commons'
 import { useModal } from '@/hooks'
 import useApi from '@/hooks/useApi'
 import useClipboard from '@/hooks/useClipboard'
-import { getProjectDetailPath } from '@/router/project.detail'
+import { getProjectShareLink } from '@/router/share'
 import { isEmpty } from 'lodash-es'
 
 export type ProjectShareDetailParams = {
@@ -99,7 +99,7 @@ const isShareForSwitchStatus = ref(false)
 const fetchProjectShareDetail = async (params: ProjectShareDetailParams) => {
   const { visibility, secret_key } = await getProjectShareDetailApi(params.project_id)
   shareInfo.value = {
-    link: getProjectDetailPath(params.project_id),
+    link: getProjectShareLink(params.project_id),
     secret_key,
     visibility,
   }
