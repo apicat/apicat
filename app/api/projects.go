@@ -130,6 +130,7 @@ func ProjectsGet(ctx *gin.Context) {
 		"cover":       project.Cover,
 		"authority":   authority,
 		"visibility":  project.Visibility,
+		"secret_key":  project.SharePassword,
 		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
@@ -487,19 +488,12 @@ func ProjectStatus(ctx *gin.Context) {
 	var (
 		authority  string
 		visibility string
-		has_shared bool
 	)
 
 	if currentProject.(*models.Projects).Visibility == 0 {
 		visibility = "private"
 	} else {
 		visibility = "public"
-	}
-
-	if currentProject.(*models.Projects).SharePassword == "" {
-		has_shared = false
-	} else {
-		has_shared = true
 	}
 
 	if !currentUserExists {
@@ -518,6 +512,6 @@ func ProjectStatus(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"authority":  authority,
 		"visibility": visibility,
-		"has_shared": has_shared,
+		"secret_key": currentProject.(*models.Projects).SharePassword,
 	})
 }
