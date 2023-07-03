@@ -43,6 +43,18 @@
       <el-form-item :label="$t('app.project.form.title')" prop="title">
         <el-input v-model="form.title" :placeholder="$t('app.project.form.title')" clearable />
       </el-form-item>
+
+      <el-form-item :label="$t('app.project.form.visibility')">
+        <el-radio-group v-model="form.visibility">
+          <el-radio-button :label="ProjectVisibilityEnum.PRIVATE">
+            <el-icon class="mr-1"><ac-icon-ep-lock /></el-icon>{{ $t('app.common.private') }}
+          </el-radio-button>
+          <el-radio-button :label="ProjectVisibilityEnum.PUBLIC">
+            <el-icon class="mr-1"><ac-icon-ep-view /></el-icon>{{ $t('app.common.public') }}
+          </el-radio-button>
+        </el-radio-group>
+      </el-form-item>
+
       <div class="my-40px">
         <el-divider>
           <span class="font-400">
@@ -99,6 +111,7 @@ import { getProjectDetailPath } from '@/router'
 import { ProjectInfo } from '@/typings'
 import uesProjectStore from '@/store/project'
 import { useProjectCover } from './logic/useProjectCover'
+import { ProjectVisibilityEnum } from '@/commons'
 
 const ns = useNamespace('project-types')
 const { t } = useI18n()
@@ -116,6 +129,7 @@ const form = reactive({
   title: '',
   cover: '',
   data: '',
+  visibility: ProjectVisibilityEnum.PRIVATE,
 })
 
 const { projectCoverBgColorsOptions, projectCoverIcons, bgColorRef, iconRef } = useProjectCover(form)

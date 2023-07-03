@@ -38,6 +38,8 @@ export default {
       more: '更多',
       on: '开',
       off: '关',
+      private: '私有',
+      public: '公开',
     },
     tips: {
       notFound: '啊哦，网页走丢了，正在努力寻找中…',
@@ -115,6 +117,7 @@ export default {
         coverIcon: '封面图标',
         title: '项目名称',
         desc: '项目描述',
+        visibility: '项目权限',
       },
       rules: {
         title: '请输入项目名称',
