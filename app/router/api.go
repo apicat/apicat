@@ -68,7 +68,7 @@ func InitApiRouter(r *gin.Engine) {
 
 			share := notLogin.Group("/share")
 			{
-				share.GET("/collections/:doc-id/status", api.DocShareStatus)
+				share.GET("/collections/:public_collection_id/status", api.DocShareStatus)
 			}
 		}
 

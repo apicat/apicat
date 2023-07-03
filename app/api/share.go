@@ -20,7 +20,7 @@ type ProjectShareSecretkeyCheckData struct {
 }
 
 type DocShareStatusData struct {
-	DocID string `uri:"doc-id" binding:"required,lte=255"`
+	PublicCollectionID string `uri:"public_collection_id" binding:"required,lte=255"`
 }
 
 type DocShareSecretkeyCheckUriData struct {
@@ -35,7 +35,6 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 		project   *models.Projects
 		data      ProjectSharingSwitchData
 		secretKey string
-		link      string
 	)
 
 	project = currentProject.(*models.Projects)
@@ -55,7 +54,6 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 
 	if data.Share == "open" {
 		secretKey = random.GenerateRandomString(4)
-		link = ctx.Request.Host + "/project/" + project.PublicId
 
 		project.SharePassword = secretKey
 		if err := project.Save(); err != nil {
@@ -66,8 +64,8 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 		}
 
 		ctx.JSON(http.StatusCreated, gin.H{
-			"link":       link,
-			"secret_key": secretKey,
+			"project_public_id": project.PublicId,
+			"secret_key":        secretKey,
 		})
 	} else {
 		project.SharePassword = ""
@@ -160,7 +158,7 @@ func DocShareStatus(ctx *gin.Context) {
 	}
 
 	collection, _ := models.NewCollections()
-	collection.PublicId = data.DocID
+	collection.PublicId = data.PublicCollectionID
 	if err := collection.GetByPublicId(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.QueryStatusFailed"}),
