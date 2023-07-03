@@ -402,10 +402,10 @@ func DocStatus(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 
 	var (
-		uriData     CollectionDataGetData
-		visibility  string
-		docPublicID string
-		secretKey   string
+		uriData            CollectionDataGetData
+		visibility         string
+		collectionPublicID string
+		secretKey          string
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
@@ -425,15 +425,15 @@ func DocStatus(ctx *gin.Context) {
 
 	if currentProject.(*models.Projects).Visibility == 0 {
 		visibility = "private"
-		docPublicID = collection.PublicId
+		collectionPublicID = collection.PublicId
 		secretKey = collection.SharePassword
 	} else {
 		visibility = "public"
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"visibility":    visibility,
-		"doc_public_id": docPublicID,
-		"secret_key":    secretKey,
+		"visibility":           visibility,
+		"collection_public_id": collectionPublicID,
+		"secret_key":           secretKey,
 	})
 }

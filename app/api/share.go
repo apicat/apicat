@@ -230,7 +230,6 @@ func DocSharingSwitch(ctx *gin.Context) {
 		uriData   DocShareSecretkeyCheckUriData
 		data      ProjectSharingSwitchData
 		secretKey string
-		link      string
 	)
 
 	project = currentProject.(*models.Projects)
@@ -264,13 +263,11 @@ func DocSharingSwitch(ctx *gin.Context) {
 	}
 
 	if data.Share == "open" {
-		if collection.PublicId != "" {
+		if collection.PublicId == "" {
 			collection.PublicId = shortuuid.New()
 		}
 
 		secretKey = random.GenerateRandomString(4)
-		link = ctx.Request.Host + "/share/" + collection.PublicId
-
 		collection.SharePassword = secretKey
 		if err := collection.Update(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
@@ -280,8 +277,8 @@ func DocSharingSwitch(ctx *gin.Context) {
 		}
 
 		ctx.JSON(http.StatusCreated, gin.H{
-			"link":       link,
-			"secret_key": secretKey,
+			"collection_public_id": collection.PublicId,
+			"secret_key":           secretKey,
 		})
 	} else {
 		collection.SharePassword = ""

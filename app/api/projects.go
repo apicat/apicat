@@ -20,15 +20,17 @@ import (
 )
 
 type CreateProject struct {
-	Title string `json:"title" binding:"required,lte=255"`
-	Data  string `json:"data"`
-	Cover string `json:"cover" binding:"lte=255"`
+	Title      string `json:"title" binding:"required,lte=255"`
+	Data       string `json:"data"`
+	Cover      string `json:"cover" binding:"lte=255"`
+	Visibility int    `json:"visibility " binding:"oneof=0 1"`
 }
 
 type UpdateProject struct {
 	Title       string `json:"title" binding:"required,lte=255"`
 	Description string `json:"description" binding:"lte=255"`
 	Cover       string `json:"cover" binding:"lte=255"`
+	Visibility  int    `json:"visibility " binding:"oneof=0 1"`
 }
 
 type ProjectID struct {
@@ -127,6 +129,7 @@ func ProjectsGet(ctx *gin.Context) {
 		"description": project.Description,
 		"cover":       project.Cover,
 		"authority":   authority,
+		"visibility":  project.Visibility,
 		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
@@ -184,7 +187,7 @@ func ProjectsCreate(ctx *gin.Context) {
 	}
 	project.Title = data.Title
 	project.PublicId = shortuuid.New()
-	project.Visibility = 0
+	project.Visibility = data.Visibility
 	project.Cover = data.Cover
 	if err := project.Create(); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -267,6 +270,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 	project.Title = data.Title
 	project.Description = data.Description
 	project.Cover = data.Cover
+	project.Visibility = data.Visibility
 	if err := project.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
