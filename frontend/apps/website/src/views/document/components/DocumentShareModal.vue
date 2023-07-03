@@ -22,7 +22,7 @@
           <el-switch
             :loading="isLoadingForSwitchShareStatus"
             v-model="isShareForSwitchStatus"
-            @change="onShareStatusSwitch"
+            @change="(v:any)=>onShareStatusSwitch(v)"
             inline-prompt
             :active-text="$t('app.common.on')"
             :inactive-text="$t('app.common.off')"
@@ -58,6 +58,9 @@ import { CollectionVisibilityEnum } from '@/commons'
 import { useModal } from '@/hooks'
 import useApi from '@/hooks/useApi'
 import useClipboard from '@/hooks/useClipboard'
+import { getDocumentSharePath } from '@/router/share'
+import { SharedState } from '@/typings'
+import { isEmpty } from 'lodash-es'
 
 export type CollectionShareDetailParams = {
   project_id: string
@@ -69,6 +72,8 @@ type CollectionShareInfo = {
   secret_key: string
   visibility: CollectionVisibilityEnum
 }
+
+let currentShareDocParams: Record<string, any> = {}
 
 // 分享信息
 const shareInfo: Ref<CollectionShareInfo> = ref({
@@ -89,21 +94,39 @@ const elCopyTextRef = computed(() => {
 
 const { dialogVisible, showModel } = useModal()
 const { handleCopy, isCopied, elCopiedText } = useClipboard(copyTextRef)
-
 const [isLoadingForShareStatus, getCollectionShareDetailApi] = useApi(getCollectionShareDetail)
 const [isLoadingForResetSecret, resetSecretToCollectionApi] = useApi(resetSecretToCollection)
 const [isLoadingForSwitchShareStatus, switchCollectionShareStatusApi] = useApi(switchCollectionShareStatus)
 
 const isShareForSwitchStatus = ref(false)
+// const isShareForSwitchStatus = computed(() => isShareForSwitchStatusRef.value === 'open')
 
 const fetchCollectionShareDetail = async (params: CollectionShareDetailParams) => {
-  const { visibility, collection_temp_id, secret_key } = await getCollectionShareDetailApi(params)
+  const { visibility, doc_public_id, secret_key } = await getCollectionShareDetailApi(params)
+  shareInfo.value = {
+    link: getDocumentSharePath(doc_public_id),
+    secret_key,
+    visibility,
+  }
+  isShareForSwitchStatus.value = isEmpty(secret_key)
 }
-const onResetPasswordBtnClick = async () => {}
 
-const onShareStatusSwitch = async () => {}
+const onResetPasswordBtnClick = async () => {
+  const { secret_key } = await resetSecretToCollectionApi({ ...currentShareDocParams })
+  shareInfo.value.secret_key = secret_key
+}
+
+const onShareStatusSwitch = async (share: boolean) => {
+  try {
+    const { secret_key } = await switchCollectionShareStatusApi({ ...currentShareDocParams, share: share ? 'open' : 'close' })
+    shareInfo.value.secret_key = secret_key
+  } catch (error) {
+    isShareForSwitchStatus.value = !isShareForSwitchStatus.value
+  }
+}
 
 const show = (params: CollectionShareDetailParams) => {
+  currentShareDocParams = params
   showModel()
   fetchCollectionShareDetail(params)
 }

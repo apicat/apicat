@@ -8,3 +8,5 @@ export declare interface Language {
  * 当前操作的节点信息
  */
 export declare type ActiveNodeInfo = { node: Node | undefined; id: number | undefined }
+
+export declare type SharedState = 'open' | 'close'

@@ -145,6 +145,6 @@ export const createCollectionWithSchemaByAI = async ({ project_id, schema_id }: 
 
 export const getCollectionShareDetail = ({ project_id, collection_id }: any) => Ajax.get(`/projects/${project_id}/collections/${collection_id}/share`)
 
-export const resetSecretToCollection = ({ project_id, collection_id, ...params }: any) => Ajax.post(`/projects/${project_id}/collections/${collection_id}/share_secretkey`, params)
+export const resetSecretToCollection = ({ project_id, collection_id }: any) => Ajax.put(`/projects/${project_id}/collections/${collection_id}/share/reset_share_secretkey`)
 
-export const switchCollectionShareStatus = ({ project_id, collection_id, ...params }: any) => Ajax.post(`/projects/${project_id}/collections/${collection_id}/share`, params)
+export const switchCollectionShareStatus = ({ project_id, collection_id, ...params }: any) => Ajax.put(`/projects/${project_id}/collections/${collection_id}/share`, params)
