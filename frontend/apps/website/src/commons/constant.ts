@@ -45,6 +45,11 @@ export const enum CollectionVisibilityEnum {
   PUBLIC = 'public',
 }
 
+export const enum ProjectVisibilityEnum {
+  PRIVATE = 'private',
+  PUBLIC = 'public',
+}
+
 export const enum DefinitionTypeEnum {
   DIR = 'category',
   SCHEMA = 'schema',
