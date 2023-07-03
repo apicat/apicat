@@ -20,6 +20,7 @@ declare module '@vue/runtime-core' {
     'AcIconEp:plus': typeof import('~icons/ep/plus')['default']
     'AcIconEp:questionFilled': typeof import('~icons/ep/question-filled')['default']
     AcIconEpArrowDown: typeof import('~icons/ep/arrow-down')['default']
+    AcIconEpArrowDownBold: typeof import('~icons/ep/arrow-down-bold')['default']
     AcIconEpArrowLeftBold: typeof import('~icons/ep/arrow-left-bold')['default']
     AcIconEpArrowRightBold: typeof import('~icons/ep/arrow-right-bold')['default']
     AcIconEpCaretRight: typeof import('~icons/ep/caret-right')['default']

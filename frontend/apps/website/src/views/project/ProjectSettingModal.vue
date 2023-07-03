@@ -4,16 +4,18 @@
       <template #nav>
         <p class="text-16px text-gray-950 font-500">{{ $t('app.project.setting.title') }}</p>
         <ul class="mt-20px">
-          <li
-            v-for="(menu, type) in menus"
-            :text="menu.text"
-            @click="onMenuTabClick(menu, type)"
-            class="cursor-pointer py-10px"
-            :class="{ 'text-blue-primary': activeTab.type === type }"
-          >
-            <Iconfont :icon="menu.icon" />
-            {{ menu.text }}
-          </li>
+          <template v-for="(menu, type) in menus">
+            <li
+              v-if="menu.component"
+              :text="menu.text"
+              @click="onMenuTabClick(menu, type as string)"
+              class="cursor-pointer py-10px"
+              :class="{ 'text-blue-primary': activeTab.type === type }"
+            >
+              <Iconfont :icon="menu.icon" />
+              {{ menu.text }}
+            </li>
+          </template>
         </ul>
       </template>
       <template v-if="activeTab" #title>{{ activeTab.menu.text }}</template>
@@ -45,7 +47,7 @@ const menus = getProjectNavigateList({
   [ProjectNavigateListEnum.ProjectTrash]: { component: ProjectTrashPage },
 })
 
-const activeTab = shallowRef<{ menu: any; type: ProjectNavigateListEnum }>({
+const activeTab = shallowRef<{ menu: any; type: string }>({
   menu: menus[ProjectNavigateListEnum.BaseInfoSetting],
   type: ProjectNavigateListEnum.BaseInfoSetting,
 })
@@ -54,7 +56,11 @@ const { dialogVisible, showModel } = useModal()
 const projectStore = uesProjectStore()
 const [isLoading, getProjectDetailInfo] = useApi(projectStore.getProjectDetailInfo)
 const { project_id } = useParams()
-const onMenuTabClick = async (menu: Menu, type: ProjectNavigateListEnum) => {
+const onMenuTabClick = async (menu: Menu, type: string) => {
+  if (!menu) {
+    throw new Error('ProjectSettingModal active menu is null')
+  }
+
   if (menu.action) {
     await menu.action()
     return

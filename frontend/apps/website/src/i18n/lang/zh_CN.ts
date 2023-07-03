@@ -135,6 +135,7 @@ export default {
       setting: {
         title: '项目管理',
         baseInfo: '项目设置',
+        shareProject: '项目分享',
         quitProject: '退出项目',
         serverUrl: 'URL设置',
         globalParam: '全局参数设置',

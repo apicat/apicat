@@ -112,6 +112,7 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
 DefaultAjax.interceptors.request.use(onRequest, onErrorResponse)
 DefaultAjax.interceptors.response.use((response: AxiosResponse) => {
   if (response.status > 200) {
+    ElMessage.closeAll()
     ElMessage.success(response.data.message || 'success')
   }
   return response.data

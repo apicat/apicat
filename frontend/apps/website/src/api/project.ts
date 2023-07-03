@@ -10,38 +10,44 @@ export const getProjectDetail = (project_id: string) => Ajax.get(`/projects/${pr
 
 export const createProject = async (projectInfo: Partial<ProjectInfo>): Promise<ProjectInfo> => await QuietAjax.post('/projects', projectInfo)
 
-export const updateProjectBaseInfo = () => useApi(async ({ id: project_id, ...info }: ProjectInfo) => Ajax.put(`/projects/${project_id}`, info))
+export const updateProjectBaseInfo = () => useApi(({ id: project_id, ...info }: ProjectInfo) => Ajax.put(`/projects/${project_id}`, info))
 
-export const getProjectServerUrlList = async (project_id: any) => Ajax.get(`/projects/${project_id}/servers`)
+export const getProjectServerUrlList = (project_id: any) => Ajax.get(`/projects/${project_id}/servers`)
 
-export const saveProjectServerUrlList = async ({ project_id, urls }: any) => Ajax.put(`/projects/${project_id}/servers`, urls)
+export const saveProjectServerUrlList = ({ project_id, urls }: any) => Ajax.put(`/projects/${project_id}/servers`, urls)
 
 export const exportProject = ({ project_id, ...params }: any) => `${API_URL}/projects/${project_id}/data?${new URLSearchParams(params).toString()}`
 
-export const getProjectTranshList = () => useApi(async (project_id: string) => Ajax.get(`/projects/${project_id}/trashs`))
+export const getProjectTranshList = () => useApi((project_id: string) => Ajax.get(`/projects/${project_id}/trashs`))
 
 export const restoreDoc = () =>
-  useApi(async ({ project_id, ids }: any) => Ajax.put(`/projects/${project_id}/trashs?${ids.map((id: any) => `collection-id=${id}`).join('&')}`, { category: 0 }))
+  useApi(({ project_id, ids }: any) => Ajax.put(`/projects/${project_id}/trashs?${ids.map((id: any) => `collection-id=${id}`).join('&')}`, { category: 0 }))
 
-export const deleleProject = () => useApi(async (project_id: string) => Ajax.delete(`/projects/${project_id}`))
+export const deleleProject = () => useApi((project_id: string) => Ajax.delete(`/projects/${project_id}`))
 
 // 获取非此项目的成员列表
-export const getMembersWithoutProject = async (project_id: string) => QuietAjax.get(`/projects/${project_id}/members/without`)
+export const getMembersWithoutProject = (project_id: string) => QuietAjax.get(`/projects/${project_id}/members/without`)
 // 获取成员列表
-export const getMembersInProject = (project_id: string) => async (data: Record<string, any>) => Ajax.get(`/projects/${project_id}/members?${new URLSearchParams(data).toString()}`)
+export const getMembersInProject = (project_id: string) => (data: Record<string, any>) => Ajax.get(`/projects/${project_id}/members?${new URLSearchParams(data).toString()}`)
 // 新增成员
-export const addMemberToProject = (project_id: string) => async (data: Record<string, any>) => Ajax.post(`/projects/${project_id}/members`, data)
+export const addMemberToProject = (project_id: string) => (data: Record<string, any>) => Ajax.post(`/projects/${project_id}/members`, data)
 // 删除成员
-export const deleteMemberFromProject = async (project_id: string, user_id: number) => Ajax.delete(`/projects/${project_id}/members/${user_id}`)
+export const deleteMemberFromProject = (project_id: string, user_id: number) => Ajax.delete(`/projects/${project_id}/members/${user_id}`)
 // 修改成员权限
 export const updateMemberAuthorityInProject = async (project_id: string, user_id: number, authority: MemberAuthorityInProject) =>
   QuietAjax.put(`/projects/${project_id}/members/authority/${user_id}`, { authority })
 // 退出项目
-export const quitProject = async (project_id: string) => Ajax.delete(`/projects/${project_id}/exit`)
+export const quitProject = (project_id: string) => Ajax.delete(`/projects/${project_id}/exit`)
 // 移交项目
-export const transferProject = async (project_id: string, member_id: number) => Ajax.put(`/projects/${project_id}/transfer`, { member_id })
+export const transferProject = (project_id: string, member_id: number) => Ajax.put(`/projects/${project_id}/transfer`, { member_id })
 
+// 获取项目分享详情
+export const getProjectShareDetail = (project_id: string) => Ajax.get(`/projects/${project_id}/status`)
+// 项目当前状态
+export const getProjectStatus = getProjectShareDetail
 // 私有项目秘钥校验
-export const checkProjectShareSecret = async ({ project_id, secret_key }: Record<string, any>) => Ajax.post(`/projects/${project_id}/share/secretkey_check`, { secret_key })
+export const checkProjectShareSecret = ({ project_id, secret_key }: Record<string, any>) => Ajax.post(`/projects/${project_id}/share/secretkey_check`, { secret_key })
 // 重置分享项目访问秘钥
-export const resetProjectShareSecret = async ({ project_id }: Record<string, any>) => Ajax.put(`/projects/${project_id}/share/reset_share_secretkey`)
+export const resetSecretToProject = ({ project_id }: Record<string, any>) => Ajax.put(`/projects/${project_id}/share/reset_share_secretkey`)
+// 项目分享开关
+export const switchProjectShareStatus = ({ project_id, ...params }: any) => Ajax.put(`/projects/${project_id}/share`, params)

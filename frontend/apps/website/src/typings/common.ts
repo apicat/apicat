@@ -9,4 +9,7 @@ export declare interface Language {
  */
 export declare type ActiveNodeInfo = { node: Node | undefined; id: number | undefined }
 
-export declare type SharedState = 'open' | 'close'
+export declare type ProjectDetailModals = {
+  exportDocument: (project_id?: string, doc_id?: string) => void
+  shareDocument: (project_id: string, doc_id: string) => void
+}

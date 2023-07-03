@@ -1,6 +1,7 @@
 import { Menu } from '@/components/typings'
 import { Language } from '@/typings/common'
 import { useI18n } from 'vue-i18n'
+import AcIconLogout from '~icons/mdi/logout'
 
 // API请求前缀
 export const API_URL = '/api'
@@ -73,6 +74,7 @@ export enum ProjectNavigateListEnum {
   GlobalParamsSetting = 'GlobalParamsSetting',
   ResponseParamsSetting = 'ResponseParamsSetting',
   ProjectExport = 'ProjectExport',
+  ProjectShare = 'ProjectShare',
   ProjectTrash = 'ProjectTrash',
   QuitProject = 'QuitProject',
 }
@@ -84,16 +86,18 @@ export type ProjectNavigateObject = { [key in ProjectNavigateListEnum]: Menu }
  * @returns use function in setup
  * { [key in ProjectNavigateListEnum]: { [key: string]: any }
  */
-export const getProjectNavigateList = (overwrite?: any): ProjectNavigateObject => {
+export const getProjectNavigateList = (overwrite?: any): { [key: string]: Menu } => {
   const { t } = useI18n()
 
   const navs = {
-    [ProjectNavigateListEnum.BaseInfoSetting]: { text: t('app.project.setting.baseInfo'), icon: 'ac-setting' },
-    [ProjectNavigateListEnum.ProjectMemberList]: { text: t('app.project.setting.member'), icon: 'ac-members' },
-    [ProjectNavigateListEnum.ServerUrlSetting]: { text: t('app.project.setting.serverUrl'), icon: 'ac-suffix-url' },
-    [ProjectNavigateListEnum.GlobalParamsSetting]: { text: t('app.project.setting.globalParam'), icon: 'ac-canshuweihu' },
-    [ProjectNavigateListEnum.ProjectExport]: { text: t('app.project.setting.export'), icon: 'ac-export' },
-    [ProjectNavigateListEnum.ProjectTrash]: { text: t('app.project.setting.trash'), icon: 'ac-trash' },
+    [ProjectNavigateListEnum.BaseInfoSetting]: { text: t('app.project.setting.baseInfo'), icon: 'ac-setting', sort: 100 },
+    [ProjectNavigateListEnum.ProjectMemberList]: { text: t('app.project.setting.member'), icon: 'ac-members', sort: 200 },
+    [ProjectNavigateListEnum.ServerUrlSetting]: { text: t('app.project.setting.serverUrl'), icon: 'ac-suffix-url', sort: 300 },
+    [ProjectNavigateListEnum.GlobalParamsSetting]: { text: t('app.project.setting.globalParam'), icon: 'ac-canshuweihu', sort: 400 },
+    [ProjectNavigateListEnum.ProjectShare]: { text: t('app.project.setting.shareProject'), icon: 'ac-share', sort: 500 },
+    [ProjectNavigateListEnum.ProjectExport]: { text: t('app.project.setting.export'), icon: 'ac-export', sort: 600 },
+    [ProjectNavigateListEnum.ProjectTrash]: { text: t('app.project.setting.trash'), icon: 'ac-trash', sort: 700 },
+    [ProjectNavigateListEnum.QuitProject]: { text: t('app.project.setting.quitProject'), elIcon: markRaw(AcIconLogout), sort: 800 },
   } as any
 
   if (overwrite) {
@@ -104,7 +108,7 @@ export const getProjectNavigateList = (overwrite?: any): ProjectNavigateObject =
     })
   }
 
-  return navs as ProjectNavigateObject
+  return navs
 }
 
 // 项目导出类型

@@ -26,7 +26,6 @@
       <ResponseParamTabsRaw :doc="httpDoc" :definitions="definitions" />
     </div>
   </div>
-  <DocumentShareModal ref="documentShareModalRef" />
 </template>
 <script setup lang="ts">
 import { HttpDocument } from '@/typings'
@@ -40,7 +39,7 @@ import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionResponseStore from '@/store/definitionResponse'
-import DocumentShareModal from './components/DocumentShareModal.vue'
+import { ProjectDetailModalsContextKey } from '@/layouts/ProjectDetailLayout/constants'
 
 const projectStore = uesProjectStore()
 const definitionStore = useDefinitionStore()
@@ -48,19 +47,17 @@ const globalParametersStore = uesGlobalParametersStore()
 const definitionResponseStore = useDefinitionResponseStore()
 
 const route = useRoute()
-const { project_id, doc_id } = useParams()
+const { project_id } = useParams()
 const { goDocumentEditPage } = useGoPage()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const { urlServers, isReader } = storeToRefs(projectStore)
 const { definitions } = storeToRefs(definitionStore)
 
-const documentShareModalRef = ref<InstanceType<typeof DocumentShareModal>>()
-
 const hasDocument = ref(false)
 const ns = useNamespace('document')
 const httpDoc: Ref<HttpDocument | null> = ref(null)
-const exportModal = inject('exportModal') as any
+const projectDetailModals = inject(ProjectDetailModalsContextKey)
 
 const getDetail = async (docId: string) => {
   const doc_id = parseInt(docId, 10)
@@ -82,13 +79,9 @@ const getDetail = async (docId: string) => {
   }
 }
 
-const handleExport = () => {
-  exportModal.exportDocument()
-}
+const handleExport = () => projectDetailModals?.exportDocument()
 
-const handleShare = () => {
-  documentShareModalRef.value?.show({ project_id, collection_id: doc_id })
-}
+const handleShare = () => projectDetailModals?.shareDocument(project_id, route.params.doc_id as string)
 
 globalParametersStore.$onAction(({ name, after }) => {
   // 删除全局参数

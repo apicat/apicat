@@ -33,4 +33,9 @@ export const shareDocumentRoute: RouteRecordRaw = {
   component: MainLayout,
 }
 
-export const getDocumentSharePath = (doc_public_id: string) => compile(DOCUMENT_SHARE_PATH)({ doc_public_id })
+/**
+ * 获取文档分享链接
+ * @param doc_public_id
+ * @returns
+ */
+export const getDocumentShareLink = (doc_public_id: string) => window.origin + (doc_public_id ? compile(DOCUMENT_SHARE_PATH)({ doc_public_id }) : '')

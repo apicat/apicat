@@ -47,7 +47,7 @@ const props = withDefaults(
   defineProps<{
     exportType?: 'project' | 'collection'
     project_id?: string
-    doc_id?: string
+    doc_id?: string | number
   }>(),
   {
     exportType: 'project',
@@ -92,11 +92,11 @@ const handleExport = (selected: ExportParams) => {
   }
 
   project_id = props.project_id || (project_id as string)
-  doc_id = props.doc_id || (doc_id as string)
+  const collection_id = props.doc_id || (doc_id as string)
 
   const params = { type, ...selected.params }
 
-  const exportUrl = props.exportType === 'project' ? exportProject({ project_id, ...params }) : exportCollection({ project_id, collection_id: doc_id, ...params })
+  const exportUrl = props.exportType === 'project' ? exportProject({ project_id, ...params }) : exportCollection({ project_id, collection_id, ...params })
   window.open(exportUrl)
 }
 </script>

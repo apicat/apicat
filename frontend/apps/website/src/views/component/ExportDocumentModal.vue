@@ -12,7 +12,7 @@ const { dialogVisible, showModel } = useModal()
 const projectId = ref()
 const docId = ref()
 
-const show = async (project_id?: string, doc_id?: string) => {
+const show = async (project_id?: string, doc_id?: string | number) => {
   projectId.value = project_id
   docId.value = doc_id
   showModel()
