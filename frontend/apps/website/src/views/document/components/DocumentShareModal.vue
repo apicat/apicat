@@ -58,7 +58,7 @@ import { CollectionVisibilityEnum } from '@/commons'
 import { useModal } from '@/hooks'
 import useApi from '@/hooks/useApi'
 import useClipboard from '@/hooks/useClipboard'
-import { getDocumentShareLink } from '@/router/share'
+import { getDocumentPrivateShareLink, getDocumentPublicShareLink } from '@/router/share'
 import { isEmpty } from 'lodash-es'
 
 export type CollectionShareDetailParams = {
@@ -99,12 +99,14 @@ const isShareForSwitchStatus = ref(false)
 
 const fetchCollectionShareDetail = async (params: CollectionShareDetailParams) => {
   const { visibility, doc_public_id, secret_key } = await getCollectionShareDetailApi(params)
+  isShareForSwitchStatus.value = !isEmpty(secret_key)
+
+  const link = visibility === CollectionVisibilityEnum.PUBLIC ? getDocumentPublicShareLink(params.project_id, params.collection_id) : getDocumentPrivateShareLink(doc_public_id)
   shareInfo.value = {
-    link: getDocumentShareLink(doc_public_id),
+    link,
     secret_key,
     visibility,
   }
-  isShareForSwitchStatus.value = !isEmpty(secret_key)
 }
 
 const onResetPasswordBtnClick = async () => {
