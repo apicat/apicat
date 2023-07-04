@@ -49,7 +49,7 @@ export const getProjectStatus = getProjectShareDetail
 // 重置分享项目访问秘钥
 export const resetSecretToProject = ({ project_id }: Record<string, any>) => QuietAjax.put(`/projects/${project_id}/share/reset_share_secretkey`)
 // 项目分享开关
-export const switchProjectShareStatus = ({ project_id, ...params }: any) => Ajax.put(`/projects/${project_id}/share`, params)
+export const switchProjectShareStatus = ({ project_id, ...params }: any) => QuietAjax.put(`/projects/${project_id}/share`, params)
 // 私有项目秘钥校验
 export const checkProjectSecret = ({ project_id, secret_key }: Record<string, any>) => QuietAjax.post(`/projects/${project_id}/share/secretkey_check`, { secret_key })
 

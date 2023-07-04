@@ -150,7 +150,7 @@ export const getCollectionShareDetail = async ({ project_id, collection_id }: an
 // 重置集合分享访问秘钥
 export const resetSecretToCollection = async ({ project_id, collection_id }: any) => QuietAjax.put(`${shareRestfulPath(project_id, collection_id)}/reset_share_secretkey`)
 // 切换集合分享状态
-export const switchCollectionShareStatus = async ({ project_id, collection_id, ...params }: any) => Ajax.put(`${shareRestfulPath(project_id, collection_id)}`, params)
+export const switchCollectionShareStatus = async ({ project_id, collection_id, ...params }: any) => QuietAjax.put(`${shareRestfulPath(project_id, collection_id)}`, params)
 // 检查集合密钥是否正确
 export const checkCollectionSecret = async ({ doc_public_id, secret_key }: any) => QuietAjax.post(`/projects/${doc_public_id}/share/secretkey_check`, { secret_key })
 
