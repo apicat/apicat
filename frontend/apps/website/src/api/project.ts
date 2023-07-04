@@ -3,7 +3,7 @@ import useApi from '@/hooks/useApi'
 import { MemberAuthorityInProject } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
 import { API_URL } from '@/commons/constant'
-import { queryStringify } from '@/commons'
+import { queryStringify, Storage } from '@/commons'
 
 export const getProjectList = () => Ajax.get('/projects')
 
@@ -43,12 +43,17 @@ export const quitProject = (project_id: string) => Ajax.delete(`/projects/${proj
 export const transferProject = (project_id: string, member_id: number) => Ajax.put(`/projects/${project_id}/transfer`, { member_id })
 
 // 获取项目分享详情
-export const getProjectShareDetail = (project_id: string) => Ajax.get(`/projects/${project_id}/status`)
+export const getProjectShareDetail = (project_id: string) => QuietAjax.get(`/projects/${project_id}/status`)
 // 项目当前状态
 export const getProjectStatus = getProjectShareDetail
 // 重置分享项目访问秘钥
-export const resetSecretToProject = ({ project_id }: Record<string, any>) => Ajax.put(`/projects/${project_id}/share/reset_share_secretkey`)
+export const resetSecretToProject = ({ project_id }: Record<string, any>) => QuietAjax.put(`/projects/${project_id}/share/reset_share_secretkey`)
 // 项目分享开关
 export const switchProjectShareStatus = ({ project_id, ...params }: any) => Ajax.put(`/projects/${project_id}/share`, params)
 // 私有项目秘钥校验
-export const checkProjectSecret = ({ project_id, ...params }: Record<string, any>) => Ajax.post(`/projects/${project_id}/share/secretkey_check`, params)
+export const checkProjectSecret = ({ project_id, secret_key }: Record<string, any>) => QuietAjax.post(`/projects/${project_id}/share/secretkey_check`, { secret_key })
+
+// 保存项目分享后的访问token
+export const setProjectSharedToken = (project_id: string, token: string) => Storage.set(`${Storage.KEYS.SHARE_PROJECT}${project_id}`, token, true)
+// 获取项目分享后的访问token
+export const getProjectSharedToken = (project_id: string) => Storage.get(`${Storage.KEYS.SHARE_PROJECT}${project_id}`, true)

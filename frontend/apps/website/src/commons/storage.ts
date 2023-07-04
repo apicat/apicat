@@ -6,6 +6,8 @@ interface StorageKeys {
   LOCALE: string
   CODE_GENERATE_CONFIG: string
   CODE_GENERATE_LANGUAGE: string
+  SHARE_PROJECT: string
+  SHARE_DOCUMENT: string
 }
 
 const Storage = {
@@ -15,6 +17,8 @@ const Storage = {
     LOCALE: `${STORAGE_PREFIX}.locale`,
     CODE_GENERATE_CONFIG: `${STORAGE_PREFIX}.code.generate`,
     CODE_GENERATE_LANGUAGE: `${STORAGE_PREFIX}.code.gen.lang`,
+    SHARE_PROJECT: `${STORAGE_PREFIX}.share.p.`,
+    SHARE_DOCUMENT: `${STORAGE_PREFIX}.share.d.`,
   } as StorageKeys,
 
   get(key: string, isSession?: boolean) {
@@ -67,7 +71,5 @@ const Storage = {
     }
   },
 }
-
-Storage.get(Storage.KEYS.TOKEN)
 
 export default Storage

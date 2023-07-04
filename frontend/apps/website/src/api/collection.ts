@@ -10,8 +10,8 @@ import {
 import Ajax, { QuietAjax } from './Ajax'
 import useApi from '@/hooks/useApi'
 import { isEmpty } from 'lodash-es'
-import { API_URL } from '@/commons/constant'
-import { queryStringify } from '@/commons'
+import { queryStringify, API_URL, Storage } from '@/commons'
+import { DocumentShareInfo } from '@/typings'
 
 const baseRestfulApiPath = (project_id: string | number): string => `/projects/${project_id}/collections`
 const detailRestfulPath = (project_id: string | number, collection_id: string | number): string => `${baseRestfulApiPath(project_id)}/${collection_id}`
@@ -146,10 +146,15 @@ export const createCollectionByAI = async ({ project_id, ...params }: any, axios
 // AI通过schema创建集合
 export const createCollectionWithSchemaByAI = async ({ project_id, schema_id }: any) => Ajax.get(`/projects/${project_id}/ai/collections/name?schema_id=${schema_id}`)
 // 获取集合分享详情
-export const getCollectionShareDetail = async ({ project_id, collection_id }: any) => Ajax.get(`${shareRestfulPath(project_id, collection_id)}`)
+export const getCollectionShareDetail = async ({ project_id, collection_id }: any) => QuietAjax.get(`${shareRestfulPath(project_id, collection_id)}`)
 // 重置集合分享访问秘钥
-export const resetSecretToCollection = async ({ project_id, collection_id }: any) => Ajax.put(`${shareRestfulPath(project_id, collection_id)}/reset_share_secretkey`)
+export const resetSecretToCollection = async ({ project_id, collection_id }: any) => QuietAjax.put(`${shareRestfulPath(project_id, collection_id)}/reset_share_secretkey`)
 // 切换集合分享状态
 export const switchCollectionShareStatus = async ({ project_id, collection_id, ...params }: any) => Ajax.put(`${shareRestfulPath(project_id, collection_id)}`, params)
 // 检查集合密钥是否正确
-export const checkCollectionSecret = async ({ project_id, collection_id, ...params }: any) => Ajax.post(`${shareRestfulPath(project_id, collection_id)}/secretkey_check`, params)
+export const checkCollectionSecret = async ({ doc_public_id, secret_key }: any) => QuietAjax.post(`/projects/${doc_public_id}/share/secretkey_check`, { secret_key })
+
+// 保存项目分享后的访问token
+export const setCollectionShareInfo = (doc_public_id: string, shareInfo: DocumentShareInfo) => Storage.set(`${Storage.KEYS.SHARE_PROJECT}${doc_public_id}`, shareInfo, true)
+// 获取项目分享后的访问token
+export const getCollectionShareInfo = (doc_public_id: string): DocumentShareInfo => Storage.get(`${Storage.KEYS.SHARE_PROJECT}${doc_public_id}`, true)

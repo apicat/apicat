@@ -57,3 +57,9 @@ export interface HttpDocument {
   type: string
   content: Array<any>
 }
+
+export interface DocumentShareInfo {
+  token: string
+  collection_id: string
+  project_id: string
+}
