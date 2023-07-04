@@ -13,7 +13,12 @@
       <PopperMenu :menus="allMenus" class="clear-popover-space" @menu-click="onMenuItemClick" />
     </el-popover>
 
-    <div :class="ns.e('title')" :title="projectDetailInfo?.title">{{ projectDetailInfo?.title }}</div>
+    <div :class="ns.e('title')" :title="projectDetailInfo?.title">
+      {{ projectDetailInfo?.title }}
+      <el-tooltip effect="dark" content="私有项目" placement="bottom" v-if="isPrivate">
+        <el-icon :class="ns.e('icon')"><ac-icon-ep-lock /></el-icon>
+      </el-tooltip>
+    </div>
   </div>
 
   <ProjectSettingModal ref="projectSettingModalRef" />
@@ -34,7 +39,7 @@ import { ProjectDetailModalsContextKey } from '../constants'
 const ns = useNamespace('project-info')
 const projectSettingModalRef = ref<InstanceType<typeof ProjectSettingModal>>()
 const projectStore = uesProjectStore()
-const { projectDetailInfo, isManager } = storeToRefs(projectStore)
+const { projectDetailInfo, isManager, isPrivate } = storeToRefs(projectStore)
 const { t } = useI18n()
 const projectDetailModals = inject(ProjectDetailModalsContextKey)
 
@@ -119,6 +124,10 @@ $document-padding: 40px;
 
   @include e(title) {
     @apply truncate text-16px relative pr-20px;
+  }
+
+  @include e(icon) {
+    @apply absolute right-0 top-50% -mt-8px;
   }
 
   @include m(hover) {

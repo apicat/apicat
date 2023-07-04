@@ -2,7 +2,7 @@ import { convertRequestPath } from '@/commons'
 import Ajax, { QuietAjax } from './Ajax'
 import useApi from '@/hooks/useApi'
 
-const restfulApiPath = (project_id: string | number): string => convertRequestPath('/projects/:project_id/definition/schemas', { project_id })
+const restfulApiPath = (project_id: string | number): string => `/projects/${project_id}/definition/schemas`
 
 export const getDefinitionSchemaList = (project_id: string) => Ajax.get(restfulApiPath(project_id))
 

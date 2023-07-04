@@ -1,5 +1,5 @@
 import { getProjectList, getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList } from '@/api/project'
-import { ProjectListCoverBgColors, ProjectListCoverIcons } from '@/commons'
+import { ProjectListCoverBgColors, ProjectListCoverIcons, ProjectVisibilityEnum } from '@/commons'
 import { MemberAuthorityInProject, MemberAuthorityMap } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
 import { getProjectDefaultCover } from '@/views/project/logic/useProjectCover'
@@ -46,6 +46,8 @@ export const uesProjectStore = defineStore('project', {
     isWriter: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.WRITE,
 
     isReader: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.READ,
+
+    isPrivate: (state) => state.projectDetailInfo?.visibility === ProjectVisibilityEnum.PRIVATE,
   },
   actions: {
     async getProjects() {

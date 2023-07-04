@@ -3,6 +3,7 @@ import useApi from '@/hooks/useApi'
 import { MemberAuthorityInProject } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
 import { API_URL } from '@/commons/constant'
+import { queryStringify } from '@/commons'
 
 export const getProjectList = () => Ajax.get('/projects')
 
@@ -16,7 +17,7 @@ export const getProjectServerUrlList = (project_id: any) => Ajax.get(`/projects/
 
 export const saveProjectServerUrlList = ({ project_id, urls }: any) => Ajax.put(`/projects/${project_id}/servers`, urls)
 
-export const exportProject = ({ project_id, ...params }: any) => `${API_URL}/projects/${project_id}/data?${new URLSearchParams(params).toString()}`
+export const exportProject = ({ project_id, ...params }: any) => `${API_URL}/projects/${project_id}/data${queryStringify(params)}`
 
 export const getProjectTranshList = () => useApi((project_id: string) => Ajax.get(`/projects/${project_id}/trashs`))
 
@@ -28,9 +29,9 @@ export const deleleProject = () => useApi((project_id: string) => Ajax.delete(`/
 // 获取非此项目的成员列表
 export const getMembersWithoutProject = (project_id: string) => QuietAjax.get(`/projects/${project_id}/members/without`)
 // 获取成员列表
-export const getMembersInProject = (project_id: string) => (data: Record<string, any>) => Ajax.get(`/projects/${project_id}/members?${new URLSearchParams(data).toString()}`)
+export const getMembersInProject = (project_id: string) => (params: Record<string, any>) => Ajax.get(`/projects/${project_id}/members${queryStringify(params)}`)
 // 新增成员
-export const addMemberToProject = (project_id: string) => (data: Record<string, any>) => Ajax.post(`/projects/${project_id}/members`, data)
+export const addMemberToProject = (project_id: string) => (params: Record<string, any>) => Ajax.post(`/projects/${project_id}/members`, params)
 // 删除成员
 export const deleteMemberFromProject = (project_id: string, user_id: number) => Ajax.delete(`/projects/${project_id}/members/${user_id}`)
 // 修改成员权限
@@ -45,9 +46,9 @@ export const transferProject = (project_id: string, member_id: number) => Ajax.p
 export const getProjectShareDetail = (project_id: string) => Ajax.get(`/projects/${project_id}/status`)
 // 项目当前状态
 export const getProjectStatus = getProjectShareDetail
-// 私有项目秘钥校验
-export const checkProjectShareSecret = ({ project_id, secret_key }: Record<string, any>) => Ajax.post(`/projects/${project_id}/share/secretkey_check`, { secret_key })
 // 重置分享项目访问秘钥
 export const resetSecretToProject = ({ project_id }: Record<string, any>) => Ajax.put(`/projects/${project_id}/share/reset_share_secretkey`)
 // 项目分享开关
 export const switchProjectShareStatus = ({ project_id, ...params }: any) => Ajax.put(`/projects/${project_id}/share`, params)
+// 私有项目秘钥校验
+export const checkProjectSecret = ({ project_id, ...params }: Record<string, any>) => Ajax.post(`/projects/${project_id}/share/secretkey_check`, params)

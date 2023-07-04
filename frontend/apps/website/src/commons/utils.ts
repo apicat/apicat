@@ -11,6 +11,15 @@ import { memoize } from 'lodash-es'
  * @returns
  */
 export const convertRequestPath = (path: string, params: { [key: string]: any }): string => compile(path)(params)
+export const createRestfulApiPath = convertRequestPath
+
+/**
+ * Returns a string representing the query parameters in the URL format.
+ *
+ * @param {Record<string, any>} params - An object containing the query parameters.
+ * @return {string} A string representing the query parameters in the URL format.
+ */
+export const queryStringify = (params?: Record<string, any>): string => (params ? `?${new URLSearchParams(params).toString()}` : '')
 
 export const getResponseStatusCodeBgColor = (code: number): any => {
   const backgroundColor = (HttpCodeColorMap as any)[String(code)[0]]

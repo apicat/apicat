@@ -11,12 +11,17 @@ import Ajax, { QuietAjax } from './Ajax'
 import useApi from '@/hooks/useApi'
 import { isEmpty } from 'lodash-es'
 import { API_URL } from '@/commons/constant'
+import { queryStringify } from '@/commons'
 
-export const getCollectionList = (project_id: string) => Ajax.get(`/projects/${project_id}/collections`)
+const baseRestfulApiPath = (project_id: string | number): string => `/projects/${project_id}/collections`
+const detailRestfulPath = (project_id: string | number, collection_id: string | number): string => `${baseRestfulApiPath(project_id)}/${collection_id}`
+const shareRestfulPath = (project_id: string | number, collection_id: string | number): string => `${detailRestfulPath(project_id, collection_id)}/share`
+
+export const getCollectionList = async (project_id: string, params?: Record<string, any>) => Ajax.get(`${baseRestfulApiPath(project_id)}${queryStringify(params)}`)
 
 export const getCollectionDetail = () =>
-  useApi(async ({ project_id, collection_id }: any) => {
-    const doc: any = await Ajax.get(`/projects/${project_id}/collections/${collection_id}`)
+  useApi(async ({ project_id, collection_id, ...params }: any) => {
+    const doc: any = await Ajax.get(`${detailRestfulPath(project_id, collection_id)}${queryStringify(params)}`)
     try {
       doc.content = JSON.parse(doc.content)
       mergeDocumentContent(doc.content)
@@ -26,19 +31,17 @@ export const getCollectionDetail = () =>
     return doc
   })
 
-export const createCollection = async ({ project_id, ...data }: any) => QuietAjax.post(`/projects/${project_id}/collections`, data)
+export const createCollection = async ({ project_id, ...data }: any) => QuietAjax.post(`${baseRestfulApiPath(project_id)}`, data)
 
-export const updateCollection = async ({ project_id, collection_id, ...collectionInfo }: any) =>
-  QuietAjax.put(`/projects/${project_id}/collections/${collection_id}`, collectionInfo)
+export const updateCollection = async ({ project_id, collection_id, ...params }: any) => QuietAjax.put(`${detailRestfulPath(project_id, collection_id)}`, params)
 
-export const copyCollection = async (project_id: string, collection_id: string | number) => Ajax.post(`/projects/${project_id}/collections/${collection_id}`)
+export const copyCollection = async (project_id: string, collection_id: string | number) => Ajax.post(`${detailRestfulPath(project_id, collection_id)}`)
 
-export const moveCollection = async (project_id: string, sortParams: { target: any; origin: any }) => QuietAjax.put(`/projects/${project_id}/collections/movement`, sortParams)
+export const moveCollection = async (project_id: string, sortParams: { target: any; origin: any }) => QuietAjax.put(`${baseRestfulApiPath(project_id)}/movement`, sortParams)
 
-export const deleteCollection = async (project_id: string, collection_id: string | number) => Ajax.delete(`/projects/${project_id}/collections/${collection_id}`)
+export const deleteCollection = async (project_id: string, collection_id: string | number) => Ajax.delete(`${detailRestfulPath(project_id, collection_id)}`)
 
-export const exportCollection = ({ project_id, collection_id, ...params }: any) =>
-  `${API_URL}/projects/${project_id}/collections/${collection_id}/data?${new URLSearchParams(params).toString()}`
+export const exportCollection = ({ project_id, collection_id, ...params }: any) => `${API_URL}${detailRestfulPath(project_id, collection_id)}/data${queryStringify(params)}`
 
 const mergeHttpMethod = (node: any) => {
   const defaultVal = createHttpUrlNode().attrs
@@ -138,13 +141,15 @@ const mergeDocumentContent = (content: any) => {
     }
   })
 }
-
+// AI创建集合
 export const createCollectionByAI = async ({ project_id, ...params }: any, axiosConfig?: any) => Ajax.post(`/projects/${project_id}/ai/collections`, params, axiosConfig)
-
+// AI通过schema创建集合
 export const createCollectionWithSchemaByAI = async ({ project_id, schema_id }: any) => Ajax.get(`/projects/${project_id}/ai/collections/name?schema_id=${schema_id}`)
-
-export const getCollectionShareDetail = ({ project_id, collection_id }: any) => Ajax.get(`/projects/${project_id}/collections/${collection_id}/share`)
-
-export const resetSecretToCollection = ({ project_id, collection_id }: any) => Ajax.put(`/projects/${project_id}/collections/${collection_id}/share/reset_share_secretkey`)
-
-export const switchCollectionShareStatus = ({ project_id, collection_id, ...params }: any) => Ajax.put(`/projects/${project_id}/collections/${collection_id}/share`, params)
+// 获取集合分享详情
+export const getCollectionShareDetail = async ({ project_id, collection_id }: any) => Ajax.get(`${shareRestfulPath(project_id, collection_id)}`)
+// 重置集合分享访问秘钥
+export const resetSecretToCollection = async ({ project_id, collection_id }: any) => Ajax.put(`${shareRestfulPath(project_id, collection_id)}/reset_share_secretkey`)
+// 切换集合分享状态
+export const switchCollectionShareStatus = async ({ project_id, collection_id, ...params }: any) => Ajax.put(`${shareRestfulPath(project_id, collection_id)}`, params)
+// 检查集合密钥是否正确
+export const checkCollectionSecret = async ({ project_id, collection_id, ...params }: any) => Ajax.post(`${shareRestfulPath(project_id, collection_id)}/secretkey_check`, params)
