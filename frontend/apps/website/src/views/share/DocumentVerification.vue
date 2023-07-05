@@ -18,8 +18,8 @@ const handleCheckSecretKey = async (secret_key: string) => {
 
   try {
     const { project_id, collection_id } = shareStore.sharedDocumentInfo
-    const { token } = await checkCollectionSecret({ project_id, collection_id, secret_key })
-    params.doc_public_id && setCollectionSharedToken(params.doc_public_id as string, token)
+    const { token, expiration } = await checkCollectionSecret({ project_id, collection_id, secret_key })
+    params.doc_public_id && setCollectionSharedToken(params.doc_public_id as string, token, { expires: expiration })
     router.replace(getDocumentShareDetailPath(params.doc_public_id as string))
   } catch (error) {
     //

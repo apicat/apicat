@@ -13,9 +13,20 @@ import { useDefinitionSchemaStore } from '@/store/definition'
 import { useDefinitionParametersStore } from '@/store/globalParameters'
 import uesProjectStore from '@/store/project'
 import useDefinitionResponseStore from '@/store/definitionResponse'
+import uesShareStore from '@/store/share'
 
 const projectStore = uesProjectStore()
 const globalParametersStore = useDefinitionParametersStore()
 const definitionResponseStore = useDefinitionResponseStore()
 const definitionSchemaStore = useDefinitionSchemaStore()
+const shareStore = uesShareStore()
+
+const { project_id } = shareStore.sharedDocumentInfo!
+
+onBeforeMount(async () => {
+  await projectStore.getUrlServers(project_id)
+  await globalParametersStore.getGlobalParameters(project_id)
+  await definitionResponseStore.getDefinitions(project_id)
+  await definitionSchemaStore.getDefinitions(project_id)
+})
 </script>

@@ -162,7 +162,7 @@ export const checkCollectionSecret = async ({
   project_id: string
   collection_id: string
   secret_key: string
-}): Promise<{ token: string }> => QuietAjax.post(`${shareRestfulPath(project_id, collection_id)}/secretkey_check`, { secret_key })
+}): Promise<{ token: string; expiration: string }> => QuietAjax.post(`${shareRestfulPath(project_id, collection_id)}/secretkey_check`, { secret_key })
 
 // 保存文档分享后的访问token
 export const setCollectionSharedToken = (doc_public_id: string, token: string, options?: CookieOptions) =>
