@@ -60,7 +60,7 @@ func InitApiRouter(r *gin.Engine) {
 			}
 
 			collection := notLogin.Group("/projects/:project-id/collections")
-			project.Use(middleware.CheckProject())
+			collection.Use(middleware.CheckProject())
 			{
 				collection.GET("/:collection-id/data", api.CollectionDataGet)
 				collection.POST("/:collection-id/share/secretkey_check", api.DocShareSecretkeyCheck)
@@ -74,36 +74,40 @@ func InitApiRouter(r *gin.Engine) {
 
 		// 半登录状态下可访问的API。半登录：登录或不登录时都可访问，但响应的参数不同
 		halfLogin := apiRouter.Group("")
-		halfLogin.Use(middleware.CheckMemberHalfLogin())
+		halfLogin.Use(middleware.CheckProject(), middleware.CheckMemberHalfLogin(), middleware.CheckProjectMemberHalfLogin(), mocksrv.ClearCache())
 		{
-			project := halfLogin.Group("/projects")
-			project.Use(middleware.CheckProject())
+			project := halfLogin.Group("/projects/:project-id")
 			{
-				project.GET("/:project-id", api.ProjectsGet)
-				project.GET("/:project-id/status", api.ProjectStatus)
+				project.GET("", api.ProjectsGet)
+				project.GET("/status", api.ProjectStatus)
 			}
 
-			inProject := halfLogin.Group("/projects/:project-id")
-			inProject.Use(middleware.CheckProject(), middleware.CheckMemberHalfLogin(), middleware.CheckProjectMemberHalfLogin(), mocksrv.ClearCache())
+			servers := halfLogin.Group("/projects/:project-id/servers")
 			{
-				// URL相关查询接口
-				inProject.GET("/servers", api.UrlList)
-
-				// 模型相关查询接口
-				inProject.GET("/definition/schemas", api.DefinitionSchemasList)
-
-				// 集合相关查询接口
-				inProject.GET("/collections", api.CollectionsList)
-				inProject.GET("/collections/:collection-id", api.CollectionsGet)
-
-				// 全局参数相关查询接口
-				inProject.GET("/global/parameters", api.GlobalParametersList)
-
-				// 公共响应相关查询接口
-				inProject.GET("/definition/responses", api.DefinitionResponsesList)
-				inProject.GET("/definition/responses/:response-id", api.DefinitionResponsesDetail)
+				servers.GET("", api.UrlList)
 			}
 
+			definitionSchemas := halfLogin.Group("/projects/:project-id/definition/schemas")
+			{
+				definitionSchemas.GET("", api.DefinitionSchemasList)
+			}
+
+			collections := halfLogin.Group("/projects/:project-id/collections")
+			{
+				collections.GET("", api.CollectionsList)
+				collections.GET("/:collection-id", api.CollectionsGet)
+			}
+
+			globalParameters := halfLogin.Group("/projects/:project-id/global/parameters")
+			{
+				globalParameters.GET("", api.GlobalParametersList)
+			}
+
+			definitionResponses := halfLogin.Group("/projects/:project-id/definition/responses")
+			{
+				definitionResponses.GET("", api.DefinitionResponsesList)
+				definitionResponses.GET("/:response-id", api.DefinitionResponsesDetail)
+			}
 		}
 
 		// 仅登录状态下可访问的API。仅登录：仅登录了apicat便可访问，一般为项目外的操作
