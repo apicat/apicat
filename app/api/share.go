@@ -160,7 +160,7 @@ func DocShareStatus(ctx *gin.Context) {
 	collection, _ := models.NewCollections()
 	collection.PublicId = data.PublicCollectionID
 	if err := collection.GetByPublicId(); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.QueryStatusFailed"}),
 		})
 		return
@@ -168,7 +168,7 @@ func DocShareStatus(ctx *gin.Context) {
 
 	project, err := models.NewProjects(collection.ProjectId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.QueryStatusFailed"}),
 		})
 		return

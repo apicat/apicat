@@ -83,12 +83,27 @@ func InitApiRouter(r *gin.Engine) {
 				project.GET("/:project-id/status", api.ProjectStatus)
 			}
 
-			collection := halfLogin.Group("/projects/:project-id/collections")
-			collection.Use(middleware.CheckProject(), middleware.CheckMemberHalfLogin(), middleware.CheckProjectMemberHalfLogin(), mocksrv.ClearCache())
+			inProject := halfLogin.Group("/projects/:project-id")
+			inProject.Use(middleware.CheckProject(), middleware.CheckMemberHalfLogin(), middleware.CheckProjectMemberHalfLogin(), mocksrv.ClearCache())
 			{
-				collection.GET("", api.CollectionsList)
-				collection.GET("/:collection-id", api.CollectionsGet)
+				// URL相关查询接口
+				inProject.GET("/servers", api.UrlList)
+
+				// 模型相关查询接口
+				inProject.GET("/definition/schemas", api.DefinitionSchemasList)
+
+				// 集合相关查询接口
+				inProject.GET("/collections", api.CollectionsList)
+				inProject.GET("/collections/:collection-id", api.CollectionsGet)
+
+				// 全局参数相关查询接口
+				inProject.GET("/global/parameters", api.GlobalParametersList)
+
+				// 公共响应相关查询接口
+				inProject.GET("/definition/responses", api.DefinitionResponsesList)
+				inProject.GET("/definition/responses/:response-id", api.DefinitionResponsesDetail)
 			}
+
 		}
 
 		// 仅登录状态下可访问的API。仅登录：仅登录了apicat便可访问，一般为项目外的操作
@@ -133,7 +148,7 @@ func InitApiRouter(r *gin.Engine) {
 
 			definitionSchemas := project.Group("/definition/schemas")
 			{
-				definitionSchemas.GET("", api.DefinitionSchemasList)
+				// definitionSchemas.GET("", api.DefinitionSchemasList)
 				definitionSchemas.POST("", api.DefinitionSchemasCreate)
 				definitionSchemas.PUT("/:schemas-id", api.DefinitionSchemasUpdate)
 				definitionSchemas.DELETE("/:schemas-id", api.DefinitionSchemasDelete)
@@ -144,13 +159,11 @@ func InitApiRouter(r *gin.Engine) {
 
 			servers := project.Group("/servers")
 			{
-				servers.GET("", api.UrlList)
 				servers.PUT("", api.UrlSettings)
 			}
 
 			globalParameters := project.Group("/global/parameters")
 			{
-				globalParameters.GET("", api.GlobalParametersList)
 				globalParameters.POST("", api.GlobalParametersCreate)
 				globalParameters.PUT("/:parameter-id", api.GlobalParametersUpdate)
 				globalParameters.DELETE("/:parameter-id", api.GlobalParametersDelete)
@@ -158,8 +171,6 @@ func InitApiRouter(r *gin.Engine) {
 
 			definitionResponses := project.Group("/definition/responses")
 			{
-				definitionResponses.GET("", api.DefinitionResponsesList)
-				definitionResponses.GET("/:response-id", api.DefinitionResponsesDetail)
 				definitionResponses.POST("", api.DefinitionResponsesCreate)
 				definitionResponses.PUT("/:response-id", api.DefinitionResponsesUpdate)
 				definitionResponses.DELETE("/:response-id", api.DefinitionResponsesDelete)
