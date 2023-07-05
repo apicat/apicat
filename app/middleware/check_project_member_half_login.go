@@ -43,7 +43,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		}
 
 		token := ctx.Query("token")
-		if token == "" {
+		if token == "" || len(token) < 1 {
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"code":    enum.ProjectMemberInsufficientPermissionsCode,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -87,7 +87,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 				return
 			}
 
-			if tc.Expiration < time.Now().UnixNano() {
+			if tc.Expiration < time.Now().Unix() {
 				ctx.JSON(http.StatusBadRequest, gin.H{
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.tokenHasExpired"}),
 				})
@@ -137,7 +137,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 				return
 			}
 
-			if tc.Expiration < time.Now().UnixNano() {
+			if tc.Expiration < time.Now().Unix() {
 				ctx.JSON(http.StatusBadRequest, gin.H{
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.tokenHasExpired"}),
 				})
