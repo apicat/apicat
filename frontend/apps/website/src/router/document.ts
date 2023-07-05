@@ -19,6 +19,9 @@ export const documentDetailRoute: RouteRecordRaw = {
   name: DOCUMENT_DETAIL_NAME,
   path: DOCUMENT_DETAIL_PATH,
   component: DocumentDetailPage,
+  meta: {
+    ignoreAuth: true,
+  },
 }
 
 export const documentEditRoute: RouteRecordRaw = {
