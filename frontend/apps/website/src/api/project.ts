@@ -45,9 +45,10 @@ export const quitProject = (project_id: string) => Ajax.delete(`/projects/${proj
 export const transferProject = (project_id: string, member_id: number) => Ajax.put(`/projects/${project_id}/transfer`, { member_id })
 
 // 获取项目分享详情
-export const getProjectShareDetail = (project_id: string) => QuietAjax.get(`/projects/${project_id}/status`)
+export const getProjectShareDetail = async (project_id: string): Promise<{ authority: MemberAuthorityInProject; visibility: string; secret_key: string }> =>
+  QuietAjax.get(`/projects/${project_id}/status`)
 // 项目当前状态
-export const getProjectStatus = getProjectShareDetail
+export const getProjectAuthInfo = getProjectShareDetail
 // 重置分享项目访问秘钥
 export const resetSecretToProject = ({ project_id }: Record<string, any>) => QuietAjax.put(`/projects/${project_id}/share/reset_share_secretkey`)
 // 项目分享开关

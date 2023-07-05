@@ -1,4 +1,4 @@
-import { getProjectList, getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList } from '@/api/project'
+import { getProjectList, getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList, getProjectAuthInfo } from '@/api/project'
 import { ProjectListCoverBgColors, ProjectListCoverIcons, ProjectVisibilityEnum } from '@/commons'
 import { MemberAuthorityInProject, MemberAuthorityMap } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
@@ -9,6 +9,12 @@ import { pinia } from '@/plugins'
 interface ProjectState {
   projects: ProjectInfo[]
   projectDetailInfo: ProjectInfo | null
+  projectAuthInfo: {
+    inThisProject: boolean
+    hasShare: boolean
+    isPrivate: boolean
+    hasProjectSecretKey: boolean
+  } | null
   urlServers: Array<any>
 }
 
@@ -16,6 +22,7 @@ export const uesProjectStore = defineStore('project', {
   state: (): ProjectState => ({
     projects: [],
     projectDetailInfo: null,
+    projectAuthInfo: null,
     urlServers: [],
   }),
 
@@ -78,6 +85,16 @@ export const uesProjectStore = defineStore('project', {
     async saveProjectServerUrlListApi({ project_id, urls }: any) {
       await saveProjectServerUrlList({ project_id, urls })
       this.urlServers = urls
+    },
+
+    async getProjectAuthInfo(project_id: string) {
+      const { authority, visibility, secret_key } = await getProjectAuthInfo(project_id)
+      this.projectAuthInfo = {
+        inThisProject: authority !== MemberAuthorityInProject.NONE,
+        hasShare: !!secret_key,
+        isPrivate: visibility === ProjectVisibilityEnum.PRIVATE,
+        hasProjectSecretKey: !!secret_key,
+      }
     },
   },
 })
