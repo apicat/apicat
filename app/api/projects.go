@@ -23,14 +23,14 @@ type CreateProject struct {
 	Title      string `json:"title" binding:"required,lte=255"`
 	Data       string `json:"data"`
 	Cover      string `json:"cover" binding:"lte=255"`
-	Visibility string `json:"visibility " binding:"required,oneof=private public"`
+	Visibility string `json:"visibility" binding:"required,oneof=private public"`
 }
 
 type UpdateProject struct {
 	Title       string `json:"title" binding:"required,lte=255"`
 	Description string `json:"description" binding:"lte=255"`
 	Cover       string `json:"cover" binding:"lte=255"`
-	Visibility  string `json:"visibility " binding:"required,oneof=private public"`
+	Visibility  string `json:"visibility" binding:"required,oneof=private public"`
 }
 
 type ProjectID struct {
