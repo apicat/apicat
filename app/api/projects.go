@@ -91,9 +91,13 @@ func ProjectsList(ctx *gin.Context) {
 }
 
 func ProjectsGet(ctx *gin.Context) {
-	currentUser, _ := ctx.Get("CurrentUser")
+	currentProjectMember, currentProjectMemberExists := ctx.Get("CurrentProjectMember")
 
-	var data ProjectID
+	var (
+		data       ProjectID
+		authority  string
+		visibility string
+	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -102,7 +106,6 @@ func ProjectsGet(ctx *gin.Context) {
 		return
 	}
 
-	authority := "none"
 	project, err := models.NewProjects(data.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -111,18 +114,14 @@ func ProjectsGet(ctx *gin.Context) {
 		return
 	}
 
-	var visibility string
+	if currentProjectMemberExists {
+		authority = currentProjectMember.(*models.ProjectMembers).Authority
+	} else {
+		authority = "none"
+	}
+
 	if project.Visibility == 0 {
 		visibility = "private"
-		if currentUser != nil {
-			projectMember, _ := models.NewProjectMembers()
-			projectMember.ProjectID = project.ID
-			projectMember.UserID = currentUser.(*models.Users).ID
-
-			if err := projectMember.GetByUserIDAndProjectID(); err == nil {
-				authority = projectMember.Authority
-			}
-		}
 	} else {
 		visibility = "public"
 	}
@@ -498,7 +497,7 @@ func ProjectTransfer(ctx *gin.Context) {
 
 func ProjectStatus(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
-	currentUser, currentUserExists := ctx.Get("CurrentUser")
+	currentProjectMember, currentProjectMemberExists := ctx.Get("CurrentProjectMember")
 
 	var (
 		authority  string
@@ -511,17 +510,10 @@ func ProjectStatus(ctx *gin.Context) {
 		visibility = "public"
 	}
 
-	if !currentUserExists {
-		authority = "none"
+	if currentProjectMemberExists {
+		authority = currentProjectMember.(*models.ProjectMembers).Authority
 	} else {
-		pm, _ := models.NewProjectMembers()
-		pm.ProjectID = currentProject.(*models.Projects).ID
-		pm.UserID = currentUser.(*models.Users).ID
-		if err := pm.GetByUserIDAndProjectID(); err != nil {
-			authority = "none"
-		} else {
-			authority = pm.Authority
-		}
+		authority = "none"
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{

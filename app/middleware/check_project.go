@@ -22,6 +22,7 @@ func CheckProject() gin.HandlerFunc {
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 			})
 			ctx.Abort()
+			return
 		} else {
 			project, err := models.NewProjects(data.ID)
 			if err != nil {
@@ -29,6 +30,7 @@ func CheckProject() gin.HandlerFunc {
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 				})
 				ctx.Abort()
+				return
 			}
 			ctx.Set("CurrentProject", project)
 		}
