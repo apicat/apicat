@@ -23,14 +23,14 @@ type CreateProject struct {
 	Title      string `json:"title" binding:"required,lte=255"`
 	Data       string `json:"data"`
 	Cover      string `json:"cover" binding:"lte=255"`
-	Visibility int    `json:"visibility " binding:"oneof=0 1"`
+	Visibility string `json:"visibility " binding:"required,oneof=private public"`
 }
 
 type UpdateProject struct {
 	Title       string `json:"title" binding:"required,lte=255"`
 	Description string `json:"description" binding:"lte=255"`
 	Cover       string `json:"cover" binding:"lte=255"`
-	Visibility  int    `json:"visibility " binding:"oneof=0 1"`
+	Visibility  string `json:"visibility " binding:"required,oneof=private public"`
 }
 
 type ProjectID struct {
@@ -111,7 +111,9 @@ func ProjectsGet(ctx *gin.Context) {
 		return
 	}
 
+	var visibility string
 	if project.Visibility == 0 {
+		visibility = "private"
 		if currentUser != nil {
 			projectMember, _ := models.NewProjectMembers()
 			projectMember.ProjectID = project.ID
@@ -121,6 +123,8 @@ func ProjectsGet(ctx *gin.Context) {
 				authority = projectMember.Authority
 			}
 		}
+	} else {
+		visibility = "public"
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -129,7 +133,7 @@ func ProjectsGet(ctx *gin.Context) {
 		"description": project.Description,
 		"cover":       project.Cover,
 		"authority":   authority,
-		"visibility":  project.Visibility,
+		"visibility":  visibility,
 		"secret_key":  project.SharePassword,
 		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
@@ -186,9 +190,15 @@ func ProjectsCreate(ctx *gin.Context) {
 		}
 		project.Description = content.Info.Description
 	}
+
+	if data.Visibility == "private" {
+		project.Visibility = 0
+	} else {
+		project.Visibility = 1
+	}
+
 	project.Title = data.Title
 	project.PublicId = shortuuid.New()
-	project.Visibility = data.Visibility
 	project.Cover = data.Cover
 	if err := project.Create(); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -271,7 +281,12 @@ func ProjectsUpdate(ctx *gin.Context) {
 	project.Title = data.Title
 	project.Description = data.Description
 	project.Cover = data.Cover
-	project.Visibility = data.Visibility
+	if data.Visibility == "private" {
+		project.Visibility = 0
+	} else {
+		project.Visibility = 1
+	}
+
 	if err := project.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
