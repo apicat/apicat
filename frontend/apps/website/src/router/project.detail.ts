@@ -14,7 +14,9 @@ export const projectDetailRoute: RouteRecordRaw = {
   component: ProjectDetailLayout,
   children: [documentDetailRoute, documentEditRoute, schemaDetailRoute, schemaEditRoute, definitionResponseDetailRoute, definitionResponseEditRoute],
   redirect: { name: DOCUMENT_DETAIL_NAME },
-  meta: {},
+  meta: {
+    ignoreAuth: true,
+  },
 }
 
 export * from './document'

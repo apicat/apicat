@@ -101,10 +101,9 @@ const isShareForSwitchStatus = ref(false)
 const fetchCollectionShareDetail = async (params: CollectionShareDetailParams) => {
   const { visibility, collection_public_id, secret_key } = await getCollectionShareDetailApi(params)
   isShareForSwitchStatus.value = !isEmpty(secret_key)
-  params.collection_public_id = collection_public_id
-
+  currentShareDocParams.collection_public_id = collection_public_id
   shareInfo.value = {
-    link: getDocumentShareLink(params),
+    link: getDocumentShareLink(visibility),
     secret_key,
     visibility,
   }
@@ -119,16 +118,16 @@ const onShareStatusSwitch = async (share: boolean) => {
   try {
     const { secret_key, collection_public_id } = await switchCollectionShareStatusApi({ ...currentShareDocParams, share: share ? 'open' : 'close' })
     currentShareDocParams.collection_public_id = collection_public_id
-    shareInfo.value.link = getDocumentShareLink(currentShareDocParams)
+    shareInfo.value.link = getDocumentShareLink(shareInfo.value.visibility)
     shareInfo.value.secret_key = secret_key
   } catch (error) {
     isShareForSwitchStatus.value = !isShareForSwitchStatus.value
   }
 }
 
-const getDocumentShareLink = (params: CollectionShareDetailParams) => {
-  const { project_id, collection_id, collection_public_id = '' } = params
-  return shareInfo.value.visibility === CollectionVisibilityEnum.PUBLIC ? getDocumentPublicShareLink(project_id, collection_id) : getDocumentPrivateShareLink(collection_public_id)
+const getDocumentShareLink = (visibility: CollectionVisibilityEnum) => {
+  const { project_id, collection_id, collection_public_id = '' } = currentShareDocParams
+  return visibility === CollectionVisibilityEnum.PUBLIC ? getDocumentPublicShareLink(project_id, collection_id) : getDocumentPrivateShareLink(collection_public_id)
 }
 
 const show = (params: CollectionShareDetailParams) => {
