@@ -45,8 +45,8 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		token := ctx.Query("token")
 		if token == "" || len(token) < 1 {
 			ctx.JSON(http.StatusForbidden, gin.H{
-				"code":    enum.ProjectMemberInsufficientPermissionsCode,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+				"code":    enum.ShareTokenInsufficientPermissionsCode,
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
 			})
 			ctx.Abort()
 			return
@@ -56,7 +56,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		boltConn, err := bolt.NewConn()
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),
 			})
 			return
 		}
@@ -80,7 +80,8 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		// 分享项目的访问令牌
 		if token[:1] == "p" {
 			if project.(*models.Projects).SharePassword != tc.SecretKey {
-				ctx.JSON(http.StatusBadRequest, gin.H{
+				ctx.JSON(http.StatusForbidden, gin.H{
+					"code":    enum.ShareTokenInsufficientPermissionsCode,
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.AccessPasswordError"}),
 				})
 				ctx.Abort()
@@ -88,7 +89,8 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 			}
 
 			if tc.Expiration < time.Now().Unix() {
-				ctx.JSON(http.StatusBadRequest, gin.H{
+				ctx.JSON(http.StatusForbidden, gin.H{
+					"code":    enum.ShareTokenInsufficientPermissionsCode,
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.tokenHasExpired"}),
 				})
 				ctx.Abort()
@@ -102,9 +104,8 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		if token[:1] == "d" {
 			collectionIDStr := ctx.Param("collection-id")
 			if collectionIDStr == "" {
-				ctx.JSON(http.StatusForbidden, gin.H{
-					"code":    enum.ProjectMemberInsufficientPermissionsCode,
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+				ctx.JSON(http.StatusNotFound, gin.H{
+					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 				})
 				ctx.Abort()
 				return
@@ -112,9 +113,8 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 
 			collectionID, err := strconv.Atoi(collectionIDStr)
 			if err != nil {
-				ctx.JSON(http.StatusForbidden, gin.H{
-					"code":    enum.ProjectMemberInsufficientPermissionsCode,
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+				ctx.JSON(http.StatusNotFound, gin.H{
+					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 				})
 				ctx.Abort()
 				return
@@ -130,7 +130,8 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 			}
 
 			if collection.SharePassword != tc.SecretKey {
-				ctx.JSON(http.StatusBadRequest, gin.H{
+				ctx.JSON(http.StatusForbidden, gin.H{
+					"code":    enum.ShareTokenInsufficientPermissionsCode,
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.AccessPasswordError"}),
 				})
 				ctx.Abort()
@@ -138,7 +139,8 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 			}
 
 			if tc.Expiration < time.Now().Unix() {
-				ctx.JSON(http.StatusBadRequest, gin.H{
+				ctx.JSON(http.StatusForbidden, gin.H{
+					"code":    enum.ShareTokenInsufficientPermissionsCode,
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.tokenHasExpired"}),
 				})
 				ctx.Abort()
