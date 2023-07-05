@@ -17,18 +17,24 @@ import useDefinitionStore from '@/store/definition'
 import useDefinitionResponseStore from '@/store/definitionResponse'
 import uesProjectStore from '@/store/project'
 import uesGlobalParametersStore from '@/store/globalParameters'
+import uesShareStore from '@/store/share'
 
 const projectStore = uesProjectStore()
 const definitionStore = useDefinitionStore()
 const globalParametersStore = uesGlobalParametersStore()
 const definitionResponseStore = useDefinitionResponseStore()
-
+const shareStore = uesShareStore()
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
+
 const { urlServers } = storeToRefs(projectStore)
 const { definitions } = storeToRefs(definitionStore)
 
 const ns = useNamespace('document')
 const httpDoc: Ref<HttpDocument | null> = ref(null)
 
-const getDetail = async (docId: string) => {}
+onMounted(async () => {
+  const { project_id, collection_id } = shareStore.sharedDocumentInfo!
+  const doc = await getCollectionDetailApi({ project_id, collection_id })
+  console.log(doc)
+})
 </script>

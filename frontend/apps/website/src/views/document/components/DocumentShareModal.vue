@@ -64,6 +64,7 @@ import { isEmpty } from 'lodash-es'
 export type CollectionShareDetailParams = {
   project_id: string
   collection_id: string
+  collection_public_id?: string
 }
 
 type CollectionShareInfo = {
@@ -73,7 +74,7 @@ type CollectionShareInfo = {
 }
 
 // 当前分享的文档信息
-let currentShareDocParams: Record<string, any> = {}
+let currentShareDocParams: CollectionShareDetailParams = { project_id: '', collection_id: '' }
 
 // 分享信息
 const shareInfo: Ref<CollectionShareInfo> = ref({
@@ -100,11 +101,10 @@ const isShareForSwitchStatus = ref(false)
 const fetchCollectionShareDetail = async (params: CollectionShareDetailParams) => {
   const { visibility, collection_public_id, secret_key } = await getCollectionShareDetailApi(params)
   isShareForSwitchStatus.value = !isEmpty(secret_key)
+  params.collection_public_id = collection_public_id
 
-  const link =
-    visibility === CollectionVisibilityEnum.PUBLIC ? getDocumentPublicShareLink(params.project_id, params.collection_id) : getDocumentPrivateShareLink(collection_public_id)
   shareInfo.value = {
-    link,
+    link: getDocumentShareLink(params),
     secret_key,
     visibility,
   }
@@ -117,11 +117,18 @@ const onResetPasswordBtnClick = async () => {
 
 const onShareStatusSwitch = async (share: boolean) => {
   try {
-    const { secret_key } = await switchCollectionShareStatusApi({ ...currentShareDocParams, share: share ? 'open' : 'close' })
+    const { secret_key, collection_public_id } = await switchCollectionShareStatusApi({ ...currentShareDocParams, share: share ? 'open' : 'close' })
+    currentShareDocParams.collection_public_id = collection_public_id
+    shareInfo.value.link = getDocumentShareLink(currentShareDocParams)
     shareInfo.value.secret_key = secret_key
   } catch (error) {
     isShareForSwitchStatus.value = !isShareForSwitchStatus.value
   }
+}
+
+const getDocumentShareLink = (params: CollectionShareDetailParams) => {
+  const { project_id, collection_id, collection_public_id = '' } = params
+  return shareInfo.value.visibility === CollectionVisibilityEnum.PUBLIC ? getDocumentPublicShareLink(project_id, collection_id) : getDocumentPrivateShareLink(collection_public_id)
 }
 
 const show = (params: CollectionShareDetailParams) => {

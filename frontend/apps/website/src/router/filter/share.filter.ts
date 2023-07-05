@@ -25,7 +25,7 @@ export const setupShareFilter = (router: Router) => {
           shareStore.clearDocumentShareInfo()
           return next(NOT_FOUND_PATH)
         }
-
+        sharedDocumentInfo.doc_public_id = params.doc_public_id as string
         shareStore.setDocumentShareInfo(sharedDocumentInfo)
 
         // 已经输入密钥，直接跳转文档详情
