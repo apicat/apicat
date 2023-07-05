@@ -3,7 +3,7 @@ import useApi from '@/hooks/useApi'
 import { MemberAuthorityInProject } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
 import { API_URL } from '@/commons/constant'
-import { queryStringify, Storage } from '@/commons'
+import { queryStringify, Cookies, CookieOptions } from '@/commons'
 
 export const getProjectList = () => Ajax.get('/projects')
 
@@ -13,7 +13,9 @@ export const createProject = async (projectInfo: Partial<ProjectInfo>): Promise<
 
 export const updateProjectBaseInfo = () => useApi(({ id: project_id, ...info }: ProjectInfo) => Ajax.put(`/projects/${project_id}`, info))
 
-export const getProjectServerUrlList = (project_id: any) => Ajax.get(`/projects/${project_id}/servers`)
+export const getProjectServerUrlList = async (project_id: string, params?: Record<string, any>) => {
+  return Ajax.get(`/projects/${project_id}/servers`)
+}
 
 export const saveProjectServerUrlList = ({ project_id, urls }: any) => Ajax.put(`/projects/${project_id}/servers`, urls)
 
@@ -55,6 +57,6 @@ export const checkProjectSecret = ({ project_id, secret_key }: Record<string, an
   QuietAjax.post(`/projects/${project_id}/share/secretkey_check`, { secret_key })
 
 // 保存项目分享后的访问token
-export const setProjectSharedToken = (project_id: string, token: string) => Storage.set(`${Storage.KEYS.SHARE_PROJECT}${project_id}`, token, true)
+export const setProjectSharedToken = (project_id: string, token: string, options?: CookieOptions) => Cookies.set(`${Cookies.KEYS.SHARE_PROJECT}${project_id}`, token, options)
 // 获取项目分享后的访问token
-export const getProjectSharedToken = (project_id: string) => Storage.get(`${Storage.KEYS.SHARE_PROJECT}${project_id}`, true)
+export const getProjectSharedToken = (project_id: string) => Cookies.get(`${Cookies.KEYS.SHARE_PROJECT}${project_id}`)

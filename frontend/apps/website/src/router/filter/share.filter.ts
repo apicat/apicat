@@ -1,6 +1,6 @@
 import type { Router } from 'vue-router'
 import { getCollectionShareStatus } from '@/api/collection'
-import { Storage } from '@/commons'
+import { Cookies } from '@/commons'
 import { uesShareStore } from '@/store/share'
 import { NOT_FOUND_PATH } from '../constant'
 import { getDocumentShareDetailPath, getDocumentVerificationPath } from '../share'
@@ -15,7 +15,7 @@ export const setupShareFilter = (router: Router) => {
     const { name, params } = to
     // 预览文档
     if (String(name).startsWith('share.document')) {
-      const isExistSecretKey = !!(Storage.get(Storage.KEYS.SHARE_DOCUMENT + params.doc_public_id, true) || '')
+      const isExistSecretKey = !!(Cookies.get(Cookies.KEYS.SHARE_DOCUMENT + params.doc_public_id) || '')
       const shareStore = uesShareStore()
       try {
         const sharedDocumentInfo = await getCollectionShareStatus(params.doc_public_id as string)

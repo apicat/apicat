@@ -28,15 +28,13 @@ import { HttpDocument } from '@/typings'
 import { HTTP_URL_NODE_KEY, useNodeAttrs } from '@/hooks/useNodeAttrs'
 import { getRequestMethodColor } from '@/commons'
 import { mockServerPath, mockApiPath, getMockData } from '@/api/mock'
-import { useParams } from '@/hooks/useParams'
 import { AsyncMsgBox } from './AsyncMessageBox'
 import { CodeEditor } from './APIEditor'
 
-const props = defineProps<{ doc: HttpDocument; code: string | number }>()
-const { project_id } = useParams()
+const props = defineProps<{ doc: HttpDocument; code: string | number; projectId: string }>()
 const ns = useNamespace('http-method')
 const nodeAttrs = useNodeAttrs(props, HTTP_URL_NODE_KEY, 'doc')
-const mockServerPathRef = computed(() => mockServerPath + mockApiPath(project_id as string))
+const mockServerPathRef = computed(() => mockServerPath + mockApiPath(props.projectId as string))
 const fullPath = computed(() => mockServerPathRef.value + nodeAttrs.value.path)
 
 const isFetchMockData = ref(false)

@@ -9,7 +9,7 @@ import { checkCollectionSecret, setCollectionSharedToken } from '@/api/collectio
 import { getDocumentShareDetailPath } from '@/router/share'
 const shareStore = uesShareStore()
 const { params } = useRoute()
-const rouer = useRouter()
+const router = useRouter()
 
 const handleCheckSecretKey = async (secret_key: string) => {
   if (!shareStore.sharedDocumentInfo) {
@@ -20,7 +20,7 @@ const handleCheckSecretKey = async (secret_key: string) => {
     const { project_id, collection_id } = shareStore.sharedDocumentInfo
     const { token } = await checkCollectionSecret({ project_id, collection_id, secret_key })
     params.doc_public_id && setCollectionSharedToken(params.doc_public_id as string, token)
-    rouer.replace(getDocumentShareDetailPath(params.doc_public_id as string))
+    router.replace(getDocumentShareDetailPath(params.doc_public_id as string))
   } catch (error) {
     //
   }

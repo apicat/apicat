@@ -6,7 +6,7 @@ interface GlobalParametersStore {
   parameters: GlobalParameters
 }
 
-export const uesGlobalParametersStore = defineStore('globalParameters', {
+export const uesGlobalParametersStore = defineStore('definitionParameters', {
   state: (): GlobalParametersStore => ({
     parameters: {
       header: [],
@@ -42,5 +42,7 @@ export const uesGlobalParametersStore = defineStore('globalParameters', {
     },
   },
 })
+
+export const useDefinitionParametersStore = uesGlobalParametersStore
 
 export default uesGlobalParametersStore
