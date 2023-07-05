@@ -98,10 +98,11 @@ const [isLoadingForSwitchShareStatus, switchCollectionShareStatusApi] = useApi(s
 const isShareForSwitchStatus = ref(false)
 
 const fetchCollectionShareDetail = async (params: CollectionShareDetailParams) => {
-  const { visibility, doc_public_id, secret_key } = await getCollectionShareDetailApi(params)
+  const { visibility, collection_public_id, secret_key } = await getCollectionShareDetailApi(params)
   isShareForSwitchStatus.value = !isEmpty(secret_key)
 
-  const link = visibility === CollectionVisibilityEnum.PUBLIC ? getDocumentPublicShareLink(params.project_id, params.collection_id) : getDocumentPrivateShareLink(doc_public_id)
+  const link =
+    visibility === CollectionVisibilityEnum.PUBLIC ? getDocumentPublicShareLink(params.project_id, params.collection_id) : getDocumentPrivateShareLink(collection_public_id)
   shareInfo.value = {
     link,
     secret_key,

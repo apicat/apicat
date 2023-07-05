@@ -10,7 +10,7 @@ const { params } = useRoute()
 const handleCheckSecretKey = async (secret_key: string) => {
   try {
     const { doc_public_id } = params
-    const shareInfo: any = await checkCollectionSecret({ doc_public_id, secret_key })
+    const shareInfo = await checkCollectionSecret({ doc_public_id, secret_key })
     setCollectionShareInfo(doc_public_id as string, shareInfo)
   } catch (error) {
     //
