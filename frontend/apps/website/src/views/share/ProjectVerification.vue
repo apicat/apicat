@@ -10,8 +10,8 @@ const { params } = useRoute()
 const handleCheckSecretKey = async (secret_key: string) => {
   try {
     const { project_id } = params
-    const { token } = await checkProjectSecret({ project_id, secret_key })
-    setProjectSharedToken(project_id as string, token)
+    const { token, expiration } = await checkProjectSecret({ project_id, secret_key })
+    setProjectSharedToken(project_id as string, token, { expires: expiration })
   } catch (error) {
     //
   }
