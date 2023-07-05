@@ -61,4 +61,5 @@ export interface HttpDocument {
 export interface SharedDocumentInfo {
   collection_id: string
   project_id: string
+  doc_public_id?: string
 }

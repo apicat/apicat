@@ -51,7 +51,8 @@ export const resetSecretToProject = ({ project_id }: Record<string, any>) => Qui
 // 项目分享开关
 export const switchProjectShareStatus = ({ project_id, ...params }: any) => QuietAjax.put(`/projects/${project_id}/share`, params)
 // 私有项目秘钥校验
-export const checkProjectSecret = ({ project_id, secret_key }: Record<string, any>) => QuietAjax.post(`/projects/${project_id}/share/secretkey_check`, { secret_key })
+export const checkProjectSecret = ({ project_id, secret_key }: Record<string, any>): Promise<{ token: string }> =>
+  QuietAjax.post(`/projects/${project_id}/share/secretkey_check`, { secret_key })
 
 // 保存项目分享后的访问token
 export const setProjectSharedToken = (project_id: string, token: string) => Storage.set(`${Storage.KEYS.SHARE_PROJECT}${project_id}`, token, true)

@@ -13,3 +13,7 @@ export declare type ProjectDetailModals = {
   exportDocument: (project_id?: string, doc_id?: string) => void
   shareDocument: (project_id: string, doc_id: string) => void
 }
+
+export declare interface ParamsWithToken extends Record<string, any> {
+  token: string
+}
