@@ -1,8 +1,12 @@
 package api
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
+	"time"
 
+	"github.com/apicat/apicat/common/bolt"
 	"github.com/apicat/apicat/common/encrypt"
 	"github.com/apicat/apicat/common/random"
 	"github.com/apicat/apicat/common/translator"
@@ -26,6 +30,11 @@ type DocShareStatusData struct {
 type DocShareSecretkeyCheckUriData struct {
 	ProjectID    string `uri:"project-id" binding:"required,lte=255"`
 	CollectionID uint   `uri:"collection-id" binding:"required,gte=0"`
+}
+
+type ShareTokenContentData struct {
+	SecretKey  string `json:"secret_key"`
+	Expiration int64  `json:"expiration"`
 }
 
 func ProjectSharingSwitch(ctx *gin.Context) {
@@ -115,9 +124,12 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 
 	var (
-		project *models.Projects
-		data    ProjectShareSecretkeyCheckData
+		project      *models.Projects
+		data         ProjectShareSecretkeyCheckData
+		tokenContent ShareTokenContentData
+		err          error
 	)
+
 	project = currentProject.(*models.Projects)
 	if project.Visibility != 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -126,7 +138,7 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 		return
 	}
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err = translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -140,8 +152,36 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 		return
 	}
 
+	token := "p" + encrypt.GetMD5Encode(data.SecretKey+fmt.Sprint(time.Now().UnixNano()))
+
+	tokenContent.SecretKey = project.SharePassword
+	tokenContent.Expiration = time.Now().Add(time.Hour * 24).Unix()
+	tokenContentByte, err := json.Marshal(&tokenContent)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),
+		})
+		return
+	}
+
+	boltConn, err := bolt.NewConn()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),
+		})
+		return
+	}
+
+	if err := boltConn.Put([]byte(bolt.ShareTokenBucketName), []byte(token), tokenContentByte); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusCreated, gin.H{
-		"token": "p" + encrypt.GetMD5Encode(data.SecretKey),
+		"token":      token,
+		"expiration": time.Unix(tokenContent.Expiration, 0).Format("2006-01-02 15:04:05"),
 	})
 }
 
@@ -182,18 +222,20 @@ func DocShareStatus(ctx *gin.Context) {
 
 func DocShareSecretkeyCheck(ctx *gin.Context) {
 	var (
-		uriData DocShareSecretkeyCheckUriData
-		data    ProjectShareSecretkeyCheckData
+		uriData      DocShareSecretkeyCheckUriData
+		data         ProjectShareSecretkeyCheckData
+		tokenContent ShareTokenContentData
+		err          error
 	)
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err = translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err = translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -215,8 +257,36 @@ func DocShareSecretkeyCheck(ctx *gin.Context) {
 		return
 	}
 
+	token := "d" + encrypt.GetMD5Encode(data.SecretKey+fmt.Sprint(time.Now().UnixNano()))
+
+	tokenContent.SecretKey = collection.SharePassword
+	tokenContent.Expiration = time.Now().Add(time.Hour * 24).Unix()
+	tokenContentByte, err := json.Marshal(&tokenContent)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),
+		})
+		return
+	}
+
+	boltConn, err := bolt.NewConn()
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),
+		})
+		return
+	}
+
+	if err := boltConn.Put([]byte(bolt.ShareTokenBucketName), []byte(token), tokenContentByte); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusCreated, gin.H{
-		"token": "d" + encrypt.GetMD5Encode(data.SecretKey),
+		"token":      token,
+		"expiration": time.Unix(tokenContent.Expiration, 0).Format("2006-01-02 15:04:05"),
 	})
 }
 
