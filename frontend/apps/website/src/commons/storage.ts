@@ -1,15 +1,5 @@
 import { STORAGE_PREFIX } from './constant'
 
-interface StorageKeys {
-  TOKEN: string
-  USER: string
-  LOCALE: string
-  CODE_GENERATE_CONFIG: string
-  CODE_GENERATE_LANGUAGE: string
-  SHARE_PROJECT: string
-  SHARE_DOCUMENT: string
-}
-
 const Storage = {
   KEYS: {
     TOKEN: `${STORAGE_PREFIX}.token`,
@@ -17,9 +7,7 @@ const Storage = {
     LOCALE: `${STORAGE_PREFIX}.locale`,
     CODE_GENERATE_CONFIG: `${STORAGE_PREFIX}.code.generate`,
     CODE_GENERATE_LANGUAGE: `${STORAGE_PREFIX}.code.gen.lang`,
-    SHARE_PROJECT: `${STORAGE_PREFIX}.share.p.`,
-    SHARE_DOCUMENT: `${STORAGE_PREFIX}.share.d.`,
-  } as StorageKeys,
+  },
 
   get(key: string, isSession?: boolean) {
     if (!this.isLocalStorage()) {

@@ -20,10 +20,8 @@
   <div :class="[ns.b(), { 'h-20vh': !httpDoc && hasDocument }]" v-loading="isLoading">
     <div class="ac-editor mt-10px" v-if="httpDoc">
       <RequestMethodRaw class="mb-10px" :doc="httpDoc" :urls="urlServers" />
-
       <RequestParamRaw class="mb-10px" :doc="httpDoc" :definitions="definitions" />
-
-      <ResponseParamTabsRaw :doc="httpDoc" :definitions="definitions" />
+      <ResponseParamTabsRaw :doc="httpDoc" :definitions="definitions" :project-id="project_id" />
     </div>
   </div>
 </template>
