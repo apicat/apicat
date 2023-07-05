@@ -16,9 +16,10 @@ const projectVerificationRoute: RouteRecordRaw = {
 }
 
 // 文档密钥校验
+const DOCUMENT_SHARE_VALIDATION_PATH = '/share/:doc_public_id/verification'
 const documentVerificationRoute: RouteRecordRaw = {
   name: 'share.document.verification',
-  path: '/share/:doc_public_id/verification',
+  path: DOCUMENT_SHARE_VALIDATION_PATH,
   meta: { ignoreAuth: true },
   component: DocumentVerification,
 }
@@ -44,8 +45,12 @@ const documentShareDetailRoute: RouteRecordRaw = {
  */
 export const shareRoutes = [projectVerificationRoute, documentVerificationRoute, documentShareDetailRoute]
 
+// 获取文档密钥校验地址
+export const getDocumentVerificationPath = (doc_public_id: string) => compile(DOCUMENT_SHARE_VALIDATION_PATH)({ doc_public_id })
+// 获取分享文档详情地址
+export const getDocumentShareDetailPath = (doc_public_id: string) => compile(DOCUMENT_SHARE_PATH)({ doc_public_id })
 // 获取私有文档分享链接
-export const getDocumentPrivateShareLink = (doc_public_id: string) => window.origin + (doc_public_id ? compile(DOCUMENT_SHARE_PATH)({ doc_public_id }) : '')
+export const getDocumentPrivateShareLink = (doc_public_id: string) => window.origin + (doc_public_id ? getDocumentShareDetailPath(doc_public_id) : '')
 // 获取公共文档分享链接
 export const getDocumentPublicShareLink = (project_id: string, doc_id: string) => window.origin + (doc_id ? getDocumentDetailPath(project_id, doc_id) : '')
 // 获取项目分享链接

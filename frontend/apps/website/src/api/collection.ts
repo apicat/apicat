@@ -11,7 +11,8 @@ import Ajax, { QuietAjax } from './Ajax'
 import useApi from '@/hooks/useApi'
 import { isEmpty } from 'lodash-es'
 import { queryStringify, API_URL, Storage } from '@/commons'
-import { DocumentShareInfo } from '@/typings'
+import { SharedDocumentInfo } from '@/typings'
+import { uesShareStoreWithOut } from '@/store/share'
 
 const baseRestfulApiPath = (project_id: string | number): string => `/projects/${project_id}/collections`
 const detailRestfulPath = (project_id: string | number, collection_id: string | number): string => `${baseRestfulApiPath(project_id)}/${collection_id}`
@@ -21,6 +22,7 @@ export const getCollectionList = async (project_id: string, params?: Record<stri
 
 export const getCollectionDetail = () =>
   useApi(async ({ project_id, collection_id, ...params }: any) => {
+    params = params || {}
     const doc: any = await Ajax.get(`${detailRestfulPath(project_id, collection_id)}${queryStringify(params)}`)
     try {
       doc.content = JSON.parse(doc.content)
@@ -152,9 +154,19 @@ export const resetSecretToCollection = async ({ project_id, collection_id }: any
 // 切换集合分享状态
 export const switchCollectionShareStatus = async ({ project_id, collection_id, ...params }: any) => QuietAjax.put(`${shareRestfulPath(project_id, collection_id)}`, params)
 // 检查集合密钥是否正确
-export const checkCollectionSecret = async ({ doc_public_id, secret_key }: any): Promise<DocumentShareInfo> =>
-  QuietAjax.post(`/projects/${doc_public_id}/share/secretkey_check`, { secret_key })
-// 保存项目分享后的访问token
-export const setCollectionShareInfo = (doc_public_id: string, shareInfo: DocumentShareInfo) => Storage.set(`${Storage.KEYS.SHARE_PROJECT}${doc_public_id}`, shareInfo, true)
-// 获取项目分享后的访问token
-export const getCollectionShareInfo = (doc_public_id: string): DocumentShareInfo => Storage.get(`${Storage.KEYS.SHARE_PROJECT}${doc_public_id}`, true)
+export const checkCollectionSecret = async ({ project_id, collection_id, secret_key }: { project_id: string; collection_id: string; secret_key: string }): Promise<string> =>
+  QuietAjax.post(`${shareRestfulPath(project_id, collection_id)}/secretkey_check`, { secret_key })
+
+// 保存文档分享后的访问token
+export const setCollectionSharedToken = (doc_public_id: string, token: string) => Storage.set(`${Storage.KEYS.SHARE_PROJECT}${doc_public_id}`, token, true)
+// 获取文档分享后的访问token
+export const getCollectionSharedToken = (doc_public_id: string): string => Storage.get(`${Storage.KEYS.SHARE_PROJECT}${doc_public_id}`, true)
+// 获取文档分享状态
+export const getCollectionShareStatus = async (doc_public_id: string): Promise<SharedDocumentInfo | null> => QuietAjax.get(`/share/collections/${doc_public_id}/status`)
+
+export const setDocumentTokenToParams = <T>(params: T): T => {
+  const shareStore = uesShareStoreWithOut()
+  if (shareStore.sharedDocumentInfo) {
+  }
+  return params
+}

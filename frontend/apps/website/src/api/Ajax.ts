@@ -96,6 +96,7 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
         break
 
       case 400: // bad request
+      case 404: // not found
         break
 
       default:
