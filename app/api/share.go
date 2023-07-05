@@ -152,7 +152,7 @@ func DocShareStatus(ctx *gin.Context) {
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.QueryStatusFailed"}),
+			"message": err.Error(),
 		})
 		return
 	}
@@ -161,7 +161,7 @@ func DocShareStatus(ctx *gin.Context) {
 	collection.PublicId = data.PublicCollectionID
 	if err := collection.GetByPublicId(); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.QueryStatusFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 		})
 		return
 	}
@@ -169,7 +169,7 @@ func DocShareStatus(ctx *gin.Context) {
 	project, err := models.NewProjects(collection.ProjectId)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.QueryStatusFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
 	}

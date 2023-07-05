@@ -148,7 +148,6 @@ func InitApiRouter(r *gin.Engine) {
 
 			definitionSchemas := project.Group("/definition/schemas")
 			{
-				// definitionSchemas.GET("", api.DefinitionSchemasList)
 				definitionSchemas.POST("", api.DefinitionSchemasCreate)
 				definitionSchemas.PUT("/:schemas-id", api.DefinitionSchemasUpdate)
 				definitionSchemas.DELETE("/:schemas-id", api.DefinitionSchemasDelete)
