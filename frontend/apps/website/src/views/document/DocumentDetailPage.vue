@@ -4,7 +4,7 @@
       <p class="ac-header-operate__title">{{ httpDoc.title }}</p>
     </div>
 
-    <div class="ac-header-operate__btns" v-if="!isReader">
+    <div class="ac-header-operate__btns" v-if="isManager || isWriter">
       <el-button type="primary" @click="goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
       <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" />
       <Iconfont icon="ac-export cursor-pointer" :size="18" @click="handleExport()" />
@@ -49,7 +49,7 @@ const { project_id } = useParams()
 const { goDocumentEditPage } = useGoPage()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
-const { urlServers, isReader } = storeToRefs(projectStore)
+const { urlServers, isManager, isWriter } = storeToRefs(projectStore)
 const { definitions } = storeToRefs(definitionStore)
 
 const hasDocument = ref(false)

@@ -34,6 +34,11 @@ export const setupGetProjectAuthInfoFilter = (router: Router) => {
     const projectStore = useProjectStore()
 
     if (to.matched.find((route) => route.name === PROJECT_DETAIL_PATH_NAME)) {
+      // 同一个项目，无需再次获取权限信息
+      if (projectStore.projectAuthInfo && projectStore.projectAuthInfo.project_id === to.params.project_id) {
+        return next()
+      }
+
       try {
         const projectAuthInfo = await projectStore.getProjectAuthInfo(to.params.project_id as string)
         console.log('1.项目权限详情获取：', JSON.stringify(projectAuthInfo))

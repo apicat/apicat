@@ -19,6 +19,9 @@ export const schemaDetailRoute: RouteRecordRaw = {
   name: SCHEMA_DETAIL_NAME,
   path: SCHEMA_DETAIL_PATH,
   component: SchemaDetailPage,
+  meta: {
+    ignoreAuth: true,
+  },
 }
 
 export const schemaEditRoute: RouteRecordRaw = {

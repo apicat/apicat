@@ -4,7 +4,7 @@
       <p class="ac-header-operate__title">{{ definition.name }}</p>
     </div>
 
-    <div class="ac-header-operate__btns" v-if="!isReader">
+    <div class="ac-header-operate__btns" v-if="isManager || isWriter">
       <el-button type="primary" @click="() => goSchemaEditPage()">{{ $t('app.common.edit') }}</el-button>
     </div>
   </div>
@@ -51,7 +51,7 @@ const { project_id } = useParams()
 const { goSchemaEditPage } = useGoPage()
 
 const { definitions } = storeToRefs(definitionStore)
-const { isReader } = storeToRefs(projectStore)
+const { isManager, isWriter } = storeToRefs(projectStore)
 const [isLoading, getDefinitionDetailApi] = getDefinitionSchemaDetail()
 
 const definition = ref<DefinitionSchema | null>(null)

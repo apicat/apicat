@@ -1,7 +1,7 @@
 <template>
   <ToggleHeading :title="$t('app.definitionResponse.title')">
     <template #extra>
-      <el-icon v-if="!isReader" class="cursor-pointer text-zinc-500" @click="onCreateMenuClick"><ac-icon-ep-plus /></el-icon>
+      <el-icon v-if="isManager || isWriter" class="cursor-pointer text-zinc-500" @click="onCreateMenuClick"><ac-icon-ep-plus /></el-icon>
     </template>
     <div ref="dir" :class="[ns.b(), { [ns.is('loading')]: isLoading }]" v-loading="isLoading">
       <ac-tree :data="definitions" node-key="id" empty-text="" ref="treeIns" :expand-on-click-node="false" :props="treeOptions">
@@ -13,7 +13,7 @@
                 <span class="ac-doc-node__label" v-show="!data._extend.isEditable" :title="data.name">{{ data.name }}</span>
               </div>
             </div>
-            <div class="ac-tree-node__more" :class="{ active: data.id === activeNodeInfo?.id }" v-if="!isReader">
+            <div class="ac-tree-node__more" :class="{ active: data.id === activeNodeInfo?.id }" v-if="isManager || isWriter">
               <el-icon v-show="!data._extend.isLeaf"><ac-icon-ep-plus /></el-icon>
               <span class="mx-1"></span>
               <el-icon @click="onPopoverRefIconClick($event, node)"><ac-icon-ep-more-filled /></el-icon>
@@ -39,7 +39,7 @@ import { storeToRefs } from 'pinia'
 import useProjectStore from '@/store/project'
 
 const ns = useNamespace('catalog-tree')
-const { isReader } = storeToRefs(useProjectStore())
+const { isManager, isWriter } = storeToRefs(useProjectStore())
 
 const { isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, updateTitle, initDefinitionResponseTree } = useDefinitionResponseTree()
 

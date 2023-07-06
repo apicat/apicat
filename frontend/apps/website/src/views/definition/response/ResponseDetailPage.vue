@@ -4,7 +4,7 @@
       <p class="ac-header-operate__title">{{ response.name }}</p>
     </div>
 
-    <div class="ac-header-operate__btns" v-if="!isReader">
+    <div class="ac-header-operate__btns" v-if="isManager || isWriter">
       <el-button type="primary" @click="() => goResponseEditPage()">{{ $t('app.common.edit') }}</el-button>
     </div>
   </div>
@@ -34,6 +34,6 @@ const ns = useNamespace('document')
 const { goResponseEditPage } = useGoPage()
 const projectStore = useProjectStore()
 
-const { isReader } = storeToRefs(projectStore)
+const { isManager, isWriter } = storeToRefs(projectStore)
 const { hasDocument, isLoading, response, definitionSchemas } = useDefinitionResponseLogic()
 </script>

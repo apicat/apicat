@@ -7,6 +7,7 @@ import { defineStore } from 'pinia'
 import { pinia } from '@/plugins'
 
 interface ProjectAuthInfo {
+  project_id: string
   inThisProject: boolean
   hasShared: boolean
   isPrivate: boolean
@@ -49,11 +50,9 @@ export const useProjectStore = defineStore('project', {
     },
 
     isManager: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.MANAGER,
-
     isWriter: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.WRITE,
-
     isReader: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.READ,
-
+    isGuest: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.NONE,
     isPrivate: (state) => state.projectDetailInfo?.visibility === ProjectVisibilityEnum.PRIVATE,
   },
   actions: {
@@ -90,6 +89,7 @@ export const useProjectStore = defineStore('project', {
     async getProjectAuthInfo(project_id: string): Promise<ProjectAuthInfo> {
       const { authority, visibility, secret_key } = await getProjectAuthInfo(project_id)
       this.projectAuthInfo = {
+        project_id,
         inThisProject: authority !== MemberAuthorityInProject.NONE,
         hasShared: !!secret_key,
         isPrivate: visibility === ProjectVisibilityEnum.PRIVATE,
