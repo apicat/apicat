@@ -2,7 +2,7 @@ import 'uno.css'
 import '@/styles/main.scss'
 
 import { createApp } from 'vue'
-import { pinia, elementPlus, initI18n, errorHandler } from './plugins'
+import { pinia, elementPlus, initI18n, errorHandler, setupPiniaWithRouter } from './plugins'
 import clipboardHelper from '@/components/ClipboardHelper'
 import router, { setupRouterFilter } from '@/router'
 import limitInput from '@/directives/LimitInput'
@@ -20,6 +20,7 @@ const run = async () => {
   app.use(clipboardHelper)
   app.use(limitInput)
   setupRouterFilter(router)
+  setupPiniaWithRouter(router)
 
   app.mount('#app')
 }
