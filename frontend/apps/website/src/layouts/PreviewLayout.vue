@@ -24,9 +24,13 @@ const shareStore = useShareStore()
 const { project_id } = shareStore.sharedDocumentInfo!
 
 onBeforeMount(async () => {
-  await projectStore.getUrlServers(project_id)
-  await globalParametersStore.getGlobalParameters(project_id)
-  await definitionResponseStore.getDefinitions(project_id)
-  await definitionSchemaStore.getDefinitions(project_id)
+  try {
+    await projectStore.getUrlServers(project_id)
+    await globalParametersStore.getGlobalParameters(project_id)
+    await definitionResponseStore.getDefinitions(project_id)
+    await definitionSchemaStore.getDefinitions(project_id)
+  } catch (error) {
+    //
+  }
 })
 </script>

@@ -34,13 +34,13 @@ export const setupDocumentDetailFilter = (route: Router) => {
 
       const { hasShared, isPrivate, inThisProject } = projectAuthInfo
 
-      console.log(
-        '2.项目权限详情：',
-        `\n\r是否输入密钥:${hasInputSecretKey ? '已输入密钥' : '未输入密钥'}`,
-        `\n\r是否分享:${hasShared ? '已分享' : '未分享'}`,
-        `\n\r是否公开:${isPrivate ? '私有' : '公开'}`,
-        `\n\r是否在项目中:${inThisProject ? '在' : '不在'}`
-      )
+      // console.log(
+      //   '2.项目权限详情：',
+      //   `\n\r是否输入密钥:${hasInputSecretKey ? '已输入密钥' : '未输入密钥'}`,
+      //   `\n\r是否分享:${hasShared ? '已分享' : '未分享'}`,
+      //   `\n\r是否公开:${isPrivate ? '私有' : '公开'}`,
+      //   `\n\r是否在项目中:${inThisProject ? '在' : '不在'}`
+      // )
 
       // 公开项目
       if (!isPrivate) {
