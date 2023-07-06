@@ -70,7 +70,7 @@
 </template>
 <script setup lang="tsx">
 import { deleleProject, updateProjectBaseInfo } from '@/api/project'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { ProjectInfo } from '@/typings/project'
 import { FormInstance } from 'element-plus'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
@@ -81,7 +81,7 @@ import { ProjectVisibilityEnum } from '@/commons'
 
 const { t } = useI18n()
 const router = useRouter()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const { projectDetailInfo, setCurrentProjectInfo } = projectStore
 const { isManager } = storeToRefs(projectStore)
 

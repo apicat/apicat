@@ -30,7 +30,7 @@ import { HttpDocument } from '@/typings'
 import { useNamespace } from '@/hooks/useNamespace'
 import ResponseParamTabsRaw from '@/components/ResponseParamTabsRaw.vue'
 import { useGoPage } from '@/hooks/useGoPage'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
 import { getCollectionDetail } from '@/api/collection'
 import { useParams } from '@/hooks/useParams'
@@ -39,7 +39,7 @@ import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionResponseStore from '@/store/definitionResponse'
 import { ProjectDetailModalsContextKey } from '@/layouts/ProjectDetailLayout/constants'
 
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const definitionStore = useDefinitionStore()
 const globalParametersStore = uesGlobalParametersStore()
 const definitionResponseStore = useDefinitionResponseStore()

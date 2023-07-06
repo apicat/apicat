@@ -62,7 +62,7 @@ import { useUserStore } from '@/store/user'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import NProgress from 'nprogress'
 import { useParams } from '@/hooks/useParams'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import AddProjectMember from '../AddProjectMember.vue'
 import { storeToRefs } from 'pinia'
 import { TargetMemberPermissionError } from '@/api/error'
@@ -72,7 +72,7 @@ const { t } = useI18n()
 const { project_id } = useParams()
 const buttonRefMap: Record<number, any> = {}
 const { userInfo } = useUserStore()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const { projectAuths, isManager } = storeToRefs(projectStore)
 const currentChangeUser = ref<ProjectMember | null>()
 const addProjectMemberRef = ref<InstanceType<typeof AddProjectMember>>()

@@ -24,7 +24,7 @@
   <ProjectSettingModal ref="projectSettingModalRef" />
 </template>
 <script setup lang="ts">
-import { uesProjectStore } from '@/store/project'
+import { useProjectStore } from '@/store/project'
 import { useNamespace } from '@/hooks/useNamespace'
 import ProjectSettingModal from '@/views/project/ProjectSettingModal.vue'
 import { Menu } from '@/components/typings'
@@ -38,7 +38,7 @@ import { ProjectDetailModalsContextKey } from '../constants'
 
 const ns = useNamespace('project-info')
 const projectSettingModalRef = ref<InstanceType<typeof ProjectSettingModal>>()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const { projectDetailInfo, isManager, isPrivate } = storeToRefs(projectStore)
 const { t } = useI18n()
 const projectDetailModals = inject(ProjectDetailModalsContextKey)

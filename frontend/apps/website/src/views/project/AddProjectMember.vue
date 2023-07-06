@@ -29,7 +29,7 @@
 import { getMembersWithoutProject, addMemberToProject } from '@/api/project'
 import useApi from '@/hooks/useApi'
 import { useParams } from '@/hooks/useParams'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { ProjectMember } from '@/typings/member'
 import { MemberAuthorityInProject } from '@/typings/member'
 import { FormInstance } from 'element-plus'
@@ -39,7 +39,7 @@ import { useI18n } from 'vue-i18n'
 const emits = defineEmits(['ok'])
 const { t } = useI18n()
 const { project_id } = useParams()
-const { projectAuths } = uesProjectStore()
+const { projectAuths } = useProjectStore()
 const [isLoading, addMemberToProjectRequest] = useApi(addMemberToProject(project_id as string))
 const fromRef = ref<FormInstance>()
 

@@ -14,12 +14,12 @@ import ResponseParamTabsRaw from '@/components/ResponseParamTabsRaw.vue'
 import { storeToRefs } from 'pinia'
 import { getCollectionDetail } from '@/api/collection'
 import useDefinitionStore from '@/store/definition'
-import uesProjectStore from '@/store/project'
-import uesShareStore from '@/store/share'
+import useProjectStore from '@/store/project'
+import useShareStore from '@/store/share'
 
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const definitionStore = useDefinitionStore()
-const shareStore = uesShareStore()
+const shareStore = useShareStore()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const { urlServers } = storeToRefs(projectStore)

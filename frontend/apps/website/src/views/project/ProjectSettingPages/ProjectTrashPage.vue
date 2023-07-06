@@ -19,7 +19,7 @@
 <script setup lang="ts">
 import { restoreDoc, getProjectTranshList } from '@/api/project'
 import { useParams } from '@/hooks/useParams'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { TrashModel } from '@/typings/project'
 import type { ElTable } from 'element-plus'
 import { storeToRefs } from 'pinia'
@@ -28,7 +28,7 @@ const { project_id } = useParams()
 const [isLoading, getProjectTranshListApi] = getProjectTranshList()
 const [isRestoring, restoreDocApi] = restoreDoc()
 const directoryTree: any = inject('directoryTree')
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const { isReader } = storeToRefs(projectStore)
 
 const tableRef = ref<InstanceType<typeof ElTable>>()

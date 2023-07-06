@@ -63,11 +63,11 @@ import AIGenerateDocumentModal from '../AIGenerateDocumentModal.vue'
 import { useActiveTree } from './useActiveTree'
 import { useNamespace } from '@/hooks'
 import { storeToRefs } from 'pinia'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 
 const schemaTree = inject('schemaTree') as any
 const ns = useNamespace('catalog-tree')
-const { isReader } = storeToRefs(uesProjectStore())
+const { isReader } = storeToRefs(useProjectStore())
 
 const {
   isLoading,

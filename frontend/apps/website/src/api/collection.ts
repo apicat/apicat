@@ -12,7 +12,7 @@ import useApi from '@/hooks/useApi'
 import { isEmpty } from 'lodash-es'
 import { queryStringify, API_URL, Cookies, CookieOptions } from '@/commons'
 import { ParamsWithToken, SharedDocumentInfo } from '@/typings'
-import { uesShareStoreWithOut } from '@/store/share'
+import { useShareStoreWithOut } from '@/store/share'
 
 const baseRestfulApiPath = (project_id: string | number): string => `/projects/${project_id}/collections`
 const detailRestfulPath = (project_id: string | number, collection_id: string | number): string => `${baseRestfulApiPath(project_id)}/${collection_id}`
@@ -173,7 +173,7 @@ export const getCollectionSharedToken = (doc_public_id: string): string => Cooki
 export const getCollectionShareStatus = async (doc_public_id: string): Promise<SharedDocumentInfo | null> => QuietAjax.get(`/share/collections/${doc_public_id}/status`)
 
 export const setDocumentTokenToParams = <T extends ParamsWithToken>(params: T): T => {
-  const shareStore = uesShareStoreWithOut()
+  const shareStore = useShareStoreWithOut()
   // const { name } = useRoute()
   // console.log(name)
   if (shareStore.sharedDocumentInfo) {

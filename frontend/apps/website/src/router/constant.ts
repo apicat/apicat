@@ -16,3 +16,8 @@ export const PROJECT_LIST_ROOT_PATH = '/projects'
 
 export const PROJECT_DETAIL_PATH_NAME = 'project.detail'
 export const PROJECT_DETAIL_PATH = '/project/:project_id'
+
+export const PROJECT_SHARE_VALIDATION_PATH = '/project/:project_id/verification'
+export const DOCUMENT_SHARE_VALIDATION_PATH = '/share/:doc_public_id/verification'
+
+export const DOCUMENT_SHARE_PATH = '/share/:doc_public_id'

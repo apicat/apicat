@@ -1,12 +1,12 @@
 import { MAIN_PATH, NO_PERMISSION_PATH, PROJECT_DETAIL_PATH_NAME } from '@/router'
 import { Router } from 'vue-router'
 import { storeToRefs } from 'pinia'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 
 export const setupMemberPermissionFilter = (router: Router) => {
   router.beforeEach((to, from, next) => {
     if (to.matched.find((item: any) => item.name === PROJECT_DETAIL_PATH_NAME)) {
-      const projectStore = uesProjectStore()
+      const projectStore = useProjectStore()
       const { projectDetailInfo } = storeToRefs(projectStore)
 
       if (!projectDetailInfo.value) {

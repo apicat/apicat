@@ -34,7 +34,7 @@ import ServerUrlSetting from './ProjectSettingPages/ServerUrlSetting.vue'
 import GlobalParametersSetting from './ProjectSettingPages/GlobalParametersSetting.vue'
 import ProjectExportPage from './ProjectSettingPages/ProjectExportPage.vue'
 import ProjectTrashPage from './ProjectSettingPages/ProjectTrashPage.vue'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { useParams } from '@/hooks/useParams'
 import useApi from '@/hooks/useApi'
 
@@ -53,7 +53,7 @@ const activeTab = shallowRef<{ menu: any; type: string }>({
 })
 
 const { dialogVisible, showModel } = useModal()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const [isLoading, getProjectDetailInfo] = useApi(projectStore.getProjectDetailInfo)
 const { project_id } = useParams()
 const onMenuTabClick = async (menu: Menu, type: string) => {

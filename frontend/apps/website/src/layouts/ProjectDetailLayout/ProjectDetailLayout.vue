@@ -29,13 +29,13 @@ import ProjectInfoHeader from './components/ProjectInfoHeader.vue'
 import DirectoryTree from './components/DirectoryTree'
 import SchemaTree from './components/SchemaTree'
 import DefinitionResponseTree from './components/DefinitionResponseTree'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { useParams } from '@/hooks/useParams'
 import { ProjectDetailModalsContextKey } from './constants'
 
 const ns = useNamespace('doc-layout')
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const globalParametersStore = uesGlobalParametersStore()
 const { project_id } = useParams()
 

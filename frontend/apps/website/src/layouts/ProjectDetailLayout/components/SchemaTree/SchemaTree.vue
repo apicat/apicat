@@ -52,12 +52,12 @@ import { useSchemaTree } from './useSchemaTree'
 import { useActiveTree } from './useActiveTree'
 import { useNamespace } from '@/hooks'
 import { storeToRefs } from 'pinia'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 
 const ns = useNamespace('catalog-tree')
 
 const directoryTree = inject('directoryTree') as any
-const { isReader } = storeToRefs(uesProjectStore())
+const { isReader } = storeToRefs(useProjectStore())
 
 const { isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, redirecToSchemaEdit, initSchemaTree } =
   useSchemaTree()

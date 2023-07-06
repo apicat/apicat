@@ -3,11 +3,11 @@
 </template>
 
 <script setup lang="ts">
-import uesShareStore from '@/store/share'
+import useShareStore from '@/store/share'
 import VerificationForm from './components/VerificationForm.vue'
 import { checkCollectionSecret, setCollectionSharedToken } from '@/api/collection'
 import { getDocumentShareDetailPath } from '@/router/share'
-const shareStore = uesShareStore()
+const shareStore = useShareStore()
 const { params } = useRoute()
 const router = useRouter()
 

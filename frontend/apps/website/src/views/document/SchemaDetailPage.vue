@@ -38,7 +38,7 @@ import { useNamespace } from '@/hooks'
 import { useGoPage } from '@/hooks/useGoPage'
 import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
 
 const GenerateCodeModal = defineAsyncComponent(() => import('@/components/GenerateCode/GenerateCodeModal.vue'))
@@ -46,7 +46,7 @@ const GenerateCodeModal = defineAsyncComponent(() => import('@/components/Genera
 const ns = useNamespace('document')
 const route = useRoute()
 const definitionStore = useDefinitionStore()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const { project_id } = useParams()
 const { goSchemaEditPage } = useGoPage()
 

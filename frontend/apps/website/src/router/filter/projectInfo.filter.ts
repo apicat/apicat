@@ -1,14 +1,12 @@
-import uesProjectStore from '@/store/project'
-import { Router } from 'vue-router'
-import { NOT_FOUND_PATH, NO_PERMISSION_PATH, PROJECT_DETAIL_PATH_NAME } from '../constant'
+import useProjectStore from '@/store/project'
+import type { Router } from 'vue-router'
+import { MAIN_PATH, NOT_FOUND_PATH, PROJECT_DETAIL_PATH_NAME } from '../constant'
 import { ProjectInfo } from '@/typings'
-import { MemberAuthorityInProject } from '@/typings/member'
 
 export const setupGetProjectInfoFilter = (router: Router) => {
   router.beforeEach(async (to, from, next) => {
-    const projectStore = uesProjectStore()
+    const projectStore = useProjectStore()
 
-    // filter project detail or edit page
     if (to.matched.find((item: any) => item.name === PROJECT_DETAIL_PATH_NAME)) {
       const project_id = to.params.project_id
       if (!projectStore.projectDetailInfo || projectStore.projectDetailInfo.id !== project_id) {
@@ -18,20 +16,34 @@ export const setupGetProjectInfoFilter = (router: Router) => {
           if (!projectInfo) {
             return next(NOT_FOUND_PATH)
           }
-
-          // 不在此项目中，无权限
-          if (projectInfo.authority === MemberAuthorityInProject.NONE) {
-            return next(NO_PERMISSION_PATH)
-          }
-
           return next()
         } catch (error) {
-          router.replace('/main')
+          return next(MAIN_PATH)
         }
       }
     } else {
-      // 非项目页，清空项目信息
-      projectStore.clearCurrentProjectInfo()
+      projectStore.$patch({ projectDetailInfo: null })
+    }
+
+    next()
+  })
+}
+
+export const setupGetProjectAuthInfoFilter = (router: Router) => {
+  router.beforeEach(async (to, from, next) => {
+    const projectStore = useProjectStore()
+
+    if (to.matched.find((route) => route.name === PROJECT_DETAIL_PATH_NAME)) {
+      try {
+        const projectAuthInfo = await projectStore.getProjectAuthInfo(to.params.project_id as string)
+        console.log('1.项目权限详情获取：', JSON.stringify(projectAuthInfo))
+
+        return next()
+      } catch (error) {
+        return next(MAIN_PATH)
+      }
+    } else {
+      projectStore.$patch({ projectAuthInfo: null })
     }
 
     next()

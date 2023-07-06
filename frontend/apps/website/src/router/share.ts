@@ -2,6 +2,7 @@ import { RouteRecordRaw } from 'vue-router'
 import PreviewLayout from '@/layouts/PreviewLayout.vue'
 import { compile } from 'path-to-regexp'
 import { getDocumentDetailPath, getProjectDetailPath } from './project.detail'
+import { DOCUMENT_SHARE_PATH, DOCUMENT_SHARE_VALIDATION_PATH, PROJECT_SHARE_VALIDATION_PATH } from './constant'
 
 const ProjectVerification = () => import('@/views/share/ProjectVerification.vue')
 const DocumentVerification = () => import('@/views/share/DocumentVerification.vue')
@@ -10,13 +11,13 @@ const DocumentPreview = () => import('@/views/share/DocumentPreview.vue')
 // 项目密钥校验
 const projectVerificationRoute: RouteRecordRaw = {
   name: 'share.proejct.verification',
-  path: '/project/:project_id/verification',
+  path: PROJECT_SHARE_VALIDATION_PATH,
   meta: { ignoreAuth: true },
   component: ProjectVerification,
 }
 
 // 文档密钥校验
-const DOCUMENT_SHARE_VALIDATION_PATH = '/share/:doc_public_id/verification'
+
 const documentVerificationRoute: RouteRecordRaw = {
   name: 'share.document.verification',
   path: DOCUMENT_SHARE_VALIDATION_PATH,
@@ -25,7 +26,6 @@ const documentVerificationRoute: RouteRecordRaw = {
 }
 
 // 文档分享详情
-const DOCUMENT_SHARE_PATH = '/share/:doc_public_id'
 const documentShareDetailRoute: RouteRecordRaw = {
   name: 'share.document',
   path: DOCUMENT_SHARE_PATH,

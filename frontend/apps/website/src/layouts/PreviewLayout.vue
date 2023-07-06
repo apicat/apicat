@@ -11,15 +11,15 @@
 import PreviewHeader from '@/views/share/components/PreviewHeader.vue'
 import { useDefinitionSchemaStore } from '@/store/definition'
 import { useDefinitionParametersStore } from '@/store/globalParameters'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import useDefinitionResponseStore from '@/store/definitionResponse'
-import uesShareStore from '@/store/share'
+import useShareStore from '@/store/share'
 
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const globalParametersStore = useDefinitionParametersStore()
 const definitionResponseStore = useDefinitionResponseStore()
 const definitionSchemaStore = useDefinitionSchemaStore()
-const shareStore = uesShareStore()
+const shareStore = useShareStore()
 
 const { project_id } = shareStore.sharedDocumentInfo!
 

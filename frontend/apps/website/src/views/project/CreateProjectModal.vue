@@ -109,14 +109,14 @@ import type { FormInstance, FormRules } from 'element-plus'
 import { createProject } from '@/api/project'
 import { getProjectDetailPath } from '@/router'
 import { ProjectInfo } from '@/typings'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { useProjectCover } from './logic/useProjectCover'
 import { ProjectVisibilityEnum } from '@/commons'
 
 const ns = useNamespace('project-types')
 const { t } = useI18n()
 const router = useRouter()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 
 const projectFormRef = ref<FormInstance>()
 const fileUploaderWrapper = ref()

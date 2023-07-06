@@ -6,19 +6,19 @@ import { getProjectDefaultCover } from '@/views/project/logic/useProjectCover'
 import { defineStore } from 'pinia'
 import { pinia } from '@/plugins'
 
+interface ProjectAuthInfo {
+  inThisProject: boolean
+  hasShared: boolean
+  isPrivate: boolean
+}
 interface ProjectState {
   projects: ProjectInfo[]
   projectDetailInfo: ProjectInfo | null
-  projectAuthInfo: {
-    inThisProject: boolean
-    hasShare: boolean
-    isPrivate: boolean
-    hasProjectSecretKey: boolean
-  } | null
+  projectAuthInfo: ProjectAuthInfo | null
   urlServers: Array<any>
 }
 
-export const uesProjectStore = defineStore('project', {
+export const useProjectStore = defineStore('project', {
   state: (): ProjectState => ({
     projects: [],
     projectDetailInfo: null,
@@ -87,18 +87,18 @@ export const uesProjectStore = defineStore('project', {
       this.urlServers = urls
     },
 
-    async getProjectAuthInfo(project_id: string) {
+    async getProjectAuthInfo(project_id: string): Promise<ProjectAuthInfo> {
       const { authority, visibility, secret_key } = await getProjectAuthInfo(project_id)
       this.projectAuthInfo = {
         inThisProject: authority !== MemberAuthorityInProject.NONE,
-        hasShare: !!secret_key,
+        hasShared: !!secret_key,
         isPrivate: visibility === ProjectVisibilityEnum.PRIVATE,
-        hasProjectSecretKey: !!secret_key,
       }
+      return this.projectAuthInfo
     },
   },
 })
 
-export default uesProjectStore
+export default useProjectStore
 
-export const uesProjectStoreWithOut = () => uesProjectStore(pinia)
+export const useProjectStoreWithOut = () => useProjectStore(pinia)

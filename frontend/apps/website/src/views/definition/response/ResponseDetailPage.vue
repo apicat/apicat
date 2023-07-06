@@ -27,12 +27,12 @@ import DefinitionResponseRaw from '@/components/DefinitionResponse/DefinitionRes
 import { useNamespace } from '@/hooks'
 import { useGoPage } from '@/hooks/useGoPage'
 import { useDefinitionResponseLogic } from './logic'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
 
 const ns = useNamespace('document')
 const { goResponseEditPage } = useGoPage()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 
 const { isReader } = storeToRefs(projectStore)
 const { hasDocument, isLoading, response, definitionSchemas } = useDefinitionResponseLogic()
