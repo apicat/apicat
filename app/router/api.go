@@ -56,7 +56,7 @@ func InitApiRouter(r *gin.Engine) {
 			{
 				project.GET("/:project-id/data", api.ProjectDataGet)
 				project.POST("/:project-id/share/secretkey_check", api.ProjectShareSecretkeyCheck)
-
+				project.GET("/:project-id/status", middleware.CheckMemberHalfLogin(), api.ProjectStatus)
 			}
 
 			collection := notLogin.Group("/projects/:project-id/collections")
@@ -79,7 +79,6 @@ func InitApiRouter(r *gin.Engine) {
 			project := halfLogin.Group("/projects/:project-id")
 			{
 				project.GET("", api.ProjectsGet)
-				project.GET("/status", api.ProjectStatus)
 			}
 
 			servers := halfLogin.Group("/projects/:project-id/servers")

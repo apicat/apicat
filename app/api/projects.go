@@ -497,7 +497,7 @@ func ProjectTransfer(ctx *gin.Context) {
 
 func ProjectStatus(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
-	currentProjectMember, currentProjectMemberExists := ctx.Get("CurrentProjectMember")
+	currentUser, currentUserExists := ctx.Get("CurrentUser")
 
 	var (
 		authority  string
@@ -510,8 +510,14 @@ func ProjectStatus(ctx *gin.Context) {
 		visibility = "public"
 	}
 
-	if currentProjectMemberExists {
-		authority = currentProjectMember.(*models.ProjectMembers).Authority
+	if currentUserExists {
+		member, _ := models.NewProjectMembers()
+		member.UserID = currentUser.(*models.Users).ID
+		member.ProjectID = currentProject.(*models.Projects).ID
+
+		if err := member.GetByUserIDAndProjectID(); err == nil {
+			authority = member.Authority
+		}
 	} else {
 		authority = "none"
 	}
