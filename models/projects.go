@@ -8,7 +8,7 @@ import (
 )
 
 type Projects struct {
-	ID            uint   `gorm:"type:integer primary key autoincrement"`
+	ID            uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
 	PublicId      string `gorm:"type:varchar(255);uniqueIndex;not null;comment:项目公开id"`
 	Title         string `gorm:"type:varchar(255);not null;comment:项目名称"`
 	Visibility    int    `gorm:"type:tinyint(1);not null;comment:项目可见性:0私有,1公开"`

@@ -3,8 +3,8 @@ package models
 import "time"
 
 type Tags struct {
-	ID           uint   `gorm:"type:integer primary key autoincrement"`
-	ProjectId    uint   `gorm:"index;not null;comment:项目id"`
+	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
+	ProjectId    uint   `gorm:"type:bigint;index;not null;comment:项目id"`
 	Name         string `gorm:"type:varchar(255);not null;comment:名称"`
 	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
 	CreatedAt    time.Time

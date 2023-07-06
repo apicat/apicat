@@ -3,9 +3,9 @@ package models
 import "time"
 
 type TagToCollections struct {
-	ID           uint `gorm:"type:integer primary key autoincrement"`
-	TagId        uint `gorm:"index;not null;comment:标签id"`
-	CollectionId uint `gorm:"not null;comment:集合id"`
+	ID           uint `gorm:"type:bigint;primaryKey;autoIncrement"`
+	TagId        uint `gorm:"type:bigint;index;not null;comment:标签id"`
+	CollectionId uint `gorm:"type:bigint;not null;comment:集合id"`
 	DisplayOrder int  `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time

@@ -54,7 +54,7 @@ func createDefault() *Sysconfig {
 			Level: "debug",
 		},
 		DB: DB{
-			Driver:  "sqlite",
+			Driver:  "mysql",
 			Path:    "data/",
 			Host:    "127.0.0.1",
 			Port:    3306,
