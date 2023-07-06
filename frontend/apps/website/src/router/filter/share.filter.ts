@@ -10,7 +10,7 @@ import { getDocumentShareDetailPath, getDocumentVerificationPath } from '../shar
  * 已登录 | 未登录
  * @param router
  */
-export const setupShareFilter = (router: Router) => {
+export const setupShareDocumentFilter = (router: Router) => {
   router.beforeEach(async (to, from, next) => {
     const { name, params } = to
     // 预览文档

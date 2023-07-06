@@ -11,18 +11,21 @@ import Ajax, { QuietAjax } from './Ajax'
 import useApi from '@/hooks/useApi'
 import { isEmpty } from 'lodash-es'
 import { queryStringify, API_URL, Cookies, CookieOptions } from '@/commons'
-import { ParamsWithToken, SharedDocumentInfo } from '@/typings'
-import { useShareStoreWithOut } from '@/store/share'
+import { SharedDocumentInfo } from '@/typings'
+import { setShareTokenToParams, useShareStoreWithOut } from '@/store/share'
 
 const baseRestfulApiPath = (project_id: string | number): string => `/projects/${project_id}/collections`
 const detailRestfulPath = (project_id: string | number, collection_id: string | number): string => `${baseRestfulApiPath(project_id)}/${collection_id}`
 const shareRestfulPath = (project_id: string | number, collection_id: string | number): string => `${detailRestfulPath(project_id, collection_id)}/share`
 
-export const getCollectionList = async (project_id: string, params?: Record<string, any>) => Ajax.get(`${baseRestfulApiPath(project_id)}${queryStringify(params)}`)
+export const getCollectionList = async (project_id: string, params?: Record<string, any>) => {
+  params = setShareTokenToParams(params || {})
+  return Ajax.get(`${baseRestfulApiPath(project_id)}${queryStringify(params)}`)
+}
 
 export const getCollectionDetail = () =>
   useApi(async ({ project_id, collection_id, ...params }: any) => {
-    params = setDocumentTokenToParams(params || {})
+    params = setShareTokenToParams(params || {})
     const doc: any = await Ajax.get(`${detailRestfulPath(project_id, collection_id)}${queryStringify(params)}`)
     try {
       doc.content = JSON.parse(doc.content)
@@ -171,13 +174,3 @@ export const setCollectionSharedToken = (doc_public_id: string, token: string, o
 export const getCollectionSharedToken = (doc_public_id: string): string => Cookies.get(`${Cookies.KEYS.SHARE_DOCUMENT}${doc_public_id}`)
 // 获取文档分享状态
 export const getCollectionShareStatus = async (doc_public_id: string): Promise<SharedDocumentInfo | null> => QuietAjax.get(`/share/collections/${doc_public_id}/status`)
-
-export const setDocumentTokenToParams = <T extends ParamsWithToken>(params: T): T => {
-  const shareStore = useShareStoreWithOut()
-  // const { name } = useRoute()
-  // console.log(name)
-  if (shareStore.sharedDocumentInfo) {
-    params.token = getCollectionSharedToken(shareStore.sharedDocumentInfo.doc_public_id as string)
-  }
-  return params
-}

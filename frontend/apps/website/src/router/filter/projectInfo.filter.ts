@@ -16,6 +16,7 @@ export const setupGetProjectInfoFilter = (router: Router) => {
           if (!projectInfo) {
             return next(NOT_FOUND_PATH)
           }
+
           return next()
         } catch (error) {
           return next(MAIN_PATH)
@@ -41,7 +42,7 @@ export const setupGetProjectAuthInfoFilter = (router: Router) => {
 
       try {
         const projectAuthInfo = await projectStore.getProjectAuthInfo(to.params.project_id as string)
-        console.log('1.项目权限详情获取：', JSON.stringify(projectAuthInfo))
+        console.log('1.项目权限详情获取：\n\r', JSON.stringify(projectAuthInfo, null, 2))
 
         return next()
       } catch (error) {

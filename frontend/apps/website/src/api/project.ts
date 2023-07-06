@@ -4,6 +4,7 @@ import { MemberAuthorityInProject } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
 import { API_URL } from '@/commons/constant'
 import { queryStringify, Cookies, CookieOptions } from '@/commons'
+import { setShareTokenToParams } from '@/store/share'
 
 export const getProjectList = () => Ajax.get('/projects')
 
@@ -14,7 +15,8 @@ export const createProject = async (projectInfo: Partial<ProjectInfo>): Promise<
 export const updateProjectBaseInfo = () => useApi(({ id: project_id, ...info }: ProjectInfo) => Ajax.put(`/projects/${project_id}`, info))
 
 export const getProjectServerUrlList = async (project_id: string, params?: Record<string, any>) => {
-  return Ajax.get(`/projects/${project_id}/servers`)
+  params = setShareTokenToParams(params || {})
+  return Ajax.get(`/projects/${project_id}/servers${queryStringify(params)}`)
 }
 
 export const saveProjectServerUrlList = ({ project_id, urls }: any) => Ajax.put(`/projects/${project_id}/servers`, urls)

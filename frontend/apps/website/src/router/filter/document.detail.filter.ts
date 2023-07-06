@@ -2,9 +2,9 @@ import type { Router } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useProjectStore } from '@/store/project'
 import { useUserStore } from '@/store/user'
-import { PROJECT_SHARE_VALIDATION_PATH, NOT_FOUND_PATH } from '../constant'
-import { DOCUMENT_DETAIL_NAME } from '../document'
 import useShareStore from '@/store/share'
+import { NOT_FOUND_PATH, PROJECT_SHARE_VALIDATION_NAME } from '../constant'
+import { DOCUMENT_DETAIL_NAME } from '../document'
 
 /**
  * 文档详情(预览)权限拦截
@@ -64,14 +64,13 @@ export const setupDocumentDetailFilter = (route: Router) => {
 
       // 未公开 未分享 已登录 在项目中
       if (isPrivate && !hasShared && isLogin && inThisProject) {
-        next()
-        return
+        return next()
       }
 
       // 未公开 已分享 未输入密钥 -> 输秘钥
       if (isPrivate && hasShared && !hasInputSecretKey) {
         return next({
-          name: PROJECT_SHARE_VALIDATION_PATH,
+          name: PROJECT_SHARE_VALIDATION_NAME,
           params: { project_id },
         })
       }

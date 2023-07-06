@@ -26,6 +26,8 @@ export const useShareStore = defineStore('share', {
       if (currentRouteMatched.find((route) => route.name === 'document.detail')) {
         return Cookies.get(Cookies.KEYS.SHARE_DOCUMENT + (project_id || ''))
       }
+
+      return null
     },
 
     hasInputSecretKey() {
@@ -40,15 +42,17 @@ export const useShareStore = defineStore('share', {
     clearDocumentShareInfo() {
       this.sharedDocumentInfo = null
     },
-
-    getToken() {
-      const route = useRoute()
-      console.log(route)
-      return ''
-    },
   },
 })
 
 export default useShareStore
 
 export const useShareStoreWithOut = () => useShareStore(pinia)
+
+export const setShareTokenToParams = (params: Record<string, any>): Record<string, any> => {
+  const shareStore = useShareStoreWithOut()
+  if (shareStore.token) {
+    params.token = shareStore.token
+  }
+  return params
+}
