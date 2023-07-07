@@ -42,9 +42,6 @@ export const setupGetProjectAuthInfoFilter = (router: Router) => {
 
       try {
         await projectStore.getProjectAuthInfo(to.params.project_id as string)
-        // const projectAuthInfo = await projectStore.getProjectAuthInfo(to.params.project_id as string)
-        // console.log('1.项目权限详情获取：\n\r', JSON.stringify(projectAuthInfo, null, 2))
-
         return next()
       } catch (error) {
         return next(MAIN_PATH)
