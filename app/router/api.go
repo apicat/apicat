@@ -88,6 +88,7 @@ func InitApiRouter(r *gin.Engine) {
 
 			definitionSchemas := halfLogin.Group("/projects/:project-id/definition/schemas")
 			{
+				definitionSchemas.GET("/:schemas-id", api.DefinitionSchemasGet)
 				definitionSchemas.GET("", api.DefinitionSchemasList)
 			}
 
@@ -154,7 +155,6 @@ func InitApiRouter(r *gin.Engine) {
 				definitionSchemas.POST("", api.DefinitionSchemasCreate)
 				definitionSchemas.PUT("/:schemas-id", api.DefinitionSchemasUpdate)
 				definitionSchemas.DELETE("/:schemas-id", api.DefinitionSchemasDelete)
-				definitionSchemas.GET("/:schemas-id", api.DefinitionSchemasGet)
 				definitionSchemas.POST("/:schemas-id", api.DefinitionSchemasCopy)
 				definitionSchemas.PUT("/movement", api.DefinitionSchemasMove)
 			}
