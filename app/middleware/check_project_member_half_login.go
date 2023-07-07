@@ -92,6 +92,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 				ctx.Abort()
 				return
 			}
+			return
 		}
 
 		// 分享文档的访问令牌
