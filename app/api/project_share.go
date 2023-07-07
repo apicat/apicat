@@ -122,6 +122,15 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 			"secret_key":        secretKey,
 		})
 	} else {
+		stt := models.NewShareTmpTokens()
+		stt.ProjectID = project.ID
+		if err := stt.DeleteByProjectIDAndCollectionID(); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.ModifySharingStatusFail"}),
+			})
+			return
+		}
+
 		project.SharePassword = ""
 		if err := project.Save(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
@@ -146,6 +155,15 @@ func ProjectShareReset(ctx *gin.Context) {
 	if project.Visibility != 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.PublicProject"}),
+		})
+		return
+	}
+
+	stt := models.NewShareTmpTokens()
+	stt.ProjectID = project.ID
+	if err := stt.DeleteByProjectIDAndCollectionID(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.ResetKeyFail"}),
 		})
 		return
 	}

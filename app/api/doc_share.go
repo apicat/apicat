@@ -156,6 +156,15 @@ func DocShareSwitch(ctx *gin.Context) {
 			"secret_key":           secretKey,
 		})
 	} else {
+		stt := models.NewShareTmpTokens()
+		stt.CollectionID = collection.ID
+		if err := stt.DeleteByCollectionID(); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ResetKeyFail"}),
+			})
+			return
+		}
+
 		collection.SharePassword = ""
 		if err := collection.Update(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
@@ -196,6 +205,15 @@ func DocShareReset(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
+		})
+		return
+	}
+
+	stt := models.NewShareTmpTokens()
+	stt.CollectionID = collection.ID
+	if err := stt.DeleteByCollectionID(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ResetKeyFail"}),
 		})
 		return
 	}

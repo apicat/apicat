@@ -37,3 +37,7 @@ func (stt *ShareTmpTokens) DeleteByProjectID() error {
 func (stt *ShareTmpTokens) DeleteByCollectionID() error {
 	return Conn.Where("collection_id = ?", stt.CollectionID).Delete(stt).Error
 }
+
+func (stt *ShareTmpTokens) DeleteByProjectIDAndCollectionID() error {
+	return Conn.Where("project_id = ? and collection_id = ?", stt.ProjectID, stt.CollectionID).Delete(stt).Error
+}

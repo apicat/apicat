@@ -294,6 +294,14 @@ func ProjectsUpdate(ctx *gin.Context) {
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
 			})
 		}
+
+		stt := models.NewShareTmpTokens()
+		stt.ProjectID = project.ID
+		if err := stt.DeleteByProjectID(); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
+			})
+		}
 	}
 
 	if err := project.Save(); err != nil {
