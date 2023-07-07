@@ -27,6 +27,10 @@ func (sr *ShareRecords) Create() error {
 	return Conn.Create(sr).Error
 }
 
+func (sr *ShareRecords) Delete() error {
+	return Conn.Delete(sr).Error
+}
+
 func (sr *ShareRecords) DeleteByProjectID() error {
 	return Conn.Where("project_id = ?", sr.ProjectID).Delete(sr).Error
 }

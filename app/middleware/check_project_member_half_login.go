@@ -65,6 +65,15 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		// 校验访问令牌是否过期
 		now := time.Now()
 		if sr.Expiration.Before(now) {
+			if err := sr.Delete(); err != nil {
+				ctx.JSON(http.StatusForbidden, gin.H{
+					"code":    enum.ShareTokenInsufficientPermissionsCode,
+					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
+				})
+				ctx.Abort()
+				return
+			}
+
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"code":    enum.ShareTokenInsufficientPermissionsCode,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.tokenHasExpired"}),
