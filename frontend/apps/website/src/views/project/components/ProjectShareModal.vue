@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { getProjectShareDetail, resetSecretToProject, switchProjectShareStatus } from '@/api/project'
+import { getProjectShareDetail, resetSecretToProject, switchProjectShareStatus } from '@/api/shareProject'
 import { ProjectVisibilityEnum } from '@/commons'
 import { useModal } from '@/hooks'
 import useApi from '@/hooks/useApi'

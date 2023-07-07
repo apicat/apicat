@@ -5,7 +5,7 @@
 <script setup lang="ts">
 import useShareStore from '@/store/share'
 import VerificationForm from './components/VerificationForm.vue'
-import { checkCollectionSecret, setCollectionSharedToken } from '@/api/collection'
+import { checkCollectionSecret, setCollectionSharedToken } from '@/api/shareCollection'
 import { getDocumentShareDetailPath } from '@/router/share'
 const shareStore = useShareStore()
 const { params } = useRoute()

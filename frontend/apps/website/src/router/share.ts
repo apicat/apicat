@@ -17,7 +17,6 @@ const projectVerificationRoute: RouteRecordRaw = {
 }
 
 // 文档密钥校验
-
 const documentVerificationRoute: RouteRecordRaw = {
   name: DOCUMENT_SHARE_VALIDATION_NAME,
   path: DOCUMENT_SHARE_VALIDATION_PATH,
@@ -54,4 +53,4 @@ export const getDocumentPrivateShareLink = (doc_public_id: string) => window.ori
 // 获取公共文档分享链接
 export const getDocumentPublicShareLink = (project_id: string, doc_id: string) => window.origin + (doc_id ? getDocumentDetailPath(project_id, doc_id) : '')
 // 获取项目分享链接
-export const getProjectShareLink = (project_public_id: string) => window.origin + getProjectDetailPath(project_public_id)
+export const getProjectShareLink = (project_id: string) => window.origin + getProjectDetailPath(project_id)

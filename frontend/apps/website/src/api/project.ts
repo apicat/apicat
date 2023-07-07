@@ -3,12 +3,12 @@ import useApi from '@/hooks/useApi'
 import { MemberAuthorityInProject } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
 import { API_URL } from '@/commons/constant'
-import { queryStringify, Cookies, CookieOptions } from '@/commons'
+import { queryStringify } from '@/commons'
 import { setShareTokenToParams } from '@/store/share'
 
 export const getProjectList = () => Ajax.get('/projects')
 
-export const getProjectDetail = (project_id: string) => Ajax.get(`/projects/${project_id}`)
+export const getProjectDetail = async (project_id: string, params?: Record<string, any>) => Ajax.get(`/projects/${project_id}${queryStringify(params)}`)
 
 export const createProject = async (projectInfo: Partial<ProjectInfo>): Promise<ProjectInfo> => await QuietAjax.post('/projects', projectInfo)
 
@@ -45,21 +45,3 @@ export const updateMemberAuthorityInProject = async (project_id: string, user_id
 export const quitProject = (project_id: string) => Ajax.delete(`/projects/${project_id}/exit`)
 // 移交项目
 export const transferProject = (project_id: string, member_id: number) => Ajax.put(`/projects/${project_id}/transfer`, { member_id })
-
-// 获取项目分享详情
-export const getProjectShareDetail = async (project_id: string): Promise<{ authority: MemberAuthorityInProject; visibility: string; secret_key: string }> =>
-  QuietAjax.get(`/projects/${project_id}/status`)
-// 项目当前状态
-export const getProjectAuthInfo = getProjectShareDetail
-// 重置分享项目访问秘钥
-export const resetSecretToProject = ({ project_id }: Record<string, any>) => QuietAjax.put(`/projects/${project_id}/share/reset_share_secretkey`)
-// 项目分享开关
-export const switchProjectShareStatus = ({ project_id, ...params }: any) => QuietAjax.put(`/projects/${project_id}/share`, params)
-// 私有项目秘钥校验
-export const checkProjectSecret = ({ project_id, secret_key }: Record<string, any>): Promise<{ token: string; expiration: string }> =>
-  QuietAjax.post(`/projects/${project_id}/share/secretkey_check`, { secret_key })
-
-// 保存项目分享后的访问token
-export const setProjectSharedToken = (project_id: string, token: string, options?: CookieOptions) => Cookies.set(`${Cookies.KEYS.SHARE_PROJECT}${project_id}`, token, options)
-// 获取项目分享后的访问token
-export const getProjectSharedToken = (project_id: string) => Cookies.get(`${Cookies.KEYS.SHARE_PROJECT}${project_id}`)

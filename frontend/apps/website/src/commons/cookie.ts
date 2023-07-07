@@ -1,4 +1,4 @@
-import { getCookie, setCookie } from 'tiny-cookie'
+import { getCookie, setCookie, removeCookie } from 'tiny-cookie'
 import { STORAGE_PREFIX } from './constant'
 
 export interface CookieOptions {
@@ -23,4 +23,5 @@ export const Cookies = {
     }
   },
   set: <T>(key: string, value: T, options?: CookieOptions) => setCookie(key, value, JSON.stringify, options),
+  remove: removeCookie,
 }

@@ -1,10 +1,11 @@
-import { getProjectList, getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList, getProjectAuthInfo } from '@/api/project'
-import { ProjectListCoverBgColors, ProjectListCoverIcons, ProjectVisibilityEnum } from '@/commons'
+import { getProjectList, getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList } from '@/api/project'
+import { Cookies, ProjectListCoverBgColors, ProjectListCoverIcons, ProjectVisibilityEnum } from '@/commons'
 import { MemberAuthorityInProject, MemberAuthorityMap } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
 import { getProjectDefaultCover } from '@/views/project/logic/useProjectCover'
 import { defineStore } from 'pinia'
 import { pinia } from '@/plugins'
+import { getProjectAuthInfo } from '@/api/shareProject'
 
 interface ProjectAuthInfo {
   project_id: string
@@ -62,7 +63,8 @@ export const useProjectStore = defineStore('project', {
     },
 
     async getProjectDetailInfo(project_id: string): Promise<ProjectInfo> {
-      const project = await getProjectDetail(project_id)
+      const token = Cookies.get(Cookies.KEYS.SHARE_PROJECT + project_id)
+      const project = await getProjectDetail(project_id, { token })
       this.setCurrentProjectInfo(project as any)
       return project as any
     },
@@ -87,11 +89,11 @@ export const useProjectStore = defineStore('project', {
     },
 
     async getProjectAuthInfo(project_id: string): Promise<ProjectAuthInfo> {
-      const { authority, visibility, secret_key } = await getProjectAuthInfo(project_id)
+      const { authority, visibility, has_shared } = await getProjectAuthInfo(project_id)
       this.projectAuthInfo = {
         project_id,
         inThisProject: authority !== MemberAuthorityInProject.NONE,
-        hasShared: !!secret_key,
+        hasShared: has_shared,
         isPrivate: visibility === ProjectVisibilityEnum.PRIVATE,
       }
       return this.projectAuthInfo

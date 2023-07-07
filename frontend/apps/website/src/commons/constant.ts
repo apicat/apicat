@@ -14,6 +14,8 @@ export const enum PERMISSION_CHANGE_CODE {
   MEMBER_PREMISSION_ERROR = 201,
   // 目标成员在项目中的权限发生变更
   TARGET_MEMBER_PREMISSION_ERROR = 202,
+  // 分享密钥错误
+  SHARE_KEY_ERROR = 301,
 }
 
 // 请求超时时长

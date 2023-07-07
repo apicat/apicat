@@ -53,7 +53,7 @@
 </template>
 
 <script setup lang="ts">
-import { getCollectionShareDetail, resetSecretToCollection, switchCollectionShareStatus } from '@/api/collection'
+import { getCollectionShareDetail, resetSecretToCollection, switchCollectionShareStatus } from '@/api/shareCollection'
 import { CollectionVisibilityEnum } from '@/commons'
 import { useModal } from '@/hooks'
 import useApi from '@/hooks/useApi'

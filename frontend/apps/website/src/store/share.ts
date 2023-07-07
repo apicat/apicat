@@ -17,6 +17,7 @@ export const useShareStore = defineStore('share', {
       const currentRouteMatched = this.$router.currentRoute.value.matched
       const params = this.$router.currentRoute.value.params
       const { doc_public_id, project_id } = params as Record<string, string>
+
       // 预览分享的文档
       if (currentRouteMatched.find((route) => route.name === 'share.document')) {
         return Cookies.get(Cookies.KEYS.SHARE_DOCUMENT + (doc_public_id || ''))
@@ -24,14 +25,10 @@ export const useShareStore = defineStore('share', {
 
       // 预览分享的项目
       if (currentRouteMatched.find((route) => route.name === 'document.detail')) {
-        return Cookies.get(Cookies.KEYS.SHARE_DOCUMENT + (project_id || ''))
+        return Cookies.get(Cookies.KEYS.SHARE_PROJECT + (project_id || ''))
       }
 
       return null
-    },
-
-    hasInputSecretKey() {
-      return !!this.token
     },
   },
 

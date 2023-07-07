@@ -1,9 +1,10 @@
 import type { Router } from 'vue-router'
-import { getCollectionShareStatus } from '@/api/collection'
+import { getCollectionShareStatus } from '@/api/shareCollection'
 import { Cookies } from '@/commons'
 import { useShareStore } from '@/store/share'
-import { NOT_FOUND_PATH } from '../constant'
+import { NOT_FOUND_PATH, PROJECT_SHARE_VALIDATION_NAME } from '../constant'
 import { getDocumentShareDetailPath, getDocumentVerificationPath } from '../share'
+import { getProjectDetailPath } from '../project.detail'
 
 /**
  * 分享页面拦截
@@ -25,6 +26,7 @@ export const setupShareDocumentFilter = (router: Router) => {
           shareStore.clearDocumentShareInfo()
           return next(NOT_FOUND_PATH)
         }
+
         sharedDocumentInfo.doc_public_id = params.doc_public_id as string
         shareStore.setDocumentShareInfo(sharedDocumentInfo)
 
@@ -42,6 +44,13 @@ export const setupShareDocumentFilter = (router: Router) => {
       } catch (error) {
         return next(NOT_FOUND_PATH)
       }
+    }
+
+    const isExistSecretKeyForProject = !!(Cookies.get(Cookies.KEYS.SHARE_PROJECT + params.project_id) || '')
+    // 项目密钥
+    if (String(name).startsWith(PROJECT_SHARE_VALIDATION_NAME) && isExistSecretKeyForProject) {
+      console.log(getProjectDetailPath(params.project_id as string))
+      // return next(getProjectDetailPath(params.project_id as string))
     }
 
     next()

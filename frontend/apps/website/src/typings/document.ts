@@ -59,7 +59,14 @@ export interface HttpDocument {
 }
 
 export interface SharedDocumentInfo {
+  project_id: string
+  collection_id: string
+  has_shared: boolean
+  doc_public_id?: string
+}
+
+export interface CheckDocumentSecretParams {
   collection_id: string
   project_id: string
-  doc_public_id?: string
+  secret_key: string
 }
