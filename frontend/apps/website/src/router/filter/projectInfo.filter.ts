@@ -1,7 +1,9 @@
 import useProjectStore from '@/store/project'
 import type { Router } from 'vue-router'
-import { MAIN_PATH, NOT_FOUND_PATH, PROJECT_DETAIL_PATH_NAME } from '../constant'
+import { MAIN_PATH, NOT_FOUND_PATH, PROJECT_DETAIL_PATH_NAME, PROJECT_SHARE_VALIDATION_NAME } from '../constant'
 import { ProjectInfo } from '@/typings'
+import { Cookies } from '@/commons'
+import { ShareSecretKeyError } from '@/api/error'
 
 export const setupGetProjectInfoFilter = (router: Router) => {
   router.beforeEach(async (to, from, next) => {
@@ -19,6 +21,15 @@ export const setupGetProjectInfoFilter = (router: Router) => {
 
           return next()
         } catch (error) {
+          // 密钥错误
+          if (error instanceof ShareSecretKeyError) {
+            Cookies.remove(Cookies.KEYS.SHARE_PROJECT + project_id)
+            return next({
+              name: PROJECT_SHARE_VALIDATION_NAME,
+              params: { project_id },
+            })
+          }
+
           return next(MAIN_PATH)
         }
       }

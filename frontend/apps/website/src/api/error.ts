@@ -15,3 +15,11 @@ export class NotFountDocumentShare extends Error {
     this.name = 'NotFountDocumentShare'
   }
 }
+
+// 分享密钥错误
+export class ShareSecretKeyError extends Error {
+  constructor(message?: string) {
+    super(message)
+    this.name = 'ShareSecretKeyError'
+  }
+}

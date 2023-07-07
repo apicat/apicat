@@ -5,7 +5,7 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import Storage from '@/commons/storage'
 import { LOGIN_PATH, PROJECT_SHARE_VALIDATION_NAME, getDocumentVerificationPath, router } from '@/router'
 import { i18n } from '@/i18n'
-import { TargetMemberPermissionError } from './error'
+import { ShareSecretKeyError, TargetMemberPermissionError } from './error'
 import { Cookies } from '@/commons'
 
 axios.defaults.timeout = REQUEST_TIMEOUT
@@ -96,28 +96,7 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
         }
 
         if (code === PERMISSION_CHANGE_CODE.SHARE_KEY_ERROR) {
-          const currentRouteMatched = router.currentRoute.value.matched
-          const params = router.currentRoute.value.params
-          const { doc_public_id, project_id } = params as Record<string, string>
-
-          // 预览分享的文档
-          if (currentRouteMatched.find((route) => route.name === 'share.document')) {
-            Cookies.remove(Cookies.KEYS.SHARE_DOCUMENT + (doc_public_id || ''))
-            setTimeout(() => router.replace(getDocumentVerificationPath(doc_public_id)), 0)
-          }
-
-          // 预览分享的项目
-          if (currentRouteMatched.find((route) => route.name === 'document.detail')) {
-            Cookies.remove(Cookies.KEYS.SHARE_DOCUMENT + (project_id || ''))
-            setTimeout(
-              () =>
-                router.replace({
-                  name: PROJECT_SHARE_VALIDATION_NAME,
-                  params: { project_id },
-                }),
-              0
-            )
-          }
+          error = new ShareSecretKeyError()
         }
         break
 
