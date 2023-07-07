@@ -151,11 +151,11 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 
 	token := "p" + encrypt.GetMD5Encode(data.SecretKey+fmt.Sprint(time.Now().UnixNano()))
 
-	sr := models.NewShareRecords()
-	sr.ShareToken = encrypt.GetMD5Encode(token)
-	sr.Expiration = time.Now().Add(time.Hour * 24)
-	sr.ProjectID = project.ID
-	if err := sr.Create(); err != nil {
+	stt := models.NewShareTmpTokens()
+	stt.ShareToken = encrypt.GetMD5Encode(token)
+	stt.Expiration = time.Now().Add(time.Hour * 24)
+	stt.ProjectID = project.ID
+	if err := stt.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),
 		})
@@ -164,7 +164,7 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{
 		"token":      token,
-		"expiration": sr.Expiration.Format("2006-01-02 15:04:05"),
+		"expiration": stt.Expiration.Format("2006-01-02 15:04:05"),
 	})
 }
 
@@ -241,12 +241,12 @@ func DocShareSecretkeyCheck(ctx *gin.Context) {
 
 	token := "d" + encrypt.GetMD5Encode(data.SecretKey+fmt.Sprint(time.Now().UnixNano()))
 
-	sr := models.NewShareRecords()
-	sr.ShareToken = encrypt.GetMD5Encode(token)
-	sr.Expiration = time.Now().Add(time.Hour * 24)
-	sr.ProjectID = collection.ProjectId
-	sr.CollectionID = collection.ID
-	if err := sr.Create(); err != nil {
+	stt := models.NewShareTmpTokens()
+	stt.ShareToken = encrypt.GetMD5Encode(token)
+	stt.Expiration = time.Now().Add(time.Hour * 24)
+	stt.ProjectID = collection.ProjectId
+	stt.CollectionID = collection.ID
+	if err := stt.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),
 		})
@@ -255,7 +255,7 @@ func DocShareSecretkeyCheck(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusCreated, gin.H{
 		"token":      token,
-		"expiration": sr.Expiration.Format("2006-01-02 15:04:05"),
+		"expiration": stt.Expiration.Format("2006-01-02 15:04:05"),
 	})
 }
 

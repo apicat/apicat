@@ -51,9 +51,9 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		}
 
 		// 校验访问令牌是否存在
-		sr := models.NewShareRecords()
-		sr.ShareToken = encrypt.GetMD5Encode(token)
-		if err := sr.GetByShareToken(); err != nil {
+		stt := models.NewShareTmpTokens()
+		stt.ShareToken = encrypt.GetMD5Encode(token)
+		if err := stt.GetByShareToken(); err != nil {
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"code":    enum.ShareTokenInsufficientPermissionsCode,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
@@ -64,8 +64,8 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 
 		// 校验访问令牌是否过期
 		now := time.Now()
-		if sr.Expiration.Before(now) {
-			if err := sr.Delete(); err != nil {
+		if stt.Expiration.Before(now) {
+			if err := stt.Delete(); err != nil {
 				ctx.JSON(http.StatusForbidden, gin.H{
 					"code":    enum.ShareTokenInsufficientPermissionsCode,
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
@@ -84,7 +84,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 
 		// 分享项目的访问令牌
 		if token[:1] == "p" {
-			if project.(*models.Projects).ID != sr.ProjectID {
+			if project.(*models.Projects).ID != stt.ProjectID {
 				ctx.JSON(http.StatusForbidden, gin.H{
 					"code":    enum.ShareTokenInsufficientPermissionsCode,
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
@@ -98,7 +98,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		if token[:1] == "d" {
 			collectionIDStr := ctx.Param("collection-id")
 			if collectionIDStr == "" {
-				if project.(*models.Projects).ID != sr.ProjectID {
+				if project.(*models.Projects).ID != stt.ProjectID {
 					ctx.JSON(http.StatusForbidden, gin.H{
 						"code":    enum.ShareTokenInsufficientPermissionsCode,
 						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
@@ -125,7 +125,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 					return
 				}
 
-				if collection.ID != sr.CollectionID {
+				if collection.ID != stt.CollectionID {
 					ctx.JSON(http.StatusForbidden, gin.H{
 						"code":    enum.ShareTokenInsufficientPermissionsCode,
 						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
