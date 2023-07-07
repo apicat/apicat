@@ -8,6 +8,7 @@ import (
 	"github.com/apicat/apicat/common/encrypt"
 	"github.com/apicat/apicat/common/random"
 	"github.com/apicat/apicat/common/translator"
+	"github.com/apicat/apicat/enum"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
@@ -84,6 +85,14 @@ func ProjectShareDetails(ctx *gin.Context) {
 
 func ProjectSharingSwitch(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
 
 	var (
 		project   *models.Projects
@@ -145,6 +154,14 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 
 func ProjectShareReset(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
 
 	var (
 		project   *models.Projects
