@@ -284,6 +284,16 @@ func ProjectsUpdate(ctx *gin.Context) {
 		project.Visibility = 0
 	} else {
 		project.Visibility = 1
+
+		// 将项目分享密钥及项目下集合的分享密钥置为空
+		project.SharePassword = ""
+		c, _ := models.NewCollections()
+		c.SharePassword = ""
+		if err := models.BatchUpdateByProjectID(project.ID, c); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
+			})
+		}
 	}
 
 	if err := project.Save(); err != nil {
