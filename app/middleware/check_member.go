@@ -49,7 +49,7 @@ func CheckMember() func(ctx *gin.Context) {
 			ctx.Abort()
 		}
 
-		if user == nil && user.IsEnabled == 0 {
+		if user == nil || user.IsEnabled == 0 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.AccountDisabled"}),
 			})
