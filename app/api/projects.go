@@ -504,37 +504,3 @@ func ProjectTransfer(ctx *gin.Context) {
 
 	ctx.Status(http.StatusCreated)
 }
-
-func ProjectStatus(ctx *gin.Context) {
-	currentProject, _ := ctx.Get("CurrentProject")
-	currentUser, currentUserExists := ctx.Get("CurrentUser")
-
-	var (
-		authority  string
-		visibility string
-	)
-
-	if currentProject.(*models.Projects).Visibility == 0 {
-		visibility = "private"
-	} else {
-		visibility = "public"
-	}
-
-	if currentUserExists {
-		member, _ := models.NewProjectMembers()
-		member.UserID = currentUser.(*models.Users).ID
-		member.ProjectID = currentProject.(*models.Projects).ID
-
-		if err := member.GetByUserIDAndProjectID(); err == nil {
-			authority = member.Authority
-		}
-	} else {
-		authority = "none"
-	}
-
-	ctx.JSON(http.StatusOK, gin.H{
-		"authority":  authority,
-		"visibility": visibility,
-		"secret_key": currentProject.(*models.Projects).SharePassword,
-	})
-}

@@ -55,20 +55,20 @@ func InitApiRouter(r *gin.Engine) {
 			project.Use(middleware.CheckProject())
 			{
 				project.GET("/:project-id/data", api.ProjectDataGet)
-				project.POST("/:project-id/share/secretkey_check", api.ProjectShareSecretkeyCheck)
-				project.GET("/:project-id/status", middleware.CheckMemberHalfLogin(), api.ProjectStatus)
+				project.GET("/:project-id/share/status", middleware.CheckMemberHalfLogin(), api.ProjectShareStatus)
+				project.POST("/:project-id/share/check", api.ProjectShareSecretkeyCheck)
 			}
 
 			collection := notLogin.Group("/projects/:project-id/collections")
 			collection.Use(middleware.CheckProject())
 			{
 				collection.GET("/:collection-id/data", api.CollectionDataGet)
-				collection.POST("/:collection-id/share/secretkey_check", api.DocShareSecretkeyCheck)
+				collection.POST("/:collection-id/share/check", api.DocShareCheck)
 			}
 
-			share := notLogin.Group("/share")
+			collection_share := notLogin.Group("/collections")
 			{
-				share.GET("/collections/:public_collection_id/status", api.DocShareStatus)
+				collection_share.GET("/:public_collection_id/share/status", api.DocShareStatus)
 			}
 		}
 
@@ -146,8 +146,9 @@ func InitApiRouter(r *gin.Engine) {
 				projects.DELETE("", api.ProjectsDelete)
 				projects.DELETE("/exit", api.ProjectExit)
 				projects.PUT("/transfer", api.ProjectTransfer)
-				projects.PUT("/share", api.ProjectSharingSwitch)
-				projects.PUT("/share/reset_share_secretkey", api.ProjectShareResetSecretKey)
+				projects.GET("/share", api.ProjectShareDetails)
+				projects.PUT("/share/switch", api.ProjectSharingSwitch)
+				projects.PUT("/share/reset", api.ProjectShareReset)
 			}
 
 			definitionSchemas := project.Group("/definition/schemas")
@@ -185,9 +186,9 @@ func InitApiRouter(r *gin.Engine) {
 				collections.POST("/:collection-id", api.CollectionsCopy)
 				collections.PUT("/movement", api.CollectionsMovement)
 				collections.DELETE("/:collection-id", api.CollectionsDelete)
-				collections.GET("/:collection-id/share", api.DocStatus)
-				collections.PUT("/:collection-id/share", api.DocSharingSwitch)
-				collections.PUT("/:collection-id/share/reset_share_secretkey", api.DocShareResetSecretKey)
+				collections.GET("/:collection-id/share", api.DocShareDetails)
+				collections.PUT("/:collection-id/share/switch", api.DocShareSwitch)
+				collections.PUT("/:collection-id/share/reset", api.DocShareReset)
 			}
 
 			trashs := project.Group("/trashs")
