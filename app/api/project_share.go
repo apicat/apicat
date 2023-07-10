@@ -95,9 +95,8 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 	}
 
 	var (
-		project   *models.Projects
-		data      ProjectSharingSwitchData
-		secretKey string
+		project *models.Projects
+		data    ProjectSharingSwitchData
 	)
 
 	project = currentProject.(*models.Projects)
@@ -116,19 +115,20 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 	}
 
 	if data.Share == "open" {
-		secretKey = random.GenerateRandomString(4)
+		if project.SharePassword == "" {
+			project.SharePassword = random.GenerateRandomString(4)
 
-		project.SharePassword = secretKey
-		if err := project.Save(); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.ModifySharingStatusFail"}),
-			})
-			return
+			if err := project.Save(); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.ModifySharingStatusFail"}),
+				})
+				return
+			}
 		}
 
 		ctx.JSON(http.StatusCreated, gin.H{
 			"project_public_id": project.PublicId,
-			"secret_key":        secretKey,
+			"secret_key":        project.SharePassword,
 		})
 	} else {
 		stt := models.NewShareTmpTokens()

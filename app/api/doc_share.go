@@ -110,10 +110,9 @@ func DocShareSwitch(ctx *gin.Context) {
 	}
 
 	var (
-		project   *models.Projects
-		uriData   DocShareSecretkeyCheckUriData
-		data      ProjectSharingSwitchData
-		secretKey string
+		project *models.Projects
+		uriData DocShareSecretkeyCheckUriData
+		data    ProjectSharingSwitchData
 	)
 
 	project = currentProject.(*models.Projects)
@@ -151,8 +150,10 @@ func DocShareSwitch(ctx *gin.Context) {
 			collection.PublicId = shortuuid.New()
 		}
 
-		secretKey = random.GenerateRandomString(4)
-		collection.SharePassword = secretKey
+		if collection.SharePassword == "" {
+			collection.SharePassword = random.GenerateRandomString(4)
+		}
+
 		if err := collection.Update(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ModifySharingStatusFail"}),
@@ -162,7 +163,7 @@ func DocShareSwitch(ctx *gin.Context) {
 
 		ctx.JSON(http.StatusCreated, gin.H{
 			"collection_public_id": collection.PublicId,
-			"secret_key":           secretKey,
+			"secret_key":           collection.SharePassword,
 		})
 	} else {
 		stt := models.NewShareTmpTokens()
