@@ -210,13 +210,6 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 	)
 
 	project = currentProject.(*models.Projects)
-	if project.Visibility != 0 {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.PublicProject"}),
-		})
-		return
-	}
-
 	if err = translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
