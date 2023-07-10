@@ -1,7 +1,6 @@
 <template>
   <main :class="ns.b()">
     <ProjectInfoHeader />
-
     <div :class="ns.e('left')">
       <div class="flex flex-col h-full overflow-y-scroll scroll-content">
         <DirectoryTree ref="directoryTree" />
@@ -18,6 +17,7 @@
   <ExportDocumentModal ref="exportDocumentModalRef" />
   <DocumentShareModal ref="documentShareModalRef" />
   <ProjectShareModal ref="projectShareModalRef" />
+  <!-- todo:Share Secret Key Modal -->
 </template>
 
 <script setup lang="ts">

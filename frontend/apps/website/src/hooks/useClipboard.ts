@@ -7,6 +7,7 @@ export const useClipboard = (
   timeout = 1000
 ): { handleCopy: () => Promise<void>; elCopyTextRef: Ref<string>; isCopied: Ref<boolean>; elCopiedText: string } => {
   const { t } = useI18n()
+  const isClipboardApiSupported = useSupported(() => navigator && 'clipboard' in navigator)
   const isCopied: Ref<boolean> = ref(false)
 
   elCopyText = elCopyText || t('app.common.copy')
@@ -16,12 +17,12 @@ export const useClipboard = (
   let timer: ReturnType<typeof setTimeout> | null = null
 
   const handleCopy = async (): Promise<void> => {
-    if (!navigator.clipboard) {
-      console.error('clipboard API is not supported')
-      return
+    if (isClipboardApiSupported.value) {
+      await navigator.clipboard.writeText(unref(copyText))
+    } else {
+      legacyCopy(unref(copyText))
     }
 
-    await navigator.clipboard.writeText(unref(copyText))
     if (!timeout) {
       return
     }
@@ -41,6 +42,17 @@ export const useClipboard = (
     isCopied,
     handleCopy,
   }
+}
+
+function legacyCopy(value: string) {
+  const ta = document.createElement('textarea')
+  ta.value = value ?? ''
+  ta.style.position = 'absolute'
+  ta.style.opacity = '0'
+  document.body.appendChild(ta)
+  ta.select()
+  document.execCommand('copy')
+  ta.remove()
 }
 
 export default useClipboard

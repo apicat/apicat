@@ -6,6 +6,7 @@
     </div>
   </main>
   <ac-backtop :bottom="100" :right="100" />
+  <!-- todo:Share Secret Key Modal -->
 </template>
 <script setup lang="ts">
 import PreviewHeader from '@/views/share/components/PreviewHeader.vue'
