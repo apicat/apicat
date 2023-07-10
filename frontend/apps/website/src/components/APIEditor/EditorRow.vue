@@ -33,13 +33,13 @@
       <div :class="[ns.e('item'), ns.e('type')]">
         <template v-if="!readonly">
           <el-dropdown trigger="click" @visible-change="resetShowRef">
-            <el-button text :type="data.refObj ? 'primary' : undefined" :disabled="isRefChildren(data)">
-              <el-space :size="4" v-if="data.refObj">
+            <el-button text :class="ns.e('ref')" :type="data.refObj ? 'primary' : undefined" :disabled="isRefChildren(data)">
+              <div v-if="data.refObj" :class="ns.e('ref_btn')">
                 {{ data.refObj.name }}
                 <el-tooltip v-if="!data.isSelf" :content="$t('editor.table.removeBinding')" placement="top">
                   <el-icon @click.stop.prevent="unlinkRefHandler"><ac-icon-carbon-unlink /></el-icon>
                 </el-tooltip>
-              </el-space>
+              </div>
               <span v-else>{{ data.type }}</span>
             </el-button>
             <template #dropdown>
@@ -49,7 +49,7 @@
         </template>
 
         <template v-else>
-          <el-text v-if="data.refObj" type="primary">{{ data.refObj.name }}</el-text>
+          <el-text v-if="data.refObj" class="truncate" type="primary" :title="data.refObj.name">{{ data.refObj.name }}</el-text>
           <span v-else>{{ data.type }}</span>
         </template>
       </div>
