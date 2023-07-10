@@ -24,7 +24,7 @@ export const useShareStore = defineStore('share', {
       }
 
       // 预览分享的项目
-      if (currentRouteMatched.find((route) => route.name === 'document.detail')) {
+      if (currentRouteMatched.find((route) => route.name === 'project.detail')) {
         return Cookies.get(Cookies.KEYS.SHARE_PROJECT + (project_id || ''))
       }
 
