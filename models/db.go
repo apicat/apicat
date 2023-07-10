@@ -48,7 +48,7 @@ func Init() {
 	}
 
 	if err != nil {
-		panic("Failed to connect database.")
+		panic(err.Error())
 	}
 
 	initTable()
@@ -70,7 +70,7 @@ func initTable() {
 		&ProjectMembers{},
 		&ShareTmpTokens{},
 	); err != nil {
-		panic("Failed to create database table.")
+		panic(err.Error())
 	}
 }
 
