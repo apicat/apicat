@@ -281,7 +281,7 @@ func DocShareCheck(ctx *gin.Context) {
 
 	if data.SecretKey != collection.SharePassword {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.AccessPasswordError"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.AccessPasswordError"}),
 		})
 		return
 	}
