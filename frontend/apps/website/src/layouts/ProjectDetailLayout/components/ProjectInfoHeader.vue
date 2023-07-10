@@ -1,6 +1,12 @@
 <template>
-  <div :class="[ns.b(), ns.m('hover')]">
-    <el-popover placement="bottom" width="250px">
+  <div :class="[ns.b(), { [ns.m('hover')]: !isGuest }]">
+    <div :class="ns.e('img')" v-if="isGuest">
+      <router-link to="/">
+        <img src="@/assets/images/logo-square.svg" :alt="projectDetailInfo?.title" />
+      </router-link>
+    </div>
+
+    <el-popover placement="bottom" width="250px" v-else>
       <template #reference>
         <div :class="ns.e('img')">
           <img src="@/assets/images/logo-square.svg" :alt="projectDetailInfo?.title" />
@@ -39,7 +45,7 @@ import { ProjectDetailModalsContextKey } from '../constants'
 const ns = useNamespace('project-info')
 const projectSettingModalRef = ref<InstanceType<typeof ProjectSettingModal>>()
 const projectStore = useProjectStore()
-const { projectDetailInfo, isManager, isPrivate } = storeToRefs(projectStore)
+const { projectDetailInfo, isManager, isPrivate, isGuest } = storeToRefs(projectStore)
 const { t } = useI18n()
 const projectDetailModals = inject(ProjectDetailModalsContextKey)
 
