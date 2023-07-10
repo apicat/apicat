@@ -101,3 +101,14 @@
 .el-loading-mask {
   transition: none !important;
 }
+
+.el-input-group__append button.el-button.el-button--primary {
+  background-color: var(--primary-color) !important;
+  color: #fff !important;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.el-radio-group .el-radio-button__inner {
+  display: inline-flex;
+}

@@ -42,6 +42,17 @@
       <el-input :disabled="!isManager" v-model="form.title" :placeholder="$t('app.project.form.title')" clearable maxlength="255" />
     </el-form-item>
 
+    <el-form-item :label="$t('app.project.form.visibility')">
+      <el-radio-group v-model="form.visibility">
+        <el-radio-button :label="ProjectVisibilityEnum.PRIVATE">
+          <el-icon class="mr-1"><ac-icon-ep-lock /></el-icon>{{ $t('app.common.private') }}
+        </el-radio-button>
+        <el-radio-button :label="ProjectVisibilityEnum.PUBLIC">
+          <el-icon class="mr-1"><ac-icon-ep-view /></el-icon>{{ $t('app.common.public') }}
+        </el-radio-button>
+      </el-radio-group>
+    </el-form-item>
+
     <el-form-item :label="$t('app.project.form.desc')">
       <el-input
         :disabled="!isManager"
@@ -59,17 +70,18 @@
 </template>
 <script setup lang="tsx">
 import { deleleProject, updateProjectBaseInfo } from '@/api/project'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { ProjectInfo } from '@/typings/project'
 import { FormInstance } from 'element-plus'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import { useI18n } from 'vue-i18n'
 import { useProjectCover } from '../logic/useProjectCover'
 import { storeToRefs } from 'pinia'
+import { ProjectVisibilityEnum } from '@/commons'
 
 const { t } = useI18n()
 const router = useRouter()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const { projectDetailInfo, setCurrentProjectInfo } = projectStore
 const { isManager } = storeToRefs(projectStore)
 
@@ -81,6 +93,7 @@ const form: ProjectInfo = reactive({
   title: projectDetailInfo!.title,
   cover: projectDetailInfo!.cover,
   description: projectDetailInfo!.description,
+  visibility: projectDetailInfo!.visibility,
 })
 
 const { projectCoverBgColorsOptions, projectCoverIcons, bgColorRef, iconRef } = useProjectCover(form)

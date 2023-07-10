@@ -4,9 +4,10 @@
       <p class="ac-header-operate__title">{{ httpDoc.title }}</p>
     </div>
 
-    <div class="ac-header-operate__btns" v-if="!isReader">
+    <div class="ac-header-operate__btns" v-if="isManager || isWriter">
       <el-button type="primary" @click="goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
-      <el-button @click="handleExport()">{{ $t('app.common.export') }}</el-button>
+      <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" />
+      <Iconfont icon="ac-export cursor-pointer" :size="18" @click="handleExport()" />
     </div>
   </div>
 
@@ -19,10 +20,8 @@
   <div :class="[ns.b(), { 'h-20vh': !httpDoc && hasDocument }]" v-loading="isLoading">
     <div class="ac-editor mt-10px" v-if="httpDoc">
       <RequestMethodRaw class="mb-10px" :doc="httpDoc" :urls="urlServers" />
-
       <RequestParamRaw class="mb-10px" :doc="httpDoc" :definitions="definitions" />
-
-      <ResponseParamTabsRaw :doc="httpDoc" :definitions="definitions" />
+      <ResponseParamTabsRaw :doc="httpDoc" :definitions="definitions" :project-id="project_id" />
     </div>
   </div>
 </template>
@@ -31,15 +30,16 @@ import { HttpDocument } from '@/typings'
 import { useNamespace } from '@/hooks/useNamespace'
 import ResponseParamTabsRaw from '@/components/ResponseParamTabsRaw.vue'
 import { useGoPage } from '@/hooks/useGoPage'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
 import { getCollectionDetail } from '@/api/collection'
 import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionResponseStore from '@/store/definitionResponse'
+import { ProjectDetailModalsContextKey } from '@/layouts/ProjectDetailLayout/constants'
 
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const definitionStore = useDefinitionStore()
 const globalParametersStore = uesGlobalParametersStore()
 const definitionResponseStore = useDefinitionResponseStore()
@@ -49,13 +49,13 @@ const { project_id } = useParams()
 const { goDocumentEditPage } = useGoPage()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
-const { urlServers, isReader } = storeToRefs(projectStore)
+const { urlServers, isManager, isWriter } = storeToRefs(projectStore)
 const { definitions } = storeToRefs(definitionStore)
 
 const hasDocument = ref(false)
 const ns = useNamespace('document')
 const httpDoc: Ref<HttpDocument | null> = ref(null)
-const exportModal = inject('exportModal') as any
+const projectDetailModals = inject(ProjectDetailModalsContextKey)
 
 const getDetail = async (docId: string) => {
   const doc_id = parseInt(docId, 10)
@@ -77,9 +77,9 @@ const getDetail = async (docId: string) => {
   }
 }
 
-const handleExport = () => {
-  exportModal.exportDocument()
-}
+const handleExport = () => projectDetailModals?.exportDocument()
+
+const handleShare = () => projectDetailModals?.shareDocument(project_id, route.params.doc_id as string)
 
 globalParametersStore.$onAction(({ name, after }) => {
   // 删除全局参数

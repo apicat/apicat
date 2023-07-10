@@ -1,5 +1,5 @@
 <template>
-  <div class="flex h-800px">
+  <div class="flex overflow-hidden rounded h-700px">
     <div class="bg-gray-100 pt-20px pl-30px" :style="{ width: `${slideWidth}px` }">
       <slot name="nav"></slot>
     </div>
@@ -15,7 +15,7 @@
 defineProps({
   slideWidth: {
     type: Number,
-    default: 315,
+    default: 300,
   },
 })
 </script>

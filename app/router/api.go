@@ -42,38 +42,101 @@ func InitApiRouter(r *gin.Engine) {
 	apiRouter := r.Group("/api")
 	apiRouter.Use(translator.UseValidatori18n())
 	{
-		account := apiRouter.Group("/account")
+		// 未登录状态下可访问的API
+		notLogin := apiRouter.Group("")
 		{
-			account.POST("/login/email", api.EmailLogin)
-			account.POST("/register/email", api.EmailRegister)
+			account := notLogin.Group("/account")
+			{
+				account.POST("/login/email", api.EmailLogin)
+				account.POST("/register/email", api.EmailRegister)
+			}
+
+			project := notLogin.Group("/projects")
+			project.Use(middleware.CheckProject())
+			{
+				project.GET("/:project-id/data", api.ProjectDataGet)
+				project.GET("/:project-id/share/status", middleware.CheckMemberHalfLogin(), api.ProjectShareStatus)
+				project.POST("/:project-id/share/check", api.ProjectShareSecretkeyCheck)
+			}
+
+			collection := notLogin.Group("/projects/:project-id/collections")
+			collection.Use(middleware.CheckProject())
+			{
+				collection.GET("/:collection-id/data", api.CollectionDataGet)
+				collection.POST("/:collection-id/share/check", api.DocShareCheck)
+			}
+
+			collection_share := notLogin.Group("/collections")
+			{
+				collection_share.GET("/:public_collection_id/share/status", api.DocShareStatus)
+			}
 		}
 
-		projects := apiRouter.Group("/projects")
+		// 半登录状态下可访问的API。半登录：登录或不登录时都可访问，但响应的参数不同
+		halfLogin := apiRouter.Group("")
+		halfLogin.Use(middleware.CheckProject(), middleware.CheckMemberHalfLogin(), middleware.CheckProjectMemberHalfLogin(), mocksrv.ClearCache())
 		{
-			projects.GET("", middleware.JWTAuthMiddleware(), api.ProjectsList)
-			projects.POST("", middleware.JWTAuthMiddleware(), api.ProjectsCreate)
-			projects.GET("/:project-id", middleware.JWTAuthMiddleware(), api.ProjectsGet)
-			projects.GET("/:project-id/data", api.ProjectDataGet)
-			projects.GET("/:project-id/collections/:collection-id/data", api.CollectionDataGet)
+			project := halfLogin.Group("/projects/:project-id")
+			{
+				project.GET("", api.ProjectsGet)
+			}
+
+			servers := halfLogin.Group("/projects/:project-id/servers")
+			{
+				servers.GET("", api.UrlList)
+			}
+
+			definitionSchemas := halfLogin.Group("/projects/:project-id/definition/schemas")
+			{
+				definitionSchemas.GET("/:schemas-id", api.DefinitionSchemasGet)
+				definitionSchemas.GET("", api.DefinitionSchemasList)
+			}
+
+			collections := halfLogin.Group("/projects/:project-id/collections")
+			{
+				collections.GET("", api.CollectionsList)
+				collections.GET("/:collection-id", api.CollectionsGet)
+			}
+
+			globalParameters := halfLogin.Group("/projects/:project-id/global/parameters")
+			{
+				globalParameters.GET("", api.GlobalParametersList)
+			}
+
+			definitionResponses := halfLogin.Group("/projects/:project-id/definition/responses")
+			{
+				definitionResponses.GET("", api.DefinitionResponsesList)
+				definitionResponses.GET("/:response-id", api.DefinitionResponsesDetail)
+			}
 		}
 
-		members := apiRouter.Group("/members")
-		members.Use(middleware.JWTAuthMiddleware())
+		// 仅登录状态下可访问的API。仅登录：仅登录了apicat便可访问，一般为项目外的操作
+		onlyLogin := apiRouter.Group("")
+		onlyLogin.Use(middleware.CheckMember())
 		{
-			members.GET("", api.GetMembers)
-			members.POST("/", api.AddMember)
-			members.PUT("/:user-id", api.SetMember)
-			members.DELETE("/:user-id", api.DeleteMember)
+			user := onlyLogin.Group("/user")
+			{
+				user.GET("/self", api.GetUserInfo)
+				user.PUT("/self", api.SetUserInfo)
+				user.PUT("/self/password", api.ChangePassword)
+			}
+
+			members := onlyLogin.Group("/members")
+			{
+				members.GET("", api.GetMembers)
+				members.POST("/", api.AddMember)
+				members.PUT("/:user-id", api.SetMember)
+				members.DELETE("/:user-id", api.DeleteMember)
+			}
+
+			project := onlyLogin.Group("/projects")
+			{
+				project.GET("", api.ProjectsList)
+				project.POST("", api.ProjectsCreate)
+			}
 		}
 
-		user := apiRouter.Group("/user")
-		user.Use(middleware.JWTAuthMiddleware())
-		{
-			user.GET("/self", api.GetUserInfo)
-			user.PUT("/self", api.SetUserInfo)
-			user.PUT("/self/password", api.ChangePassword)
-		}
-
+		// 项目内部操作
 		project := apiRouter.Group("/projects/:project-id")
 		project.Use(middleware.JWTAuthMiddleware(), middleware.CheckProject(), middleware.CheckProjectMember(), mocksrv.ClearCache())
 		{
@@ -83,28 +146,27 @@ func InitApiRouter(r *gin.Engine) {
 				projects.DELETE("", api.ProjectsDelete)
 				projects.DELETE("/exit", api.ProjectExit)
 				projects.PUT("/transfer", api.ProjectTransfer)
+				projects.GET("/share", api.ProjectShareDetails)
+				projects.PUT("/share/switch", api.ProjectSharingSwitch)
+				projects.PUT("/share/reset", api.ProjectShareReset)
 			}
 
 			definitionSchemas := project.Group("/definition/schemas")
 			{
-				definitionSchemas.GET("", api.DefinitionSchemasList)
 				definitionSchemas.POST("", api.DefinitionSchemasCreate)
 				definitionSchemas.PUT("/:schemas-id", api.DefinitionSchemasUpdate)
 				definitionSchemas.DELETE("/:schemas-id", api.DefinitionSchemasDelete)
-				definitionSchemas.GET("/:schemas-id", api.DefinitionSchemasGet)
 				definitionSchemas.POST("/:schemas-id", api.DefinitionSchemasCopy)
 				definitionSchemas.PUT("/movement", api.DefinitionSchemasMove)
 			}
 
 			servers := project.Group("/servers")
 			{
-				servers.GET("", api.UrlList)
 				servers.PUT("", api.UrlSettings)
 			}
 
 			globalParameters := project.Group("/global/parameters")
 			{
-				globalParameters.GET("", api.GlobalParametersList)
 				globalParameters.POST("", api.GlobalParametersCreate)
 				globalParameters.PUT("/:parameter-id", api.GlobalParametersUpdate)
 				globalParameters.DELETE("/:parameter-id", api.GlobalParametersDelete)
@@ -112,8 +174,6 @@ func InitApiRouter(r *gin.Engine) {
 
 			definitionResponses := project.Group("/definition/responses")
 			{
-				definitionResponses.GET("", api.DefinitionResponsesList)
-				definitionResponses.GET("/:response-id", api.DefinitionResponsesDetail)
 				definitionResponses.POST("", api.DefinitionResponsesCreate)
 				definitionResponses.PUT("/:response-id", api.DefinitionResponsesUpdate)
 				definitionResponses.DELETE("/:response-id", api.DefinitionResponsesDelete)
@@ -121,13 +181,14 @@ func InitApiRouter(r *gin.Engine) {
 
 			collections := project.Group("/collections")
 			{
-				collections.GET("", api.CollectionsList)
-				collections.GET("/:collection-id", api.CollectionsGet)
 				collections.POST("", api.CollectionsCreate)
 				collections.PUT("/:collection-id", api.CollectionsUpdate)
 				collections.POST("/:collection-id", api.CollectionsCopy)
 				collections.PUT("/movement", api.CollectionsMovement)
 				collections.DELETE("/:collection-id", api.CollectionsDelete)
+				collections.GET("/:collection-id/share", api.DocShareDetails)
+				collections.PUT("/:collection-id/share/switch", api.DocShareSwitch)
+				collections.PUT("/:collection-id/share/reset", api.DocShareReset)
 			}
 
 			trashs := project.Group("/trashs")

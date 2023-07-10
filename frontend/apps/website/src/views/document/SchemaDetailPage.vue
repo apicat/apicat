@@ -4,7 +4,7 @@
       <p class="ac-header-operate__title">{{ definition.name }}</p>
     </div>
 
-    <div class="ac-header-operate__btns" v-if="!isReader">
+    <div class="ac-header-operate__btns" v-if="isManager || isWriter">
       <el-button type="primary" @click="() => goSchemaEditPage()">{{ $t('app.common.edit') }}</el-button>
     </div>
   </div>
@@ -38,7 +38,7 @@ import { useNamespace } from '@/hooks'
 import { useGoPage } from '@/hooks/useGoPage'
 import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
 
 const GenerateCodeModal = defineAsyncComponent(() => import('@/components/GenerateCode/GenerateCodeModal.vue'))
@@ -46,12 +46,12 @@ const GenerateCodeModal = defineAsyncComponent(() => import('@/components/Genera
 const ns = useNamespace('document')
 const route = useRoute()
 const definitionStore = useDefinitionStore()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const { project_id } = useParams()
 const { goSchemaEditPage } = useGoPage()
 
 const { definitions } = storeToRefs(definitionStore)
-const { isReader } = storeToRefs(projectStore)
+const { isManager, isWriter } = storeToRefs(projectStore)
 const [isLoading, getDefinitionDetailApi] = getDefinitionSchemaDetail()
 
 const definition = ref<DefinitionSchema | null>(null)

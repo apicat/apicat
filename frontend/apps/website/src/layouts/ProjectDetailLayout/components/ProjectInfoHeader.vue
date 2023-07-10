@@ -1,6 +1,12 @@
 <template>
-  <div :class="[ns.b(), ns.m('hover')]">
-    <el-popover placement="bottom" width="250px">
+  <div :class="[ns.b(), { [ns.m('hover')]: !isGuest }]">
+    <div :class="ns.e('img')" v-if="isGuest">
+      <router-link to="/">
+        <img src="@/assets/images/logo-square.svg" :alt="projectDetailInfo?.title" />
+      </router-link>
+    </div>
+
+    <el-popover placement="bottom" width="250px" v-else>
       <template #reference>
         <div :class="ns.e('img')">
           <img src="@/assets/images/logo-square.svg" :alt="projectDetailInfo?.title" />
@@ -13,13 +19,18 @@
       <PopperMenu :menus="allMenus" class="clear-popover-space" @menu-click="onMenuItemClick" />
     </el-popover>
 
-    <div :class="ns.e('title')" :title="projectDetailInfo?.title">{{ projectDetailInfo?.title }}</div>
+    <div :class="ns.e('title')" :title="projectDetailInfo?.title">
+      {{ projectDetailInfo?.title }}
+      <el-tooltip effect="dark" content="私有项目" placement="bottom" v-if="isPrivate">
+        <el-icon :class="ns.e('icon')"><ac-icon-ep-lock /></el-icon>
+      </el-tooltip>
+    </div>
   </div>
 
   <ProjectSettingModal ref="projectSettingModalRef" />
 </template>
 <script setup lang="ts">
-import { uesProjectStore } from '@/store/project'
+import { useProjectStore } from '@/store/project'
 import { useNamespace } from '@/hooks/useNamespace'
 import ProjectSettingModal from '@/views/project/ProjectSettingModal.vue'
 import { Menu } from '@/components/typings'
@@ -29,25 +40,46 @@ import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import { useI18n } from 'vue-i18n'
 import { quitProject } from '@/api/project'
 import { useUserStore } from '@/store/user'
-import AcIconLogout from '~icons/mdi/logout'
+import { ProjectDetailModalsContextKey } from '../constants'
 
 const ns = useNamespace('project-info')
 const projectSettingModalRef = ref<InstanceType<typeof ProjectSettingModal>>()
-const projectStore = uesProjectStore()
-const { projectDetailInfo, isManager } = storeToRefs(projectStore)
+const projectStore = useProjectStore()
+const { projectDetailInfo, isManager, isPrivate, isGuest } = storeToRefs(projectStore)
 const { t } = useI18n()
+const projectDetailModals = inject(ProjectDetailModalsContextKey)
 
 const allMenus = computed(() => {
   const menus = getProjectNavigateList()
-  if (!isManager.value) {
-    menus[ProjectNavigateListEnum.QuitProject] = {
-      text: t('app.project.setting.quitProject'),
-      elIcon: markRaw(AcIconLogout),
-      action: handlerQuitProject,
+
+  let sortMenus: Menu[] = []
+
+  Object.keys(menus).forEach((key: string) => {
+    const item: Menu = { ...(menus[key] as any), key }
+    switch (key) {
+      case ProjectNavigateListEnum.ProjectShare:
+        item.action = handlerShareProject
+        break
+
+      case ProjectNavigateListEnum.QuitProject:
+        item.action = handlerQuitProject
+        break
     }
+
+    sortMenus.push(item)
+  })
+
+  sortMenus.sort((pre, next) => pre.sort - next.sort)
+
+  // 管理员移除退出项目
+  if (isManager.value) {
+    sortMenus = sortMenus.filter((item: Menu) => item.key !== ProjectNavigateListEnum.QuitProject)
   }
-  return menus
+
+  return sortMenus
 })
+
+const handlerShareProject = () => projectDetailModals?.shareProject(projectDetailInfo.value?.id! as string)
 
 const handlerQuitProject = async () => {
   AsyncMsgBox({
@@ -63,11 +95,11 @@ const handlerQuitProject = async () => {
   })
 }
 
-const onMenuItemClick = async (menu: Menu, key: ProjectNavigateListEnum) => {
+const onMenuItemClick = async (menu: Menu) => {
   if (menu.action) {
     return await menu.action()
   }
-  unref(projectSettingModalRef)!.show(key)
+  unref(projectSettingModalRef)!.show(menu.key)
 }
 </script>
 
@@ -98,6 +130,10 @@ $document-padding: 40px;
 
   @include e(title) {
     @apply truncate text-16px relative pr-20px;
+  }
+
+  @include e(icon) {
+    @apply absolute right-0 top-50% -mt-8px;
   }
 
   @include m(hover) {

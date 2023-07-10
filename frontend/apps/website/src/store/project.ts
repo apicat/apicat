@@ -1,21 +1,30 @@
 import { getProjectList, getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList } from '@/api/project'
-import { ProjectListCoverBgColors, ProjectListCoverIcons } from '@/commons'
+import { Cookies, ProjectListCoverBgColors, ProjectListCoverIcons, ProjectVisibilityEnum } from '@/commons'
 import { MemberAuthorityInProject, MemberAuthorityMap } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
 import { getProjectDefaultCover } from '@/views/project/logic/useProjectCover'
 import { defineStore } from 'pinia'
 import { pinia } from '@/plugins'
+import { getProjectAuthInfo } from '@/api/shareProject'
 
+interface ProjectAuthInfo {
+  project_id: string
+  inThisProject: boolean
+  hasShared: boolean
+  isPrivate: boolean
+}
 interface ProjectState {
   projects: ProjectInfo[]
   projectDetailInfo: ProjectInfo | null
+  projectAuthInfo: ProjectAuthInfo | null
   urlServers: Array<any>
 }
 
-export const uesProjectStore = defineStore('project', {
+export const useProjectStore = defineStore('project', {
   state: (): ProjectState => ({
     projects: [],
     projectDetailInfo: null,
+    projectAuthInfo: null,
     urlServers: [],
   }),
 
@@ -42,10 +51,10 @@ export const uesProjectStore = defineStore('project', {
     },
 
     isManager: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.MANAGER,
-
     isWriter: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.WRITE,
-
     isReader: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.READ,
+    isGuest: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.NONE,
+    isPrivate: (state) => state.projectDetailInfo?.visibility === ProjectVisibilityEnum.PRIVATE,
   },
   actions: {
     async getProjects() {
@@ -54,7 +63,8 @@ export const uesProjectStore = defineStore('project', {
     },
 
     async getProjectDetailInfo(project_id: string): Promise<ProjectInfo> {
-      const project = await getProjectDetail(project_id)
+      const token = Cookies.get(Cookies.KEYS.SHARE_PROJECT + project_id)
+      const project = await getProjectDetail(project_id, { token })
       this.setCurrentProjectInfo(project as any)
       return project as any
     },
@@ -77,9 +87,20 @@ export const uesProjectStore = defineStore('project', {
       await saveProjectServerUrlList({ project_id, urls })
       this.urlServers = urls
     },
+
+    async getProjectAuthInfo(project_id: string): Promise<ProjectAuthInfo> {
+      const { authority, visibility, has_shared } = await getProjectAuthInfo(project_id)
+      this.projectAuthInfo = {
+        project_id,
+        inThisProject: authority !== MemberAuthorityInProject.NONE,
+        hasShared: has_shared,
+        isPrivate: visibility === ProjectVisibilityEnum.PRIVATE,
+      }
+      return this.projectAuthInfo
+    },
   },
 })
 
-export default uesProjectStore
+export default useProjectStore
 
-export const uesProjectStoreWithOut = () => uesProjectStore(pinia)
+export const useProjectStoreWithOut = () => useProjectStore(pinia)

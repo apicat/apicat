@@ -7,8 +7,8 @@ import (
 )
 
 type Users struct {
-	ID        uint   `gorm:"type:integer primary key autoincrement"`
-	Email     string `gorm:"index;type:varchar(255);not null;comment:邮箱"`
+	ID        uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
+	Email     string `gorm:"type:varchar(255);index;not null;comment:邮箱"`
 	Username  string `gorm:"type:varchar(255);not null;comment:用户名"`
 	Password  string `gorm:"type:varchar(255);not null;comment:密码"`
 	Role      string `gorm:"type:varchar(255);not null;comment:角色:superadmin,admin,user"`

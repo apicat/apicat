@@ -36,6 +36,10 @@ export default {
       copyCode: '复制代码',
       code: '代码',
       more: '更多',
+      on: '开',
+      off: '关',
+      private: '私有',
+      public: '公开',
     },
     tips: {
       notFound: '啊哦，网页走丢了，正在努力寻找中…',
@@ -113,6 +117,7 @@ export default {
         coverIcon: '封面图标',
         title: '项目名称',
         desc: '项目描述',
+        visibility: '项目权限',
       },
       rules: {
         title: '请输入项目名称',
@@ -130,6 +135,7 @@ export default {
       setting: {
         title: '项目管理',
         baseInfo: '项目设置',
+        shareProject: '项目分享',
         quitProject: '退出项目',
         serverUrl: 'URL设置',
         globalParam: '全局参数设置',

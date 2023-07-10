@@ -32,6 +32,10 @@ export declare interface ProjectInfo {
    * 项目封面
    */
   cover?: string | ProjectCover
+  /**
+   * 项目权限
+   */
+  visibility?: 'private' | 'public'
 
   /**
    * 当前成员在此项目的权限

@@ -15,29 +15,36 @@
       <router-view />
     </div>
   </main>
-  <ExportDocumentModal ref="exportDocumentModal" />
+  <ExportDocumentModal ref="exportDocumentModalRef" />
+  <DocumentShareModal ref="documentShareModalRef" />
+  <ProjectShareModal ref="projectShareModalRef" />
 </template>
 
 <script setup lang="ts">
 import ExportDocumentModal from '@/views/component/ExportDocumentModal.vue'
+import DocumentShareModal from '@/views/document/components/DocumentShareModal.vue'
+import ProjectShareModal from '@/views/project/components/ProjectShareModal.vue'
 import { useNamespace } from '@/hooks/useNamespace'
 import ProjectInfoHeader from './components/ProjectInfoHeader.vue'
 import DirectoryTree from './components/DirectoryTree'
 import SchemaTree from './components/SchemaTree'
 import DefinitionResponseTree from './components/DefinitionResponseTree'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { useParams } from '@/hooks/useParams'
+import { ProjectDetailModalsContextKey } from './constants'
 
 const ns = useNamespace('doc-layout')
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const globalParametersStore = uesGlobalParametersStore()
 const { project_id } = useParams()
 
 const directoryTree = ref<InstanceType<typeof DirectoryTree>>()
 const schemaTree = ref<InstanceType<typeof SchemaTree>>()
 const definitionResponseTree = ref<InstanceType<typeof DefinitionResponseTree>>()
-const exportDocumentModal = ref<InstanceType<typeof ExportDocumentModal>>()
+const exportDocumentModalRef = ref<InstanceType<typeof ExportDocumentModal>>()
+const documentShareModalRef = ref<InstanceType<typeof DocumentShareModal>>()
+const projectShareModalRef = ref<InstanceType<typeof ProjectShareModal>>()
 
 provide('directoryTree', {
   updateTitle: (id: any, title: string) => directoryTree.value?.updateTitle(id, title),
@@ -63,7 +70,13 @@ provide('definitionResponseTree', {
 })
 
 provide('exportModal', {
-  exportDocument: (project_id?: string, doc_id?: string) => exportDocumentModal.value?.show(project_id, doc_id),
+  exportDocument: (project_id?: string, doc_id?: string) => exportDocumentModalRef.value?.show(project_id, doc_id),
+})
+
+provide(ProjectDetailModalsContextKey, {
+  exportDocument: (project_id?: string, doc_id?: string | number) => exportDocumentModalRef.value?.show(project_id, doc_id),
+  shareDocument: (project_id: string, doc_id: string) => documentShareModalRef.value?.show({ project_id, collection_id: doc_id }),
+  shareProject: (project_id: string) => projectShareModalRef.value?.show({ project_id }),
 })
 
 onMounted(async () => {

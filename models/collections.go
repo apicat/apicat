@@ -12,19 +12,21 @@ import (
 )
 
 type Collections struct {
-	ID           uint   `gorm:"type:integer primary key autoincrement"`
-	ProjectId    uint   `gorm:"index;not null;comment:项目id"`
-	ParentId     uint   `gorm:"not null;comment:父级id"`
-	Title        string `gorm:"type:varchar(255);not null;comment:名称"`
-	Type         string `gorm:"type:varchar(255);not null;comment:类型:category,doc,http"`
-	Content      string `gorm:"type:mediumtext;comment:内容"`
-	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
-	CreatedAt    time.Time
-	CreatedBy    uint `gorm:"not null;default:0;comment:创建人id"`
-	UpdatedAt    time.Time
-	UpdatedBy    uint `gorm:"not null;default:0;comment:最后更新人id"`
-	DeletedAt    gorm.DeletedAt
-	DeletedBy    uint `gorm:"not null;default:0;comment:删除人id"`
+	ID            uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
+	PublicId      string `gorm:"type:varchar(255);comment:集合公开id"`
+	ProjectId     uint   `gorm:"type:bigint;index;not null;comment:项目id"`
+	ParentId      uint   `gorm:"type:bigint;not null;comment:父级id"`
+	Title         string `gorm:"type:varchar(255);not null;comment:名称"`
+	Type          string `gorm:"type:varchar(255);not null;comment:类型:category,doc,http"`
+	SharePassword string `gorm:"type:varchar(255);comment:项目分享密码"`
+	Content       string `gorm:"type:mediumtext;comment:内容"`
+	DisplayOrder  int    `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
+	CreatedAt     time.Time
+	CreatedBy     uint `gorm:"type:bigint;not null;default:0;comment:创建人id"`
+	UpdatedAt     time.Time
+	UpdatedBy     uint `gorm:"type:bigint;not null;default:0;comment:最后更新人id"`
+	DeletedAt     gorm.DeletedAt
+	DeletedBy     uint `gorm:"type:bigint;not null;default:0;comment:删除人id"`
 }
 
 func NewCollections(ids ...uint) (*Collections, error) {
@@ -51,6 +53,10 @@ func (c *Collections) Create() error {
 
 func (c *Collections) Update() error {
 	return Conn.Save(c).Error
+}
+
+func BatchUpdateByProjectID(ProjectID uint, c *Collections) error {
+	return Conn.Where("project_id = ?", ProjectID).Updates(c).Error
 }
 
 func Deletes(id uint, db *gorm.DB, deletedBy uint) error {
@@ -278,4 +284,8 @@ func CollectionExport(project *Projects, collection *Collections) *spec.Spec {
 	}
 
 	return apicatData
+}
+
+func (c *Collections) GetByPublicId() error {
+	return Conn.Where("public_id = ?", c.PublicId).First(c).Error
 }

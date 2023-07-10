@@ -27,6 +27,7 @@
     "quicktype-core": "^23.0.47",
     "smooth-scroll-into-view-if-needed": "^2.0.0",
     "sortablejs": "^1.15.0",
+    "tiny-cookie": "^2.4.1",
     "tippy.js": "^6.3.7",
     "validator": "^13.9.0",
     "vue": "^3.2.47",
