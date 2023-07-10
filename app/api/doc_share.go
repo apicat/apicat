@@ -60,6 +60,14 @@ func DocShareStatus(ctx *gin.Context) {
 
 func DocShareDetails(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
 
 	var (
 		uriData            CollectionDataGetData
