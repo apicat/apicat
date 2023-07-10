@@ -54,3 +54,5 @@ export const getDocumentPrivateShareLink = (doc_public_id: string) => window.ori
 export const getDocumentPublicShareLink = (project_id: string, doc_id: string) => window.origin + (doc_id ? getDocumentDetailPath(project_id, doc_id) : '')
 // 获取项目分享链接
 export const getProjectShareLink = (project_id: string) => window.origin + getProjectDetailPath(project_id)
+// 获取项目密钥校验地址
+export const getProjectVerificationPath = (project_id: string) => compile(PROJECT_SHARE_VALIDATION_PATH)({ project_id })
