@@ -11,7 +11,7 @@
       </template>
 
       <template v-else>
-        <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" v-if="!isPrivate" />
+        <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" v-if="!isPrivate && isReader" />
       </template>
 
       <Iconfont icon="ac-export cursor-pointer" :size="18" @click="handleExport()" />
@@ -56,7 +56,7 @@ const { project_id } = useParams()
 const { goDocumentEditPage } = useGoPage()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
-const { urlServers, isManager, isWriter, isPrivate } = storeToRefs(projectStore)
+const { urlServers, isManager, isWriter, isPrivate, isReader } = storeToRefs(projectStore)
 const { definitions } = storeToRefs(definitionStore)
 
 const hasDocument = ref(false)
