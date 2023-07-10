@@ -42,11 +42,11 @@ import { quitProject } from '@/api/project'
 import { useUserStore } from '@/store/user'
 import { ProjectDetailModalsContextKey } from '../constants'
 
+const { t } = useI18n()
 const ns = useNamespace('project-info')
 const projectSettingModalRef = ref<InstanceType<typeof ProjectSettingModal>>()
 const projectStore = useProjectStore()
-const { projectDetailInfo, isManager, isPrivate, isGuest } = storeToRefs(projectStore)
-const { t } = useI18n()
+const { projectDetailInfo, isManager, isPrivate, isGuest, isReader } = storeToRefs(projectStore)
 const projectDetailModals = inject(ProjectDetailModalsContextKey)
 
 const allMenus = computed(() => {
@@ -74,6 +74,11 @@ const allMenus = computed(() => {
   // 管理员移除退出项目
   if (isManager.value) {
     sortMenus = sortMenus.filter((item: Menu) => item.key !== ProjectNavigateListEnum.QuitProject)
+  }
+
+  // 移除分享项目链接
+  if (isPrivate.value && (isGuest.value || isReader.value)) {
+    sortMenus = sortMenus.filter((item: Menu) => item.key !== ProjectNavigateListEnum.ProjectShare)
   }
 
   return sortMenus

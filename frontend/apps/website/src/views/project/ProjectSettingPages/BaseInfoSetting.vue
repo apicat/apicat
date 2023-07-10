@@ -43,7 +43,7 @@
     </el-form-item>
 
     <el-form-item :label="$t('app.project.form.visibility')">
-      <el-radio-group v-model="form.visibility">
+      <el-radio-group v-model="form.visibility" :disabled="!isManager">
         <el-radio-button :label="ProjectVisibilityEnum.PRIVATE">
           <el-icon class="mr-1"><ac-icon-ep-lock /></el-icon>{{ $t('app.common.private') }}
         </el-radio-button>
