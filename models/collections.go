@@ -55,8 +55,8 @@ func (c *Collections) Update() error {
 	return Conn.Save(c).Error
 }
 
-func BatchUpdateByProjectID(ProjectID uint, c *Collections) error {
-	return Conn.Where("project_id = ?", ProjectID).Updates(c).Error
+func BatchUpdateByProjectID(ProjectID uint, c map[string]any) error {
+	return Conn.Model(&Collections{}).Where("project_id = ?", ProjectID).Updates(c).Error
 }
 
 func Deletes(id uint, db *gorm.DB, deletedBy uint) error {
