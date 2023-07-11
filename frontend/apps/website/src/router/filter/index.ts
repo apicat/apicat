@@ -3,15 +3,15 @@ import { setupGetProjectInfoFilter, setupGetProjectAuthInfoFilter } from './proj
 import { setupMemberPermissionFilter } from './memberPermission.filter'
 import { setupAuthFilter } from './auth.filter'
 import { setupGetUserInfoFilter } from './userInfo.filter'
-import { setupShareDocumentFilter } from './share.filter'
-import { setupDocumentDetailFilter } from './document.detail.filter'
+import { setupShareDocumentFilter, setupShareProjectDetailFilter } from './share.filter'
 
 export const setupRouterFilter = (router: Router) => {
   setupAuthFilter(router)
   setupGetUserInfoFilter(router)
 
   setupGetProjectAuthInfoFilter(router)
-  setupDocumentDetailFilter(router)
+
+  setupShareProjectDetailFilter(router)
 
   setupGetProjectInfoFilter(router)
 

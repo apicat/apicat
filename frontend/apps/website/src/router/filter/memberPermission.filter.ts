@@ -5,8 +5,9 @@ import useProjectStore from '@/store/project'
 
 export const setupMemberPermissionFilter = (router: Router) => {
   router.beforeEach((to, from, next) => {
-    if (to.matched.find((item: any) => item.name === PROJECT_DETAIL_PATH_NAME)) {
-      const projectStore = useProjectStore()
+    const projectStore = useProjectStore()
+
+    if (to.matched.find((item: any) => item.name === PROJECT_DETAIL_PATH_NAME) && !projectStore.isShowProjectSecretLayer) {
       const { projectDetailInfo } = storeToRefs(projectStore)
 
       if (!projectDetailInfo.value) {

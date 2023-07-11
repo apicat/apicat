@@ -6,6 +6,7 @@ import { getProjectDefaultCover } from '@/views/project/logic/useProjectCover'
 import { defineStore } from 'pinia'
 import { pinia } from '@/plugins'
 import { getProjectAuthInfo } from '@/api/shareProject'
+import { getProjectDetailPath } from '@/router/project.detail'
 
 interface ProjectAuthInfo {
   project_id: string
@@ -18,6 +19,7 @@ interface ProjectState {
   projectDetailInfo: ProjectInfo | null
   projectAuthInfo: ProjectAuthInfo | null
   urlServers: Array<any>
+  isShowProjectSecretLayer: boolean
 }
 
 export const useProjectStore = defineStore('project', {
@@ -26,6 +28,7 @@ export const useProjectStore = defineStore('project', {
     projectDetailInfo: null,
     projectAuthInfo: null,
     urlServers: [],
+    isShowProjectSecretLayer: false,
   }),
 
   getters: {
@@ -55,6 +58,8 @@ export const useProjectStore = defineStore('project', {
     isReader: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.READ,
     isGuest: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.NONE,
     isPrivate: (state) => state.projectDetailInfo?.visibility === ProjectVisibilityEnum.PRIVATE,
+
+    hasInputSecretKey: (state) => !!(Cookies.get(Cookies.KEYS.SHARE_PROJECT + state.projectAuthInfo?.project_id) || ''),
   },
   actions: {
     async getProjects() {
@@ -64,7 +69,7 @@ export const useProjectStore = defineStore('project', {
 
     async getProjectDetailInfo(project_id: string): Promise<ProjectInfo> {
       const token = Cookies.get(Cookies.KEYS.SHARE_PROJECT + project_id)
-      const project = await getProjectDetail(project_id, { token })
+      const project = await getProjectDetail(project_id, token ? { token } : {})
       this.setCurrentProjectInfo(project as any)
       return project as any
     },
@@ -97,6 +102,20 @@ export const useProjectStore = defineStore('project', {
         isPrivate: visibility === ProjectVisibilityEnum.PRIVATE,
       }
       return this.projectAuthInfo
+    },
+    switchProjectSecretLayer(isShow = true) {
+      this.isShowProjectSecretLayer = isShow
+    },
+    showProjectSecretLayer() {
+      this.switchProjectSecretLayer()
+    },
+    hideProjectSecretLayer() {
+      this.switchProjectSecretLayer(false)
+    },
+    removeProjectSecretKeyWithReload() {
+      const { project_id } = this.projectAuthInfo!
+      Cookies.remove(Cookies.KEYS.SHARE_PROJECT + project_id)
+      setTimeout(() => location.replace(getProjectDetailPath(project_id as string)), 1000)
     },
   },
 })

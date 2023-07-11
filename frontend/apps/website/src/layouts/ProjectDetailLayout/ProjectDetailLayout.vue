@@ -1,26 +1,29 @@
 <template>
-  <main :class="ns.b()">
-    <ProjectInfoHeader />
-    <div :class="ns.e('left')">
-      <div class="flex flex-col h-full overflow-y-scroll scroll-content">
-        <DirectoryTree ref="directoryTree" />
-        <div class="my-10px"></div>
-        <SchemaTree ref="schemaTree" />
-        <div class="my-10px"></div>
-        <DefinitionResponseTree ref="definitionResponseTree" />
+  <template v-if="!isShowProjectSecretLayer">
+    <main :class="ns.b()">
+      <ProjectInfoHeader />
+      <div :class="ns.e('left')">
+        <div class="flex flex-col h-full overflow-y-scroll scroll-content">
+          <DirectoryTree ref="directoryTree" />
+          <div class="my-10px"></div>
+          <SchemaTree ref="schemaTree" />
+          <div class="my-10px"></div>
+          <DefinitionResponseTree ref="definitionResponseTree" />
+        </div>
       </div>
-    </div>
-    <div class="scroll-content" :class="ns.e('right')">
-      <router-view />
-    </div>
-  </main>
-  <ExportDocumentModal ref="exportDocumentModalRef" />
-  <DocumentShareModal ref="documentShareModalRef" />
-  <ProjectShareModal ref="projectShareModalRef" />
-  <!-- todo:Share Secret Key Modal -->
+      <div class="scroll-content" :class="ns.e('right')">
+        <router-view />
+      </div>
+    </main>
+    <ExportDocumentModal ref="exportDocumentModalRef" />
+    <DocumentShareModal ref="documentShareModalRef" />
+    <ProjectShareModal ref="projectShareModalRef" />
+  </template>
+  <ProjectVerification v-else />
 </template>
 
 <script setup lang="ts">
+import ProjectVerification from '@/views/share/ProjectVerification.vue'
 import ExportDocumentModal from '@/views/component/ExportDocumentModal.vue'
 import DocumentShareModal from '@/views/document/components/DocumentShareModal.vue'
 import ProjectShareModal from '@/views/project/components/ProjectShareModal.vue'
@@ -33,12 +36,14 @@ import useProjectStore from '@/store/project'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { useParams } from '@/hooks/useParams'
 import { ProjectDetailModalsContextKey } from './constants'
+import { storeToRefs } from 'pinia'
 
 const ns = useNamespace('doc-layout')
 const projectStore = useProjectStore()
 const globalParametersStore = uesGlobalParametersStore()
 const { project_id } = useParams()
 
+const { isShowProjectSecretLayer } = storeToRefs(projectStore)
 const directoryTree = ref<InstanceType<typeof DirectoryTree>>()
 const schemaTree = ref<InstanceType<typeof SchemaTree>>()
 const definitionResponseTree = ref<InstanceType<typeof DefinitionResponseTree>>()
@@ -79,7 +84,15 @@ provide(ProjectDetailModalsContextKey, {
   shareProject: (project_id: string) => projectShareModalRef.value?.show({ project_id }),
 })
 
+onBeforeMount(() => {
+  console.log('isShowProjectSecretLayer.value', isShowProjectSecretLayer.value)
+})
+
 onMounted(async () => {
+  if (isShowProjectSecretLayer.value) {
+    return
+  }
+
   await projectStore.getUrlServers(project_id as string)
   await globalParametersStore.getGlobalParameters(project_id as string)
 })
