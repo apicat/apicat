@@ -1,9 +1,10 @@
+import { useShareStore } from '@/store/share'
 import { useUserStoreWithOut } from '@/store/user'
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { API_URL, PERMISSION_CHANGE_CODE, REQUEST_TIMEOUT } from '@/commons/constant'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Storage from '@/commons/storage'
-import { LOGIN_PATH, PROJECT_SHARE_VALIDATION_NAME, getDocumentVerificationPath, getProjectVerificationPath, router } from '@/router'
+import { LOGIN_PATH, getProjectVerificationPath, router } from '@/router'
 import { i18n } from '@/i18n'
 import { ShareSecretKeyError, TargetMemberPermissionError } from './error'
 import { Cookies } from '@/commons'
@@ -36,6 +37,7 @@ const onRequest = (config: InternalAxiosRequestConfig): InternalAxiosRequestConf
 
 const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
   const useUserStore = useUserStoreWithOut()
+  const shareStore = useShareStore()
 
   let errorMsg = ''
   if (axios.isAxiosError(error)) {
@@ -104,8 +106,7 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
           const params = router.currentRoute.value.params
 
           if (currentRouteMatched.find((route) => route.name === 'share.document') && params.doc_public_id) {
-            Cookies.remove(Cookies.KEYS.SHARE_DOCUMENT + params.doc_public_id)
-            router.replace(getDocumentVerificationPath(params.doc_public_id as string))
+            shareStore.removeDocumentSecretKeyWithReload()
           }
 
           if (currentRouteMatched.find((route) => route.name === 'project.detail') && params.project_id) {

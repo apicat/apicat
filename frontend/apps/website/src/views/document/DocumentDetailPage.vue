@@ -12,8 +12,9 @@
 
       <template v-else>
         <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" v-if="!isPrivate && isReader" />
-        <Iconfont icon="ac-export cursor-pointer" :size="18" @click="handleExport()" v-if="!isPrivate && isReader" />
       </template>
+
+      <Iconfont icon="ac-export cursor-pointer" :size="18" @click="handleExport()" v-if="isManager || isWriter" />
     </div>
   </div>
 

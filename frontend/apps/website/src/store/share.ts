@@ -1,5 +1,6 @@
 import { Cookies } from '@/commons'
 import { pinia } from '@/plugins'
+import { getDocumentShareDetailPath } from '@/router/share'
 import { SharedDocumentInfo } from '@/typings'
 import { defineStore } from 'pinia'
 
@@ -30,6 +31,13 @@ export const useShareStore = defineStore('share', {
 
       return null
     },
+    isExistSecretKey: (state) => {
+      if (!state.sharedDocumentInfo) {
+        return false
+      }
+
+      return !!(Cookies.get(Cookies.KEYS.SHARE_DOCUMENT + state.sharedDocumentInfo.doc_public_id) || '')
+    },
   },
 
   actions: {
@@ -38,6 +46,12 @@ export const useShareStore = defineStore('share', {
     },
     clearDocumentShareInfo() {
       this.sharedDocumentInfo = null
+    },
+
+    removeDocumentSecretKeyWithReload() {
+      const { doc_public_id } = this.sharedDocumentInfo!
+      Cookies.remove(Cookies.KEYS.SHARE_DOCUMENT + doc_public_id)
+      setTimeout(() => location.replace(getDocumentShareDetailPath(doc_public_id as string)), 1000)
     },
   },
 })

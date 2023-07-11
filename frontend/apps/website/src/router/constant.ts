@@ -20,7 +20,4 @@ export const PROJECT_DETAIL_PATH = '/project/:project_id'
 export const PROJECT_SHARE_VALIDATION_NAME = 'share.proejct.verification'
 export const PROJECT_SHARE_VALIDATION_PATH = '/project/:project_id/verification'
 
-export const DOCUMENT_SHARE_VALIDATION_NAME = 'share.document.verification'
-export const DOCUMENT_SHARE_VALIDATION_PATH = '/share/:doc_public_id/verification'
-
 export const DOCUMENT_SHARE_PATH = '/share/:doc_public_id'

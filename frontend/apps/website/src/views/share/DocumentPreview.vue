@@ -16,8 +16,6 @@ import { getCollectionDetail } from '@/api/collection'
 import useDefinitionStore from '@/store/definition'
 import useProjectStore from '@/store/project'
 import useShareStore from '@/store/share'
-import { Cookies } from '@/commons/cookie'
-import { getDocumentVerificationPath } from '@/router/share'
 import { ShareSecretKeyError } from '@/api/error'
 
 const projectStore = useProjectStore()
@@ -30,15 +28,13 @@ const { definitions } = storeToRefs(definitionStore)
 
 const httpDoc: Ref<HttpDocument | null> = ref(null)
 const { project_id, collection_id } = shareStore.sharedDocumentInfo!
-const router = useRouter()
-const { params } = useRoute()
+
 onMounted(async () => {
   try {
     httpDoc.value = await getCollectionDetailApi({ project_id, collection_id })
   } catch (error) {
     if (error instanceof ShareSecretKeyError) {
-      Cookies.remove(Cookies.KEYS.SHARE_DOCUMENT + params.doc_public_id)
-      router.replace(getDocumentVerificationPath(params.doc_public_id as string))
+      shareStore.removeDocumentSecretKeyWithReload()
     }
   }
 })
