@@ -11,7 +11,7 @@
         </el-table-column>
       </template>
       <template #auth>
-        <el-table-column :label="$t('app.project.list.auth')">
+        <el-table-column :label="$t('app.project.list.auth')" width="82">
           <template #default="{ row }">
             <div v-if="isManager && !row.isSelf" :ref="(el) => setButtonRef(el, row)" class="inline-flex items-center cursor-pointer" @click="showRoleDropdownMenu(row)">
               <span>{{ (MemberAuthorityMap as any)[row.authority] }}</span>
@@ -108,6 +108,7 @@ const columns: any = [
   {
     label: t('app.member.form.email'),
     prop: 'email',
+    width: 110,
   },
   {
     slot: 'accountStatus',

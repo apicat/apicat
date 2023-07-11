@@ -7,9 +7,9 @@
     class="fullscree hide-header"
     destroy-on-close
     align-center
-    width="50%"
+    width="700px"
   >
-    <ModalLayout style="height: 40vh" :slide-width="200">
+    <ModalLayout style="height: 40vh">
       <template #nav>
         <p class="text-16px text-gray-950 font-500">{{ $t('app.common.setting') }}</p>
         <ul class="mt-20px">

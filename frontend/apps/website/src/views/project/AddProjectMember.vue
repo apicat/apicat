@@ -1,6 +1,6 @@
 <template>
   <el-form :inline="true" :model="form" ref="fromRef" :rules="rules">
-    <el-form-item :label="$t('app.project.member.chooseMember')" prop="user_ids" class="w-260px">
+    <el-form-item :label="$t('app.project.member.chooseMember')" prop="user_ids" class="flex-1">
       <el-select
         ref="selectRef"
         v-model="form.user_ids"
@@ -15,13 +15,11 @@
         <el-option v-for="member in members" :label="member.username" :value="member.user_id!" />
       </el-select>
     </el-form-item>
-    <el-form-item :label="$t('app.project.member.chooseAuth')">
-      <el-select v-model="form.authority">
+    <el-form-item :label="$t('app.project.member.chooseAuth')" style="margin-right: 0">
+      <el-select v-model="form.authority" class="w-150px">
         <el-option v-for="item in projectAuths" :label="item.text" :value="item.value" />
       </el-select>
-    </el-form-item>
-    <el-form-item>
-      <el-button type="primary" :loading="isLoading" @click="onSubmit(fromRef)">{{ $t('app.project.member.addMember') }}</el-button>
+      <el-button type="primary" class="ml-32px" :loading="isLoading" @click="onSubmit(fromRef)">{{ $t('app.project.member.addMember') }}</el-button>
     </el-form-item>
   </el-form>
 </template>
