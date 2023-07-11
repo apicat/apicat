@@ -1,5 +1,5 @@
 <template>
-  <el-form :inline="true" :model="form" ref="fromRef" :rules="rules">
+  <el-form :inline="true" :model="form" ref="fromRef" :rules="rules" class="flex">
     <el-form-item :label="$t('app.project.member.chooseMember')" prop="user_ids" class="flex-1">
       <el-select
         ref="selectRef"
@@ -9,6 +9,7 @@
         multiple
         collapse-tags
         collapse-tags-tooltip
+        :max-collapse-tags="3"
         class="w-full"
         @change="handleMemberChange"
       >
