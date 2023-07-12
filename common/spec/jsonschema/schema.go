@@ -125,3 +125,9 @@ func (s *Schema) checkArray() error {
 	}
 	return s.Items.Value().Valid()
 }
+
+func Create(typ string) *Schema {
+	return &Schema{
+		Type: CreateSliceOrOne(typ),
+	}
+}
