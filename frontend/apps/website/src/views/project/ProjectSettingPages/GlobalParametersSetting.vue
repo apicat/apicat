@@ -78,11 +78,11 @@ import useApi from '@/hooks/useApi'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { storeToRefs } from 'pinia'
 import { usePopover } from '@/hooks/usePopover'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 
 const project_id = useProjectId()
 const globalParametersStore = uesGlobalParametersStore()
-const { isReader } = storeToRefs(uesProjectStore())
+const { isReader } = storeToRefs(useProjectStore())
 const { parameters } = storeToRefs(globalParametersStore)
 const [isLoading, getCommonParamListApi] = useApi(globalParametersStore.getGlobalParameters)
 let currentDeleteParam: { param: any; index: number; delHandler: any } | null = null

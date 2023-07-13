@@ -3,7 +3,6 @@ package api
 import (
 	"math"
 	"net/http"
-	"strings"
 
 	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/enum"
@@ -95,15 +94,13 @@ func ProjectMembersList(ctx *gin.Context) {
 
 	membersList := []any{}
 	for _, v := range members {
-		email := userIDToNameMap[v.UserID].Email
-		parts := strings.Split(email, "@")
 		membersList = append(membersList, map[string]any{
 			"id":         v.ID,
 			"user_id":    v.UserID,
 			"username":   userIDToNameMap[v.UserID].Username,
 			"authority":  v.Authority,
 			"is_enabled": userIDToNameMap[v.UserID].IsEnabled,
-			"email":      parts[0][0:1] + "***" + parts[0][len(parts[0])-1:] + "@" + parts[len(parts)-1],
+			"email":      userIDToNameMap[v.UserID].Email,
 			"created_at": v.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}

@@ -1,3 +1,4 @@
+import { useShareStore } from '@/store/share'
 import { useUserStoreWithOut } from '@/store/user'
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
 import { API_URL, PERMISSION_CHANGE_CODE, REQUEST_TIMEOUT } from '@/commons/constant'
@@ -5,7 +6,8 @@ import { ElMessage, ElMessageBox } from 'element-plus'
 import Storage from '@/commons/storage'
 import { LOGIN_PATH, router } from '@/router'
 import { i18n } from '@/i18n'
-import { TargetMemberPermissionError } from './error'
+import { ShareSecretKeyError, TargetMemberPermissionError } from './error'
+import useProjectStore from '@/store/project'
 
 axios.defaults.timeout = REQUEST_TIMEOUT
 
@@ -35,6 +37,8 @@ const onRequest = (config: InternalAxiosRequestConfig): InternalAxiosRequestConf
 
 const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
   const useUserStore = useUserStoreWithOut()
+  const shareStore = useShareStore()
+  const projectStore = useProjectStore()
 
   let errorMsg = ''
   if (axios.isAxiosError(error)) {
@@ -93,9 +97,27 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
         if (code === PERMISSION_CHANGE_CODE.TARGET_MEMBER_PREMISSION_ERROR) {
           error = new TargetMemberPermissionError()
         }
+
+        if (code === PERMISSION_CHANGE_CODE.SHARE_KEY_ERROR) {
+          errorMsg = response.data.message
+
+          error = new ShareSecretKeyError()
+
+          const currentRouteMatched = router.currentRoute.value.matched
+          const params = router.currentRoute.value.params
+
+          if (currentRouteMatched.find((route) => route.name === 'share.document') && params.doc_public_id) {
+            shareStore.removeDocumentSecretKeyWithReload()
+          }
+
+          if (currentRouteMatched.find((route) => route.name === 'project.detail') && params.project_id) {
+            projectStore.removeProjectSecretKeyWithReload()
+          }
+        }
         break
 
       case 400: // bad request
+      case 404: // not found
         break
 
       default:
@@ -112,6 +134,7 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
 DefaultAjax.interceptors.request.use(onRequest, onErrorResponse)
 DefaultAjax.interceptors.response.use((response: AxiosResponse) => {
   if (response.status > 200) {
+    ElMessage.closeAll()
     ElMessage.success(response.data.message || 'success')
   }
   return response.data

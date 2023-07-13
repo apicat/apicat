@@ -1,12 +1,20 @@
-import { convertRequestPath } from '@/commons'
+import { queryStringify } from '@/commons'
 import Ajax, { QuietAjax } from './Ajax'
 import useApi from '@/hooks/useApi'
+import { setShareTokenToParams } from '@/store/share'
 
-const restfulApiPath = (project_id: string | number): string => convertRequestPath('/projects/:project_id/definition/schemas', { project_id })
+const restfulApiPath = (project_id: string | number): string => `/projects/${project_id}/definition/schemas`
 
-export const getDefinitionSchemaList = (project_id: string) => Ajax.get(restfulApiPath(project_id))
+export const getDefinitionSchemaList = (project_id: string, params?: Record<string, any>) => {
+  params = setShareTokenToParams(params || {})
+  return Ajax.get(restfulApiPath(project_id) + queryStringify(params))
+}
 
-export const getDefinitionSchemaDetail = () => useApi(async ({ project_id, def_id }: any) => Ajax.get(`${restfulApiPath(project_id)}/${def_id}`))
+export const getDefinitionSchemaDetail = () =>
+  useApi(async ({ project_id, def_id, ...params }: any) => {
+    params = setShareTokenToParams(params || {})
+    return Ajax.get(`${restfulApiPath(project_id)}/${def_id}${queryStringify(params)}`)
+  })
 
 export const createDefinitionSchema = async ({ project_id, ...definitionInfo }: any) => QuietAjax.post(restfulApiPath(project_id), definitionInfo)
 

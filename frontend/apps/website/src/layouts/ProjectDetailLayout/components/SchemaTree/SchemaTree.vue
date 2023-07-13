@@ -1,7 +1,7 @@
 <template>
   <ToggleHeading :title="$t('app.schema.title')">
     <template #extra>
-      <el-icon v-if="!isReader" class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
+      <el-icon v-if="isManager || isWriter" class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
     </template>
     <div ref="dir" :class="[ns.b(), { [ns.is('loading')]: isLoading }]" v-loading="isLoading">
       <ac-tree
@@ -11,7 +11,7 @@
         ref="treeIns"
         :expand-on-click-node="false"
         :props="treeOptions"
-        :draggable="!isReader"
+        :draggable="isManager || isWriter"
         :allow-drop="allowDrop"
         @node-drag-start="onMoveNodeStart"
         @node-drop="onMoveNode"
@@ -24,7 +24,7 @@
                 <span class="ac-doc-node__label" v-show="!data._extend.isEditable" :title="data.name">{{ data.name }}</span>
               </div>
             </div>
-            <div class="ac-tree-node__more" :class="{ active: data.id === activeNodeInfo?.id }" v-if="!isReader">
+            <div class="ac-tree-node__more" :class="{ active: data.id === activeNodeInfo?.id }" v-if="isManager || isWriter">
               <el-icon v-show="!data._extend.isLeaf"><ac-icon-ep-plus /></el-icon>
               <span class="mx-1"></span>
               <el-icon @click="onPopoverRefIconClick($event, node)"><ac-icon-ep-more-filled /></el-icon>
@@ -52,12 +52,12 @@ import { useSchemaTree } from './useSchemaTree'
 import { useActiveTree } from './useActiveTree'
 import { useNamespace } from '@/hooks'
 import { storeToRefs } from 'pinia'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 
 const ns = useNamespace('catalog-tree')
 
 const directoryTree = inject('directoryTree') as any
-const { isReader } = storeToRefs(uesProjectStore())
+const { isManager, isWriter } = storeToRefs(useProjectStore())
 
 const { isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, redirecToSchemaEdit, initSchemaTree } =
   useSchemaTree()

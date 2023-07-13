@@ -1,7 +1,7 @@
 <template>
   <ToggleHeading :title="$t('app.interface.title')">
     <template #extra>
-      <el-icon v-if="!isReader" class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
+      <el-icon v-if="isManager || isWriter" class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
     </template>
     <div ref="dir" :class="[ns.b(), { [ns.is('loading')]: isLoading }]" v-loading="isLoading">
       <ac-tree
@@ -12,7 +12,7 @@
         ref="treeIns"
         :expand-on-click-node="false"
         :props="treeOptions"
-        :draggable="!isReader"
+        :draggable="isManager || isWriter"
         :allow-drop="allowDrop"
         @node-drag-start="onMoveNodeStart"
         @node-drop="onMoveNode"
@@ -36,7 +36,7 @@
                 />
               </div>
             </div>
-            <div class="ac-tree-node__more" :class="{ active: data.id === activeNodeInfo?.id }" v-if="!isReader">
+            <div class="ac-tree-node__more" :class="{ active: data.id === activeNodeInfo?.id }" v-if="isManager || isWriter">
               <el-icon v-show="!data._extend.isLeaf" @click="onPopoverRefIconClick($event, node, PopoverMoreMenuType.ADD)"><ac-icon-ep-plus /></el-icon>
               <span class="mx-1"></span>
               <el-icon @click="onPopoverRefIconClick($event, node, PopoverMoreMenuType.MORE)"><ac-icon-ep-more-filled /></el-icon>
@@ -63,11 +63,11 @@ import AIGenerateDocumentModal from '../AIGenerateDocumentModal.vue'
 import { useActiveTree } from './useActiveTree'
 import { useNamespace } from '@/hooks'
 import { storeToRefs } from 'pinia'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 
 const schemaTree = inject('schemaTree') as any
 const ns = useNamespace('catalog-tree')
-const { isReader } = storeToRefs(uesProjectStore())
+const { isManager, isWriter } = storeToRefs(useProjectStore())
 
 const {
   isLoading,

@@ -8,7 +8,7 @@
             <AcTag :style="getResponseStatusCodeBgColor(item.code)">{{ item.code }}</AcTag>
           </el-space>
         </template>
-        <ResponseMockRaw :doc="doc" :code="item.code" class="mb-10px" />
+        <ResponseMockRaw :doc="doc" :code="item.code" :project-id="projectId" class="mb-10px" />
         <ResponseParamPaneRaw :param="item" :definitions="definitions" />
       </el-tab-pane>
     </el-tabs>
@@ -26,7 +26,7 @@ import { uuid } from '@apicat/shared'
 import useDefinitionResponseStore from '@/store/definitionResponse'
 import { storeToRefs } from 'pinia'
 
-const props = defineProps<{ doc: HttpDocument; definitions: DefinitionSchema[] }>()
+const props = defineProps<{ doc: HttpDocument; definitions: DefinitionSchema[]; projectId: string }>()
 const responseNode = useNodeAttrs(props, HTTP_RESPONSE_NODE_KEY, 'doc')
 const definitionResponseStore = useDefinitionResponseStore()
 

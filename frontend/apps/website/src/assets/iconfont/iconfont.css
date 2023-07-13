@@ -1,8 +1,8 @@
 @font-face {
   font-family: "ac-iconfont"; /* Project id 3982489 */
-  src: url('iconfont.woff2?t=1686565472751') format('woff2'),
-       url('iconfont.woff?t=1686565472751') format('woff'),
-       url('iconfont.ttf?t=1686565472751') format('truetype');
+  src: url('iconfont.woff2?t=1687855729074') format('woff2'),
+       url('iconfont.woff?t=1687855729074') format('woff'),
+       url('iconfont.ttf?t=1687855729074') format('truetype');
 }
 
 .ac-iconfont {
@@ -13,8 +13,8 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-.ac-wuquanxian:before {
-  content: "\e6d5";
+.ac-lock:before {
+  content: "\e627";
 }
 
 .ac-members:before {
@@ -77,6 +77,10 @@
   content: "\e61d";
 }
 
+.ac-share:before {
+  content: "\e75a";
+}
+
 .ac-import:before {
   content: "\e977";
 }
@@ -89,7 +93,7 @@
   content: "\e7d9";
 }
 
-.ac-IconPopoverSetting:before {
+.ac-setting:before {
   content: "\e617";
 }
 

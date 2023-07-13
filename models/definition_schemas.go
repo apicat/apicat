@@ -14,20 +14,20 @@ import (
 )
 
 type DefinitionSchemas struct {
-	ID           uint   `gorm:"type:integer primary key autoincrement"`
-	ProjectId    uint   `gorm:"index;not null;comment:项目id"`
-	ParentId     uint   `gorm:"not null;comment:父级id"`
+	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
+	ProjectId    uint   `gorm:"type:bigint;index;not null;comment:项目id"`
+	ParentId     uint   `gorm:"type:bigint;not null;comment:父级id"`
 	Name         string `gorm:"type:varchar(255);not null;comment:名称"`
 	Description  string `gorm:"type:varchar(255);comment:描述"`
 	Type         string `gorm:"type:varchar(255);not null;comment:类型:category,schema"`
 	Schema       string `gorm:"type:mediumtext;comment:内容"`
 	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
 	CreatedAt    time.Time
-	CreatedBy    uint `gorm:"not null;default:0;comment:创建人id"`
+	CreatedBy    uint `gorm:"type:bigint;not null;default:0;comment:创建人id"`
 	UpdatedAt    time.Time
-	UpdatedBy    uint `gorm:"not null;default:0;comment:最后更新人id"`
+	UpdatedBy    uint `gorm:"type:bigint;not null;default:0;comment:最后更新人id"`
 	DeletedAt    *gorm.DeletedAt
-	DeletedBy    uint `gorm:"not null;default:0;comment:删除人id"`
+	DeletedBy    uint `gorm:"type:bigint;not null;default:0;comment:删除人id"`
 }
 
 func NewDefinitionSchemas(ids ...uint) (*DefinitionSchemas, error) {

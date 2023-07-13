@@ -18,6 +18,7 @@ import { useGoPage } from '@/hooks/useGoPage'
 import { useI18n } from 'vue-i18n'
 import AIPromptModal from '../AIGenerateDocumentModal.vue'
 import AcIconBIRobot from '~icons/bi/robot'
+import { ProjectDetailModalsContextKey } from '../../constants'
 
 /**
  * hover 后更多菜单类型
@@ -47,7 +48,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
   const { project_id } = useParams()
   const { goDocumentEditPage } = useGoPage()
   const schemaTree = inject('schemaTree') as any
-  const exportModal = inject('exportModal') as any
+  const projectDetailModals = inject(ProjectDetailModalsContextKey)
 
   const ROOT_MENUS: Menu[] = [
     { text: t('app.interface.popoverMenus.aiGenerateInterface'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
@@ -260,7 +261,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
     const tree = unref(treeIns)
     const node = unref(activeNodeInfo)?.node as Node
     const data = node?.data as CollectionNode
-    exportModal.exportDocument(project_id as string, data.id)
+    projectDetailModals?.exportDocument(project_id as string, data.id)
   }
 
   onClickOutside(popoverRefEl, () => {

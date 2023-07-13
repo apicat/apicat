@@ -11,8 +11,8 @@ export const enum MemberAuthorityInProject {
 
 export const MemberAuthorityMap = {
   [MemberAuthorityInProject.MANAGER]: '管理',
-  [MemberAuthorityInProject.WRITE]: '可写',
-  [MemberAuthorityInProject.READ]: '可读',
+  [MemberAuthorityInProject.WRITE]: '编辑',
+  [MemberAuthorityInProject.READ]: '只读',
 }
 
 export declare interface ProjectMember {

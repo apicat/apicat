@@ -1,14 +1,19 @@
-import { convertRequestPath, isJSONSchemaContentType } from '@/commons'
+import { convertRequestPath, isJSONSchemaContentType, queryStringify } from '@/commons'
 import Ajax, { QuietAjax } from './Ajax'
 import useApi from '@/hooks/useApi'
+import { setShareTokenToParams } from '@/store/share'
 
 const restfulApiPath = (project_id: string | number): string => convertRequestPath('/projects/:project_id/definition/responses', { project_id })
 
-export const getDefinitionResponseList = (project_id: string) => Ajax.get(restfulApiPath(project_id))
+export const getDefinitionResponseList = (project_id: string, params?: Record<string, any>) => {
+  params = setShareTokenToParams(params || {})
+  return Ajax.get(restfulApiPath(project_id) + queryStringify(params))
+}
 
 export const getDefinitionResponseDetail = () =>
-  useApi(async ({ project_id, id }: any) => {
-    const data: any = await Ajax.get(`${restfulApiPath(project_id)}/${id}`)
+  useApi(async ({ project_id, id, ...params }: any) => {
+    params = setShareTokenToParams(params || {})
+    const data: any = await Ajax.get(`${restfulApiPath(project_id)}/${id}${queryStringify(params)}`)
     const contentType: string = Object.keys(data.content || {})[0] || 'application/json'
     // 补充默认结构
     if (isJSONSchemaContentType(contentType) && data.content[contentType].schema && !data.content[contentType].schema.properties) {

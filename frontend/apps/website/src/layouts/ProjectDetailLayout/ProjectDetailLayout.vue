@@ -1,43 +1,55 @@
 <template>
-  <main :class="ns.b()">
-    <ProjectInfoHeader />
-
-    <div :class="ns.e('left')">
-      <div class="flex flex-col h-full overflow-y-scroll scroll-content">
-        <DirectoryTree ref="directoryTree" />
-        <div class="my-10px"></div>
-        <SchemaTree ref="schemaTree" />
-        <div class="my-10px"></div>
-        <DefinitionResponseTree ref="definitionResponseTree" />
+  <template v-if="!isShowProjectSecretLayer">
+    <main :class="ns.b()">
+      <ProjectInfoHeader />
+      <div :class="ns.e('left')">
+        <div class="flex flex-col h-full overflow-y-scroll scroll-content">
+          <DirectoryTree ref="directoryTree" />
+          <div class="my-10px"></div>
+          <SchemaTree ref="schemaTree" />
+          <div class="my-10px"></div>
+          <DefinitionResponseTree ref="definitionResponseTree" />
+        </div>
       </div>
-    </div>
-    <div class="scroll-content" :class="ns.e('right')">
-      <router-view />
-    </div>
-  </main>
-  <ExportDocumentModal ref="exportDocumentModal" />
+      <div class="scroll-content" :class="ns.e('right')">
+        <router-view />
+      </div>
+    </main>
+    <ExportDocumentModal ref="exportDocumentModalRef" />
+    <DocumentShareModal ref="documentShareModalRef" />
+    <ProjectShareModal ref="projectShareModalRef" />
+  </template>
+  <ProjectVerification v-else />
 </template>
 
 <script setup lang="ts">
+import ProjectVerification from '@/views/share/ProjectVerification.vue'
 import ExportDocumentModal from '@/views/component/ExportDocumentModal.vue'
+import DocumentShareModal from '@/views/document/components/DocumentShareModal.vue'
+import ProjectShareModal from '@/views/project/components/ProjectShareModal.vue'
 import { useNamespace } from '@/hooks/useNamespace'
 import ProjectInfoHeader from './components/ProjectInfoHeader.vue'
 import DirectoryTree from './components/DirectoryTree'
 import SchemaTree from './components/SchemaTree'
 import DefinitionResponseTree from './components/DefinitionResponseTree'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { useParams } from '@/hooks/useParams'
+import { ProjectDetailModalsContextKey } from './constants'
+import { storeToRefs } from 'pinia'
 
 const ns = useNamespace('doc-layout')
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const globalParametersStore = uesGlobalParametersStore()
 const { project_id } = useParams()
 
+const { isShowProjectSecretLayer } = storeToRefs(projectStore)
 const directoryTree = ref<InstanceType<typeof DirectoryTree>>()
 const schemaTree = ref<InstanceType<typeof SchemaTree>>()
 const definitionResponseTree = ref<InstanceType<typeof DefinitionResponseTree>>()
-const exportDocumentModal = ref<InstanceType<typeof ExportDocumentModal>>()
+const exportDocumentModalRef = ref<InstanceType<typeof ExportDocumentModal>>()
+const documentShareModalRef = ref<InstanceType<typeof DocumentShareModal>>()
+const projectShareModalRef = ref<InstanceType<typeof ProjectShareModal>>()
 
 provide('directoryTree', {
   updateTitle: (id: any, title: string) => directoryTree.value?.updateTitle(id, title),
@@ -63,10 +75,24 @@ provide('definitionResponseTree', {
 })
 
 provide('exportModal', {
-  exportDocument: (project_id?: string, doc_id?: string) => exportDocumentModal.value?.show(project_id, doc_id),
+  exportDocument: (project_id?: string, doc_id?: string) => exportDocumentModalRef.value?.show(project_id, doc_id),
+})
+
+provide(ProjectDetailModalsContextKey, {
+  exportDocument: (project_id?: string, doc_id?: string | number) => exportDocumentModalRef.value?.show(project_id, doc_id),
+  shareDocument: (project_id: string, doc_id: string) => documentShareModalRef.value?.show({ project_id, collection_id: doc_id }),
+  shareProject: (project_id: string) => projectShareModalRef.value?.show({ project_id }),
+})
+
+onBeforeMount(() => {
+  console.log('isShowProjectSecretLayer.value', isShowProjectSecretLayer.value)
 })
 
 onMounted(async () => {
+  if (isShowProjectSecretLayer.value) {
+    return
+  }
+
   await projectStore.getUrlServers(project_id as string)
   await globalParametersStore.getGlobalParameters(project_id as string)
 })

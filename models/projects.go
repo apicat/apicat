@@ -8,15 +8,16 @@ import (
 )
 
 type Projects struct {
-	ID          uint   `gorm:"type:integer primary key autoincrement"`
-	PublicId    string `gorm:"type:varchar(255);uniqueIndex;not null;comment:项目公开id"`
-	Title       string `gorm:"type:varchar(255);not null;comment:项目名称"`
-	Visibility  int    `gorm:"type:tinyint(1);not null;comment:项目可见性:0私有,1公开"`
-	Description string `gorm:"type:varchar(255);comment:项目描述"`
-	Cover       string `gorm:"type:varchar(255);comment:项目封面"`
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   gorm.DeletedAt
+	ID            uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
+	PublicId      string `gorm:"type:varchar(255);uniqueIndex;not null;comment:项目公开id"`
+	Title         string `gorm:"type:varchar(255);not null;comment:项目名称"`
+	Visibility    int    `gorm:"type:tinyint(1);not null;comment:项目可见性:0私有,1公开"`
+	SharePassword string `gorm:"type:varchar(255);comment:项目分享密码"`
+	Description   string `gorm:"type:varchar(255);comment:项目描述"`
+	Cover         string `gorm:"type:varchar(255);comment:项目封面"`
+	CreatedAt     time.Time
+	UpdatedAt     time.Time
+	DeletedAt     gorm.DeletedAt
 }
 
 func NewProjects(ids ...interface{}) (*Projects, error) {

@@ -4,7 +4,7 @@
       <p class="ac-header-operate__title">{{ response.name }}</p>
     </div>
 
-    <div class="ac-header-operate__btns" v-if="!isReader">
+    <div class="ac-header-operate__btns" v-if="isManager || isWriter">
       <el-button type="primary" @click="() => goResponseEditPage()">{{ $t('app.common.edit') }}</el-button>
     </div>
   </div>
@@ -27,13 +27,13 @@ import DefinitionResponseRaw from '@/components/DefinitionResponse/DefinitionRes
 import { useNamespace } from '@/hooks'
 import { useGoPage } from '@/hooks/useGoPage'
 import { useDefinitionResponseLogic } from './logic'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
 
 const ns = useNamespace('document')
 const { goResponseEditPage } = useGoPage()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 
-const { isReader } = storeToRefs(projectStore)
+const { isManager, isWriter } = storeToRefs(projectStore)
 const { hasDocument, isLoading, response, definitionSchemas } = useDefinitionResponseLogic()
 </script>

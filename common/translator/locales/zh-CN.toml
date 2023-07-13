@@ -142,6 +142,9 @@ other = "类型不存在"
 [Common.InsufficientPermissions]
 other = "权限不足"
 
+[Collections.NotFound]
+other = "集合不存在"
+
 [Collections.QueryFailed]
 other = "集合查询失败"
 
@@ -210,3 +213,36 @@ other = "项目成员删除失败"
 
 [ProjectMember.AlreadyExists]
 other = "项目成员已存在"
+
+[ProjectShare.ModifySharingStatusFail]
+other = "修改项目分享状态失败"
+
+[ProjectShare.ResetKeyFail]
+other = "重置项目分享密钥失败"
+
+[ProjectShare.PublicProject]
+other = "公开项目不需要分享"
+
+[DocShare.QueryStatusFailed]
+other = "查询文档分享状态失败"
+
+[DocShare.ModifySharingStatusFail]
+other = "修改文档分享状态失败"
+
+[DocShare.ResetKeyFail]
+other = "重置文档分享密钥失败"
+
+[DocShare.QueryDetailFailed]
+other = "查询文档分享详情失败"
+
+[Share.tokenHasExpired]
+other = "访问令牌已过期"
+
+[Share.InvalidToken]
+other = "无效的访问令牌"
+
+[Share.VerifyKeyFailed]
+other = "校验密钥失败"
+
+[Share.AccessPasswordError]
+other = "访问密码错误"

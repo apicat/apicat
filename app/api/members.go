@@ -71,13 +71,10 @@ func GetMembers(ctx *gin.Context) {
 	userList := []any{}
 	if len(users) > 0 {
 		for _, v := range users {
-			email := v.Email
-			parts := strings.Split(email, "@")
-
 			userList = append(userList, map[string]any{
 				"id":         v.ID,
 				"username":   v.Username,
-				"email":      parts[0][0:1] + "***" + parts[0][len(parts[0])-1:] + "@" + parts[len(parts)-1],
+				"email":      v.Email,
 				"role":       v.Role,
 				"is_enabled": v.IsEnabled,
 				"created_at": v.CreatedAt.Format("2006-01-02 15:04:05"),
