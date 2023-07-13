@@ -289,7 +289,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 		project.SharePassword = ""
 		c, _ := models.NewCollections()
 		c.SharePassword = ""
-		if err := models.BatchUpdateByProjectID(project.ID, c); err != nil {
+		if err := models.BatchUpdateByProjectID(project.ID, map[string]any{"share_password": ""}); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
 			})

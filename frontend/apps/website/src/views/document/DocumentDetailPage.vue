@@ -4,10 +4,17 @@
       <p class="ac-header-operate__title">{{ httpDoc.title }}</p>
     </div>
 
-    <div class="ac-header-operate__btns" v-if="isManager || isWriter">
-      <el-button type="primary" @click="goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
-      <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" />
-      <Iconfont icon="ac-export cursor-pointer" :size="18" @click="handleExport()" />
+    <div class="ac-header-operate__btns">
+      <el-button type="primary" v-if="isManager || isWriter" @click="goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
+      <template v-if="isManager || isWriter">
+        <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" />
+      </template>
+
+      <template v-else>
+        <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" v-if="!isPrivate && isReader" />
+      </template>
+
+      <Iconfont icon="ac-export cursor-pointer" :size="18" @click="handleExport()" v-if="isManager || isWriter" />
     </div>
   </div>
 
@@ -49,7 +56,7 @@ const { project_id } = useParams()
 const { goDocumentEditPage } = useGoPage()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
-const { urlServers, isManager, isWriter } = storeToRefs(projectStore)
+const { urlServers, isManager, isWriter, isPrivate, isReader } = storeToRefs(projectStore)
 const { definitions } = storeToRefs(definitionStore)
 
 const hasDocument = ref(false)

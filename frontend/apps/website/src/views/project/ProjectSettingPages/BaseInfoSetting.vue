@@ -43,7 +43,7 @@
     </el-form-item>
 
     <el-form-item :label="$t('app.project.form.visibility')">
-      <el-radio-group v-model="form.visibility">
+      <el-radio-group v-model="form.visibility" :disabled="!isManager">
         <el-radio-button :label="ProjectVisibilityEnum.PRIVATE">
           <el-icon class="mr-1"><ac-icon-ep-lock /></el-icon>{{ $t('app.common.private') }}
         </el-radio-button>
@@ -66,7 +66,7 @@
 
     <el-button v-if="isManager" type="primary" @click="handleSubmit(projectFormRef)" :loading="isLoading">{{ $t('app.common.save') }}</el-button>
   </el-form>
-  <el-button v-if="isManager" class="absolute bottom-30px right-30px" type="danger" link @click="handleRemove">{{ $t('app.project.setting.deleteProject') }}</el-button>
+  <el-button v-if="isManager" class="absolute bottom-42px right-30px" type="danger" link @click="handleRemove">{{ $t('app.project.setting.deleteProject') }}</el-button>
 </template>
 <script setup lang="tsx">
 import { deleleProject, updateProjectBaseInfo } from '@/api/project'

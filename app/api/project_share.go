@@ -66,6 +66,16 @@ func ProjectShareDetails(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 
+	if currentProject.(*models.Projects).Visibility == 0 {
+		if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+			ctx.JSON(http.StatusForbidden, gin.H{
+				"code":    enum.ProjectMemberInsufficientPermissionsCode,
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			})
+			return
+		}
+	}
+
 	var (
 		visibility string
 	)
@@ -95,9 +105,8 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 	}
 
 	var (
-		project   *models.Projects
-		data      ProjectSharingSwitchData
-		secretKey string
+		project *models.Projects
+		data    ProjectSharingSwitchData
 	)
 
 	project = currentProject.(*models.Projects)
@@ -116,19 +125,20 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 	}
 
 	if data.Share == "open" {
-		secretKey = random.GenerateRandomString(4)
+		if project.SharePassword == "" {
+			project.SharePassword = random.GenerateRandomString(4)
 
-		project.SharePassword = secretKey
-		if err := project.Save(); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.ModifySharingStatusFail"}),
-			})
-			return
+			if err := project.Save(); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.ModifySharingStatusFail"}),
+				})
+				return
+			}
 		}
 
 		ctx.JSON(http.StatusCreated, gin.H{
 			"project_public_id": project.PublicId,
-			"secret_key":        secretKey,
+			"secret_key":        project.SharePassword,
 		})
 	} else {
 		stt := models.NewShareTmpTokens()
@@ -210,13 +220,6 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 	)
 
 	project = currentProject.(*models.Projects)
-	if project.Visibility != 0 {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.PublicProject"}),
-		})
-		return
-	}
-
 	if err = translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -226,7 +229,7 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 
 	if data.SecretKey != project.SharePassword {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.AccessPasswordError"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.AccessPasswordError"}),
 		})
 		return
 	}

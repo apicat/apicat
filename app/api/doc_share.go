@@ -60,6 +60,17 @@ func DocShareStatus(ctx *gin.Context) {
 
 func DocShareDetails(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+
+	if currentProject.(*models.Projects).Visibility == 0 {
+		if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+			ctx.JSON(http.StatusForbidden, gin.H{
+				"code":    enum.ProjectMemberInsufficientPermissionsCode,
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			})
+			return
+		}
+	}
 
 	var (
 		uriData            CollectionDataGetData
@@ -110,10 +121,9 @@ func DocShareSwitch(ctx *gin.Context) {
 	}
 
 	var (
-		project   *models.Projects
-		uriData   DocShareSecretkeyCheckUriData
-		data      ProjectSharingSwitchData
-		secretKey string
+		project *models.Projects
+		uriData DocShareSecretkeyCheckUriData
+		data    ProjectSharingSwitchData
 	)
 
 	project = currentProject.(*models.Projects)
@@ -151,8 +161,10 @@ func DocShareSwitch(ctx *gin.Context) {
 			collection.PublicId = shortuuid.New()
 		}
 
-		secretKey = random.GenerateRandomString(4)
-		collection.SharePassword = secretKey
+		if collection.SharePassword == "" {
+			collection.SharePassword = random.GenerateRandomString(4)
+		}
+
 		if err := collection.Update(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ModifySharingStatusFail"}),
@@ -162,7 +174,7 @@ func DocShareSwitch(ctx *gin.Context) {
 
 		ctx.JSON(http.StatusCreated, gin.H{
 			"collection_public_id": collection.PublicId,
-			"secret_key":           secretKey,
+			"secret_key":           collection.SharePassword,
 		})
 	} else {
 		stt := models.NewShareTmpTokens()
@@ -281,7 +293,7 @@ func DocShareCheck(ctx *gin.Context) {
 
 	if data.SecretKey != collection.SharePassword {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.AccessPasswordError"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.AccessPasswordError"}),
 		})
 		return
 	}
