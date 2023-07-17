@@ -52,7 +52,7 @@ export default class RefSchemaNode extends SchemaNode {
         const objectSchemaNode = new ObjectSchemaNode({ schema: properties[k], store, parent })
         objectSchemaNode.paths = [...paths, 'properties', k]
         objectSchemaNode.name = k
-
+        objectSchemaNode.isRefSchema = true
         nodesMap.set(objectSchemaNode.key, objectSchemaNode)
         parent.childNodes.push(objectSchemaNode)
 
@@ -62,6 +62,7 @@ export default class RefSchemaNode extends SchemaNode {
 
     if (schema.type === 'array') {
       const arraySchemaNode = new ArraySchemaNode({ schema: schema.items as JSONSchema, store, parent })
+      arraySchemaNode.isRefSchema = true
       arraySchemaNode.paths = [...paths, 'items']
       nodesMap.set(arraySchemaNode.key, arraySchemaNode)
       parent.childNodes.push(arraySchemaNode)

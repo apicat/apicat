@@ -2,7 +2,8 @@
 import SchemaEditorRaw from './SchemaEditorRaw.vue'
 import { useNamespace } from '@/hooks/useNamespace'
 import { JSONSchema } from './types'
-import SchemaTreeStore from './model/SchemaStore'
+// import SchemaTreeStore from './model/SchemaStore'
+import SchemaStore from './schema/SchemaStore'
 
 const props = defineProps<{
   schema: JSONSchema
@@ -12,9 +13,12 @@ const props = defineProps<{
 const nsEditor = useNamespace('schema-editor')
 const nsRow = useNamespace('schema-row')
 
-const store = new SchemaTreeStore({ schema: props.schema, definitionSchemas: props.definitionSchemas })
+// const store = new SchemaTreeStore({ schema: props.schema, definitionSchemas: props.definitionSchemas })
+const store = new SchemaStore(props.schema, props.definitionSchemas)
 
-const root = ref(store.root)
+const root = ref(store.root.rootNode)
+
+window['root'] = store.root
 </script>
 
 <template>

@@ -189,7 +189,7 @@ export const exampleSchema = {
     field_0: {
       type: 'array',
       items: {
-        $ref: '#/definitions/schemas/16',
+        type: 'string',
       },
     },
     field_1: {
@@ -236,6 +236,16 @@ export const exampleSchema = {
     },
   },
   required: ['field_1', 'field_2', 'field_4', 'field_6'],
+}
+
+export const exampleSchema2 = {
+  type: 'object',
+  properties: {
+    field_5: {
+      type: 'string',
+    },
+  },
+  required: ['field_5'],
 }
 
 export default definitionSchemas

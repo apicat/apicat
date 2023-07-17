@@ -1,25 +1,39 @@
 import { DefinitionSchema, JSONSchema } from '../types'
 import SchemaNode from './SchemaNode'
 
+import RootSchemaNode from './basic/RootSchemaNode'
+import RefSchemaNode from './compose/RefSchemaNode'
+
 export default class SchemaStore {
-  source: JSONSchema
-  schemasMap: Map<string, InstanceType<typeof SchemaNode>> = new Map()
-  nodesMap: Map<string, InstanceType<typeof SchemaNode>> = new Map()
+  sourceSchema: JSONSchema
+  nodesMap: Map<number, InstanceType<typeof SchemaNode>> = new Map()
   definitionSchemas: DefinitionSchema[] = []
+  root: InstanceType<typeof RootSchemaNode>
 
-  constructor(source: JSONSchema) {
-    this.source = source
+  constructor(sourceSchema: JSONSchema, definitionSchemas: DefinitionSchema[]) {
+    this.sourceSchema = sourceSchema
+    this.definitionSchemas = definitionSchemas
+    this.root = new RootSchemaNode({ schema: this.sourceSchema, store: this })
   }
 
-  getAllSchemas(): SchemaNode[] {
-    return Array.from(this.schemasMap.values())
+  register(node: SchemaNode) {
+    this.nodesMap.set(node.id, node)
   }
 
-  get schemaTypes(): string[] {
-    return Array.from(this.schemasMap.keys())
+  deregisterNode(node: SchemaNode) {
+    node.childNodes.forEach((child: SchemaNode) => {
+      this.deregisterNode(child)
+    })
+
+    this.nodesMap.delete(node.id)
   }
 
   setDefinitionSchemas(definitionSchemas: DefinitionSchema[]) {
     this.definitionSchemas = definitionSchemas
+    this.nodesMap.forEach((node) => {
+      if (node instanceof RefSchemaNode) {
+        node.updateChildNodes()
+      }
+    })
   }
 }

@@ -3,7 +3,7 @@
     <div :class="nsRow.e('content')">
       <div :class="[nsRow.e('item'), nsRow.e('name')]">
         <div :style="intentRowStyle"></div>
-        <input v-model="data.schemaName" />
+        <input v-model="data.name" />
       </div>
       <div :class="[nsRow.e('item'), nsRow.e('type')]">
         {{ data.isRefSchema ? data.name : data.schema.type }}

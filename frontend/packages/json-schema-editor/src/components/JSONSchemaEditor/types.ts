@@ -1,5 +1,7 @@
 import SchemaNode from './model/SchemaNode'
+import SchemaNode2 from './schema/SchemaNode'
 import type SchemaTreeStore from './model/SchemaStore'
+import type SchemaStore from './schema/SchemaStore'
 
 export declare interface JSONSchema {
   type?: string | string[]
@@ -63,4 +65,10 @@ export declare interface SchemaOptions {
   schema: JSONSchema
   store: SchemaTreeStore
   parent?: SchemaNode
+}
+
+export declare interface SchemaNodeOptions {
+  store: SchemaStore
+  schema?: JSONSchema
+  parent?: SchemaNode2
 }
