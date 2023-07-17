@@ -142,6 +142,9 @@ other = "Type does not exist"
 [Common.InsufficientPermissions]
 other = "Insufficient permissions"
 
+[Collections.NotFound]
+other = "Collection does not exist"
+
 [Collections.QueryFailed]
 other = "Collection query failed"
 
@@ -210,3 +213,36 @@ other = "Project member delete failed"
 
 [ProjectMember.AlreadyExists]
 other = "Project member already exists"
+
+[ProjectShare.ModifySharingStatusFail]
+other = "Failed to change project sharing status"
+
+[ProjectShare.ResetKeyFail]
+other = "Failed to reset project share key"
+
+[ProjectShare.PublicProject]
+other = "Public items need not share"
+
+[DocShare.QueryStatusFailed]
+other = "Failed to query document sharing status"
+
+[DocShare.ModifySharingStatusFail]
+other = "Failed to change document sharing status"
+
+[DocShare.ResetKeyFail]
+other = "Failed to reset document share key"
+
+[DocShare.QueryDetailFailed]
+other = "Failed to query document sharing details"
+
+[Share.tokenHasExpired]
+other = "Access token expired"
+
+[Share.InvalidToken]
+other = "Invalid access token"
+
+[Share.VerifyKeyFailed]
+other = "Failed to verify key"
+
+[Share.AccessPasswordError]
+other = "Wrong access password"

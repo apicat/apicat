@@ -11,8 +11,21 @@ import (
 
 func CheckProjectMember() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		project, _ := ctx.Get("CurrentProject")
-		user, _ := ctx.Get("CurrentUser")
+		project, exists := ctx.Get("CurrentProject")
+		if !exists {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+			})
+			ctx.Abort()
+		}
+
+		user, exists := ctx.Get("CurrentUser")
+		if !exists {
+			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
+			})
+			ctx.Abort()
+		}
 
 		member, _ := models.NewProjectMembers()
 		member.UserID = user.(*models.Users).ID

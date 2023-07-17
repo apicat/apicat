@@ -8,8 +8,8 @@ import (
 )
 
 type Servers struct {
-	ID           uint   `gorm:"type:integer primary key autoincrement"`
-	ProjectId    uint   `gorm:"index;not null;comment:项目id"`
+	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
+	ProjectId    uint   `gorm:"type:bigint;index;not null;comment:项目id"`
 	Description  string `gorm:"type:varchar(255);not null;comment:描述"`
 	Url          string `gorm:"type:varchar(255);not null;comment:服务器地址"`
 	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:显示顺序"`

@@ -90,6 +90,19 @@ $block_row_ns: $namespace + '-schema-row';
       }
     }
 
+    @include e(ref) {
+      > span {
+        width: 100%;
+        justify-content: center;
+      }
+      @include e(ref_btn) {
+        @apply truncate relative pr-16px;
+        .el-icon {
+          @apply absolute right-0;
+        }
+      }
+    }
+
     @include e(required) {
       width: 80px;
       justify-content: center;

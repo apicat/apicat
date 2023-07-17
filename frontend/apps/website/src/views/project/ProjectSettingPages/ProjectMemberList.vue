@@ -11,7 +11,7 @@
         </el-table-column>
       </template>
       <template #auth>
-        <el-table-column :label="$t('app.project.list.auth')">
+        <el-table-column :label="$t('app.project.list.auth')" width="82">
           <template #default="{ row }">
             <div v-if="isManager && !row.isSelf" :ref="(el) => setButtonRef(el, row)" class="inline-flex items-center cursor-pointer" @click="showRoleDropdownMenu(row)">
               <span>{{ (MemberAuthorityMap as any)[row.authority] }}</span>
@@ -62,7 +62,7 @@ import { useUserStore } from '@/store/user'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import NProgress from 'nprogress'
 import { useParams } from '@/hooks/useParams'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import AddProjectMember from '../AddProjectMember.vue'
 import { storeToRefs } from 'pinia'
 import { TargetMemberPermissionError } from '@/api/error'
@@ -72,7 +72,7 @@ const { t } = useI18n()
 const { project_id } = useParams()
 const buttonRefMap: Record<number, any> = {}
 const { userInfo } = useUserStore()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const { projectAuths, isManager } = storeToRefs(projectStore)
 const currentChangeUser = ref<ProjectMember | null>()
 const addProjectMemberRef = ref<InstanceType<typeof AddProjectMember>>()
@@ -108,6 +108,7 @@ const columns: any = [
   {
     label: t('app.member.form.email'),
     prop: 'email',
+    width: 110,
   },
   {
     slot: 'accountStatus',

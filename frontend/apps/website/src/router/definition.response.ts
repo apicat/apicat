@@ -19,6 +19,9 @@ export const definitionResponseDetailRoute: RouteRecordRaw = {
   name: RESPONSE_DETAIL_NAME,
   path: RESPONSE_DETAIL_PATH,
   component: ResponseDetailPage,
+  meta: {
+    ignoreAuth: true,
+  },
 }
 
 export const definitionResponseEditRoute: RouteRecordRaw = {

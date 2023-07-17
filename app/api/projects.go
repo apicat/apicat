@@ -20,15 +20,17 @@ import (
 )
 
 type CreateProject struct {
-	Title string `json:"title" binding:"required,lte=255"`
-	Data  string `json:"data"`
-	Cover string `json:"cover" binding:"lte=255"`
+	Title      string `json:"title" binding:"required,lte=255"`
+	Data       string `json:"data"`
+	Cover      string `json:"cover" binding:"lte=255"`
+	Visibility string `json:"visibility" binding:"required,oneof=private public"`
 }
 
 type UpdateProject struct {
 	Title       string `json:"title" binding:"required,lte=255"`
 	Description string `json:"description" binding:"lte=255"`
 	Cover       string `json:"cover" binding:"lte=255"`
+	Visibility  string `json:"visibility" binding:"required,oneof=private public"`
 }
 
 type ProjectID struct {
@@ -89,9 +91,13 @@ func ProjectsList(ctx *gin.Context) {
 }
 
 func ProjectsGet(ctx *gin.Context) {
-	currentUser, _ := ctx.Get("CurrentUser")
+	currentProjectMember, currentProjectMemberExists := ctx.Get("CurrentProjectMember")
 
-	var data ProjectID
+	var (
+		data       ProjectID
+		authority  string
+		visibility string
+	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -108,13 +114,16 @@ func ProjectsGet(ctx *gin.Context) {
 		return
 	}
 
-	projectMember, _ := models.NewProjectMembers()
-	projectMember.ProjectID = project.ID
-	projectMember.UserID = currentUser.(*models.Users).ID
+	if currentProjectMemberExists {
+		authority = currentProjectMember.(*models.ProjectMembers).Authority
+	} else {
+		authority = "none"
+	}
 
-	authority := "none"
-	if err := projectMember.GetByUserIDAndProjectID(); err == nil {
-		authority = projectMember.Authority
+	if project.Visibility == 0 {
+		visibility = "private"
+	} else {
+		visibility = "public"
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
@@ -123,6 +132,8 @@ func ProjectsGet(ctx *gin.Context) {
 		"description": project.Description,
 		"cover":       project.Cover,
 		"authority":   authority,
+		"visibility":  visibility,
+		"secret_key":  project.SharePassword,
 		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
@@ -178,9 +189,15 @@ func ProjectsCreate(ctx *gin.Context) {
 		}
 		project.Description = content.Info.Description
 	}
+
+	if data.Visibility == "private" {
+		project.Visibility = 0
+	} else {
+		project.Visibility = 1
+	}
+
 	project.Title = data.Title
 	project.PublicId = shortuuid.New()
-	project.Visibility = 0
 	project.Cover = data.Cover
 	if err := project.Create(); err != nil {
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -263,6 +280,30 @@ func ProjectsUpdate(ctx *gin.Context) {
 	project.Title = data.Title
 	project.Description = data.Description
 	project.Cover = data.Cover
+	if data.Visibility == "private" {
+		project.Visibility = 0
+	} else {
+		project.Visibility = 1
+
+		// 将项目分享密钥及项目下集合的分享密钥置为空
+		project.SharePassword = ""
+		c, _ := models.NewCollections()
+		c.SharePassword = ""
+		if err := models.BatchUpdateByProjectID(project.ID, map[string]any{"share_password": ""}); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
+			})
+		}
+
+		stt := models.NewShareTmpTokens()
+		stt.ProjectID = project.ID
+		if err := stt.DeleteByProjectID(); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
+			})
+		}
+	}
+
 	if err := project.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),

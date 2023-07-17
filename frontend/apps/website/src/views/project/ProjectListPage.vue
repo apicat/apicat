@@ -34,7 +34,7 @@
 <script lang="ts" setup>
 import { getProjectDetailPath } from '@/router'
 import CreateProjectModal from './CreateProjectModal.vue'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'
 import { storeToRefs } from 'pinia'
 import { ProjectCover } from '@/typings'
@@ -42,7 +42,7 @@ import { useUserStore } from '@/store/user'
 
 const createProjectModal = ref<InstanceType<typeof CreateProjectModal>>()
 const handleShowModelClick = () => createProjectModal.value!.show()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const { isNormalUser } = useUserStore()
 const { projectList } = storeToRefs(projectStore)
 const [isLoading, getProjectListApi] = useApi(projectStore.getProjects)

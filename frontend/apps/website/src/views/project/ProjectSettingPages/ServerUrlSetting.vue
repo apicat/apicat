@@ -42,7 +42,7 @@ import { FormInstance } from 'element-plus'
 import isEmpty from 'lodash/isEmpty'
 import isURL from 'validator/lib/isURL'
 import { useProjectId } from '@/hooks/useProjectId'
-import uesProjectStore from '@/store/project'
+import useProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'
 import { useI18n } from 'vue-i18n'
 import { cloneDeep } from 'lodash-es'
@@ -51,7 +51,7 @@ import { storeToRefs } from 'pinia'
 const ns = useNamespace('url-list')
 const { t } = useI18n()
 const project_id = useProjectId()
-const projectStore = uesProjectStore()
+const projectStore = useProjectStore()
 const { isReader } = storeToRefs(projectStore)
 const navFormRef = shallowRef()
 const [isLoading, saveProjectServerUrlListApi] = useApi(projectStore.saveProjectServerUrlListApi)

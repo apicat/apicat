@@ -6,11 +6,11 @@
   "description": "open source apicat icons",
   "glyphs": [
     {
-      "icon_id": "10319825",
-      "name": "无权限",
-      "font_class": "wuquanxian",
-      "unicode": "e6d5",
-      "unicode_decimal": 59093
+      "icon_id": "128569",
+      "name": "lock",
+      "font_class": "lock",
+      "unicode": "e627",
+      "unicode_decimal": 58919
     },
     {
       "icon_id": "217376",
@@ -118,6 +118,13 @@
       "unicode_decimal": 58909
     },
     {
+      "icon_id": "15982576",
+      "name": "share2",
+      "font_class": "share",
+      "unicode": "e75a",
+      "unicode_decimal": 59226
+    },
+    {
       "icon_id": "11981761",
       "name": "import",
       "font_class": "import",
@@ -141,7 +148,7 @@
     {
       "icon_id": "15030621",
       "name": "Icon／Popover／Setting",
-      "font_class": "IconPopoverSetting",
+      "font_class": "setting",
       "unicode": "e617",
       "unicode_decimal": 58903
     }

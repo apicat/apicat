@@ -18,7 +18,8 @@ ENV GORPOXY="https://goproxy.cn,direct"
 COPY . /app/
 COPY --from=frontend-builder /app/dist /app/frontend/dist 
 COPY --from=frontend-builder /app/embed.go /app/frontend/embed.go 
-RUN go mod tidy && CGO_ENABLED=0  go build -o apicat-server .
+RUN go mod tidy
+RUN CGO_ENABLED=0  go build -o apicat-server .
 
 
 FROM alpine:3.18 

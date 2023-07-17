@@ -57,3 +57,15 @@ export interface HttpDocument {
   type: string
   content: Array<any>
 }
+
+export interface SharedDocumentInfo {
+  project_id: string
+  collection_id: string
+  doc_public_id?: string
+}
+
+export interface CheckDocumentSecretParams {
+  collection_id: string
+  project_id: string
+  secret_key: string
+}

@@ -12,8 +12,8 @@ import (
 )
 
 type DefinitionResponses struct {
-	ID           uint   `gorm:"type:integer primary key autoincrement"`
-	ProjectID    uint   `gorm:"type:integer;index;not null;comment:项目id"`
+	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
+	ProjectID    uint   `gorm:"type:bigint;index;not null;comment:项目id"`
 	Name         string `gorm:"type:varchar(255);not null;comment:响应名称"`
 	Description  string `gorm:"type:varchar(255);not null;comment:状态描述"`
 	Type         string `gorm:"type:varchar(255);not null;comment:响应类型:category,response"`

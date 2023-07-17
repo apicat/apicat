@@ -8,9 +8,9 @@ import (
 )
 
 type ProjectMembers struct {
-	ID        uint   `gorm:"type:integer primary key autoincrement"`
-	ProjectID uint   `gorm:"index;not null;comment:项目id"`
-	UserID    uint   `gorm:"index;not null;comment:用户id"`
+	ID        uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
+	ProjectID uint   `gorm:"type:bigint;index;not null;comment:项目id"`
+	UserID    uint   `gorm:"type:bigint;index;not null;comment:用户id"`
 	Authority string `gorm:"type:varchar(255);not null;comment:项目权限:manage,write,read"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
