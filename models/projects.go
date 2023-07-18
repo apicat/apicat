@@ -51,8 +51,11 @@ func (p *Projects) Get(id string) error {
 	return Conn.Where("public_id = ?", id).Take(p).Error
 }
 
-func (p *Projects) List() ([]Projects, error) {
+func (p *Projects) List(ids ...uint) ([]Projects, error) {
 	var projects []Projects
+	if len(ids) > 0 {
+		return projects, Conn.Where("id IN ?", ids).Order("created_at desc").Find(&projects).Error
+	}
 	return projects, Conn.Order("created_at desc").Find(&projects).Error
 }
 

@@ -49,15 +49,6 @@ type TranslateProject struct {
 func ProjectsList(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
-	project, _ := models.NewProjects()
-	projects, err := project.List()
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
-		})
-		return
-	}
-
 	projectMembers, err := models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -71,20 +62,25 @@ func ProjectsList(ctx *gin.Context) {
 		projectIDs = append(projectIDs, v.ProjectID)
 	}
 
+	project, _ := models.NewProjects()
+	projects, err := project.List(projectIDs...)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+		})
+		return
+	}
+
 	projectsList := []gin.H{}
-	for _, i := range projectIDs {
-		for _, v := range projects {
-			if i == v.ID {
-				projectsList = append(projectsList, gin.H{
-					"id":          v.PublicId,
-					"title":       v.Title,
-					"description": v.Description,
-					"cover":       v.Cover,
-					"created_at":  v.CreatedAt.Format("2006-01-02 15:04:05"),
-					"updated_at":  v.UpdatedAt.Format("2006-01-02 15:04:05"),
-				})
-			}
-		}
+	for _, v := range projects {
+		projectsList = append(projectsList, gin.H{
+			"id":          v.PublicId,
+			"title":       v.Title,
+			"description": v.Description,
+			"cover":       v.Cover,
+			"created_at":  v.CreatedAt.Format("2006-01-02 15:04:05"),
+			"updated_at":  v.UpdatedAt.Format("2006-01-02 15:04:05"),
+		})
 	}
 
 	ctx.JSON(http.StatusOK, projectsList)
