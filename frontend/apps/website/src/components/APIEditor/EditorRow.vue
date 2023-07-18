@@ -21,7 +21,16 @@
 
         <template v-if="!readonly">
           <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
-          <EditorInput v-else ref="labelInputRef" style="margin-left: -4px" placeholder="name" :value="data.label" :disabled="isRefChildren(data)" @change="changeName" />
+
+          <EditorInput
+            v-else
+            ref="labelInputRef"
+            style="margin-left: -4px"
+            placeholder="name"
+            :value="data.label.startsWith('__temp__') ? data.tempLabel : data.label"
+            :disabled="isRefChildren(data)"
+            @change="changeName"
+          />
         </template>
 
         <template v-else>
@@ -71,7 +80,7 @@
         <template v-else>
           <span v-if="data.parent?.type === 'object'">
             <span v-if="isRefChildren(data)">{{ data.parent?.refObj?.schema.required?.includes(data.label) ? $t('editor.table.yes') : $t('editor.table.no') }}</span>
-            <span v-else="isRefChildren(data)">{{ data.parent?.schema.required?.includes(data.label) ? $t('editor.table.yes') : $t('editor.table.no') }}</span>
+            <span v-else>{{ data.parent?.schema.required?.includes(data.label) ? $t('editor.table.yes') : $t('editor.table.no') }}</span>
           </span>
         </template>
       </div>
@@ -216,11 +225,11 @@ const changeRequired = (v: CheckboxValueType) => {
 }
 
 function resetObject(v: Object) {
-  for (let k of Object.keys(v)) {
+  Object.keys(v).forEach((k) => {
     if (k != 'description') {
       delete (v as any)[k]
     }
-  }
+  })
 }
 
 const changeType = ({ type, isRef }: any) => {
@@ -252,8 +261,10 @@ const changeType = ({ type, isRef }: any) => {
 
 const changeName = (v: string) => {
   if (v === '') {
+    ElMessage.error(`参数名称不能为空`)
     return
   }
+
   const psch = props.data.parent?.schema
   if (psch?.properties) {
     // 单个object下属性名是唯一
@@ -318,19 +329,22 @@ const unlinkRefHandler = () => {
   }
 }
 
+const tempKey = '__temp__'
+
 const addChildHandler = () => {
   if (!expandsKeys.has(props.data.key)) {
     expandsKeys.add(props.data.key)
   }
   if (props.data.schema.properties) {
-    if (props.data.schema.properties['']) {
-      return
-    }
-    props.data.schema.properties[''] = {
+    // if (props.data.schema.properties['']) {
+    //   return
+    // }
+    const temp = `${tempKey}${Date.now()}`
+    props.data.schema.properties[temp] = {
       type: 'string',
       'x-apicat-mock': 'string',
     }
-    props.data.schema['x-apicat-orders']?.push('')
+    props.data.schema['x-apicat-orders']?.push(temp)
   }
 }
 

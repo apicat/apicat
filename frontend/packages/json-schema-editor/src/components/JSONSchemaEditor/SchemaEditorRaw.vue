@@ -7,7 +7,7 @@
       </div>
       <div :class="[nsRow.e('item'), nsRow.e('type')]">
         {{ data.isRefSchemaNode ? data.definitionSchema?.name : data.schema.type }}
-        <select v-model="type" @change="changeType(data)">
+        <select v-model="type" @change="changeType(data)" class="hidden">
           <option value="string">string</option>
           <option value="number">number</option>
           <option value="boolean">boolean</option>

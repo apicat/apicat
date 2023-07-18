@@ -56,6 +56,7 @@ export enum constNodeType {
 export declare interface Tree {
   key: string
   label: string
+  tempLabel?: string
   type: string
   schema: JSONSchema
   refObj?: APICatSchemaObject

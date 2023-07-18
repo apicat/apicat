@@ -43,12 +43,19 @@ const nsRow = useNamespace('schema-row')
 
 const emits = defineEmits(['update:modelValue'])
 const expandKeys = ref<Set<string>>(new Set([constNodeType.root]))
-const localSchema = ref(props.modelValue)
+const localSchema = ref()
 
 watch(
   () => props.modelValue,
   () => {
-    localSchema.value = props.modelValue
+    try {
+      localSchema.value = JSON.parse(JSON.stringify(props.modelValue))
+    } catch (error) {
+      localSchema.value = {}
+    }
+  },
+  {
+    immediate: true,
   }
 )
 
@@ -90,7 +97,6 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
     parent,
     type: '',
   }
-
   if (schema.$ref != undefined) {
     const id = schema.$ref.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
     const refId = parseInt(id as string, 10)
@@ -148,9 +154,9 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
   }
 
   // default expand children
-  if (item.children && item.children.length) {
-    expandKeys.value.add(key)
-  }
+  // if (item.children && item.children.length) {
+  //   expandKeys.value.add(key)
+  // }
 
   return item
 }

@@ -1,4 +1,4 @@
-import { ConstNodeType, JSONSchema, SchemaNodeOptions } from '../types'
+import { JSONSchema, SchemaNodeOptions } from '../types'
 import type SchemaStore from './SchemaStore'
 
 let nodeIdSeed = 0
