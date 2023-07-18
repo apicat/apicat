@@ -5,8 +5,8 @@ export default class ArraySchemaNode extends BasicTypeSchemaNode {
   type = 'array'
   isLeaf = false
 
-  createDefaultSchema(): JSONSchema {
-    const schema = super.createDefaultSchema()
+  createDefaultSchema(override?: JSONSchema): JSONSchema {
+    const schema = super.createDefaultSchema(override)
     schema.items = {}
     return schema
   }

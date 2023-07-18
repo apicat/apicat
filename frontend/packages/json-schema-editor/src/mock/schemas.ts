@@ -189,7 +189,7 @@ export const exampleSchema = {
     field_0: {
       type: 'array',
       items: {
-        type: 'string',
+        type: 'number',
       },
     },
     field_1: {

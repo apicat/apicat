@@ -5,12 +5,12 @@ export default class RefSchemaNode extends SchemaNode {
   static SCHEMA_REF_PREFIX = '#/definitions/schemas/'
   static SCHEMA_REF_REGEX = /#\/definitions\/schemas\/(.*)/
 
-  isRefSchema = true
+  type = 'ref'
+
+  isRefSchemaNode = true
   isAllowMock = false
-  refDefinitionSchema: DefinitionSchema | null = null
+  definitionSchema: DefinitionSchema | null = null
   refSchemaId: number = -1
-  isRootRefNode: boolean = false
-  rootRefSchemaNode: RefSchemaNode | null = null
 
   constructor(options: SchemaNodeOptions) {
     super(options)
@@ -31,16 +31,17 @@ export default class RefSchemaNode extends SchemaNode {
     }
 
     this.refSchemaId = parseInt(schemaSource.$ref!.match(RefSchemaNode.SCHEMA_REF_REGEX)?.[1] as string, 10)
-    this.refDefinitionSchema = this.findRefSchema()
+    this.definitionSchema = this.findRefSchema()
 
-    if (!this.refDefinitionSchema) {
+    if (!this.definitionSchema) {
       return
     }
 
-    const { name } = this.refDefinitionSchema
-    this.schemaName = name
-
-    this.createChildNodes()
+    const { name, schema } = this.definitionSchema
+    this.level = this.level - 1
+    const linkSchemaNode = this.store.createChildNodes(name, schema, this)
+    this.childNodes = linkSchemaNode ? linkSchemaNode.childNodes : []
+    this.level = this.level + 1
   }
 
   findRefSchema(): DefinitionSchema | null {
@@ -51,6 +52,4 @@ export default class RefSchemaNode extends SchemaNode {
 
     return store.definitionSchemas.find((item) => item.id === refSchemaId) || null
   }
-
-  createChildNodes() {}
 }

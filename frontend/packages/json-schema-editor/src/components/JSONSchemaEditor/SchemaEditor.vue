@@ -2,7 +2,6 @@
 import SchemaEditorRaw from './SchemaEditorRaw.vue'
 import { useNamespace } from '@/hooks/useNamespace'
 import { JSONSchema } from './types'
-// import SchemaTreeStore from './model/SchemaStore'
 import SchemaStore from './schema/SchemaStore'
 
 const props = defineProps<{
@@ -10,15 +9,23 @@ const props = defineProps<{
   definitionSchemas: Array<any>
 }>()
 
+const emits = defineEmits(['update:schema'])
+
 const nsEditor = useNamespace('schema-editor')
 const nsRow = useNamespace('schema-row')
+const { schema, definitionSchemas } = toRefs(props)
 
-// const store = new SchemaTreeStore({ schema: props.schema, definitionSchemas: props.definitionSchemas })
-const store = new SchemaStore(props.schema, props.definitionSchemas)
+const store = ref(new SchemaStore(props.schema, props.definitionSchemas, (schema) => schema && emits('update:schema', schema)))
 
-const root = ref(store.root.rootNode)
+watch(schema, () => {
+  store.value.setSchema(schema.value)
+})
 
-window['root'] = store.root
+watch(definitionSchemas, () => {
+  store.value.setDefinitionSchemas(definitionSchemas.value)
+})
+
+window['root'] = store.value
 </script>
 
 <template>
@@ -34,7 +41,7 @@ window['root'] = store.root
       </div>
     </div>
 
-    <SchemaEditorRaw :data="root" />
+    <SchemaEditorRaw v-if="store.root" :data="store.root" />
   </div>
 </template>
 

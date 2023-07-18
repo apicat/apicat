@@ -1,4 +1,4 @@
-import { JSONSchema, SchemaNodeOptions } from '../types'
+import { ConstNodeType, JSONSchema, SchemaNodeOptions } from '../types'
 import type SchemaStore from './SchemaStore'
 
 let nodeIdSeed = 0
@@ -28,19 +28,46 @@ export default abstract class SchemaNode {
   childNodes: SchemaNode[] = []
   // 是否临时节点
   isTempSchemaNode: boolean = false
+  // 是否引用类型节点
+  isRefSchemaNode: boolean = false
+
+  changeNotify: (schema?: JSONSchema) => void
+
+  abstract type: string
 
   constructor(options: SchemaNodeOptions) {
     this.id = nodeIdSeed++
     const { store, schema, parent } = options
     this.store = store
     this.parent = parent ?? null
-    this.schema = schema ?? this.createDefaultSchema()
+    // raw schema
+    this.schema = markRaw(schema ?? this.createDefaultSchema())
 
     // 保存节点
     store.register(this)
 
-    if (parent) {
-      this.level = parent.level + 1
+    this.changeNotify = () => {
+      store.changeNotify && store.changeNotify()
+    }
+
+    this.initialize()
+  }
+
+  initialize() {
+    this.isConstantSchemaNode = false
+
+    if (this.parent) {
+      this.level = this.parent.level + 1
+    }
+
+    // root
+    if (!this.parent && this.level === 0) {
+      this.isConstantSchemaNode = true
+    }
+
+    // array items
+    if (this.parent && this.parent.type === 'array') {
+      this.isConstantSchemaNode = true
     }
   }
 
@@ -54,11 +81,53 @@ export default abstract class SchemaNode {
   }
 
   set name(value: string) {
-    if (this.isConstantSchemaNode) {
-      console.log(this)
+    if (!this.schemaName && this.isTempSchemaNode && value) {
+      this.isTempSchemaNode = false
+      this.schemaName = value
+      if (this.parent) {
+        const { schema } = this.parent
+        const properties = (schema.properties = schema.properties || {})
+        properties[value] = this.schema
+        const orders = schema['x-apicat-orders'] || []
+        orders.push(value)
+        schema['x-apicat-orders'] = orders
+        this.changeNotify()
+      }
+
       return
     }
+
+    if (this.isConstantSchemaNode || this.isInRefSchemaNode) {
+      return
+    }
+
+    // validate
+    // if(!this.validate(value)) {
+    //   return
+    // }
+
+    if (this.parent) {
+      const { schema } = this.parent
+      const properties = (schema.properties = schema.properties || {})
+      properties[value] = properties[this.schemaName]
+
+      // 更新必选
+      if (this.isRequired) {
+        schema.required = schema.required?.map((one) => (one === this.schemaName ? value : one))
+      }
+
+      // 更新排序
+      const orders = schema['x-apicat-orders'] || []
+      orders[orders?.indexOf(this.schemaName)] = value
+      schema['x-apicat-orders'] = orders
+
+      // 移除旧key
+      delete properties[this.schemaName]
+    }
+
     this.schemaName = value
+
+    this.changeNotify()
   }
 
   // 是否必须必选
@@ -71,7 +140,7 @@ export default abstract class SchemaNode {
   }
 
   set isRequired(value: boolean) {
-    if (!this.parent || this.isDisabledRequired) {
+    if (!this.parent || this.isDisabledRequired || this.isInRefSchemaNode) {
       return
     }
 
@@ -84,6 +153,32 @@ export default abstract class SchemaNode {
     } else {
       this.parent.schema.required = this.parent.schema.required.filter((item) => item !== this.schemaName)
     }
+
+    this.changeNotify()
+  }
+
+  get example(): string {
+    return this.schema.example
+  }
+
+  set example(value: string) {
+    if (this.isInRefSchemaNode) {
+      return
+    }
+    this.schema.example = value
+    this.changeNotify()
+  }
+
+  get description(): string {
+    return this.schema.description || ''
+  }
+
+  set description(value: string) {
+    if (this.isInRefSchemaNode) {
+      return
+    }
+    this.schema.description = value
+    this.changeNotify()
   }
 
   get nextSibling(): SchemaNode | null {
@@ -109,7 +204,9 @@ export default abstract class SchemaNode {
   }
 
   insertChild(child: SchemaNode, index?: number) {
-    child.level = this.level + 1
+    child.parent = this
+    child.initialize()
+
     if (typeof index === 'undefined' || index < 0) {
       this.childNodes.push(child)
     } else {
@@ -117,6 +214,9 @@ export default abstract class SchemaNode {
     }
 
     this.updateLeafState()
+    if (!child.isTempSchemaNode) {
+      this.changeNotify()
+    }
   }
 
   insertBefore(child: SchemaNode, ref: SchemaNode): void {
@@ -148,8 +248,12 @@ export default abstract class SchemaNode {
 
     if (index > -1) {
       this.store && this.store.deregisterNode(child)
+      console.log(child, child.parent)
       child.parent = null
+
       this.childNodes.splice(index, 1)
+
+      this.changeNotify()
     }
 
     this.updateLeafState()
@@ -171,4 +275,23 @@ export default abstract class SchemaNode {
   isEmpty() {
     return this.childNodes.length === 0
   }
+
+  get isInRefSchemaNode() {
+    let result = false
+    let parent = this.parent
+    while (parent) {
+      if (parent && parent.isRefSchemaNode) {
+        result = true
+        break
+      }
+      parent = parent.parent
+    }
+    return result
+  }
+
+  addProperty() {}
+
+  updateProperty() {}
+
+  deleteProperty() {}
 }
