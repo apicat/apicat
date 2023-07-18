@@ -16,8 +16,8 @@ type App struct {
 }
 
 type Log struct {
-	Path  string `yaml:"path" env:"APICAT_LOG_DRIVER"`
-	Level string `yaml:"level" env:"APICAT_LOG_DRIVER"`
+	Path  string `yaml:"path" env:"APICAT_LOG_PATH"`
+	Level string `yaml:"level" env:"APICAT_LOG_LEVEL"`
 }
 
 type DB struct {
@@ -50,7 +50,7 @@ func createDefault() *Sysconfig {
 			Port: 8000,
 		},
 		Log: Log{
-			Path:  "logs/",
+			Path:  "",
 			Level: "debug",
 		},
 		DB: DB{
