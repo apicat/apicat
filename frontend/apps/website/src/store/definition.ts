@@ -2,6 +2,7 @@ import { getDefinitionSchemaList, updateDefinitionSchema, createDefinitionSchema
 import { DefinitionTypeEnum, RefPrefixKeys, markDataWithKey } from '@/commons'
 import { DefinitionSchema, JSONSchema } from '@/components/APIEditor/types'
 import { traverseTree } from '@apicat/shared'
+import { cloneDeep } from 'lodash-es'
 import { defineStore } from 'pinia'
 
 export const extendDocTreeFeild = (node = {} as any) => {
@@ -51,7 +52,10 @@ export const useDefinitionStore = defineStore('definitionSchema', {
     },
 
     async updateDefinition(data: any) {
-      await updateDefinitionSchema(data)
+      const copy = cloneDeep(data)
+      const jsonSchema = copy.schema as JSONSchema
+      removeTempProperty(jsonSchema)
+      await updateDefinitionSchema(copy)
       data.id = data.def_id
       this.updateDefinitionStore(data)
     },
@@ -94,3 +98,27 @@ export const useDefinitionStore = defineStore('definitionSchema', {
 export const useDefinitionSchemaStore = useDefinitionStore
 
 export default useDefinitionStore
+
+// 递归遍历JSON Schema中type为"object"的属性
+const tempKeys = new Set()
+function removeTempProperty(jsonSchema: JSONSchema) {
+  if (jsonSchema.type === 'object' && jsonSchema.properties) {
+    const ps = jsonSchema.properties || {}
+    Object.keys(ps).forEach((propertyName) => {
+      const subJsonSchema = ps[propertyName]
+      if (subJsonSchema.type === 'object') {
+        removeTempProperty(subJsonSchema)
+      }
+      // 移除临时属性
+      if (propertyName.startsWith('__temp__')) {
+        delete ps[propertyName]
+        tempKeys.add(propertyName)
+      }
+    })
+  }
+
+  // 移除临时必选属性
+  jsonSchema.required = jsonSchema.required?.filter((item) => !tempKeys.has(item))
+  // 移除临时排序属性
+  jsonSchema['x-apicat-orders'] = jsonSchema['x-apicat-orders']?.filter((item) => !tempKeys.has(item))
+}

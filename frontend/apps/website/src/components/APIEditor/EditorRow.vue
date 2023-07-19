@@ -138,12 +138,12 @@
         </el-button-group>
       </div>
     </div>
-    <el-collapse-transition>
-      <div :class="ns.e('children')" v-if="expand">
-        <div :style="intentLineStyle" :class="ns.e('line')"></div>
-        <EditorRow :level="level + 1" v-for="item in data.children" :key="item.key" :data="item" :readonly="readonly" />
-      </div>
-    </el-collapse-transition>
+    <!-- <el-collapse-transition> -->
+    <div :class="ns.e('children')" v-if="expand">
+      <div :style="intentLineStyle" :class="ns.e('line')"></div>
+      <EditorRow :level="level + 1" v-for="item in data.children" :key="item.key" :data="item" :readonly="readonly" />
+    </div>
+    <!-- </el-collapse-transition> -->
   </div>
 </template>
 
@@ -272,6 +272,26 @@ const changeName = (v: string) => {
       ElMessage.error(`参数「${v}」重复`)
       return
     }
+
+    // 还原展开项
+    const keys: string[] = []
+    expandsKeys.forEach((item) => {
+      if (item.startsWith(props.data.key)) {
+        keys.push(item)
+        const prefix = props.data.key.split('.')
+        prefix.pop()
+        prefix.push(v)
+        keys.push(item.replace(props.data.key, prefix.join('.')))
+      }
+    })
+
+    // 遍历keys tow setp
+    for (let i = 0; i < keys.length; i += 2) {
+      var [oldKey, newKey] = keys.slice(i, i + 2)
+      expandsKeys.delete(oldKey)
+      expandsKeys.add(newKey)
+    }
+
     psch.properties[v] = psch.properties[props.data.label]
     // 继承原始必填
     psch.required = psch.required?.map((one) => (one === props.data.label ? v : one))
@@ -280,6 +300,7 @@ const changeName = (v: string) => {
     orders[orders?.indexOf(props.data.label)] = v
     psch['x-apicat-orders'] = orders
     delete psch.properties[props.data.label]
+
     changeNotify()
   }
 }
