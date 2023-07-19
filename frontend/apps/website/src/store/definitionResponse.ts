@@ -1,7 +1,8 @@
 import { getDefinitionResponseList, updateDefinitionResponse, createDefinitionResponse, deleteDefinitionResponse } from '@/api/definitionResponse'
-import { DefinitionTypeEnum } from '@/commons'
+import { DefinitionTypeEnum, removeJsonSchemaTempProperty } from '@/commons'
 import { DefinitionResponse } from '@/typings'
 import { traverseTree } from '@apicat/shared'
+import cloneDeep from 'lodash-es/cloneDeep'
 import { defineStore } from 'pinia'
 
 export const extendDocTreeFeild = (node = {} as any) => {
@@ -26,8 +27,15 @@ export const useDefinitionResponseStore = defineStore('definitionResponse', {
     },
 
     async updateDefinition(data: DefinitionResponse) {
-      await updateDefinitionResponse(data)
-      this.updateDefinitionStore(data)
+      const copy = cloneDeep(data)
+      const content = copy.content || {}
+
+      Object.keys(content).forEach((key) => {
+        removeJsonSchemaTempProperty(content[key].schema || {})
+      })
+
+      await updateDefinitionResponse(copy)
+      this.updateDefinitionStore(copy)
     },
 
     async createDefinition(data: any) {
