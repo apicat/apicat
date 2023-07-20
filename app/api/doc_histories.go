@@ -125,6 +125,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 
 func CollectionHistoryRestore(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
+	currentCollection, _ := ctx.Get("CurrentCollection")
 
 	uriData := CollectionHistoryUriData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
@@ -142,7 +143,7 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 		return
 	}
 
-	if err := ch.Restore(currentUser.(*models.Users).ID); err != nil {
+	if err := ch.Restore(currentCollection.(*models.Collections), currentUser.(*models.Users).ID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.RestoreFailed"}),
 		})

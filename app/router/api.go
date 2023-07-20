@@ -182,13 +182,13 @@ func InitApiRouter(r *gin.Engine) {
 			collections := project.Group("/collections")
 			{
 				collections.POST("", api.CollectionsCreate)
-				collections.PUT("/:collection-id", api.CollectionsUpdate)
-				collections.POST("/:collection-id", api.CollectionsCopy)
+				collections.PUT("/:collection-id", middleware.CheckCollection(), api.CollectionsUpdate)
+				collections.POST("/:collection-id", middleware.CheckCollection(), api.CollectionsCopy)
 				collections.PUT("/movement", api.CollectionsMovement)
-				collections.DELETE("/:collection-id", api.CollectionsDelete)
-				collections.GET("/:collection-id/share", api.DocShareDetails)
-				collections.PUT("/:collection-id/share/switch", api.DocShareSwitch)
-				collections.PUT("/:collection-id/share/reset", api.DocShareReset)
+				collections.DELETE("/:collection-id", middleware.CheckCollection(), api.CollectionsDelete)
+				collections.GET("/:collection-id/share", middleware.CheckCollection(), api.DocShareDetails)
+				collections.PUT("/:collection-id/share/switch", middleware.CheckCollection(), api.DocShareSwitch)
+				collections.PUT("/:collection-id/share/reset", middleware.CheckCollection(), api.DocShareReset)
 			}
 
 			trashs := project.Group("/trashs")

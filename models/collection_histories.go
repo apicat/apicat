@@ -35,26 +35,21 @@ func (ch *CollectionHistories) Create() error {
 	return Conn.Create(ch).Error
 }
 
-func (ch *CollectionHistories) Restore(uid uint) error {
-	c, err := NewCollections(ch.CollectionId)
-	if err != nil {
-		return err
-	}
-
+func (ch *CollectionHistories) Restore(collection *Collections, uid uint) error {
 	nch, _ := NewCollectionHistories()
-	nch.CollectionId = c.ID
-	nch.Title = c.Title
-	nch.Type = c.Type
-	nch.Content = c.Content
+	nch.CollectionId = collection.ID
+	nch.Title = collection.Title
+	nch.Type = collection.Type
+	nch.Content = collection.Content
 	nch.CreatedBy = uid
 	if err := nch.Create(); err != nil {
 		return err
 	}
 
-	c.Title = ch.Title
-	c.Content = ch.Content
-	c.UpdatedBy = uid
-	if err := c.Update(); err != nil {
+	collection.Title = ch.Title
+	collection.Content = ch.Content
+	collection.UpdatedBy = uid
+	if err := collection.Update(); err != nil {
 		return err
 	}
 
