@@ -212,6 +212,15 @@ func InitApiRouter(r *gin.Engine) {
 				projectMember.DELETE("/:user-id", api.ProjectMembersDelete)
 				projectMember.GET("/without", api.ProjectMembersWithout)
 			}
+
+			collectionHistories := project.Group("/collections/:collection-id/histories")
+			{
+				collectionHistories.GET("", api.CollectionHistoryList)
+				collectionHistories.GET("/:history-id", api.CollectionHistoryDetails)
+				collectionHistories.GET("/:history-id/diff", api.CollectionHistoryDiff)
+				collectionHistories.PUT("/:history-id/restore", api.CollectionHistoryRestore)
+
+			}
 		}
 	}
 

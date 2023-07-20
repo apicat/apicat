@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/apicat/apicat/app/util"
 	"github.com/apicat/apicat/common/spec"
@@ -204,6 +205,23 @@ func CollectionsUpdate(ctx *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+	}
+
+	ch, _ := models.NewCollectionHistories()
+	ch.CollectionId = collection.ID
+	ch.Title = collection.Title
+	ch.Type = collection.Type
+	ch.Content = collection.Content
+	ch.CreatedBy = currentProjectMember.(*models.ProjectMembers).UserID
+
+	// 不是同一个人编辑的文档或5分钟后编辑文档内容，保存历史记录
+	if collection.UpdatedBy != currentProjectMember.(*models.ProjectMembers).UserID || collection.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
+		if err := ch.Create(); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.UpdateFailed"}),
+			})
+			return
+		}
 	}
 
 	collection.Title = data.Title
