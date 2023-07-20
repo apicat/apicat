@@ -252,3 +252,6 @@ other = "不存在文档历史"
 
 [History.QueryFailed]
 other = "文档历史查询失败"
+
+[History.RestoreFailed]
+other = "恢复文档历史记录失败"

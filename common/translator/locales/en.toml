@@ -246,3 +246,12 @@ other = "Failed to verify key"
 
 [Share.AccessPasswordError]
 other = "Wrong access password"
+
+[History.NotFound]
+other = "Document history does not exist"
+
+[History.QueryFailed]
+other = "Document history query failed"
+
+[History.RestoreFailed]
+other = "Failed to restore document history"
