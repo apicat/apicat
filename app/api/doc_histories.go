@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/apicat/apicat/common/translator"
+	"github.com/apicat/apicat/enum"
 	"github.com/apicat/apicat/models"
 	"github.com/gin-gonic/gin"
 )
@@ -86,6 +87,8 @@ func CollectionHistoryList(ctx *gin.Context) {
 }
 
 func CollectionHistoryDetails(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+
 	uriData := CollectionHistoryUriData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -96,6 +99,13 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 
 	ch, err := models.NewCollectionHistories(uriData.HistoryID)
 	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+		})
+		return
+	}
+
+	if currentCollection.(*models.Collections).ID != ch.CollectionId {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
@@ -127,6 +137,15 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 	currentCollection, _ := ctx.Get("CurrentCollection")
 
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	uriData := CollectionHistoryUriData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -137,6 +156,13 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 
 	ch, err := models.NewCollectionHistories(uriData.HistoryID)
 	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+		})
+		return
+	}
+
+	if currentCollection.(*models.Collections).ID != ch.CollectionId {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})

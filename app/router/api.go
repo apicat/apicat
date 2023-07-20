@@ -214,6 +214,7 @@ func InitApiRouter(r *gin.Engine) {
 			}
 
 			collectionHistories := project.Group("/collections/:collection-id/histories")
+			collectionHistories.Use(middleware.CheckCollection())
 			{
 				collectionHistories.GET("", api.CollectionHistoryList)
 				collectionHistories.GET("/:history-id", api.CollectionHistoryDetails)

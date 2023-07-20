@@ -158,6 +158,9 @@ func CollectionsCreate(ctx *gin.Context) {
 }
 
 func CollectionsUpdate(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
@@ -166,9 +169,6 @@ func CollectionsUpdate(ctx *gin.Context) {
 		})
 		return
 	}
-
-	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
 
 	data := CollectionUpdate{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -209,6 +209,9 @@ func CollectionsUpdate(ctx *gin.Context) {
 }
 
 func CollectionsCopy(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
@@ -217,9 +220,6 @@ func CollectionsCopy(ctx *gin.Context) {
 		})
 		return
 	}
-
-	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
 
 	newCollection := models.Collections{
 		ProjectId:    collection.ProjectId,
@@ -291,6 +291,9 @@ func CollectionsMovement(ctx *gin.Context) {
 }
 
 func CollectionsDelete(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
@@ -299,9 +302,6 @@ func CollectionsDelete(ctx *gin.Context) {
 		})
 		return
 	}
-
-	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
 
 	if err := models.Deletes(collection.ID, models.Conn, currentProjectMember.(*models.ProjectMembers).UserID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{

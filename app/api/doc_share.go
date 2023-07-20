@@ -54,9 +54,11 @@ func DocShareStatus(ctx *gin.Context) {
 }
 
 func DocShareDetails(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProject, _ := ctx.Get("CurrentProject")
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-
 	if currentProject.(*models.Projects).Visibility == 0 {
 		if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 			ctx.JSON(http.StatusForbidden, gin.H{
@@ -81,9 +83,6 @@ func DocShareDetails(ctx *gin.Context) {
 		return
 	}
 
-	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
-
 	if currentProject.(*models.Projects).Visibility == 0 {
 		visibility = "private"
 		collectionPublicID = collection.PublicId
@@ -100,6 +99,9 @@ func DocShareDetails(ctx *gin.Context) {
 }
 
 func DocShareSwitch(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProject, _ := ctx.Get("CurrentProject")
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
@@ -129,9 +131,6 @@ func DocShareSwitch(ctx *gin.Context) {
 		})
 		return
 	}
-
-	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
 
 	if data.Share == "open" {
 		if collection.PublicId == "" {
@@ -176,6 +175,9 @@ func DocShareSwitch(ctx *gin.Context) {
 }
 
 func DocShareReset(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProject, _ := ctx.Get("CurrentProject")
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
@@ -198,9 +200,6 @@ func DocShareReset(ctx *gin.Context) {
 		})
 		return
 	}
-
-	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
 
 	stt := models.NewShareTmpTokens()
 	stt.CollectionID = collection.ID
@@ -227,6 +226,9 @@ func DocShareReset(ctx *gin.Context) {
 }
 
 func DocShareCheck(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	var (
 		data ProjectShareSecretkeyCheckData
 		err  error
@@ -238,9 +240,6 @@ func DocShareCheck(ctx *gin.Context) {
 		})
 		return
 	}
-
-	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
 
 	if data.SecretKey != collection.SharePassword {
 		ctx.JSON(http.StatusBadRequest, gin.H{
