@@ -17,6 +17,12 @@ type CollectionHistoryListData struct {
 	SubNodes []CollectionHistoryListData `json:"sub_nodes,omitempty"`
 }
 
+type CollectionHistoryUriData struct {
+	ProjectID    string `uri:"project-id" binding:"required,gt=0"`
+	CollectionID uint   `uri:"collection-id" binding:"required,gt=0"`
+	HistoryID    uint   `uri:"history-id" binding:"required,gt=0"`
+}
+
 func CollectionHistoryList(ctx *gin.Context) {
 	uriData := CollectionDataGetData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
@@ -80,6 +86,38 @@ func CollectionHistoryList(ctx *gin.Context) {
 }
 
 func CollectionHistoryDetails(ctx *gin.Context) {
+	uriData := CollectionHistoryUriData{}
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	ch, err := models.NewCollectionHistories(uriData.HistoryID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+		})
+		return
+	}
+
+	u, err := models.NewUsers(ch.CreatedBy)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"id":              ch.ID,
+		"collection_id":   ch.CollectionId,
+		"title":           ch.Title,
+		"content":         ch.Content,
+		"created_time":    ch.CreatedAt.Format("2006-01-02 15:04:05"),
+		"last_updated_by": u.Username,
+	})
 }
 
 func CollectionHistoryDiff(ctx *gin.Context) {
