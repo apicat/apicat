@@ -104,7 +104,7 @@ export const removeJsonSchemaTempProperty = (schema: JSONSchema) => {
           removeTempProperty(subJsonSchema)
         }
         // 移除临时属性
-        if (propertyName.startsWith('__temp__')) {
+        if (subJsonSchema && subJsonSchema['x-apicat-temp-prop'] !== undefined) {
           delete ps[propertyName]
           tempKeys.add(propertyName)
         }

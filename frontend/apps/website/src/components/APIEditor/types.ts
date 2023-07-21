@@ -13,6 +13,7 @@ export declare interface JSONSchema {
   default?: any
   $ref?: string
   'x-apicat-orders'?: string[]
+  'x-apicat-temp-prop'?: boolean
   'x-apicat-mock'?: string
 }
 

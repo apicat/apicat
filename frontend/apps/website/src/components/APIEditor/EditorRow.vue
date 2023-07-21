@@ -27,7 +27,7 @@
             ref="labelInputRef"
             style="margin-left: -4px"
             placeholder="name"
-            :value="data.label.startsWith('__temp__') ? data.tempLabel : data.label"
+            :value="isTempTree ? '' : data.label"
             :disabled="isRefChildren(data)"
             @change="changeName"
           />
@@ -181,6 +181,16 @@ const toggleExpandHandler = () => {
   expand.value ? expandsKeys.delete(props.data.key) : expandsKeys.add(props.data.key)
 }
 
+const isTempTree = computed(() => {
+  if (props.data.parent) {
+    const properties = props.data.parent.schema.properties || {}
+    const schema = properties[props.data.label]
+    return schema['x-apicat-temp-prop'] !== undefined
+  }
+
+  return false
+})
+
 function isRefChildren(v: Tree): boolean {
   if (v.parent) {
     return v.parent.refObj ? true : isRefChildren(v.parent)
@@ -293,6 +303,13 @@ const changeName = (v: string) => {
     }
 
     psch.properties[v] = psch.properties[props.data.label]
+    const schema = psch.properties[v]
+
+    // remove temp flag
+    if (schema && schema['x-apicat-temp-prop'] !== undefined) {
+      delete schema['x-apicat-temp-prop']
+    }
+
     // 继承原始必填
     psch.required = psch.required?.map((one) => (one === props.data.label ? v : one))
     // 继承排序
@@ -363,6 +380,7 @@ const addChildHandler = () => {
     const temp = `${tempKey}${Date.now()}`
     props.data.schema.properties[temp] = {
       type: 'string',
+      'x-apicat-temp-prop': true,
       'x-apicat-mock': 'string',
     }
     props.data.schema['x-apicat-orders']?.push(temp)
