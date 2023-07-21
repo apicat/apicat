@@ -10,6 +10,7 @@ export default class ObjectSchemaNode extends BasicTypeSchemaNode {
     schema.properties = {}
     schema.required = []
     schema['x-apicat-orders'] = []
+    console.log(schema)
     return schema
   }
 
@@ -22,8 +23,6 @@ export default class ObjectSchemaNode extends BasicTypeSchemaNode {
       this.childNodes.splice(index, 1)
       this.changeNotify()
     }
-
-    this.updateLeafState()
   }
 
   // 删除属性
@@ -41,8 +40,19 @@ export default class ObjectSchemaNode extends BasicTypeSchemaNode {
   }
 
   // 增加属性
-  addProperty() {}
+  addProperty(child: SchemaNode) {
+    if (!child) {
+      return
+    }
+    const property = this.schema.properties || {}
+    property[child.name] = child.schema
+    this.schema.properties = property
+  }
 
   // 更新属性
-  updateProperty() {}
+  updatePropertyName(newChild: SchemaNode, oldChild: SchemaNode) {
+    // const property = this.schema.properties || {}
+    // property[child.name] = child.schema
+    // this.schema.properties = property
+  }
 }

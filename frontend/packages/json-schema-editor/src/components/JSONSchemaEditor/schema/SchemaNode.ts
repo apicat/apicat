@@ -1,15 +1,22 @@
 import { JSONSchema, SchemaNodeOptions } from '../types'
 import type SchemaStore from './SchemaStore'
+import RefSchemaNode from './compose/RefSchemaNode'
+
+export type SchemaType = 'string' | 'boolean' | 'number' | 'integer' | 'object' | 'array' | 'null' | 'any' | 'ref' | string
 
 let nodeIdSeed = 0
-export default abstract class SchemaNode {
+export default class SchemaNode {
   id: number = 0
   // 层级，渲染阶梯UI
   level: number = 0
-  // 管理所有node
-  store: SchemaStore
+  // schema 类型
+  type: SchemaType
   // schema 名称
   schemaName: string = ''
+  oldSchemaName: string = ''
+
+  // 管理所有node
+  store: SchemaStore
   // 是否常量节点 root | item | normal
   isConstantSchemaNode: boolean = false
   // 允许mock
@@ -18,12 +25,10 @@ export default abstract class SchemaNode {
   isDisabledRequired = false
   // 是否展开
   isExpand: boolean = false
-  // 是否叶子
-  isLeaf: boolean = true
   // 原始schema数据
   schema: JSONSchema
   // 父级Schema节点
-  parent: SchemaNode | null = null
+  parent: SchemaNode | RefSchemaNode | null = null
   // 子级Schema节点
   childNodes: SchemaNode[] = []
   // 是否临时节点
@@ -31,38 +36,37 @@ export default abstract class SchemaNode {
   // 是否引用类型节点
   isRefSchemaNode: boolean = false
 
+  isEmptyName = false
+
   changeNotify: (schema?: JSONSchema) => void
 
-  abstract type: string
-
   constructor(options: SchemaNodeOptions) {
+    // TODO valid schema type
+
     this.id = nodeIdSeed++
-    const { store, schema, parent } = options
+    const { store, schema, parent, name, isTemp = false } = options
     this.store = store
     this.parent = parent ?? null
-    // raw schema
-    this.schema = markRaw(schema ?? this.createDefaultSchema())
+
+    // 临时节点
+    this.isTempSchemaNode = isTemp
+
+    this.schema = markRaw(this.mergeDefaultSchemaStruct(schema))
+    this.type = this.getType(this.schema)
+    this.schemaName = name || ''
 
     // 保存节点
     store.register(this)
 
-    this.changeNotify = () => {
-      store.changeNotify && store.changeNotify()
-    }
+    this.changeNotify = () => store.changeNotify && store.changeNotify()
 
+    // 初始化
     this.initialize()
   }
 
   initialize() {
-    this.isConstantSchemaNode = false
-
     if (this.parent) {
       this.level = this.parent.level + 1
-    }
-
-    // root
-    if (!this.parent && this.level === 0) {
-      this.isConstantSchemaNode = true
     }
 
     // array items
@@ -71,61 +75,39 @@ export default abstract class SchemaNode {
     }
   }
 
-  createDefaultSchema(...args: any): JSONSchema
-  createDefaultSchema(): JSONSchema {
-    return {}
+  mergeDefaultSchemaStruct(schema?: JSONSchema): JSONSchema {
+    return schema ?? {}
   }
 
-  get name(): string {
-    return this.schemaName
+  get name() {
+    return this.isEmptyName ? '' : this.schemaName
   }
 
-  set name(value: string) {
-    if (!this.schemaName && this.isTempSchemaNode && value) {
-      this.isTempSchemaNode = false
-      this.schemaName = value
-      if (this.parent) {
-        const { schema } = this.parent
-        const properties = (schema.properties = schema.properties || {})
-        properties[value] = this.schema
-        const orders = schema['x-apicat-orders'] || []
-        orders.push(value)
-        schema['x-apicat-orders'] = orders
-        this.changeNotify()
-      }
-
-      return
-    }
-
+  set name(newName: string) {
     if (this.isConstantSchemaNode || this.isInRefSchemaNode) {
       return
     }
 
-    // validate
-    // if(!this.validate(value)) {
-    //   return
-    // }
+    this.isEmptyName = !newName
 
-    if (this.parent) {
-      const { schema } = this.parent
-      const properties = (schema.properties = schema.properties || {})
-      properties[value] = properties[this.schemaName]
-
-      // 更新必选
-      if (this.isRequired) {
-        schema.required = schema.required?.map((one) => (one === this.schemaName ? value : one))
-      }
-
-      // 更新排序
-      const orders = schema['x-apicat-orders'] || []
-      orders[orders?.indexOf(this.schemaName)] = value
-      schema['x-apicat-orders'] = orders
-
-      // 移除旧key
-      delete properties[this.schemaName]
+    if (this.isEmptyName) {
+      return
     }
 
-    this.schemaName = value
+    this.oldSchemaName = this.schemaName
+    this.schemaName = newName
+
+    // 临时节点 -> 新增节点时与原schema进行关联引用
+    if (this.isTempSchemaNode) {
+      this.isTempSchemaNode = false
+      this.parent && this.parent.addSchemaPropertyField(this)
+    }
+    // 修改节点名称
+    else {
+      this.parent && this.parent.updateSchemaPropertyField(this)
+    }
+
+    this.oldSchemaName = ''
 
     this.changeNotify()
   }
@@ -162,7 +144,7 @@ export default abstract class SchemaNode {
   }
 
   set example(value: string) {
-    if (this.isInRefSchemaNode) {
+    if (this.isInRefSchemaNode || this.isTempSchemaNode) {
       return
     }
     this.schema.example = value
@@ -174,7 +156,7 @@ export default abstract class SchemaNode {
   }
 
   set description(value: string) {
-    if (this.isInRefSchemaNode) {
+    if (this.isInRefSchemaNode || this.isTempSchemaNode) {
       return
     }
     this.schema.description = value
@@ -203,79 +185,6 @@ export default abstract class SchemaNode {
     return null
   }
 
-  insertChild(child: SchemaNode, index?: number) {
-    child.parent = this
-    child.initialize()
-
-    if (typeof index === 'undefined' || index < 0) {
-      this.childNodes.push(child)
-    } else {
-      this.childNodes.splice(index, 0, child)
-    }
-
-    this.updateLeafState()
-    if (!child.isTempSchemaNode) {
-      this.changeNotify()
-    }
-  }
-
-  insertBefore(child: SchemaNode, ref: SchemaNode): void {
-    let index
-    if (ref) {
-      index = this.childNodes.indexOf(ref)
-    }
-    this.insertChild(child, index)
-  }
-
-  insertAfter(child: SchemaNode, ref: SchemaNode): void {
-    let index
-    if (ref) {
-      index = this.childNodes.indexOf(ref)
-      if (index !== -1) index += 1
-    }
-    this.insertChild(child, index)
-  }
-
-  remove(): void {
-    const parent = this.parent
-    if (parent) {
-      parent.removeChild(this)
-    }
-  }
-
-  removeChild(child: SchemaNode): void {
-    const index = this.childNodes.indexOf(child)
-
-    if (index > -1) {
-      this.store && this.store.deregisterNode(child)
-      console.log(child, child.parent)
-      child.parent = null
-
-      this.childNodes.splice(index, 1)
-
-      this.changeNotify()
-    }
-
-    this.updateLeafState()
-  }
-
-  expand(): void {
-    this.isExpand = true
-  }
-
-  collapse(): void {
-    this.isExpand = false
-  }
-
-  updateLeafState(): void {
-    const childNodes = this.childNodes
-    this.isLeaf = !childNodes || childNodes.length === 0
-  }
-
-  isEmpty() {
-    return this.childNodes.length === 0
-  }
-
   get isInRefSchemaNode() {
     let result = false
     let parent = this.parent
@@ -289,9 +198,142 @@ export default abstract class SchemaNode {
     return result
   }
 
-  addProperty() {}
+  get isLeaf(): boolean {
+    const childNodes = this.childNodes
+    return !childNodes || childNodes.length === 0
+  }
 
-  updateProperty() {}
+  insertChild(child: SchemaNode | RefSchemaNode, index?: number): void {
+    child = reactive(child)
+    child.parent = this
+    child.initialize()
 
-  deleteProperty() {}
+    if (typeof index === 'undefined' || index < 0) {
+      this.childNodes.push(child)
+    } else {
+      this.childNodes.splice(index, 0, child)
+    }
+
+    if (!child.isTempSchemaNode) {
+      this.changeNotify()
+    }
+  }
+
+  remove(): number {
+    if (this.parent) {
+      return this.parent.removeChild(this)
+    }
+    return -1
+  }
+
+  removeChild(child: SchemaNode | RefSchemaNode): number {
+    const index = this.childNodes.indexOf(child)
+
+    if (index > -1) {
+      this.store && this.store.deregisterNode(child)
+      child.parent?.removeSchemaPropertyField(child)
+      child.parent = null
+      this.childNodes.splice(index, 1)
+    }
+
+    return index
+  }
+
+  expand(): void {
+    this.isExpand = true
+  }
+
+  collapse(): void {
+    this.isExpand = false
+  }
+
+  isEmpty() {
+    return this.childNodes.length === 0
+  }
+
+  getType(schema: JSONSchema) {
+    if (schema.type === undefined && schema.$ref !== undefined) {
+      return 'ref'
+    }
+
+    if (schema.type instanceof Array) {
+      return 'any'
+    }
+
+    return schema.type as string
+  }
+
+  updateSchemaPropertyField(child: SchemaNode) {
+    const { properties = {} } = this.schema
+    const { oldSchemaName, name } = child
+    if (!properties[oldSchemaName]) {
+      throw new Error('updateSchemaPropertyField error')
+    }
+
+    properties[name] = child.schema
+    delete properties[oldSchemaName]
+
+    this.updateSchemaPropertyRequired(child)
+    this.updateSchemaPropertyOrder(child)
+  }
+
+  addSchemaPropertyField(child: SchemaNode): this {
+    const { schema } = this
+    const property = schema.properties || {}
+    property[child.name] = child.schema
+    schema.properties = property
+
+    this.updateSchemaPropertyRequired(child)
+    this.updateSchemaPropertyOrder(child)
+    return this
+  }
+
+  removeSchemaPropertyField(child: SchemaNode): this {
+    const { schema } = this
+    const { name } = child
+    if (!name) {
+      throw new Error('removeSchemaPropertyField failed, name is empty')
+    }
+
+    const { properties = {}, required = [] } = schema
+    const order = this.schema['x-apicat-orders'] || []
+
+    delete properties[name]
+
+    // remove required
+    schema.required = required.filter((item) => item !== name)
+    // remove order
+    schema['x-apicat-orders'] = order.filter((item) => item !== name)
+
+    this.changeNotify()
+    return this
+  }
+
+  updateSchemaPropertyRequired(child: SchemaNode): this {
+    const { required } = this.schema
+    const { oldSchemaName, name } = child
+    this.schema.required = (required || []).map((field) => (field === oldSchemaName ? name : field))
+
+    return this
+  }
+
+  updateSchemaPropertyOrder(child: SchemaNode): this {
+    const { oldSchemaName, name } = child
+    let orders = this.schema['x-apicat-orders'] || []
+
+    // 移除旧schemaname
+    orders = orders.filter((one) => one !== oldSchemaName)
+
+    const index = this.childNodes.indexOf(child)
+
+    // 添加新schemaname
+    if (index < 0) {
+      orders.push(name)
+    } else {
+      orders.splice(index, 0, name)
+    }
+
+    this.schema['x-apicat-orders'] = orders
+    return this
+  }
 }

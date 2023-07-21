@@ -33,9 +33,12 @@ export const definitionSchemas = [
         username: {
           type: 'string',
         },
+        subUsers: {
+          $ref: '#/definitions/schemas/14',
+        },
       },
       type: 'object',
-      'x-apicat-orders': ['username', 'firstName', 'lastName', 'email', 'password', 'phone', 'userStatus', 'id'],
+      'x-apicat-orders': ['username', 'firstName', 'lastName', 'email', 'password', 'phone', 'userStatus', 'id', 'subUsers'],
     },
     type: 'schema',
   },
@@ -180,9 +183,19 @@ export const definitionSchemas = [
     },
     type: 'schema',
   },
+  {
+    description: 'RefRoot',
+    id: 20,
+    name: 'RefRoot',
+    parent_id: 0,
+    schema: {
+      $ref: '#/definitions/schemas/20',
+    },
+    type: 'schema',
+  },
 ]
 
-export const exampleSchema = {
+const exampleSchemaAll = {
   type: 'object',
   title: 'title',
   properties: {
@@ -238,7 +251,7 @@ export const exampleSchema = {
   required: ['field_1', 'field_2', 'field_4', 'field_6'],
 }
 
-export const exampleSchema2 = {
+const exampleSchemaObject = {
   type: 'object',
   properties: {
     field_5: {
@@ -247,5 +260,29 @@ export const exampleSchema2 = {
   },
   required: ['field_5'],
 }
+
+const exampleSchemaString = {
+  type: 'string',
+}
+
+const exampleSchemaRef = {
+  $ref: '#/definitions/schemas/14',
+}
+
+const exampleSchemaArray = {
+  type: 'array',
+  items: {
+    type: 'string',
+  },
+}
+
+const exampleSchemaArrayRef = {
+  type: 'array',
+  items: {
+    $ref: '#/definitions/schemas/14',
+  },
+}
+
+export const exampleSchema = exampleSchemaAll
 
 export default definitionSchemas

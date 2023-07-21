@@ -2,7 +2,7 @@ import { JSONSchema } from '../types'
 import SchemaNode from './SchemaNode'
 
 // 基础类型Schema节点
-export default abstract class BasicTypeSchemaNode extends SchemaNode {
+export default class BasicTypeSchemaNode extends SchemaNode {
   createDefaultSchema(override?: JSONSchema): JSONSchema {
     if (override && override.type === this.type) {
       return {

@@ -1,9 +1,14 @@
-import SchemaNode from './model/SchemaNode'
-import SchemaNodeV2 from './schema/SchemaNode'
-import type SchemaTreeStore from './model/SchemaStore'
+import SchemaNode from './schema/SchemaNode'
 import type SchemaStore from './schema/SchemaStore'
 
 import RefSchemaNode from './schema/compose/RefSchemaNode'
+import StringSchemaNode from './schema/basic/StringSchemaNode'
+import NumberSchemaNode from './schema/basic/NumberSchemaNode'
+import ObjectSchemaNode from './schema/basic/ObjectSchemaNode'
+import ArraySchemaNode from './schema/basic/ArraySchemaNode'
+import BooleanSchemaNode from './schema/basic/BooleanSchemaNode'
+import NullSchemaNode from './schema/basic/NullSchemaNode'
+import AnySchemaNode from './schema/basic/AnySchemaNode'
 
 export declare interface JSONSchema {
   type?: string | string[]
@@ -63,14 +68,10 @@ export declare interface SchemaData {
   [key: string]: any
 }
 
-export declare interface SchemaOptions {
-  schema: JSONSchema
-  store: SchemaTreeStore
-  parent?: SchemaNode
-}
-
 export declare interface SchemaNodeOptions {
+  name?: string
   store: SchemaStore
-  schema?: JSONSchema
-  parent?: SchemaNodeV2 | RefSchemaNode
+  schema: JSONSchema
+  parent?: SchemaNode | RefSchemaNode | null
+  isTemp?: boolean
 }

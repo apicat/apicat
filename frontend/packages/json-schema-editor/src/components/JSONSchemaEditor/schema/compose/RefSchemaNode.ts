@@ -5,32 +5,43 @@ export default class RefSchemaNode extends SchemaNode {
   static SCHEMA_REF_PREFIX = '#/definitions/schemas/'
   static SCHEMA_REF_REGEX = /#\/definitions\/schemas\/(.*)/
 
-  type = 'ref'
-
   isRefSchemaNode = true
-  isAllowMock = false
+
   definitionSchema: DefinitionSchema | null = null
-  refSchemaId: number = -1
+  refSchemaId: number | null = null
 
   constructor(options: SchemaNodeOptions) {
     super(options)
-    this.updateChildNodes()
+    this.refSchemaId = this.getRefSchemaId()
+    this.definitionSchema = this.findRefSchema()
+
+    if (!this.definitionSchema) {
+      return
+    }
+
+    if (!this.isRefSelf) {
+      this.updateChildNodes()
+    }
   }
 
-  createDefaultSchema(definitionSchema: DefinitionSchema): JSONSchema {
+  static createRefSchemaByRefId(refSchemaId: number | string): JSONSchema {
     return {
-      $ref: RefSchemaNode.SCHEMA_REF_PREFIX + definitionSchema.id,
+      $ref: RefSchemaNode.SCHEMA_REF_PREFIX + refSchemaId,
     }
+  }
+
+  getRefSchemaId() {
+    return parseInt(this.schema.$ref!.match(RefSchemaNode.SCHEMA_REF_REGEX)?.[1] as string, 10)
   }
 
   updateChildNodes(schemaSource?: JSONSchema) {
-    schemaSource = schemaSource || this.schema
+    this.schema = schemaSource || this.schema
 
-    if (!schemaSource) {
+    if (!this.schema) {
       throw new Error('ref schema is required::' + JSON.stringify(schemaSource))
     }
 
-    this.refSchemaId = parseInt(schemaSource.$ref!.match(RefSchemaNode.SCHEMA_REF_REGEX)?.[1] as string, 10)
+    this.refSchemaId = this.getRefSchemaId()
     this.definitionSchema = this.findRefSchema()
 
     if (!this.definitionSchema) {
@@ -51,5 +62,20 @@ export default class RefSchemaNode extends SchemaNode {
     }
 
     return store.definitionSchemas.find((item) => item.id === refSchemaId) || null
+  }
+
+  get isRefSelf(): boolean {
+    let parent = this.parent
+
+    while (parent) {
+      if (parent instanceof RefSchemaNode) {
+        if (parent.refSchemaId === this.refSchemaId) {
+          return true
+        }
+      }
+      parent = parent.parent
+    }
+
+    return false
   }
 }

@@ -6,8 +6,8 @@
         <input v-model="data.name" :disabled="data.isInRefSchemaNode" />
       </div>
       <div :class="[nsRow.e('item'), nsRow.e('type')]">
-        {{ data.isRefSchemaNode ? data.definitionSchema?.name : data.schema.type }}
-        <select v-model="type" @change="changeType(data)" class="hidden">
+        {{ data.isRefSchemaNode ? (data as RefSchemaNode).definitionSchema?.name : data.schema.type }}
+        <select v-model="type" class="hidden">
           <option value="string">string</option>
           <option value="number">number</option>
           <option value="boolean">boolean</option>
@@ -38,20 +38,14 @@
 <script setup lang="ts">
 import { useNamespace } from '@/hooks/useNamespace'
 import SchemaNode from './schema/SchemaNode'
+import RefSchemaNode from './schema/compose/RefSchemaNode'
 
-const props = defineProps<{ data: any }>()
+const props = defineProps<{ data: SchemaNode | RefSchemaNode }>()
+
 const nsRow = useNamespace('schema-row')
 const intent = props.data.level * 16 + 12
 const intentLineStyle = { left: intent + 'px' }
 const intentRowStyle = { width: intent + 'px' }
 
 const type = ref('string')
-
-// watch(type, () => {
-//   console.log(type.value)
-// })
-
-const changeType = (data: SchemaNode) => {
-  console.log(data.changeType(type.value))
-}
 </script>
