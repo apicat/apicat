@@ -62,8 +62,8 @@ func InitApiRouter(r *gin.Engine) {
 			collection := notLogin.Group("/projects/:project-id/collections")
 			collection.Use(middleware.CheckProject())
 			{
-				collection.GET("/:collection-id/data", api.CollectionDataGet)
-				collection.POST("/:collection-id/share/check", api.DocShareCheck)
+				collection.GET("/:collection-id/data", middleware.CheckCollection(), api.CollectionDataGet)
+				collection.POST("/:collection-id/share/check", middleware.CheckCollection(), api.DocShareCheck)
 			}
 
 			collection_share := notLogin.Group("/collections")
@@ -95,7 +95,7 @@ func InitApiRouter(r *gin.Engine) {
 			collections := halfLogin.Group("/projects/:project-id/collections")
 			{
 				collections.GET("", api.CollectionsList)
-				collections.GET("/:collection-id", api.CollectionsGet)
+				collections.GET("/:collection-id", middleware.CheckCollection(), api.CollectionsGet)
 			}
 
 			globalParameters := halfLogin.Group("/projects/:project-id/global/parameters")
@@ -218,7 +218,7 @@ func InitApiRouter(r *gin.Engine) {
 			{
 				collectionHistories.GET("", api.CollectionHistoryList)
 				collectionHistories.GET("/:history-id", api.CollectionHistoryDetails)
-				collectionHistories.GET("/:history-id/diff", api.CollectionHistoryDiff)
+				collectionHistories.GET("/diff", api.CollectionHistoryDiff)
 				collectionHistories.PUT("/:history-id/restore", api.CollectionHistoryRestore)
 
 			}
