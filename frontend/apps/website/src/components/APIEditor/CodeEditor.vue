@@ -64,6 +64,28 @@ const fixedHeightEditor = EditorView.baseTheme({
 
 const handlerCopy = () => useCopy(viewRef.value?.state.doc.toString() || '')
 
+// Event handler for the paste event
+const handlePasteEvent = (event: ClipboardEvent, view: EditorView) => {
+  try {
+    if (lang.value === 'json') {
+      const pastedText = event.clipboardData?.getData('text') || ''
+      const formatJson = JSON.stringify(JSON.parse(pastedText), null, 2)
+
+      // Replace the original pasted text with the formatted JSON
+      const { from, to } = view.state.selection.main
+      view.dispatch({
+        changes: { from, to, insert: formatJson },
+        scrollIntoView: true,
+      })
+
+      // Prevent the default paste behavior to avoid duplicating the content
+      event.preventDefault()
+    }
+  } catch (error) {
+    //
+  }
+}
+
 const basicSetup: Extension = (() => [
   languageExtension,
   lineNumbers(),
@@ -92,6 +114,9 @@ onMounted(() => {
       if (update.docChanged) {
         emits('update:modelValue', view.state.doc.toString())
       }
+    }),
+    EditorView.domEventHandlers({
+      paste: handlePasteEvent,
     }),
   ]
   view = new EditorView({

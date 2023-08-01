@@ -12,7 +12,13 @@
       </div>
     </div>
     <EditorRow :level="1" :data="root" :readonly="readonly" />
+    <div :class="[nsRow.b()]" v-if="!readonly">
+      <div :class="nsRow.e('content')" class="px-20px">
+        <el-button @click="() => importSchemaModalRef?.show()">Code 导入</el-button>
+      </div>
+    </div>
   </div>
+  <ImportSchemaModal ref="importSchemaModalRef" @ok="handleImportSuccess" />
 </template>
 
 <script setup lang="ts">
@@ -24,6 +30,7 @@ import { useNamespace } from '@/hooks'
 import { RefPrefixKeys } from '@/commons'
 import { cloneDeep } from 'lodash-es'
 import { guessMockRule } from '../MockRules/utils'
+import ImportSchemaModal from './ImportSchemaModal.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -45,6 +52,7 @@ const emits = defineEmits(['update:modelValue'])
 const expandKeys = ref<Set<string>>(new Set([constNodeType.root]))
 const localSchema = ref()
 const root = computed(() => convertTreeData(undefined, constNodeType.root, constNodeType.root, localSchema.value))
+const importSchemaModalRef = ref<InstanceType<typeof ImportSchemaModal>>()
 
 watch(
   () => props.modelValue,
@@ -171,6 +179,10 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
   return item
 }
 
+const handleImportSuccess = (jsonSchema: JSONSchema) => {
+  localSchema.value = jsonSchema
+  changeEvent()
+}
 // 处理拖拽
 provide('drop', dropHandler)
 function dropHandler(offset: number, to: Tree, source: string) {

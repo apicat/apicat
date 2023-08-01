@@ -53,11 +53,6 @@ export default defineComponent({
       return convertSchemaToTree(undefined, 'root', 'root', exampleSchema)
     })
 
-    // window['setValueByPath'] = setValueByPath
-    // window['root'] = root.value
-    // window['schema'] = exampleSchema
-    // window['keysMap'] = keysMap
-
     return {
       root,
     }

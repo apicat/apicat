@@ -24,8 +24,6 @@ watch(schema, () => {
 watch(definitionSchemas, () => {
   store.value.setDefinitionSchemas(definitionSchemas.value)
 })
-
-window['root'] = store.value
 </script>
 
 <template>
