@@ -6,6 +6,20 @@
   "description": "open source apicat icons",
   "glyphs": [
     {
+      "icon_id": "666901",
+      "name": "智能优化",
+      "font_class": "zhinengyouhua",
+      "unicode": "e69a",
+      "unicode_decimal": 59034
+    },
+    {
+      "icon_id": "32835839",
+      "name": "迭代",
+      "font_class": "diedai",
+      "unicode": "e609",
+      "unicode_decimal": 58889
+    },
+    {
       "icon_id": "128569",
       "name": "lock",
       "font_class": "lock",
@@ -144,6 +158,13 @@
       "font_class": "cloud-upload",
       "unicode": "e7d9",
       "unicode_decimal": 59353
+    },
+    {
+      "icon_id": "11488047",
+      "name": "history",
+      "font_class": "history",
+      "unicode": "e752",
+      "unicode_decimal": 59218
     },
     {
       "icon_id": "15030621",

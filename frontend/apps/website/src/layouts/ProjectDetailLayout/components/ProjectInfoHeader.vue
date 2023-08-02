@@ -110,20 +110,14 @@ const onMenuItemClick = async (menu: Menu) => {
 
 <style lang="scss" scoped>
 @use '@/styles/mixins/mixins' as *;
-
-$doc-layout-padding: 25px;
-$doc-header-height: 60px;
-$doc-layout-left-width: 315px;
-$doc-layout-left-padding-right: 30px;
-$doc-content-padding-left: $doc-layout-left-width + $doc-layout-left-padding-right;
-$document-padding: 40px;
+@use '@/styles/variable' as *;
 
 // 项目信息
 @include b(project-info) {
   height: $doc-header-height;
   width: $doc-layout-left-width;
   padding: 0 $doc-layout-padding;
-  @apply flex items-center fixed left-0 top-0 z-50;
+  @apply flex items-center fixed left-0 top-0 z-50 bg-gray-100;
 
   @include e(img) {
     @apply flex-none w-32px h-32px mr-10px cursor-pointer;
