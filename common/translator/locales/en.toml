@@ -248,10 +248,10 @@ other = "Failed to verify key"
 other = "Wrong access password"
 
 [History.NotFound]
-other = "Document history does not exist"
+other = "History does not exist"
 
 [History.QueryFailed]
-other = "Document history query failed"
+other = "History query failed"
 
 [History.RestoreFailed]
-other = "Failed to restore document history"
+other = "Failed to restore history"

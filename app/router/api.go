@@ -88,7 +88,7 @@ func InitApiRouter(r *gin.Engine) {
 
 			definitionSchemas := halfLogin.Group("/projects/:project-id/definition/schemas")
 			{
-				definitionSchemas.GET("/:schemas-id", api.DefinitionSchemasGet)
+				definitionSchemas.GET("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasGet)
 				definitionSchemas.GET("", api.DefinitionSchemasList)
 			}
 
@@ -154,9 +154,9 @@ func InitApiRouter(r *gin.Engine) {
 			definitionSchemas := project.Group("/definition/schemas")
 			{
 				definitionSchemas.POST("", api.DefinitionSchemasCreate)
-				definitionSchemas.PUT("/:schemas-id", api.DefinitionSchemasUpdate)
-				definitionSchemas.DELETE("/:schemas-id", api.DefinitionSchemasDelete)
-				definitionSchemas.POST("/:schemas-id", api.DefinitionSchemasCopy)
+				definitionSchemas.PUT("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasUpdate)
+				definitionSchemas.DELETE("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasDelete)
+				definitionSchemas.POST("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasCopy)
 				definitionSchemas.PUT("/movement", api.DefinitionSchemasMove)
 			}
 
@@ -221,6 +221,15 @@ func InitApiRouter(r *gin.Engine) {
 				collectionHistories.GET("/diff", api.CollectionHistoryDiff)
 				collectionHistories.PUT("/:history-id/restore", api.CollectionHistoryRestore)
 
+			}
+
+			definitionSchemaHistories := project.Group("/definition/schemas/:schemas-id/histories")
+			definitionSchemaHistories.Use(middleware.CheckDefinitionSchema())
+			{
+				definitionSchemaHistories.GET("", api.DefinitionSchemaHistoryList)
+				definitionSchemaHistories.GET("/:history-id", api.DefinitionSchemaHistoryDetails)
+				definitionSchemaHistories.GET("/diff", api.DefinitionSchemaHistoryDiff)
+				definitionSchemaHistories.PUT("/:history-id/restore", api.DefinitionSchemaHistoryRestore)
 			}
 		}
 	}

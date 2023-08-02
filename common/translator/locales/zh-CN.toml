@@ -248,10 +248,10 @@ other = "校验密钥失败"
 other = "访问密码错误"
 
 [History.NotFound]
-other = "不存在文档历史"
+other = "历史记录不存在"
 
 [History.QueryFailed]
-other = "文档历史查询失败"
+other = "历史记录查询失败"
 
 [History.RestoreFailed]
-other = "恢复文档历史记录失败"
+other = "恢复历史记录失败"
