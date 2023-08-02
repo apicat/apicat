@@ -56,9 +56,9 @@ func CollectionHistoryList(ctx *gin.Context) {
 		return
 	}
 
-	userDict := map[uint]*models.Users{}
+	userDict := map[uint]models.Users{}
 	for _, user := range users {
-		userDict[user.ID] = &user
+		userDict[user.ID] = user
 	}
 
 	ch, _ := models.NewCollectionHistories()
