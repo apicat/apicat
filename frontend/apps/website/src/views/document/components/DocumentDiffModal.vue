@@ -9,9 +9,9 @@
     <section class="ac-diff-doc" v-loading="isLoading" element-loading-background="#fff">
       <div class="ac-diff-main">
         <header>{{ leftDocTitle }}</header>
-        <div class="ac-diff-content diff-left-detail">
+        <div class="ac-diff-content diff-left-detail" v-if="leftDoc">
           <h1 class="ac-document__title" ref="title">{{ leftDoc.title }}</h1>
-          <div class="ac-editor mt-10px" v-if="leftDoc">
+          <div class="ac-editor mt-10px">
             <RequestMethodRaw class="mb-10px" :doc="leftDoc" :urls="urlServers" />
             <RequestParamRaw class="mb-10px" :doc="leftDoc" :definitions="definitions" />
             <ResponseParamTabsRaw :doc="leftDoc" :definitions="definitions" :project-id="project_id" />
@@ -28,9 +28,9 @@
           </el-select>
         </header>
 
-        <div class="ac-diff-content diff-right-detail">
+        <div class="ac-diff-content diff-right-detail" v-if="rightDoc">
           <h1 class="ac-document__title" ref="title">{{ rightDoc.title }}</h1>
-          <div class="ac-editor mt-10px" v-if="rightDoc">
+          <div class="ac-editor mt-10px">
             <RequestMethodRaw class="mb-10px" :doc="rightDoc" :urls="urlServers" />
             <RequestParamRaw class="mb-10px" :doc="rightDoc" :definitions="definitions" />
             <ResponseParamTabsRaw :doc="rightDoc" :definitions="definitions" :project-id="project_id" />
@@ -68,8 +68,8 @@ const [isLoading, fetchDiffApi] = useApi(compareDocument)
 const closeBtnRef = ref()
 const leftDocTitle = ref('')
 
-const leftDoc: any = ref({})
-const rightDoc: any = ref({})
+const leftDoc: any = ref(null)
+const rightDoc: any = ref(null)
 
 const changeDocSelectRef = ref(0)
 
@@ -77,12 +77,13 @@ const getDocumentDiff = async () => {
   const history_id1 = parseInt(currentRoute.value.params.history_id as any, 10)
   const selectedId = unref(changeDocSelectRef)
   const data = await fetchDiffApi({ project_id, collection_id: doc_id, history_id1, history_id2: selectedId })
-  leftDoc.value = data.doc1 || {}
-  rightDoc.value = data.doc2 || {}
+  leftDoc.value = data.doc1
+  rightDoc.value = data.doc2
 }
 
 const show = async () => {
   showModel()
+  changeDocSelectRef.value = 0
   const activeDoc = historyRecordForOptions.value.find((item) => item.id === parseInt(currentRoute.value.params.history_id as any, 10))
   if (activeDoc) {
     leftDocTitle.value = activeDoc.title

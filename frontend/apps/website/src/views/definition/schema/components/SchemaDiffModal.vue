@@ -75,6 +75,7 @@ const getDocumentDiff = async () => {
 
 const show = async () => {
   showModel()
+  changeDocSelectRef.value = 0
   const activeDoc = historyRecordForOptions.value.find((item) => item.id === parseInt(currentRoute.value.params.history_id as any, 10))
   if (activeDoc) {
     leftDocTitle.value = activeDoc.title
