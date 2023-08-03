@@ -144,6 +144,7 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 	definition.Description = data.Description
 	definition.Type = data.Type
 	definition.Schema = string(schemaJson)
+	definition.CreatedBy = currentProjectMember.(*models.ProjectMembers).ID
 	if err := definition.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CreateFail"}),
@@ -231,6 +232,7 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 	}
 
 	definition.Schema = string(schemaJson)
+	definition.UpdatedBy = currentProjectMember.(*models.ProjectMembers).UserID
 	if err := definition.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.UpdateFail"}),
