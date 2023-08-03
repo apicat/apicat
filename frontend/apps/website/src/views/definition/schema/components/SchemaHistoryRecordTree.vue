@@ -16,7 +16,7 @@
           <div class="flex justify-between ac-tree-node">
             <div class="ac-tree-node__main" @click="handleTreeNodeClick(node, data, $event)">
               <div class="ac-doc-node" :class="{ 'is-active': data._extend.isCurrent }" :id="'history_schema_tree_node_' + data.id">
-                <img v-if="data._extend.isLeaf" class="ac-doc-node__icon" :src="documentIcon" />
+                <el-icon v-if="data._extend.isLeaf" class="ac-doc-node__icon" :size="17"><ac-icon-carbon-model-alt /></el-icon>
                 <span class="ac-doc-node__label" :title="data.name">{{ data.name }}</span>
               </div>
             </div>
@@ -29,7 +29,6 @@
 
 <script lang="ts" setup>
 import AcTree from '@/components/AcTree'
-import documentIcon from '@/assets/images/doc-http@2x.png'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 import { useDefinitionSchemaStore } from '@/store/definition'
 import { storeToRefs } from 'pinia'

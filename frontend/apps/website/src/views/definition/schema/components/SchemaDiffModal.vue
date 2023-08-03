@@ -9,9 +9,10 @@
     <section class="ac-diff-doc" v-loading="isLoading" element-loading-background="#fff">
       <div class="ac-diff-main">
         <header>{{ leftDocTitle }}</header>
-        <div class="ac-diff-content diff-left-detail">
-          <h1 class="ac-document__title" ref="title">{{ leftSchema?.title }}</h1>
-          <div class="ac-editor mt-10px" v-if="leftSchema">
+        <div class="ac-diff-content diff-left-detail" v-if="leftSchema">
+          <h1 class="ac-document__title" ref="title">{{ leftSchema.name }}</h1>
+          <h4>{{ leftSchema.description }}</h4>
+          <div class="ac-editor mt-10px">
             <JSONSchemaEditor readonly v-model="leftSchema.schema" :definitions="definitions" />
           </div>
         </div>
@@ -26,9 +27,10 @@
           </el-select>
         </header>
 
-        <div class="ac-diff-content diff-right-detail">
-          <h1 class="ac-document__title" ref="title">{{ rightSchema?.title }}</h1>
-          <div class="ac-editor mt-10px" v-if="rightSchema">
+        <div class="ac-diff-content diff-right-detail" v-if="rightSchema">
+          <h1 class="ac-document__title" ref="title">{{ rightSchema.name }}</h1>
+          <h4>{{ rightSchema.description }}</h4>
+          <div class="ac-editor mt-10px">
             <JSONSchemaEditor readonly v-model="rightSchema.schema" :definitions="definitions" />
           </div>
         </div>
