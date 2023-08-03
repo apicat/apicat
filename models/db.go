@@ -69,6 +69,7 @@ func initTable() {
 		&Users{},
 		&ProjectMembers{},
 		&ShareTmpTokens{},
+		&DefinitionSchemaHistories{},
 	); err != nil {
 		panic(err.Error())
 	}
