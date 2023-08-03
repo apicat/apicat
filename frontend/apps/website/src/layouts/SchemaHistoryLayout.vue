@@ -11,22 +11,20 @@
       </div>
     </template>
 
-    <template #left>
-      <DocumentHistoryRecordTree />
-    </template>
+    <template #left> </template>
   </HistoryLayout>
 </template>
 <script setup lang="ts">
 import HistoryLayout from './HistoryLayout.vue'
-import DocumentHistoryRecordTree from '@/views/document/components/DocumentHistoryRecordTree.vue'
+// import DocumentHistoryRecordTree from '@/views/document/components/DocumentHistoryRecordTree.vue'
 import { useNamespace } from '@/hooks/useNamespace'
 import { useGoPage } from '@/hooks/useGoPage'
 
 const historyInfo = useNamespace('history-info')
-const { goDocumentDetailPage } = useGoPage()
+const { goSchemaDetailPage } = useGoPage()
 
 const handleGoBack = () => {
-  goDocumentDetailPage()
+  goSchemaDetailPage()
 }
 
 provide('goBack', handleGoBack)

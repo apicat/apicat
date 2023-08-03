@@ -4,12 +4,12 @@ import { rootRoute } from './root'
 import { mainRoute } from './main'
 import { projectDetailRoute } from './project.detail'
 import { shareRoutes } from './share'
-import { documentHistoryRoute } from './history'
+import { documentHistoryRoute, schemaHistoryRoute } from './history'
 import { loginRoute, registerRoute, notFoundRoute, noPermissionRoute } from './base'
 
 export const router = createRouter({
   history: createWebHistory(),
-  routes: [rootRoute, loginRoute, registerRoute, mainRoute, projectDetailRoute, ...shareRoutes, documentHistoryRoute, noPermissionRoute, notFoundRoute],
+  routes: [rootRoute, loginRoute, registerRoute, mainRoute, projectDetailRoute, ...shareRoutes, documentHistoryRoute, schemaHistoryRoute, noPermissionRoute, notFoundRoute],
 })
 
 export * from './base'

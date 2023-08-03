@@ -6,6 +6,9 @@
 
     <div class="ac-header-operate__btns" v-if="isManager || isWriter">
       <el-button type="primary" @click="() => goSchemaEditPage()">{{ $t('app.common.edit') }}</el-button>
+      <el-tooltip effect="dark" content="历史记录" placement="bottom">
+        <Iconfont class="cursor-pointer ac-history" :size="24" @click="goSchemaHistoryRecord" />
+      </el-tooltip>
     </div>
   </div>
 
@@ -40,11 +43,13 @@ import { useParams } from '@/hooks/useParams'
 import useDefinitionStore from '@/store/definition'
 import useProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
+import { getSchemaHistoryPath } from '@/router'
 
 const GenerateCodeModal = defineAsyncComponent(() => import('@/components/GenerateCode/GenerateCodeModal.vue'))
 
 const ns = useNamespace('document')
 const route = useRoute()
+const router = useRouter()
 const definitionStore = useDefinitionStore()
 const projectStore = useProjectStore()
 const { project_id } = useParams()
@@ -59,7 +64,7 @@ const hasDocument = ref(true)
 const generateCodeModalRef = ref<InstanceType<typeof GenerateCodeModal>>()
 
 const getDetail = async () => {
-  const def_id = parseInt(route.params.shcema_id as string, 10)
+  const def_id = parseInt(route.params.schema_id as string, 10)
 
   if (isNaN(def_id)) {
     hasDocument.value = false
@@ -81,6 +86,7 @@ const getDetail = async () => {
     //
   }
 }
+const goSchemaHistoryRecord = () => router.push(getSchemaHistoryPath(project_id, route.params.schema_id as string))
 
 const onShowCodeGenerate = () => {
   generateCodeModalRef.value?.show(toRaw(definition.value)!)
@@ -88,13 +94,13 @@ const onShowCodeGenerate = () => {
 
 definitionStore.$onAction(({ name, after, args }) => {
   // 删除全局模型
-  if (name === 'deleteDefinition' && args[1] !== parseInt(route.params.shcema_id as string, 10)) {
+  if (name === 'deleteDefinition' && args[1] !== parseInt(route.params.schema_id as string, 10)) {
     after(() => getDetail())
   }
 })
 
 watch(
-  () => route.params.shcema_id,
+  () => route.params.schema_id,
   async () => await getDetail(),
   { immediate: true }
 )
