@@ -1,6 +1,5 @@
 import Storage from '@/commons/storage'
 
-// import
 export const useConfig = (currentLanguageRef: Ref<string>, langOptionsRef: Ref<Record<string, any>>) => {
   const getDefaultOptions = (langKey: string) => (Storage.get(Storage.KEYS.CODE_GENERATE_CONFIG) || {})[langKey] || {}
 

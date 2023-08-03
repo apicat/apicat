@@ -64,7 +64,6 @@ import { useGenerateCode } from './useGenerateCode'
 import { DefinitionSchema } from '../APIEditor/types'
 
 const { dialogVisible, showModel } = useModal()
-const [isShowMoreMenu, toggleMoreMenu] = useToggle()
 const { code, dataModelName, apicatSchema, languages, currentLanguage, currentLanguageOptionRender, currentLanguageOptions, currentLanguageForCodeMirror } = useGenerateCode()
 
 defineExpose({
