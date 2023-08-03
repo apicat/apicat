@@ -1,5 +1,5 @@
 <template>
-  <el-dialog v-model="isShow" fullscreen :show-close="false" class="hide-dialog-header no-padding" append-to-body destroy-on-close>
+  <el-dialog v-model="dialogVisible" fullscreen :show-close="false" class="hide-dialog-header no-padding" append-to-body destroy-on-close>
     <template #header="{ close }">
       <button @click="close" ref="closeBtnRef">close</button>
     </template>
@@ -52,6 +52,7 @@ import { compareDocument } from '@/api/collection'
 import { useParams } from '@/hooks/useParams'
 import useProjectStore from '@/store/project'
 import { useDefinitionSchemaStore } from '@/store/definition'
+import { useModal } from '@/hooks/useModel'
 
 const { currentRoute } = useRouter()
 const { project_id, doc_id } = useParams()
@@ -61,9 +62,9 @@ const definitionSchemaStore = useDefinitionSchemaStore()
 const { historyRecordForOptions } = storeToRefs(documentStore)
 const { urlServers } = storeToRefs(projectStore)
 const { definitions } = storeToRefs(definitionSchemaStore)
+const { dialogVisible, showModel } = useModal()
 
 const [isLoading, fetchDiffApi] = useApi(compareDocument)
-const isShow = ref(false)
 const closeBtnRef = ref()
 const leftDocTitle = ref('')
 
@@ -81,7 +82,7 @@ const getDocumentDiff = async () => {
 }
 
 const show = async () => {
-  isShow.value = true
+  showModel()
   const activeDoc = historyRecordForOptions.value.find((item) => item.id === parseInt(currentRoute.value.params.history_id as any, 10))
   if (activeDoc) {
     leftDocTitle.value = activeDoc.title
