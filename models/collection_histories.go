@@ -26,9 +26,9 @@ func NewCollectionHistories(ids ...uint) (*CollectionHistories, error) {
 func (ch *CollectionHistories) List(collectionIDs ...uint) ([]*CollectionHistories, error) {
 	var collectionHistories []*CollectionHistories
 	if len(collectionIDs) > 0 {
-		return collectionHistories, Conn.Where("collection_id IN ?", collectionIDs).Find(&collectionHistories).Error
+		return collectionHistories, Conn.Where("collection_id IN ?", collectionIDs).Order("created_at desc").Find(&collectionHistories).Error
 	}
-	return collectionHistories, Conn.Find(&collectionHistories).Error
+	return collectionHistories, Conn.Order("created_at desc").Find(&collectionHistories).Error
 }
 
 func (ch *CollectionHistories) Create() error {

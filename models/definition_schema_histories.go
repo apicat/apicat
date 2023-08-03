@@ -27,9 +27,9 @@ func NewDefinitionSchemaHistories(ids ...uint) (*DefinitionSchemaHistories, erro
 func (dsh *DefinitionSchemaHistories) List(schemsIDs ...uint) ([]*DefinitionSchemaHistories, error) {
 	var definitionSchemaHistories []*DefinitionSchemaHistories
 	if len(schemsIDs) > 0 {
-		return definitionSchemaHistories, Conn.Where("schema_id IN ?", schemsIDs).Find(&definitionSchemaHistories).Error
+		return definitionSchemaHistories, Conn.Where("schema_id IN ?", schemsIDs).Order("created_at desc").Find(&definitionSchemaHistories).Error
 	}
-	return definitionSchemaHistories, Conn.Find(&definitionSchemaHistories).Error
+	return definitionSchemaHistories, Conn.Order("created_at desc").Find(&definitionSchemaHistories).Error
 }
 
 func (dsh *DefinitionSchemaHistories) Create() error {
