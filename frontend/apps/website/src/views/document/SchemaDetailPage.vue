@@ -86,6 +86,7 @@ const getDetail = async () => {
     //
   }
 }
+
 const goSchemaHistoryRecord = () => router.push(getSchemaHistoryPath(project_id, route.params.schema_id as string))
 
 const onShowCodeGenerate = () => {

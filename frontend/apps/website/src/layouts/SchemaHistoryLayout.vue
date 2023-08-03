@@ -11,12 +11,14 @@
       </div>
     </template>
 
-    <template #left> </template>
+    <template #left>
+      <SchemaHistoryRecordTree />
+    </template>
   </HistoryLayout>
 </template>
 <script setup lang="ts">
 import HistoryLayout from './HistoryLayout.vue'
-// import DocumentHistoryRecordTree from '@/views/document/components/DocumentHistoryRecordTree.vue'
+import SchemaHistoryRecordTree from '@/views/definition/schema/components/SchemaHistoryRecordTree.vue'
 import { useNamespace } from '@/hooks/useNamespace'
 import { useGoPage } from '@/hooks/useGoPage'
 

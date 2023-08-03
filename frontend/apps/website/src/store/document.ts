@@ -22,6 +22,7 @@ export const useDocumentStore = defineStore('document', {
     tempCreateDocParentId: undefined as number | undefined,
     documentHistoryRecordTree: [] as Array<CollectionNode>,
   }),
+
   getters: {
     historyRecordForOptions: (state) => {
       const options = state.documentHistoryRecordTree

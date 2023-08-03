@@ -2,7 +2,7 @@
   <div class="flex flex-col h-full">
     <div class="flex-auto overflow-x-scroll scroll-content" ref="dir">
       <ac-tree
-        :data="documentHistoryRecordTree"
+        :data="historyRecordTree"
         class="bg-transparent"
         node-key="id"
         empty-text=""
@@ -15,9 +15,9 @@
 
           <div class="flex justify-between ac-tree-node">
             <div class="ac-tree-node__main" @click="handleTreeNodeClick(node, data, $event)">
-              <div class="ac-doc-node" :class="{ 'is-active': data._extend.isCurrent }" :id="'history_doc_tree_node_' + data.id">
+              <div class="ac-doc-node" :class="{ 'is-active': data._extend.isCurrent }" :id="'history_schema_tree_node_' + data.id">
                 <img v-if="data._extend.isLeaf" class="ac-doc-node__icon" :src="documentIcon" />
-                <span class="ac-doc-node__label" :title="data.title">{{ data.title }}</span>
+                <span class="ac-doc-node__label" :title="data.name">{{ data.name }}</span>
               </div>
             </div>
           </div>
@@ -31,7 +31,7 @@
 import AcTree from '@/components/AcTree'
 import documentIcon from '@/assets/images/doc-http@2x.png'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-import { useDocumentStore } from '@/store/document'
+import { useDefinitionSchemaStore } from '@/store/definition'
 import { storeToRefs } from 'pinia'
 import { traverseTree } from '@apicat/shared'
 import { DocumentTypeEnum } from '@/commons/constant'
@@ -40,11 +40,11 @@ import { CollectionNode } from '@/typings/project'
 
 const $route = useRoute()
 const $router = useRouter()
-const { project_id, doc_id } = useParams()
+const { project_id, schema_id } = useParams()
 const { params } = $route
 
-const documentStore = useDocumentStore()
-const { documentHistoryRecordTree } = storeToRefs(documentStore)
+const definitionSchemaStore = useDefinitionSchemaStore()
+const { historyRecordTree } = storeToRefs(definitionSchemaStore)
 
 const treeIns: any = ref(null)
 const dir: Ref<HTMLDivElement | null> = ref(null)
@@ -76,7 +76,7 @@ const onDocumentClick = (source: any) => {
   activeNode(source.id)
 
   $router.push({
-    name: 'history.docuemnt.detail',
+    name: 'history.schema.detail',
     params: { ...params, history_id: source.id },
   })
 }
@@ -91,7 +91,7 @@ const activeNode = (nodeId?: any) => {
         return false
       }
     },
-    documentHistoryRecordTree.value as any,
+    historyRecordTree.value as any,
     { subKey: 'sub_nodes' }
   )
 
@@ -100,7 +100,7 @@ const activeNode = (nodeId?: any) => {
   if (node && node.data) {
     ;(node.data as CollectionNode)._extend!.isCurrent = true
     treeIns.value?.setCurrentKey(id)
-    const el = document.querySelector('#history_doc_tree_node_' + id)
+    const el = document.querySelector('#history_schema_tree_node_' + id)
     el && scrollIntoView(el, { scrollMode: 'if-needed' })
   }
 }
@@ -118,7 +118,7 @@ const reactiveNode = () => {
         return false
       }
     },
-    documentHistoryRecordTree.value as any,
+    historyRecordTree.value as any,
     { subKey: 'sub_nodes' }
   )
 
@@ -134,7 +134,7 @@ const reactiveNode = () => {
           return false
         }
       },
-      documentHistoryRecordTree.value,
+      historyRecordTree.value,
       { subKey: 'sub_nodes' }
     )
 
@@ -145,12 +145,12 @@ const reactiveNode = () => {
     }
 
     dir.value?.scrollTo(0, 0)
-    $router.replace({ name: 'history.docuemnt.detail', params })
+    $router.replace({ name: 'history.schema.detail', params })
   }
 }
 
 onMounted(async () => {
-  await documentStore.getDocumentHistoryRecordList(project_id, doc_id)
+  await definitionSchemaStore.getSchemaHistoryRecordList(project_id, schema_id)
   params.history_id ? activeNode(params.history_id) : reactiveNode()
 })
 </script>

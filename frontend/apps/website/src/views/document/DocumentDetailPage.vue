@@ -22,7 +22,7 @@
         <Iconfont icon="ac-export cursor-pointer" :size="18" @click="handleExport()" />
       </el-tooltip>
 
-      <el-tooltip effect="dark" content="历史记录" placement="bottom">
+      <el-tooltip effect="dark" content="历史记录" placement="bottom" v-if="isManager || isWriter">
         <Iconfont class="cursor-pointer ac-history" :size="24" @click="goDocumentHistoryRecord" />
       </el-tooltip>
     </div>
