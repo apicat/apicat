@@ -11,7 +11,11 @@
         <header>{{ leftDocTitle }}</header>
         <div class="ac-diff-content diff-left-detail">
           <h1 class="ac-document__title" ref="title">{{ leftDoc.title }}</h1>
-          <!-- <div v-if="leftDoc.content" class="ProseMirror readonly" v-html="leftDoc.content" /> -->
+          <div class="ac-editor mt-10px" v-if="leftDoc">
+            <RequestMethodRaw class="mb-10px" :doc="leftDoc" :urls="urlServers" />
+            <RequestParamRaw class="mb-10px" :doc="leftDoc" :definitions="definitions" />
+            <ResponseParamTabsRaw :doc="leftDoc" :definitions="definitions" :project-id="project_id" />
+          </div>
         </div>
       </div>
 
@@ -26,7 +30,11 @@
 
         <div class="ac-diff-content diff-right-detail">
           <h1 class="ac-document__title" ref="title">{{ rightDoc.title }}</h1>
-          <!-- <div v-if="rightDoc.content" class="ProseMirror readonly" v-html="rightDoc.content" /> -->
+          <div class="ac-editor mt-10px" v-if="rightDoc">
+            <RequestMethodRaw class="mb-10px" :doc="rightDoc" :urls="urlServers" />
+            <RequestParamRaw class="mb-10px" :doc="rightDoc" :definitions="definitions" />
+            <ResponseParamTabsRaw :doc="rightDoc" :definitions="definitions" :project-id="project_id" />
+          </div>
         </div>
       </div>
     </section>
@@ -42,11 +50,17 @@ import { useRouter } from 'vue-router'
 import useApi from '@/hooks/useApi'
 import { compareDocument } from '@/api/collection'
 import { useParams } from '@/hooks/useParams'
+import useProjectStore from '@/store/project'
+import { useDefinitionSchemaStore } from '@/store/definition'
 
 const { currentRoute } = useRouter()
 const { project_id, doc_id } = useParams()
 const documentStore = useDocumentStore()
+const projectStore = useProjectStore()
+const definitionSchemaStore = useDefinitionSchemaStore()
 const { historyRecordForOptions } = storeToRefs(documentStore)
+const { urlServers } = storeToRefs(projectStore)
+const { definitions } = storeToRefs(definitionSchemaStore)
 
 const [isLoading, fetchDiffApi] = useApi(compareDocument)
 const isShow = ref(false)
@@ -61,14 +75,14 @@ const changeDocSelectRef = ref(0)
 const getDocumentDiff = async () => {
   const history_id1 = parseInt(currentRoute.value.params.history_id as any, 10)
   const selectedId = unref(changeDocSelectRef)
-  const { data } = await fetchDiffApi({ project_id, collection_id: doc_id, history_id1, history_id2: selectedId })
+  const data = await fetchDiffApi({ project_id, collection_id: doc_id, history_id1, history_id2: selectedId })
   leftDoc.value = data.doc1 || {}
   rightDoc.value = data.doc2 || {}
 }
 
 const show = async () => {
   isShow.value = true
-  const activeDoc = historyRecordForOptions.value.find((item) => item.id === parseInt(currentRoute.value.params.id as any, 10))
+  const activeDoc = historyRecordForOptions.value.find((item) => item.id === parseInt(currentRoute.value.params.history_id as any, 10))
   if (activeDoc) {
     leftDocTitle.value = activeDoc.title
   }
