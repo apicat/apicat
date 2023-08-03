@@ -157,19 +157,27 @@ export const getDocumentHistoryRecordList = ({ project_id, collection_id }: Reco
 // 文档历史记录详情
 export const getDocumentHistoryRecordDetail = async ({ project_id, collection_id, history_id }: Record<string, any>) => {
   const doc: any = await Ajax.get(`${detailRestfulPath(project_id, collection_id)}/histories/${history_id}`)
+  parseDocumentContent(doc)
+  return doc
+}
+
+// 文档历史记录对比
+export const compareDocument = async ({ project_id, collection_id, ...params }: Record<string, any>) => {
+  const data: any = await Ajax.get(`${detailRestfulPath(project_id, collection_id)}/histories/diff${queryStringify(params)}`)
+  parseDocumentContent(data.doc1 || {})
+  parseDocumentContent(data.doc2 || {})
+  return data
+}
+
+// 恢复文档
+export const restoreDocumentByHistoryRecord = ({ project_id, collection_id, history_id }: Record<string, any>) =>
+  QuietAjax.put(`${detailRestfulPath(project_id, collection_id)}/histories/${history_id}/restore`)
+
+const parseDocumentContent = (doc: any) => {
   try {
     doc.content = JSON.parse(doc.content)
     mergeDocumentContent(doc.content)
   } catch (error) {
     doc.content = createHttpDocument().content
   }
-  return doc
 }
-
-// 文档历史记录对比
-export const compareDocument = ({ project_id, collection_id, ...params }: Record<string, any>) =>
-  Ajax.get(`${detailRestfulPath(project_id, collection_id)}/histories/diff${queryStringify(params)}`)
-
-// 恢复文档
-export const restoreDocumentByHistoryRecord = ({ project_id, collection_id, history_id }: Record<string, any>) =>
-  QuietAjax.put(`${detailRestfulPath(project_id, collection_id)}/histories/${history_id}/restore`)
