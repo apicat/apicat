@@ -288,7 +288,7 @@ func DefinitionSchemasGet(ctx *gin.Context) {
 	}
 
 	schema := make(map[string]interface{})
-	if err := json.Unmarshal([]byte(currentDefinitionSchema.(models.DefinitionSchemas).Schema), &schema); err != nil {
+	if err := json.Unmarshal([]byte(currentDefinitionSchema.(*models.DefinitionSchemas).Schema), &schema); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
