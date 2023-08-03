@@ -29,18 +29,18 @@
 
 <script lang="tsx" setup>
 import AcTree from '@/components/AcTree'
+import documentIcon from '@/assets/images/doc-http@2x.png'
+import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 import { useDocumentStore } from '@/store/document'
 import { storeToRefs } from 'pinia'
-import documentIcon from '@/assets/images/doc-http@2x.png'
 import { traverseTree } from '@apicat/shared'
 import { DocumentTypeEnum } from '@/commons/constant'
-import scrollIntoView from 'smooth-scroll-into-view-if-needed'
 import { useParams } from '@/hooks/useParams'
 import { CollectionNode } from '@/typings/project'
 
-const { project_id, doc_id } = useParams()
 const $route = useRoute()
 const $router = useRouter()
+const { project_id, doc_id } = useParams()
 const { params } = $route
 
 const documentStore = useDocumentStore()
@@ -49,11 +49,8 @@ const { documentHistoryRecordTree } = storeToRefs(documentStore)
 const treeIns: any = ref(null)
 const dir: Ref<HTMLDivElement | null> = ref(null)
 
-// // 启动切换文档选中
-// watch(
-//   () => $route.params.node_id,
-//   () => activeNode()
-// )
+const customNodeClass = (data: any) => (data._extend.isLeaf ? 'is-doc' : 'is-dir')
+const customNodeLeaf = (data: any) => data.type !== DocumentTypeEnum.DIR
 
 const handleTreeNodeClick = (node: any, source: any, e: any) => {
   if (e.target.tagName === 'INPUT') {
@@ -83,10 +80,6 @@ const onDocumentClick = (source: any) => {
     params: { ...params, history_id: source.id },
   })
 }
-
-const customNodeClass = (data: any) => (data._extend.isLeaf ? 'is-doc' : 'is-dir')
-
-const customNodeLeaf = (data: any) => data.type !== DocumentTypeEnum.DIR
 
 // 文档选中切换
 const activeNode = (nodeId?: any) => {
@@ -156,12 +149,8 @@ const reactiveNode = () => {
   }
 }
 
-const getDocTreeList = async () => {
-  const tree = await documentStore.getDocumentHistoryRecordList(project_id, doc_id)
-}
-
 onMounted(async () => {
-  await getDocTreeList()
-  params.id ? activeNode() : reactiveNode()
+  await documentStore.getDocumentHistoryRecordList(project_id, doc_id)
+  params.history_id ? activeNode(params.history_id) : reactiveNode()
 })
 </script>

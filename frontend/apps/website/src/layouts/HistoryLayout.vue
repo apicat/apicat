@@ -1,15 +1,6 @@
 <template>
   <main :class="ns.b()">
-    <div :class="[historyInfo.b()]">
-      <div :class="historyInfo.e('img')">
-        <a href="javascript:void(0)" @click="router.go(-1)">
-          <el-icon :class="historyInfo.e('back')"><ac-icon-ep-arrow-left-bold /></el-icon>
-        </a>
-      </div>
-      <div :class="historyInfo.e('title')" title="projectDetailInfo?.title">历史记录</div>
-    </div>
-
-    <slot name="header"></slot>
+    <slot name="back"></slot>
 
     <div :class="ns.e('left')">
       <div class="flex flex-col h-full overflow-y-scroll scroll-content">
@@ -23,12 +14,28 @@
 </template>
 <script setup lang="ts">
 import { useNamespace } from '@/hooks/useNamespace'
+import { useParams } from '@/hooks/useParams'
+import { useDefinitionSchemaStore } from '@/store/definition'
+import useDefinitionResponseStore from '@/store/definitionResponse'
+import uesGlobalParametersStore from '@/store/globalParameters'
+import useProjectStore from '@/store/project'
+
 const ns = useNamespace('doc-layout')
-const historyInfo = useNamespace('history-info')
-const router = useRouter()
+const projectStore = useProjectStore()
+const globalParametersStore = uesGlobalParametersStore()
+const definitionSchemaStore = useDefinitionSchemaStore()
+const definitionResponseStore = useDefinitionResponseStore()
+const { project_id } = useParams()
+
+onMounted(async () => {
+  await projectStore.getUrlServers(project_id as string)
+  await globalParametersStore.getGlobalParameters(project_id as string)
+  await definitionSchemaStore.getDefinitions(project_id as string)
+  await definitionResponseStore.getDefinitions(project_id as string)
+})
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @use '@/styles/mixins/mixins' as *;
 @use '@/styles/variable' as *;
 

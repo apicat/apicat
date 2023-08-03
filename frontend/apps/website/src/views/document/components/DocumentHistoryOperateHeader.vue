@@ -1,25 +1,27 @@
 <template>
-  <div class="ac-header-operate">
-    <p class="flex-1"></p>
+  <div class="ac-header-operate" v-if="hasDocument">
+    <div class="ac-header-operate__main">
+      <p class="ac-header-operate__title">{{ title }}</p>
+    </div>
     <div class="ac-header-operate__btns">
-      <el-button type="primary" @click="onSaveOrEditBtnClick" :loading="isLoading">还原此历史记录</el-button>
+      <el-button type="primary" @click="onSaveOrEditBtnClick">还原此历史记录</el-button>
       <el-button @click="onShowDocumentDiffModal">对比</el-button>
     </div>
   </div>
 
-  <!-- <DocumentDiffModal ref="documentDiffModal" /> -->
+  <DocumentDiffModal ref="documentDiffModal" />
 </template>
 
 <script setup lang="tsx">
 import { ref, computed, inject } from 'vue'
-// import DocumentDiffModal from '@/views/document/components/DocumentDiffModal.vue'
+import DocumentDiffModal from '@/views/document/components/DocumentDiffModal.vue'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
-// import { restoreDocumentByHistoryRecord } from '@/api/document'
-import { useRoute, useRouter } from 'vue-router'
+import { restoreDocumentByHistoryRecord } from '@/api/collection'
+import { useRouter } from 'vue-router'
 import { ElMessage as $Message } from 'element-plus'
 import { storeToRefs } from 'pinia'
-// import { useDocumentStore } from '@/stores/document'
-
+import { useParams } from '@/hooks/useParams'
+import { useDocumentStore } from '@/store/document'
 defineProps({
   title: {
     type: String,
@@ -27,34 +29,30 @@ defineProps({
   },
 })
 
-// const goBack: any = inject('goBack')
-// const documentStore = useDocumentStore()
-const route = useRoute()
+const goBack = inject('goBack') as () => void
+const documentStore = useDocumentStore()
+const { documentHistoryRecordTree } = storeToRefs(documentStore)
 const { currentRoute } = useRouter()
-// const { documentHistoryRecordTree } = storeToRefs(documentStore)
-const { project_id_public } = route.params
+const { project_id, doc_id } = useParams()
 
-const documentDiffModal = ref()
-const isLoading = ref(false)
-const isShowTitle = ref(false)
+const documentDiffModal = ref<InstanceType<typeof DocumentDiffModal>>()
 
-// const hasDocument = computed(() => !!currentRoute.value.params.id && documentHistoryRecordTree.value.length !== 0)
+const hasDocument = computed(() => !!currentRoute.value.params.history_id && documentHistoryRecordTree.value.length !== 0)
 
 const onSaveOrEditBtnClick = () => {
-  if (!currentRoute.value.params.id) {
-    // $Message.error('')
+  const { history_id } = currentRoute.value.params
+  if (!history_id) {
     return
   }
 
   AsyncMsgBox({
     title: '提示',
     content: <div class="break-all">确定还原此历史记录吗？</div>,
-    onOk: () => {
-      // return restoreDocumentByHistoryRecord(project_id_public, currentRoute.value.params.id).then((res: any) => {
-      //   $Message.success(res.msg || '还原成功！')
-      //   goBack()
-      // })
-    },
+    onOk: () =>
+      restoreDocumentByHistoryRecord({ project_id, collection_id: doc_id, history_id }).then((res: any) => {
+        $Message.success(res.msg || '还原成功')
+        goBack()
+      }),
   })
 }
 

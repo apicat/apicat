@@ -112,3 +112,25 @@
 .el-radio-group .el-radio-button__inner {
   display: inline-flex;
 }
+
+.no-padding {
+  .el-dialog__body {
+    padding: 0 !important;
+  }
+}
+
+.hide-dialog-header {
+  .el-dialog__header {
+    display: none;
+  }
+
+  .dialog-close {
+    position: absolute;
+    right: 16px;
+    top: 16px;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    z-index: 100;
+  }
+}

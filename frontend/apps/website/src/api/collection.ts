@@ -145,6 +145,7 @@ const mergeDocumentContent = (content: any) => {
     }
   })
 }
+
 // AI创建集合
 export const createCollectionByAI = async ({ project_id, ...params }: any, axiosConfig?: any) => Ajax.post(`/projects/${project_id}/ai/collections`, params, axiosConfig)
 // AI通过schema创建集合
@@ -152,9 +153,18 @@ export const createCollectionWithSchemaByAI = async ({ project_id, schema_id }: 
 
 // 文档历史记录列表
 export const getDocumentHistoryRecordList = ({ project_id, collection_id }: Record<string, any>) => Ajax.get(`${detailRestfulPath(project_id, collection_id)}/histories`)
+
 // 文档历史记录详情
-export const getDocumentHistoryRecordDetail = ({ project_id, collection_id, history_id }: Record<string, any>) =>
-  Ajax.get(`${detailRestfulPath(project_id, collection_id)}/histories/${history_id}`)
+export const getDocumentHistoryRecordDetail = async ({ project_id, collection_id, history_id }: Record<string, any>) => {
+  const doc: any = await Ajax.get(`${detailRestfulPath(project_id, collection_id)}/histories/${history_id}`)
+  try {
+    doc.content = JSON.parse(doc.content)
+    mergeDocumentContent(doc.content)
+  } catch (error) {
+    doc.content = createHttpDocument().content
+  }
+  return doc
+}
 
 // 文档历史记录对比
 export const compareDocument = ({ project_id, collection_id, ...params }: Record<string, any>) =>
@@ -162,4 +172,4 @@ export const compareDocument = ({ project_id, collection_id, ...params }: Record
 
 // 恢复文档
 export const restoreDocumentByHistoryRecord = ({ project_id, collection_id, history_id }: Record<string, any>) =>
-  Ajax.put(`${detailRestfulPath(project_id, collection_id)}/histories/${history_id}/restore`)
+  QuietAjax.put(`${detailRestfulPath(project_id, collection_id)}/histories/${history_id}/restore`)
