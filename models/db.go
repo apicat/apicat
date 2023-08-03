@@ -55,7 +55,8 @@ func Init() {
 }
 
 func initTable() {
-	if err := Conn.AutoMigrate(
+	tableOptions := fmt.Sprintf("ENGINE=InnoDB CHARSET=%s", config.SysConfig.DB.Charset)
+	if err := Conn.Set("gorm:table_options", tableOptions).AutoMigrate(
 		&Projects{},
 		&Collections{},
 		&CollectionHistories{},
