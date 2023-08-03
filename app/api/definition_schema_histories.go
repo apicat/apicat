@@ -1,6 +1,7 @@
 package api
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"strings"
@@ -30,13 +31,13 @@ type SchemaHistoryListData struct {
 }
 
 type SchemaHistoryDetailsData struct {
-	ID            uint   `json:"id"`
-	SchemaID      uint   `json:"schema_id"`
-	Name          string `json:"name"`
-	Description   string `json:"description"`
-	Schema        string `json:"schema"`
-	CreatedTime   string `json:"created_time"`
-	LastUpdatedBy string `json:"last_updated_by"`
+	ID            uint           `json:"id"`
+	SchemaID      uint           `json:"schema_id"`
+	Name          string         `json:"name"`
+	Description   string         `json:"description"`
+	Schema        map[string]any `json:"schema"`
+	CreatedTime   string         `json:"created_time"`
+	LastUpdatedBy string         `json:"last_updated_by"`
 }
 
 type SchemaHistoryDiffData struct {
@@ -140,12 +141,20 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 		return
 	}
 
+	schema := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(dsh.Schema), &schema); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, SchemaHistoryDetailsData{
 		ID:            dsh.ID,
 		SchemaID:      dsh.SchemaID,
 		Name:          dsh.Name,
 		Description:   dsh.Description,
-		Schema:        dsh.Schema,
+		Schema:        schema,
 		CreatedTime:   dsh.CreatedAt.Format("2006-01-02 15:04"),
 		LastUpdatedBy: u.Username,
 	})
@@ -184,13 +193,19 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 		})
 		return
 	}
-
+	schema1 := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(dsh1.Schema), &schema1); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+		})
+		return
+	}
 	res["schema1"] = SchemaHistoryDetailsData{
 		ID:            dsh1.ID,
 		SchemaID:      dsh1.SchemaID,
 		Name:          dsh1.Name,
 		Description:   dsh1.Description,
-		Schema:        dsh1.Schema,
+		Schema:        schema1,
 		CreatedTime:   dsh1.CreatedAt.Format("2006-01-02 15:04"),
 		LastUpdatedBy: u1.Username,
 	}
@@ -203,12 +218,19 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 			})
 			return
 		}
+		schema2 := make(map[string]interface{})
+		if err := json.Unmarshal([]byte(currentDefinitionSchema.(*models.DefinitionSchemas).Schema), &schema2); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			})
+			return
+		}
 		res["schema2"] = SchemaHistoryDetailsData{
 			ID:            0,
 			SchemaID:      currentDefinitionSchema.(*models.DefinitionSchemas).ID,
 			Name:          currentDefinitionSchema.(*models.DefinitionSchemas).Name,
 			Description:   currentDefinitionSchema.(*models.DefinitionSchemas).Description,
-			Schema:        currentDefinitionSchema.(*models.DefinitionSchemas).Schema,
+			Schema:        schema2,
 			CreatedTime:   currentDefinitionSchema.(*models.DefinitionSchemas).CreatedAt.Format("2006-01-02 15:04"),
 			LastUpdatedBy: u2.Username,
 		}
@@ -239,13 +261,20 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 		})
 		return
 	}
+	schema2 := make(map[string]interface{})
+	if err := json.Unmarshal([]byte(dsh2.Schema), &schema2); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+		})
+		return
+	}
 
 	res["schema2"] = SchemaHistoryDetailsData{
 		ID:            dsh2.ID,
 		SchemaID:      dsh2.SchemaID,
 		Name:          dsh2.Name,
 		Description:   dsh2.Description,
-		Schema:        dsh2.Schema,
+		Schema:        schema2,
 		CreatedTime:   dsh2.CreatedAt.Format("2006-01-02 15:04"),
 		LastUpdatedBy: u2.Username,
 	}
