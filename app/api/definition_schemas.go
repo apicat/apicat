@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/apicat/apicat/common/translator"
 	"github.com/apicat/apicat/enum"
@@ -186,6 +187,22 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 			"message": err.Error(),
 		})
 		return
+	}
+
+	dsh, _ := models.NewDefinitionSchemaHistories()
+	dsh.SchemaID = definition.ID
+	dsh.Name = definition.Name
+	dsh.Description = definition.Description
+	dsh.Type = definition.Type
+	dsh.Schema = definition.Schema
+	dsh.CreatedBy = currentProjectMember.(*models.ProjectMembers).UserID
+	if definition.UpdatedBy != currentProjectMember.(*models.ProjectMembers).UserID || definition.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
+		if err := dsh.Create(); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.UpdateFail"}),
+			})
+			return
+		}
 	}
 
 	schemaJson, err := json.Marshal(data.Schema)

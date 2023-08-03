@@ -162,6 +162,8 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 		return
 	}
 
+	res := map[string]SchemaHistoryDetailsData{}
+
 	dsh1, err := models.NewDefinitionSchemaHistories(data.HistoryID1)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -169,21 +171,12 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 		})
 		return
 	}
-	dsh2, err := models.NewDefinitionSchemaHistories(data.HistoryID2)
-	if err != nil {
+	if dsh1.SchemaID != currentDefinitionSchema.(*models.DefinitionSchemas).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
-
-	if dsh1.SchemaID != currentDefinitionSchema.(*models.DefinitionSchemas).ID || dsh2.SchemaID != currentDefinitionSchema.(*models.DefinitionSchemas).ID {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
-		})
-		return
-	}
-
 	u1, err := models.NewUsers(dsh1.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -191,15 +184,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 		})
 		return
 	}
-	u2, err := models.NewUsers(dsh2.CreatedBy)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
-		})
-		return
-	}
 
-	res := map[string]SchemaHistoryDetailsData{}
 	res["schema1"] = SchemaHistoryDetailsData{
 		ID:            dsh1.ID,
 		SchemaID:      dsh1.SchemaID,
@@ -208,6 +193,51 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 		Schema:        dsh1.Schema,
 		CreatedTime:   dsh1.CreatedAt.Format("2006-01-02 15:04"),
 		LastUpdatedBy: u1.Username,
+	}
+
+	if data.HistoryID2 == 0 {
+		u2, err := models.NewUsers(currentDefinitionSchema.(*models.DefinitionSchemas).UpdatedBy)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+			})
+			return
+		}
+		res["schema2"] = SchemaHistoryDetailsData{
+			ID:            0,
+			SchemaID:      currentDefinitionSchema.(*models.DefinitionSchemas).ID,
+			Name:          currentDefinitionSchema.(*models.DefinitionSchemas).Name,
+			Description:   currentDefinitionSchema.(*models.DefinitionSchemas).Description,
+			Schema:        currentDefinitionSchema.(*models.DefinitionSchemas).Schema,
+			CreatedTime:   currentDefinitionSchema.(*models.DefinitionSchemas).CreatedAt.Format("2006-01-02 15:04"),
+			LastUpdatedBy: u2.Username,
+		}
+
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
+
+	dsh2, err := models.NewDefinitionSchemaHistories(data.HistoryID2)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+		})
+		return
+	}
+
+	if dsh2.SchemaID != currentDefinitionSchema.(*models.DefinitionSchemas).ID {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+		})
+		return
+	}
+
+	u2, err := models.NewUsers(dsh2.CreatedBy)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+		})
+		return
 	}
 
 	res["schema2"] = SchemaHistoryDetailsData{

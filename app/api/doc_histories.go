@@ -155,6 +155,8 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 		return
 	}
 
+	res := map[string]CollectionHistoryDetailsData{}
+
 	ch1, err := models.NewCollectionHistories(data.HistoryID1)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -162,6 +164,51 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 		})
 		return
 	}
+	if ch1.CollectionId != currentCollection.(*models.Collections).ID {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+		})
+		return
+	}
+	u1, err := models.NewUsers(ch1.CreatedBy)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+		})
+		return
+	}
+
+	res["doc1"] = CollectionHistoryDetailsData{
+		ID:            ch1.ID,
+		CollectionID:  ch1.CollectionId,
+		Title:         ch1.Title,
+		Content:       ch1.Content,
+		CreatedTime:   ch1.CreatedAt.Format("2006-01-02 15:04"),
+		LastUpdatedBy: u1.Username,
+	}
+
+	if data.HistoryID2 == 0 {
+		u2, err := models.NewUsers(currentCollection.(*models.Collections).UpdatedBy)
+		if err != nil {
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+			})
+			return
+		}
+
+		res["doc2"] = CollectionHistoryDetailsData{
+			ID:            0,
+			CollectionID:  currentCollection.(*models.Collections).ID,
+			Title:         currentCollection.(*models.Collections).Title,
+			Content:       currentCollection.(*models.Collections).Content,
+			CreatedTime:   currentCollection.(*models.Collections).CreatedAt.Format("2006-01-02 15:04"),
+			LastUpdatedBy: u2.Username,
+		}
+
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
+
 	ch2, err := models.NewCollectionHistories(data.HistoryID2)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
@@ -169,18 +216,9 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 		})
 		return
 	}
-
-	if ch1.CollectionId != currentCollection.(*models.Collections).ID || ch2.CollectionId != currentCollection.(*models.Collections).ID {
+	if ch2.CollectionId != currentCollection.(*models.Collections).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
-		})
-		return
-	}
-
-	u1, err := models.NewUsers(ch1.CreatedBy)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
 	}
@@ -190,16 +228,6 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
-	}
-
-	res := map[string]CollectionHistoryDetailsData{}
-	res["doc1"] = CollectionHistoryDetailsData{
-		ID:            ch1.ID,
-		CollectionID:  ch1.CollectionId,
-		Title:         ch1.Title,
-		Content:       ch1.Content,
-		CreatedTime:   ch1.CreatedAt.Format("2006-01-02 15:04"),
-		LastUpdatedBy: u1.Username,
 	}
 
 	res["doc2"] = CollectionHistoryDetailsData{
