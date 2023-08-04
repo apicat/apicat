@@ -6,9 +6,10 @@ import {
   deleteDefinitionSchema,
   getSchemaHistoryRecordList,
 } from '@/api/definitionSchema'
-import { DefinitionTypeEnum, RefPrefixKeys, markDataWithKey } from '@/commons'
+import { DefinitionTypeEnum, RefPrefixKeys, markDataWithKey, removeJsonSchemaTempProperty } from '@/commons'
 import { DefinitionSchema, JSONSchema } from '@/components/APIEditor/types'
 import { traverseTree } from '@apicat/shared'
+import { cloneDeep } from 'lodash-es'
 import { defineStore } from 'pinia'
 
 export const extendDocTreeFeild = (node = {} as any) => {
@@ -66,9 +67,12 @@ export const useDefinitionStore = defineStore('definitionSchema', {
     },
 
     async updateDefinition(data: any) {
-      await updateDefinitionSchema(data)
-      data.id = data.def_id
-      this.updateDefinitionStore(data)
+      const copy = cloneDeep(data)
+      const jsonSchema = copy.schema as JSONSchema
+      removeJsonSchemaTempProperty(jsonSchema)
+      await updateDefinitionSchema(copy)
+      copy.id = copy.def_id
+      this.updateDefinitionStore(copy)
     },
 
     async createDefinition(data: any) {

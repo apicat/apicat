@@ -185,6 +185,11 @@ const isTempTree = computed(() => {
   if (props.data.parent) {
     const properties = props.data.parent.schema.properties || {}
     const schema = properties[props.data.label]
+
+    if (!schema) {
+      return false
+    }
+
     return schema['x-apicat-temp-prop'] !== undefined
   }
 

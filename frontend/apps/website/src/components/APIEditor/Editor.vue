@@ -55,7 +55,7 @@ const root = computed(() => convertTreeData(undefined, constNodeType.root, const
 const importSchemaModalRef = ref<InstanceType<typeof ImportSchemaModal>>()
 
 watch(
-  () => props.modelValue,
+  () => [props.modelValue, props.definitions],
   () => {
     // recompute root
     localSchema.value = props.modelValue
