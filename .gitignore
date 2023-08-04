@@ -21,7 +21,6 @@ logs/
 .DS_Store
 
 setting.default.yaml
-setting.example.yaml
 setting.yaml
 
 deploy/mysql/
