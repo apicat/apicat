@@ -145,6 +145,7 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 	definition.Type = data.Type
 	definition.Schema = string(schemaJson)
 	definition.CreatedBy = currentProjectMember.(*models.ProjectMembers).ID
+	definition.UpdatedBy = currentProjectMember.(*models.ProjectMembers).ID
 	if err := definition.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CreateFail"}),

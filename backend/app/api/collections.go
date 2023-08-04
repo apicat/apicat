@@ -137,6 +137,7 @@ func CollectionsCreate(ctx *gin.Context) {
 	collection.Type = data.Type
 	collection.Content = data.Content
 	collection.CreatedBy = currentProjectMember.(*models.ProjectMembers).UserID
+	collection.UpdatedBy = currentProjectMember.(*models.ProjectMembers).UserID
 	if err := collection.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
