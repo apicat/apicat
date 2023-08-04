@@ -41,10 +41,7 @@ function convert(json, options = {}) {
     let schema = { type: 'array' }
 
     if (!json.length) {
-      // default to empty array
-      schema.items = {
-        type: 'string',
-      }
+      schema.items = {}
       return schema
     }
 
