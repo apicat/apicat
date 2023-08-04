@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type DefinitionSchemaHistories struct {
 	ID          uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
@@ -48,9 +50,9 @@ func (dsh *DefinitionSchemaHistories) Restore(ds *DefinitionSchemas, uid uint) e
 		return err
 	}
 
-	ds.Name = ndsh.Name
-	ds.Description = ndsh.Description
-	ds.Schema = ndsh.Schema
+	ds.Name = dsh.Name
+	ds.Description = dsh.Description
+	ds.Schema = dsh.Schema
 	ds.UpdatedBy = uid
 	if err := ds.Save(); err != nil {
 		return err
