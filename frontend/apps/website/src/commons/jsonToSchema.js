@@ -1,8 +1,6 @@
 // ref https://github.com/mohsen1/json-to-json-schema/blob/master/src/index.js
 'use strict'
 
-import isEqual from 'lodash/isEqual'
-
 /*
  * Converts a JSON object to a JSON Schema
  * @param {any} json
@@ -43,20 +41,26 @@ function convert(json, options = {}) {
     let schema = { type: 'array' }
 
     if (!json.length) {
-      schema.items = {}
+      // default to empty array
+      schema.items = {
+        type: 'string',
+      }
       return schema
     }
 
     let schemas = json.map(convert)
 
-    // if all schemas are the same use that schema for items
-    if (schemas.every((s) => isEqual(s, schemas[0]))) {
-      schema.items = schemas[0]
+    // set default to first schema
+    schema.items = schemas[0]
 
-      // if there are multiple schemas use oneOf
-    } else {
-      schema.items = { oneOf: unique(schemas) }
-    }
+    // // if all schemas are the same use that schema for items
+    // if (schemas.every((s) => isEqual(s, schemas[0]))) {
+    //   schema.items = schemas[0]
+
+    //   // if there are multiple schemas use oneOf
+    // } else {
+    //   schema.items = { oneOf: unique(schemas) }
+    // }
 
     return schema
   }
