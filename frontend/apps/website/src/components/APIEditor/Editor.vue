@@ -12,7 +12,13 @@
       </div>
     </div>
     <EditorRow :level="1" :data="root" :readonly="readonly" />
+    <div :class="[nsRow.b()]" v-if="!readonly">
+      <div :class="nsRow.e('content')" class="px-20px">
+        <el-button @click="() => importSchemaModalRef?.show()">Code 导入</el-button>
+      </div>
+    </div>
   </div>
+  <ImportSchemaModal ref="importSchemaModalRef" @ok="handleImportSuccess" />
 </template>
 
 <script setup lang="ts">
@@ -24,6 +30,7 @@ import { useNamespace } from '@/hooks'
 import { RefPrefixKeys } from '@/commons'
 import { cloneDeep } from 'lodash-es'
 import { guessMockRule } from '../MockRules/utils'
+import ImportSchemaModal from './ImportSchemaModal.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -43,20 +50,37 @@ const nsRow = useNamespace('schema-row')
 
 const emits = defineEmits(['update:modelValue'])
 const expandKeys = ref<Set<string>>(new Set([constNodeType.root]))
-const localSchema = ref(props.modelValue)
+const localSchema = ref()
+const root = computed(() => convertTreeData(undefined, constNodeType.root, constNodeType.root, localSchema.value))
+const importSchemaModalRef = ref<InstanceType<typeof ImportSchemaModal>>()
 
 watch(
   () => props.modelValue,
   () => {
+    // recompute root
     localSchema.value = props.modelValue
+    expandKeys.value.clear()
+    setDefaultExpandKeys(root.value)
+  },
+  {
+    immediate: true,
   }
 )
-
-const root = computed(() => convertTreeData(undefined, constNodeType.root, constNodeType.root, localSchema.value))
 
 provide('expandKeys', expandKeys.value)
 provide('definitions', () => props.definitions)
 provide('change', changeEvent)
+
+// 默认展开所有
+function setDefaultExpandKeys(tree: Tree) {
+  const child = tree.children || []
+  if (child && child.length) {
+    expandKeys.value.add(tree.key)
+  }
+  for (let i = 0; i < child.length; i++) {
+    setDefaultExpandKeys(child[i])
+  }
+}
 
 function changeEvent(root?: JSONSchema) {
   if (root) {
@@ -90,7 +114,6 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
     parent,
     type: '',
   }
-
   if (schema.$ref != undefined) {
     const id = schema.$ref.match(RefPrefixKeys.DefinitionSchema.reg)?.[1]
     const refId = parseInt(id as string, 10)
@@ -103,6 +126,7 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
         return item
       }
 
+      //clone definition schema
       schema = cloneDeep(refschema.schema)
 
       // object ref self
@@ -148,13 +172,17 @@ function convertTreeData(parent: Tree | undefined, key: string, label: string, s
   }
 
   // default expand children
-  if (item.children && item.children.length) {
-    expandKeys.value.add(key)
-  }
+  // if (item.children && item.children.length) {
+  //   expandKeys.value.add(key)
+  // }
 
   return item
 }
 
+const handleImportSuccess = (jsonSchema: JSONSchema) => {
+  localSchema.value = jsonSchema
+  changeEvent()
+}
 // 处理拖拽
 provide('drop', dropHandler)
 function dropHandler(offset: number, to: Tree, source: string) {

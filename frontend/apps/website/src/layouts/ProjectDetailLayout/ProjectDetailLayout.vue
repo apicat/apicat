@@ -84,10 +84,6 @@ provide(ProjectDetailModalsContextKey, {
   shareProject: (project_id: string) => projectShareModalRef.value?.show({ project_id }),
 })
 
-onBeforeMount(() => {
-  console.log('isShowProjectSecretLayer.value', isShowProjectSecretLayer.value)
-})
-
 onMounted(async () => {
   if (isShowProjectSecretLayer.value) {
     return

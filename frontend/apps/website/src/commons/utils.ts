@@ -92,3 +92,30 @@ export const createTreeMaxDepthFn = (subKey: string) =>
   })
 
 export const isJSONSchemaContentType = (contentType: string) => contentType == 'application/json' || contentType == 'application/xml'
+
+export const removeJsonSchemaTempProperty = (schema: JSONSchema) => {
+  const tempKeys = new Set()
+  function removeTempProperty(jsonSchema: JSONSchema) {
+    if (jsonSchema.type === 'object' && jsonSchema.properties) {
+      const ps = jsonSchema.properties || {}
+      Object.keys(ps).forEach((propertyName) => {
+        const subJsonSchema = ps[propertyName]
+        if (subJsonSchema.type === 'object') {
+          removeTempProperty(subJsonSchema)
+        }
+        // 移除临时属性
+        if (subJsonSchema && subJsonSchema['x-apicat-temp-prop'] !== undefined) {
+          delete ps[propertyName]
+          tempKeys.add(propertyName)
+        }
+      })
+    }
+
+    // 移除临时必选属性
+    jsonSchema.required = jsonSchema.required?.filter((item) => !tempKeys.has(item))
+    // 移除临时排序属性
+    jsonSchema['x-apicat-orders'] = jsonSchema['x-apicat-orders']?.filter((item) => !tempKeys.has(item))
+  }
+
+  removeTempProperty(schema)
+}
