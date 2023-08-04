@@ -1,13 +1,13 @@
 @use './mixins/mixins' as *;
+@use './variable' as *;
 
-$doc-layout-padding: 25px;
-$doc-header-height: 60px;
-$doc-layout-left-width: 315px;
-$doc-layout-left-padding-right: 30px;
-$doc-content-padding-left: $doc-layout-left-width + $doc-layout-left-padding-right;
-$document-padding: 40px;
-
-$operate-height: 60px;
+// $doc-layout-padding: 25px;
+// $doc-header-height: 60px;
+// $doc-layout-left-width: 315px;
+// $doc-layout-left-padding-right: 30px;
+// $doc-content-padding-left: $doc-layout-left-width + $doc-layout-left-padding-right;
+// $document-padding: 40px;
+// $operate-height: 60px;
 
 @include b(doc-header) {
   height: $doc-header-height;

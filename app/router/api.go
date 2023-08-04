@@ -62,8 +62,8 @@ func InitApiRouter(r *gin.Engine) {
 			collection := notLogin.Group("/projects/:project-id/collections")
 			collection.Use(middleware.CheckProject())
 			{
-				collection.GET("/:collection-id/data", api.CollectionDataGet)
-				collection.POST("/:collection-id/share/check", api.DocShareCheck)
+				collection.GET("/:collection-id/data", middleware.CheckCollection(), api.CollectionDataGet)
+				collection.POST("/:collection-id/share/check", middleware.CheckCollection(), api.DocShareCheck)
 			}
 
 			collection_share := notLogin.Group("/collections")
@@ -88,14 +88,14 @@ func InitApiRouter(r *gin.Engine) {
 
 			definitionSchemas := halfLogin.Group("/projects/:project-id/definition/schemas")
 			{
-				definitionSchemas.GET("/:schemas-id", api.DefinitionSchemasGet)
+				definitionSchemas.GET("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasGet)
 				definitionSchemas.GET("", api.DefinitionSchemasList)
 			}
 
 			collections := halfLogin.Group("/projects/:project-id/collections")
 			{
 				collections.GET("", api.CollectionsList)
-				collections.GET("/:collection-id", api.CollectionsGet)
+				collections.GET("/:collection-id", middleware.CheckCollection(), api.CollectionsGet)
 			}
 
 			globalParameters := halfLogin.Group("/projects/:project-id/global/parameters")
@@ -154,9 +154,9 @@ func InitApiRouter(r *gin.Engine) {
 			definitionSchemas := project.Group("/definition/schemas")
 			{
 				definitionSchemas.POST("", api.DefinitionSchemasCreate)
-				definitionSchemas.PUT("/:schemas-id", api.DefinitionSchemasUpdate)
-				definitionSchemas.DELETE("/:schemas-id", api.DefinitionSchemasDelete)
-				definitionSchemas.POST("/:schemas-id", api.DefinitionSchemasCopy)
+				definitionSchemas.PUT("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasUpdate)
+				definitionSchemas.DELETE("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasDelete)
+				definitionSchemas.POST("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasCopy)
 				definitionSchemas.PUT("/movement", api.DefinitionSchemasMove)
 			}
 
@@ -182,13 +182,13 @@ func InitApiRouter(r *gin.Engine) {
 			collections := project.Group("/collections")
 			{
 				collections.POST("", api.CollectionsCreate)
-				collections.PUT("/:collection-id", api.CollectionsUpdate)
-				collections.POST("/:collection-id", api.CollectionsCopy)
+				collections.PUT("/:collection-id", middleware.CheckCollection(), api.CollectionsUpdate)
+				collections.POST("/:collection-id", middleware.CheckCollection(), api.CollectionsCopy)
 				collections.PUT("/movement", api.CollectionsMovement)
-				collections.DELETE("/:collection-id", api.CollectionsDelete)
-				collections.GET("/:collection-id/share", api.DocShareDetails)
-				collections.PUT("/:collection-id/share/switch", api.DocShareSwitch)
-				collections.PUT("/:collection-id/share/reset", api.DocShareReset)
+				collections.DELETE("/:collection-id", middleware.CheckCollection(), api.CollectionsDelete)
+				collections.GET("/:collection-id/share", middleware.CheckCollection(), api.DocShareDetails)
+				collections.PUT("/:collection-id/share/switch", middleware.CheckCollection(), api.DocShareSwitch)
+				collections.PUT("/:collection-id/share/reset", middleware.CheckCollection(), api.DocShareReset)
 			}
 
 			trashs := project.Group("/trashs")
@@ -211,6 +211,25 @@ func InitApiRouter(r *gin.Engine) {
 				projectMember.PUT("/authority/:user-id", api.ProjectMembersAuthUpdate)
 				projectMember.DELETE("/:user-id", api.ProjectMembersDelete)
 				projectMember.GET("/without", api.ProjectMembersWithout)
+			}
+
+			collectionHistories := project.Group("/collections/:collection-id/histories")
+			collectionHistories.Use(middleware.CheckCollection())
+			{
+				collectionHistories.GET("", api.CollectionHistoryList)
+				collectionHistories.GET("/:history-id", api.CollectionHistoryDetails)
+				collectionHistories.GET("/diff", api.CollectionHistoryDiff)
+				collectionHistories.PUT("/:history-id/restore", api.CollectionHistoryRestore)
+
+			}
+
+			definitionSchemaHistories := project.Group("/definition/schemas/:schemas-id/histories")
+			definitionSchemaHistories.Use(middleware.CheckDefinitionSchema())
+			{
+				definitionSchemaHistories.GET("", api.DefinitionSchemaHistoryList)
+				definitionSchemaHistories.GET("/:history-id", api.DefinitionSchemaHistoryDetails)
+				definitionSchemaHistories.GET("/diff", api.DefinitionSchemaHistoryDiff)
+				definitionSchemaHistories.PUT("/:history-id/restore", api.DefinitionSchemaHistoryRestore)
 			}
 		}
 	}

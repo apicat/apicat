@@ -16,9 +16,9 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
 
   // 启动切换文档选中
   watch(
-    () => route.params.shcema_id,
+    () => route.params.schema_id,
     () => {
-      activeNode(route.params.shcema_id)
+      activeNode(route.params.schema_id)
     }
   )
 
@@ -71,7 +71,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
 
       // 存在模型
       if (node) {
-        params.shcema_id = node.key
+        params.schema_id = node.key
         activeNode(node.key)
         router.replace({ name: SCHEMA_DETAIL_NAME, params })
       } else {

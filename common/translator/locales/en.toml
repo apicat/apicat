@@ -246,3 +246,12 @@ other = "Failed to verify key"
 
 [Share.AccessPasswordError]
 other = "Wrong access password"
+
+[History.NotFound]
+other = "History does not exist"
+
+[History.QueryFailed]
+other = "History query failed"
+
+[History.RestoreFailed]
+other = "Failed to restore history"

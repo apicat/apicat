@@ -7,14 +7,24 @@
     <div class="ac-header-operate__btns">
       <el-button type="primary" v-if="isManager || isWriter" @click="goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
       <template v-if="isManager || isWriter">
-        <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" />
+        <el-tooltip effect="dark" content="分享该文档" placement="bottom">
+          <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" />
+        </el-tooltip>
       </template>
 
       <template v-else>
-        <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" v-if="!isPrivate && isReader" />
+        <el-tooltip effect="dark" content="分享该文档" placement="bottom" v-if="!isPrivate && isReader">
+          <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" />
+        </el-tooltip>
       </template>
 
-      <Iconfont icon="ac-export cursor-pointer" :size="18" @click="handleExport()" v-if="isManager || isWriter" />
+      <el-tooltip effect="dark" content="导出该文档" placement="bottom" v-if="isManager || isWriter">
+        <Iconfont icon="ac-export cursor-pointer" :size="18" @click="handleExport()" />
+      </el-tooltip>
+
+      <el-tooltip effect="dark" content="历史记录" placement="bottom" v-if="isManager || isWriter">
+        <Iconfont class="cursor-pointer ac-history" :size="24" @click="goDocumentHistoryRecord" />
+      </el-tooltip>
     </div>
   </div>
 
@@ -45,6 +55,7 @@ import useDefinitionStore from '@/store/definition'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionResponseStore from '@/store/definitionResponse'
 import { ProjectDetailModalsContextKey } from '@/layouts/ProjectDetailLayout/constants'
+import { getDocumentHistoryPath } from '@/router'
 
 const projectStore = useProjectStore()
 const definitionStore = useDefinitionStore()
@@ -52,6 +63,7 @@ const globalParametersStore = uesGlobalParametersStore()
 const definitionResponseStore = useDefinitionResponseStore()
 
 const route = useRoute()
+const router = useRouter()
 const { project_id } = useParams()
 const { goDocumentEditPage } = useGoPage()
 
@@ -87,6 +99,8 @@ const getDetail = async (docId: string) => {
 const handleExport = () => projectDetailModals?.exportDocument()
 
 const handleShare = () => projectDetailModals?.shareDocument(project_id, route.params.doc_id as string)
+
+const goDocumentHistoryRecord = () => router.push(getDocumentHistoryPath(project_id, route.params.doc_id as string))
 
 globalParametersStore.$onAction(({ name, after }) => {
   // 删除全局参数

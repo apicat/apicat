@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/apicat/apicat/app/util"
 	"github.com/apicat/apicat/common/spec"
@@ -16,10 +17,6 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-type CollectionCheck struct {
-	CollectionID uint `uri:"collection-id" binding:"required,gt=0"`
-}
-
 type CollectionDataGetData struct {
 	ProjectID    string `uri:"project-id" binding:"required,gt=0"`
 	CollectionID uint   `uri:"collection-id" binding:"required,gt=0"`
@@ -28,25 +25,6 @@ type CollectionDataGetData struct {
 type ExportCollection struct {
 	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi3.0.0 openapi3.0.1 openapi3.0.2 openapi3.1.0 HTML md"`
 	Download string `form:"download" binding:"omitempty,oneof=true false"`
-}
-
-func (cc *CollectionCheck) CheckCollection(ctx *gin.Context) (*models.Collections, error) {
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&cc)); err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collection.NotFound"}),
-		})
-		return nil, err
-	}
-
-	collection, err := models.NewCollections(cc.CollectionID)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collection.NotFound"}),
-		})
-		return nil, err
-	}
-
-	return collection, nil
 }
 
 type CollectionList struct {
@@ -115,11 +93,8 @@ func buildTree(parentID uint, collections []*models.Collections) []*CollectionLi
 }
 
 func CollectionsGet(ctx *gin.Context) {
-	cc := CollectionCheck{}
-	collection, err := cc.CheckCollection(ctx)
-	if err != nil {
-		return
-	}
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"id":         collection.ID,
@@ -183,6 +158,9 @@ func CollectionsCreate(ctx *gin.Context) {
 }
 
 func CollectionsUpdate(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
@@ -192,18 +170,29 @@ func CollectionsUpdate(ctx *gin.Context) {
 		return
 	}
 
-	cc := CollectionCheck{}
-	collection, err := cc.CheckCollection(ctx)
-	if err != nil {
-		return
-	}
-
 	data := CollectionUpdate{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
+	}
+
+	ch, _ := models.NewCollectionHistories()
+	ch.CollectionId = collection.ID
+	ch.Title = collection.Title
+	ch.Type = collection.Type
+	ch.Content = collection.Content
+	ch.CreatedBy = currentProjectMember.(*models.ProjectMembers).UserID
+
+	// 不是同一个人编辑的文档或5分钟后编辑文档内容，保存历史记录
+	if collection.UpdatedBy != currentProjectMember.(*models.ProjectMembers).UserID || collection.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
+		if err := ch.Create(); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.UpdateFailed"}),
+			})
+			return
+		}
 	}
 
 	collection.Title = data.Title
@@ -220,18 +209,15 @@ func CollectionsUpdate(ctx *gin.Context) {
 }
 
 func CollectionsCopy(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
-		return
-	}
-
-	cc := CollectionCheck{}
-	collection, err := cc.CheckCollection(ctx)
-	if err != nil {
 		return
 	}
 
@@ -305,18 +291,15 @@ func CollectionsMovement(ctx *gin.Context) {
 }
 
 func CollectionsDelete(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
-		return
-	}
-
-	cc := CollectionCheck{}
-	collection, err := cc.CheckCollection(ctx)
-	if err != nil {
 		return
 	}
 

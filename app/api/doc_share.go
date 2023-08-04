@@ -18,11 +18,6 @@ type DocShareStatusData struct {
 	PublicCollectionID string `uri:"public_collection_id" binding:"required,lte=255"`
 }
 
-type DocShareSecretkeyCheckUriData struct {
-	ProjectID    string `uri:"project-id" binding:"required,lte=255"`
-	CollectionID uint   `uri:"collection-id" binding:"required,gte=0"`
-}
-
 func DocShareStatus(ctx *gin.Context) {
 	var (
 		data DocShareStatusData
@@ -59,9 +54,11 @@ func DocShareStatus(ctx *gin.Context) {
 }
 
 func DocShareDetails(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProject, _ := ctx.Get("CurrentProject")
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-
 	if currentProject.(*models.Projects).Visibility == 0 {
 		if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
 			ctx.JSON(http.StatusForbidden, gin.H{
@@ -86,14 +83,6 @@ func DocShareDetails(ctx *gin.Context) {
 		return
 	}
 
-	collection, err := models.NewCollections(uriData.CollectionID)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
-		})
-		return
-	}
-
 	if currentProject.(*models.Projects).Visibility == 0 {
 		visibility = "private"
 		collectionPublicID = collection.PublicId
@@ -110,6 +99,9 @@ func DocShareDetails(ctx *gin.Context) {
 }
 
 func DocShareSwitch(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProject, _ := ctx.Get("CurrentProject")
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
@@ -122,7 +114,6 @@ func DocShareSwitch(ctx *gin.Context) {
 
 	var (
 		project *models.Projects
-		uriData DocShareSecretkeyCheckUriData
 		data    ProjectSharingSwitchData
 	)
 
@@ -134,24 +125,9 @@ func DocShareSwitch(ctx *gin.Context) {
 		return
 	}
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
-		})
-		return
-	}
-
-	collection, err := models.NewCollections(uriData.CollectionID)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 		})
 		return
 	}
@@ -199,6 +175,9 @@ func DocShareSwitch(ctx *gin.Context) {
 }
 
 func DocShareReset(ctx *gin.Context) {
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
+
 	currentProject, _ := ctx.Get("CurrentProject")
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
@@ -211,7 +190,6 @@ func DocShareReset(ctx *gin.Context) {
 
 	var (
 		project   *models.Projects
-		uriData   DocShareSecretkeyCheckUriData
 		secretKey string
 	)
 
@@ -219,21 +197,6 @@ func DocShareReset(ctx *gin.Context) {
 	if project.Visibility != 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.PublicProject"}),
-		})
-		return
-	}
-
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
-
-	collection, err := models.NewCollections(uriData.CollectionID)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 		})
 		return
 	}
@@ -263,30 +226,17 @@ func DocShareReset(ctx *gin.Context) {
 }
 
 func DocShareCheck(ctx *gin.Context) {
-	var (
-		uriData DocShareSecretkeyCheckUriData
-		data    ProjectShareSecretkeyCheckData
-		err     error
-	)
+	currentCollection, _ := ctx.Get("CurrentCollection")
+	collection := currentCollection.(*models.Collections)
 
-	if err = translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
-		return
-	}
+	var (
+		data ProjectShareSecretkeyCheckData
+		err  error
+	)
 
 	if err = translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
-		})
-		return
-	}
-
-	collection, err := models.NewCollections(uriData.CollectionID)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 		})
 		return
 	}

@@ -33,15 +33,15 @@ const route = useRoute()
 const definitionStore = useDefinitionStore()
 const { definitions } = storeToRefs(definitionStore)
 const [isLoading, getDefinitionDetailApi] = getDefinitionSchemaDetail()
-const { project_id, shcema_id } = useParams()
+const { project_id, schema_id } = useParams()
 const { goSchemaDetailPage } = useGoPage()
-const isUpdate = shcema_id !== undefined
+const isUpdate = schema_id !== undefined
 const isSaving = ref(false)
 const schemaTree: any = inject('schemaTree')
 const ns = useNamespace('document')
 
 const definition = ref<DefinitionSchema | null>(null)
-const isInvalidId = () => isNaN(parseInt(route.params.shcema_id as string, 10))
+const isInvalidId = () => isNaN(parseInt(route.params.schema_id as string, 10))
 
 const getDetail = async () => {
   // id 无效
@@ -50,7 +50,7 @@ const getDetail = async () => {
   }
 
   try {
-    const data = await getDefinitionDetailApi({ project_id, def_id: route.params.shcema_id })
+    const data = await getDefinitionDetailApi({ project_id, def_id: route.params.schema_id })
     Object.defineProperty(data.schema, '_id', {
       value: data.id,
       enumerable: false,
@@ -65,7 +65,7 @@ const getDetail = async () => {
 
 definitionStore.$onAction(({ name, after, args }) => {
   // 删除全局模型
-  if (name === 'deleteDefinition' && args[1] !== parseInt(route.params.shcema_id as string, 10)) {
+  if (name === 'deleteDefinition' && args[1] !== parseInt(route.params.schema_id as string, 10)) {
     after(() => getDetail())
   }
 })
@@ -103,7 +103,7 @@ watch(
 )
 
 watch(
-  () => route.params.shcema_id,
+  () => route.params.schema_id,
   async () => await getDetail(),
   { immediate: true }
 )

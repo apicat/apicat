@@ -1,8 +1,14 @@
-import { getDefinitionSchemaList, updateDefinitionSchema, createDefinitionSchema, copyDefinitionSchema, deleteDefinitionSchema } from '@/api/definitionSchema'
-import { DefinitionTypeEnum, RefPrefixKeys, markDataWithKey, removeJsonSchemaTempProperty } from '@/commons'
+import {
+  getDefinitionSchemaList,
+  updateDefinitionSchema,
+  createDefinitionSchema,
+  copyDefinitionSchema,
+  deleteDefinitionSchema,
+  getSchemaHistoryRecordList,
+} from '@/api/definitionSchema'
+import { DefinitionTypeEnum, RefPrefixKeys, markDataWithKey } from '@/commons'
 import { DefinitionSchema, JSONSchema } from '@/components/APIEditor/types'
 import { traverseTree } from '@apicat/shared'
-import { cloneDeep } from 'lodash-es'
 import { defineStore } from 'pinia'
 
 export const extendDocTreeFeild = (node = {} as any) => {
@@ -20,6 +26,7 @@ export const useDefinitionStore = defineStore('definitionSchema', {
   state: () => ({
     definitions: [] as DefinitionSchema[],
     tempCreateSchemaParentId: undefined as number | undefined,
+    historyRecordTree: [] as Array<DefinitionSchema>,
   }),
   getters: {
     definitionsForCodeGenerate: (state): Record<string, JSONSchema> => {
@@ -31,6 +38,13 @@ export const useDefinitionStore = defineStore('definitionSchema', {
       })
 
       return definitions
+    },
+
+    historyRecordForOptions: (state) => {
+      const options = state.historyRecordTree
+        .reduce((result: any, item: any) => result.concat(item.sub_nodes || []), [])
+        .map((item: any) => ({ id: item.id, title: item.name || item.title }))
+      return [{ id: 0, title: '最新内容' }].concat(options)
     },
   },
   actions: {
@@ -52,10 +66,7 @@ export const useDefinitionStore = defineStore('definitionSchema', {
     },
 
     async updateDefinition(data: any) {
-      const copy = cloneDeep(data)
-      const jsonSchema = copy.schema as JSONSchema
-      removeJsonSchemaTempProperty(jsonSchema)
-      await updateDefinitionSchema(copy)
+      await updateDefinitionSchema(data)
       data.id = data.def_id
       this.updateDefinitionStore(data)
     },
@@ -91,6 +102,21 @@ export const useDefinitionStore = defineStore('definitionSchema', {
 
     async deleteDefinition(project_id: string, def_id: string | number, is_unref = 1) {
       await deleteDefinitionSchema(project_id as string, def_id, is_unref)
+    },
+
+    async getSchemaHistoryRecordList(project_id: string, def_id: string) {
+      if (!project_id || !def_id) {
+        return []
+      }
+
+      try {
+        const tree = await getSchemaHistoryRecordList({ project_id, def_id })
+        this.historyRecordTree = traverseTree((item: DefinitionSchema) => extendDocTreeFeild(item), tree || [], { subKey: 'sub_nodes' }) as Array<DefinitionSchema>
+      } catch (error) {
+        return []
+      }
+
+      return this.historyRecordTree
     },
   },
 })
