@@ -17,6 +17,7 @@ import AcIconCarbonModelAlt from '~icons/carbon/model-alt'
 import { useI18n } from 'vue-i18n'
 import { ElCheckbox } from 'element-plus'
 import { hasRefInSchema } from '@/commons'
+import { storeToRefs } from 'pinia'
 /**
  * 目录弹层菜单逻辑
  * @param treeIns 目录树
@@ -29,6 +30,7 @@ export const useSchemaPopoverMenu = (
   const { t } = useI18n()
 
   const definitionStore = useDefinitionStore()
+  const { definitions } = storeToRefs(definitionStore)
   const { project_id } = useParams()
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
   const { goSchemaEditPage } = useGoPage()
@@ -130,7 +132,7 @@ export const useSchemaPopoverMenu = (
   const onCreateSchemaMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
     const tree = unref(treeIns)
-    const newDefinition: any = createDefaultSchemaDefinition({ name: t('app.schema.popoverMenus.unnamedSchema') })
+    const newDefinition: any = createDefaultSchemaDefinition({ name: `${t('app.schema.popoverMenus.unnamedSchema')}-${definitions.value.length + 1}` })
 
     try {
       NProgress.start()

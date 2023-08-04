@@ -1,6 +1,5 @@
 import AcTree from '@/components/AcTree'
 import Node from '@/components/AcTree/model/node'
-import { CollectionNode } from '@/typings/project'
 import { ActiveNodeInfo } from '@/typings/common'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import NProgress from 'nprogress'
@@ -12,6 +11,7 @@ import { createDefaultResponseDefinition } from '@/views/document/components/cre
 import { useGoPage } from '@/hooks/useGoPage'
 import { useI18n } from 'vue-i18n'
 import { ElCheckbox } from 'element-plus'
+import { storeToRefs } from 'pinia'
 
 /**
  * 目录弹层菜单逻辑
@@ -21,6 +21,7 @@ export const useDefinitionResponsePopoverMenu = (treeIns: Ref<InstanceType<typeo
   const { t } = useI18n()
 
   const definitionResponseStore = useDefinitionResponseStore()
+  const { responses } = storeToRefs(definitionResponseStore)
   const { project_id } = useParams()
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
   const { goResponseEditPage } = useGoPage()
@@ -94,7 +95,7 @@ export const useDefinitionResponsePopoverMenu = (treeIns: Ref<InstanceType<typeo
   const onCreateMenuClick = async () => {
     const node = unref(activeNodeInfo)?.node as Node
     const tree = unref(treeIns)
-    const newDefinition: any = createDefaultResponseDefinition({ name: t('app.definitionResponse.popoverMenus.unnamedDefinitionResponse') })
+    const newDefinition: any = createDefaultResponseDefinition({ name: `${t('app.definitionResponse.popoverMenus.unnamedDefinitionResponse')}-${responses.value.length + 1}` })
 
     try {
       NProgress.start()
