@@ -7,7 +7,6 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc && vite build",
     "preview": "vite preview"
   },
   "dependencies": {
