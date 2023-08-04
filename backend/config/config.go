@@ -28,7 +28,6 @@ type DB struct {
 	User     string `yaml:"user" env:"APICAT_DB_USER"`
 	Password string `yaml:"password" env:"APICAT_DB_PASSWORD"`
 	Dbname   string `yaml:"dbname" env:"APICAT_DB_NAME"`
-	Charset  string `yaml:"charset" env:"APICAT_DB_CHARSET"`
 }
 
 type OpenAI struct {
@@ -54,13 +53,12 @@ func createDefault() *Sysconfig {
 			Level: "debug",
 		},
 		DB: DB{
-			Driver:  "mysql",
-			Path:    "data/",
-			Host:    "127.0.0.1",
-			Port:    3306,
-			User:    "root",
-			Dbname:  "apicat",
-			Charset: "utf8mb4",
+			Driver: "mysql",
+			Path:   "data/",
+			Host:   "127.0.0.1",
+			Port:   3306,
+			User:   "root",
+			Dbname: "apicat",
 		},
 	}
 }
