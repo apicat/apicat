@@ -240,6 +240,10 @@ const changeRequired = (v: CheckboxValueType) => {
 }
 
 function resetObject(v: Object) {
+  if ((v as any) && (v as any)['x-apicat-temp-prop'] !== undefined) {
+    return
+  }
+
   Object.keys(v).forEach((k) => {
     if (k != 'description') {
       delete (v as any)[k]
