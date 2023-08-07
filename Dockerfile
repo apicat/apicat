@@ -24,7 +24,7 @@ RUN CGO_ENABLED=0  go build -o apicat-server .
 
 FROM alpine:3.18 
 WORKDIR /app 
-COPY config/setting.default.yaml ./
+COPY backend/config/setting.example.yaml ./
 COPY --from=backend-builder /app/apicat-server /app/apicat-server 
 EXPOSE 8000
 ENTRYPOINT ["/app/apicat-server"]
