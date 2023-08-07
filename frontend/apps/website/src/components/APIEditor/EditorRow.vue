@@ -21,7 +21,16 @@
 
         <template v-if="!readonly">
           <el-tag disable-transitions v-if="data.label.slice(0, 1) == '<'">{{ data.label.slice(1, -1) }}</el-tag>
-          <EditorInput v-else ref="labelInputRef" style="margin-left: -4px" placeholder="name" :value="data.label" :disabled="isRefChildren(data)" @change="changeName" />
+
+          <EditorInput
+            v-else
+            ref="labelInputRef"
+            style="margin-left: -4px"
+            placeholder="name"
+            :value="isTempTree ? '' : data.label"
+            :disabled="isRefChildren(data)"
+            @change="changeName"
+          />
         </template>
 
         <template v-else>
@@ -71,7 +80,7 @@
         <template v-else>
           <span v-if="data.parent?.type === 'object'">
             <span v-if="isRefChildren(data)">{{ data.parent?.refObj?.schema.required?.includes(data.label) ? $t('editor.table.yes') : $t('editor.table.no') }}</span>
-            <span v-else="isRefChildren(data)">{{ data.parent?.schema.required?.includes(data.label) ? $t('editor.table.yes') : $t('editor.table.no') }}</span>
+            <span v-else>{{ data.parent?.schema.required?.includes(data.label) ? $t('editor.table.yes') : $t('editor.table.no') }}</span>
           </span>
         </template>
       </div>
@@ -129,12 +138,12 @@
         </el-button-group>
       </div>
     </div>
-    <el-collapse-transition>
-      <div :class="ns.e('children')" v-if="expand">
-        <div :style="intentLineStyle" :class="ns.e('line')"></div>
-        <EditorRow :level="level + 1" v-for="item in data.children" :key="item.key" :data="item" :readonly="readonly" />
-      </div>
-    </el-collapse-transition>
+    <!-- <el-collapse-transition> -->
+    <div :class="ns.e('children')" v-if="expand">
+      <div :style="intentLineStyle" :class="ns.e('line')"></div>
+      <EditorRow :level="level + 1" v-for="item in data.children" :key="item.key" :data="item" :readonly="readonly" />
+    </div>
+    <!-- </el-collapse-transition> -->
   </div>
 </template>
 
@@ -171,6 +180,21 @@ const toggleExpandHandler = () => {
   }
   expand.value ? expandsKeys.delete(props.data.key) : expandsKeys.add(props.data.key)
 }
+
+const isTempTree = computed(() => {
+  if (props.data.parent) {
+    const properties = props.data.parent.schema.properties || {}
+    const schema = properties[props.data.label]
+
+    if (!schema) {
+      return false
+    }
+
+    return schema['x-apicat-temp-prop'] !== undefined
+  }
+
+  return false
+})
 
 function isRefChildren(v: Tree): boolean {
   if (v.parent) {
@@ -216,11 +240,15 @@ const changeRequired = (v: CheckboxValueType) => {
 }
 
 function resetObject(v: Object) {
-  for (let k of Object.keys(v)) {
+  if ((v as any) && (v as any)['x-apicat-temp-prop'] !== undefined) {
+    return
+  }
+
+  Object.keys(v).forEach((k) => {
     if (k != 'description') {
       delete (v as any)[k]
     }
-  }
+  })
 }
 
 const changeType = ({ type, isRef }: any) => {
@@ -252,8 +280,10 @@ const changeType = ({ type, isRef }: any) => {
 
 const changeName = (v: string) => {
   if (v === '') {
+    ElMessage.error(`参数名称不能为空`)
     return
   }
+
   const psch = props.data.parent?.schema
   if (psch?.properties) {
     // 单个object下属性名是唯一
@@ -261,7 +291,34 @@ const changeName = (v: string) => {
       ElMessage.error(`参数「${v}」重复`)
       return
     }
+
+    // 还原展开项
+    const keys: string[] = []
+    expandsKeys.forEach((item) => {
+      if (item.startsWith(props.data.key)) {
+        keys.push(item)
+        const prefix = props.data.key.split('.')
+        prefix.pop()
+        prefix.push(v)
+        keys.push(item.replace(props.data.key, prefix.join('.')))
+      }
+    })
+
+    // 遍历keys tow setp
+    for (let i = 0; i < keys.length; i += 2) {
+      var [oldKey, newKey] = keys.slice(i, i + 2)
+      expandsKeys.delete(oldKey)
+      expandsKeys.add(newKey)
+    }
+
     psch.properties[v] = psch.properties[props.data.label]
+    const schema = psch.properties[v]
+
+    // remove temp flag
+    if (schema && schema['x-apicat-temp-prop'] !== undefined) {
+      delete schema['x-apicat-temp-prop']
+    }
+
     // 继承原始必填
     psch.required = psch.required?.map((one) => (one === props.data.label ? v : one))
     // 继承排序
@@ -269,6 +326,7 @@ const changeName = (v: string) => {
     orders[orders?.indexOf(props.data.label)] = v
     psch['x-apicat-orders'] = orders
     delete psch.properties[props.data.label]
+
     changeNotify()
   }
 }
@@ -318,19 +376,23 @@ const unlinkRefHandler = () => {
   }
 }
 
+const tempKey = '__temp__'
+
 const addChildHandler = () => {
   if (!expandsKeys.has(props.data.key)) {
     expandsKeys.add(props.data.key)
   }
   if (props.data.schema.properties) {
-    if (props.data.schema.properties['']) {
-      return
-    }
-    props.data.schema.properties[''] = {
+    // if (props.data.schema.properties['']) {
+    //   return
+    // }
+    const temp = `${tempKey}${Date.now()}`
+    props.data.schema.properties[temp] = {
       type: 'string',
+      'x-apicat-temp-prop': true,
       'x-apicat-mock': 'string',
     }
-    props.data.schema['x-apicat-orders']?.push('')
+    props.data.schema['x-apicat-orders']?.push(temp)
   }
 }
 

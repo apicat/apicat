@@ -138,7 +138,7 @@ export const useSchemaTree = () => {
   const initSchemaTree = async (activeId?: any) => {
     await getDefinitionsApi(project_id as string)
     if (route.name === SCHEMA_DETAIL_NAME || route.name === SCHEMA_EDIT_NAME) {
-      router.currentRoute.value.params.shcema_id ? activeNode(activeId || params.shcema_id) : reactiveNode()
+      router.currentRoute.value.params.schema_id ? activeNode(activeId || params.schema_id) : reactiveNode()
     }
   }
 

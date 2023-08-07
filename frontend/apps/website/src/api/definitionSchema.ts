@@ -4,6 +4,7 @@ import useApi from '@/hooks/useApi'
 import { setShareTokenToParams } from '@/store/share'
 
 const restfulApiPath = (project_id: string | number): string => `/projects/${project_id}/definition/schemas`
+const detailRestfulPath = (project_id: string | number, def_id: string | number): string => `${restfulApiPath(project_id)}/${def_id}`
 
 export const getDefinitionSchemaList = (project_id: string, params?: Record<string, any>) => {
   params = setShareTokenToParams(params || {})
@@ -28,3 +29,18 @@ export const deleteDefinitionSchema = async (project_id: string | number, def_id
   Ajax.delete(`${restfulApiPath(project_id)}/${def_id}?is_unref=${is_unref}`)
 
 export const aiGenerateDefinitionSchema = async ({ project_id, ...params }: any) => Ajax.post(`/projects/${project_id}/ai/schemas`, params)
+
+// 文档历史记录列表
+export const getSchemaHistoryRecordList = ({ project_id, def_id }: Record<string, any>) => Ajax.get(`${detailRestfulPath(project_id, def_id)}/histories`)
+
+// 文档历史记录详情
+export const getSchemaHistoryRecordDetail = ({ project_id, def_id, history_id }: Record<string, any>) =>
+  Ajax.get(`${detailRestfulPath(project_id, def_id)}/histories/${history_id}`)
+
+// 文档历史记录对比
+export const compareSchema = ({ project_id, def_id, ...params }: Record<string, any>) =>
+  Ajax.get(`${detailRestfulPath(project_id, def_id)}/histories/diff${queryStringify(params)}`)
+
+// 恢复文档
+export const restoreSchemaByHistoryRecord = ({ project_id, def_id, history_id }: Record<string, any>) =>
+  QuietAjax.put(`${detailRestfulPath(project_id, def_id)}/histories/${history_id}/restore`)

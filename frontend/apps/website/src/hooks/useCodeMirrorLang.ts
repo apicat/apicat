@@ -37,7 +37,6 @@ export const useLanguageExtension = (languageRef: Ref<string>, editorViewRef: Re
       if (!newLanguage) {
         return
       }
-
       await loadLanguage(newLanguage)
     },
     {

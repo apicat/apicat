@@ -28,8 +28,9 @@ import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionStore from '@/store/definition'
 import { useI18n } from 'vue-i18n'
 import { DOCUMENT_EDIT_NAME } from '@/router'
-import { HTTP_RESPONSE_NODE_KEY } from './components/createHttpDocument'
+import { HTTP_REQUEST_NODE_KEY, HTTP_RESPONSE_NODE_KEY } from './components/createHttpDocument'
 import useDefinitionResponseStore from '@/store/definitionResponse'
+import { removeJsonSchemaTempProperty } from '@/commons'
 
 const { t } = useI18n()
 const { project_id } = useParams()
@@ -65,9 +66,20 @@ const validResponseName = (responses: APICatCommonResponse[]) => {
 const stringifyHttpDoc = (doc: any) => {
   const data: any = cloneDeep(unref(doc))
   const responseNode = data.content.find((node: any) => node.type === HTTP_RESPONSE_NODE_KEY)
+  const requestNode = data.content.find((node: any) => node.type === HTTP_REQUEST_NODE_KEY)
+  const content = requestNode.attrs.content || {}
+  Object.keys(content).forEach((key) => {
+    content[key] && removeJsonSchemaTempProperty(content[key].schema || {})
+  })
+
   responseNode.attrs.list = responseNode.attrs.list.map((item: any) => {
     if (item.$ref) {
       delete item.name
+    }
+    if (item.content) {
+      Object.keys(item.content).forEach((key) => {
+        item.content[key] && removeJsonSchemaTempProperty(item.content[key].schema)
+      })
     }
     return item
   })

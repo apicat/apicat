@@ -5,8 +5,8 @@ export const useGoPage = () => {
   const project_id = router.currentRoute.value.params.project_id as string
 
   const goSchemaDetailPage = (schemaId?: string | number) =>
-    router.push(getSchemaDetailPath(project_id as string, schemaId || (router.currentRoute.value.params.shcema_id as string)))
-  const goSchemaEditPage = (schemaId?: string | number) => router.push(getSchemaEditPath(project_id as string, schemaId || (router.currentRoute.value.params.shcema_id as string)))
+    router.push(getSchemaDetailPath(project_id as string, schemaId || (router.currentRoute.value.params.schema_id as string)))
+  const goSchemaEditPage = (schemaId?: string | number) => router.push(getSchemaEditPath(project_id as string, schemaId || (router.currentRoute.value.params.schema_id as string)))
 
   const goResponseDetailPage = (responseId?: string | number) =>
     router.push(getDefinitionResponseDetailPath(project_id as string, responseId || (router.currentRoute.value.params.response_id as string)))

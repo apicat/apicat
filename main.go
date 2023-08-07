@@ -3,11 +3,11 @@ package main
 import (
 	"flag"
 
-	"github.com/apicat/apicat/app"
-	"github.com/apicat/apicat/common/log"
-	"github.com/apicat/apicat/common/translator"
-	"github.com/apicat/apicat/config"
-	"github.com/apicat/apicat/models"
+	"github.com/apicat/apicat/backend/app"
+	"github.com/apicat/apicat/backend/common/log"
+	"github.com/apicat/apicat/backend/common/translator"
+	"github.com/apicat/apicat/backend/config"
+	"github.com/apicat/apicat/backend/models"
 )
 
 func main() {

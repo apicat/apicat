@@ -1,0 +1,157 @@
+@use '@/styles/mixins/mixins.scss' as *;
+@use 'sass:math';
+
+$row_height: 44px;
+
+$block_row_ns: $namespace + '-schema-row';
+
+@include b(schema-editor) {
+  background: var(--el-fill-color-blank);
+  color: var(--el-tree-text-color);
+  font-size: var(--el-font-size-base);
+  border: 1px var(--el-border-color-lighter) solid;
+  border-radius: var(--el-border-radius-base);
+  overflow: hidden;
+  @apply border border-solid border-gray-lighter;
+}
+
+@include b(schema-row) {
+  font-size: 14px;
+  position: relative;
+  background-color: var(--el-bg-color);
+  transition: opacity 0.3s ease-out;
+
+  @include m(header) {
+    @apply bg-gray-100;
+
+    font-weight: 500;
+    color: var(--title-color);
+
+    @include e(content) {
+      > div {
+        height: 100%;
+        @apply flex-y-center border-l border-solid border-gray-lighter px-12px;
+      }
+    }
+  }
+
+  @include e(drag) {
+    position: absolute;
+    top: math.div($row-height, 2);
+    left: 4px;
+    height: 16px;
+    margin-top: -8px;
+    opacity: 0.1;
+    z-index: 3;
+    cursor: move;
+  }
+
+  @include e(content) {
+    height: $row_height;
+    @apply flex-y-center border-t border-b border-solid border-gray-lighter relative -my-px;
+
+    @include e(item) {
+      height: 100%;
+      @apply flex-y-center border-l border-solid border-gray-lighter px-12px;
+    }
+
+    &:hover {
+      @apply bg-gray-100;
+    }
+
+    @include e(expand) {
+      @apply transition-base cursor-pointer;
+    }
+
+    @include e(name) {
+      flex: 1 1 263px;
+      padding: 0;
+
+      @apply flex-y-center b-l-0;
+      margin-left: -1px;
+
+      .indent-spance {
+        flex: none;
+      }
+
+      .el-icon {
+        margin-right: 4px;
+        flex: none;
+      }
+    }
+
+    @include e(type) {
+      flex: 0 1 182px;
+      width: 182px;
+
+      justify-content: center;
+      .el-dropdown,
+      .el-button {
+        width: 100%;
+      }
+    }
+
+    @include e(required) {
+      width: 80px;
+      justify-content: center;
+    }
+
+    @include e(example) {
+      flex: 1 0 60px;
+    }
+
+    @include e(description) {
+      flex: 1 0 60px;
+    }
+
+    @include e(operation) {
+      flex: 0 0 60px;
+    }
+  }
+
+  @include e(children) {
+    position: relative;
+  }
+
+  @include e(line) {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 0px;
+    z-index: 2;
+    // border-left: 1px var(--el-border-color-light) dashed;
+    @apply border-l border-dashed border-gray-300;
+  }
+
+  @include when(ref) {
+    > .#{$block_row_ns}__children .#{$block_row_ns}__drag {
+      display: none;
+    }
+  }
+
+  @include when(const) {
+    > .#{$block_row_ns}__drag {
+      display: none;
+    }
+  }
+
+  @include when(dragging) {
+    opacity: 0.3;
+  }
+
+  @include when(expanded) {
+    > .#{$block_row_ns}__content > .#{$block_row_ns}__name .#{$block_row_ns}__expand {
+      transform: rotate(90deg);
+    }
+  }
+
+  &:hover {
+    .#{$block_row_ns}__drag {
+      opacity: 1;
+    }
+
+    > .#{$block_row_ns}__children .#{$block_row_ns}__line {
+      @apply border-solid;
+    }
+  }
+}

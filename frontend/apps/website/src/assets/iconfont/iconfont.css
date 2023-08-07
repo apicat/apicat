@@ -1,8 +1,8 @@
 @font-face {
   font-family: "ac-iconfont"; /* Project id 3982489 */
-  src: url('iconfont.woff2?t=1687855729074') format('woff2'),
-       url('iconfont.woff?t=1687855729074') format('woff'),
-       url('iconfont.ttf?t=1687855729074') format('truetype');
+  src: url('iconfont.woff2?t=1690964153783') format('woff2'),
+       url('iconfont.woff?t=1690964153783') format('woff'),
+       url('iconfont.ttf?t=1690964153783') format('truetype');
 }
 
 .ac-iconfont {
@@ -11,6 +11,14 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.ac-zhinengyouhua:before {
+  content: "\e69a";
+}
+
+.ac-diedai:before {
+  content: "\e609";
 }
 
 .ac-lock:before {
@@ -91,6 +99,10 @@
 
 .ac-cloud-upload:before {
   content: "\e7d9";
+}
+
+.ac-history:before {
+  content: "\e752";
 }
 
 .ac-setting:before {
