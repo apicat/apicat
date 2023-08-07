@@ -3,8 +3,8 @@ package postman
 import (
 	"encoding/json"
 
-	"github.com/apicat/apicat/common/spec"
-	"github.com/apicat/apicat/common/spec/jsonschema"
+	"github.com/apicat/apicat/backend/common/spec"
+	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 	"golang.org/x/exp/slices"
 )
 
