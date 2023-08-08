@@ -1,9 +1,7 @@
 <template>
   <el-dialog v-model="dialogVisible" center append-to-body :close-on-click-modal="false" :close-on-press-escape="false" destroy-on-close width="40%">
     <template #header>
-      <div class="flex-y-center">
-        <el-icon class="mr-5px"><ac-icon-bi-robot /></el-icon>{{ $t('app.interface.common.aiGenerateInterface') }}
-      </div>
+      <div class="flex-y-center"><Iconfont class="mr-5px" icon="ac-zhinengyouhua" /> {{ $t('app.interface.common.aiGenerateInterface') }}</div>
     </template>
 
     <el-form class="mt-10px" label-position="top" label-width="0" :model="form" :rules="rules" ref="aiPromptForm" @submit.prevent="handleSubmit(aiPromptForm)">

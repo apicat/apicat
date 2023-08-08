@@ -1,5 +1,5 @@
 <template>
-  <ToggleHeading :title="$t('app.definitionResponse.title')">
+  <ToggleHeading :title="$t('app.definitionResponse.title')" :expand="false">
     <template #extra>
       <el-icon v-if="isManager || isWriter" class="cursor-pointer text-zinc-500" @click="onCreateMenuClick"><ac-icon-ep-plus /></el-icon>
     </template>

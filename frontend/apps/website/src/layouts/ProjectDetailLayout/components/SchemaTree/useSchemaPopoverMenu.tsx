@@ -12,7 +12,6 @@ import { createDefaultSchemaDefinition } from '@/views/document/components/creat
 import { useGoPage } from '@/hooks/useGoPage'
 import AIGenerateSchemaModal from '../AIGenerateSchemaModal.vue'
 import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModal.vue'
-import AcIconBIRobot from '~icons/bi/robot'
 import AcIconCarbonModelAlt from '~icons/carbon/model-alt'
 import { useI18n } from 'vue-i18n'
 import { ElCheckbox } from 'element-plus'
@@ -36,7 +35,7 @@ export const useSchemaPopoverMenu = (
   const { goSchemaEditPage } = useGoPage()
 
   const ROOT_MENUS: Menu[] = [
-    { text: t('app.schema.popoverMenus.aiGenerateSchema'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
+    { text: t('app.schema.popoverMenus.aiGenerateSchema'), icon: 'ac-zhinengyouhua', onClick: () => onShowAIPromptModal() },
     { text: t('app.schema.popoverMenus.newSchema'), elIcon: markRaw(AcIconCarbonModelAlt), onClick: () => onCreateSchemaMenuClick() },
   ]
 

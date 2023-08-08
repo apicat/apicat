@@ -17,7 +17,6 @@ import { createHttpDocument } from '@/views/document/components/createHttpDocume
 import { useGoPage } from '@/hooks/useGoPage'
 import { useI18n } from 'vue-i18n'
 import AIPromptModal from '../AIGenerateDocumentModal.vue'
-import AcIconBIRobot from '~icons/bi/robot'
 import { ProjectDetailModalsContextKey } from '../../constants'
 
 /**
@@ -51,7 +50,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
   const projectDetailModals = inject(ProjectDetailModalsContextKey)
 
   const ROOT_MENUS: Menu[] = [
-    { text: t('app.interface.popoverMenus.aiGenerateInterface'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
+    { text: t('app.interface.popoverMenus.aiGenerateInterface'), icon: 'ac-zhinengyouhua', onClick: () => onShowAIPromptModal() },
     { text: t('app.interface.popoverMenus.newInterface'), image: createHttpDocIcon, onClick: () => onCreateDocMenuClick() },
     { text: t('app.interface.popoverMenus.newGroup'), icon: 'ac-fenzu', onClick: () => onCreateDirMenuClick() },
   ]
@@ -258,7 +257,6 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
    * 导出
    */
   const onExportMenuClick = () => {
-    const tree = unref(treeIns)
     const node = unref(activeNodeInfo)?.node as Node
     const data = node?.data as CollectionNode
     projectDetailModals?.exportDocument(project_id as string, data.id)
