@@ -16,7 +16,7 @@ require (
 	github.com/lithammer/shortuuid/v4 v4.0.0
 	github.com/nicksnyder/go-i18n/v2 v2.2.1
 	github.com/pb33f/libopenapi v0.7.0
-	github.com/sashabaranov/go-openai v1.9.0
+	github.com/sashabaranov/go-openai v1.14.1
 	golang.org/x/crypto v0.7.0
 	golang.org/x/exp v0.0.0-20230321023759-10a507213a29
 	golang.org/x/text v0.8.0
