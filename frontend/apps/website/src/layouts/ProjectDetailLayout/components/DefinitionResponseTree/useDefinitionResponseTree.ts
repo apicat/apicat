@@ -8,8 +8,8 @@ import { useActiveTree } from './useActiveTree'
 import { useGoPage } from '@/hooks/useGoPage'
 import { RESPONSE_DETAIL_NAME, RESPONSE_EDIT_NAME } from '@/router'
 import useDefinitionResponseStore from '@/store/definitionResponse'
-import { useProjectId } from '@/hooks/useProjectId'
 import { createTreeMaxDepthFn } from '@/commons'
+import { useParams } from '@/hooks/useParams'
 
 /**
  * 获取节点树最大深度
@@ -22,7 +22,7 @@ const getTreeMaxDepth = createTreeMaxDepthFn('items')
  */
 export const useDefinitionResponseTree = () => {
   const definitionResponseStore = useDefinitionResponseStore()
-  const project_id = useProjectId()
+  const { project_id } = useParams()
   const { goResponseDetailPage } = useGoPage()
   const route = useRoute()
   const router = useRouter()

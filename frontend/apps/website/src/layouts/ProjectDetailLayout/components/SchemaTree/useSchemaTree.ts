@@ -9,8 +9,8 @@ import { useActiveTree } from './useActiveTree'
 import { useGoPage } from '@/hooks/useGoPage'
 import { SCHEMA_DETAIL_NAME, SCHEMA_EDIT_NAME } from '@/router'
 import useDefinitionStore from '@/store/definition'
-import { useProjectId } from '@/hooks/useProjectId'
 import { createTreeMaxDepthFn } from '@/commons'
+import { useParams } from '@/hooks/useParams'
 
 /**
  * 获取节点树最大深度
@@ -23,7 +23,7 @@ const getTreeMaxDepth = createTreeMaxDepthFn('items')
  */
 export const useSchemaTree = () => {
   const definitionStore = useDefinitionStore()
-  const project_id = useProjectId()
+  const { project_id } = useParams()
   const { goSchemaDetailPage, goSchemaEditPage } = useGoPage()
   const route = useRoute()
   const router = useRouter()

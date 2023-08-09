@@ -10,9 +10,9 @@ import { DocumentTypeEnum } from '@/commons/constant'
 import { useGoPage } from '@/hooks/useGoPage'
 import { useActiveTree } from './useActiveTree'
 import { DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME } from '@/router'
-import { useProjectId } from '@/hooks/useProjectId'
 import { moveCollection } from '@/api/collection'
 import useApi from '@/hooks/useApi'
+import { useParams } from '@/hooks/useParams'
 
 /**
  * 获取节点树最大深度
@@ -33,7 +33,7 @@ const getTreeMaxDepth = memoize(function (node) {
 
 export const useDocumentTree = () => {
   const documentStore = useDocumentStore()
-  const project_id = useProjectId()
+  const { project_id } = useParams()
   const { goDocumentDetailPage, goDocumentEditPage } = useGoPage()
 
   const route = useRoute()

@@ -11,7 +11,6 @@ import Ajax, { QuietAjax } from './Ajax'
 import useApi from '@/hooks/useApi'
 import { isEmpty } from 'lodash-es'
 import { queryStringify, API_URL } from '@/commons'
-
 import { setShareTokenToParams } from '@/store/share'
 
 const baseRestfulApiPath = (project_id: string | number): string => `/projects/${project_id}/collections`
