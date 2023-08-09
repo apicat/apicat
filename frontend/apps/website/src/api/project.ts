@@ -45,3 +45,5 @@ export const updateMemberAuthorityInProject = async (project_id: string, user_id
 export const quitProject = (project_id: string) => Ajax.delete(`/projects/${project_id}/exit`)
 // 移交项目
 export const transferProject = (project_id: string, member_id: number) => Ajax.put(`/projects/${project_id}/transfer`, { member_id })
+// 获取已关注的项目列表
+export const getFollowedProjectList = (): Promise<ProjectInfo[]> => Ajax.get('/projects/follow')

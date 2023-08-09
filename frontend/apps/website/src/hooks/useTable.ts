@@ -12,12 +12,15 @@ interface UseTableOptions {
   transform?: (item: any) => any
 }
 
-export const useTable = (_api: any, options: UseTableOptions) => {
+export const useTable = <T>(_api: any, options: UseTableOptions) => {
   const { isLoaded = true, searchParam = {}, dataKey = 'records', totalKey = 'total', pageSize = 15, transform } = options
 
   const [isLoading, api] = useApi(_api, { isShowMessage: false })
 
-  const tableState = reactive({
+  const tableState: {
+    data: T[]
+    total: number
+  } = reactive({
     data: [],
     total: 0,
   })

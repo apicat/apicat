@@ -22,3 +22,9 @@ export declare type ProjectDetailModals = {
   exportDocument: (project_id?: string, doc_id?: string) => void
   shareDocument: (project_id: string, doc_id: string) => void
 }
+
+export declare type Pageable<T = {}> = {
+  current_page: number
+  total_page: number
+  total: number
+} & T
