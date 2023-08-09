@@ -14,6 +14,7 @@ import (
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/apicat/apicat/backend/models"
 	"golang.org/x/exp/slog"
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/shortuuid/v4"
@@ -507,4 +508,56 @@ func ProjectTransfer(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusCreated)
+}
+
+func ProjectFollowList(ctx *gin.Context) {
+	currentUser, _ := ctx.Get("CurrentUser")
+
+	projectsList := []gin.H{}
+
+	pf, _ := models.NewProjectFollows()
+	pfs, err := pf.List(currentUser.(*models.Users).ID)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			ctx.JSON(http.StatusOK, projectsList)
+			return
+		}
+
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.QueryFailed"}),
+		})
+		return
+	}
+
+	if len(pfs) == 0 {
+		ctx.JSON(http.StatusOK, projectsList)
+		return
+	}
+
+	pIDs := []uint{}
+	for _, v := range pfs {
+		pIDs = append(pIDs, v.ProjectID)
+	}
+
+	project, _ := models.NewProjects()
+	projects, err := project.List(pIDs...)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.QueryFailed"}),
+		})
+		return
+	}
+
+	for _, v := range projects {
+		projectsList = append(projectsList, gin.H{
+			"id":          v.PublicId,
+			"title":       v.Title,
+			"description": v.Description,
+			"cover":       v.Cover,
+			"created_at":  v.CreatedAt.Format("2006-01-02 15:04:05"),
+			"updated_at":  v.UpdatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, projectsList)
 }

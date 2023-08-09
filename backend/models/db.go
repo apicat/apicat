@@ -69,6 +69,9 @@ func initTable() {
 		&ProjectMembers{},
 		&ShareTmpTokens{},
 		&DefinitionSchemaHistories{},
+		&Iterations{},
+		&IterationApis{},
+		&ProjectFollows{},
 	); err != nil {
 		panic(err.Error())
 	}

@@ -65,7 +65,7 @@ func (i *Iterations) Delete() error {
 func (i *Iterations) PlanningIterationApi(cIDs []uint) error {
 	iterationApi, _ := NewIterationApis()
 	iterationApis, err := iterationApi.List(i.ID)
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil {
 		return err
 	}
 
@@ -78,7 +78,7 @@ func (i *Iterations) PlanningIterationApi(cIDs []uint) error {
 	collection, _ := NewCollections()
 	collection.ProjectId = i.ProjectID
 	collections, err := collection.List()
-	if err != nil && err != gorm.ErrRecordNotFound {
+	if err != nil {
 		return err
 	}
 	collectionDict := map[uint]*Collections{}
@@ -93,19 +93,6 @@ func (i *Iterations) PlanningIterationApi(cIDs []uint) error {
 
 	wantPop := []*IterationApis{}
 	wantPush := []*IterationApis{}
-
-	for _, cid := range cIDs {
-		found := false
-		for _, iterationApi := range iterationApis {
-			if cid == iterationApi.CollectionID {
-				found = true
-				break
-			}
-		}
-		if !found {
-			wantPop = append(wantPop, iterationApiDict[cid])
-		}
-	}
 
 	// 找出iterationApis中存在但cIDs中不存在的元素
 	for _, iterationApi := range iterationApis {
@@ -123,19 +110,21 @@ func (i *Iterations) PlanningIterationApi(cIDs []uint) error {
 
 	// 找出cIDs中存在但iterationApis中不存在的元素
 	for _, cid := range cIDs {
-		found := false
-		for _, iterationApi := range iterationApis {
-			if cid == iterationApi.CollectionID {
-				found = true
-				break
+		if _, ok := collectionDict[cid]; ok {
+			found := false
+			for _, iterationApi := range iterationApis {
+				if cid == iterationApi.CollectionID {
+					found = true
+					break
+				}
 			}
-		}
-		if !found {
-			wantPush = append(wantPush, &IterationApis{
-				IterationID:    i.ID,
-				CollectionID:   collectionDict[cid].ID,
-				CollectionType: collectionDict[cid].Type,
-			})
+			if !found {
+				wantPush = append(wantPush, &IterationApis{
+					IterationID:    i.ID,
+					CollectionID:   collectionDict[cid].ID,
+					CollectionType: collectionDict[cid].Type,
+				})
+			}
 		}
 	}
 

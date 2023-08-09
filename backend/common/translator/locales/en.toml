@@ -270,3 +270,6 @@ other = "Iteration change failed"
 
 [Iteration.DeleteFailed]
 other = "Iteration delete failed"
+
+[ProjectFollows.QueryFailed]
+other = "Followed project query failed"

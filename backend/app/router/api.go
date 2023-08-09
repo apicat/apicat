@@ -133,6 +133,7 @@ func InitApiRouter(r *gin.Engine) {
 			{
 				project.GET("", api.ProjectsList)
 				project.POST("", api.ProjectsCreate)
+				project.GET("/follow", api.ProjectFollowList)
 			}
 
 			iteration := onlyLogin.Group("/iterations")
