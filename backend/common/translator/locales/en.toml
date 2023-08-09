@@ -255,3 +255,15 @@ other = "History query failed"
 
 [History.RestoreFailed]
 other = "Failed to restore history"
+
+[Iteration.NotFound]
+other = "Iteration does not exist"
+
+[Iteration.CreateFailed]
+other = "Iteration creation failed"
+
+[Iteration.UpdateFailed]
+other = "Iteration change failed"
+
+[Iteration.DeleteFailed]
+other = "Iteration delete failed"

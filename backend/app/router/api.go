@@ -134,6 +134,14 @@ func InitApiRouter(r *gin.Engine) {
 				project.GET("", api.ProjectsList)
 				project.POST("", api.ProjectsCreate)
 			}
+
+			iteration := project.Group("/iterations")
+			{
+				iteration.GET("", api.IterationsList)
+				iteration.POST("", api.IterationsCreate)
+				iteration.PUT("/:iteration-id", api.IterationsUpdate)
+				iteration.DELETE("/:iteration-id", api.IterationsDelete)
+			}
 		}
 
 		// 项目内部操作
