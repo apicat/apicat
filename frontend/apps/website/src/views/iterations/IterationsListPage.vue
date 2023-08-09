@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full">
     <div class="w-246px b-r b-solid b-gray-110 px-20px">
-      <IterationTree v-model:selected-project-key="selectedProjectKeyRef" :projects="followedProjects" />
+      <IterationTree v-model:selected-project-key="selectedProjectKeyRef" :projects="[{} as any]" />
     </div>
     <div class="flex-1">
       <IterationTable v-show="isListMode" :data="iterations" v-model:page="currentPage" :total="total" />
@@ -32,7 +32,7 @@ import { useIterationList } from './logic/useIterationList'
 // event[add(iteration),update(iteration)]);
 
 const { isFormMode, isListMode, toggleMode } = usePageMode()
-const { selectedProjectKeyRef, followedProjects, setSelectedProjectKey, activeClass } = useFollowedProjectList()
+const { selectedProjectKeyRef, followedProjects, setSelectedProjectKey } = useFollowedProjectList()
 const { data: iterations, currentPage, total, fetchIterationList } = useIterationList(selectedProjectKeyRef)
 
 // todo 获取所有迭代目录树
