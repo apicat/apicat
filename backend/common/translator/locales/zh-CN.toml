@@ -259,6 +259,9 @@ other = "恢复历史记录失败"
 [Iteration.NotFound]
 other = "迭代不存在"
 
+[Iteration.QueryFailed]
+other = "迭代查询失败"
+
 [Iteration.CreateFailed]
 other = "迭代创建失败"
 

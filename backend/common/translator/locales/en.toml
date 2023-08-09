@@ -259,6 +259,9 @@ other = "Failed to restore history"
 [Iteration.NotFound]
 other = "Iteration does not exist"
 
+[Iteration.QueryFailed]
+other = "Iteration query failed"
+
 [Iteration.CreateFailed]
 other = "Iteration creation failed"
 

@@ -78,6 +78,8 @@ func IterationsList(ctx *gin.Context) {
 		data.PageSize = 15
 	}
 
+	res.Iterations = []IterationSchemaData{}
+
 	pmDict := map[uint]models.ProjectMembers{}
 	if data.ProjectID != 0 {
 		pm, _ := models.NewProjectMembers()
@@ -188,6 +190,78 @@ func IterationsList(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, res)
+}
+
+func IterationsDetails(ctx *gin.Context) {
+	currentUser, _ := ctx.Get("CurrentUser")
+
+	var (
+		uriData    IterationUriData
+		isFollowed bool
+	)
+
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	iteration, err := models.NewIterations(uriData.IterationID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iterations.NotFound"}),
+		})
+		return
+	}
+
+	project, err := models.NewProjects(iteration.ProjectID)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+		})
+		return
+	}
+
+	pm, _ := models.NewProjectMembers()
+	pm.ProjectID = project.ID
+	pm.UserID = currentUser.(*models.Users).ID
+	if err := pm.GetByUserIDAndProjectID(); err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
+	apiNum, err := models.IterationApiCount(iteration.ID, "api")
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.CreateFailed"}),
+		})
+		return
+	}
+
+	pf, _ := models.NewProjectFollows()
+	pf.UserID = currentUser.(*models.Users).ID
+	pf.ProjectID = project.ID
+	if err := pf.GetByUserIDAndProjectID(); err == nil {
+		isFollowed = true
+	}
+
+	ctx.JSON(http.StatusOK, IterationSchemaData{
+		ID:              iteration.ID,
+		PublicID:        iteration.PublicID,
+		Title:           iteration.Title,
+		Description:     iteration.Description,
+		ProjectPublicID: project.PublicId,
+		ProjectTitle:    project.Title,
+		IsFollowed:      isFollowed,
+		ApiNum:          apiNum,
+		Authority:       pm.Authority,
+		CreatedAt:       iteration.CreatedAt.Format("2006-01-02 15:04"),
+		CreatedBy:       currentUser.(*models.Users).Username,
+	})
 }
 
 func IterationsCreate(ctx *gin.Context) {

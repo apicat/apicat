@@ -135,9 +135,10 @@ func InitApiRouter(r *gin.Engine) {
 				project.POST("", api.ProjectsCreate)
 			}
 
-			iteration := project.Group("/iterations")
+			iteration := onlyLogin.Group("/iterations")
 			{
 				iteration.GET("", api.IterationsList)
+				iteration.GET("/:iteration-id", api.IterationsDetails)
 				iteration.POST("", api.IterationsCreate)
 				iteration.PUT("/:iteration-id", api.IterationsUpdate)
 				iteration.DELETE("/:iteration-id", api.IterationsDelete)
