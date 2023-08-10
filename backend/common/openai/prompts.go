@@ -15,7 +15,7 @@ func (o *OpenAI) genCreateApiMessage(title string) []openAI.ChatCompletionMessag
 	}
 
 	if o.language == "zh" {
-		prompt = append(prompt, "The content of the “description” and “title” fields in YAML must be translated into Chinese.")
+		prompt = append(prompt, "The content of the 'description' and 'title' fields in YAML must be translated into Chinese.")
 	}
 
 	prompt = append(prompt, fmt.Sprintf("```an HTTP API for %s```", title))
@@ -42,10 +42,34 @@ JSON Schema: """%s
 """
 `
 
-var createSchemaPrompt = `
-Generate a %s data model for use in HTTP API requests, and list the commonly used attributes of the model.
-Provided in JSON Schema format%s:
-`
+func (o *OpenAI) genCreateSchemaMessage(title string) []openAI.ChatCompletionMessage {
+	var prompt = []string{
+		"Generate a data model for use in HTTP API requests based on the text enclosed in triple backticks.",
+		"If the content enclosed by triple quotes is not a noun or noun phrase, return <invaild content> and end the task.",
+		"This model should include its commonly used attributes.",
+		"Provide the result in JSON Schema format, including the “title” and “description” fields, and the content must be complete.",
+		"No explanation is needed in the generated content, only the JSON Schema content itself should be returned.",
+	}
+
+	if o.language == "zh" {
+		prompt = append(prompt, "The 'description' field must be translated into Chinese, and the 'title' field must be in pure English.")
+	}
+
+	prompt = append(prompt, fmt.Sprintf("```%s```", title))
+
+	message := []openAI.ChatCompletionMessage{
+		{
+			Role:    openAI.ChatMessageRoleSystem,
+			Content: "You are a programming assistant.",
+		},
+		{
+			Role:    openAI.ChatMessageRoleUser,
+			Content: strings.Join(prompt, "\n"),
+		},
+	}
+
+	return message
+}
 
 var listApiBySchemaPrompt = `
 Generate a list of HTTP APIs used to handle %s, including only API descriptions, request methods, and paths.
@@ -59,11 +83,6 @@ JSON format:
 
 func (o *OpenAI) generatePrompt(action string, text ...string) string {
 	switch action {
-	case "createSchema":
-		if o.language == "zh" {
-			return fmt.Sprintf(createSchemaPrompt, text[0], ", the description field must be translated into Chinese, and the title field must be in English")
-		}
-		return fmt.Sprintf(createSchemaPrompt, text[0], ", must contain description and title field")
 	case "createApiBySchema":
 		if o.language == "zh" {
 			return fmt.Sprintf(createApiBySchemaPrompt, text[0], text[1], text[2], ", the description and title field must be translated into Chinese.", text[3])

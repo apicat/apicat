@@ -159,6 +159,8 @@ func InitApiRouter(r *gin.Engine) {
 				projects.GET("/share", api.ProjectShareDetails)
 				projects.PUT("/share/switch", api.ProjectSharingSwitch)
 				projects.PUT("/share/reset", api.ProjectShareReset)
+				projects.POST("/follow", api.ProjectFollow)
+				projects.DELETE("/follow", api.ProjectUnFollow)
 			}
 
 			definitionSchemas := project.Group("/definition/schemas")

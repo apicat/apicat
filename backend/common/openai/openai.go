@@ -55,13 +55,16 @@ func (o *OpenAI) CreateApiBySchema(apiName, apiPath, apiMethod, schemaContent st
 }
 
 func (o *OpenAI) CreateSchema(schemaName string) (string, error) {
-	prompt := o.generatePrompt("createSchema", schemaName)
-	err := o.createCompletion(prompt)
+	message := o.genCreateSchemaMessage(schemaName)
+	err := o.createChatCompletion(message)
 	if err != nil {
 		return "", err
 	}
+	if strings.Contains(o.ChatCompletionResponse.Choices[0].Message.Content, "invalid content") {
+		return "", errors.New("invalid content")
+	}
 
-	return o.CompletionResponse.Choices[0].Text, nil
+	return o.ChatCompletionResponse.Choices[0].Message.Content, nil
 }
 
 func (o *OpenAI) ListApiBySchema(schemaName string) (string, error) {

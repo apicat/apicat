@@ -273,3 +273,9 @@ other = "迭代删除失败"
 
 [ProjectFollows.QueryFailed]
 other = "关注的项目查询失败"
+
+[ProjectFollows.FollowFailed]
+other = "关注项目失败"
+
+[ProjectFollows.UnfollowFailed]
+other = "取消项目关注失败"
