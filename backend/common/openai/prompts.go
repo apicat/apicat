@@ -1,11 +1,38 @@
 package openai
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
 
-var createApiPrompt = `
-Generate an HTTP API for %s.
-Provided in OpenAPI3.0 format%s:
-`
+	openAI "github.com/sashabaranov/go-openai"
+)
+
+func (o *OpenAI) genCreateApiMessage(title string) []openAI.ChatCompletionMessage {
+	var prompt = []string{
+		"Generate a complete content represented in OpenAPI 3.0 YAML format based on the text within triple backticks.",
+		"The content of YAML must be complete, including basic information of an HTTP API.",
+		"No explanation is needed in the generated content, only the YAML content itself should be returned.",
+	}
+
+	if o.language == "zh" {
+		prompt = append(prompt, "The content of the “description” and “title” fields in YAML must be translated into Chinese.")
+	}
+
+	prompt = append(prompt, fmt.Sprintf("```an HTTP API for %s```", title))
+
+	message := []openAI.ChatCompletionMessage{
+		{
+			Role:    openAI.ChatMessageRoleSystem,
+			Content: "You are a programming assistant.",
+		},
+		{
+			Role:    openAI.ChatMessageRoleUser,
+			Content: strings.Join(prompt, "\n"),
+		},
+	}
+
+	return message
+}
 
 var createApiBySchemaPrompt = `
 Generate an HTTP API for %s based on the following JSON Schema information.
@@ -32,11 +59,6 @@ JSON format:
 
 func (o *OpenAI) generatePrompt(action string, text ...string) string {
 	switch action {
-	case "createApi":
-		if o.language == "zh" {
-			return fmt.Sprintf(createApiPrompt, text[0], ", the description and title field must be translated into Chinese")
-		}
-		return fmt.Sprintf(createApiPrompt, text[0], "")
 	case "createSchema":
 		if o.language == "zh" {
 			return fmt.Sprintf(createSchemaPrompt, text[0], ", the description field must be translated into Chinese, and the title field must be in English")
