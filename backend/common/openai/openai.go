@@ -39,19 +39,17 @@ func (o *OpenAI) CreateApi(apiName string) (string, error) {
 }
 
 func (o *OpenAI) CreateApiBySchema(apiName, apiPath, apiMethod, schemaContent string) (string, error) {
-	prompt := o.generatePrompt("createApiBySchema", apiName, apiPath, apiMethod, schemaContent)
-	err := o.createCompletion(prompt)
+	message := o.genCreateApiBySchemaMessage(apiName, apiPath, apiMethod, schemaContent)
+	err := o.createChatCompletion(message)
 	if err != nil {
 		return "", err
 	}
 
-	result := strings.Split(o.CompletionResponse.Choices[0].Text, "\n")
-	if len(result) < 3 {
-		slog.Debug("invalid result: " + o.CompletionResponse.Choices[0].Text)
-		return "", errors.New("invalid result")
-	}
-
-	return result[1], nil
+	// The message content like: ```yaml \n xxx \n```
+	// The ```yaml on the first line and the `` on the last line need to be removed
+	replacer := strings.NewReplacer("```yaml\n", "", "```\n", "", "```", "")
+	result := replacer.Replace(o.ChatCompletionResponse.Choices[0].Message.Content)
+	return result, nil
 }
 
 func (o *OpenAI) CreateSchema(schemaName string) (string, error) {
@@ -97,33 +95,6 @@ func (o *OpenAI) createChatCompletion(messages []openAI.ChatCompletionMessage) e
 	if err != nil {
 		slog.Warn("ChatCompletion error: " + err.Error())
 		return err
-	}
-
-	return nil
-}
-
-func (o *OpenAI) createCompletion(prompt string) error {
-	var err error
-
-	c := openAI.NewClient(o.token)
-	ctx := context.Background()
-
-	req := openAI.CompletionRequest{
-		Model:           openAI.GPT3TextDavinci003,
-		MaxTokens:       o.maxTokens,
-		Prompt:          prompt,
-		Temperature:     0.7,
-		TopP:            1.0,
-		PresencePenalty: 0.0,
-		Stop:            []string{"\"\"\""},
-	}
-	o.CompletionResponse, err = c.CreateCompletion(ctx, req)
-	if err != nil {
-		return err
-	}
-
-	if o.CompletionResponse.Usage.TotalTokens > o.maxTokens {
-		return errors.New("tokens used more than maxTokens")
 	}
 
 	return nil

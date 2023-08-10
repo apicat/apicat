@@ -34,13 +34,31 @@ func (o *OpenAI) genCreateApiMessage(title string) []openAI.ChatCompletionMessag
 	return message
 }
 
-var createApiBySchemaPrompt = `
-Generate an HTTP API for %s based on the following JSON Schema information.
-The path of the API is "%s", and the method of the API is "%s".
-Provide them in OpenAPI3.0 format%s
-JSON Schema: """%s
-"""
-`
+func (o *OpenAI) genCreateApiBySchemaMessage(apiName, apiPath, apiMethod, schemaContent string) []openAI.ChatCompletionMessage {
+	var prompt []string
+
+	prompt = append(prompt, fmt.Sprintf("Generate an HTTP API for %s based on the JSON Schema enclosed in triple backticks.", apiName))
+	prompt = append(prompt, fmt.Sprintf("The path of the API is <%s>, and the method of the API is <%s>.", apiPath, apiMethod))
+	prompt = append(prompt, "Provide them in OpenAPI 3.0 YAML format, and the content of YAML must be complete, including basic information of an HTTP API.")
+	prompt = append(prompt, "No explanation is needed in the generated content, only the YAML content itself should be returned.")
+	if o.language == "zh" {
+		prompt = append(prompt, "The content of the 'description' and 'title' fields in YAML must be translated into Chinese.")
+	}
+	prompt = append(prompt, fmt.Sprintf("JSON Schema: ```\n%s\n```", schemaContent))
+
+	message := []openAI.ChatCompletionMessage{
+		{
+			Role:    openAI.ChatMessageRoleSystem,
+			Content: "You are a programming assistant.",
+		},
+		{
+			Role:    openAI.ChatMessageRoleUser,
+			Content: strings.Join(prompt, "\n"),
+		},
+	}
+
+	return message
+}
 
 func (o *OpenAI) genCreateSchemaMessage(title string) []openAI.ChatCompletionMessage {
 	var prompt = []string{
@@ -73,7 +91,8 @@ func (o *OpenAI) genCreateSchemaMessage(title string) []openAI.ChatCompletionMes
 
 func (o *OpenAI) genListApiBySchemaMessage(title string) []openAI.ChatCompletionMessage {
 	var prompt = []string{
-		"Generate a list of HTTP APIs based on the text enclosed in triple backticks.",
+		"Generate a list of HTTP APIs based on the data model name enclosed in triple backticks.",
+		"The generated API should be reasonable and have practical value in actual use.",
 		"Including only API descriptions, request methods, and paths.",
 		"Provide them in JSON format with the following keys: description, method, path.",
 		"No explanation is needed in the generated content, only the JSON Schema itself should be returned.",
@@ -100,16 +119,4 @@ func (o *OpenAI) genListApiBySchemaMessage(title string) []openAI.ChatCompletion
 	}
 
 	return message
-}
-
-func (o *OpenAI) generatePrompt(action string, text ...string) string {
-	switch action {
-	case "createApiBySchema":
-		if o.language == "zh" {
-			return fmt.Sprintf(createApiBySchemaPrompt, text[0], text[1], text[2], ", the description and title field must be translated into Chinese.", text[3])
-		}
-		return fmt.Sprintf(createApiBySchemaPrompt, text[0], text[1], text[2], ".", text[3])
-	default:
-		return ""
-	}
 }
