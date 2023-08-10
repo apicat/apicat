@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
 const ns = useNamespace('iteration-tree')
 const selectedProjectKeyRef = useVModel(props, 'selectedProjectKey', emits)
 
-const activeClass = (id: number | null = null) => selectedProjectKeyRef.value === id
+const activeClass = (id: number | null = null) => (selectedProjectKeyRef.value === id ? 'active' : '')
 
 const handleCreate = () => emits('add')
 
