@@ -587,6 +587,12 @@ func ProjectUnFollow(ctx *gin.Context) {
 	pf, _ := models.NewProjectFollows()
 	pf.ProjectID = currentProject.(*models.Projects).ID
 	pf.UserID = currentUser.(*models.Users).ID
+	if err := pf.GetByUserIDAndProjectID(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.UnFollowFailed"}),
+		})
+		return
+	}
 
 	if err := pf.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
