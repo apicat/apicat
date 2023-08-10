@@ -32,6 +32,7 @@ type CollectionList struct {
 	ParentID uint              `json:"parent_id"`
 	Title    string            `json:"title"`
 	Type     string            `json:"type"`
+	Selected *bool             `json:"selected,omitempty"`
 	Items    []*CollectionList `json:"items"`
 }
 
@@ -57,9 +58,21 @@ type CollectionOrderContent struct {
 	Ids []uint `json:"ids" binding:"required,dive,gte=0"`
 }
 
+type CollectionsListData struct {
+	IterationID uint `json:"iteration_id" binding:"omitempty,gte=0"`
+}
+
 func CollectionsList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
+
+	var data CollectionsListData
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
 
 	collection, _ := models.NewCollections()
 	collection.ProjectId = project.ID
@@ -69,23 +82,50 @@ func CollectionsList(ctx *gin.Context) {
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
 		})
 	}
+	if data.IterationID == 0 {
+		ctx.JSON(http.StatusOK, buildTree(0, collections))
+	} else {
+		ia, _ := models.NewIterationApis()
+		cIDs, err := ia.GetCollectionIDByIterationID(data.IterationID)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
+			})
+			return
+		}
 
-	ctx.JSON(http.StatusOK, buildTree(0, collections))
+		ctx.JSON(http.StatusOK, buildTree(0, collections, cIDs...))
+	}
+
 }
 
-func buildTree(parentID uint, collections []*models.Collections) []*CollectionList {
+func buildTree(parentID uint, collections []*models.Collections, selectCIDs ...uint) []*CollectionList {
 	result := make([]*CollectionList, 0)
 
 	for _, c := range collections {
 		if c.ParentId == parentID {
 			children := buildTree(c.ID, collections)
-			result = append(result, &CollectionList{
+
+			c := CollectionList{
 				ID:       c.ID,
 				ParentID: c.ParentId,
 				Title:    c.Title,
 				Type:     c.Type,
 				Items:    children,
-			})
+			}
+
+			isSelected := false
+			if len(selectCIDs) > 0 {
+				for _, cid := range selectCIDs {
+					if cid == c.ID {
+						isSelected = true
+						break
+					}
+				}
+				c.Selected = &isSelected
+			}
+
+			result = append(result, &c)
 		}
 	}
 
