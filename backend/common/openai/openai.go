@@ -5,21 +5,25 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/apicat/apicat/backend/config"
 	openAI "github.com/sashabaranov/go-openai"
 	"golang.org/x/exp/slog"
 )
 
 type OpenAI struct {
-	token                  string
+	source                 string
+	key                    string
+	endpoint               string
 	language               string
 	maxTokens              int
-	CompletionResponse     openAI.CompletionResponse
 	ChatCompletionResponse openAI.ChatCompletionResponse
 }
 
-func NewOpenAI(token, language string) *OpenAI {
+func NewOpenAI(configs config.OpenAI, language string) *OpenAI {
 	return &OpenAI{
-		token:     token,
+		source:    configs.Source,
+		key:       configs.Key,
+		endpoint:  configs.Endpoint,
 		language:  strings.ToLower(language),
 		maxTokens: 1000,
 	}
@@ -80,9 +84,21 @@ func (o *OpenAI) SetMaxTokens(maxTokens int) {
 }
 
 func (o *OpenAI) createChatCompletion(messages []openAI.ChatCompletionMessage) error {
-	var err error
+	var (
+		err    error
+		client *openAI.Client
+	)
 
-	client := openAI.NewClient(o.token)
+	if o.source == "openai" {
+		client = openAI.NewClient(o.key)
+	} else if o.source == "azure" {
+		config := openAI.DefaultAzureConfig(o.key, o.endpoint)
+		client = openAI.NewClientWithConfig(config)
+	} else {
+		slog.Debug("The OpenAI source is invalid")
+		return errors.New("The OpenAI source is invalid")
+	}
+
 	o.ChatCompletionResponse, err = client.CreateChatCompletion(
 		context.Background(),
 		openAI.ChatCompletionRequest{
