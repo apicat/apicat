@@ -68,13 +68,13 @@ func (o *OpenAI) CreateSchema(schemaName string) (string, error) {
 }
 
 func (o *OpenAI) ListApiBySchema(schemaName string) (string, error) {
-	prompt := o.generatePrompt("listApiBySchema", schemaName)
-	err := o.createCompletion(prompt)
+	message := o.genListApiBySchemaMessage(schemaName)
+	err := o.createChatCompletion(message)
 	if err != nil {
 		return "", err
 	}
 
-	return o.CompletionResponse.Choices[0].Text, nil
+	return o.ChatCompletionResponse.Choices[0].Message.Content, nil
 }
 
 func (o *OpenAI) SetMaxTokens(maxTokens int) {

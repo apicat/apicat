@@ -71,15 +71,36 @@ func (o *OpenAI) genCreateSchemaMessage(title string) []openAI.ChatCompletionMes
 	return message
 }
 
-var listApiBySchemaPrompt = `
-Generate a list of HTTP APIs used to handle %s, including only API descriptions, request methods, and paths.
-Provide them in JSON format with the following keys: description, method, path.%s
-For example:
-[
-	{"description": "create user", "method": "POST", "path": "/users"}
-]
-JSON format:
-`
+func (o *OpenAI) genListApiBySchemaMessage(title string) []openAI.ChatCompletionMessage {
+	var prompt = []string{
+		"Generate a list of HTTP APIs based on the text enclosed in triple backticks.",
+		"Including only API descriptions, request methods, and paths.",
+		"Provide them in JSON format with the following keys: description, method, path.",
+		"No explanation is needed in the generated content, only the JSON Schema itself should be returned.",
+		"For example:",
+		`[{"description": "create user", "method": "POST", "path": "/users"}]`,
+	}
+
+	if o.language == "zh" {
+		prompt = append(prompt, "The 'description' field must be translated into Chinese.")
+	}
+
+	prompt = append(prompt, fmt.Sprintf("```%s```", title))
+	prompt = append(prompt, "JSON format:")
+
+	message := []openAI.ChatCompletionMessage{
+		{
+			Role:    openAI.ChatMessageRoleSystem,
+			Content: "You are a programming assistant.",
+		},
+		{
+			Role:    openAI.ChatMessageRoleUser,
+			Content: strings.Join(prompt, "\n"),
+		},
+	}
+
+	return message
+}
 
 func (o *OpenAI) generatePrompt(action string, text ...string) string {
 	switch action {
@@ -88,11 +109,6 @@ func (o *OpenAI) generatePrompt(action string, text ...string) string {
 			return fmt.Sprintf(createApiBySchemaPrompt, text[0], text[1], text[2], ", the description and title field must be translated into Chinese.", text[3])
 		}
 		return fmt.Sprintf(createApiBySchemaPrompt, text[0], text[1], text[2], ".", text[3])
-	case "listApiBySchema":
-		if o.language == "zh" {
-			return fmt.Sprintf(listApiBySchemaPrompt, text[0], "\nThe description field must be translated into Chinese.")
-		}
-		return fmt.Sprintf(listApiBySchemaPrompt, text[0], "")
 	default:
 		return ""
 	}
