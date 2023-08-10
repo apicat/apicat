@@ -272,4 +272,10 @@ other = "Iteration change failed"
 other = "Iteration delete failed"
 
 [ProjectFollows.QueryFailed]
-other = "Followed project query failed"
+other = "Following item query failed"
+
+[ProjectFollows.FollowFailed]
+other = "Failed to follow item"
+
+[ProjectFollows.UnfollowFailed]
+other = "Failed to unfollow project"

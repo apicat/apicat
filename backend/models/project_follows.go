@@ -30,3 +30,11 @@ func (pf *ProjectFollows) List(uID uint) ([]*ProjectFollows, error) {
 func (pf *ProjectFollows) GetByUserIDAndProjectID() error {
 	return Conn.Where("user_id = ?", pf.UserID).Where("project_id = ?", pf.ProjectID).Take(pf).Error
 }
+
+func (pf *ProjectFollows) Create() error {
+	return Conn.Create(pf).Error
+}
+
+func (pf *ProjectFollows) Delete() error {
+	return Conn.Delete(pf).Error
+}

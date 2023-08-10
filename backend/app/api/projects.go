@@ -561,3 +561,39 @@ func ProjectFollowList(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, projectsList)
 }
+
+func ProjectFollow(ctx *gin.Context) {
+	currentProject, _ := ctx.Get("CurrentProject")
+	currentUser, _ := ctx.Get("CurrentUser")
+
+	pf, _ := models.NewProjectFollows()
+	pf.ProjectID = currentProject.(*models.Projects).ID
+	pf.UserID = currentUser.(*models.Users).ID
+
+	if err := pf.Create(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.FollowFailed"}),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusCreated)
+}
+
+func ProjectUnFollow(ctx *gin.Context) {
+	currentProject, _ := ctx.Get("CurrentProject")
+	currentUser, _ := ctx.Get("CurrentUser")
+
+	pf, _ := models.NewProjectFollows()
+	pf.ProjectID = currentProject.(*models.Projects).ID
+	pf.UserID = currentUser.(*models.Users).ID
+
+	if err := pf.Delete(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.UnFollowFailed"}),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
+}
