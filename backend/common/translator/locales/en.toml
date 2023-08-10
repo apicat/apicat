@@ -16,6 +16,9 @@ other = "Project export failed, please try again later."
 [Projects.NotFound]
 other = "Item does not exist"
 
+[Projects.QueryFailed]
+other = "Project query failed"
+
 [Projects.ExitFail]
 other = "Failed to exit project"
 

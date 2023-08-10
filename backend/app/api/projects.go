@@ -72,13 +72,31 @@ func ProjectsList(ctx *gin.Context) {
 		return
 	}
 
+	pf, _ := models.NewProjectFollows()
+	pIDs, err := pf.GetProjectIDByUserID(currentUser.(*models.Users).ID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
+		})
+		return
+	}
+
 	projectsList := []gin.H{}
 	for _, v := range projects {
+		isFollow := false
+		for _, pID := range pIDs {
+			if v.ID == pID {
+				isFollow = true
+				break
+			}
+		}
+
 		projectsList = append(projectsList, gin.H{
 			"id":          v.PublicId,
 			"title":       v.Title,
 			"description": v.Description,
 			"cover":       v.Cover,
+			"is_followed": isFollow,
 			"created_at":  v.CreatedAt.Format("2006-01-02 15:04:05"),
 			"updated_at":  v.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
@@ -569,7 +587,6 @@ func ProjectFollow(ctx *gin.Context) {
 	pf, _ := models.NewProjectFollows()
 	pf.ProjectID = currentProject.(*models.Projects).ID
 	pf.UserID = currentUser.(*models.Users).ID
-
 	if err := pf.GetByUserIDAndProjectID(); err == nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.FollowFailed"}),

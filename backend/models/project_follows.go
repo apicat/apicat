@@ -27,6 +27,12 @@ func (pf *ProjectFollows) List(uID uint) ([]*ProjectFollows, error) {
 	return projectFollows, Conn.Where("user_id = ?", uID).Order("created_at desc").Find(&projectFollows).Error
 }
 
+func (pf *ProjectFollows) GetProjectIDByUserID(uid uint) ([]uint, error) {
+	var projectIDs []uint
+
+	return projectIDs, Conn.Model(&ProjectFollows{}).Where("user_id = ?", uid).Pluck("project_id", &projectIDs).Error
+}
+
 func (pf *ProjectFollows) GetByUserIDAndProjectID() error {
 	return Conn.Where("user_id = ?", pf.UserID).Where("project_id = ?", pf.ProjectID).Take(pf).Error
 }

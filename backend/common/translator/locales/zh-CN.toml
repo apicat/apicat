@@ -16,6 +16,9 @@ other = "项目导出失败，请稍后重试。"
 [Projects.NotFound]
 other = "项目不存在"
 
+[Projects.QueryFailed]
+other = "项目查询失败"
+
 [Projects.ExitFail]
 other = "退出项目失败"
 
