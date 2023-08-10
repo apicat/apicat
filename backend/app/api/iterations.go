@@ -26,9 +26,9 @@ type IterationSchemaData struct {
 }
 
 type IterationListData struct {
-	ProjectID uint  `form:"project_id"`
-	Page      int64 `form:"page"`
-	PageSize  int64 `form:"page_size"`
+	ProjectID string `form:"project_id"`
+	Page      int64  `form:"page"`
+	PageSize  int64  `form:"page_size"`
 }
 
 type IterationListResData struct {
@@ -81,9 +81,17 @@ func IterationsList(ctx *gin.Context) {
 	res.Iterations = []IterationSchemaData{}
 
 	pmDict := map[uint]models.ProjectMembers{}
-	if data.ProjectID != 0 {
+	if data.ProjectID != "" {
+		targetProject, err := models.NewProjects(data.ProjectID)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+			})
+			return
+		}
+
 		pm, _ := models.NewProjectMembers()
-		pm.ProjectID = data.ProjectID
+		pm.ProjectID = targetProject.ID
 		pm.UserID = currentUser.(*models.Users).ID
 		if err := pm.GetByUserIDAndProjectID(); err != nil {
 			ctx.JSON(http.StatusForbidden, gin.H{
@@ -92,8 +100,8 @@ func IterationsList(ctx *gin.Context) {
 			})
 			return
 		}
-		pIDs = append(pIDs, data.ProjectID)
-		pmDict[data.ProjectID] = *pm
+		pIDs = append(pIDs, targetProject.ID)
+		pmDict[targetProject.ID] = *pm
 	} else {
 		pms, err := models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
 		if err != nil {
