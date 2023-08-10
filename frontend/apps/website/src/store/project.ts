@@ -1,8 +1,7 @@
-import { getProjectList, getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList } from '@/api/project'
-import { Cookies, ProjectListCoverBgColors, ProjectListCoverIcons, ProjectVisibilityEnum } from '@/commons'
+import { getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList } from '@/api/project'
+import { Cookies, ProjectVisibilityEnum } from '@/commons'
 import { MemberAuthorityInProject, MemberAuthorityMap } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
-import { getProjectDefaultCover } from '@/views/project/logic/useProjectCover'
 import { defineStore } from 'pinia'
 import { pinia } from '@/plugins'
 import { getProjectAuthInfo } from '@/api/shareProject'
@@ -15,7 +14,6 @@ interface ProjectAuthInfo {
   isPrivate: boolean
 }
 interface ProjectState {
-  projects: ProjectInfo[]
   projectDetailInfo: ProjectInfo | null
   projectAuthInfo: ProjectAuthInfo | null
   urlServers: Array<any>
@@ -24,7 +22,6 @@ interface ProjectState {
 
 export const useProjectStore = defineStore('project', {
   state: (): ProjectState => ({
-    projects: [],
     projectDetailInfo: null,
     projectAuthInfo: null,
     urlServers: [],
@@ -32,16 +29,6 @@ export const useProjectStore = defineStore('project', {
   }),
 
   getters: {
-    projectList: (state) =>
-      state.projects.map((info) => {
-        try {
-          info.cover = JSON.parse(info.cover as string)
-        } catch (error) {
-          info.cover = getProjectDefaultCover({ coverBgColor: ProjectListCoverBgColors[1], coverIcon: ProjectListCoverIcons[0], type: 'icon' })
-        }
-        return info
-      }),
-
     projectAuths: () => {
       return Object.keys(MemberAuthorityMap)
         .filter((key: string) => key !== MemberAuthorityInProject.MANAGER)
@@ -62,11 +49,6 @@ export const useProjectStore = defineStore('project', {
     hasInputSecretKey: (state) => !!(Cookies.get(Cookies.KEYS.SHARE_PROJECT + state.projectAuthInfo?.project_id) || ''),
   },
   actions: {
-    async getProjects() {
-      const projects: any = await getProjectList()
-      this.projects = projects
-    },
-
     async getProjectDetailInfo(project_id: string): Promise<ProjectInfo> {
       const token = Cookies.get(Cookies.KEYS.SHARE_PROJECT + project_id)
       const project = await getProjectDetail(project_id, token ? { token } : {})

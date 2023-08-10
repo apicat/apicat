@@ -41,6 +41,11 @@ export declare interface ProjectInfo {
    * 当前成员在此项目的权限
    */
   authority?: MemberAuthorityInProject
+
+  /**
+   * 是否关注
+   */
+  is_followed?: boolean
 }
 
 /**

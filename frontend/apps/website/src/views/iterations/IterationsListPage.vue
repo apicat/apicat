@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full">
     <div class="w-246px b-r b-solid b-gray-110 px-20px">
-      <IterationTree v-model:selected-project-key="selectedProjectKeyRef" :projects="[{} as any]" />
+      <IterationTree v-model:selected-project-key="selectedProjectKeyRef" :projects="followedProjects" />
     </div>
     <div class="flex-1">
       <IterationTable v-show="isListMode" :data="iterations" v-model:page="currentPage" :total="total" />

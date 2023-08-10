@@ -1,6 +1,6 @@
 <template>
   <div :class="ns.b()">
-    <div :class="[ns.e('item'), activeClass()]" @click="() => handleClick()">
+    <div :class="[ns.e('item'), activeClass(null)]" @click="() => handleClick()">
       <Iconfont icon="ac-diedai" :size="18" />
       <span>所有迭代</span>
     </div>
@@ -12,8 +12,8 @@
 
   <p class="text-#101010 font-500 my-10px">关注的项目</p>
   <ul :class="ns.bm('followed')">
-    <li v-for="project in projects" :class="[ns.e('item'), activeClass(project)]" @click="() => handleClick(project)">
-      <span>ApiCat</span>
+    <li v-for="project in projects" :class="[ns.e('item'), activeClass(project.id as number)]" @click="() => handleClick(project)">
+      <span class="mr-8px">·</span><span>{{ project.title }}</span>
     </li>
   </ul>
 </template>
@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
 const ns = useNamespace('iteration-tree')
 const selectedProjectKeyRef = useVModel(props, 'selectedProjectKey', emits)
 
-const activeClass = (project?: ProjectInfo) => (project?.id === selectedProjectKeyRef.value ? 'active' : '')
+const activeClass = (id: number | null = null) => selectedProjectKeyRef.value === id
 
 const handleCreate = () => emits('add')
 
@@ -46,10 +46,15 @@ const handleClick = (project?: ProjectInfo) => {
 @use '@/styles/mixins/mixins' as *;
 
 @include b(iteration-tree) {
-  @apply mt-24px;
+  @apply mt-24px text-#101010;
 
   @include e(item) {
     @apply rounded-5px cursor-pointer h-40px text-14px flex flex-y-center px-20px;
+
+    & + & {
+      margin-top: 4px;
+    }
+
     .ac-iconfont,
     .el-icon {
       @apply mr-8px;
@@ -60,16 +65,12 @@ const handleClick = (project?: ProjectInfo) => {
     }
 
     &.active {
-      background-color: rgba(204, 225, 255, 50);
+      background-color: #e5f0ff;
       @apply text-#101010 font-500;
     }
 
     &:hover {
       @apply bg-gray-110;
-    }
-
-    & + & {
-      margin-top: 10px;
     }
   }
 
