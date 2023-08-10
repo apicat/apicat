@@ -2,7 +2,11 @@ import useTable from '@/hooks/useTable'
 import { getIterationList } from '@/api/iteration'
 import { Iteration } from '@/typings'
 
-export const useIterationList = (selectedProjectKeyRef: Ref<number | null>) => {
+export type SelectedProjectKey = number | string | null
+
+export const useIterationList = () => {
+  const selectedProjectKeyRef = ref<SelectedProjectKey>(null)
+
   const queryParam: Record<string, any> = {
     project_id: selectedProjectKeyRef.value,
   }
@@ -27,6 +31,7 @@ export const useIterationList = (selectedProjectKeyRef: Ref<number | null>) => {
   )
 
   return {
+    selectedProjectKeyRef,
     currentPage,
     ...rest,
     fetchIterationList: getTableData,

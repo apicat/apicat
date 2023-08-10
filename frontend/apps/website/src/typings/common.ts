@@ -28,3 +28,5 @@ export declare type Pageable<T = {}> = {
   total_page: number
   total: number
 } & T
+
+export type EmptyStruct<T> = T | Record<string, any>

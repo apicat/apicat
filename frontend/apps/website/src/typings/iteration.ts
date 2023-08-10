@@ -45,5 +45,10 @@ export interface Iteration {
    * 迭代标题
    */
   title: string
+  /**
+   * 迭代ids
+   */
+  collection_ids?: number[]
+
   [property: string]: any
 }

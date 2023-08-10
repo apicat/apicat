@@ -24,6 +24,7 @@ export default defineConfig({
         lighter: '#eceeef',
         100: '#fafafa',
         110: '#f2f2f2',
+        title: '#101010',
       },
     },
     height: {

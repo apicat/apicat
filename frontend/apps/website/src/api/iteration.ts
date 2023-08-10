@@ -21,9 +21,9 @@ export const updateIteration = async (params: { iteration_public_id: string | nu
   return Ajax.put(`${restfulDetailPath(iteration_public_id)}`, body)
 }
 
-// 添加迭代
-export const addIteration = async (params: { project_id: string | number; title: string; desciption?: string; collection_ids: string[] }): Promise<Iteration> => {
-  return Ajax.put(restfulRootPath, params)
+// 创建迭代
+export const createIteration = async (params: { project_id: string | number; title: string; desciption?: string; collection_ids: string[] }): Promise<Iteration> => {
+  return Ajax.post(restfulRootPath, params)
 }
 
 // 删除迭代

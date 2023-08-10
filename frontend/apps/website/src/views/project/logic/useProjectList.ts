@@ -15,7 +15,7 @@ export const useProjectList = () => {
     }
   }
 
-  onBeforeMount(async () => {
+  onMounted(async () => {
     try {
       const projects = await getProjectListApi()
       projectList.value = (projects || []).map((item: ProjectInfo) => convertProjectCover(item))
@@ -23,7 +23,7 @@ export const useProjectList = () => {
       //
     }
   })
-  onBeforeUnmount(() => (projectList.value = []))
+  onUnmounted(() => (projectList.value = []))
 
   return {
     isLoading,
