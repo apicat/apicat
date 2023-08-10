@@ -570,6 +570,13 @@ func ProjectFollow(ctx *gin.Context) {
 	pf.ProjectID = currentProject.(*models.Projects).ID
 	pf.UserID = currentUser.(*models.Users).ID
 
+	if err := pf.GetByUserIDAndProjectID(); err == nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.FollowFailed"}),
+		})
+		return
+	}
+
 	if err := pf.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.FollowFailed"}),
