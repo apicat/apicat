@@ -47,6 +47,7 @@ func CheckMember() func(ctx *gin.Context) {
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			ctx.Abort()
+			return
 		}
 
 		if user == nil || user.IsEnabled == 0 {
@@ -54,6 +55,7 @@ func CheckMember() func(ctx *gin.Context) {
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.AccountDisabled"}),
 			})
 			ctx.Abort()
+			return
 		}
 
 		//将当前请求的username信息保存到请求的上下文c上
