@@ -67,7 +67,7 @@ func CollectionsList(ctx *gin.Context) {
 	project, _ := currentProject.(*models.Projects)
 
 	var data CollectionsListData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -82,6 +82,7 @@ func CollectionsList(ctx *gin.Context) {
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
 		})
 	}
+
 	if data.IterationID == 0 {
 		ctx.JSON(http.StatusOK, buildTree(0, collections))
 	} else {
