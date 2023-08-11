@@ -103,7 +103,9 @@ func IterationsList(ctx *gin.Context) {
 	} else {
 		pms, err := models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
 		if err != nil {
-			ctx.JSON(http.StatusOK, res)
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+			})
 			return
 		}
 		for _, pm := range pms {
@@ -120,9 +122,16 @@ func IterationsList(ctx *gin.Context) {
 	project, _ := models.NewProjects()
 	projects, err := project.List(pIDs...)
 	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+		})
+		return
+	}
+	if len(projects) == 0 {
 		ctx.JSON(http.StatusOK, res)
 		return
 	}
+
 	pDict := map[uint]models.Projects{}
 	for _, v := range projects {
 		pDict[v.ID] = v
@@ -148,14 +157,18 @@ func IterationsList(ctx *gin.Context) {
 
 	iterationTotal, err := iteration.IterationsCount(pIDs...)
 	if err != nil {
-		ctx.JSON(http.StatusOK, res)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+		})
 		return
 	}
 
 	iterationApi, _ := models.NewIterationApis()
 	iterationApis, err := iterationApi.List(iterationIDs...)
 	if err != nil {
-		ctx.JSON(http.StatusOK, res)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+		})
 		return
 	}
 
