@@ -11,10 +11,9 @@ export const defaultProps = {
 
 export const useIterationPlan = (iterationInfo: Ref<EmptyStruct<Iteration>>) => {
   const transferTreeRef = ref()
-  const projectIdRef = ref<number | string | null>(null)
   const fromData = ref<CollectionNode[]>([])
   const toData = ref<CollectionNode[]>([])
-  const [isLoadingForTree, execute] = useApi(getCollectionList)
+  const [isLoadingForTree, getCollectionListApi] = useApi(getCollectionList)
 
   const onTransferTreeChange = (f: any, d: any) => {
     const from = arrayToTree(flattenDeep(f || [], defaultProps.children))
@@ -30,23 +29,25 @@ export const useIterationPlan = (iterationInfo: Ref<EmptyStruct<Iteration>>) => 
     iterationInfo.value.collection_ids = transferTreeRef.value?.getFlattenValues().map((item: any) => item.id)
   }
 
-  watch(projectIdRef, async (project_id) => {
-    if (!project_id) {
-      fromData.value = []
-      toData.value = []
-      return
-    }
+  watch(
+    () => iterationInfo.value.project_id,
+    async (project_id) => {
+      if (!project_id) {
+        fromData.value = []
+        toData.value = []
+        return
+      }
 
-    const { id: iteration_id } = iterationInfo.value
-    const allData = await execute(project_id, { iteration_id })
-    const { from, to } = convertTransferTreeData(allData)
-    fromData.value = from
-    toData.value = to
-  })
+      const { id: iteration_id } = iterationInfo.value
+
+      const allData = await getCollectionListApi(project_id, { iteration_id })
+      const { from, to } = convertTransferTreeData(allData)
+      fromData.value = from
+      toData.value = to
+    }
+  )
 
   return {
-    projectIdRef,
-
     defaultProps,
     transferTreeRef,
     fromData,

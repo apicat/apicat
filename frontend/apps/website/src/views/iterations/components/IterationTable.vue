@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h3 class="text-18px text-gray-title mb-30px">所有迭代</h3>
+    <h3 class="text-18px text-gray-title mb-30px">{{ titleRef }}</h3>
 
     <div :class="ns.b()" v-if="data.length">
       <div :class="ns.e('item')" v-for="item in data" :key="item.id">
@@ -33,6 +33,7 @@ import { Iteration } from '@/typings'
 const ns = useNamespace('iteration-list')
 
 interface Props {
+  title?: string
   data: Iteration[]
   page: number
   total: number
@@ -52,9 +53,10 @@ const emits = defineEmits<{
 }>()
 
 const pageVModel = useVModel(props, 'page')
+const titleRef = computed(() => props.title || '所有迭代')
 
 const onDeleteBtnClick = (i: Iteration) => emits('remove', i)
-const onEditBtnClick = (i: Iteration) => emits('remove', i)
+const onEditBtnClick = (i: Iteration) => emits('edit', i)
 </script>
 <style lang="scss" scoped>
 @use '@/styles/mixins/mixins' as *;

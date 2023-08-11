@@ -1,14 +1,13 @@
 import useTable from '@/hooks/useTable'
 import { getIterationList, deleteIteration } from '@/api/iteration'
-import { Iteration } from '@/typings'
+import { Iteration, SelectedProjectKey } from '@/typings'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import { useI18n } from 'vue-i18n'
 
-export type SelectedProjectKey = number | string | null
-
-export const useIterationList = () => {
+export const useIterationList = (selectedProjectKeyRef: Ref<SelectedProjectKey>) => {
   const { t } = useI18n()
-  const selectedProjectKeyRef = ref<SelectedProjectKey>(null)
+
+  const editableItreationIdRef = ref<number | string | null>(null)
 
   const queryParam: Record<string, any> = {
     project_id: selectedProjectKeyRef.value,
@@ -45,6 +44,7 @@ export const useIterationList = () => {
   )
 
   return {
+    editableItreationIdRef,
     selectedProjectKeyRef,
     currentPage,
     ...rest,

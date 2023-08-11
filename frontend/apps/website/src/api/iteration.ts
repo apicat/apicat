@@ -16,9 +16,9 @@ export const getIterationDetail = async ({ iteration_public_id }: { iteration_pu
 }
 
 // 更新迭代
-export const updateIteration = async (params: { iteration_public_id: string | number; title: string; desciption?: string; collection_ids: string[] }): Promise<Iteration> => {
-  const { iteration_public_id, ...body } = params
-  return Ajax.put(`${restfulDetailPath(iteration_public_id)}`, body)
+export const updateIteration = async (params: { id: string | number; title: string; desciption?: string; collection_ids: string[] }): Promise<Iteration> => {
+  const { id, ...body } = params
+  return Ajax.put(`${restfulDetailPath(id)}`, body)
 }
 
 // 创建迭代

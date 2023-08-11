@@ -6,7 +6,7 @@
         <el-input v-model="iterationInfo.title" placeholder="请输入迭代名称" />
       </el-form-item>
       <el-form-item label="所属项目" prop="project_id">
-        <el-select class="w-full" v-model="iterationInfo.project_id" placeholder="请选择所属项目">
+        <el-select :disabled="isEditMode" class="w-full" v-model="iterationInfo.project_id" placeholder="请选择所属项目">
           <el-option v-for="item in projects" :key="item.id" :label="item.title" :value="item.id" />
         </el-select>
       </el-form-item>
@@ -51,7 +51,7 @@ import { EmptyStruct, Iteration, ProjectInfo } from '@/typings'
 import { FormInstance } from 'element-plus'
 import { useIterationPlan } from '../logic/useIterationPlan'
 
-const props = withDefaults(defineProps<{ id: number | null; projects: ProjectInfo[] }>(), { id: null })
+const props = withDefaults(defineProps<{ id: string | number | null; projects: ProjectInfo[] }>(), { id: null })
 const emits = defineEmits(['success', 'cancel'])
 
 const { id: iterationIdRef } = toRefs(props)
@@ -60,7 +60,7 @@ const iterationFormRef = shallowRef()
 const iterationInfo = ref<EmptyStruct<Iteration>>({})
 
 const [isLoading, getIterationDetailApi] = useApi(getIterationDetail)
-const { isLoadingForTree, defaultProps, fromData, toData, projectIdRef, transferTreeRef, onTransferTreeChange } = useIterationPlan(iterationInfo)
+const { isLoadingForTree, defaultProps, fromData, toData, transferTreeRef, onTransferTreeChange } = useIterationPlan(iterationInfo)
 
 const iterationRules = {
   title: [{ required: true, message: '请输入迭代名称' }],
@@ -74,13 +74,14 @@ const [isLoadingForSubmit, createOrUpdateIterationApi] = useApi(isEditMode.value
 
 const resetIterationInfo = () => {
   iterationInfo.value = {}
+  iterationFormRef.value?.resetFields()
 }
 
 const handleSubmit = async (formIns: FormInstance) => {
   try {
     await formIns.validate()
     await createOrUpdateIterationApi(toRaw(unref(iterationInfo)))
-    // resetIterationInfo()
+    resetIterationInfo()
     emits('success')
   } catch (error) {
     //
@@ -92,25 +93,22 @@ const handleCancel = () => emits('cancel')
 /**
  * get detail
  */
-watch(iterationIdRef, async () => {
-  if (!iterationIdRef.value) {
-    resetIterationInfo()
-    return
-  }
-
-  try {
-    iterationInfo.value = await getIterationDetailApi({ iteration_public_id: unref(iterationIdRef) })
-  } catch (error) {
-    resetIterationInfo()
-  }
-})
-
 watch(
-  () => iterationInfo.value.project_id,
-  (val) => {
-    if (val) {
-      projectIdRef.value = val
+  iterationIdRef,
+  async () => {
+    if (!iterationIdRef.value) {
+      resetIterationInfo()
+      return
     }
+
+    try {
+      iterationInfo.value = await getIterationDetailApi({ iteration_public_id: unref(iterationIdRef) })
+    } catch (error) {
+      resetIterationInfo()
+    }
+  },
+  {
+    immediate: true,
   }
 )
 </script>

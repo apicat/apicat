@@ -52,3 +52,5 @@ export interface Iteration {
 
   [property: string]: any
 }
+
+export type SelectedProjectKey = number | string | null
