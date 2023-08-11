@@ -121,7 +121,7 @@ func buildTree(parentID uint, collections []*models.Collections, selectCIDs ...u
 
 	for _, c := range collections {
 		if c.ParentId == parentID {
-			children := buildTree(c.ID, collections)
+			children := buildTree(c.ID, collections, selectCIDs...)
 
 			c := CollectionList{
 				ID:       c.ID,

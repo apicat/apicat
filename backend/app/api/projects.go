@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/base64"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -85,7 +84,7 @@ func ProjectsList(ctx *gin.Context) {
 		})
 		return
 	}
-	fmt.Println(pIDs)
+
 	projectsList := []gin.H{}
 	for _, v := range projects {
 		isFollow := false
