@@ -38,9 +38,9 @@ export const useIterationPlan = (iterationInfo: Ref<EmptyStruct<Iteration>>) => 
         return
       }
 
-      const { id: iteration_id } = iterationInfo.value
+      const { id } = iterationInfo.value
 
-      const allData = await getCollectionListApi(project_id, { iteration_id })
+      const allData = await getCollectionListApi(project_id, { iteration_id: id || '' })
       const { from, to } = convertTransferTreeData(allData)
       fromData.value = from
       toData.value = to
