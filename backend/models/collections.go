@@ -89,6 +89,38 @@ func Deletes(id uint, db *gorm.DB, deletedBy uint) error {
 	})
 }
 
+func (c *Collections) GetSubCollectionsContainsSelf() ([]*Collections, error) {
+	var collections []*Collections
+	collections, err := c.getSubCollectionsRecursive(&collections)
+	if err != nil {
+		return nil, err
+	}
+
+	collections = append(collections, c)
+	return collections, nil
+}
+
+func (c *Collections) getSubCollectionsRecursive(collectPtr *[]*Collections) ([]*Collections, error) {
+	var subCollections []*Collections
+
+	if err := Conn.Where("parent_id = ?", c.ID).Find(&subCollections).Error; err != nil {
+		return nil, err
+	}
+
+	*collectPtr = append(*collectPtr, subCollections...)
+
+	for _, subColl := range subCollections {
+		if subColl.ID != c.ID { // Avoid self-reference
+			_, err := subColl.getSubCollectionsRecursive(collectPtr)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return *collectPtr, nil
+}
+
 func (c *Collections) Creator() string {
 	user, err := NewUsers(c.CreatedBy)
 	if err != nil {

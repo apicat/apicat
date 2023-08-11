@@ -58,3 +58,7 @@ func BatchInsertIterationApi(ias []*IterationApis) error {
 func BatchDeleteIterationApi(ias []*IterationApis) error {
 	return Conn.Delete(&ias).Error
 }
+
+func DeleteIterationApisByCollectionID(cIDs ...uint) error {
+	return Conn.Where("collection_id IN ?", cIDs).Delete(&IterationApis{}).Error
+}
