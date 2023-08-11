@@ -68,7 +68,7 @@ type CollectionDeleteData struct {
 }
 
 type CollectionsListData struct {
-	IterationID string `json:"iteration_id" binding:"omitempty,gte=0"`
+	IterationID string `form:"iteration_id" binding:"omitempty,gte=0"`
 }
 
 func CollectionsList(ctx *gin.Context) {

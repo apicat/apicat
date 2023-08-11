@@ -108,15 +108,15 @@ func IterationsList(ctx *gin.Context) {
 			})
 			return
 		}
+		if len(pms) == 0 {
+			ctx.JSON(http.StatusOK, res)
+			return
+		}
+
 		for _, pm := range pms {
 			pIDs = append(pIDs, pm.ProjectID)
 			pmDict[pm.ProjectID] = pm
 		}
-	}
-
-	if len(pIDs) == 0 {
-		ctx.JSON(http.StatusOK, res)
-		return
 	}
 
 	project, _ := models.NewProjects()
