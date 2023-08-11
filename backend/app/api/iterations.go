@@ -215,7 +215,7 @@ func IterationsDetails(ctx *gin.Context) {
 	iteration, err := models.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iterations.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
 		})
 		return
 	}
@@ -364,7 +364,7 @@ func IterationsUpdate(ctx *gin.Context) {
 	iteration, err := models.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iterations.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
 		})
 		return
 	}
@@ -424,7 +424,7 @@ func IterationsDelete(ctx *gin.Context) {
 	iteration, err := models.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iterations.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
 		})
 		return
 	}
