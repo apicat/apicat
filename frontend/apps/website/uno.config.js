@@ -25,6 +25,7 @@ export default defineConfig({
         100: '#fafafa',
         110: '#f2f2f2',
         title: '#101010',
+        helper: '#9C9898',
       },
     },
     height: {

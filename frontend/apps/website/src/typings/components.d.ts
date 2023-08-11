@@ -50,6 +50,7 @@ declare module '@vue/runtime-core' {
     AcSelect: typeof import('./../components/AcSelect.vue')['default']
     AcSimpleTable: typeof import('./../components/AcSimpleTable.vue')['default']
     AcTag: typeof import('./../components/AcTag.vue')['default']
+    AcTransferTree: typeof import('./../components/AcTransferTree.vue')['default']
     AsyncMessageBox: typeof import('./../components/AsyncMessageBox.ts')['default']
     ClipboardHelper: typeof import('./../components/ClipboardHelper.ts')['default']
     ElBacktop: typeof import('element-plus/es')['ElBacktop']

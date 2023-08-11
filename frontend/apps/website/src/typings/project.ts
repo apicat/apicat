@@ -69,6 +69,7 @@ export declare interface CollectionNode {
   name?: string
   type: DocumentTypeEnum
   items?: CollectionNode[]
+  selected?: boolean
   _oldName?: string | undefined
   _extend?: {
     isLeaf: boolean

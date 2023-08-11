@@ -13,6 +13,27 @@
       <el-form-item label="迭代描述" prop="description">
         <el-input type="textarea" :rows="4" v-model="iterationInfo.description" placeholder="请输入迭代描述" />
       </el-form-item>
+
+      <el-form-item label="规划迭代" prop="collection_ids">
+        <p class="text-gray-helper -mt-10px">规划本次迭代所涉及的 API</p>
+      </el-form-item>
+
+      <el-form-item>
+        <AcTransferTree
+          v-loading="isLoadingForTree"
+          height="500px"
+          ref="transferTreeRef"
+          :defaultProps="defaultProps"
+          :from_data="fromData"
+          :to_data="toData"
+          pid="parent_id"
+          filter
+          :title="['所有API', '已规划API']"
+          @addBtn="onTransferTreeChange"
+          @removeBtn="onTransferTreeChange"
+        />
+      </el-form-item>
+
       <el-form-item>
         <div class="flex-1 text-right">
           <el-button @click="handleCancel">{{ $t('app.common.cancel') }}</el-button>
@@ -28,15 +49,17 @@ import { useNamespace } from '@/hooks'
 import useApi from '@/hooks/useApi'
 import { EmptyStruct, Iteration, ProjectInfo } from '@/typings'
 import { FormInstance } from 'element-plus'
+import { useIterationPlan } from '../logic/useIterationPlan'
 
 const props = withDefaults(defineProps<{ id: number | null; projects: ProjectInfo[] }>(), { id: null })
 const emits = defineEmits(['success', 'cancel'])
 
-const { id } = toRefs(props)
+const { id: iterationIdRef } = toRefs(props)
 const ns = useNamespace('iteration-detail')
 const iterationFormRef = shallowRef()
 const [isLoading, getIterationDetailApi] = useApi(getIterationDetail)
 const iterationInfo = ref<EmptyStruct<Iteration>>({})
+const { isLoadingForTree, defaultProps, fromData, toData, projectIdRef, transferTreeRef, onTransferTreeChange } = useIterationPlan(iterationInfo)
 
 const iterationRules = {
   title: [{ required: true, message: '请输入迭代名称' }],
@@ -45,7 +68,7 @@ const iterationRules = {
   collection_ids: [{ required: true, message: '请选择本次迭代所涉及的 API' }],
 }
 
-const isEditMode = computed(() => id.value !== null)
+const isEditMode = computed(() => iterationIdRef.value !== null)
 const [isLoadingForSubmit, createOrUpdateIterationApi] = useApi(isEditMode.value ? updateIteration : createIteration)
 const resetIterationInfo = () => {
   iterationInfo.value = {}
@@ -53,8 +76,8 @@ const resetIterationInfo = () => {
 
 const handleSubmit = async (formIns: FormInstance) => {
   try {
-    await formIns.validate()
     console.log(toRaw(unref(iterationInfo)))
+    await formIns.validate()
     await createOrUpdateIterationApi(toRaw(unref(iterationInfo)))
     resetIterationInfo()
     emits('success')
@@ -68,18 +91,27 @@ const handleCancel = () => emits('cancel')
 /**
  * get detail
  */
-watch(id, async () => {
-  if (!id) {
+watch(iterationIdRef, async () => {
+  if (!iterationIdRef.value) {
     resetIterationInfo()
     return
   }
 
   try {
-    iterationInfo.value = await getIterationDetailApi({ iteration_public_id: unref(id) })
+    iterationInfo.value = await getIterationDetailApi({ iteration_public_id: unref(iterationIdRef) })
   } catch (error) {
     resetIterationInfo()
   }
 })
+
+watch(
+  () => iterationInfo.value.project_id,
+  (val) => {
+    if (val) {
+      projectIdRef.value = val
+    }
+  }
+)
 </script>
 <style lang="scss" scoped>
 @use '@/styles/mixins/mixins' as *;
