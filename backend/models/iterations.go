@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"time"
 
 	"gorm.io/gorm"
@@ -20,15 +21,27 @@ type Iterations struct {
 	DeletedBy   uint `gorm:"type:bigint;not null;default:0;comment:删除人id"`
 }
 
-func NewIterations(ids ...uint) (*Iterations, error) {
+func NewIterations(ids ...any) (*Iterations, error) {
+	iteration := &Iterations{}
+
 	if len(ids) > 0 {
-		iteration := &Iterations{ID: ids[0]}
-		if err := Conn.Take(iteration).Error; err != nil {
+		var err error
+
+		switch ids[0].(type) {
+		case string:
+			err = Conn.Where("public_id = ?", ids[0]).Take(iteration).Error
+		case uint:
+			err = Conn.Take(iteration, ids[0]).Error
+		default:
+			err = errors.New("invalid id type")
+		}
+
+		if err != nil {
 			return iteration, err
 		}
 		return iteration, nil
 	}
-	return &Iterations{}, nil
+	return iteration, nil
 }
 
 func (i *Iterations) List(page, pageSize int, pIDs ...uint) ([]*Iterations, error) {

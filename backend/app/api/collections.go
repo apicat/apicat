@@ -41,7 +41,7 @@ type CollectionCreate struct {
 	Title       string `json:"title" binding:"required,lte=255"`                // 名称
 	Type        string `json:"type" binding:"required,oneof=category doc http"` // 类型: category,doc,http
 	Content     string `json:"content"`                                         // 内容
-	IterationID uint   `json:"iteration_id" binding:"omitempty,gte=0"`          // 迭代id
+	IterationID string `json:"iteration_id" binding:"omitempty,gte=0"`          // 迭代id
 }
 
 type CollectionUpdate struct {
@@ -50,7 +50,7 @@ type CollectionUpdate struct {
 }
 
 type CollectionCopyData struct {
-	IterationID uint `json:"iteration_id" binding:"omitempty,gte=0"`
+	IterationID string `json:"iteration_id" binding:"omitempty,gte=0"`
 }
 
 type CollectionMovement struct {
@@ -64,11 +64,11 @@ type CollectionOrderContent struct {
 }
 
 type CollectionDeleteData struct {
-	IterationID uint `form:"iteration_id" binding:"omitempty,gte=0"`
+	IterationID string `form:"iteration_id" binding:"omitempty,gte=0"`
 }
 
 type CollectionsListData struct {
-	IterationID uint `json:"iteration_id" binding:"omitempty,gte=0"`
+	IterationID string `json:"iteration_id" binding:"omitempty,gte=0"`
 }
 
 func CollectionsList(ctx *gin.Context) {
@@ -92,11 +92,19 @@ func CollectionsList(ctx *gin.Context) {
 		})
 	}
 
-	if data.IterationID == 0 {
+	if data.IterationID == "" {
 		ctx.JSON(http.StatusOK, buildTree(0, collections))
 	} else {
+		iteration, err := models.NewIterations(data.IterationID)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
+			})
+			return
+		}
+
 		ia, _ := models.NewIterationApis()
-		cIDs, err := ia.GetCollectionIDByIterationID(data.IterationID)
+		cIDs, err := ia.GetCollectionIDByIterationID(iteration.ID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
@@ -179,7 +187,7 @@ func CollectionsCreate(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
-	if data.IterationID != 0 {
+	if data.IterationID != "" {
 		_, err := models.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
@@ -204,9 +212,17 @@ func CollectionsCreate(ctx *gin.Context) {
 		return
 	}
 
-	if data.IterationID != 0 {
+	if data.IterationID != "" {
+		iteration, err := models.NewIterations(data.IterationID)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
+			})
+			return
+		}
+
 		ia, _ := models.NewIterationApis()
-		ia.IterationID = data.IterationID
+		ia.IterationID = iteration.ID
 		ia.CollectionID = collection.ID
 		ia.CollectionType = collection.Type
 		if err := ia.Create(); err != nil {
@@ -302,7 +318,7 @@ func CollectionsCopy(ctx *gin.Context) {
 		return
 	}
 
-	if data.IterationID != 0 {
+	if data.IterationID != "" {
 		_, err := models.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
@@ -329,9 +345,17 @@ func CollectionsCopy(ctx *gin.Context) {
 		return
 	}
 
-	if data.IterationID != 0 {
+	if data.IterationID != "" {
+		iteration, err := models.NewIterations(data.IterationID)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
+			})
+			return
+		}
+
 		ia, _ := models.NewIterationApis()
-		ia.IterationID = data.IterationID
+		ia.IterationID = iteration.ID
 		ia.CollectionID = newCollection.ID
 		ia.CollectionType = newCollection.Type
 		if err := ia.Create(); err != nil {
@@ -415,7 +439,7 @@ func CollectionsDelete(ctx *gin.Context) {
 		return
 	}
 
-	if data.IterationID != 0 {
+	if data.IterationID != "" {
 		_, err := models.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{

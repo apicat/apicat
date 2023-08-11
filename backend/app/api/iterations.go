@@ -3,7 +3,6 @@ package api
 import (
 	"math"
 	"net/http"
-	"time"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
@@ -13,17 +12,14 @@ import (
 )
 
 type IterationSchemaData struct {
-	ID              uint   `json:"id,omitempty" binding:"required"`
-	PublicID        string `json:"public_id" binding:"required"`
+	ID              string `json:"id,omitempty" binding:"required"`
 	Title           string `json:"title" binding:"required"`
 	Description     string `json:"description"`
 	ProjectPublicID string `json:"project_public_id" binding:"required"`
 	ProjectTitle    string `json:"project_title" binding:"required"`
-	IsFollowed      bool   `json:"is_followed"`
 	ApiNum          int64  `json:"api_num"`
 	Authority       string `json:"authority"`
 	CreatedAt       string `json:"created_at" binding:"required"`
-	CreatedBy       string `json:"created_by" binding:"required"`
 }
 
 type IterationListData struct {
@@ -47,7 +43,7 @@ type IterationCreateData struct {
 }
 
 type IterationUriData struct {
-	IterationID uint `uri:"iteration_id" binding:"required"`
+	IterationID string `uri:"iteration_id" binding:"required"`
 }
 
 type IterationUpdateData struct {
@@ -126,30 +122,15 @@ func IterationsList(ctx *gin.Context) {
 		pDict[v.ID] = v
 	}
 
-	user, _ := models.NewUsers()
-	users, err := user.List(0, 0)
-	if err != nil {
-		ctx.JSON(http.StatusOK, res)
-		return
-	}
-	uDict := map[uint]models.Users{}
-	for _, v := range users {
-		uDict[v.ID] = v
-	}
-
 	iteration, _ := models.NewIterations()
 	iterations, err := iteration.List(int(data.Page), int(data.PageSize), pIDs...)
 	if err != nil {
 		ctx.JSON(http.StatusOK, res)
 		return
 	}
-
-	FollowPIDs, err := models.GetUserFollowByUserID(currentUser.(*models.Users).ID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
-		})
-		return
+	var iterationIDs []uint
+	for _, v := range iterations {
+		iterationIDs = append(iterationIDs, v.ID)
 	}
 
 	iterationTotal, err := iteration.IterationsCount(pIDs...)
@@ -159,7 +140,7 @@ func IterationsList(ctx *gin.Context) {
 	}
 
 	iterationApi, _ := models.NewIterationApis()
-	iterationApis, err := iterationApi.List()
+	iterationApis, err := iterationApi.List(iterationIDs...)
 	if err != nil {
 		ctx.JSON(http.StatusOK, res)
 		return
@@ -170,14 +151,6 @@ func IterationsList(ctx *gin.Context) {
 	res.Total = iterationTotal
 
 	for _, i := range iterations {
-		isFollowed := false
-		for _, FollowPID := range FollowPIDs {
-			if i.ProjectID == FollowPID {
-				isFollowed = true
-				break
-			}
-		}
-
 		apiNum := 0
 		for _, v := range iterationApis {
 			if i.ID == v.IterationID {
@@ -186,17 +159,14 @@ func IterationsList(ctx *gin.Context) {
 		}
 
 		res.Iterations = append(res.Iterations, IterationSchemaData{
-			ID:              i.ID,
-			PublicID:        i.PublicID,
+			ID:              i.PublicID,
 			Title:           i.Title,
 			Description:     i.Description,
 			ProjectPublicID: pDict[i.ProjectID].PublicId,
 			ProjectTitle:    pDict[i.ProjectID].Title,
-			IsFollowed:      isFollowed,
 			ApiNum:          int64(apiNum),
 			Authority:       pmDict[i.ProjectID].Authority,
 			CreatedAt:       i.CreatedAt.Format("2006-01-02 15:04"),
-			CreatedBy:       uDict[i.CreatedBy].Username,
 		})
 	}
 
@@ -207,8 +177,7 @@ func IterationsDetails(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
 	var (
-		uriData    IterationUriData
-		isFollowed bool
+		uriData IterationUriData
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
@@ -253,23 +222,15 @@ func IterationsDetails(ctx *gin.Context) {
 		return
 	}
 
-	nilTime := time.Time{}
-	if pm.FollowedAt != nilTime {
-		isFollowed = true
-	}
-
 	ctx.JSON(http.StatusOK, IterationSchemaData{
-		ID:              iteration.ID,
-		PublicID:        iteration.PublicID,
+		ID:              iteration.PublicID,
 		Title:           iteration.Title,
 		Description:     iteration.Description,
 		ProjectPublicID: project.PublicId,
 		ProjectTitle:    project.Title,
-		IsFollowed:      isFollowed,
 		ApiNum:          apiNum,
 		Authority:       pm.Authority,
 		CreatedAt:       iteration.CreatedAt.Format("2006-01-02 15:04"),
-		CreatedBy:       currentUser.(*models.Users).Username,
 	})
 }
 
@@ -277,8 +238,7 @@ func IterationsCreate(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
 	var (
-		data       IterationCreateData
-		isFollowed bool
+		data IterationCreateData
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -342,23 +302,15 @@ func IterationsCreate(ctx *gin.Context) {
 		return
 	}
 
-	nilTime := time.Time{}
-	if pm.FollowedAt != nilTime {
-		isFollowed = true
-	}
-
 	ctx.JSON(http.StatusOK, IterationSchemaData{
-		ID:              iteration.ID,
-		PublicID:        iteration.PublicID,
+		ID:              iteration.PublicID,
 		Title:           iteration.Title,
 		Description:     iteration.Description,
 		ProjectPublicID: project.PublicId,
 		ProjectTitle:    project.Title,
-		IsFollowed:      isFollowed,
 		ApiNum:          apiNum,
 		Authority:       pm.Authority,
 		CreatedAt:       iteration.CreatedAt.Format("2006-01-02 15:04"),
-		CreatedBy:       currentUser.(*models.Users).Username,
 	})
 }
 
@@ -412,6 +364,7 @@ func IterationsUpdate(ctx *gin.Context) {
 
 	iteration.Title = data.Title
 	iteration.Description = data.Description
+	iteration.UpdatedBy = currentUser.(*models.Users).ID
 	if err := iteration.Update(); err == nil {
 		if err := iteration.PlanningIterationApi(data.CollectionIDs); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
@@ -465,6 +418,14 @@ func IterationsDelete(ctx *gin.Context) {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
+	iteration.DeletedBy = currentUser.(*models.Users).ID
+	if err := iteration.Update(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.DeleteFailed"}),
 		})
 		return
 	}
