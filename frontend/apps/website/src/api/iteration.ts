@@ -3,7 +3,7 @@ import { queryStringify } from '@/commons'
 import { Pageable, Iteration } from '@/typings'
 
 const restfulRootPath = '/iterations'
-const restfulDetailPath = (iteration_public_id: string | number): string => `${restfulRootPath}${iteration_public_id}`
+const restfulDetailPath = (iteration_public_id: string | number): string => `${restfulRootPath}/${iteration_public_id}`
 
 // 获取迭代列表
 export const getIterationList = async (params: { project_id?: string | number; page?: number; page_size?: number }): Promise<Pageable<{ iterations: Iteration[] }>> => {

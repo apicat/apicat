@@ -27,6 +27,7 @@ declare module '@vue/runtime-core' {
     AcIconEpCaretRight: typeof import('~icons/ep/caret-right')['default']
     AcIconEpCopyDocument: typeof import('~icons/ep/copy-document')['default']
     AcIconEpDelete: typeof import('~icons/ep/delete')['default']
+    AcIconEpEdit: typeof import('~icons/ep/edit')['default']
     AcIconEpLoading: typeof import('~icons/ep/loading')['default']
     AcIconEpLock: typeof import('~icons/ep/lock')['default']
     AcIconEpMoreFilled: typeof import('~icons/ep/more-filled')['default']

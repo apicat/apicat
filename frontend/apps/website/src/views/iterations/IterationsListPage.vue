@@ -5,8 +5,8 @@
     </div>
     <div class="flex-1">
       <div class="m-auto w-776px pt-22px">
-        <IterationTable v-show="isListMode" :data="iterations" v-model:page="currentPage" :total="total" />
-        <IterationForm v-show="isFormMode" :projects="projectList" :id="null" @success="fetchIterationList" @cancel="switchMode('list')" />
+        <IterationTable v-if="isListMode" :data="iterations" v-model:page="currentPage" :total="total" v-loading="isLoading" @remove="handleRemoveIteration" />
+        <IterationForm v-if="isFormMode" :projects="projectList" :id="null" @success="fetchIterationList" @cancel="switchMode('list')" />
       </div>
     </div>
   </div>
@@ -20,20 +20,8 @@ import { useFollowedProjectList } from './logic/useFollowedProjectList'
 import { useIterationList } from './logic/useIterationList'
 import { useProjectList } from '../project/logic/useProjectList'
 
-// IterationTable
-// (props[IterationTableData,pageSize:number,total:number];
-// v-model:page;
-// event[delete,edit];
-
-// IterationForm
-// props[iteration|null,handleSubmit:Promise<void>];
-
 const { isFormMode, isListMode, switchMode } = usePageMode()
 const { projectList } = useProjectList()
 const { followedProjects } = useFollowedProjectList()
-const { selectedProjectKeyRef, data: iterations, currentPage, total, fetchIterationList } = useIterationList()
-
-// todo 添加迭代
-
-// todo 编辑迭代
+const { isLoading, selectedProjectKeyRef, data: iterations, currentPage, total, fetchIterationList, handleRemoveIteration } = useIterationList()
 </script>

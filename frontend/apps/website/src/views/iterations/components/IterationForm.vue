@@ -57,8 +57,9 @@ const emits = defineEmits(['success', 'cancel'])
 const { id: iterationIdRef } = toRefs(props)
 const ns = useNamespace('iteration-detail')
 const iterationFormRef = shallowRef()
-const [isLoading, getIterationDetailApi] = useApi(getIterationDetail)
 const iterationInfo = ref<EmptyStruct<Iteration>>({})
+
+const [isLoading, getIterationDetailApi] = useApi(getIterationDetail)
 const { isLoadingForTree, defaultProps, fromData, toData, projectIdRef, transferTreeRef, onTransferTreeChange } = useIterationPlan(iterationInfo)
 
 const iterationRules = {
@@ -70,16 +71,16 @@ const iterationRules = {
 
 const isEditMode = computed(() => iterationIdRef.value !== null)
 const [isLoadingForSubmit, createOrUpdateIterationApi] = useApi(isEditMode.value ? updateIteration : createIteration)
+
 const resetIterationInfo = () => {
   iterationInfo.value = {}
 }
 
 const handleSubmit = async (formIns: FormInstance) => {
   try {
-    console.log(toRaw(unref(iterationInfo)))
     await formIns.validate()
     await createOrUpdateIterationApi(toRaw(unref(iterationInfo)))
-    resetIterationInfo()
+    // resetIterationInfo()
     emits('success')
   } catch (error) {
     //

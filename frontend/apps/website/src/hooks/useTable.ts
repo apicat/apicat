@@ -31,7 +31,7 @@ export const useTable = <T>(_api: any, options: UseTableOptions) => {
     const data = await api({ ...searchParam, page: pageRef.value, page_size: pageSizeRef.value })
     if (data) {
       tableState.data = (data[dataKey] || []).map((item: any) => (isFunction(transform) ? transform(item) : item))
-      tableState.total = data[totalKey] || 1
+      tableState.total = data[totalKey] || 0
     } else {
       tableState.data = []
       tableState.total = 0

@@ -31,6 +31,12 @@ export const useIterationPlan = (iterationInfo: Ref<EmptyStruct<Iteration>>) => 
   }
 
   watch(projectIdRef, async (project_id) => {
+    if (!project_id) {
+      fromData.value = []
+      toData.value = []
+      return
+    }
+
     const { id: iteration_id } = iterationInfo.value
     const allData = await execute(project_id, { iteration_id })
     const { from, to } = convertTransferTreeData(allData)
