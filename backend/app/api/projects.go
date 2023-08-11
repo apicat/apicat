@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/apicat/apicat/backend/app/util"
 	"github.com/apicat/apicat/backend/common/spec"
@@ -14,7 +15,6 @@ import (
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/apicat/apicat/backend/models"
 	"golang.org/x/exp/slog"
-	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/shortuuid/v4"
@@ -72,8 +72,7 @@ func ProjectsList(ctx *gin.Context) {
 		return
 	}
 
-	pf, _ := models.NewProjectFollows()
-	pIDs, err := pf.GetProjectIDByUserID(currentUser.(*models.Users).ID)
+	pIDs, err := models.GetUserFollowByUserID(currentUser.(*models.Users).ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
@@ -531,31 +530,15 @@ func ProjectTransfer(ctx *gin.Context) {
 func ProjectFollowList(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
-	projectsList := []gin.H{}
-
-	pf, _ := models.NewProjectFollows()
-	pfs, err := pf.List(currentUser.(*models.Users).ID)
+	pIDs, err := models.GetUserFollowByUserID(currentUser.(*models.Users).ID)
 	if err != nil {
-		if err == gorm.ErrRecordNotFound {
-			ctx.JSON(http.StatusOK, projectsList)
-			return
-		}
-
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.QueryFailed"}),
 		})
 		return
 	}
 
-	if len(pfs) == 0 {
-		ctx.JSON(http.StatusOK, projectsList)
-		return
-	}
-
-	pIDs := []uint{}
-	for _, v := range pfs {
-		pIDs = append(pIDs, v.ProjectID)
-	}
+	projectsList := []gin.H{}
 
 	project, _ := models.NewProjects()
 	projects, err := project.List(pIDs...)
@@ -581,20 +564,10 @@ func ProjectFollowList(ctx *gin.Context) {
 }
 
 func ProjectFollow(ctx *gin.Context) {
-	currentProject, _ := ctx.Get("CurrentProject")
-	currentUser, _ := ctx.Get("CurrentUser")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 
-	pf, _ := models.NewProjectFollows()
-	pf.ProjectID = currentProject.(*models.Projects).ID
-	pf.UserID = currentUser.(*models.Users).ID
-	if err := pf.GetByUserIDAndProjectID(); err == nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.FollowFailed"}),
-		})
-		return
-	}
-
-	if err := pf.Create(); err != nil {
+	currentProjectMember.(*models.ProjectMembers).FollowedAt = time.Now()
+	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.FollowFailed"}),
 		})
@@ -605,22 +578,12 @@ func ProjectFollow(ctx *gin.Context) {
 }
 
 func ProjectUnFollow(ctx *gin.Context) {
-	currentProject, _ := ctx.Get("CurrentProject")
-	currentUser, _ := ctx.Get("CurrentUser")
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 
-	pf, _ := models.NewProjectFollows()
-	pf.ProjectID = currentProject.(*models.Projects).ID
-	pf.UserID = currentUser.(*models.Users).ID
-	if err := pf.GetByUserIDAndProjectID(); err != nil {
+	currentProjectMember.(*models.ProjectMembers).FollowedAt = time.Time{}
+	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.UnFollowFailed"}),
-		})
-		return
-	}
-
-	if err := pf.Delete(); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.UnFollowFailed"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.UnfollowFailed"}),
 		})
 		return
 	}

@@ -3,6 +3,7 @@ package api
 import (
 	"math"
 	"net/http"
+	"time"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
@@ -143,10 +144,11 @@ func IterationsList(ctx *gin.Context) {
 		return
 	}
 
-	pf, _ := models.NewProjectFollows()
-	pfs, err := pf.List(currentUser.(*models.Users).ID)
+	FollowPIDs, err := models.GetUserFollowByUserID(currentUser.(*models.Users).ID)
 	if err != nil {
-		ctx.JSON(http.StatusOK, res)
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
+		})
 		return
 	}
 
@@ -169,12 +171,13 @@ func IterationsList(ctx *gin.Context) {
 
 	for _, i := range iterations {
 		isFollowed := false
-		for _, v := range pfs {
-			if i.ProjectID == v.ProjectID {
+		for _, FollowPID := range FollowPIDs {
+			if i.ProjectID == FollowPID {
 				isFollowed = true
 				break
 			}
 		}
+
 		apiNum := 0
 		for _, v := range iterationApis {
 			if i.ID == v.IterationID {
@@ -250,10 +253,8 @@ func IterationsDetails(ctx *gin.Context) {
 		return
 	}
 
-	pf, _ := models.NewProjectFollows()
-	pf.UserID = currentUser.(*models.Users).ID
-	pf.ProjectID = project.ID
-	if err := pf.GetByUserIDAndProjectID(); err == nil {
+	nilTime := time.Time{}
+	if pm.FollowedAt != nilTime {
 		isFollowed = true
 	}
 
@@ -341,10 +342,8 @@ func IterationsCreate(ctx *gin.Context) {
 		return
 	}
 
-	pf, _ := models.NewProjectFollows()
-	pf.UserID = currentUser.(*models.Users).ID
-	pf.ProjectID = project.ID
-	if err := pf.GetByUserIDAndProjectID(); err == nil {
+	nilTime := time.Time{}
+	if pm.FollowedAt != nilTime {
 		isFollowed = true
 	}
 
