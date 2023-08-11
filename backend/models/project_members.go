@@ -85,5 +85,5 @@ func GetUserInvolvedProject(UserID uint) ([]ProjectMembers, error) {
 
 func GetUserFollowByUserID(UserID uint) ([]uint, error) {
 	var projectIDs []uint
-	return projectIDs, Conn.Model(&ProjectMembers{}).Where("user_id = ? AND followd_at is not null", UserID).Pluck("project_id", &projectIDs).Error
+	return projectIDs, Conn.Model(&ProjectMembers{}).Where("user_id = ? AND followed_at is not null", UserID).Pluck("project_id", &projectIDs).Error
 }

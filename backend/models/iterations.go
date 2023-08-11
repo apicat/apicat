@@ -128,11 +128,15 @@ func (i *Iterations) PlanningIterationApi(cIDs []uint) error {
 		}
 	}
 
-	if err := BatchDeleteIterationApi(wantPop); err != nil {
-		return err
+	if len(wantPop) > 0 {
+		if err := BatchDeleteIterationApi(wantPop); err != nil {
+			return err
+		}
 	}
-	if err := BatchInsertIterationApi(wantPush); err != nil {
-		return err
+	if len(wantPush) > 0 {
+		if err := BatchInsertIterationApi(wantPush); err != nil {
+			return err
+		}
 	}
 	return nil
 }

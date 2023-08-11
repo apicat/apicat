@@ -42,7 +42,7 @@ type IterationListResData struct {
 type IterationCreateData struct {
 	Title         string `json:"title" binding:"required"`
 	Description   string `json:"description"`
-	ProjectID     uint   `json:"project_id" binding:"required"`
+	ProjectID     string `json:"project_id" binding:"required"`
 	CollectionIDs []uint `json:"collection_ids"`
 }
 
