@@ -43,7 +43,7 @@ type IterationCreateData struct {
 }
 
 type IterationUriData struct {
-	IterationID string `uri:"iteration_id" binding:"required"`
+	IterationID string `uri:"iteration-id" binding:"required"`
 }
 
 type IterationUpdateData struct {
