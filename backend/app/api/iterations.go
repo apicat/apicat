@@ -12,14 +12,14 @@ import (
 )
 
 type IterationSchemaData struct {
-	ID              string `json:"id,omitempty" binding:"required"`
-	Title           string `json:"title" binding:"required"`
-	Description     string `json:"description"`
-	ProjectPublicID string `json:"project_public_id" binding:"required"`
-	ProjectTitle    string `json:"project_title" binding:"required"`
-	ApiNum          int64  `json:"api_num"`
-	Authority       string `json:"authority"`
-	CreatedAt       string `json:"created_at" binding:"required"`
+	ID           string `json:"id,omitempty" binding:"required"`
+	Title        string `json:"title" binding:"required"`
+	Description  string `json:"description"`
+	ProjectID    string `json:"project_id" binding:"required"`
+	ProjectTitle string `json:"project_title" binding:"required"`
+	ApiNum       int64  `json:"api_num"`
+	Authority    string `json:"authority"`
+	CreatedAt    string `json:"created_at" binding:"required"`
 }
 
 type IterationListData struct {
@@ -75,6 +75,7 @@ func IterationsList(ctx *gin.Context) {
 		data.PageSize = 15
 	}
 
+	res.CurrentPage = data.Page
 	res.Iterations = []IterationSchemaData{}
 
 	pmDict := map[uint]models.ProjectMembers{}
@@ -111,6 +112,11 @@ func IterationsList(ctx *gin.Context) {
 		}
 	}
 
+	if len(pIDs) == 0 {
+		ctx.JSON(http.StatusOK, res)
+		return
+	}
+
 	project, _ := models.NewProjects()
 	projects, err := project.List(pIDs...)
 	if err != nil {
@@ -125,9 +131,16 @@ func IterationsList(ctx *gin.Context) {
 	iteration, _ := models.NewIterations()
 	iterations, err := iteration.List(int(data.Page), int(data.PageSize), pIDs...)
 	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+		})
+		return
+	}
+	if len(iterations) == 0 {
 		ctx.JSON(http.StatusOK, res)
 		return
 	}
+
 	var iterationIDs []uint
 	for _, v := range iterations {
 		iterationIDs = append(iterationIDs, v.ID)
@@ -146,7 +159,6 @@ func IterationsList(ctx *gin.Context) {
 		return
 	}
 
-	res.CurrentPage = data.Page
 	res.TotalPage = int64(math.Ceil(float64(iterationTotal) / float64(data.PageSize)))
 	res.Total = iterationTotal
 
@@ -159,14 +171,14 @@ func IterationsList(ctx *gin.Context) {
 		}
 
 		res.Iterations = append(res.Iterations, IterationSchemaData{
-			ID:              i.PublicID,
-			Title:           i.Title,
-			Description:     i.Description,
-			ProjectPublicID: pDict[i.ProjectID].PublicId,
-			ProjectTitle:    pDict[i.ProjectID].Title,
-			ApiNum:          int64(apiNum),
-			Authority:       pmDict[i.ProjectID].Authority,
-			CreatedAt:       i.CreatedAt.Format("2006-01-02 15:04"),
+			ID:           i.PublicID,
+			Title:        i.Title,
+			Description:  i.Description,
+			ProjectID:    pDict[i.ProjectID].PublicId,
+			ProjectTitle: pDict[i.ProjectID].Title,
+			ApiNum:       int64(apiNum),
+			Authority:    pmDict[i.ProjectID].Authority,
+			CreatedAt:    i.CreatedAt.Format("2006-01-02 15:04"),
 		})
 	}
 
@@ -223,14 +235,14 @@ func IterationsDetails(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, IterationSchemaData{
-		ID:              iteration.PublicID,
-		Title:           iteration.Title,
-		Description:     iteration.Description,
-		ProjectPublicID: project.PublicId,
-		ProjectTitle:    project.Title,
-		ApiNum:          apiNum,
-		Authority:       pm.Authority,
-		CreatedAt:       iteration.CreatedAt.Format("2006-01-02 15:04"),
+		ID:           iteration.PublicID,
+		Title:        iteration.Title,
+		Description:  iteration.Description,
+		ProjectID:    project.PublicId,
+		ProjectTitle: project.Title,
+		ApiNum:       apiNum,
+		Authority:    pm.Authority,
+		CreatedAt:    iteration.CreatedAt.Format("2006-01-02 15:04"),
 	})
 }
 
@@ -303,14 +315,14 @@ func IterationsCreate(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, IterationSchemaData{
-		ID:              iteration.PublicID,
-		Title:           iteration.Title,
-		Description:     iteration.Description,
-		ProjectPublicID: project.PublicId,
-		ProjectTitle:    project.Title,
-		ApiNum:          apiNum,
-		Authority:       pm.Authority,
-		CreatedAt:       iteration.CreatedAt.Format("2006-01-02 15:04"),
+		ID:           iteration.PublicID,
+		Title:        iteration.Title,
+		Description:  iteration.Description,
+		ProjectID:    project.PublicId,
+		ProjectTitle: project.Title,
+		ApiNum:       apiNum,
+		Authority:    pm.Authority,
+		CreatedAt:    iteration.CreatedAt.Format("2006-01-02 15:04"),
 	})
 }
 

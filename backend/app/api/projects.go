@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -63,6 +64,11 @@ func ProjectsList(ctx *gin.Context) {
 		projectIDs = append(projectIDs, v.ProjectID)
 	}
 
+	if len(projectIDs) == 0 {
+		ctx.JSON(http.StatusOK, []gin.H{})
+		return
+	}
+
 	project, _ := models.NewProjects()
 	projects, err := project.List(projectIDs...)
 	if err != nil {
@@ -79,7 +85,7 @@ func ProjectsList(ctx *gin.Context) {
 		})
 		return
 	}
-
+	fmt.Println(pIDs)
 	projectsList := []gin.H{}
 	for _, v := range projects {
 		isFollow := false
@@ -529,6 +535,7 @@ func ProjectTransfer(ctx *gin.Context) {
 
 func ProjectFollowList(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
+	projectsList := []gin.H{}
 
 	pIDs, err := models.GetUserFollowByUserID(currentUser.(*models.Users).ID)
 	if err != nil {
@@ -537,8 +544,10 @@ func ProjectFollowList(ctx *gin.Context) {
 		})
 		return
 	}
-
-	projectsList := []gin.H{}
+	if len(pIDs) == 0 {
+		ctx.JSON(http.StatusOK, projectsList)
+		return
+	}
 
 	project, _ := models.NewProjects()
 	projects, err := project.List(pIDs...)
