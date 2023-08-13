@@ -73,8 +73,9 @@ func WarpHTTPNode[T HTTPNoder](n T) Node {
 }
 
 type HTTPURLNode struct {
-	Path   string `json:"path"`
-	Method string `json:"method"`
+	Path   string  `json:"path"`
+	Method string  `json:"method"`
+	XDiff  *string `json:"x-apicat-diff,omitempty"`
 }
 
 func (HTTPURLNode) Name() string {
@@ -102,7 +103,8 @@ func (HTTPResponsesNode) Name() string {
 }
 
 type HTTPResponse struct {
-	Code int `json:"code"`
+	Code  int     `json:"code"`
+	XDiff *string `json:"x-apicat-diff,omitempty"`
 	HTTPResponseDefine
 }
 
@@ -123,6 +125,7 @@ type HTTPResponseDefine struct {
 	Content     HTTPBody `json:"content,omitempty"`
 	Header      Schemas  `json:"header,omitempty"`
 	Reference   *string  `json:"$ref,omitempty"`
+	XDiff       *string  `json:"x-apicat-diff,omitempty"`
 }
 
 func (h *HTTPResponseDefine) Ref() bool { return h.Reference != nil }
@@ -153,4 +156,17 @@ type HTTPPart struct {
 	Dir   string
 	HTTPRequestNode
 	Responses HTTPResponses `json:"responses,omitempty"`
+}
+
+func (h *HTTPPart) ToCollectItem(urlnode HTTPURLNode) *CollectItem {
+	item := &CollectItem{
+		Title: h.Title,
+		Type:  ContentItemTypeHttp,
+	}
+	content := make([]*NodeProxy, 0)
+	content = append(content, MuseCreateNodeProxy(WarpHTTPNode(urlnode)))
+	content = append(content, MuseCreateNodeProxy(WarpHTTPNode(h.HTTPRequestNode)))
+	content = append(content, MuseCreateNodeProxy(WarpHTTPNode(&HTTPResponsesNode{List: h.Responses})))
+	item.Content = content
+	return item
 }

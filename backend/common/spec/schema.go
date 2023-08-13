@@ -13,6 +13,7 @@ type Schema struct {
 	Required    bool               `json:"required,omitempty"`
 	Schema      *jsonschema.Schema `json:"schema,omitempty"`
 	Reference   *string            `json:"$ref,omitempty"`
+	XDiff       *string            `json:"x-apicat-diff,omitempty"`
 }
 
 func (s *Schema) Ref() bool { return s.Reference != nil }
