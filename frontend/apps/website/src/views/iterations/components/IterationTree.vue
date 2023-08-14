@@ -10,7 +10,7 @@
     </div>
   </div>
 
-  <p class="text-#101010 font-500 my-10px">关注的项目</p>
+  <p v-if="followedProjects.length" class="text-#101010 font-500 my-10px">关注的项目</p>
   <ul :class="ns.bm('followed')">
     <li v-for="project in followedProjects" :class="[ns.e('item'), activeClass(project)]" @click="handleItemClick(project)">
       <span class="mr-8px">·</span><span>{{ project.title }}</span>

@@ -24,9 +24,6 @@ export const useIterationPlan = (iterationInfo: Ref<EmptyStruct<Iteration>>) => 
 
     fromData.value = from
     toData.value = to
-
-    // update collection_ids
-    iterationInfo.value.collection_ids = transferTreeRef.value?.getFlattenValues().map((item: any) => item.id)
   }
 
   watch(

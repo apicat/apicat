@@ -66,7 +66,7 @@ const iterationRules = {
   title: [{ required: true, message: '请输入迭代名称' }],
   project_id: [{ required: true, message: '请选择所属项目' }],
   description: [{ message: '请输入迭代描述' }],
-  collection_ids: [{ required: true, message: '请选择本次迭代所涉及的 API' }],
+  collection_ids: [{ required: true, message: '请选择本次迭代所涉及的 API', trigger: 'change' }],
 }
 
 const isEditMode = computed(() => iterationIdRef.value !== null)
@@ -79,6 +79,9 @@ const resetIterationInfo = () => {
 
 const handleSubmit = async (formIns: FormInstance) => {
   try {
+    // update collection_ids
+    iterationInfo.value.collection_ids = transferTreeRef.value?.getFlattenValues().map((item: any) => item.id)
+
     await formIns.validate()
     await createOrUpdateIterationApi(toRaw(unref(iterationInfo)))
     resetIterationInfo()
