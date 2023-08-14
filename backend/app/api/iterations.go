@@ -178,7 +178,7 @@ func IterationsList(ctx *gin.Context) {
 	for _, i := range iterations {
 		apiNum := 0
 		for _, v := range iterationApis {
-			if i.ID == v.IterationID {
+			if i.ID == v.IterationID && v.CollectionType != "category" {
 				apiNum++
 			}
 		}
