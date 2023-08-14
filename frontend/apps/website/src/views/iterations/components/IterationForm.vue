@@ -58,6 +58,7 @@ const { iterationId: iterationIdRef } = toRefs(props)
 const ns = useNamespace('iteration-detail')
 const iterationFormRef = shallowRef()
 const iterationInfo = ref<EmptyStruct<Iteration>>({})
+const isLoadingForSubmit = ref(false)
 
 const [isLoading, getIterationDetailApi] = useApi(getIterationDetail)
 const { isLoadingForTree, defaultProps, fromData, toData, transferTreeRef, onTransferTreeChange } = useIterationPlan(iterationInfo)
@@ -66,11 +67,12 @@ const iterationRules = {
   title: [{ required: true, message: '请输入迭代名称' }],
   project_id: [{ required: true, message: '请选择所属项目' }],
   description: [{ message: '请输入迭代描述' }],
-  collection_ids: [{ required: true, message: '请选择本次迭代所涉及的 API', trigger: 'change' }],
+  // collection_ids: [{ required: true, message: '请选择本次迭代所涉及的 API', trigger: 'change' }],
 }
 
 const isEditMode = computed(() => iterationIdRef.value !== null)
-const [isLoadingForSubmit, createOrUpdateIterationApi] = useApi(isEditMode.value ? updateIteration : createIteration)
+
+// const [isLoadingForSubmit, createOrUpdateIterationApi] = useApi()
 
 const resetIterationInfo = () => {
   iterationInfo.value = {}
@@ -79,15 +81,18 @@ const resetIterationInfo = () => {
 
 const handleSubmit = async (formIns: FormInstance) => {
   try {
-    // update collection_ids
     iterationInfo.value.collection_ids = transferTreeRef.value?.getFlattenValues().map((item: any) => item.id)
-
     await formIns.validate()
-    await createOrUpdateIterationApi(toRaw(unref(iterationInfo)))
+
+    const createOrUpdateIterationApi = isEditMode.value ? updateIteration : createIteration
+    isLoadingForSubmit.value = true
+    await createOrUpdateIterationApi(toRaw(unref(iterationInfo)) as any)
     resetIterationInfo()
     emits('success')
   } catch (error) {
     //
+  } finally {
+    isLoadingForSubmit.value = false
   }
 }
 
