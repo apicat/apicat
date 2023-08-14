@@ -12,7 +12,7 @@
 
   <p class="text-#101010 font-500 my-10px">关注的项目</p>
   <ul :class="ns.bm('followed')">
-    <li v-for="project in followedProjects" :class="[ns.e('item'), activeClass(project.id as number)]" @click="handleItemClick(project)">
+    <li v-for="project in followedProjects" :class="[ns.e('item'), activeClass(project)]" @click="handleItemClick(project)">
       <span class="mr-8px">·</span><span>{{ project.title }}</span>
     </li>
   </ul>
@@ -20,33 +20,32 @@
 <script setup lang="ts">
 import { useNamespace } from '@/hooks'
 import { useFollowedProjectList } from '../logic/useFollowedProjectList'
-import { ProjectInfo } from '@/typings'
-
-const { followedProjects } = useFollowedProjectList()
-
-type SelectedKey = number | string | 'all' | 'create'
-
+import { ProjectInfo, SelectedKey } from '@/typings'
 interface Events {
   (event: 'create'): void
   (event: 'click', project: ProjectInfo | null): void
 }
 
 const emits = defineEmits<Events>()
-
 const ns = useNamespace('iteration-tree')
-const selectedRef = ref<SelectedKey>('all')
-const activeClass = (key: SelectedKey) => (selectedRef.value === key ? 'active' : '')
 
-const handleItemClick = (project: ProjectInfo | string) => {
-  selectedRef.value = typeof project === 'string' ? project : project.id
+const { followedProjects, activeClass, selectedRef, selectedHistory, goBackSelected, removeSelected } = useFollowedProjectList()
+
+const handleItemClick = (project: SelectedKey) => {
+  selectedRef.value = project
 
   if (project === 'create') {
     emits('create')
-    return
+  } else {
+    selectedHistory.push(project)
+    emits('click', project === 'all' ? null : (project as ProjectInfo))
   }
-
-  emits('click', project === 'all' ? null : (project as ProjectInfo))
 }
+
+defineExpose({
+  goBackSelected,
+  removeSelected,
+})
 </script>
 <style lang="scss" scoped>
 @use '@/styles/mixins/mixins' as *;

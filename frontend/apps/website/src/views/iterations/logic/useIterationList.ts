@@ -1,10 +1,10 @@
 import useTable from '@/hooks/useTable'
 import { getIterationList, deleteIteration } from '@/api/iteration'
-import { Iteration, SelectedProjectKey } from '@/typings'
+import { Iteration } from '@/typings'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import { useI18n } from 'vue-i18n'
 
-export const useIterationList = (projectIdRef: Ref<SelectedProjectKey>) => {
+export const useIterationList = (projectIdRef: Ref<number | string | null>) => {
   const { t } = useI18n()
 
   const editableItreationIdRef = ref<number | string | null>(null)

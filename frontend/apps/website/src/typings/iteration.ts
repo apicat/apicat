@@ -1,4 +1,5 @@
 import { MemberAuthority } from './member'
+import { ProjectInfo } from './project'
 
 export interface Iteration {
   /**
@@ -53,4 +54,4 @@ export interface Iteration {
   [property: string]: any
 }
 
-export type SelectedProjectKey = number | string | null
+export type SelectedKey = ProjectInfo | null | 'all' | 'create'

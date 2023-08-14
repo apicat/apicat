@@ -1,11 +1,26 @@
 import { getFollowedProjectList } from '@/api/project'
 import useApi from '@/hooks/useApi'
-import { ProjectInfo, SelectedProjectKey } from '@/typings'
+import { ProjectInfo, SelectedKey } from '@/typings'
 
 export const useFollowedProjectList = () => {
-  const selectedProjectKeyRef = ref<SelectedProjectKey>(null)
+  const selectedRef = ref<SelectedKey>('all')
+  const selectedHistory: SelectedKey[] = ['all']
+
   const followedProjects = ref<ProjectInfo[]>([])
   const [isLoading, getFollowedProjectListApi] = useApi(getFollowedProjectList)
+
+  const activeClass = (key: SelectedKey) => (selectedRef.value === key ? 'active' : '')
+
+  const goBackSelected = () => {
+    const backSelected = selectedHistory.pop()
+    if (backSelected) {
+      selectedRef.value = backSelected
+    }
+  }
+
+  const removeSelected = () => {
+    selectedRef.value = null
+  }
 
   onMounted(async () => {
     try {
@@ -17,7 +32,11 @@ export const useFollowedProjectList = () => {
 
   return {
     isLoading,
-    selectedProjectKeyRef,
+    selectedRef,
+    selectedHistory,
     followedProjects,
+    activeClass,
+    goBackSelected,
+    removeSelected,
   }
 }
