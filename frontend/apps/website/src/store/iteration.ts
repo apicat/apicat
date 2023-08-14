@@ -1,17 +1,28 @@
-import { ProjectInfo } from '@/typings'
-import { Iteration } from '@/typings/iteration'
-// import { MemberAuthorityInProject } from '@/typings/member'
+import { getIterationDetail } from '@/api/iteration'
+import { ITERATION_DETAIL_PATH_NAME } from '@/router/constant'
+import { Iteration } from '@/typings'
 import { defineStore } from 'pinia'
 
 interface IterationState {
-  // 当前选中所关注的项目Key
-  selectedProjectKey: number | null
+  iterationInfo: Iteration | null
 }
 
 export const useIterationStore = defineStore('iterationStore', {
   state: (): IterationState => ({
-    selectedProjectKey: null,
+    iterationInfo: null,
   }),
 
-  actions: {},
+  getters: {
+    isIterationRoute: () => {
+      const router = useRouter()
+      return !!router.currentRoute.value.matched.find((item) => item.name === ITERATION_DETAIL_PATH_NAME)
+    },
+  },
+  actions: {
+    async getIterationInfo(iteration_id: string): Promise<Iteration> {
+      const iterationDetail = await getIterationDetail({ iteration_id })
+      this.iterationInfo = iterationDetail
+      return iterationDetail
+    },
+  },
 })

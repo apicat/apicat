@@ -3,7 +3,7 @@
     <h3 class="text-18px text-gray-title mb-30px">{{ titleRef }}</h3>
 
     <div :class="ns.b()" v-if="data.length">
-      <div :class="ns.e('item')" v-for="item in data" :key="item.id">
+      <div :class="ns.e('item')" v-for="item in data" :key="item.id" @click="handleRowClick(item)">
         <div class="flex-1">
           <p :class="ns.e('title')">{{ item.title }}</p>
           <div class="text-gray-helper">
@@ -49,7 +49,7 @@ const emits = defineEmits<{
 }>()
 
 const { projectId: projectIdRef } = toRefs(props)
-const { isLoading, data, currentPage, pageSize, total, handleRemoveIteration, fetchIterationList } = useIterationList(projectIdRef)
+const { isLoading, data, currentPage, pageSize, total, handleRemoveIteration, handleRowClick, fetchIterationList } = useIterationList(projectIdRef)
 
 const titleRef = computed(() => props.title || '所有迭代')
 

@@ -11,7 +11,6 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     AcBacktop: typeof import('./../components/AcBacktop.vue')['default']
     AcIcon: typeof import('./../components/AcIcon.vue')['default']
-    AcIconBiRobot: typeof import('~icons/bi/robot')['default']
     AcIconCarbonModelAlt: typeof import('~icons/carbon/model-alt')['default']
     AcIconCarbonUnlink: typeof import('~icons/carbon/unlink')['default']
     'AcIconEp:arrowDown': typeof import('~icons/ep/arrow-down')['default']
@@ -34,8 +33,6 @@ declare module '@vue/runtime-core' {
     AcIconEpPlus: typeof import('~icons/ep/plus')['default']
     AcIconEpRefresh: typeof import('~icons/ep/refresh')['default']
     AcIconEpSort: typeof import('~icons/ep/sort')['default']
-    AcIconEpStar: typeof import('~icons/ep/star')['default']
-    AcIconEpStarFilled: typeof import('~icons/ep/star-filled')['default']
     AcIconEpView: typeof import('~icons/ep/view')['default']
     AcIconIcOutlineContentCopy: typeof import('~icons/ic/outline-content-copy')['default']
     AcIconIcSharpCloudQueue: typeof import('~icons/ic/sharp-cloud-queue')['default']

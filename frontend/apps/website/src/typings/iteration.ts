@@ -25,7 +25,7 @@ export interface Iteration {
   /**
    * 迭代id
    */
-  id: number
+  id: string | number
   /**
    * 是否关注了此项目 True or False
    */
@@ -33,7 +33,7 @@ export interface Iteration {
   /**
    * 项目公开id
    */
-  project_public_id: string
+  project_id: string
   /**
    * 项目标题
    */
@@ -50,8 +50,6 @@ export interface Iteration {
    * 迭代ids
    */
   collection_ids?: number[]
-
-  [property: string]: any
 }
 
 export type SelectedKey = ProjectInfo | null | 'all' | 'create'

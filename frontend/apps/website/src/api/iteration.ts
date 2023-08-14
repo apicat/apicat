@@ -3,7 +3,7 @@ import { queryStringify } from '@/commons'
 import { Pageable, Iteration } from '@/typings'
 
 const restfulRootPath = '/iterations'
-const restfulDetailPath = (iteration_public_id: string | number): string => `${restfulRootPath}/${iteration_public_id}`
+const restfulDetailPath = (iteration_id: string | number): string => `${restfulRootPath}/${iteration_id}`
 
 // 获取迭代列表
 export const getIterationList = async (params: { project_id?: string | number; page?: number; page_size?: number }): Promise<Pageable<{ iterations: Iteration[] }>> => {
@@ -11,8 +11,8 @@ export const getIterationList = async (params: { project_id?: string | number; p
 }
 
 // 获取迭代详情
-export const getIterationDetail = async ({ iteration_public_id }: { iteration_public_id: string | number }): Promise<Iteration> => {
-  return QuietAjax.get(`${restfulDetailPath(iteration_public_id)}`)
+export const getIterationDetail = async ({ iteration_id }: { iteration_id: string | number }): Promise<Iteration> => {
+  return QuietAjax.get(`${restfulDetailPath(iteration_id)}`)
 }
 
 // 更新迭代
@@ -27,6 +27,6 @@ export const createIteration = async (params: { project_id: string | number; tit
 }
 
 // 删除迭代
-export const deleteIteration = async ({ iteration_public_id }: { iteration_public_id: string | number }): Promise<void> => {
-  return Ajax.delete(`${restfulDetailPath(iteration_public_id)}`)
+export const deleteIteration = async ({ iteration_id }: { iteration_id: string | number }): Promise<void> => {
+  return Ajax.delete(`${restfulDetailPath(iteration_id)}`)
 }

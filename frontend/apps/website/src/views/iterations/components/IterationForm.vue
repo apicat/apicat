@@ -107,7 +107,7 @@ watch(
     }
 
     try {
-      iterationInfo.value = await getIterationDetailApi({ iteration_public_id: unref(iterationIdRef) })
+      iterationInfo.value = await getIterationDetailApi({ iteration_id: unref(iterationIdRef) })
     } catch (error) {
       resetIterationInfo()
     }
