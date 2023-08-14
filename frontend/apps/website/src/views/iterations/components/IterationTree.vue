@@ -29,7 +29,7 @@ interface Events {
 const emits = defineEmits<Events>()
 const ns = useNamespace('iteration-tree')
 
-const { followedProjects, activeClass, selectedRef, selectedHistory, goBackSelected, removeSelected } = useFollowedProjectList()
+const { followedProjects, activeClass, selectedRef, setSelectedHistory, goBackSelected, removeSelected } = useFollowedProjectList()
 
 const handleItemClick = (project: SelectedKey) => {
   selectedRef.value = project
@@ -37,7 +37,7 @@ const handleItemClick = (project: SelectedKey) => {
   if (project === 'create') {
     emits('create')
   } else {
-    selectedHistory.push(project)
+    setSelectedHistory(project === 'all' ? 0 : (project as ProjectInfo))
     emits('click', project === 'all' ? null : (project as ProjectInfo))
   }
 }

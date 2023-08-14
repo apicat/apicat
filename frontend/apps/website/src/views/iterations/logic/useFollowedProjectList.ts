@@ -4,7 +4,7 @@ import { ProjectInfo, SelectedKey } from '@/typings'
 
 export const useFollowedProjectList = () => {
   const selectedRef = ref<SelectedKey>('all')
-  const selectedHistory: SelectedKey[] = ['all']
+  let selectedHistory: number | ProjectInfo = 0
 
   const followedProjects = ref<ProjectInfo[]>([])
   const [isLoading, getFollowedProjectListApi] = useApi(getFollowedProjectList)
@@ -12,14 +12,15 @@ export const useFollowedProjectList = () => {
   const activeClass = (key: SelectedKey) => (selectedRef.value === key ? 'active' : '')
 
   const goBackSelected = () => {
-    const backSelected = selectedHistory.pop()
-    if (backSelected) {
-      selectedRef.value = backSelected
-    }
+    selectedRef.value = selectedHistory === 0 ? 'all' : (selectedHistory as ProjectInfo)
   }
 
   const removeSelected = () => {
     selectedRef.value = null
+  }
+
+  const setSelectedHistory = (info: ProjectInfo | number) => {
+    selectedHistory = info
   }
 
   onMounted(async () => {
@@ -38,5 +39,6 @@ export const useFollowedProjectList = () => {
     activeClass,
     goBackSelected,
     removeSelected,
+    setSelectedHistory,
   }
 }
