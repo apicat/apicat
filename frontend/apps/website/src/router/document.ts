@@ -1,12 +1,10 @@
 import type { RouteRecordRaw } from 'vue-router'
 import { compile } from 'path-to-regexp'
-import { ITERATION_DETAIL_PATH, PROJECT_DETAIL_PATH } from './constant'
+import { PROJECT_DETAIL_PATH } from './constant'
 import { MemberAuthorityInProject } from '@/typings/member'
 
 export const DOCUMENT_DETAIL_NAME = 'document.detail'
 export const DOCUMENT_DETAIL_PATH = PROJECT_DETAIL_PATH + '/doc/:doc_id?'
-
-export const ITERATION_ALIAS_DOCUMENT_DETAIL_PATH = ITERATION_DETAIL_PATH + '/doc/:doc_id?'
 
 export const DOCUMENT_EDIT_NAME = 'document.edit'
 export const DOCUMENT_EDIT_PATH = PROJECT_DETAIL_PATH + '/doc/:doc_id/edit'

@@ -24,11 +24,11 @@ export const convertProjectCover = (project: ProjectInfo): ProjectInfo => {
 
 export const getProjectList = (): Promise<ProjectInfo[]> => Ajax.get('/projects')
 
-export const getProjectDetail = async (project_id: string, params?: Record<string, any>) => Ajax.get(`/projects/${project_id}${queryStringify(params)}`)
+export const getProjectDetail = async (project_id: string, params?: Record<string, any>): Promise<ProjectInfo> => Ajax.get(`/projects/${project_id}${queryStringify(params)}`)
 
 export const createProject = async (projectInfo: Partial<ProjectInfo>): Promise<ProjectInfo> => await QuietAjax.post('/projects', projectInfo)
 
-export const updateProjectBaseInfo = () => useApi(({ id: project_id, ...info }: ProjectInfo) => Ajax.put(`/projects/${project_id}`, info))
+export const updateProjectBaseInfo = async ({ id: project_id, ...info }: ProjectInfo): Promise<ProjectInfo> => Ajax.put(`/projects/${project_id}`, info)
 
 export const getProjectServerUrlList = async (project_id: string, params?: Record<string, any>) => {
   params = setShareTokenToParams(params || {})

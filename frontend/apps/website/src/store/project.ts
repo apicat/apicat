@@ -1,4 +1,4 @@
-import { getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList } from '@/api/project'
+import { getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList, updateProjectBaseInfo } from '@/api/project'
 import { Cookies, ProjectVisibilityEnum } from '@/commons'
 import { MemberAuthorityInProject, MemberAuthorityMap } from '@/typings/member'
 import { ProjectInfo } from '@/typings/project'
@@ -52,16 +52,21 @@ export const useProjectStore = defineStore('project', {
     async getProjectDetailInfo(project_id: string): Promise<ProjectInfo> {
       const token = Cookies.get(Cookies.KEYS.SHARE_PROJECT + project_id)
       const project = await getProjectDetail(project_id, token ? { token } : {})
-      this.setCurrentProjectInfo(project as any)
-      return project as any
+      this.updateCurrentProjectInfo(project)
+      return project
     },
 
-    setCurrentProjectInfo(info?: ProjectInfo) {
+    updateCurrentProjectInfo(info?: ProjectInfo) {
       this.projectDetailInfo = info ? { ...this.projectDetailInfo, ...info } : null
     },
 
     clearCurrentProjectInfo() {
-      this.setCurrentProjectInfo()
+      this.updateCurrentProjectInfo()
+    },
+
+    async updateProectInfo(info: ProjectInfo) {
+      await updateProjectBaseInfo(info)
+      this.updateCurrentProjectInfo(info)
     },
 
     async getUrlServers(project_id: string) {
