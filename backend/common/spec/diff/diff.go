@@ -33,7 +33,7 @@ func Diff(source, target *spec.Spec, del bool) (*spec.CollectItem, *spec.Collect
 		bu.XDiff = &diffUpdate
 	}
 	equalRequest(&a.HTTPRequestNode, &b.HTTPRequestNode, del)
-	equalResponse(a.Responses, b.Responses, del)
+	equalResponse(&a.Responses, &b.Responses, del)
 	return a.ToCollectItem(*au), b.ToCollectItem(*bu)
 }
 
@@ -53,26 +53,29 @@ func equalParam(a spec.HTTPParameters, b *spec.HTTPParameters, del bool) {
 	a1 := a.Map()
 	b1 := b.Map()
 	for k, v := range b1 {
-		x := a1[k]
-		equalSchemas(x, v, del)
+		x, ok := a1[k]
+		if !ok {
+			x = make(spec.Schemas, 0)
+		}
+		equalSchemas(&x, &v, del)
 	}
 }
 
-func equalSchemas(a, b spec.Schemas, del bool) {
+func equalSchemas(a, b *spec.Schemas, del bool) {
 	if del {
-		for i, v := range a {
+		for i, v := range *a {
 			if s := b.Lookup(v.Name); s == nil {
 				newv := *v
 				newv.XDiff = &diffRemove
-				if len(b) < i {
-					b = slices.Insert(b, i, &newv)
+				if i < len(*b)-1 {
+					*b = slices.Insert(*b, i, &newv)
 				} else {
-					b = append(b, v)
+					*b = append(*b, v)
 				}
 			}
 		}
 	}
-	for _, v := range b {
+	for _, v := range *b {
 		if v.XDiff == &diffRemove {
 			continue
 		}
@@ -108,31 +111,40 @@ func equalRequest(a, b *spec.HTTPRequestNode, del bool) {
 	equalContent(a.Content, b.Content, del)
 }
 
-func equalResponse(a, b spec.HTTPResponses, del bool) {
+func equalResponse(a, b *spec.HTTPResponses, del bool) {
+	if del {
+		bb := b.Map()
+		for i, v := range *a {
+			if _, ok := bb[v.Code]; !ok {
+				newv := v
+				newv.XDiff = &diffRemove
+				// 尽量保证顺序
+				if i < len(*b)-1 {
+					*b = slices.Insert(*b, i, newv)
+				} else {
+					*b = append(*b, newv)
+				}
+			}
+		}
+	}
 	aa := a.Map()
-	for _, v := range b {
+	for _, v := range *b {
+		if v.XDiff == &diffRemove {
+			continue
+		}
 		if x, ok := aa[v.Code]; ok {
 			switch {
 			case x.Name != v.Name || x.Description != v.Description:
 				v.XDiff = &diffUpdate
 			default:
-				equalSchemas(x.Header, v.Header, del)
+				equalSchemas(&x.Header, &v.Header, del)
 				equalContent(x.Content, v.Content, del)
 			}
 		} else {
 			v.XDiff = &diffNew
 		}
 	}
-	if del {
-		bb := b.Map()
-		for _, v := range a {
-			if _, ok := bb[v.Code]; !ok {
-				newv := v
-				newv.XDiff = &diffRemove
-				b = append(b, newv)
-			}
-		}
-	}
+
 }
 
 func equalSchema(a, b *spec.Schema, del bool) {
