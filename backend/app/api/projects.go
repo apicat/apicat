@@ -574,7 +574,8 @@ func ProjectFollowList(ctx *gin.Context) {
 func ProjectFollow(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 
-	currentProjectMember.(*models.ProjectMembers).FollowedAt = time.Now()
+	nowTime := time.Now()
+	currentProjectMember.(*models.ProjectMembers).FollowedAt = &nowTime
 	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.FollowFailed"}),
@@ -588,7 +589,7 @@ func ProjectFollow(ctx *gin.Context) {
 func ProjectUnFollow(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 
-	currentProjectMember.(*models.ProjectMembers).FollowedAt = time.Time{}
+	currentProjectMember.(*models.ProjectMembers).FollowedAt = nil
 	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.UnfollowFailed"}),

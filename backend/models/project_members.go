@@ -12,7 +12,7 @@ type ProjectMembers struct {
 	ProjectID  uint   `gorm:"type:bigint;index;not null;comment:项目id"`
 	UserID     uint   `gorm:"type:bigint;index;not null;comment:用户id"`
 	Authority  string `gorm:"type:varchar(255);not null;comment:项目权限:manage,write,read"`
-	FollowedAt time.Time
+	FollowedAt *time.Time
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
 	DeletedAt  gorm.DeletedAt
