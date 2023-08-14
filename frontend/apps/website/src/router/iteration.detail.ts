@@ -2,9 +2,9 @@ import { RouteRecordRaw } from 'vue-router'
 import ProjectDetailLayout from '@/layouts/ProjectDetailLayout'
 import { ITERATION_DETAIL_PATH, ITERATION_DETAIL_PATH_NAME } from './constant'
 
-// import { DOCUMENT_DETAIL_NAME, documentDetailRoute, documentEditRoute } from './document'
-// import { schemaDetailRoute, schemaEditRoute } from './definition.schema'
-// import { definitionResponseDetailRoute, definitionResponseEditRoute } from './definition.response'
+import { ITERATION_DOCUMENT_DETAIL_NAME, iterationDocumentDetailRoute, iterationDocumentEditRoute } from './iteration/document'
+import { iterationSchemaDetailRoute, iterationSchemaEditRoute } from './iteration/definition.schema'
+import { iterationDefinitionResponseDetailRoute, iterationDefinitionResponseEditRoute } from './iteration/definition.response'
 
 import { compile } from 'path-to-regexp'
 
@@ -14,10 +14,17 @@ export const iterationDetailRoute: RouteRecordRaw = {
   name: ITERATION_DETAIL_PATH_NAME,
   path: ITERATION_DETAIL_PATH,
   component: ProjectDetailLayout,
-  // children: [documentDetailRoute, documentEditRoute, schemaDetailRoute, schemaEditRoute, definitionResponseDetailRoute, definitionResponseEditRoute],
-  // redirect: { name: DOCUMENT_DETAIL_NAME },
+  children: [
+    iterationDocumentDetailRoute,
+    iterationDocumentEditRoute,
+    iterationSchemaDetailRoute,
+    iterationSchemaEditRoute,
+    iterationDefinitionResponseDetailRoute,
+    iterationDefinitionResponseEditRoute,
+  ],
+  redirect: { name: ITERATION_DOCUMENT_DETAIL_NAME },
 }
 
-export * from './document'
-export * from './definition.schema'
-export * from './definition.response'
+export * from './iteration/document'
+export * from './iteration/definition.schema'
+export * from './iteration/definition.response'

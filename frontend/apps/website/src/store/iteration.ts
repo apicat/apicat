@@ -24,5 +24,14 @@ export const useIterationStore = defineStore('iterationStore', {
       this.iterationInfo = iterationDetail
       return iterationDetail
     },
+
+    gatherIterationInfo(params?: Record<string, any>) {
+      const router = useRouter()
+      params = params || {}
+      if (this.isIterationRoute) {
+        params.iteration_id = router.currentRoute.value.params.iteration_id
+      }
+      return params
+    },
   },
 })

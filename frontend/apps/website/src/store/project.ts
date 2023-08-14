@@ -6,6 +6,7 @@ import { defineStore } from 'pinia'
 import { pinia } from '@/plugins'
 import { getProjectAuthInfo } from '@/api/shareProject'
 import { getProjectDetailPath } from '@/router/project.detail'
+import { PROJECT_DETAIL_PATH_NAME } from '@/router/constant'
 
 interface ProjectAuthInfo {
   project_id: string
@@ -47,6 +48,11 @@ export const useProjectStore = defineStore('project', {
     isPrivate: (state) => state.projectDetailInfo?.visibility === ProjectVisibilityEnum.PRIVATE,
 
     hasInputSecretKey: (state) => !!(Cookies.get(Cookies.KEYS.SHARE_PROJECT + state.projectAuthInfo?.project_id) || ''),
+
+    isProjectRoute: () => {
+      const router = useRouter()
+      return !!router.currentRoute.value.matched.find((item) => item.name === PROJECT_DETAIL_PATH_NAME)
+    },
   },
   actions: {
     async getProjectDetailInfo(project_id: string): Promise<ProjectInfo> {

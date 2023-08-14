@@ -42,6 +42,7 @@ const ns = useNamespace('doc-layout')
 const projectStore = useProjectStore()
 const globalParametersStore = uesGlobalParametersStore()
 const { project_id } = useParams()
+console.log('project_id', project_id)
 
 const { isShowProjectSecretLayer } = storeToRefs(projectStore)
 const directoryTree = ref<InstanceType<typeof DirectoryTree>>()

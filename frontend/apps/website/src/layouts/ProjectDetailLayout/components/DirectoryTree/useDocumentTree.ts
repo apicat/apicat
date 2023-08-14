@@ -13,6 +13,8 @@ import { DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME } from '@/router'
 import { moveCollection } from '@/api/collection'
 import useApi from '@/hooks/useApi'
 import { useParams } from '@/hooks/useParams'
+import { useIterationStore } from '@/store/iteration'
+import useProjectStore from '@/store/project'
 
 /**
  * 获取节点树最大深度
@@ -32,12 +34,13 @@ const getTreeMaxDepth = memoize(function (node) {
 })
 
 export const useDocumentTree = () => {
-  const documentStore = useDocumentStore()
-  const { project_id } = useParams()
-  const { goDocumentDetailPage, goDocumentEditPage } = useGoPage()
-
   const route = useRoute()
   const router = useRouter()
+  const documentStore = useDocumentStore()
+  const iterationStore = useIterationStore()
+  const projectStore = useProjectStore()
+  const { project_id } = useParams()
+  const { goDocumentDetailPage, goDocumentEditPage } = useGoPage()
 
   const { params } = route
   const { getApiDocTree } = documentStore
@@ -151,7 +154,7 @@ export const useDocumentTree = () => {
 
   const initDocumentTree = async (activeDocId?: any) => {
     await getApiDocTreeApi(project_id as string)
-    if (route.name === DOCUMENT_DETAIL_NAME || route.name === DOCUMENT_EDIT_NAME) {
+    if (iterationStore.isIterationRoute || projectStore.isProjectRoute) {
       router.currentRoute.value.params.doc_id ? activeNode(activeDocId || params.doc_id) : reactiveNode()
     }
   }
