@@ -51,7 +51,7 @@ import useProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
 import { getCollectionDetail } from '@/api/collection'
 import { useParams } from '@/hooks/useParams'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionStore from '@/store/definitionSchema'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionResponseStore from '@/store/definitionResponse'
 import { ProjectDetailModalsContextKey } from '@/layouts/ProjectDetailLayout/constants'
@@ -69,6 +69,7 @@ const { goDocumentEditPage } = useGoPage()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const { urlServers, isManager, isWriter, isPrivate, isReader } = storeToRefs(projectStore)
+
 const { definitions } = storeToRefs(definitionStore)
 
 const hasDocument = ref(false)

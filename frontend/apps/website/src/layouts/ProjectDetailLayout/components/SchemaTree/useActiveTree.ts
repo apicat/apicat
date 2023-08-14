@@ -1,6 +1,6 @@
 import { CollectionNode } from '@/typings/project'
 import AcTree from '@/components/AcTree'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionStore from '@/store/definitionSchema'
 import { traverseTree } from '@apicat/shared'
 import { storeToRefs } from 'pinia'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'

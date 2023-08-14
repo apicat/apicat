@@ -47,7 +47,7 @@ import { useRouter } from 'vue-router'
 import useApi from '@/hooks/useApi'
 import { compareSchema } from '@/api/definitionSchema'
 import { useParams } from '@/hooks/useParams'
-import { useDefinitionSchemaStore } from '@/store/definition'
+import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 import { useModal } from '@/hooks/useModel'
 
 const { currentRoute } = useRouter()

@@ -13,7 +13,7 @@ import DocumentHistoryOperateHeader from '@/views/document/components/DocumentHi
 import { getDocumentHistoryRecordDetail } from '@/api/collection'
 import { useNamespace } from '@/hooks/useNamespace'
 import { useParams } from '@/hooks/useParams'
-import { useDefinitionSchemaStore } from '@/store/definition'
+import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 import useProjectStore from '@/store/project'
 import { HttpDocument } from '@/typings'
 import { storeToRefs } from 'pinia'

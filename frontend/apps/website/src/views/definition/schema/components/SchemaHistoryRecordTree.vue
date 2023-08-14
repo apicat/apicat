@@ -30,7 +30,7 @@
 <script lang="ts" setup>
 import AcTree from '@/components/AcTree'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-import { useDefinitionSchemaStore } from '@/store/definition'
+import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 import { storeToRefs } from 'pinia'
 import { traverseTree } from '@apicat/shared'
 import { DocumentTypeEnum } from '@/commons/constant'

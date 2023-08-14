@@ -8,7 +8,7 @@ import { DocumentTypeEnum } from '@/commons/constant'
 import { useActiveTree } from './useActiveTree'
 import { useGoPage } from '@/hooks/useGoPage'
 import { SCHEMA_DETAIL_NAME, SCHEMA_EDIT_NAME } from '@/router'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionStore from '@/store/definitionSchema'
 import { createTreeMaxDepthFn } from '@/commons'
 import { useParams } from '@/hooks/useParams'
 

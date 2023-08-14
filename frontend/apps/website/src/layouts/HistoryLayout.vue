@@ -15,7 +15,7 @@
 <script setup lang="ts">
 import { useNamespace } from '@/hooks/useNamespace'
 import { useParams } from '@/hooks/useParams'
-import { useDefinitionSchemaStore } from '@/store/definition'
+import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 import useDefinitionResponseStore from '@/store/definitionResponse'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import useProjectStore from '@/store/project'
