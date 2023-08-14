@@ -50,9 +50,10 @@ const props = withDefaults(defineProps<Props>(), {
 const emits = defineEmits<{
   (e: 'remove', i: Iteration): void
   (e: 'edit', i: Iteration): void
+  (e: 'update:page', page: number): void
 }>()
 
-const pageVModel = useVModel(props, 'page')
+const pageVModel = useVModel(props, 'page', emits)
 const titleRef = computed(() => props.title || '所有迭代')
 
 const onDeleteBtnClick = (i: Iteration) => emits('remove', i)

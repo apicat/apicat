@@ -98,7 +98,7 @@ const convertTransferTreeData = (allData: any) => {
 
   return {
     from: fromDataArr,
-    to: toDataArr,
+    to: arrayToTree(toDataArr),
   }
 }
 
