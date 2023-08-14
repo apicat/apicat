@@ -4,13 +4,13 @@ import { Iteration, SelectedProjectKey } from '@/typings'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import { useI18n } from 'vue-i18n'
 
-export const useIterationList = (selectedProjectKeyRef: Ref<SelectedProjectKey>) => {
+export const useIterationList = (projectIdRef: Ref<SelectedProjectKey>) => {
   const { t } = useI18n()
 
   const editableItreationIdRef = ref<number | string | null>(null)
 
   const queryParam: Record<string, any> = {
-    project_id: selectedProjectKeyRef.value,
+    project_id: projectIdRef.value,
   }
 
   const { currentPage, getTableData, ...rest } = useTable<Iteration>(getIterationList, {
@@ -32,9 +32,9 @@ export const useIterationList = (selectedProjectKeyRef: Ref<SelectedProjectKey>)
 
   // 项目切换时获取当前项目的迭代列表
   watch(
-    selectedProjectKeyRef,
+    projectIdRef,
     async () => {
-      queryParam.project_id = selectedProjectKeyRef.value || ''
+      queryParam.project_id = projectIdRef.value || ''
       currentPage.value = 1
       await getTableData()
     },
@@ -45,7 +45,6 @@ export const useIterationList = (selectedProjectKeyRef: Ref<SelectedProjectKey>)
 
   return {
     editableItreationIdRef,
-    selectedProjectKeyRef,
     currentPage,
     ...rest,
     fetchIterationList: getTableData,

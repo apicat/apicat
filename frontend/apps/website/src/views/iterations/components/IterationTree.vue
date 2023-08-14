@@ -12,48 +12,40 @@
 
   <p class="text-#101010 font-500 my-10px">关注的项目</p>
   <ul :class="ns.bm('followed')">
-    <li v-for="project in projects" :class="[ns.e('item'), activeClass(project.id as number)]" @click="handleItemClick(project.id as number)">
+    <li v-for="project in followedProjects" :class="[ns.e('item'), activeClass(project.id as number)]" @click="handleItemClick(project)">
       <span class="mr-8px">·</span><span>{{ project.title }}</span>
     </li>
   </ul>
 </template>
 <script setup lang="ts">
 import { useNamespace } from '@/hooks'
+import { useFollowedProjectList } from '../logic/useFollowedProjectList'
 import { ProjectInfo } from '@/typings'
+
+const { followedProjects } = useFollowedProjectList()
 
 type SelectedKey = number | string | 'all' | 'create'
 
-interface Props {
-  projects: ProjectInfo[]
-  selectedKey?: number | string | null
-}
-
 interface Events {
-  (event: 'update:selectedKey', id: number | string | null): void
   (event: 'create'): void
-  (event: 'click-item', id: number | string | null): void
+  (event: 'click', project: ProjectInfo | null): void
 }
 
 const emits = defineEmits<Events>()
 
-const props = withDefaults(defineProps<Props>(), {
-  projects: () => [],
-  selectedKey: null,
-})
-
 const ns = useNamespace('iteration-tree')
-const selectedRef = ref<SelectedKey>(props.selectedKey ?? 'all')
+const selectedRef = ref<SelectedKey>('all')
 const activeClass = (key: SelectedKey) => (selectedRef.value === key ? 'active' : '')
 
-const handleItemClick = (key: SelectedKey) => {
-  selectedRef.value = key
+const handleItemClick = (project: ProjectInfo | string) => {
+  selectedRef.value = typeof project === 'string' ? project : project.id
 
-  if (key === 'create') {
+  if (project === 'create') {
     emits('create')
     return
   }
-  emits('update:selectedKey', key === 'all' ? null : key)
-  emits('click-item', key === 'all' ? null : key)
+
+  emits('click', project === 'all' ? null : (project as ProjectInfo))
 }
 </script>
 <style lang="scss" scoped>

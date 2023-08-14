@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="isLoading">
     <h3 class="text-18px text-gray-title mb-30px">{{ titleRef }}</h3>
 
     <div :class="ns.b()" v-if="data.length">
@@ -22,42 +22,47 @@
     <el-empty v-else />
 
     <div class="flex justify-end mt-4" v-if="total">
-      <el-pagination :page-size="pageSize" layout="prev, pager, next" :total="total" v-model:current-page="pageVModel" />
+      <el-pagination :page-size="pageSize" layout="prev, pager, next" :total="total" v-model:current-page="currentPage" />
     </div>
   </div>
 </template>
 <script lang="ts" setup>
 import { useNamespace } from '@/hooks/useNamespace'
 import { Iteration } from '@/typings'
+import { useIterationList } from '../logic/useIterationList'
 
 const ns = useNamespace('iteration-list')
 
 interface Props {
-  title?: string
-  data: Iteration[]
-  page: number
-  total: number
-  pageSize?: number
+  title: string | null
+  projectId?: string | number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  data: () => [],
-  page: 1,
-  total: 0,
-  pageSize: 15,
+  projectId: null,
+  title: null,
 })
 
 const emits = defineEmits<{
   (e: 'remove', i: Iteration): void
   (e: 'edit', i: Iteration): void
-  (e: 'update:page', page: number): void
 }>()
 
-const pageVModel = useVModel(props, 'page', emits)
+const { projectId: projectIdRef } = toRefs(props)
+const { isLoading, data, currentPage, pageSize, total, handleRemoveIteration, fetchIterationList } = useIterationList(projectIdRef)
+
 const titleRef = computed(() => props.title || '所有迭代')
 
-const onDeleteBtnClick = (i: Iteration) => emits('remove', i)
+const onDeleteBtnClick = (i: Iteration) => {
+  handleRemoveIteration(i)
+  emits('remove', i)
+}
+
 const onEditBtnClick = (i: Iteration) => emits('edit', i)
+
+defineExpose({
+  reload: fetchIterationList,
+})
 </script>
 <style lang="scss" scoped>
 @use '@/styles/mixins/mixins' as *;

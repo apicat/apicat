@@ -51,10 +51,10 @@ import { EmptyStruct, Iteration, ProjectInfo } from '@/typings'
 import { FormInstance } from 'element-plus'
 import { useIterationPlan } from '../logic/useIterationPlan'
 
-const props = withDefaults(defineProps<{ id: string | number | null; projects: ProjectInfo[] }>(), { id: null })
+const props = withDefaults(defineProps<{ iterationId: string | number | null; projects: ProjectInfo[] }>(), { iterationId: null })
 const emits = defineEmits(['success', 'cancel'])
 
-const { id: iterationIdRef } = toRefs(props)
+const { iterationId: iterationIdRef } = toRefs(props)
 const ns = useNamespace('iteration-detail')
 const iterationFormRef = shallowRef()
 const iterationInfo = ref<EmptyStruct<Iteration>>({})
