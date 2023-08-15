@@ -30,7 +30,11 @@ export const setupGetProjectInfoFilter = (router: Router) => {
   router.beforeEach(async (to, from, next) => {
     const projectStore = useProjectStore()
 
-    if (to.matched.find((item: any) => item.name === PROJECT_DETAIL_PATH_NAME) && !projectStore.isShowProjectSecretLayer) {
+    // 项目详情 | 历史记录
+    if (
+      (to.matched.find((item: any) => item.name === PROJECT_DETAIL_PATH_NAME) && !projectStore.isShowProjectSecretLayer) ||
+      to.matched.find((item: any) => ['history.docuemnt', 'history.schema'].includes(item.name))
+    ) {
       const project_id = to.params.project_id
       if (!projectStore.projectDetailInfo || projectStore.projectDetailInfo.id !== project_id) {
         try {

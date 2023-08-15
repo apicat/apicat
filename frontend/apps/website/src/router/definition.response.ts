@@ -15,7 +15,7 @@ export const getDefinitionResponseEditPath = (project_id: number | string, respo
 export const definitionResponseDetailRoute: RouteRecordRaw = {
   name: RESPONSE_DETAIL_NAME,
   path: RESPONSE_DETAIL_PATH,
-  component: () => import('@/views/definition/response/ResponseEditPage.vue'),
+  component: () => import('@/views/definition/response/ResponseDetailPage.vue'),
   meta: {
     ignoreAuth: true,
   },

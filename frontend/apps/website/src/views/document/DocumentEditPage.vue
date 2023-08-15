@@ -97,7 +97,7 @@ const handleSave = async () => {
 
 const getDetail = async () => {
   // id 无效
-  if (isInvalidId() || router.currentRoute.value.name !== DOCUMENT_EDIT_NAME) {
+  if (isInvalidId()) {
     return
   }
 

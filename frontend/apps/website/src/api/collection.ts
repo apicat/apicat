@@ -38,11 +38,12 @@ export const createCollection = async ({ project_id, ...data }: any) => QuietAja
 
 export const updateCollection = async ({ project_id, collection_id, ...params }: any) => QuietAjax.put(`${detailRestfulPath(project_id, collection_id)}`, params)
 
-export const copyCollection = async (project_id: string, collection_id: string | number) => Ajax.post(`${detailRestfulPath(project_id, collection_id)}`)
+export const copyCollection = async (project_id: string, collection_id: string | number, params?: any) => Ajax.post(`${detailRestfulPath(project_id, collection_id)}`, params)
 
 export const moveCollection = async (project_id: string, sortParams: { target: any; origin: any }) => QuietAjax.put(`${baseRestfulApiPath(project_id)}/movement`, sortParams)
 
-export const deleteCollection = async (project_id: string, collection_id: string | number) => Ajax.delete(`${detailRestfulPath(project_id, collection_id)}`)
+export const deleteCollection = async (project_id: string, collection_id: string | number, params?: any) =>
+  Ajax.delete(`${detailRestfulPath(project_id, collection_id)}${queryStringify(params)}`)
 
 export const exportCollection = ({ project_id, collection_id, ...params }: any) => `${API_URL}${detailRestfulPath(project_id, collection_id)}/data${queryStringify(params)}`
 
