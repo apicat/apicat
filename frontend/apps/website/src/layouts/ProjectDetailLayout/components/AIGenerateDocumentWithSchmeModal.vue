@@ -43,7 +43,7 @@ const { t } = useI18n()
 
 const { dialogVisible, showModel, hideModel } = useModal()
 const [isLoading, createCollectionWithSchemaByAIApi] = useApi(createCollectionWithSchemaByAI)
-const { project_id } = useParams()
+const { project_id, iteration_id } = useParams()
 
 const multipleSelection = ref([])
 const collectList = shallowRef([])
@@ -77,7 +77,7 @@ const handleSelectionChange = (val: any) => {
 // 创建文档分类
 const createCategory = async (schema: any) => {
   try {
-    const data: any = await createCollection({ project_id, title: schema.name, type: DocumentTypeEnum.DIR })
+    const data: any = await createCollection({ project_id, iteration_id, title: schema.name, type: DocumentTypeEnum.DIR })
     return data.id
   } catch (error) {
     return 0
@@ -108,7 +108,7 @@ const handleCreate = async (selectedRows: Array<any>) => {
 
     try {
       const { description: title, method, path } = item
-      const data: any = await createCollectionByAI({ project_id, parent_id, schema_id: item.schema.id, title, method, path }, { signal: item.abortController.signal })
+      const data: any = await createCollectionByAI({ project_id, iteration_id, parent_id, schema_id: item.schema.id, title, method, path }, { signal: item.abortController.signal })
 
       item.isSuccess = true
       item.isFinish = true
