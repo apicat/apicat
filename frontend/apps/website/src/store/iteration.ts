@@ -13,9 +13,8 @@ export const useIterationStore = defineStore('iterationStore', {
   }),
 
   getters: {
-    isIterationRoute: () => {
-      const router = useRouter()
-      return !!router.currentRoute.value.matched.find((item) => item.name === ITERATION_DETAIL_PATH_NAME)
+    isIterationRoute: function (): boolean {
+      return !!this.$router.currentRoute.value.matched.find((item) => item.name === ITERATION_DETAIL_PATH_NAME)
     },
   },
   actions: {

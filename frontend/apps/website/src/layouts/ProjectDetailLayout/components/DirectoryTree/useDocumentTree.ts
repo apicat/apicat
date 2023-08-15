@@ -1,48 +1,28 @@
 import type { CollectionNode } from '@/typings/project'
-import { storeToRefs } from 'pinia'
-import { memoize } from 'lodash-es'
-
 import AcTree from '@/components/AcTree'
 import useDocumentStore from '@/store/document'
-import { traverseTree } from '@apicat/shared'
+import useApi from '@/hooks/useApi'
 import { TreeOptionProps } from '@/components/AcTree/tree.type'
 import { DocumentTypeEnum } from '@/commons/constant'
 import { useGoPage } from '@/hooks/useGoPage'
 import { useActiveTree } from './useActiveTree'
-import { DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME } from '@/router'
 import { moveCollection } from '@/api/collection'
-import useApi from '@/hooks/useApi'
 import { useParams } from '@/hooks/useParams'
-import { useIterationStore } from '@/store/iteration'
-import useProjectStore from '@/store/project'
+import { storeToRefs } from 'pinia'
+import { DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME, ITERATION_DOCUMENT_DETAIL_NAME, ITERATION_DOCUMENT_EDIT_NAME } from '@/router'
+import { createTreeMaxDepthFn } from '@/commons'
 
 /**
  * 获取节点树最大深度
  */
-const getTreeMaxDepth = memoize(function (node) {
-  let maxLevel = 0
-  traverseTree(
-    (item: any) => {
-      if (!item._extend.isLeaf) {
-        maxLevel++
-      }
-    },
-    [node] as CollectionNode[],
-    { subKey: 'items' }
-  )
-  return maxLevel
-})
+const getTreeMaxDepth = createTreeMaxDepthFn('items')
 
 export const useDocumentTree = () => {
-  const route = useRoute()
   const router = useRouter()
   const documentStore = useDocumentStore()
-  const iterationStore = useIterationStore()
-  const projectStore = useProjectStore()
-  const { project_id } = useParams()
+  const { project_id, doc_id } = useParams()
   const { goDocumentDetailPage, goDocumentEditPage } = useGoPage()
 
-  const { params } = route
   const { getApiDocTree } = documentStore
   const [isLoading, getApiDocTreeApi] = useApi(getApiDocTree)
   const { apiDocTree } = storeToRefs(documentStore)
@@ -50,13 +30,22 @@ export const useDocumentTree = () => {
   const treeOptions: TreeOptionProps = {
     children: 'items',
     label: 'title',
-    class: (data): string => [(data as CollectionNode)._extend?.isLeaf ? 'is-doc' : 'is-dir'].join(' '),
+    class: (data): string => {
+      const classNames = [(data as CollectionNode)._extend?.isLeaf ? 'is-doc' : 'is-dir']
+      data.selected === false && classNames.push('hidden')
+      return classNames.join(' ')
+    },
     isLeaf: (data): boolean => (data as CollectionNode).type === DocumentTypeEnum.DOC,
   }
 
   const treeIns = ref<InstanceType<typeof AcTree>>()
 
   const { reactiveNode, activeNode } = useActiveTree(treeIns as any)
+
+  // 是否在当前模块中
+  const isCurrentMoudleRouter = computed(() =>
+    [DOCUMENT_DETAIL_NAME, DOCUMENT_EDIT_NAME, ITERATION_DOCUMENT_DETAIL_NAME, ITERATION_DOCUMENT_EDIT_NAME].includes(router.currentRoute.value.name as any)
+  )
 
   /**
    * 目录树 点击
@@ -154,8 +143,8 @@ export const useDocumentTree = () => {
 
   const initDocumentTree = async (activeDocId?: any) => {
     await getApiDocTreeApi(project_id as string)
-    if (iterationStore.isIterationRoute || projectStore.isProjectRoute) {
-      router.currentRoute.value.params.doc_id ? activeNode(activeDocId || params.doc_id) : reactiveNode()
+    if (unref(isCurrentMoudleRouter)) {
+      doc_id ? activeNode(activeDocId || doc_id) : reactiveNode()
     }
   }
 

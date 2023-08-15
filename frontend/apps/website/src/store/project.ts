@@ -49,9 +49,8 @@ export const useProjectStore = defineStore('project', {
 
     hasInputSecretKey: (state) => !!(Cookies.get(Cookies.KEYS.SHARE_PROJECT + state.projectAuthInfo?.project_id) || ''),
 
-    isProjectRoute: () => {
-      const router = useRouter()
-      return !!router.currentRoute.value.matched.find((item) => item.name === PROJECT_DETAIL_PATH_NAME)
+    isProjectRoute: function (): boolean {
+      return !!this.$router.currentRoute.value.matched.find((item) => item.name === PROJECT_DETAIL_PATH_NAME)
     },
   },
   actions: {

@@ -1,5 +1,5 @@
 <template>
-  <ToggleHeading :title="$t('app.definitionResponse.title')" :expand="false">
+  <ToggleHeading :title="$t('app.definitionResponse.title')" :expand="isExpandTree">
     <template #extra>
       <el-icon v-if="isManager || isWriter" class="cursor-pointer text-zinc-500" @click="onCreateMenuClick"><ac-icon-ep-plus /></el-icon>
     </template>
@@ -41,7 +41,7 @@ import useProjectStore from '@/store/project'
 const ns = useNamespace('catalog-tree')
 const { isManager, isWriter } = storeToRefs(useProjectStore())
 
-const { isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, updateTitle, initDefinitionResponseTree } = useDefinitionResponseTree()
+const { isExpandTree, isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, updateTitle, initDefinitionResponseTree } = useDefinitionResponseTree()
 
 const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick, onCreateMenuClick } = useDefinitionResponsePopoverMenu(treeIns as any)
 

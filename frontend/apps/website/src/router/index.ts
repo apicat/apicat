@@ -30,6 +30,7 @@ export * from './root'
 export * from './main'
 export * from './share'
 export * from './project.detail'
+export * from './iteration.detail'
 export * from './history'
 
 // 路由拦截器

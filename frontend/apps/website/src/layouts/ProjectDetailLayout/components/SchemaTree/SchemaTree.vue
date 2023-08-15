@@ -1,5 +1,5 @@
 <template>
-  <ToggleHeading :title="$t('app.schema.title')" :expand="false">
+  <ToggleHeading :title="$t('app.schema.title')" :expand="isExpandTree">
     <template #extra>
       <el-icon v-if="isManager || isWriter" class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
     </template>
@@ -55,12 +55,23 @@ import { storeToRefs } from 'pinia'
 import useProjectStore from '@/store/project'
 
 const ns = useNamespace('catalog-tree')
-
 const directoryTree = inject('directoryTree') as any
 const { isManager, isWriter } = storeToRefs(useProjectStore())
 
-const { isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, redirecToSchemaEdit, initSchemaTree } =
-  useSchemaTree()
+const {
+  isExpandTree,
+  isLoading,
+  treeIns,
+  treeOptions,
+  definitions,
+  handleTreeNodeClick,
+  allowDrop,
+  onMoveNode,
+  onMoveNodeStart,
+  updateTitle,
+  redirecToSchemaEdit,
+  initSchemaTree,
+} = useSchemaTree()
 
 const aiPromptModalRef = ref()
 const onCreateSchemaSuccess = (schema_id: any) => {
