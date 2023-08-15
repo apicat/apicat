@@ -191,7 +191,7 @@ func IterationsList(ctx *gin.Context) {
 			ProjectTitle: pDict[i.ProjectID].Title,
 			ApiNum:       int64(apiNum),
 			Authority:    pmDict[i.ProjectID].Authority,
-			CreatedAt:    i.CreatedAt.Format("2006-01-02 15:04"),
+			CreatedAt:    i.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
 	}
 
@@ -255,7 +255,7 @@ func IterationsDetails(ctx *gin.Context) {
 		ProjectTitle: project.Title,
 		ApiNum:       apiNum,
 		Authority:    pm.Authority,
-		CreatedAt:    iteration.CreatedAt.Format("2006-01-02 15:04"),
+		CreatedAt:    iteration.CreatedAt.Format("2006-01-02 15:04:05"),
 	})
 }
 
@@ -335,7 +335,7 @@ func IterationsCreate(ctx *gin.Context) {
 		ProjectTitle: project.Title,
 		ApiNum:       apiNum,
 		Authority:    pm.Authority,
-		CreatedAt:    iteration.CreatedAt.Format("2006-01-02 15:04"),
+		CreatedAt:    iteration.CreatedAt.Format("2006-01-02 15:04:05"),
 	})
 }
 
