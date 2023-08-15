@@ -18,11 +18,12 @@ import (
 )
 
 type AICreateCollectionStructure struct {
-	ParentID uint   `json:"parent_id" binding:"gte=0"`        // 父级id
-	Title    string `json:"title" binding:"required,lte=255"` // 名称
-	SchemaID uint   `json:"schema_id" binding:"gte=0"`        // 模型id
-	Path     string `json:"path" binding:"lte=255"`           // 请求路径
-	Method   string `json:"method" binding:"lte=255"`         // 请求方法
+	ParentID    uint   `json:"parent_id" binding:"gte=0"`              // 父级id
+	Title       string `json:"title" binding:"required,lte=255"`       // 名称
+	SchemaID    uint   `json:"schema_id" binding:"gte=0"`              // 模型id
+	Path        string `json:"path" binding:"lte=255"`                 // 请求路径
+	Method      string `json:"method" binding:"lte=255"`               // 请求方法
+	IterationID string `json:"iteration_id" binding:"omitempty,gte=0"` // 迭代id
 }
 
 type AICreateSchemaStructure struct {
@@ -59,6 +60,16 @@ func AICreateCollection(ctx *gin.Context) {
 	}
 
 	lang := util.GetUserLanguage(ctx)
+
+	if data.IterationID != "" {
+		_, err := models.NewIterations(data.IterationID)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+			})
+			return
+		}
+	}
 
 	if data.SchemaID > 0 {
 		schema, err = models.NewDefinitionSchemas(data.SchemaID)
@@ -124,6 +135,29 @@ func AICreateCollection(ctx *gin.Context) {
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
 		})
 		return
+	}
+
+	if data.IterationID != "" {
+		for _, v := range records {
+			iteration, err := models.NewIterations(data.IterationID)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+				})
+				return
+			}
+
+			ia, _ := models.NewIterationApis()
+			ia.IterationID = iteration.ID
+			ia.CollectionID = v.ID
+			ia.CollectionType = v.Type
+			if err := ia.Create(); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+				})
+				return
+			}
+		}
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
