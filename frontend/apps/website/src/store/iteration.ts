@@ -25,10 +25,9 @@ export const useIterationStore = defineStore('iterationStore', {
     },
 
     gatherIterationInfo(params?: Record<string, any>) {
-      const router = useRouter()
       params = params || {}
       if (this.isIterationRoute) {
-        params.iteration_id = router.currentRoute.value.params.iteration_id
+        params.iteration_id = this.$router.currentRoute.value.params.iteration_id
       }
       return params
     },
