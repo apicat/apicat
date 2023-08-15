@@ -17,7 +17,7 @@ export const getDefinitionResponseEditPathWithIterationId = (iteration_id: numbe
 export const iterationDefinitionResponseDetailRoute: RouteRecordRaw = {
   name: ITERATION_RESPONSE_DETAIL_NAME,
   path: ITERATION_RESPONSE_DETAIL_PATH,
-  component: () => import('@/views/definition/response/ResponseEditPage.vue'),
+  component: () => import('@/views/definition/response/ResponseDetailPage.vue'),
   meta: {
     ignoreAuth: true,
   },
