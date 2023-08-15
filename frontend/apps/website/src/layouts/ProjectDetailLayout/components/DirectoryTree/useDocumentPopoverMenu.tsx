@@ -17,7 +17,6 @@ import { createHttpDocument } from '@/views/document/components/createHttpDocume
 import { useGoPage } from '@/hooks/useGoPage'
 import { useI18n } from 'vue-i18n'
 import AIPromptModal from '../AIGenerateDocumentModal.vue'
-import AcIconBIRobot from '~icons/bi/robot'
 import { ProjectDetailModalsContextKey } from '../../constants'
 
 /**
@@ -45,13 +44,13 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
   const documentStore = useDocumentStore()
   const { apiDocTree } = storeToRefs(documentStore)
   const { activeNode, reactiveNode } = useActiveTree(treeIns)
-  const { project_id } = useParams()
+  const { project_id, iteration_id } = useParams()
   const { goDocumentEditPage } = useGoPage()
   const schemaTree = inject('schemaTree') as any
   const projectDetailModals = inject(ProjectDetailModalsContextKey)
 
   const ROOT_MENUS: Menu[] = [
-    { text: t('app.interface.popoverMenus.aiGenerateInterface'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
+    { text: t('app.interface.popoverMenus.aiGenerateInterface'), icon: 'ac-zhinengyouhua', onClick: () => onShowAIPromptModal() },
     { text: t('app.interface.popoverMenus.newInterface'), image: createHttpDocIcon, onClick: () => onCreateDocMenuClick() },
     { text: t('app.interface.popoverMenus.newGroup'), icon: 'ac-fenzu', onClick: () => onCreateDirMenuClick() },
   ]
@@ -130,7 +129,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
       onOk: async () => {
         try {
           NProgress.start()
-          await deleteCollection(project_id as string, data.id)
+          await deleteCollection(project_id as string, data.id, { iteration_id })
           tree.remove(node)
           reactiveNode()
           schemaTree.reactiveNode && schemaTree.reactiveNode()
@@ -151,7 +150,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
 
     try {
       NProgress.start()
-      const newDoc: any = await copyCollection(project_id as string, data.id)
+      const newDoc: any = await copyCollection(project_id as string, data.id, { iteration_id })
       tree.insertAfter(extendDocTreeFeild(newDoc), node)
     } finally {
       NProgress.done()
@@ -172,7 +171,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
 
     try {
       NProgress.start()
-      const newNode: any = await createCollection({ project_id, ...data })
+      const newNode: any = await createCollection({ project_id, iteration_id, ...data })
       const newData = extendDocTreeFeild(newNode, DocumentTypeEnum.DIR)
       if (!node) {
         apiDocTree.value.unshift(newData)
@@ -207,7 +206,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
 
     try {
       NProgress.start()
-      const newNode: any = await createCollection({ project_id, parent_id, ...newDoc })
+      const newNode: any = await createCollection({ project_id, parent_id, iteration_id, ...newDoc })
       const newData = extendDocTreeFeild(newNode)
 
       // root
@@ -258,7 +257,6 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
    * 导出
    */
   const onExportMenuClick = () => {
-    const tree = unref(treeIns)
     const node = unref(activeNodeInfo)?.node as Node
     const data = node?.data as CollectionNode
     projectDetailModals?.exportDocument(project_id as string, data.id)

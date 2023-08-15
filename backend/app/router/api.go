@@ -133,6 +133,16 @@ func InitApiRouter(r *gin.Engine) {
 			{
 				project.GET("", api.ProjectsList)
 				project.POST("", api.ProjectsCreate)
+				project.GET("/follow", api.ProjectFollowList)
+			}
+
+			iteration := onlyLogin.Group("/iterations")
+			{
+				iteration.GET("", api.IterationsList)
+				iteration.GET("/:iteration-id", api.IterationsDetails)
+				iteration.POST("", api.IterationsCreate)
+				iteration.PUT("/:iteration-id", api.IterationsUpdate)
+				iteration.DELETE("/:iteration-id", api.IterationsDelete)
 			}
 		}
 
@@ -149,6 +159,8 @@ func InitApiRouter(r *gin.Engine) {
 				projects.GET("/share", api.ProjectShareDetails)
 				projects.PUT("/share/switch", api.ProjectSharingSwitch)
 				projects.PUT("/share/reset", api.ProjectShareReset)
+				projects.POST("/follow", api.ProjectFollow)
+				projects.DELETE("/follow", api.ProjectUnFollow)
 			}
 
 			definitionSchemas := project.Group("/definition/schemas")

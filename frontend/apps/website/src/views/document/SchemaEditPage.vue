@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { getDefinitionSchemaDetail } from '@/api/definitionSchema'
 import SchmaEditor from './components/SchemaEditor.vue'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionStore from '@/store/definitionSchema'
 import { storeToRefs } from 'pinia'
 import { useParams } from '@/hooks/useParams'
 import { DefinitionSchema } from '@/components/APIEditor/types'

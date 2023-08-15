@@ -4,14 +4,15 @@ import useDocumentStore from '@/store/document'
 import { traverseTree } from '@apicat/shared'
 import { storeToRefs } from 'pinia'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-import { DOCUMENT_DETAIL_NAME, getProjectDetailPath } from '@/router'
+import { useGoPage } from '@/hooks/useGoPage'
+import { useIterationStore } from '@/store/iteration'
 
 export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
   const documentStore = useDocumentStore()
-  const router = useRouter()
+  const iterationStore = useIterationStore()
   const route = useRoute()
+  const { goDocumentDetailPage } = useGoPage()
   const { apiDocTree } = storeToRefs(documentStore)
-  const { params } = route
 
   // 启动切换文档选中
   watch(
@@ -48,7 +49,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
   }
 
   const reactiveNode = () => {
-    if (!treeIns.value || !String(route.name).startsWith('document')) {
+    if (!treeIns.value || !String(route.name).includes('document.')) {
       return
     }
     let hasCurrent = false
@@ -69,10 +70,17 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
       traverseTree(
         (item: any) => {
           let _node = treeIns.value.getNode(item.id)
-
-          if (_node && _node.data && _node.data._extend.isLeaf) {
-            node = _node
-            return false
+          // todo 迭代
+          if (iterationStore.isIterationRoute) {
+            if (_node && _node.data && _node.data._extend.isLeaf && _node.data.selected) {
+              node = _node
+              return false
+            }
+          } else {
+            if (_node && _node.data && _node.data._extend.isLeaf) {
+              node = _node
+              return false
+            }
           }
         },
         apiDocTree.value,
@@ -81,13 +89,14 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
 
       // 存在文档
       if (node) {
-        params.doc_id = node.key
         activeNode(node.key)
-        router.replace({ name: DOCUMENT_DETAIL_NAME, params })
+        goDocumentDetailPage(node.key, true)
+        // router.replace({ name: DOCUMENT_DETAIL_NAME, params })
         return
       }
 
-      router.replace(getProjectDetailPath(route.params.project_id as string))
+      goDocumentDetailPage(undefined, true)
+      // router.replace(getProjectDetailPath(route.params.project_id as string))
     }
   }
 

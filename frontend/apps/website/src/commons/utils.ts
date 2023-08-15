@@ -19,7 +19,19 @@ export const createRestfulApiPath = convertRequestPath
  * @param {Record<string, any>} params - An object containing the query parameters.
  * @return {string} A string representing the query parameters in the URL format.
  */
-export const queryStringify = (params?: Record<string, any>): string => (params && !isEmpty(params) ? `?${new URLSearchParams(params).toString()}` : '')
+export const queryStringify = (params?: Record<string, any>): string => {
+  if (!params || isEmpty(params)) {
+    return ''
+  }
+
+  Object.keys(params).forEach((key) => {
+    if (params[key] === undefined) {
+      params[key] = ''
+    }
+  })
+
+  return `?${new URLSearchParams(params).toString()}`
+}
 
 export const getResponseStatusCodeBgColor = (code: number): any => {
   const backgroundColor = (HttpCodeColorMap as any)[String(code)[0]]

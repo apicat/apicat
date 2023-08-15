@@ -25,7 +25,7 @@ import { cloneDeep, debounce, isEmpty } from 'lodash-es'
 import useApi from '@/hooks/useApi'
 import { ElMessage } from 'element-plus'
 import uesGlobalParametersStore from '@/store/globalParameters'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionStore from '@/store/definitionSchema'
 import { useI18n } from 'vue-i18n'
 import { DOCUMENT_EDIT_NAME } from '@/router'
 import { HTTP_REQUEST_NODE_KEY, HTTP_RESPONSE_NODE_KEY } from './components/createHttpDocument'
@@ -97,7 +97,7 @@ const handleSave = async () => {
 
 const getDetail = async () => {
   // id 无效
-  if (isInvalidId() || router.currentRoute.value.name !== DOCUMENT_EDIT_NAME) {
+  if (isInvalidId()) {
     return
   }
 

@@ -18,7 +18,7 @@ import { restoreSchemaByHistoryRecord } from '@/api/definitionSchema'
 import { ElMessage as $Message } from 'element-plus'
 import { storeToRefs } from 'pinia'
 import { useParams } from '@/hooks/useParams'
-import { useDefinitionSchemaStore } from '@/store/definition'
+import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 
 defineProps({
   title: {

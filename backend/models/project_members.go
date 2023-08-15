@@ -8,13 +8,14 @@ import (
 )
 
 type ProjectMembers struct {
-	ID        uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	ProjectID uint   `gorm:"type:bigint;index;not null;comment:项目id"`
-	UserID    uint   `gorm:"type:bigint;index;not null;comment:用户id"`
-	Authority string `gorm:"type:varchar(255);not null;comment:项目权限:manage,write,read"`
-	CreatedAt time.Time
-	UpdatedAt time.Time
-	DeletedAt gorm.DeletedAt
+	ID         uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
+	ProjectID  uint   `gorm:"type:bigint;index;not null;comment:项目id"`
+	UserID     uint   `gorm:"type:bigint;index;not null;comment:用户id"`
+	Authority  string `gorm:"type:varchar(255);not null;comment:项目权限:manage,write,read"`
+	FollowedAt *time.Time
+	CreatedAt  time.Time
+	UpdatedAt  time.Time
+	DeletedAt  gorm.DeletedAt
 }
 
 var (
@@ -80,4 +81,9 @@ func (pm *ProjectMembers) MemberHasWritePermission() bool {
 func GetUserInvolvedProject(UserID uint) ([]ProjectMembers, error) {
 	var projectMembers []ProjectMembers
 	return projectMembers, Conn.Where("user_id = ?", UserID).Order("created_at desc").Find(&projectMembers).Error
+}
+
+func GetUserFollowByUserID(UserID uint) ([]uint, error) {
+	var projectIDs []uint
+	return projectIDs, Conn.Model(&ProjectMembers{}).Where("user_id = ? AND followed_at is not null", UserID).Pluck("project_id", &projectIDs).Error
 }

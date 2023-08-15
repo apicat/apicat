@@ -16,7 +16,7 @@ import { DefinitionSchema } from '@/components/APIEditor/types'
 import { useNamespace } from '@/hooks'
 import useApi from '@/hooks/useApi'
 import { useParams } from '@/hooks/useParams'
-import { useDefinitionSchemaStore } from '@/store/definition'
+import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 import { storeToRefs } from 'pinia'
 
 const ns = useNamespace('document')

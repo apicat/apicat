@@ -51,7 +51,7 @@ import useApi from '@/hooks/useApi'
 import { compareDocument } from '@/api/collection'
 import { useParams } from '@/hooks/useParams'
 import useProjectStore from '@/store/project'
-import { useDefinitionSchemaStore } from '@/store/definition'
+import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 import { useModal } from '@/hooks/useModel'
 
 const { currentRoute } = useRouter()

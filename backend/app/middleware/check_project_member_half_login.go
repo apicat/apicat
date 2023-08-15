@@ -143,5 +143,6 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		ctx.Abort()
+		return
 	}
 }
