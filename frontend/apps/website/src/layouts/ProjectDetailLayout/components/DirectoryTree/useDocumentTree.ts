@@ -32,7 +32,12 @@ export const useDocumentTree = () => {
     label: 'title',
     class: (data): string => {
       const classNames = [(data as CollectionNode)._extend?.isLeaf ? 'is-doc' : 'is-dir']
-      data.selected === false && classNames.push('hidden')
+
+      // 隐藏未规划的接口信息
+      if (!data.selected) {
+        classNames.push('hidden')
+      }
+
       return classNames.join(' ')
     },
     isLeaf: (data): boolean => (data as CollectionNode).type === DocumentTypeEnum.DOC,
