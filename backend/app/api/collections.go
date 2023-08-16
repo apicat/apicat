@@ -93,7 +93,7 @@ func CollectionsList(ctx *gin.Context) {
 	}
 
 	if data.IterationID == "" {
-		ctx.JSON(http.StatusOK, buildTree(0, collections))
+		ctx.JSON(http.StatusOK, buildProjectTree(0, collections))
 	} else {
 		iteration, err := models.NewIterations(data.IterationID)
 		if err != nil {
@@ -112,16 +112,24 @@ func CollectionsList(ctx *gin.Context) {
 			return
 		}
 
-		ctx.JSON(http.StatusOK, buildTree(0, collections, cIDs...))
+		ctx.JSON(http.StatusOK, buildIterationTree(0, collections, cIDs))
 	}
 }
 
-func buildTree(parentID uint, collections []*models.Collections, selectCIDs ...uint) []*CollectionList {
+func buildProjectTree(parentID uint, collections []*models.Collections) []*CollectionList {
+	return buildTree(parentID, collections, false)
+}
+
+func buildIterationTree(parentID uint, collections []*models.Collections, selectCIDs []uint) []*CollectionList {
+	return buildTree(parentID, collections, true, selectCIDs...)
+}
+
+func buildTree(parentID uint, collections []*models.Collections, isIteration bool, selectCIDs ...uint) []*CollectionList {
 	result := make([]*CollectionList, 0)
 
 	for _, c := range collections {
 		if c.ParentId == parentID {
-			children := buildTree(c.ID, collections, selectCIDs...)
+			children := buildTree(c.ID, collections, isIteration, selectCIDs...)
 
 			c := CollectionList{
 				ID:       c.ID,
@@ -132,7 +140,7 @@ func buildTree(parentID uint, collections []*models.Collections, selectCIDs ...u
 			}
 
 			isSelected := false
-			if len(selectCIDs) > 0 {
+			if isIteration {
 				for _, cid := range selectCIDs {
 					if cid == c.ID {
 						isSelected = true
