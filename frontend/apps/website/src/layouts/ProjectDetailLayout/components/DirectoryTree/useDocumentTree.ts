@@ -34,7 +34,7 @@ export const useDocumentTree = () => {
       const classNames = [(data as CollectionNode)._extend?.isLeaf ? 'is-doc' : 'is-dir']
 
       // 隐藏未规划的接口信息
-      if (!data.selected) {
+      if (data.selected !== undefined && data.selected === false) {
         classNames.push('hidden')
       }
 
