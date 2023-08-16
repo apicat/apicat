@@ -47,10 +47,28 @@ type TranslateProject struct {
 	MemberID uint `json:"member_id" binding:"required,lte=255"`
 }
 
+type ProjectsListData struct {
+	Auth []string `form:"auth" binding:"omitempty,dive,oneof=manage write read"`
+}
+
 func ProjectsList(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
-	projectMembers, err := models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
+	var data ProjectsListData
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	var projectMembers []models.ProjectMembers
+	var err error
+	if len(data.Auth) == 0 {
+		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
+	} else {
+		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID, data.Auth...)
+	}
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
