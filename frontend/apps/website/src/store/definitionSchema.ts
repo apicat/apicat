@@ -78,7 +78,7 @@ export const useDefinitionStore = defineStore('definitionSchema', {
     async createDefinition(data: any) {
       try {
         const definition: any = await createDefinitionSchema(data)
-        this.definitions.unshift(extendDocTreeFeild(definition))
+        this.definitions.push(extendDocTreeFeild(definition))
         return definition
       } catch (error) {
         // error

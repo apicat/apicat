@@ -211,12 +211,13 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
 
       // root
       if (!node) {
-        apiDocTree.value.unshift(newData)
+        apiDocTree.value.push(newData)
       } else {
         if (!source.items || !source.items.length) {
           tree.append(newData, node)
         } else {
-          tree.insertBefore(newData, source.items[0])
+          const last = source.items[source.items.length - 1]
+          tree.insertAfter(newData, last)
         }
       }
 
