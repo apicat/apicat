@@ -82,6 +82,7 @@ const handleShowModelClick = () => {
 
   @include e(follow) {
     visibility: hidden;
+    @apply flex pt-1px;
   }
 }
 </style>
