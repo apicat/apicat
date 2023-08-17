@@ -49,16 +49,9 @@ func (c *Collections) List() ([]*Collections, error) {
 
 func (c *Collections) CreateDoc() error {
 	var node *Collections
-	if err := Conn.Where("project_id = ? AND parent_id = ?", c.ProjectId, c.ParentId).Order("display_order desc").First(&node).Error; err != nil {
-		return err
+	if err := Conn.Where("project_id = ? AND parent_id = ?", c.ProjectId, c.ParentId).Order("display_order desc").First(&node).Error; err == nil {
+		c.DisplayOrder = node.DisplayOrder + 1
 	}
-
-	var displayOrder int
-	if node != nil {
-		displayOrder = node.DisplayOrder + 1
-	}
-
-	c.DisplayOrder = displayOrder
 
 	return c.Create()
 }
