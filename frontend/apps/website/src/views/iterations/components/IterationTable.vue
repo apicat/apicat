@@ -12,9 +12,11 @@
             <p>创建时间: {{ item.created_at }}</p>
           </div>
         </div>
-        <div :class="ns.e('operation')" v-if="item.isShowOperation">
-          <el-icon size="20" class="mr-10px" @click.stop="onEditBtnClick(item)"><ac-icon-ep-edit /></el-icon>
-          <el-icon size="20" @click.stop="onDeleteBtnClick(item)"><ac-icon-ep-delete /></el-icon>
+        <div :class="ns.e('operation')">
+          <template v-if="item.isShowOperation">
+            <el-icon size="20" class="mr-10px" @click.stop="onEditBtnClick(item)"><ac-icon-ep-edit /></el-icon>
+            <el-icon size="20" @click.stop="onDeleteBtnClick(item)"><ac-icon-ep-delete /></el-icon>
+          </template>
         </div>
       </div>
     </div>
@@ -86,6 +88,8 @@ defineExpose({
     @include e(operation) {
       @apply flex-y-center;
       visibility: hidden;
+      min-width: 100px;
+      justify-content: flex-end;
     }
 
     &:hover {
