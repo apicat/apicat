@@ -38,6 +38,8 @@ declare module '@vue/runtime-core' {
     AcIconIcSharpCloudQueue: typeof import('~icons/ic/sharp-cloud-queue')['default']
     AcIconLucideFileText: typeof import('~icons/lucide/file-text')['default']
     AcIconMaterialSymbolsDragIndicator: typeof import('~icons/material-symbols/drag-indicator')['default']
+    'AcIconMdi:star': typeof import('~icons/mdi/star')['default']
+    'AcIconMdi:starOutline': typeof import('~icons/mdi/star-outline')['default']
     AcIconMiEnter: typeof import('~icons/mi/enter')['default']
     'AcIconPh:starFill': typeof import('~icons/ph/star-fill')['default']
     'AcIconPh:starLight': typeof import('~icons/ph/star-light')['default']

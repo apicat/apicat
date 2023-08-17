@@ -7,9 +7,9 @@
         <div class="flex-1 overflow-hidden">
           <p :class="ns.e('title')">{{ item.title }}</p>
           <div class="flex text-gray-helper">
-            <p class="w-20% truncate" :title="item.project_title">项目:{{ item.project_title }}</p>
-            <p class="w-20% mx-10px">API数量:{{ item.api_num }}</p>
-            <p>创建时间:{{ item.created_at }}</p>
+            <p class="w-20% truncate" :title="item.project_title">项目: {{ item.project_title }}</p>
+            <p class="w-20% mx-10px">API数量: {{ item.api_num }}</p>
+            <p>创建时间: {{ item.created_at }}</p>
           </div>
         </div>
         <div :class="ns.e('operation')">

@@ -72,6 +72,11 @@ defineExpose({
     &.active {
       background-color: #e5f0ff;
       @apply text-#101010 font-500;
+
+      .ac-iconfont,
+      .el-icon {
+        @apply text-blue-lighter font-600;
+      }
     }
 
     &:hover {

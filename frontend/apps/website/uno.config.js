@@ -16,6 +16,7 @@ export default defineConfig({
     colors: {
       blue: {
         primary: '#006bff',
+        lighter: '#4894FF',
       },
       gray: {
         '06': 'rgba(0,0,0,.06)',

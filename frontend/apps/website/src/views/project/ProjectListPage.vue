@@ -22,8 +22,8 @@
           <p class="flex-1 truncate">{{ project.title }}</p>
           <el-tooltip :content="project.is_followed ? '取消关注' : '关注项目'" placement="bottom">
             <div :class="ns.e('follow')">
-              <el-icon size="16" v-if="!project.is_followed" @click.stop="handleFollowProject(project)"><ac-icon-ph:star-light /></el-icon>
-              <el-icon size="16" v-else color="#FF9966" @click.stop="handleFollowProject(project)"><ac-icon-ph:star-fill /></el-icon>
+              <el-icon size="18" v-if="!project.is_followed" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star-outline /></el-icon>
+              <el-icon size="18" v-else color="#FF9966" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star /></el-icon>
             </div>
           </el-tooltip>
         </div>
