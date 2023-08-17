@@ -213,7 +213,14 @@ func CollectionsCreate(ctx *gin.Context) {
 	collection.Content = data.Content
 	collection.CreatedBy = currentProjectMember.(*models.ProjectMembers).UserID
 	collection.UpdatedBy = currentProjectMember.(*models.ProjectMembers).UserID
-	if err := collection.Create(); err != nil {
+
+	var err error
+	if collection.Type == "category" {
+		err = collection.CreateCategory()
+	} else {
+		err = collection.CreateDoc()
+	}
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
 		})
@@ -346,7 +353,7 @@ func CollectionsCopy(ctx *gin.Context) {
 		CreatedBy:    currentProjectMember.(*models.ProjectMembers).UserID,
 	}
 
-	if err := newCollection.Create(); err != nil {
+	if err := newCollection.CreateDoc(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
 		})
