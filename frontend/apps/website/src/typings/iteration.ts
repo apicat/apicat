@@ -50,6 +50,9 @@ export interface Iteration {
    * 迭代ids
    */
   collection_ids?: number[]
+
+  // 是否显示操作
+  isShowOperation?: boolean
 }
 
 export type SelectedKey = ProjectInfo | null | 'all' | 'create'

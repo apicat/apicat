@@ -4,6 +4,7 @@ import { Iteration } from '@/typings'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import { useI18n } from 'vue-i18n'
 import { getIterationDetailPath } from '@/router/iteration.detail'
+import { MemberAuthorityInProject } from '@/typings/member'
 
 export const useIterationList = (projectIdRef: Ref<number | string | null>) => {
   const { t } = useI18n()
@@ -19,6 +20,11 @@ export const useIterationList = (projectIdRef: Ref<number | string | null>) => {
     searchParam: queryParam,
     isLoaded: false,
     dataKey: 'iterations',
+    transform: (data: Iteration) => {
+      data.authority
+      data.isShowOperation = [MemberAuthorityInProject.MANAGER, MemberAuthorityInProject.WRITE].indexOf(data.authority as any) !== -1
+      return data
+    },
   })
 
   const handleRemoveIteration = (iteration: Iteration) => {

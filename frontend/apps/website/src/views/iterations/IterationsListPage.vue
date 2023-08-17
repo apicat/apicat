@@ -30,11 +30,12 @@ import IterationForm from './components/IterationForm.vue'
 import { usePageMode } from './logic/usePageMode'
 import { useProjectList } from '../project/logic/useProjectList'
 import { Iteration, ProjectInfo } from '@/typings'
+import { MemberAuthorityInProject } from '@/typings/member'
 
 const iterationTableRef = ref<InstanceType<typeof IterationTable>>()
 const iterationTreeRef = ref<InstanceType<typeof IterationTree>>()
 const { isFormMode, isListMode, switchMode } = usePageMode()
-const { projectList } = useProjectList()
+const { projectList } = useProjectList({ auth: [MemberAuthorityInProject.MANAGER, MemberAuthorityInProject.WRITE] })
 
 const currentEditableItreationIdRef = ref<number | string | null>()
 const currentSelectedProjectRef = ref<ProjectInfo | null>()

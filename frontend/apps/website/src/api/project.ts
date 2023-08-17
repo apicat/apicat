@@ -22,7 +22,7 @@ export const convertProjectCover = (project: ProjectInfo): ProjectInfo => {
   return project
 }
 
-export const getProjectList = (): Promise<ProjectInfo[]> => Ajax.get('/projects')
+export const getProjectList = async (params?: Record<string, any>): Promise<ProjectInfo[]> => Ajax.get(`/projects${queryStringify(params)}`)
 
 export const getProjectDetail = async (project_id: string, params?: Record<string, any>): Promise<ProjectInfo> => Ajax.get(`/projects/${project_id}${queryStringify(params)}`)
 

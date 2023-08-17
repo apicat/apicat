@@ -2,7 +2,7 @@ import useApi from '@/hooks/useApi'
 import { convertProjectCover, getProjectList, toggleFollowProject } from '@/api/project'
 import { ProjectInfo } from '@/typings'
 
-export const useProjectList = () => {
+export const useProjectList = (searchParams?: Record<string, any>) => {
   const projectList = ref<ProjectInfo[]>([])
   const [isLoading, getProjectListApi] = useApi(getProjectList)
 
@@ -17,7 +17,7 @@ export const useProjectList = () => {
 
   onMounted(async () => {
     try {
-      const projects = await getProjectListApi()
+      const projects = await getProjectListApi(searchParams)
       projectList.value = (projects || []).map((item: ProjectInfo) => convertProjectCover(item))
     } catch (error) {
       //

@@ -19,18 +19,21 @@ export const createRestfulApiPath = convertRequestPath
  * @param {Record<string, any>} params - An object containing the query parameters.
  * @return {string} A string representing the query parameters in the URL format.
  */
-export const queryStringify = (params?: Record<string, any>): string => {
-  if (!params || isEmpty(params)) {
+export const queryStringify = (data?: Record<string, any>): string => {
+  if (!data || isEmpty(data)) {
     return ''
   }
 
-  Object.keys(params).forEach((key) => {
-    if (params[key] === undefined) {
-      params[key] = ''
+  const params = new URLSearchParams()
+  Object.entries(data).forEach(([key, value]) => {
+    if (Array.isArray(value)) {
+      value.forEach((value) => params.append(key, (value || '').toString()))
+    } else {
+      params.append(key, (value || '').toString())
     }
   })
 
-  return `?${new URLSearchParams(params).toString()}`
+  return `?${params.toString()}`
 }
 
 /**
