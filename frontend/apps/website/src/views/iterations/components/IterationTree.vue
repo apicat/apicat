@@ -29,7 +29,7 @@ interface Events {
 const emits = defineEmits<Events>()
 const ns = useNamespace('iteration-tree')
 
-const { followedProjects, activeClass, selectedRef, setSelectedHistory, goBackSelected, removeSelected } = useFollowedProjectList()
+const { followedProjects, activeClass, selectedRef, setSelectedHistory, goBackSelected, goSelectedAll, removeSelected } = useFollowedProjectList()
 
 const handleItemClick = (project: SelectedKey) => {
   selectedRef.value = project
@@ -43,6 +43,7 @@ const handleItemClick = (project: SelectedKey) => {
 }
 
 defineExpose({
+  goSelectedAll,
   goBackSelected,
   removeSelected,
 })

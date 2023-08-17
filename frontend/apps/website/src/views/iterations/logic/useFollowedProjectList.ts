@@ -19,6 +19,11 @@ export const useFollowedProjectList = () => {
     selectedRef.value = null
   }
 
+  const goSelectedAll = () => {
+    selectedHistory = 0
+    goBackSelected()
+  }
+
   const setSelectedHistory = (info: ProjectInfo | number) => {
     selectedHistory = info
   }
@@ -38,6 +43,7 @@ export const useFollowedProjectList = () => {
     followedProjects,
     activeClass,
     goBackSelected,
+    goSelectedAll,
     removeSelected,
     setSelectedHistory,
   }

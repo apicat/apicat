@@ -61,7 +61,11 @@ const onDeleteBtnClick = (i: Iteration) => {
 const onEditBtnClick = (i: Iteration) => emits('edit', i)
 
 defineExpose({
-  reload: fetchIterationList,
+  reload: () => {
+    currentPage.value = 1
+    fetchIterationList()
+  },
+  refresh: fetchIterationList,
 })
 </script>
 <style lang="scss" scoped>

@@ -54,8 +54,15 @@ const onCreateIteration = async () => {
 const onCreateOrUpdateIterationSuccess = async () => {
   await nextTick()
   switchMode('list')
-  iterationTableRef.value?.reload()
-  iterationTreeRef.value?.goBackSelected()
+
+  if (!unref(currentEditableItreationIdRef)) {
+    currentSelectedProjectRef.value = null
+    iterationTableRef.value?.reload()
+    iterationTreeRef.value?.goSelectedAll()
+  } else {
+    iterationTableRef.value?.refresh()
+    iterationTreeRef.value?.goBackSelected()
+  }
 }
 
 const onClickFollowedProject = (project: ProjectInfo | null) => {
