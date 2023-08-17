@@ -2,6 +2,7 @@ import type { RouteRecordRaw } from 'vue-router'
 import { compile } from 'path-to-regexp'
 import { ITERATION_DETAIL_PATH } from '../constant'
 import { MemberAuthorityInProject } from '@/typings/member'
+import { resetEmptyPathParams } from '@/commons'
 
 export const ITERATION_DOCUMENT_DETAIL_NAME = 'iteration.document.detail'
 export const ITERATION_DOCUMENT_DETAIL_PATH = ITERATION_DETAIL_PATH + '/doc/:doc_id?'
@@ -9,9 +10,11 @@ export const ITERATION_DOCUMENT_DETAIL_PATH = ITERATION_DETAIL_PATH + '/doc/:doc
 export const ITERATION_DOCUMENT_EDIT_NAME = 'iteration.document.edit'
 export const ITERATION_DOCUMENT_EDIT_PATH = ITERATION_DETAIL_PATH + '/doc/:doc_id/edit'
 
-export const getDocumentDetailPathWithIterationId = (iteration_id: number | string, doc_id: number | string) => compile(ITERATION_DOCUMENT_DETAIL_PATH)({ iteration_id, doc_id })
+export const getDocumentDetailPathWithIterationId = (iteration_id: number | string, doc_id: number | string) =>
+  compile(ITERATION_DOCUMENT_DETAIL_PATH)(resetEmptyPathParams({ iteration_id, doc_id }))
+
 export const getDocumentEditPathWithIterationId = (iteration_id: number | string, doc_id: number | string) =>
-  compile(ITERATION_DOCUMENT_DETAIL_PATH)({ iteration_id, doc_id }) + '/edit'
+  compile(ITERATION_DOCUMENT_EDIT_PATH)(resetEmptyPathParams({ iteration_id, doc_id }))
 
 export const iterationDocumentDetailRoute: RouteRecordRaw = {
   name: ITERATION_DOCUMENT_DETAIL_NAME,

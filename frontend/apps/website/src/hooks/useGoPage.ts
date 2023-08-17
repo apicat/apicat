@@ -17,10 +17,12 @@ import { useParams } from './useParams'
 
 export const useGoPage = () => {
   const router = useRouter()
-  const { project_id, iteration_id, doc_id, schema_id, response_id } = useParams()
+  const { project_id, iteration_id, computedRouteParams } = useParams()
   const iterationStore = useIterationStore()
 
   const goSchemaDetailPage = (schemaId?: string | number, replace?: boolean) => {
+    const { schema_id } = unref(computedRouteParams)
+
     const params = {
       path: getSchemaDetailPath(project_id, schemaId || schema_id),
       replace: replace === undefined ? false : replace,
@@ -34,6 +36,8 @@ export const useGoPage = () => {
   }
 
   const goSchemaEditPage = (schemaId?: string | number, replace?: boolean) => {
+    const { schema_id } = unref(computedRouteParams)
+
     const params = {
       path: getSchemaEditPath(project_id, schemaId || schema_id),
       replace: replace === undefined ? false : replace,
@@ -47,6 +51,8 @@ export const useGoPage = () => {
   }
 
   const goResponseDetailPage = (responseId?: string | number, replace?: boolean) => {
+    const { response_id } = unref(computedRouteParams)
+
     const params = {
       path: getDefinitionResponseDetailPath(project_id, responseId || response_id),
       replace: replace === undefined ? false : replace,
@@ -60,6 +66,8 @@ export const useGoPage = () => {
   }
 
   const goResponseEditPage = (responseId?: string | number, replace?: boolean) => {
+    const { response_id } = unref(computedRouteParams)
+
     const params = {
       path: getDefinitionResponseEditPath(project_id, responseId || response_id),
       replace: replace === undefined ? false : replace,
@@ -73,6 +81,7 @@ export const useGoPage = () => {
   }
 
   const goDocumentDetailPage = (docId?: string | number, replace?: boolean) => {
+    const { doc_id } = unref(computedRouteParams)
     const params = {
       path: getDocumentDetailPath(project_id, docId || doc_id),
       replace: replace === undefined ? false : replace,
@@ -86,6 +95,7 @@ export const useGoPage = () => {
   }
 
   const goDocumentEditPage = (docId?: string | number, replace?: boolean) => {
+    const { doc_id } = unref(computedRouteParams)
     const params = {
       path: getDocumentEditPath(project_id, docId || doc_id),
       replace: replace === undefined ? false : replace,

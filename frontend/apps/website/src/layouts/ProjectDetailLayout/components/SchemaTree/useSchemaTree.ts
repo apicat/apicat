@@ -22,7 +22,7 @@ const getTreeMaxDepth = createTreeMaxDepthFn('items')
  * @returns
  */
 export const useSchemaTree = () => {
-  const { project_id, schema_id } = useParams()
+  const { project_id, computedRouteParams } = useParams()
   const router = useRouter()
 
   const definitionStore = useDefinitionStore()
@@ -146,6 +146,8 @@ export const useSchemaTree = () => {
   }
 
   const initSchemaTree = async (activeId?: any) => {
+    const { schema_id } = unref(computedRouteParams)
+
     await getDefinitionsApi(project_id as string)
     if (unref(isCurrentMoudleRouter)) {
       schema_id ? activeNode(activeId || schema_id) : reactiveNode()

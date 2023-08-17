@@ -54,7 +54,7 @@ const props = withDefaults(
   }
 )
 
-let { project_id, doc_id } = useParams()
+let { project_id, computedRouteParams } = useParams()
 
 const exportList: ExportItem[] = [
   { logo: swaggerLogo, text: 'Swagger 2.0', type: ExportProjectTypes.Swagger },
@@ -85,6 +85,7 @@ const handleSelect = (selected: ExportParams, item: any) => {
 }
 
 const handleExport = (selected: ExportParams) => {
+  const { doc_id } = unref(computedRouteParams)
   let type: string = selected.type
 
   if (selected.type === ExportProjectTypes.OpenAPI) {

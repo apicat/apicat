@@ -22,7 +22,7 @@ const getTreeMaxDepth = createTreeMaxDepthFn('items')
  */
 export const useDefinitionResponseTree = () => {
   const definitionResponseStore = useDefinitionResponseStore()
-  const { project_id, response_id } = useParams()
+  const { project_id, computedRouteParams } = useParams()
   const { goResponseDetailPage } = useGoPage()
   const router = useRouter()
   const { getDefinitions } = definitionResponseStore
@@ -141,6 +141,7 @@ export const useDefinitionResponseTree = () => {
 
   const initDefinitionResponseTree = async (activeId?: any) => {
     await getDefinitionsApi(project_id as string)
+    const { response_id } = unref(computedRouteParams)
     if (unref(isCurrentMoudleRouter)) {
       response_id ? activeNode(activeId || response_id) : reactiveNode()
     }

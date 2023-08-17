@@ -133,7 +133,7 @@ definitionResponseStore.$onAction(({ name, after }) => {
 watch(
   httpDoc,
   debounce(async (newVal, oldVal) => {
-    if (!oldVal || !oldVal.id || isInvalidId()) {
+    if (!newVal || !oldVal || !oldVal.id || isInvalidId()) {
       // id 不存在
       return
     }

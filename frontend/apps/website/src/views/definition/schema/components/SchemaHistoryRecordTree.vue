@@ -39,7 +39,7 @@ import { CollectionNode } from '@/typings/project'
 
 const $route = useRoute()
 const $router = useRouter()
-const { project_id, schema_id } = useParams()
+const { project_id, computedRouteParams } = useParams()
 const { params } = $route
 
 const definitionSchemaStore = useDefinitionSchemaStore()
@@ -149,6 +149,7 @@ const reactiveNode = () => {
 }
 
 onMounted(async () => {
+  const { schema_id } = unref(computedRouteParams)
   await definitionSchemaStore.getSchemaHistoryRecordList(project_id, schema_id)
   params.history_id ? activeNode(params.history_id) : reactiveNode()
 })

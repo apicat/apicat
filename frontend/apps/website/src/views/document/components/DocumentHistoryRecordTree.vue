@@ -40,7 +40,7 @@ import { CollectionNode } from '@/typings/project'
 
 const $route = useRoute()
 const $router = useRouter()
-const { project_id, doc_id } = useParams()
+const { project_id, computedRouteParams } = useParams()
 const { params } = $route
 
 const documentStore = useDocumentStore()
@@ -150,6 +150,7 @@ const reactiveNode = () => {
 }
 
 onMounted(async () => {
+  const { doc_id } = unref(computedRouteParams)
   await documentStore.getDocumentHistoryRecordList(project_id, doc_id)
   params.history_id ? activeNode(params.history_id) : reactiveNode()
 })

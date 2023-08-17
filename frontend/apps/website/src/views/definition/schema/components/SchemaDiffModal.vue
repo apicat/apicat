@@ -51,7 +51,7 @@ import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 import { useModal } from '@/hooks/useModel'
 
 const { currentRoute } = useRouter()
-const { project_id, schema_id } = useParams()
+const { project_id, computedRouteParams } = useParams()
 const definitionSchemaStore = useDefinitionSchemaStore()
 const { definitions, historyRecordForOptions } = storeToRefs(definitionSchemaStore)
 const { dialogVisible, showModel } = useModal()
@@ -68,7 +68,8 @@ const changeDocSelectRef = ref(0)
 const getDocumentDiff = async () => {
   const history_id1 = parseInt(currentRoute.value.params.history_id as any, 10)
   const selectedId = unref(changeDocSelectRef)
-  const data = await fetchDiffApi({ project_id, def_id: schema_id, history_id1, history_id2: selectedId })
+  const { schema_id: def_id } = unref(computedRouteParams)
+  const data = await fetchDiffApi({ project_id, def_id, history_id1, history_id2: selectedId })
   leftSchema.value = data.schema1 || {}
   rightSchema.value = data.schema2 || {}
 }

@@ -5,7 +5,7 @@
     </div>
 
     <div class="ac-header-operate__btns">
-      <el-button type="primary" v-if="isManager || isWriter" @click="goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
+      <el-button type="primary" v-if="isManager || isWriter" @click="() => goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
       <template v-if="isManager || isWriter">
         <el-tooltip effect="dark" content="分享该文档" placement="bottom">
           <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" />

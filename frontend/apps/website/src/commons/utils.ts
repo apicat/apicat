@@ -33,6 +33,25 @@ export const queryStringify = (params?: Record<string, any>): string => {
   return `?${new URLSearchParams(params).toString()}`
 }
 
+/**
+ * 重置路径参数中空字符串问题
+ * @param params
+ * @returns
+ */
+export const resetEmptyPathParams = (params?: Record<string, any>): Record<string, any> => {
+  if (!params || isEmpty(params)) {
+    return {}
+  }
+
+  Object.keys(params).forEach((key) => {
+    if (!params[key]) {
+      params[key] = undefined
+    }
+  })
+
+  return params
+}
+
 export const getResponseStatusCodeBgColor = (code: number): any => {
   const backgroundColor = (HttpCodeColorMap as any)[String(code)[0]]
   return {

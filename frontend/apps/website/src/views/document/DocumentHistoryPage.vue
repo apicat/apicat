@@ -26,7 +26,7 @@ const definitionSchemaStore = useDefinitionSchemaStore()
 
 const ns = useNamespace('document')
 
-const { project_id, doc_id } = useParams()
+const { project_id, computedRouteParams } = useParams()
 
 const hasDocument = ref(false)
 
@@ -51,7 +51,8 @@ const getDetail = async (hid: string) => {
 
   try {
     hasDocument.value = true
-    httpDoc.value = await getDocumentHistoryRecordDetailApi({ project_id, collection_id: doc_id, history_id })
+    const { doc_id: collection_id } = unref(computedRouteParams)
+    httpDoc.value = await getDocumentHistoryRecordDetailApi({ project_id, collection_id, history_id })
   } catch (error) {
     //
   }

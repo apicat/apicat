@@ -20,7 +20,7 @@ const getTreeMaxDepth = createTreeMaxDepthFn('items')
 export const useDocumentTree = () => {
   const router = useRouter()
   const documentStore = useDocumentStore()
-  const { project_id, doc_id } = useParams()
+  const { project_id, computedRouteParams } = useParams()
   const { goDocumentDetailPage, goDocumentEditPage } = useGoPage()
 
   const { getApiDocTree } = documentStore
@@ -148,6 +148,7 @@ export const useDocumentTree = () => {
 
   const initDocumentTree = async (activeDocId?: any) => {
     await getApiDocTreeApi(project_id as string)
+    const { doc_id } = unref(computedRouteParams)
     if (unref(isCurrentMoudleRouter)) {
       doc_id ? activeNode(activeDocId || doc_id) : reactiveNode()
     }
