@@ -181,7 +181,7 @@ func (i *Iterations) Deleter() string {
 	return user.Username
 }
 
-func (i *Iterations) IterationsCount(pIDs ...uint) (int64, error) {
+func IterationsCount(pIDs ...uint) (int64, error) {
 	var count int64
 	query := Conn.Model(&Iterations{})
 	if len(pIDs) > 0 {

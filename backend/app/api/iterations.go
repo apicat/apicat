@@ -137,6 +137,16 @@ func IterationsList(ctx *gin.Context) {
 		pDict[v.ID] = v
 	}
 
+	iterationTotal, err := models.IterationsCount(pIDs...)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+		})
+		return
+	}
+	res.TotalPage = int64(math.Ceil(float64(iterationTotal) / float64(data.PageSize)))
+	res.Total = iterationTotal
+
 	iteration, _ := models.NewIterations()
 	iterations, err := iteration.List(int(data.Page), int(data.PageSize), pIDs...)
 	if err != nil {
@@ -155,14 +165,6 @@ func IterationsList(ctx *gin.Context) {
 		iterationIDs = append(iterationIDs, v.ID)
 	}
 
-	iterationTotal, err := iteration.IterationsCount(pIDs...)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
-		})
-		return
-	}
-
 	iterationApi, _ := models.NewIterationApis()
 	iterationApis, err := iterationApi.List(iterationIDs...)
 	if err != nil {
@@ -171,9 +173,6 @@ func IterationsList(ctx *gin.Context) {
 		})
 		return
 	}
-
-	res.TotalPage = int64(math.Ceil(float64(iterationTotal) / float64(data.PageSize)))
-	res.Total = iterationTotal
 
 	for _, i := range iterations {
 		apiNum := 0
