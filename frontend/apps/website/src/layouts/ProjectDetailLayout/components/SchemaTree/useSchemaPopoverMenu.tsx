@@ -1,4 +1,5 @@
 import AcTree from '@/components/AcTree'
+import ToggleHeading from '@/components/ToggleHeading.vue'
 import Node from '@/components/AcTree/model/node'
 import { CollectionNode } from '@/typings/project'
 import { ActiveNodeInfo } from '@/typings/common'
@@ -24,7 +25,8 @@ import { storeToRefs } from 'pinia'
 export const useSchemaPopoverMenu = (
   treeIns: Ref<InstanceType<typeof AcTree>>,
   aiPromptModalRef: Ref<InstanceType<typeof AIGenerateSchemaModal>>,
-  aiGenerateDocumentWithSchemaModalRef: Ref<InstanceType<typeof AIGenerateDocumentWithSchmeModal>>
+  aiGenerateDocumentWithSchemaModalRef: Ref<InstanceType<typeof AIGenerateDocumentWithSchmeModal>>,
+  toggleHeadingRef: Ref<InstanceType<typeof ToggleHeading>>
 ) => {
   const { t } = useI18n()
 
@@ -140,6 +142,7 @@ export const useSchemaPopoverMenu = (
       tree.setCurrentKey(newNode.id)
       goSchemaEditPage(newNode.id)
       activeNode(newNode.id)
+      toggleHeadingRef.value?.expand()
     } finally {
       NProgress.done()
     }

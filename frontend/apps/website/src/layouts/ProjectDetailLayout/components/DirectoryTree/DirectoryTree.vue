@@ -1,5 +1,5 @@
 <template>
-  <ToggleHeading :title="$t('app.interface.title')">
+  <ToggleHeading :title="$t('app.interface.title')" ref="toggleHeadingRef">
     <template #extra>
       <el-icon v-if="isManager || isWriter" class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
     </template>
@@ -85,9 +85,12 @@ const {
 } = useDocumentTree()
 
 const aiPromptModalRef = ref<InstanceType<typeof AIGenerateDocumentModal>>()
+const toggleHeadingRef = ref()
+
 const onGenerateDocumenSuccess = async (doc_id: any) => {
   schemaTree && (await schemaTree.reload())
   redirecToDocumentEditPage(doc_id)
+  toggleHeadingRef.value?.expand()
 }
 
 const {
@@ -101,7 +104,7 @@ const {
   onRenameInputEnterKeyUp,
   createNodeByData,
   onRenameInputBlur,
-} = useDocumentPopoverMenu(treeIns as any, aiPromptModalRef as any)
+} = useDocumentPopoverMenu(treeIns as any, aiPromptModalRef as any, toggleHeadingRef)
 
 const { activeNode, reactiveNode } = useActiveTree(treeIns as any)
 

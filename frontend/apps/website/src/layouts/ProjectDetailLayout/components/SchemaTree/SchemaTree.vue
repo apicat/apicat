@@ -1,5 +1,5 @@
 <template>
-  <ToggleHeading :title="$t('app.schema.title')" :expand="isExpandTree">
+  <ToggleHeading :title="$t('app.schema.title')" :expand="isExpandTree" ref="toggleHeadingRef">
     <template #extra>
       <el-icon v-if="isManager || isWriter" class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
     </template>
@@ -74,23 +74,28 @@ const {
 } = useSchemaTree()
 
 const aiPromptModalRef = ref()
-const onCreateSchemaSuccess = (schema_id: any) => {
-  redirecToSchemaEdit(schema_id)
-}
-
 const aiGenerateDocumentWithSchmeModalRef = ref()
-const onGenerateDocumentWithSchmeSuccess = async (docId: any) => {
-  directoryTree.redirecToDocumentDetail(docId)
-  await initSchemaTree()
-}
+const toggleHeadingRef = ref()
 
 const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick } = useSchemaPopoverMenu(
   treeIns as any,
   aiPromptModalRef as any,
-  aiGenerateDocumentWithSchmeModalRef as any
+  aiGenerateDocumentWithSchmeModalRef as any,
+  toggleHeadingRef as any
 )
 
 const { activeNode, reactiveNode } = useActiveTree(treeIns as any)
+
+const onCreateSchemaSuccess = (schema_id: any) => {
+  toggleHeadingRef.value?.expand()
+  redirecToSchemaEdit(schema_id)
+}
+
+const onGenerateDocumentWithSchmeSuccess = async (docId: any) => {
+  directoryTree.redirecToDocumentDetail(docId)
+  await initSchemaTree()
+  toggleHeadingRef.value?.expand()
+}
 
 defineExpose({
   updateTitle,

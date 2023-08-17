@@ -1,4 +1,5 @@
 import AcTree from '@/components/AcTree'
+import ToggleHeading from '@/components/ToggleHeading.vue'
 import createHttpDocIcon from '@/assets/images/doc-http@2x.png'
 import Node from '@/components/AcTree/model/node'
 import { Menu } from '@/components/typings'
@@ -33,7 +34,11 @@ let index = 1
  * 目录弹层菜单逻辑
  * @param treeIns 目录树
  */
-export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>, aiPromptModalRef: Ref<InstanceType<typeof AIPromptModal>>) => {
+export const useDocumentPopoverMenu = (
+  treeIns: Ref<InstanceType<typeof AcTree>>,
+  aiPromptModalRef: Ref<InstanceType<typeof AIPromptModal>>,
+  toggleHeadingRef: Ref<InstanceType<typeof ToggleHeading>>
+) => {
   const { t } = useI18n()
   const popoverMenus = ref<Array<Menu>>([])
   const popoverMenuSize = ref('small')
@@ -175,6 +180,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
       const newData = extendDocTreeFeild(newNode, DocumentTypeEnum.DIR)
       if (!node) {
         apiDocTree.value.unshift(newData)
+        toggleHeadingRef.value.expand()
       } else {
         if (!source.items || !source.items.length) {
           tree.append(newData, node)
@@ -212,6 +218,7 @@ export const useDocumentPopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>
       // root
       if (!node) {
         apiDocTree.value.push(newData)
+        toggleHeadingRef.value.expand()
       } else {
         if (!source.items || !source.items.length) {
           tree.append(newData, node)

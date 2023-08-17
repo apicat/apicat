@@ -1,5 +1,5 @@
 <template>
-  <ToggleHeading :title="$t('app.definitionResponse.title')" :expand="isExpandTree">
+  <ToggleHeading :title="$t('app.definitionResponse.title')" :expand="isExpandTree" ref="toggleHeadingRef">
     <template #extra>
       <el-icon v-if="isManager || isWriter" class="cursor-pointer text-zinc-500" @click="onCreateMenuClick"><ac-icon-ep-plus /></el-icon>
     </template>
@@ -39,11 +39,15 @@ import { storeToRefs } from 'pinia'
 import useProjectStore from '@/store/project'
 
 const ns = useNamespace('catalog-tree')
+const toggleHeadingRef = ref()
 const { isManager, isWriter } = storeToRefs(useProjectStore())
 
 const { isExpandTree, isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, updateTitle, initDefinitionResponseTree } = useDefinitionResponseTree()
 
-const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick, onCreateMenuClick } = useDefinitionResponsePopoverMenu(treeIns as any)
+const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick, onCreateMenuClick } = useDefinitionResponsePopoverMenu(
+  treeIns as any,
+  toggleHeadingRef
+)
 
 const { activeNode, reactiveNode } = useActiveTree(treeIns as any)
 
