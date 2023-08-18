@@ -57,6 +57,8 @@ export const useIterationPlan = (iterationInfo: Ref<EmptyStruct<Iteration>>) => 
 }
 
 const convertTransferTreeData = (allData: any) => {
+  remarkDirSelected(allData || [])
+
   traverseForMarkSort({ items: allData })
 
   const arr = flattenDeep(allData || [], defaultProps.children)
@@ -124,4 +126,12 @@ const sortTree = (nodes: any) => {
     }
   })
   nodes.sort((pre: any, next: any) => pre.sort - next.sort)
+}
+
+const remarkDirSelected = (list: any[]) => {
+  list.forEach((item) => {
+    if (!item.items || !item.items.length) return
+    remarkDirSelected(item.items)
+    item.selected = item.items.some((child: any) => child.selected)
+  })
 }
