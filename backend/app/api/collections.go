@@ -146,6 +146,14 @@ func buildTree(parentID uint, collections []*models.Collections, isIteration boo
 						isSelected = true
 						break
 					}
+					if !isSelected {
+						for _, v := range c.Items {
+							if *v.Selected {
+								isSelected = true
+								break
+							}
+						}
+					}
 				}
 				c.Selected = &isSelected
 			}
