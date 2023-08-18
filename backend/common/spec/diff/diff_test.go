@@ -1,32 +1,22 @@
 package diff
 
 import (
+	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 
 	"github.com/apicat/apicat/backend/common/spec"
 )
 
 func TestDuff(t *testing.T) {
-	a := spec.Spec{
-		// 依赖项
-		Globals:     spec.Global{},
-		Definitions: spec.Definitions{},
-		// 集合里包含一个需要对比的接口
-		Collections: []*spec.CollectItem{
-			{Type: spec.ContentItemTypeHttp, Title: "aa"},
-		},
-	}
+	ab, _ := os.ReadFile("../testdata/specdiff_a.json")
+	a, _ := spec.ParseJSON(ab)
 
-	b := spec.Spec{
-		// 依赖项
-		Globals:     spec.Global{},
-		Definitions: spec.Definitions{},
-		// 集合里包含一个需要对比的接口
-		Collections: []*spec.CollectItem{
-			{Type: spec.ContentItemTypeHttp, Title: "aa"},
-		},
-	}
-	collectitemA, collectitemB := Diff(&a, &b, true)
-	fmt.Println(collectitemA, collectitemB)
+	bb, _ := os.ReadFile("../testdata/specdiff_b.json")
+	b, _ := spec.ParseJSON(bb)
+	_, collectitemB := Diff(a, b, true)
+	// aaa, _ := json.MarshalIndent(collectitemA, "", " ")
+	bbb, _ := json.MarshalIndent(collectitemB, "", " ")
+	fmt.Println(string(bbb))
 }

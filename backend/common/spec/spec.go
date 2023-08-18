@@ -150,6 +150,7 @@ func (s *Spec) CollectionsMap(expend bool, refexpendMaxCount int) map[string]map
 			case *HTTPNode[HTTPURLNode]:
 				method, path = nx.Attrs.Method, nx.Attrs.Path
 			case *HTTPNode[HTTPRequestNode]:
+				nx.Attrs.Parameters.Fill()
 				if expend {
 					mp := nx.Attrs.Parameters.Map()
 					for _, v := range mp {

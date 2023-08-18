@@ -1,6 +1,8 @@
 package diff
 
 import (
+	"fmt"
+
 	"github.com/apicat/apicat/backend/common/spec"
 	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 	"golang.org/x/exp/slices"
@@ -33,7 +35,7 @@ func Diff(source, target *spec.Spec, del bool) (*spec.CollectItem, *spec.Collect
 		bu.XDiff = &diffUpdate
 	}
 	equalRequest(&a.HTTPRequestNode, &b.HTTPRequestNode, del)
-	equalResponse(&a.Responses, &b.Responses, del)
+	b.Responses = equalResponse(a.Responses, b.Responses, del)
 	return a.ToCollectItem(*au), b.ToCollectItem(*bu)
 }
 
@@ -57,44 +59,49 @@ func equalParam(a spec.HTTPParameters, b *spec.HTTPParameters, del bool) {
 		if !ok {
 			x = make(spec.Schemas, 0)
 		}
-		equalSchemas(&x, &v, del)
+		newv := equalSchemas(x, v, del)
+		switch k {
+		case "path":
+			b.Path = newv
+		case "header":
+			b.Header = newv
+		case "query":
+			b.Query = newv
+		case "cookie":
+			b.Cookie = newv
+		}
 	}
 }
 
-func equalSchemas(a, b *spec.Schemas, del bool) {
+func equalSchemas(a, b spec.Schemas, del bool) spec.Schemas {
 	if del {
-		for i, v := range *a {
+		for i, v := range a {
 			if s := b.Lookup(v.Name); s == nil {
 				newv := *v
 				newv.XDiff = &diffRemove
-				if i < len(*b)-1 {
-					*b = slices.Insert(*b, i, &newv)
+				if i < len(b)-1 {
+					b = slices.Insert(b, i, &newv)
 				} else {
-					*b = append(*b, v)
+					b = append(b, &newv)
 				}
 			}
 		}
 	}
-	for _, v := range *b {
+
+	for _, v := range b {
 		if v.XDiff == &diffRemove {
 			continue
 		}
 		if s := a.Lookup(v.Name); s == nil {
 			v.XDiff = &diffNew
 		} else {
-			equalJsonSchema(v.Schema, s.Schema, del)
+			equalSchema(s, v, del)
 		}
 	}
+	return b
 }
 
-func equalContent(a, b spec.HTTPBody, del bool) {
-	for k, v := range b {
-		if x, ok := a[k]; !ok {
-			v.XDiff = &diffNew
-		} else {
-			equalSchema(x, v, del)
-		}
-	}
+func equalContent(a, b spec.HTTPBody, del bool) spec.HTTPBody {
 	if del {
 		for k, v := range a {
 			if _, ok := b[k]; !ok {
@@ -104,31 +111,39 @@ func equalContent(a, b spec.HTTPBody, del bool) {
 			}
 		}
 	}
+	for k, v := range b {
+		if x, ok := a[k]; !ok {
+			v.XDiff = &diffNew
+		} else {
+			equalSchema(x, v, del)
+		}
+	}
+	return b
 }
 
 func equalRequest(a, b *spec.HTTPRequestNode, del bool) {
 	equalParam(a.Parameters, &b.Parameters, del)
-	equalContent(a.Content, b.Content, del)
+	b.Content = equalContent(a.Content, b.Content, del)
 }
 
-func equalResponse(a, b *spec.HTTPResponses, del bool) {
+func equalResponse(a, b spec.HTTPResponses, del bool) spec.HTTPResponses {
 	if del {
 		bb := b.Map()
-		for i, v := range *a {
+		for i, v := range a {
 			if _, ok := bb[v.Code]; !ok {
 				newv := v
 				newv.XDiff = &diffRemove
 				// 尽量保证顺序
-				if i < len(*b)-1 {
-					*b = slices.Insert(*b, i, newv)
+				if i < len(b)-1 {
+					b = slices.Insert(b, i, newv)
 				} else {
-					*b = append(*b, newv)
+					b = append(b, newv)
 				}
 			}
 		}
 	}
 	aa := a.Map()
-	for _, v := range *b {
+	for i, v := range b {
 		if v.XDiff == &diffRemove {
 			continue
 		}
@@ -137,19 +152,21 @@ func equalResponse(a, b *spec.HTTPResponses, del bool) {
 			case x.Name != v.Name || x.Description != v.Description:
 				v.XDiff = &diffUpdate
 			default:
-				equalSchemas(&x.Header, &v.Header, del)
-				equalContent(x.Content, v.Content, del)
+				v.Header = equalSchemas(x.Header, v.Header, del)
+				v.Content = equalContent(x.Content, v.Content, del)
 			}
 		} else {
 			v.XDiff = &diffNew
 		}
+		b[i] = v
 	}
-
+	return b
 }
 
 func equalSchema(a, b *spec.Schema, del bool) {
 	switch {
 	case a.Name != b.Name:
+		fmt.Println("----->>>>>")
 	case a.Description != b.Description:
 	case a.Required != b.Required:
 	default:
@@ -170,6 +187,7 @@ func equalJsonSchema(a, b *jsonschema.Schema, del bool) {
 		b.XDiff = &diffUpdate
 		return
 	}
+	equalJsonSchemaNormal(a, b)
 	switch bt {
 	case "object":
 		for k, v := range b.Properties {
@@ -195,7 +213,7 @@ func equalJsonSchema(a, b *jsonschema.Schema, del bool) {
 	case "array":
 		equalJsonSchema(a.Items.Value(), b.Items.Value(), del)
 	}
-	equalJsonSchemaNormal(a, b)
+
 }
 
 func equalJsonSchemaNormal(a, b *jsonschema.Schema) bool {
