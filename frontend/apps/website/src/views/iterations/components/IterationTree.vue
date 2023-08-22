@@ -63,7 +63,7 @@ defineExpose({
 
     .ac-iconfont,
     .el-icon {
-      @apply mr-8px;
+      @apply text-blue-lighter mr-8px;
     }
 
     span {
@@ -76,7 +76,7 @@ defineExpose({
 
       .ac-iconfont,
       .el-icon {
-        @apply text-blue-lighter font-600;
+        @apply font-600;
       }
     }
 
