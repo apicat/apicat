@@ -5,7 +5,7 @@
     </div>
 
     <div class="ac-header-operate__btns">
-      <el-button type="primary" v-if="isManager || isWriter" @click="goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
+      <el-button type="primary" v-if="isManager || isWriter" @click="() => goDocumentEditPage()">{{ $t('app.common.edit') }}</el-button>
       <template v-if="isManager || isWriter">
         <el-tooltip effect="dark" content="分享该文档" placement="bottom">
           <Iconfont icon="ac-share cursor-pointer" :size="18" @click="handleShare()" />
@@ -51,7 +51,7 @@ import useProjectStore from '@/store/project'
 import { storeToRefs } from 'pinia'
 import { getCollectionDetail } from '@/api/collection'
 import { useParams } from '@/hooks/useParams'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionStore from '@/store/definitionSchema'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import useDefinitionResponseStore from '@/store/definitionResponse'
 import { ProjectDetailModalsContextKey } from '@/layouts/ProjectDetailLayout/constants'
@@ -69,6 +69,7 @@ const { goDocumentEditPage } = useGoPage()
 
 const [isLoading, getCollectionDetailApi] = getCollectionDetail()
 const { urlServers, isManager, isWriter, isPrivate, isReader } = storeToRefs(projectStore)
+
 const { definitions } = storeToRefs(definitionStore)
 
 const hasDocument = ref(false)

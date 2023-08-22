@@ -41,7 +41,7 @@ export const useDefinitionResponseStore = defineStore('definitionResponse', {
     async createDefinition(data: any) {
       try {
         const definition: any = await createDefinitionResponse(data)
-        this.responses.unshift(extendDocTreeFeild(definition))
+        this.responses.push(extendDocTreeFeild(definition))
         return definition
       } catch (error) {
         // error

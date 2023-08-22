@@ -17,6 +17,7 @@ func CheckProjectMember() gin.HandlerFunc {
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 			})
 			ctx.Abort()
+			return
 		}
 
 		user, exists := ctx.Get("CurrentUser")
@@ -25,6 +26,7 @@ func CheckProjectMember() gin.HandlerFunc {
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			ctx.Abort()
+			return
 		}
 
 		member, _ := models.NewProjectMembers()
@@ -37,6 +39,7 @@ func CheckProjectMember() gin.HandlerFunc {
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 			})
 			ctx.Abort()
+			return
 		}
 
 		ctx.Set("CurrentProjectMember", member)

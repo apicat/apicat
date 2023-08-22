@@ -279,6 +279,12 @@ export default {
         name: '请输入数据模型名',
       },
     },
+    iteration: {
+      title: '迭代',
+      tips: {
+        newIteration: '新建迭代',
+      },
+    },
   },
   editor: {
     common: {

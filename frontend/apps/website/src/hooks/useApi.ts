@@ -14,11 +14,11 @@ export function useApi(execute: any, options?: UseApiOptions): any {
 
   const { isCatch, isShowMessage, msg } = options
 
-  async function call(data: unknown) {
+  async function call(...args: any[]) {
     isLoading.value = true
     try {
-      const _data = isRef(data) ? unref(data) : data
-      const res = (await execute(toRaw(_data))) || {}
+      const _data = isRef(args[0]) ? unref(args[0]) : args[0]
+      const res = (await execute(toRaw(_data), ...args.slice(1))) || {}
       if (isShowMessage && (msg || res.msg)) {
         ElMessage.closeAll()
         ElMessage.success(msg || res.msg)

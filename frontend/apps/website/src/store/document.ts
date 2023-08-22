@@ -3,6 +3,7 @@ import { DocumentTypeEnum } from '@/commons/constant'
 import { traverseTree } from '@apicat/shared'
 import { defineStore } from 'pinia'
 import { getCollectionList, getDocumentHistoryRecordList } from '@/api/collection'
+import { useIterationStore } from './iteration'
 
 export const extendDocTreeFeild = (node = {} as CollectionNode, type = DocumentTypeEnum.HTTP): CollectionNode => {
   node = node || {}
@@ -34,13 +35,15 @@ export const useDocumentStore = defineStore('document', {
 
   actions: {
     async getApiDocTree(project_id: string) {
-      const tree = await getCollectionList(project_id)
+      const { gatherIterationInfo } = useIterationStore()
+      const tree = await getCollectionList(project_id, gatherIterationInfo())
       this.apiDocTree = traverseTree((item: CollectionNode) => extendDocTreeFeild(item), tree || [], { subKey: 'items' }) as Array<CollectionNode>
       return this.apiDocTree
     },
 
     async refreshApiDocTree(project_id: string) {
-      const tree = await getCollectionList(project_id)
+      const { gatherIterationInfo } = useIterationStore()
+      const tree = await getCollectionList(project_id, gatherIterationInfo())
       this.apiDocTree = traverseTree((item: CollectionNode) => extendDocTreeFeild(item), tree || [], { subKey: 'items' }) as Array<CollectionNode>
       return this.apiDocTree
     },

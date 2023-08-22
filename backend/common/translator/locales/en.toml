@@ -16,6 +16,9 @@ other = "Project export failed, please try again later."
 [Projects.NotFound]
 other = "Item does not exist"
 
+[Projects.QueryFailed]
+other = "Project query failed"
+
 [Projects.ExitFail]
 other = "Failed to exit project"
 
@@ -255,3 +258,27 @@ other = "History query failed"
 
 [History.RestoreFailed]
 other = "Failed to restore history"
+
+[Iteration.NotFound]
+other = "Iteration does not exist"
+
+[Iteration.QueryFailed]
+other = "Iteration query failed"
+
+[Iteration.CreateFailed]
+other = "Iteration creation failed"
+
+[Iteration.UpdateFailed]
+other = "Iteration change failed"
+
+[Iteration.DeleteFailed]
+other = "Iteration delete failed"
+
+[ProjectFollows.QueryFailed]
+other = "Following item query failed"
+
+[ProjectFollows.FollowFailed]
+other = "Failed to follow item"
+
+[ProjectFollows.UnfollowFailed]
+other = "Failed to unfollow project"

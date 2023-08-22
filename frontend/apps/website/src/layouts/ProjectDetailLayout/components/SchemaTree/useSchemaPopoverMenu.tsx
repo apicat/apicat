@@ -1,18 +1,18 @@
 import AcTree from '@/components/AcTree'
+import ToggleHeading from '@/components/ToggleHeading.vue'
 import Node from '@/components/AcTree/model/node'
 import { CollectionNode } from '@/typings/project'
 import { ActiveNodeInfo } from '@/typings/common'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import NProgress from 'nprogress'
 import { Menu } from '@/components/typings'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionStore from '@/store/definitionSchema'
 import { useActiveTree } from './useActiveTree'
 import { useParams } from '@/hooks/useParams'
 import { createDefaultSchemaDefinition } from '@/views/document/components/createDefaultDefinition'
 import { useGoPage } from '@/hooks/useGoPage'
 import AIGenerateSchemaModal from '../AIGenerateSchemaModal.vue'
 import AIGenerateDocumentWithSchmeModal from '../AIGenerateDocumentWithSchmeModal.vue'
-import AcIconBIRobot from '~icons/bi/robot'
 import AcIconCarbonModelAlt from '~icons/carbon/model-alt'
 import { useI18n } from 'vue-i18n'
 import { ElCheckbox } from 'element-plus'
@@ -25,7 +25,8 @@ import { storeToRefs } from 'pinia'
 export const useSchemaPopoverMenu = (
   treeIns: Ref<InstanceType<typeof AcTree>>,
   aiPromptModalRef: Ref<InstanceType<typeof AIGenerateSchemaModal>>,
-  aiGenerateDocumentWithSchemaModalRef: Ref<InstanceType<typeof AIGenerateDocumentWithSchmeModal>>
+  aiGenerateDocumentWithSchemaModalRef: Ref<InstanceType<typeof AIGenerateDocumentWithSchmeModal>>,
+  toggleHeadingRef: Ref<InstanceType<typeof ToggleHeading>>
 ) => {
   const { t } = useI18n()
 
@@ -36,7 +37,7 @@ export const useSchemaPopoverMenu = (
   const { goSchemaEditPage } = useGoPage()
 
   const ROOT_MENUS: Menu[] = [
-    { text: t('app.schema.popoverMenus.aiGenerateSchema'), elIcon: markRaw(AcIconBIRobot), onClick: () => onShowAIPromptModal() },
+    { text: t('app.schema.popoverMenus.aiGenerateSchema'), icon: 'ac-zhinengyouhua', onClick: () => onShowAIPromptModal() },
     { text: t('app.schema.popoverMenus.newSchema'), elIcon: markRaw(AcIconCarbonModelAlt), onClick: () => onCreateSchemaMenuClick() },
   ]
 
@@ -141,6 +142,7 @@ export const useSchemaPopoverMenu = (
       tree.setCurrentKey(newNode.id)
       goSchemaEditPage(newNode.id)
       activeNode(newNode.id)
+      toggleHeadingRef.value?.expand()
     } finally {
       NProgress.done()
     }

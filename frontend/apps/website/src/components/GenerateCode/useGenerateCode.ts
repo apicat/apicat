@@ -1,7 +1,7 @@
 import { debounce } from 'lodash-es'
 import { getAllCodeGenerateSupportedLanguages } from './constant'
 import Storage from '@/commons/storage'
-import { useDefinitionSchemaStore } from '@/store/definition'
+import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 import { DefinitionSchema } from '../APIEditor/types'
 import { FetchingJSONSchemaStore, InputData, JSONSchemaInput, RendererOptions, TargetLanguage, quicktype } from 'quicktype-core'
 import { useConfig } from './useConfig'

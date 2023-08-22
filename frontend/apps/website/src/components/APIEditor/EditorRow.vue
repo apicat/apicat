@@ -166,9 +166,10 @@ const props = defineProps<{
 }>()
 
 const ns = useNamespace('schema-row')
+const expand = ref(true)
 
-const expandsKeys = inject('expandKeys') as Set<string>
-const expand = computed(() => expandsKeys.has(props.data.key))
+// const expandsKeys = inject('expandKeys') as Set<string>
+// const expand = computed(() => expandsKeys.has(props.data.key))
 const intentLineStyle = computed(() => {
   let left = props.level * 16 + 6
   return { left: left + 'px' }
@@ -178,7 +179,7 @@ const toggleExpandHandler = () => {
   if (!props.data.children) {
     return
   }
-  expand.value ? expandsKeys.delete(props.data.key) : expandsKeys.add(props.data.key)
+  expand.value = !expand.value
 }
 
 const isTempTree = computed(() => {
@@ -263,6 +264,7 @@ const changeType = ({ type, isRef }: any) => {
         type: 'string',
         'x-apicat-mock': 'string',
       }
+      expand.value = true
     } else if (sc.type == 'object') {
       sc.properties = {}
     }
@@ -292,24 +294,24 @@ const changeName = (v: string) => {
       return
     }
 
-    // 还原展开项
-    const keys: string[] = []
-    expandsKeys.forEach((item) => {
-      if (item.startsWith(props.data.key)) {
-        keys.push(item)
-        const prefix = props.data.key.split('.')
-        prefix.pop()
-        prefix.push(v)
-        keys.push(item.replace(props.data.key, prefix.join('.')))
-      }
-    })
-
-    // 遍历keys tow setp
-    for (let i = 0; i < keys.length; i += 2) {
-      var [oldKey, newKey] = keys.slice(i, i + 2)
-      expandsKeys.delete(oldKey)
-      expandsKeys.add(newKey)
-    }
+    // // 还原展开项
+    // const keys: string[] = []
+    // expandsKeys.forEach((item) => {
+    //   if (item.startsWith(props.data.key)) {
+    //     keys.push(item)
+    //     const prefix = props.data.key.split('.')
+    //     prefix.pop()
+    //     prefix.push(v)
+    //     keys.push(item.replace(props.data.key, prefix.join('.')))
+    //   }
+    // })
+    //
+    // // 遍历keys tow setp
+    // for (let i = 0; i < keys.length; i += 2) {
+    //   var [oldKey, newKey] = keys.slice(i, i + 2)
+    //   expandsKeys.delete(oldKey)
+    //   expandsKeys.add(newKey)
+    // }
 
     psch.properties[v] = psch.properties[props.data.label]
     const schema = psch.properties[v]
@@ -379,9 +381,11 @@ const unlinkRefHandler = () => {
 const tempKey = '__temp__'
 
 const addChildHandler = () => {
-  if (!expandsKeys.has(props.data.key)) {
-    expandsKeys.add(props.data.key)
-  }
+  // if (!expandsKeys.has(props.data.key)) {
+  //   expandsKeys.add(props.data.key)
+  // }
+  expand.value = true
+
   if (props.data.schema.properties) {
     // if (props.data.schema.properties['']) {
     //   return
