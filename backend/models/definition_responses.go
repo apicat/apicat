@@ -53,6 +53,11 @@ func (dr *DefinitionResponses) GetCountExcludeTheID() (int64, error) {
 }
 
 func (dr *DefinitionResponses) Create() error {
+	var node *DefinitionResponses
+	if err := Conn.Where("project_id = ?", dr.ProjectID).Order("display_order desc").First(&node).Error; err == nil {
+		dr.DisplayOrder = node.DisplayOrder + 1
+	}
+
 	return Conn.Create(dr).Error
 }
 

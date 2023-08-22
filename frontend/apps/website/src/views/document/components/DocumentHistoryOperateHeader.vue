@@ -34,7 +34,7 @@ const goBack = inject('goBack') as () => void
 const documentStore = useDocumentStore()
 const { documentHistoryRecordTree } = storeToRefs(documentStore)
 const { currentRoute } = useRouter()
-const { project_id, doc_id } = useParams()
+const { project_id, computedRouteParams } = useParams()
 
 const documentDiffModal = ref<InstanceType<typeof DocumentDiffModal>>()
 
@@ -46,11 +46,13 @@ const onSaveOrEditBtnClick = () => {
     return
   }
 
+  const { doc_id: collection_id } = unref(computedRouteParams)
+
   AsyncMsgBox({
     title: '提示',
     content: <div class="break-all">确定还原此历史记录吗？</div>,
     onOk: () =>
-      restoreDocumentByHistoryRecord({ project_id, collection_id: doc_id, history_id }).then((res: any) => {
+      restoreDocumentByHistoryRecord({ project_id, collection_id, history_id }).then((res: any) => {
         $Message.success(res.msg || '还原成功')
         goBack()
       }),

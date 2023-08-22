@@ -69,7 +69,7 @@
   <el-button v-if="isManager" class="absolute bottom-42px right-30px" type="danger" link @click="handleRemove">{{ $t('app.project.setting.deleteProject') }}</el-button>
 </template>
 <script setup lang="tsx">
-import { deleleProject, updateProjectBaseInfo } from '@/api/project'
+import { deleleProject } from '@/api/project'
 import useProjectStore from '@/store/project'
 import { ProjectInfo } from '@/typings/project'
 import { FormInstance } from 'element-plus'
@@ -78,14 +78,15 @@ import { useI18n } from 'vue-i18n'
 import { useProjectCover } from '../logic/useProjectCover'
 import { storeToRefs } from 'pinia'
 import { ProjectVisibilityEnum } from '@/commons'
+import useApi from '@/hooks/useApi'
 
 const { t } = useI18n()
 const router = useRouter()
 const projectStore = useProjectStore()
-const { projectDetailInfo, setCurrentProjectInfo } = projectStore
+const { projectDetailInfo, updateProectInfo } = projectStore
 const { isManager } = storeToRefs(projectStore)
 
-const [isLoading, updateProjectBaseInfoApi] = updateProjectBaseInfo()
+const [isLoading, updateProjectBaseInfoApi] = useApi(updateProectInfo)
 const [isDeleteLoading, deleleProjectApi] = deleleProject()
 
 const form: ProjectInfo = reactive({
@@ -113,7 +114,6 @@ const handleSubmit = async (formIns: FormInstance) => {
     if (valid) {
       const info = toRaw(form)
       await updateProjectBaseInfoApi(info)
-      setCurrentProjectInfo(info)
     }
   } catch (error) {}
 }

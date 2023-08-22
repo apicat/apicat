@@ -1,6 +1,6 @@
 import { debounce, isEmpty } from 'lodash-es'
 import { storeToRefs } from 'pinia'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionStore from '@/store/definitionSchema'
 import { getDefinitionResponseDetail } from '@/api/definitionResponse'
 import { DefinitionResponse } from '@/typings'
 import { useParams } from '@/hooks/useParams'

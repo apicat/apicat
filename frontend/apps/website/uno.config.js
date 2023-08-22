@@ -16,6 +16,7 @@ export default defineConfig({
     colors: {
       blue: {
         primary: '#006bff',
+        lighter: '#4894FF',
       },
       gray: {
         '06': 'rgba(0,0,0,.06)',
@@ -24,6 +25,8 @@ export default defineConfig({
         lighter: '#eceeef',
         100: '#fafafa',
         110: '#f2f2f2',
+        title: '#101010',
+        helper: '#9C9898',
       },
     },
     height: {

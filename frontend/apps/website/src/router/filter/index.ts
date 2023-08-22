@@ -1,5 +1,5 @@
 import type { Router } from 'vue-router'
-import { setupGetProjectInfoFilter, setupGetProjectAuthInfoFilter } from './projectInfo.filter'
+import { setupGetProjectInfoFilter, setupGetProjectAuthInfoFilter, setupGetProjectInfoByIterationFilter } from './projectInfo.filter'
 import { setupMemberPermissionFilter } from './memberPermission.filter'
 import { setupAuthFilter } from './auth.filter'
 import { setupGetUserInfoFilter } from './userInfo.filter'
@@ -18,4 +18,6 @@ export const setupRouterFilter = (router: Router) => {
   setupMemberPermissionFilter(router)
 
   setupShareDocumentFilter(router)
+
+  setupGetProjectInfoByIterationFilter(router)
 }

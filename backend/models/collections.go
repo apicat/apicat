@@ -44,7 +44,25 @@ func (c *Collections) List() ([]*Collections, error) {
 	collectionsQuery := Conn.Where("project_id = ?", c.ProjectId)
 
 	var collections []*Collections
-	return collections, collectionsQuery.Order("display_order asc").Order("id desc").Find(&collections).Error
+	return collections, collectionsQuery.Order("display_order asc").Find(&collections).Error
+}
+
+func (c *Collections) CreateDoc() error {
+	var node *Collections
+	if err := Conn.Where("project_id = ? AND parent_id = ?", c.ProjectId, c.ParentId).Order("display_order desc").First(&node).Error; err == nil {
+		c.DisplayOrder = node.DisplayOrder + 1
+	}
+
+	return c.Create()
+}
+
+func (c *Collections) CreateCategory() error {
+	err := Conn.Model(&Collections{}).Where("parent_id = ?", c.ParentId).Update("display_order", gorm.Expr("display_order + ?", 1)).Error
+	if err != nil {
+		return err
+	}
+
+	return c.Create()
 }
 
 func (c *Collections) Create() error {
@@ -85,8 +103,44 @@ func Deletes(id uint, db *gorm.DB, deletedBy uint) error {
 			return err
 		}
 
+		if err := DeleteIterationApisByCollectionID(collection.ID); err != nil {
+			return err
+		}
+
 		return nil
 	})
+}
+
+func (c *Collections) GetSubCollectionsContainsSelf() ([]*Collections, error) {
+	var collections []*Collections
+	collections, err := c.getSubCollectionsRecursive(&collections)
+	if err != nil {
+		return nil, err
+	}
+
+	collections = append(collections, c)
+	return collections, nil
+}
+
+func (c *Collections) getSubCollectionsRecursive(collectPtr *[]*Collections) ([]*Collections, error) {
+	var subCollections []*Collections
+
+	if err := Conn.Where("parent_id = ?", c.ID).Find(&subCollections).Error; err != nil {
+		return nil, err
+	}
+
+	*collectPtr = append(*collectPtr, subCollections...)
+
+	for _, subColl := range subCollections {
+		if subColl.ID != c.ID { // Avoid self-reference
+			_, err := subColl.getSubCollectionsRecursive(collectPtr)
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	return *collectPtr, nil
 }
 
 func (c *Collections) Creator() string {

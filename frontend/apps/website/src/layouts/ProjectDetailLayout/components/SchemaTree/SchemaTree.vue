@@ -1,5 +1,5 @@
 <template>
-  <ToggleHeading :title="$t('app.schema.title')">
+  <ToggleHeading :title="$t('app.schema.title')" :expand="isExpandTree" ref="toggleHeadingRef">
     <template #extra>
       <el-icon v-if="isManager || isWriter" class="cursor-pointer text-zinc-500" @click="onPopoverRefIconClick"><ac-icon-ep-plus /></el-icon>
     </template>
@@ -55,31 +55,47 @@ import { storeToRefs } from 'pinia'
 import useProjectStore from '@/store/project'
 
 const ns = useNamespace('catalog-tree')
-
 const directoryTree = inject('directoryTree') as any
 const { isManager, isWriter } = storeToRefs(useProjectStore())
 
-const { isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, allowDrop, onMoveNode, onMoveNodeStart, updateTitle, redirecToSchemaEdit, initSchemaTree } =
-  useSchemaTree()
+const {
+  isExpandTree,
+  isLoading,
+  treeIns,
+  treeOptions,
+  definitions,
+  handleTreeNodeClick,
+  allowDrop,
+  onMoveNode,
+  onMoveNodeStart,
+  updateTitle,
+  redirecToSchemaEdit,
+  initSchemaTree,
+} = useSchemaTree()
 
 const aiPromptModalRef = ref()
-const onCreateSchemaSuccess = (schema_id: any) => {
-  redirecToSchemaEdit(schema_id)
-}
-
 const aiGenerateDocumentWithSchmeModalRef = ref()
-const onGenerateDocumentWithSchmeSuccess = async (docId: any) => {
-  directoryTree.redirecToDocumentDetail(docId)
-  await initSchemaTree()
-}
+const toggleHeadingRef = ref()
 
 const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick } = useSchemaPopoverMenu(
   treeIns as any,
   aiPromptModalRef as any,
-  aiGenerateDocumentWithSchmeModalRef as any
+  aiGenerateDocumentWithSchmeModalRef as any,
+  toggleHeadingRef as any
 )
 
 const { activeNode, reactiveNode } = useActiveTree(treeIns as any)
+
+const onCreateSchemaSuccess = (schema_id: any) => {
+  toggleHeadingRef.value?.expand()
+  redirecToSchemaEdit(schema_id)
+}
+
+const onGenerateDocumentWithSchmeSuccess = async (docId: any) => {
+  directoryTree.redirecToDocumentDetail(docId)
+  await initSchemaTree()
+  toggleHeadingRef.value?.expand()
+}
 
 defineExpose({
   updateTitle,

@@ -1,12 +1,6 @@
-import { ProjectListCoverBgColors, ProjectListCoverIcons, randomArray } from '@/commons'
+import { getProjectDefaultCover } from '@/api/project'
+import { ProjectListCoverBgColors, ProjectListCoverIcons } from '@/commons'
 import { ProjectCover } from '@/typings'
-
-export const getProjectDefaultCover = (overwrite?: Partial<ProjectCover>): ProjectCover => ({
-  type: 'icon',
-  coverBgColor: randomArray(ProjectListCoverBgColors),
-  coverIcon: randomArray(ProjectListCoverIcons),
-  ...overwrite,
-})
 
 export const useProjectCover = (form: Record<string, any>) => {
   const mapper = (value: string) => ({ value, label: value })

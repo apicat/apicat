@@ -72,15 +72,14 @@
 </template>
 <script setup lang="ts">
 import SimpleParameterEditor from '@/components/APIEditor/SimpleEditor.vue'
-import { useProjectId } from '@/hooks/useProjectId'
-
 import useApi from '@/hooks/useApi'
 import uesGlobalParametersStore from '@/store/globalParameters'
 import { storeToRefs } from 'pinia'
 import { usePopover } from '@/hooks/usePopover'
 import useProjectStore from '@/store/project'
+import { useParams } from '@/hooks/useParams'
 
-const project_id = useProjectId()
+const { project_id } = useParams()
 const globalParametersStore = uesGlobalParametersStore()
 const { isReader } = storeToRefs(useProjectStore())
 const { parameters } = storeToRefs(globalParametersStore)

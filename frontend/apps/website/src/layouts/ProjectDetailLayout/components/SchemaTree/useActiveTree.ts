@@ -1,17 +1,16 @@
 import { CollectionNode } from '@/typings/project'
 import AcTree from '@/components/AcTree'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionStore from '@/store/definitionSchema'
 import { traverseTree } from '@apicat/shared'
 import { storeToRefs } from 'pinia'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-import { SCHEMA_DETAIL_NAME, DOCUMENT_DETAIL_NAME } from '@/router'
+import { useGoPage } from '@/hooks/useGoPage'
 
 export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
   const definitionStore = useDefinitionStore()
-  const router = useRouter()
   const route = useRoute()
+  const { goSchemaDetailPage, goDocumentDetailPage } = useGoPage()
   const { definitions } = storeToRefs(definitionStore)
-  const { params } = route
   const directoryTree = inject('directoryTree') as any
 
   // 启动切换文档选中
@@ -45,7 +44,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
   }
 
   const reactiveNode = () => {
-    if (!treeIns.value || !String(route.name).startsWith('definition.schema')) {
+    if (!treeIns.value || !String(route.name).includes('definition.schema')) {
       return
     }
 
@@ -71,12 +70,13 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
 
       // 存在模型
       if (node) {
-        params.schema_id = node.key
+        // params.schema_id = node.key
         activeNode(node.key)
-        router.replace({ name: SCHEMA_DETAIL_NAME, params })
+        // router.replace({ name: SCHEMA_DETAIL_NAME, params })
+        goSchemaDetailPage(node.key, true)
       } else {
-        const { project_id } = params
-        router.replace({ name: DOCUMENT_DETAIL_NAME, params: { project_id } })
+        // router.replace({ name: DOCUMENT_DETAIL_NAME, params: { project_id } })
+        goDocumentDetailPage(undefined, true)
         setTimeout(() => directoryTree.reactiveNode && directoryTree.reactiveNode(), 0)
       }
     }

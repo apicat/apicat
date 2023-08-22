@@ -41,16 +41,16 @@ import { useNamespace } from '@/hooks'
 import { FormInstance } from 'element-plus'
 import isEmpty from 'lodash/isEmpty'
 import isURL from 'validator/lib/isURL'
-import { useProjectId } from '@/hooks/useProjectId'
 import useProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'
 import { useI18n } from 'vue-i18n'
 import { cloneDeep } from 'lodash-es'
 import { storeToRefs } from 'pinia'
+import { useParams } from '@/hooks/useParams'
 
 const ns = useNamespace('url-list')
 const { t } = useI18n()
-const project_id = useProjectId()
+const { project_id } = useParams()
 const projectStore = useProjectStore()
 const { isReader } = storeToRefs(projectStore)
 const navFormRef = shallowRef()

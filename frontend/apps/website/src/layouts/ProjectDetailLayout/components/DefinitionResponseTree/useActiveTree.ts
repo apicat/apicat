@@ -4,12 +4,12 @@ import useDefinitionResponseStore from '@/store/definitionResponse'
 import { traverseTree } from '@apicat/shared'
 import { storeToRefs } from 'pinia'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-import { RESPONSE_DETAIL_NAME, DOCUMENT_DETAIL_NAME } from '@/router'
+import { useGoPage } from '@/hooks/useGoPage'
 
 export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
   const definitionResponseStore = useDefinitionResponseStore()
-  const router = useRouter()
   const route = useRoute()
+  const { goResponseDetailPage, goDocumentDetailPage } = useGoPage()
   const { responses } = storeToRefs(definitionResponseStore)
   const { params } = route
   const directoryTree = inject('directoryTree') as any
@@ -44,7 +44,7 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
   }
 
   const reactiveNode = () => {
-    if (!treeIns.value || !String(route.name).startsWith('definition.response')) {
+    if (!treeIns.value || !String(route.name).includes('definition.response')) {
       return
     }
 
@@ -72,10 +72,11 @@ export const useActiveTree = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
       if (node) {
         params.response_id = node.key
         activeNode(node.key)
-        router.replace({ name: RESPONSE_DETAIL_NAME, params })
+        // router.replace({ name: RESPONSE_DETAIL_NAME, params })
+        goResponseDetailPage(node.key, true)
       } else {
-        const { project_id } = params
-        router.replace({ name: DOCUMENT_DETAIL_NAME, params: { project_id } })
+        // router.replace({ name: DOCUMENT_DETAIL_NAME, params: { project_id } })
+        goDocumentDetailPage(undefined, true)
         setTimeout(() => directoryTree.reactiveNode && directoryTree.reactiveNode(), 0)
       }
     }

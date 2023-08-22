@@ -18,7 +18,7 @@ import { restoreSchemaByHistoryRecord } from '@/api/definitionSchema'
 import { ElMessage as $Message } from 'element-plus'
 import { storeToRefs } from 'pinia'
 import { useParams } from '@/hooks/useParams'
-import { useDefinitionSchemaStore } from '@/store/definition'
+import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 
 defineProps({
   title: {
@@ -31,7 +31,7 @@ const goBack = inject('goBack') as () => void
 const definitionSchemaStore = useDefinitionSchemaStore()
 const { historyRecordTree } = storeToRefs(definitionSchemaStore)
 const { currentRoute } = useRouter()
-const { project_id, schema_id } = useParams()
+const { project_id, computedRouteParams } = useParams()
 
 const schemaDiffModalRef = ref<InstanceType<typeof SchemaDiffModal>>()
 
@@ -43,11 +43,13 @@ const onSaveOrEditBtnClick = () => {
     return
   }
 
+  const { schema_id: def_id } = unref(computedRouteParams)
+
   AsyncMsgBox({
     title: '提示',
     content: <div class="break-all">确定还原此历史记录吗？</div>,
     onOk: () =>
-      restoreSchemaByHistoryRecord({ project_id, def_id: schema_id, history_id }).then((res: any) => {
+      restoreSchemaByHistoryRecord({ project_id, def_id, history_id }).then((res: any) => {
         $Message.success(res.msg || '还原成功')
         goBack()
       }),

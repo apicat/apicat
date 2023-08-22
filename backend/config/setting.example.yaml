@@ -16,4 +16,6 @@ database:
   password: 123456
   dbname: apicat
 openai:
+  source: openai
   key: sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  endpoint: https://xxxxxx.openai.azure.com/
