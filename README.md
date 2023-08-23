@@ -129,7 +129,9 @@ See the [backend/config/setting.example.yaml](https://github.com/apicat/apicat/b
 | APICAT_DB_USER | MySQL username, required | root |
 | APICAT_DB_PASSWORD | MySQL password, required | 123456 |
 | APICAT_DB_NAME | MySQL database name, required | apicat |
+| APICAT_OPENAI_SOURCE | OpenAI API source(openai, azure) | openai |
 | APICAT_OPENAI_KEY | OpenAI Key | sk-xxxxxx |
+| APICAT_OPENAI_ENDPOINT | OpenAI API url, Valid when APICAT_OPENAI_SOURCE is set to "azure" | https://xxxxxx.openai.azure.com/ |
 
 ## Contact
 
