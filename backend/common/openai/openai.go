@@ -104,7 +104,7 @@ func (o *OpenAI) createChatCompletion(messages []openAI.ChatCompletionMessage) e
 		openAI.ChatCompletionRequest{
 			Model:       openAI.GPT3Dot5Turbo,
 			Messages:    messages,
-			Temperature: 1,
+			Temperature: 0,
 		},
 	)
 
