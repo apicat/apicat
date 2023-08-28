@@ -144,6 +144,15 @@ func InitApiRouter(r *gin.Engine) {
 				iteration.PUT("/:iteration-id", api.IterationsUpdate)
 				iteration.DELETE("/:iteration-id", api.IterationsDelete)
 			}
+
+			projectGroup := onlyLogin.Group("/project_group")
+			{
+				projectGroup.GET("", api.ProjectGroupList)
+				projectGroup.POST("", api.ProjectGroupCreate)
+				projectGroup.PUT("/:group_id/rename", api.ProjectGroupRename)
+				projectGroup.DELETE("/:group_id", api.ProjectGroupDelete)
+				projectGroup.PUT("/order", api.ProjectGroupOrder)
+			}
 		}
 
 		// 项目内部操作
@@ -161,6 +170,7 @@ func InitApiRouter(r *gin.Engine) {
 				projects.PUT("/share/reset", api.ProjectShareReset)
 				projects.POST("/follow", api.ProjectFollow)
 				projects.DELETE("/follow", api.ProjectUnFollow)
+				projects.PUT("/change_group", api.ProjectChangeGroup)
 			}
 
 			definitionSchemas := project.Group("/definition/schemas")

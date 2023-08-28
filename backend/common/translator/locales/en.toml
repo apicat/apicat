@@ -282,3 +282,15 @@ other = "Failed to follow item"
 
 [ProjectFollows.UnfollowFailed]
 other = "Failed to unfollow project"
+
+[ProjectGroups.QueryFailed]
+other = "Project group query failed"
+
+[ProjectGroups.CreateFailed]
+other = "Item group creation failed"
+
+[ProjectGroups.UpdateFailed]
+other = "Failed to modify project group"
+
+[ProjectGroups.DeleteFailed]
+other = "Failed to delete item group"
