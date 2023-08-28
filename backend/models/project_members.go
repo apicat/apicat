@@ -11,6 +11,7 @@ type ProjectMembers struct {
 	ID         uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
 	ProjectID  uint   `gorm:"type:bigint;index;not null;comment:项目id"`
 	UserID     uint   `gorm:"type:bigint;index;not null;comment:用户id"`
+	GroupID    uint   `gorm:"type:bigint;not null;default:0;comment:分组id"`
 	Authority  string `gorm:"type:varchar(255);not null;comment:项目权限:manage,write,read"`
 	FollowedAt *time.Time
 	CreatedAt  time.Time

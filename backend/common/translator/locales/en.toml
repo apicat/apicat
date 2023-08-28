@@ -294,3 +294,6 @@ other = "Failed to modify project group"
 
 [ProjectGroups.DeleteFailed]
 other = "Failed to delete item group"
+
+[ProjectGroups.ChangeFailed]
+other = "Failed to change project group"

@@ -294,3 +294,6 @@ other = "项目分组修改失败"
 
 [ProjectGroups.DeleteFailed]
 other = "项目分组删除失败"
+
+[ProjectGroups.ChangeFailed]
+other = "项目分组改变失败"

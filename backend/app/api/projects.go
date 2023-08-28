@@ -51,6 +51,10 @@ type ProjectsListData struct {
 	Auth []string `form:"auth" binding:"omitempty,dive,oneof=manage write read"`
 }
 
+type ProjectChangeGroupData struct {
+	TargetGroupID uint `json:"target_group_id" binding:"required,lte=255"`
+}
+
 func ProjectsList(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
@@ -616,4 +620,26 @@ func ProjectUnFollow(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusNoContent)
+}
+
+func ProjectChangeGroup(ctx *gin.Context) {
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+
+	var data ProjectChangeGroupData
+	if err := ctx.ShouldBindJSON(&data); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	currentProjectMember.(*models.ProjectMembers).GroupID = data.TargetGroupID
+	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.ChangeFailed"}),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusCreated)
 }
