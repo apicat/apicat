@@ -10,10 +10,11 @@
     </div>
   </div>
 
-  <p v-if="followedProjects.length" class="text-#101010 font-500 my-10px">关注的项目</p>
-  <ul :class="ns.bm('followed')">
+  <p v-if="followedProjects.length" :class="ns.e('segment')">关注的项目</p>
+  <ul>
     <li v-for="project in followedProjects" :class="[ns.e('item'), activeClass(project)]" @click="handleItemClick(project)">
-      <span class="mr-8px">·</span><span>{{ project.title }}</span>
+      <span :class="ns.e('dot')"></span>
+      <span>{{ project.title }}</span>
     </li>
   </ul>
 </template>
@@ -27,7 +28,7 @@ interface Events {
 }
 
 const emits = defineEmits<Events>()
-const ns = useNamespace('iteration-tree')
+const ns = useNamespace('group-list')
 
 const { followedProjects, activeClass, selectedRef, setSelectedHistory, goBackSelected, goSelectedAll, removeSelected } = useFollowedProjectList()
 
@@ -48,47 +49,3 @@ defineExpose({
   removeSelected,
 })
 </script>
-<style lang="scss" scoped>
-@use '@/styles/mixins/mixins' as *;
-
-@include b(iteration-tree) {
-  @apply mt-24px text-#101010;
-
-  @include e(item) {
-    @apply rounded-5px cursor-pointer h-40px text-14px flex flex-y-center px-20px;
-
-    & + & {
-      margin-top: 4px;
-    }
-
-    .ac-iconfont,
-    .el-icon {
-      @apply text-blue-lighter mr-8px;
-    }
-
-    span {
-      @apply truncate;
-    }
-
-    &.active {
-      background-color: #e5f0ff;
-      @apply text-#101010 font-500;
-
-      .ac-iconfont,
-      .el-icon {
-        @apply font-600;
-      }
-    }
-
-    &:hover {
-      @apply bg-gray-110;
-    }
-  }
-
-  @include m(followed) {
-    @include e(item) {
-      list-style-type: disc;
-    }
-  }
-}
-</style>

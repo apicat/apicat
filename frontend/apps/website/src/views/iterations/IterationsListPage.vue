@@ -1,34 +1,32 @@
 <template>
-  <div class="flex h-full">
-    <div class="w-246px b-r b-solid b-gray-110 px-20px">
+  <LeftRightLayout>
+    <template #left>
       <IterationTree ref="iterationTreeRef" @create="onCreateIteration" @click="onClickFollowedProject" />
-    </div>
-    <div class="flex-1">
-      <div class="m-auto w-776px pt-22px">
-        <IterationTable
-          v-show="isListMode"
-          :title="currentSelectedProjectRef ? currentSelectedProjectRef.title : null"
-          :project-id="currentSelectedProjectRef ? currentSelectedProjectRef.id : null"
-          ref="iterationTableRef"
-          @edit="onEditIteration"
-        />
-        <IterationForm
-          v-if="isFormMode"
-          :iteration-id="currentEditableItreationIdRef"
-          :projects="projectList"
-          @success="onCreateOrUpdateIterationSuccess"
-          @cancel="onCancelCreateOrUpdateIteration"
-        />
-      </div>
-    </div>
-  </div>
+    </template>
+
+    <IterationTable
+      v-show="isListMode"
+      :title="currentSelectedProjectRef ? currentSelectedProjectRef.title : null"
+      :project-id="currentSelectedProjectRef ? currentSelectedProjectRef.id : null"
+      ref="iterationTableRef"
+      @edit="onEditIteration"
+    />
+    <IterationForm
+      v-if="isFormMode"
+      :iteration-id="currentEditableItreationIdRef"
+      :projects="projectList"
+      @success="onCreateOrUpdateIterationSuccess"
+      @cancel="onCancelCreateOrUpdateIteration"
+    />
+  </LeftRightLayout>
 </template>
 <script setup lang="ts">
+import LeftRightLayout from '@/layouts/LeftRightLayout.vue'
 import IterationTree from './components/IterationTree.vue'
 import IterationTable from './components/IterationTable.vue'
 import IterationForm from './components/IterationForm.vue'
-import { usePageMode } from './logic/usePageMode'
-import { useProjectList } from '../project/logic/useProjectList'
+import { usePageMode } from '@/views/composables/usePageMode'
+import { useProjectList } from '@/views/composables/useProjectList'
 import { Iteration, ProjectInfo } from '@/typings'
 import { MemberAuthorityInProject } from '@/typings/member'
 

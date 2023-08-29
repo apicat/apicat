@@ -29,7 +29,7 @@ export const queryStringify = (data?: Record<string, any>): string => {
     if (Array.isArray(value)) {
       value.forEach((value) => params.append(key, (value || '').toString()))
     } else {
-      params.append(key, (value || '').toString())
+      value && params.append(key, (value || '').toString())
     }
   })
 

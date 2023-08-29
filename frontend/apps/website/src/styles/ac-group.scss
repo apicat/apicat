@@ -1,0 +1,44 @@
+@use '@/styles/mixins/mixins' as *;
+
+@include b(group-list) {
+  @apply mt-24px text-#101010;
+
+  @include e(item) {
+    @apply rounded-5px cursor-pointer h-40px text-14px flex flex-y-center px-20px;
+
+    & + & {
+      margin-top: 4px;
+    }
+
+    .ac-iconfont,
+    .el-icon {
+      @apply text-blue-lighter mr-8px;
+    }
+
+    span {
+      @apply truncate;
+    }
+
+    &.active {
+      background-color: #e5f0ff;
+      @apply text-#101010 font-500;
+
+      .ac-iconfont,
+      .el-icon {
+        @apply font-600;
+      }
+    }
+
+    &:hover {
+      @apply bg-gray-110;
+    }
+  }
+
+  @include e(segment) {
+    @apply text-#101010 font-500 my-10px flex-y-center justify-between;
+  }
+
+  @include e(dot) {
+    @apply mr-8px w-3px h-3px bg-black rounded-full mt-2px;
+  }
+}

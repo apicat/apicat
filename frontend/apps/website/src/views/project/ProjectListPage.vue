@@ -1,55 +1,43 @@
 <template>
-  <div class="container flex flex-col justify-center mx-auto px-20px" v-loading="isLoading">
-    <p class="border-b border-solid border-gray-lighter py-20px mt-20px text-20px">
-      {{ $t('app.project.list.tabTitle') }}
-    </p>
-
-    <ul :class="ns.b()">
-      <li
-        v-if="!isNormalUser"
-        class="flex flex-col justify-between rounded cursor-pointer w-250px h-156px hover:shadow-lg bg-gray-110 px-20px py-16px"
-        @click="handleShowModelClick"
-      >
-        <ac-icon-ep-plus class="text-18px" />
-        <p>{{ $t('app.project.createModal.title') }}</p>
-      </li>
-
-      <li :class="ns.e('item')" v-for="project in projectList" @click="$router.push(getProjectDetailPath(project.id))">
-        <div :class="ns.e('cover')" :style="{ backgroundColor: (project.cover as ProjectCover).coverBgColor }">
-          <Iconfont class="text-white" :icon="(project.cover as ProjectCover).coverIcon" :size="55" />
-        </div>
-        <div :class="ns.e('title')">
-          <p class="flex-1 truncate">{{ project.title }}</p>
-          <el-tooltip :content="project.is_followed ? '取消关注' : '关注项目'" placement="bottom">
-            <div :class="ns.e('follow')">
-              <el-icon size="18" v-if="!project.is_followed" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star-outline /></el-icon>
-              <el-icon size="18" v-else color="#FF9966" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star /></el-icon>
-            </div>
-          </el-tooltip>
-        </div>
-      </li>
-    </ul>
-    <el-empty v-if="isNormalUser && !projectList.length" :image-size="200" :description="$t('app.project.tips.noData')" />
-  </div>
-
-  <CreateProjectModal ref="createProjectModal" />
+  <LeftRightLayout main-width="auto">
+    <template #left>
+      <ProjectGroupList ref="groupListRef" @click="onSwitchProjectGroup" @create-project="onCreateProject" @create-group="onCreateProjectGroup" />
+    </template>
+    <ProjectList v-show="isListMode" title="呃呃沙发" ref="iterationTableRef" :projects="[]" />
+  </LeftRightLayout>
 </template>
 
 <script lang="ts" setup>
+import LeftRightLayout from '@/layouts/LeftRightLayout.vue'
+import ProjectGroupList from './components/ProjectGroupList.vue'
+import ProjectList from './components/ProjectList.vue'
+import { usePageMode } from '@/views/composables/usePageMode'
+
 import { getProjectDetailPath } from '@/router'
-import CreateProjectModal from './CreateProjectModal.vue'
-import { ProjectCover } from '@/typings'
+import { ProjectCover, ProjectGroupSelectKey } from '@/typings'
 import { useUserStore } from '@/store/user'
-import { useProjectList } from './logic/useProjectList'
+import { useProjects } from './logic/useProjects'
 import { useNamespace } from '@/hooks'
 
 const ns = useNamespace('project-list')
-const createProjectModal = ref<InstanceType<typeof CreateProjectModal>>()
 const { isNormalUser } = useUserStore()
-const { isLoading, projectList, handleFollowProject } = useProjectList()
+const { isLoading, projects, handleFollowProject } = useProjects()
+const groupListRef = ref<InstanceType<typeof ProjectGroupList>>()
+const { isFormMode, isListMode, switchMode } = usePageMode()
 
-const handleShowModelClick = () => {
-  createProjectModal.value!.show()
+// 创建项目
+const onCreateProject = () => {
+  console.log('创建项目')
+}
+
+// 切换项目分组
+const onSwitchProjectGroup = (key: ProjectGroupSelectKey) => {
+  console.log('切换项目分组', key)
+}
+
+// 创建项目分组
+const onCreateProjectGroup = () => {
+  console.log('创建项目分组')
 }
 </script>
 <style scoped lang="scss">

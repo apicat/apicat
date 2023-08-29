@@ -1,0 +1,87 @@
+<template>
+  <div class="container flex flex-col justify-center mx-auto">
+    <p class="border-b border-solid border-gray-lighter pb-30px text-18px text-gray-title">
+      {{ title }}
+    </p>
+
+    <ul :class="ns.b()">
+      <li :class="ns.e('item')" v-for="project in projects" @click="handleClick(project)">
+        <div :class="ns.e('cover')" :style="{ backgroundColor: (project.cover as ProjectCover).coverBgColor }">
+          <Iconfont class="text-white" :icon="(project.cover as ProjectCover).coverIcon" :size="55" />
+        </div>
+        <div :class="ns.e('title')">
+          <p class="flex-1 truncate">{{ project.title }}</p>
+          <el-tooltip :content="project.is_followed ? '取消关注' : '关注项目'" placement="bottom">
+            <div :class="ns.e('follow')">
+              <el-icon size="18" v-if="!project.is_followed" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star-outline /></el-icon>
+              <el-icon size="18" v-else color="#FF9966" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star /></el-icon>
+            </div>
+          </el-tooltip>
+        </div>
+      </li>
+    </ul>
+    <el-empty v-if="isNormalUser && !projects.length" :image-size="200" :description="$t('app.project.tips.noData')" />
+  </div>
+</template>
+<script setup lang="ts">
+import { ProjectCover, ProjectInfo } from '@/typings'
+import { useUserStore } from '@/store/user'
+import { useNamespace } from '@/hooks'
+
+const emits = defineEmits<{
+  (e: 'create'): void
+  (e: 'click', project: ProjectInfo): void
+  (e: 'follow', project: ProjectInfo): void
+}>()
+
+const props = withDefaults(
+  defineProps<{
+    title: string
+    projects: ProjectInfo[]
+  }>(),
+  {
+    projects: () => [],
+    title: '所有项目',
+  }
+)
+
+const ns = useNamespace('project-list')
+const { isNormalUser } = useUserStore()
+
+const handleClick = (project: ProjectInfo) => emits('click', project)
+const handleFollowProject = (project: ProjectInfo) => emits('follow', project)
+</script>
+<style scoped lang="scss">
+@use '@/styles/mixins/mixins' as *;
+
+@include b(project-list) {
+  display: grid;
+  justify-content: space-between;
+  grid-template-columns: repeat(auto-fill, 250px);
+  grid-gap: 20px;
+  @apply my-20px py-10px;
+
+  @include e(item) {
+    @apply flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px;
+
+    &:hover {
+      @include e(follow) {
+        visibility: visible;
+      }
+    }
+  }
+
+  @include e(cover) {
+    @apply flex items-center justify-center h-112px;
+  }
+
+  @include e(title) {
+    @apply flex items-center flex-1 px-16px;
+  }
+
+  @include e(follow) {
+    visibility: hidden;
+    @apply flex pt-1px;
+  }
+}
+</style>

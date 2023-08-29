@@ -129,3 +129,16 @@ export declare interface TrashModel {
    */
   type: DocumentTypeEnum
 }
+
+export interface ProjectGroup {
+  /**
+   * 分组id
+   */
+  id?: number
+  /**
+   * 分组名称
+   */
+  name: string
+}
+
+export type ProjectGroupSelectKey = 'all' | 'followed' | 'my' | 'create' | number | null

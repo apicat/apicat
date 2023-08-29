@@ -23,6 +23,9 @@ export const convertProjectCover = (project: ProjectInfo): ProjectInfo => {
 }
 
 export const getProjectList = async (params?: Record<string, any>): Promise<ProjectInfo[]> => Ajax.get(`/projects${queryStringify(params)}`)
+export const getMyProjectList = async (): Promise<ProjectInfo[]> => await getProjectList({ auth: [MemberAuthorityInProject.MANAGER] })
+export const getMyFollowedProjectList = async (): Promise<ProjectInfo[]> => await getProjectList({ is_followed: true })
+export const getProjectListByGroupId = async (group_id: number | null): Promise<ProjectInfo[]> => await getProjectList({ group_id })
 
 export const getProjectDetail = async (project_id: string, params?: Record<string, any>): Promise<ProjectInfo> => Ajax.get(`/projects/${project_id}${queryStringify(params)}`)
 
