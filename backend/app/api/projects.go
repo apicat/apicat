@@ -48,7 +48,9 @@ type TranslateProject struct {
 }
 
 type ProjectsListData struct {
-	Auth []string `form:"auth" binding:"omitempty,dive,oneof=manage write read"`
+	Auth       []string `form:"auth" binding:"omitempty,dive,oneof=manage write read"`
+	GroupID    uint     `form:"group_id"`
+	IsFollowed bool     `form:"is_followed"`
 }
 
 type ProjectChangeGroupData struct {
@@ -66,28 +68,33 @@ func ProjectsList(ctx *gin.Context) {
 		return
 	}
 
-	var projectMembers []models.ProjectMembers
-	var err error
-	if len(data.Auth) == 0 {
-		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
-	} else {
+	var (
+		projectMembers []models.ProjectMembers
+		err            error
+	)
+	if data.GroupID > 0 {
+		projectMembers, err = models.GetProjectGroupedByUser(currentUser.(*models.Users).ID, data.GroupID)
+	} else if data.IsFollowed {
+		projectMembers, err = models.GetProjectFollowedByUser(currentUser.(*models.Users).ID)
+	} else if len(data.Auth) > 0 {
 		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID, data.Auth...)
+	} else {
+		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
 		})
+		return
+	}
+	if len(projectMembers) == 0 {
+		ctx.JSON(http.StatusOK, []gin.H{})
 		return
 	}
 
 	projectIDs := []uint{}
 	for _, v := range projectMembers {
 		projectIDs = append(projectIDs, v.ProjectID)
-	}
-
-	if len(projectIDs) == 0 {
-		ctx.JSON(http.StatusOK, []gin.H{})
-		return
 	}
 
 	project, _ := models.NewProjects()
@@ -99,19 +106,22 @@ func ProjectsList(ctx *gin.Context) {
 		return
 	}
 
-	pIDs, err := models.GetUserFollowByUserID(currentUser.(*models.Users).ID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
-		})
-		return
+	followProjects := projectMembers
+	if !data.IsFollowed {
+		followProjects, err = models.GetProjectFollowedByUser(currentUser.(*models.Users).ID)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
+			})
+			return
+		}
 	}
 
 	projectsList := []gin.H{}
 	for _, v := range projects {
 		isFollow := false
-		for _, pID := range pIDs {
-			if v.ID == pID {
+		for _, followProject := range followProjects {
+			if v.ID == followProject.ProjectID {
 				isFollow = true
 				break
 			}
@@ -552,45 +562,6 @@ func ProjectTransfer(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusCreated)
-}
-
-func ProjectFollowList(ctx *gin.Context) {
-	currentUser, _ := ctx.Get("CurrentUser")
-	projectsList := []gin.H{}
-
-	pIDs, err := models.GetUserFollowByUserID(currentUser.(*models.Users).ID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.QueryFailed"}),
-		})
-		return
-	}
-	if len(pIDs) == 0 {
-		ctx.JSON(http.StatusOK, projectsList)
-		return
-	}
-
-	project, _ := models.NewProjects()
-	projects, err := project.List(pIDs...)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.QueryFailed"}),
-		})
-		return
-	}
-
-	for _, v := range projects {
-		projectsList = append(projectsList, gin.H{
-			"id":          v.PublicId,
-			"title":       v.Title,
-			"description": v.Description,
-			"cover":       v.Cover,
-			"created_at":  v.CreatedAt.Format("2006-01-02 15:04:05"),
-			"updated_at":  v.UpdatedAt.Format("2006-01-02 15:04:05"),
-		})
-	}
-
-	ctx.JSON(http.StatusOK, projectsList)
 }
 
 func ProjectFollow(ctx *gin.Context) {
