@@ -297,3 +297,9 @@ other = "Failed to delete item group"
 
 [ProjectGroups.ChangeFailed]
 other = "Failed to change project group"
+
+[ProjectGroups.NameExists]
+other = "Project group name already exists"
+
+[ProjectGroups.NotFound]
+other = "Project group does not exist"

@@ -297,3 +297,9 @@ other = "项目分组删除失败"
 
 [ProjectGroups.ChangeFailed]
 other = "项目分组改变失败"
+
+[ProjectGroups.NameExists]
+other = "项目分组名称已存在"
+
+[ProjectGroups.NotFound]
+other = "项目分组不存在"

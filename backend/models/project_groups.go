@@ -48,3 +48,13 @@ func GetProjectGroupDisplayOrder(userID uint) (int, error) {
 	}
 	return projectGroup.DisplayOrder, nil
 }
+
+func GetProjectGroupCountByName(userID uint, name string) (int64, error) {
+	var count int64
+	return count, Conn.Model(&ProjectGroups{}).Where("user_id = ? and name = ?", userID, name).Count(&count).Error
+}
+
+func GetProjectGroupCountExcludeTheID(userID uint, name string, id uint) (int64, error) {
+	var count int64
+	return count, Conn.Model(&ProjectGroups{}).Where("user_id = ? and name = ? and id != ?", userID, name, id).Count(&count).Error
+}

@@ -68,6 +68,14 @@ func ProjectGroupCreate(ctx *gin.Context) {
 		return
 	}
 
+	count, _ := models.GetProjectGroupCountByName(currentUser.(*models.Users).ID, data.Name)
+	if count > 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NameExists"}),
+		})
+		return
+	}
+
 	displayOrder, _ := models.GetProjectGroupDisplayOrder(currentUser.(*models.Users).ID)
 
 	pg, _ := models.NewProjectGroups()
@@ -110,8 +118,8 @@ func ProjectGroupRename(ctx *gin.Context) {
 
 	pg, err := models.NewProjectGroups(uriData.ID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.UpdateFailed"}),
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
 		})
 		return
 	}
@@ -119,6 +127,14 @@ func ProjectGroupRename(ctx *gin.Context) {
 	if pg.UserID != currentUser.(*models.Users).ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.UpdateFailed"}),
+		})
+		return
+	}
+
+	count, _ := models.GetProjectGroupCountExcludeTheID(currentUser.(*models.Users).ID, data.Name, pg.ID)
+	if count > 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NameExists"}),
 		})
 		return
 	}
@@ -147,8 +163,8 @@ func ProjectGroupDelete(ctx *gin.Context) {
 
 	pg, err := models.NewProjectGroups(uriData.ID)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.DeleteFailed"}),
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
 		})
 		return
 	}
