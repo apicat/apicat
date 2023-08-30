@@ -532,6 +532,8 @@ func ProjectDataGet(ctx *gin.Context) {
 		content, err = export.HTML(apicatData)
 	case "md":
 		content, err = export.Markdown(apicatData)
+	case "apicat":
+		content, err = apicatData.ToJSON(spec.JSONOption{Indent: "  "})
 	default:
 		content, err = apicatData.ToJSON(spec.JSONOption{Indent: "  "})
 	}
