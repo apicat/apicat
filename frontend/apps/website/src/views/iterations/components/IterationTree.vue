@@ -1,5 +1,5 @@
 <template>
-  <div :class="ns.b()">
+  <div :class="[ns.b(), ns.m('header')]">
     <div :class="[ns.e('item'), activeClass('all')]" @click="handleItemClick('all')">
       <Iconfont icon="ac-diedai" :size="18" />
       <span>所有迭代</span>
@@ -11,10 +11,10 @@
   </div>
 
   <p v-if="followedProjects.length" :class="ns.e('segment')">关注的项目</p>
-  <ul>
+  <ul :class="[ns.b()]">
     <li v-for="project in followedProjects" :class="[ns.e('item'), activeClass(project)]" @click="handleItemClick(project)">
       <span :class="ns.e('dot')"></span>
-      <span>{{ project.title }}</span>
+      <span :class="ns.e('title')">{{ project.title }}</span>
     </li>
   </ul>
 </template>

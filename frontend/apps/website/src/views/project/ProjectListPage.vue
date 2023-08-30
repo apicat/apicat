@@ -8,6 +8,9 @@
         @change-group="onSwitchProjectGroup"
         @create-project="onCreateProject"
         @create-group="onCreateProjectGroup"
+        @delete-group="handleDeleteProjectGroup"
+        @rename-group="handleRenameProjectGroup"
+        @sort-group="handleSortProjectGroup"
       />
     </template>
 
@@ -37,15 +40,11 @@ import { usePageMode } from '@/views/composables/usePageMode'
 import { SwitchProjectGroupInfo } from '@/typings'
 import { useProjects } from './logic/useProjects'
 import { useProjectGroups } from './logic/useProjectGroups'
-import useProjectGroupStore from '@/store/projectGroup'
-import { storeToRefs } from 'pinia'
 
 const titleRef = ref('')
-const projectGroupStore = useProjectGroupStore()
 const groupListRef = ref<InstanceType<typeof ProjectGroups>>()
-const { projectGroups } = storeToRefs(projectGroupStore)
 const { isFormMode, isListMode, switchMode } = usePageMode()
-const { selectedGroupRef } = useProjectGroups()
+const { selectedGroupRef, projectGroups, handleDeleteProjectGroup, handleRenameProjectGroup, handleSortProjectGroup } = useProjectGroups()
 const { isLoading, projects, handleFollowProject, goProjectDetail, refreshProjectList } = useProjects(selectedGroupRef)
 
 // 创建项目

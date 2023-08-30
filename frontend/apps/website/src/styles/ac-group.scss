@@ -1,22 +1,40 @@
 @use '@/styles/mixins/mixins' as *;
 
 @include b(group-list) {
-  @apply mt-24px text-#101010;
+  @apply text-#101010;
+
+  @include m('header') {
+    @apply mt-24px;
+
+    @include e(item) {
+      @apply justify-start;
+
+      .ac-iconfont,
+      .el-icon {
+        @apply text-blue-lighter mr-8px;
+      }
+    }
+  }
 
   @include e(item) {
     @apply rounded-5px cursor-pointer h-40px text-14px flex flex-y-center px-20px;
 
+    @include m(more) {
+      @apply justify-between;
+
+      > .el-icon {
+        visibility: hidden;
+      }
+
+      &:hover {
+        > .el-icon {
+          visibility: visible;
+        }
+      }
+    }
+
     & + & {
       margin-top: 4px;
-    }
-
-    .ac-iconfont,
-    .el-icon {
-      @apply text-blue-lighter mr-8px;
-    }
-
-    span {
-      @apply truncate;
     }
 
     &.active {
@@ -32,6 +50,10 @@
     &:hover {
       @apply bg-gray-110;
     }
+  }
+
+  @include e(title) {
+    @apply truncate;
   }
 
   @include e(segment) {
