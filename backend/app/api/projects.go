@@ -11,6 +11,7 @@ import (
 	"github.com/apicat/apicat/backend/common/spec"
 	"github.com/apicat/apicat/backend/common/spec/plugin/export"
 	"github.com/apicat/apicat/backend/common/spec/plugin/openapi"
+	"github.com/apicat/apicat/backend/common/spec/plugin/postman"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/apicat/apicat/backend/models"
@@ -25,6 +26,7 @@ type CreateProject struct {
 	Data       string `json:"data"`
 	Cover      string `json:"cover" binding:"lte=255"`
 	Visibility string `json:"visibility" binding:"required,oneof=private public"`
+	DataType   string `json:"data_type" binding:"omitempty,oneof=apicat swagger openapi postman"`
 }
 
 type UpdateProject struct {
@@ -202,10 +204,9 @@ func ProjectsCreate(ctx *gin.Context) {
 	}
 
 	var (
-		data       CreateProject
-		content    *spec.Spec
-		rawContent []byte
-		err        error
+		data    CreateProject
+		content *spec.Spec
+		err     error
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -216,14 +217,24 @@ func ProjectsCreate(ctx *gin.Context) {
 	}
 
 	project, _ := models.NewProjects()
-	if data.Data != "" {
-		var base64Content string
-		if strings.Contains(data.Data, "data:application/json;base64,") {
-			base64Content = strings.Replace(data.Data, "data:application/json;base64,", "", 1)
-		} else {
-			base64Content = strings.Replace(data.Data, "data:application/x-yaml;base64,", "", 1)
+
+	if data.DataType != "" {
+		switch data.DataType {
+		case "apicat":
+			content, err = apicatFileParse(data.Data)
+		case "swagger":
+			content, err = openapiAndSwaggerFileParse(data.Data)
+		case "openapi":
+			content, err = openapiAndSwaggerFileParse(data.Data)
+		case "postman":
+			content, err = postmanFileParse(data.Data)
+		default:
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.ImportFail"}),
+			})
+			return
 		}
-		rawContent, err = base64.StdEncoding.DecodeString(base64Content)
+
 		if err != nil {
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.ImportFail"}),
@@ -231,13 +242,6 @@ func ProjectsCreate(ctx *gin.Context) {
 			return
 		}
 
-		content, err = openapi.Decode(rawContent)
-		if err != nil {
-			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.ImportFail"}),
-			})
-			return
-		}
 		project.Description = content.Info.Description
 	}
 
@@ -251,7 +255,7 @@ func ProjectsCreate(ctx *gin.Context) {
 	project.PublicId = shortuuid.New()
 	project.Cover = data.Cover
 	if err := project.Create(); err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.CreateFail"}),
 		})
 		return
@@ -262,7 +266,7 @@ func ProjectsCreate(ctx *gin.Context) {
 	pm.UserID = user.ID
 	pm.Authority = models.ProjectMembersManage
 	if err := pm.Create(); err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.CreateFail"}),
 		})
 		return
@@ -289,6 +293,68 @@ func ProjectsCreate(ctx *gin.Context) {
 		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
+}
+
+// openapi & swagger 导出文件解析
+func openapiAndSwaggerFileParse(fileContent string) (*spec.Spec, error) {
+	var (
+		base64Content string
+		rawContent    []byte
+		err           error
+	)
+
+	if strings.Contains(fileContent, "data:application/json;base64,") {
+		base64Content = strings.Replace(fileContent, "data:application/json;base64,", "", 1)
+	} else {
+		base64Content = strings.Replace(fileContent, "data:application/x-yaml;base64,", "", 1)
+	}
+
+	rawContent, err = base64.StdEncoding.DecodeString(base64Content)
+	if err != nil {
+		return nil, err
+	}
+
+	return openapi.Decode(rawContent)
+}
+
+// apicat 导出文件解析
+func apicatFileParse(fileContent string) (*spec.Spec, error) {
+	var (
+		base64Content string
+		rawContent    []byte
+		err           error
+	)
+
+	if strings.Contains(fileContent, "data:application/json;base64,") {
+		base64Content = strings.Replace(fileContent, "data:application/json;base64,", "", 1)
+	}
+
+	rawContent, err = base64.StdEncoding.DecodeString(base64Content)
+	if err != nil {
+		return nil, err
+	}
+
+	return spec.ParseJSON(rawContent)
+}
+
+// postman 导出文件解析
+func postmanFileParse(fileContent string) (*spec.Spec, error) {
+	var (
+		base64Content string
+		rawContent    []byte
+		err           error
+	)
+
+	if strings.Contains(fileContent, "data:application/json;base64,") {
+		base64Content = strings.Replace(fileContent, "data:application/json;base64,", "", 1)
+	}
+
+	rawContent, err = base64.StdEncoding.DecodeString(base64Content)
+	if err != nil {
+		return nil, err
+	}
+
+	return postman.Import(rawContent)
 }
 
 func ProjectsUpdate(ctx *gin.Context) {
