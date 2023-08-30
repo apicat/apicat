@@ -142,3 +142,5 @@ export interface ProjectGroup {
 }
 
 export type ProjectGroupSelectKey = 'all' | 'followed' | 'my' | 'create' | number | null
+
+export type SwitchProjectGroupInfo = { key: ProjectGroupSelectKey; title: string }

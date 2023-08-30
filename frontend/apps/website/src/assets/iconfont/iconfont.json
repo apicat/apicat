@@ -6,6 +6,27 @@
   "description": "open source apicat icons",
   "glyphs": [
     {
+      "icon_id": "1172635",
+      "name": "分类",
+      "font_class": "fenlei",
+      "unicode": "e612",
+      "unicode_decimal": 58898
+    },
+    {
+      "icon_id": "1381389",
+      "name": "inbox",
+      "font_class": "xiangmu",
+      "unicode": "e62a",
+      "unicode_decimal": 58922
+    },
+    {
+      "icon_id": "300295",
+      "name": "分类",
+      "font_class": "fenlei2",
+      "unicode": "e611",
+      "unicode_decimal": 58897
+    },
+    {
       "icon_id": "666901",
       "name": "智能优化",
       "font_class": "zhinengyouhua",
@@ -88,13 +109,6 @@
       "font_class": "shiyan",
       "unicode": "e653",
       "unicode_decimal": 58963
-    },
-    {
-      "icon_id": "11032211",
-      "name": "项目",
-      "font_class": "xiangmu",
-      "unicode": "e614",
-      "unicode_decimal": 58900
     },
     {
       "icon_id": "21591047",

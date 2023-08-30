@@ -1,7 +1,7 @@
 <template>
-  <div class="container flex flex-col justify-center mx-auto">
+  <div class="flex flex-col justify-center mx-auto px-36px">
     <p class="border-b border-solid border-gray-lighter pb-30px text-18px text-gray-title">
-      {{ title }}
+      {{ titleRef }}
     </p>
 
     <ul :class="ns.b()">
@@ -11,27 +11,32 @@
         </div>
         <div :class="ns.e('title')">
           <p class="flex-1 truncate">{{ project.title }}</p>
-          <el-tooltip :content="project.is_followed ? '取消关注' : '关注项目'" placement="bottom">
-            <div :class="ns.e('follow')">
+          <div :class="ns.e('icons')">
+            <el-tooltip :content="project.is_followed ? '取消关注' : '关注项目'" placement="bottom">
               <el-icon size="18" v-if="!project.is_followed" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star-outline /></el-icon>
               <el-icon size="18" v-else color="#FF9966" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star /></el-icon>
-            </div>
-          </el-tooltip>
+            </el-tooltip>
+
+            <el-tooltip content="项目分组" placement="bottom">
+              <Iconfont :size="18" class="ml-10px" icon="ac-fenlei" @click.stop="handleProjectGroup(project)" />
+            </el-tooltip>
+          </div>
         </div>
       </li>
     </ul>
     <el-empty v-if="isNormalUser && !projects.length" :image-size="200" :description="$t('app.project.tips.noData')" />
   </div>
 </template>
+
 <script setup lang="ts">
 import { ProjectCover, ProjectInfo } from '@/typings'
 import { useUserStore } from '@/store/user'
 import { useNamespace } from '@/hooks'
 
 const emits = defineEmits<{
-  (e: 'create'): void
   (e: 'click', project: ProjectInfo): void
   (e: 'follow', project: ProjectInfo): void
+  (e: 'group', project: ProjectInfo): void
 }>()
 
 const props = withDefaults(
@@ -48,9 +53,13 @@ const props = withDefaults(
 const ns = useNamespace('project-list')
 const { isNormalUser } = useUserStore()
 
+const titleRef = computed(() => props.title || '所有项目')
+
 const handleClick = (project: ProjectInfo) => emits('click', project)
 const handleFollowProject = (project: ProjectInfo) => emits('follow', project)
+const handleProjectGroup = (project: ProjectInfo) => emits('group', project)
 </script>
+
 <style scoped lang="scss">
 @use '@/styles/mixins/mixins' as *;
 
@@ -65,7 +74,7 @@ const handleFollowProject = (project: ProjectInfo) => emits('follow', project)
     @apply flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px;
 
     &:hover {
-      @include e(follow) {
+      @include e(icons) {
         visibility: visible;
       }
     }
@@ -79,7 +88,7 @@ const handleFollowProject = (project: ProjectInfo) => emits('follow', project)
     @apply flex items-center flex-1 px-16px;
   }
 
-  @include e(follow) {
+  @include e(icons) {
     visibility: hidden;
     @apply flex pt-1px;
   }

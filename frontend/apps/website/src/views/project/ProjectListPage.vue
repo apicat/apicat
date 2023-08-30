@@ -1,76 +1,74 @@
 <template>
   <LeftRightLayout main-width="auto">
     <template #left>
-      <ProjectGroupList ref="groupListRef" @click="onSwitchProjectGroup" @create-project="onCreateProject" @create-group="onCreateProjectGroup" />
+      <ProjectGroups
+        ref="groupListRef"
+        v-model:selected="selectedGroupRef"
+        :groups="projectGroups"
+        @change-group="onSwitchProjectGroup"
+        @create-project="onCreateProject"
+        @create-group="onCreateProjectGroup"
+      />
     </template>
-    <ProjectList v-show="isListMode" title="呃呃沙发" ref="iterationTableRef" :projects="[]" />
+
+    <ProjectList
+      ref="iterationTableRef"
+      v-show="isListMode"
+      v-loading="isLoading"
+      :title="titleRef"
+      :projects="projects"
+      @click="goProjectDetail"
+      @follow="handleFollowProject"
+      @group="changeProjectGroup"
+    />
+
+    <div v-if="isFormMode">
+      <el-button type="primary" @click="onCancel">取消</el-button>
+    </div>
   </LeftRightLayout>
 </template>
 
 <script lang="ts" setup>
 import LeftRightLayout from '@/layouts/LeftRightLayout.vue'
-import ProjectGroupList from './components/ProjectGroupList.vue'
+import ProjectGroups from './components/ProjectGroups.vue'
 import ProjectList from './components/ProjectList.vue'
 import { usePageMode } from '@/views/composables/usePageMode'
 
-import { getProjectDetailPath } from '@/router'
-import { ProjectCover, ProjectGroupSelectKey } from '@/typings'
-import { useUserStore } from '@/store/user'
+import { SwitchProjectGroupInfo } from '@/typings'
 import { useProjects } from './logic/useProjects'
-import { useNamespace } from '@/hooks'
+import { useProjectGroups } from './logic/useProjectGroups'
+import useProjectGroupStore from '@/store/projectGroup'
+import { storeToRefs } from 'pinia'
 
-const ns = useNamespace('project-list')
-const { isNormalUser } = useUserStore()
-const { isLoading, projects, handleFollowProject } = useProjects()
-const groupListRef = ref<InstanceType<typeof ProjectGroupList>>()
+const titleRef = ref('')
+const projectGroupStore = useProjectGroupStore()
+const groupListRef = ref<InstanceType<typeof ProjectGroups>>()
+const { projectGroups } = storeToRefs(projectGroupStore)
 const { isFormMode, isListMode, switchMode } = usePageMode()
+const { selectedGroupRef } = useProjectGroups()
+const { isLoading, projects, handleFollowProject, goProjectDetail, refreshProjectList } = useProjects(selectedGroupRef)
 
 // 创建项目
-const onCreateProject = () => {
-  console.log('创建项目')
-}
+const onCreateProject = () => switchMode('form')
 
 // 切换项目分组
-const onSwitchProjectGroup = (key: ProjectGroupSelectKey) => {
-  console.log('切换项目分组', key)
+const onSwitchProjectGroup = ({ title }: SwitchProjectGroupInfo) => {
+  titleRef.value = title
+  switchMode('list')
 }
 
 // 创建项目分组
 const onCreateProjectGroup = () => {
   console.log('创建项目分组')
 }
-</script>
-<style scoped lang="scss">
-@use '@/styles/mixins/mixins' as *;
 
-@include b(project-list) {
-  display: grid;
-  justify-content: space-between;
-  grid-template-columns: repeat(auto-fill, 250px);
-  grid-gap: 20px;
-  @apply my-20px py-10px;
-
-  @include e(item) {
-    @apply flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px;
-
-    &:hover {
-      @include e(follow) {
-        visibility: visible;
-      }
-    }
-  }
-
-  @include e(cover) {
-    @apply flex items-center justify-center h-112px;
-  }
-
-  @include e(title) {
-    @apply flex items-center flex-1 px-16px;
-  }
-
-  @include e(follow) {
-    visibility: hidden;
-    @apply flex pt-1px;
-  }
+// 调整项目分组
+const changeProjectGroup = () => {
+  console.log('调整项目分组', selectedGroupRef.value)
 }
-</style>
+
+const onCancel = () => {
+  switchMode('list')
+  groupListRef.value?.goBackSelected()
+}
+</script>

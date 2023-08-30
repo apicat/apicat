@@ -4,7 +4,7 @@
       <slot name="left"></slot>
     </div>
     <div class="flex-1">
-      <div class="m-auto pt-22px px-36px" :style="mainViewStyle">
+      <div class="m-auto pt-22px" :style="mainViewStyle">
         <slot></slot>
       </div>
     </div>

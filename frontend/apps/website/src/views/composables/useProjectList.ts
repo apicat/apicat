@@ -1,6 +1,6 @@
 import useApi from '@/hooks/useApi'
 import { ProjectInfo } from '@/typings'
-import { convertProjectCover, getProjectList } from '@/api/project'
+import { getProjectList } from '@/api/project'
 
 export const useProjectList = (searchParams?: Record<string, any>) => {
   const projectList = ref<ProjectInfo[]>([])
@@ -9,8 +9,7 @@ export const useProjectList = (searchParams?: Record<string, any>) => {
   // 加载项目列表
   const loadProjectList = async () => {
     try {
-      const projects = await getProjectListApi(searchParams)
-      projectList.value = (projects || []).map((item: ProjectInfo) => convertProjectCover(item))
+      projectList.value = await getProjectListApi(searchParams)
     } catch (error) {
       projectList.value = []
     }

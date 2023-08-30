@@ -5,7 +5,7 @@
       <span>所有迭代</span>
     </div>
     <div :class="[ns.e('item'), activeClass('create')]" @click="handleItemClick('create')">
-      <el-icon size="18"><ac-icon-ep-plus /></el-icon>
+      <el-icon :size="18"><ac-icon-fe:plus /></el-icon>
       <span>创建迭代</span>
     </div>
   </div>

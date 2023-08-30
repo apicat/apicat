@@ -22,7 +22,12 @@ export const convertProjectCover = (project: ProjectInfo): ProjectInfo => {
   return project
 }
 
-export const getProjectList = async (params?: Record<string, any>): Promise<ProjectInfo[]> => Ajax.get(`/projects${queryStringify(params)}`)
+export const getProjectList = async (params?: Record<string, any>): Promise<ProjectInfo[]> => {
+  let projects: any = await Ajax.get(`/projects${queryStringify(params)}`)
+  projects = (projects || []).map((item: ProjectInfo) => convertProjectCover(item))
+  return projects as ProjectInfo[]
+}
+
 export const getMyProjectList = async (): Promise<ProjectInfo[]> => await getProjectList({ auth: [MemberAuthorityInProject.MANAGER] })
 export const getMyFollowedProjectList = async (): Promise<ProjectInfo[]> => await getProjectList({ is_followed: true })
 export const getProjectListByGroupId = async (group_id: number | null): Promise<ProjectInfo[]> => await getProjectList({ group_id })
@@ -65,7 +70,7 @@ export const quitProject = (project_id: string) => Ajax.delete(`/projects/${proj
 // 移交项目
 export const transferProject = (project_id: string, member_id: number) => Ajax.put(`/projects/${project_id}/transfer`, { member_id })
 // 获取已关注的项目列表
-export const getFollowedProjectList = (): Promise<ProjectInfo[]> => Ajax.get('/projects/follow')
+export const getFollowedProjectList = getMyFollowedProjectList
 // 关注项目
 export const followProject = (project_id: string) => QuietAjax.post(`/projects/${project_id}/follow`)
 // 取消关注项目
