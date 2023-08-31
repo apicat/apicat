@@ -131,7 +131,10 @@ func ProjectsList(ctx *gin.Context) {
 		}
 		groupID := 0
 		for _, pm := range projectMembers {
-			groupID = int(pm.GroupID)
+			if v.ID == pm.ProjectID {
+				groupID = int(pm.GroupID)
+				break
+			}
 		}
 
 		projectsList = append(projectsList, gin.H{
