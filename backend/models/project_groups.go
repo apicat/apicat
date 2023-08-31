@@ -34,6 +34,10 @@ func (pg *ProjectGroups) Create() error {
 }
 
 func (pg *ProjectGroups) Delete() error {
+	if err := Conn.Model(&ProjectMembers{}).Where("user_id = ? AND group_id = ?", pg.UserID, pg.ID).Update("group_id", 0).Error; err != nil {
+		return err
+	}
+
 	return Conn.Delete(pg).Error
 }
 
