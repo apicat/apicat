@@ -129,6 +129,10 @@ func ProjectsList(ctx *gin.Context) {
 				break
 			}
 		}
+		groupID := 0
+		for _, pm := range projectMembers {
+			groupID = int(pm.GroupID)
+		}
 
 		projectsList = append(projectsList, gin.H{
 			"id":          v.PublicId,
@@ -136,6 +140,7 @@ func ProjectsList(ctx *gin.Context) {
 			"description": v.Description,
 			"cover":       v.Cover,
 			"is_followed": isFollow,
+			"group_id":    groupID,
 			"created_at":  v.CreatedAt.Format("2006-01-02 15:04:05"),
 			"updated_at":  v.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
