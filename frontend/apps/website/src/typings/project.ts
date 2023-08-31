@@ -46,6 +46,11 @@ export declare interface ProjectInfo {
    * 是否关注
    */
   is_followed?: boolean
+
+  /**
+   * 分组id
+   */
+  group_id?: number
 }
 
 /**

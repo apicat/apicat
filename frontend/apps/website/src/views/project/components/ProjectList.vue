@@ -35,7 +35,7 @@ import { useNamespace } from '@/hooks'
 const emits = defineEmits<{
   (e: 'click', project: ProjectInfo): void
   (e: 'follow', project: ProjectInfo): void
-  (e: 'group', project: ProjectInfo): void
+  (e: 'change-group', project: ProjectInfo): void
 }>()
 
 const props = withDefaults(
@@ -55,7 +55,7 @@ const titleRef = computed(() => props.title || '所有项目')
 
 const handleClick = (project: ProjectInfo) => emits('click', project)
 const handleFollowProject = (project: ProjectInfo) => emits('follow', project)
-const handleProjectGroup = (project: ProjectInfo) => emits('group', project)
+const handleProjectGroup = (project: ProjectInfo) => emits('change-group', project)
 </script>
 
 <style scoped lang="scss">

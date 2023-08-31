@@ -11,6 +11,10 @@ export const useProjectGroupStore = defineStore('projectGroup', {
     projectGroups: [],
   }),
 
+  getters: {
+    groupsForOptions: (state): ProjectGroup[] => [{ name: '不分组', id: 0 }, ...state.projectGroups],
+  },
+
   actions: {
     async getProjectGroups() {
       try {

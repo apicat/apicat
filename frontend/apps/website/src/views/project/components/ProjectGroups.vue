@@ -46,7 +46,7 @@ import { VueDraggableNext as Draggable } from 'vue-draggable-next'
 const emits = defineEmits<{
   (event: 'create-project'): void
   (event: 'create-group'): void
-  (event: 'change-group', info: SwitchProjectGroupInfo): void
+  (event: 'switch-group', info: SwitchProjectGroupInfo): void
   (event: 'update:selected', key: ProjectGroupSelectKey): void
   (event: 'delete-group', group: ProjectGroup): void
   (event: 'rename-group', group: ProjectGroup): void
@@ -137,7 +137,7 @@ watch(selectedRef, (key) => {
     } else {
       title = groups.value.find((menu) => menu.id === key)?.name
     }
-    emits('change-group', { key, title: title ?? '所有项目' })
+    emits('switch-group', { key, title: title ?? '所有项目' })
     emits('update:selected', key)
     return
   }

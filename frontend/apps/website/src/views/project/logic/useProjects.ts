@@ -1,4 +1,5 @@
 import { ProjectGroupSelectKey, ProjectInfo } from '@/typings'
+import SelectProjectGroup from '../components/SelectProjectGroup.vue'
 import { getProjectDetailPath } from '@/router'
 import { getMyFollowedProjectList, getMyProjectList, getProjectList, getProjectListByGroupId, toggleFollowProject } from '@/api/project'
 
@@ -6,14 +7,17 @@ export const useProjects = (selectedGroupRef: Ref<ProjectGroupSelectKey>) => {
   const router = useRouter()
   const isLoading = ref(false)
   const projects = ref<ProjectInfo[]>([])
+  const selectProjectGroupRef = ref<InstanceType<typeof SelectProjectGroup>>()
 
   // 跳转到项目详情
   const goProjectDetail = (project: ProjectInfo) => {
     router.push(getProjectDetailPath(project.id))
   }
 
-  // 处理创建项目
-  const handleCreateProject = () => {}
+  // 调整项目分组
+  const changeProjectGroup = (projectInfo: ProjectInfo) => {
+    selectProjectGroupRef.value?.show(projectInfo)
+  }
 
   // 处理是否关注项目
   const handleFollowProject = async (project: ProjectInfo) => {
@@ -39,7 +43,6 @@ export const useProjects = (selectedGroupRef: Ref<ProjectGroupSelectKey>) => {
         case 'my':
           projects.value = await getMyProjectList()
           break
-
         default:
           projects.value = await getProjectListByGroupId(groupKey as number)
           break
@@ -57,8 +60,10 @@ export const useProjects = (selectedGroupRef: Ref<ProjectGroupSelectKey>) => {
   return {
     isLoading,
     projects,
+    selectProjectGroupRef,
     refreshProjectList: loadPrjectListByGroupId,
     handleFollowProject,
     goProjectDetail,
+    changeProjectGroup,
   }
 }
