@@ -121,6 +121,14 @@ export const enum ExportProjectTypes {
   MARKDOWN = 'md',
 }
 
+// 项目导入类型
+export const enum ImportProjectTypes {
+  ApiCat = 'apicat',
+  OpenAPI = 'openapi',
+  Swagger = 'swagger',
+  Postman = 'postman',
+}
+
 export const enum CommonParameterType {
   String = 'string',
   Integer = 'integer',

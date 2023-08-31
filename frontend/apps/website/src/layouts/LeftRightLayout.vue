@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-full">
-    <div class="w-246px b-r b-solid b-gray-110 px-20px">
+    <div class="min-w-246px b-r b-solid b-gray-110 px-20px">
       <slot name="left"></slot>
     </div>
     <div class="flex-1">

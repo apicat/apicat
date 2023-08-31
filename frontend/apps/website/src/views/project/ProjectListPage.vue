@@ -25,9 +25,7 @@
       @change-group="changeProjectGroup"
     />
 
-    <div v-if="isFormMode">
-      <el-button type="primary" @click="onCancel">取消</el-button>
-    </div>
+    <CreateProjectForm v-if="isFormMode" :groups="groupsForOptions" @cancel="onCancel" :group_id="selectedGroupKeyForCreateForm" />
   </LeftRightLayout>
 
   <CreateOrUpdateProjectGroup ref="createOrUpdateProjectGroupRef" @success="refreshProjectGroups" />
@@ -44,16 +42,27 @@ import { SwitchProjectGroupInfo } from '@/typings'
 import { useProjects } from './logic/useProjects'
 import { useProjectGroups } from './logic/useProjectGroups'
 import CreateOrUpdateProjectGroup from './components/CreateOrUpdateProjectGroup.vue'
+import CreateProjectForm from './components/CreateProjectForm.vue'
 import SelectProjectGroup from './components/SelectProjectGroup.vue'
 
 const titleRef = ref('')
 const groupListRef = ref<InstanceType<typeof ProjectGroups>>()
-
 const { isFormMode, isListMode, switchMode } = usePageMode()
-const { selectedGroupRef, createOrUpdateProjectGroupRef, projectGroups, handleDeleteProjectGroup, handleRenameProjectGroup, handleSortProjectGroup, refreshProjectGroups } =
-  useProjectGroups()
+
+const {
+  selectedGroupRef,
+  createOrUpdateProjectGroupRef,
+  projectGroups,
+  groupsForOptions,
+  handleDeleteProjectGroup,
+  handleRenameProjectGroup,
+  handleSortProjectGroup,
+  refreshProjectGroups,
+} = useProjectGroups()
 
 const { isLoading, projects, selectProjectGroupRef, handleFollowProject, goProjectDetail, changeProjectGroup, refreshProjectList } = useProjects(selectedGroupRef)
+
+const selectedGroupKeyForCreateForm = computed<number>(() => (typeof selectedGroupRef.value !== 'number' ? 0 : selectedGroupRef.value))
 
 // 创建项目
 const onCreateProject = () => switchMode('form')

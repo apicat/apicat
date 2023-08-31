@@ -12,7 +12,7 @@ export const useProjectGroups = () => {
   const createOrUpdateProjectGroupRef = ref<InstanceType<typeof CreateOrUpdateProjectGroup>>()
   const selectedGroupRef = ref<ProjectGroupSelectKey>('all')
   const projectGroupStore = useProjectGroupStore()
-  const { projectGroups } = storeToRefs(projectGroupStore)
+  const { projectGroups, groupsForOptions } = storeToRefs(projectGroupStore)
 
   const [isLoading, getProjectGroupsApi] = useApi(projectGroupStore.getProjectGroups)
 
@@ -46,6 +46,7 @@ export const useProjectGroups = () => {
     selectedGroupRef,
     isLoading,
     projectGroups,
+    groupsForOptions,
 
     refreshProjectGroups: getProjectGroupsApi,
     handleDeleteProjectGroup,
