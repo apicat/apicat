@@ -27,6 +27,7 @@ type CreateProject struct {
 	Cover      string `json:"cover" binding:"lte=255"`
 	Visibility string `json:"visibility" binding:"required,oneof=private public"`
 	DataType   string `json:"data_type" binding:"omitempty,oneof=apicat swagger openapi postman"`
+	GroupID    uint   `json:"group_id" binding:"omitempty"`
 }
 
 type UpdateProject struct {
@@ -265,6 +266,7 @@ func ProjectsCreate(ctx *gin.Context) {
 	pm.ProjectID = project.ID
 	pm.UserID = user.ID
 	pm.Authority = models.ProjectMembersManage
+	pm.GroupID = data.GroupID
 	if err := pm.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.CreateFail"}),
