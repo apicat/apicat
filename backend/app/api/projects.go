@@ -57,7 +57,7 @@ type ProjectsListData struct {
 }
 
 type ProjectChangeGroupData struct {
-	TargetGroupID uint `json:"target_group_id" binding:"required,lte=255"`
+	TargetGroupID uint `json:"target_group_id" binding:"lte=255"`
 }
 
 func ProjectsList(ctx *gin.Context) {
