@@ -119,6 +119,7 @@ export const enum ExportProjectTypes {
   OpenAPI = 'openapi',
   HTML = 'HTML',
   MARKDOWN = 'md',
+  ApiCat = 'apicat',
 }
 
 // 项目导入类型
