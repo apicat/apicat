@@ -5,7 +5,7 @@
     </p>
 
     <ul :class="ns.b()">
-      <li :class="ns.e('item')" v-for="project in projects" @click="handleClick(project)">
+      <li :class="ns.e('item')" v-for="project in projects" @click="handleClick(project)" :key="project.id">
         <div :class="ns.e('cover')" :style="{ backgroundColor: (project.cover as ProjectCover).coverBgColor }">
           <Iconfont class="text-white" :icon="(project.cover as ProjectCover).coverIcon" :size="55" />
         </div>
@@ -24,13 +24,12 @@
         </div>
       </li>
     </ul>
-    <el-empty v-if="isNormalUser && !projects.length" :image-size="200" :description="$t('app.project.tips.noData')" />
+    <el-empty v-if="!projects.length" :image-size="200" :description="$t('app.project.tips.noData')" />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ProjectCover, ProjectInfo } from '@/typings'
-import { useUserStore } from '@/store/user'
 import { useNamespace } from '@/hooks'
 
 const emits = defineEmits<{
@@ -51,7 +50,6 @@ const props = withDefaults(
 )
 
 const ns = useNamespace('project-list')
-const { isNormalUser } = useUserStore()
 
 const titleRef = computed(() => props.title || '所有项目')
 

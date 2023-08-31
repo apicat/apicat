@@ -19,12 +19,6 @@ export const useProjectGroupStore = defineStore('projectGroup', {
       } catch (error) {
         this.projectGroups = []
       }
-
-      this.projectGroups = [
-        { id: 1, name: '1' },
-        { id: 2, name: '2' },
-        { id: 3, name: '3' },
-      ]
       return this.projectGroups
     },
 
