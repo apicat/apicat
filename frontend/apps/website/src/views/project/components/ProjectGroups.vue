@@ -1,10 +1,10 @@
 <template>
   <div class="flex flex-col h-full">
     <div :class="[ns.b(), ns.m('header')]">
-      <div v-for="menu in menus" :key="menu.title" :class="[ns.e('item'), activeClass(menu.key)]" @click="handleItemClick(menu.key, menu.title)">
+      <div v-for="menu in menus" :key="menu.name" :class="[ns.e('item'), activeClass(menu.id)]" @click="handleItemClick(menu.id)">
         <Iconfont v-if="menu.iconfont" :icon="menu.iconfont" :size="18" />
         <el-icon v-if="menu.elIcon" :size="18"><component :is="menu.elIcon" /></el-icon>
-        <span>{{ menu.title }}</span>
+        <span>{{ menu.name }}</span>
       </div>
 
       <div :class="ns.e('segment')">
@@ -15,8 +15,8 @@
 
     <div class="flex-1 overflow-scroll mb-10px">
       <Draggable tag="ul" :class="ns.b()" :list="groups" @end="onDragEnd">
-        <li v-for="item in groups" :key="item.id" :class="[ns.e('item'),ns.em('item','more'), activeClass(item.id!)]" @click="handleItemClick(item.id!, item.name)">
-          <div class="flex-y-center">
+        <li v-for="item in groups" :key="item.id" :class="[ns.e('item'),ns.em('item','more'), activeClass(item.id!)]" @click="handleItemClick(item.id!)">
+          <div class="w-full flex-y-center">
             <span :class="ns.e('dot')"></span>
             <span :class="ns.e('title')">{{ item.name }}</span>
           </div>
@@ -66,6 +66,7 @@ const props = withDefaults(
 
 const userStore = useUserStore()
 const { isNormalUser } = storeToRefs(userStore)
+const { groups, selected } = toRefs(props)
 const ns = useNamespace('group-list')
 const { t } = useI18n()
 
@@ -87,16 +88,16 @@ let selectedHistory: ProjectGroupSelectKey = props.selected
 
 // 导航菜单
 const menus = computed(() => {
-  let allMenus: Array<{ title: string; key: ProjectGroupSelectKey; iconfont?: string; elIcon?: any }> = [
-    { title: '所有项目', key: 'all', iconfont: 'ac-xiangmu' },
-    { title: '关注的项目', key: 'followed', elIcon: markRaw(AcIconMyFollowedProject) },
-    { title: '我的项目', key: 'my', elIcon: markRaw(AcIconMyProject) },
-    { title: t('app.project.createModal.title'), key: 'create', elIcon: markRaw(AcIconAdd) },
+  let allMenus: Array<{ name: string; id: ProjectGroupSelectKey; iconfont?: string; elIcon?: any }> = [
+    { name: '所有项目', id: 'all', iconfont: 'ac-xiangmu' },
+    { name: '关注的项目', id: 'followed', elIcon: markRaw(AcIconMyFollowedProject) },
+    { name: '我的项目', id: 'my', elIcon: markRaw(AcIconMyProject) },
+    { name: t('app.project.createModal.title'), id: 'create', elIcon: markRaw(AcIconAdd) },
   ]
 
   // 普通成员移除创建入口
   if (isNormalUser.value) {
-    allMenus = allMenus.filter((menu) => menu.key !== 'create')
+    allMenus = allMenus.filter((menu) => menu.id !== 'create')
   }
 
   return allMenus
@@ -121,19 +122,28 @@ const popoverMenus = [
 ]
 
 // 点击项目分组
-const handleItemClick = (key: ProjectGroupSelectKey, title: string) => {
+const handleItemClick = (key: ProjectGroupSelectKey) => {
   selectedRef.value = key
+}
 
+watch(selected, (val) => handleItemClick(val))
+
+watch(selectedRef, (key) => {
   if (key !== 'create') {
     selectedHistory = key
-
-    emits('change-group', { key, title })
+    let title: string | undefined
+    if (typeof key === 'string') {
+      title = menus.value.find((menu) => menu.id === key)?.name
+    } else {
+      title = groups.value.find((menu) => menu.id === key)?.name
+    }
+    emits('change-group', { key, title: title ?? '所有项目' })
     emits('update:selected', key)
     return
   }
 
   emits('create-project')
-}
+})
 
 const onDragEnd = () => emits('sort-group')
 

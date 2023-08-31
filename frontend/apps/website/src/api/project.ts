@@ -77,3 +77,9 @@ export const followProject = (project_id: string) => QuietAjax.post(`/projects/$
 export const unFollowProject = (project_id: string) => QuietAjax.delete(`/projects/${project_id}/follow`)
 // toggle 关注项目
 export const toggleFollowProject = (project: ProjectInfo) => (project.is_followed ? unFollowProject(project.id as string) : followProject(project.id as string))
+
+// 项目分组设置
+export const settingProjectGroup = (project_id: string, target_group_id: number) => Ajax.put(`/projects/${project_id}/change_group`, { target_group_id })
+
+// 移除项目分组，0为无分组
+export const removeProjectGroup = (project_id: string) => settingProjectGroup(project_id, 0)

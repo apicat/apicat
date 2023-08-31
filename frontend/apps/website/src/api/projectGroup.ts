@@ -12,7 +12,7 @@ export const getProjectGroupList = async (): Promise<ProjectGroup[]> => Ajax.get
 export const createProjectGroup = async (params: ProjectGroup): Promise<ProjectGroup> => QuietAjax.post(restfulApiPath(), params)
 
 // 删除分组
-export const deleteProjectGroup = async (group_id: number) => Ajax.delete(restfulOperationApiPath(group_id))
+export const deleteProjectGroup = async (group_id: number) => QuietAjax.delete(restfulOperationApiPath(group_id))
 
 // 重命名分组
 export const renameProjectGroup = async ({ id, ...data }: ProjectGroup) => QuietAjax.put(`${restfulOperationApiPath(id!)}/rename`, data)

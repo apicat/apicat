@@ -22,6 +22,10 @@ export const useProjectGroups = () => {
       title: t('app.common.deleteTip'),
       content: '确定删除该项目分组吗?',
       onOk: async () => {
+        // 删除选中分组
+        if (selectedGroupRef.value === group.id) {
+          selectedGroupRef.value = 'all'
+        }
         await projectGroupStore.deleteProjectGroup(group.id!)
         await getProjectGroupsApi()
       },

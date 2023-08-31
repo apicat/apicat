@@ -53,7 +53,7 @@
   }
 
   @include e(title) {
-    @apply truncate;
+    @apply truncate flex-auto;
   }
 
   @include e(segment) {
@@ -61,6 +61,6 @@
   }
 
   @include e(dot) {
-    @apply mr-8px w-3px h-3px bg-black rounded-full mt-2px;
+    @apply mr-8px w-3px h-3px bg-black rounded-full mt-2px flex-none;
   }
 }
