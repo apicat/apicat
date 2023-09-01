@@ -187,7 +187,7 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 	collectionList := []*Collections{}
 
 	for i, collection := range collections {
-		if len(collection.Items) > 0 {
+		if len(collection.Items) > 0 || collection.Type == "category" {
 			category := &Collections{
 				ProjectId: projectID,
 				ParentId:  parentID,
