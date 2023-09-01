@@ -63,7 +63,7 @@ export const getResponseStatusCodeBgColor = (code: number): any => {
 }
 
 export const getRequestMethodColor = (method: string): any => {
-  const color = (HttpMethodTypeMap as any)[method].color
+  const color = (HttpMethodTypeMap as any)[(method || '').toLowerCase()].color
   return color ?? HttpMethodTypeMap.get.color
 }
 
