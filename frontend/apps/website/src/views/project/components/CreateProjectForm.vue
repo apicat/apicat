@@ -46,6 +46,10 @@
       <el-form-item label="项目分组" prop="group_id" class="flex-1 mr-10px">
         <el-select v-model="form.group_id" class="w-full">
           <el-option v-for="item in groups" :key="item.id" :label="item.name" :value="item.id!" />
+          <el-option-group></el-option-group>
+          <el-option-group>
+            <el-option label="创建分组" :value="-1" />
+          </el-option-group>
         </el-select>
       </el-form-item>
     </el-form-item>
@@ -118,7 +122,7 @@ import openApiLogo from '@/assets/images/logo-openapis.svg'
 import apiCatLogo from '@/assets/images/logo-square.svg'
 import postmanLogo from '@/assets/images/logo-postman@2x.png'
 
-const emits = defineEmits<{ (e: 'cancel'): void }>()
+const emits = defineEmits<{ (e: 'cancel'): void; (e: 'create-group'): void }>()
 const props = withDefaults(defineProps<{ group_id: number; groups: ProjectGroup[] }>(), {
   group_id: 0,
   groups: () => [],
@@ -202,6 +206,24 @@ const handleSubmit = async (formEl: FormInstance | undefined) => {
     isLoading.value = false
   }
 }
+
+const setSelectedGroup = (group_id: number) => {
+  form.group_id = group_id
+}
+
+watch(
+  () => form.group_id,
+  (val, oldVal) => {
+    if (val === -1) {
+      form.group_id = oldVal
+      emits('create-group')
+    }
+  }
+)
+
+defineExpose({
+  setSelectedGroup,
+})
 </script>
 
 <style lang="scss" scoped>

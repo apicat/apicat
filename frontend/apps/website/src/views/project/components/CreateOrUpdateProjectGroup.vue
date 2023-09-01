@@ -26,6 +26,7 @@ import { ProjectGroup } from '@/typings'
 import useProjectGroupStore from '@/store/projectGroup'
 
 const emits = defineEmits(['success'])
+let successCallback: null | ((id: number) => void) = null
 
 const { t } = useI18n()
 
@@ -51,9 +52,11 @@ const handleSubmit = async (formEl: FormInstance | undefined) => {
     const valid = await formEl.validate()
     if (valid) {
       isLoading.value = true
-      await projectGroupStore.createOrUpdateProjectGroup(form.value)
+      const group = await projectGroupStore.createOrUpdateProjectGroup(form.value)
       emits('success')
+      successCallback && successCallback(group.id!)
       hideModel()
+      successCallback = null
     }
   } catch (error) {
     //
@@ -70,7 +73,13 @@ const show = async (group: ProjectGroup = { name: '' }) => {
   form.value = { ...group }
 }
 
+const showWithCallback = (callback: (group_id: number) => void) => {
+  successCallback = callback
+  show()
+}
+
 defineExpose({
   show,
+  showWithCallback,
 })
 </script>

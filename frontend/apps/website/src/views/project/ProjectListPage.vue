@@ -25,7 +25,14 @@
       @change-group="changeProjectGroup"
     />
 
-    <CreateProjectForm v-if="isFormMode" :groups="groupsForOptions" @cancel="onCancel" :group_id="selectedGroupKeyForCreateForm" />
+    <CreateProjectForm
+      v-if="isFormMode"
+      ref="createProjectFormRef"
+      :groups="groupsForOptions"
+      :group_id="selectedGroupKeyForCreateForm"
+      @cancel="onCancel"
+      @create-group="onCreateProjectGroupByProjectForm"
+    />
   </LeftRightLayout>
 
   <CreateOrUpdateProjectGroup ref="createOrUpdateProjectGroupRef" @success="refreshProjectGroups" />
@@ -47,6 +54,8 @@ import SelectProjectGroup from './components/SelectProjectGroup.vue'
 
 const titleRef = ref('')
 const groupListRef = ref<InstanceType<typeof ProjectGroups>>()
+const createProjectFormRef = ref<InstanceType<typeof CreateProjectForm>>()
+
 const { isFormMode, isListMode, switchMode } = usePageMode()
 
 const {
@@ -76,5 +85,11 @@ const onSwitchProjectGroup = ({ title }: SwitchProjectGroupInfo) => {
 const onCancel = () => {
   switchMode('list')
   groupListRef.value?.goBackSelected()
+}
+
+const onCreateProjectGroupByProjectForm = () => {
+  createOrUpdateProjectGroupRef.value?.showWithCallback((group_id: number) => {
+    nextTick().then(() => createProjectFormRef.value?.setSelectedGroup(group_id))
+  })
 }
 </script>

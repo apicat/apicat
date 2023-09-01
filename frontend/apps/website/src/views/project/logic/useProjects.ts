@@ -24,6 +24,9 @@ export const useProjects = (selectedGroupRef: Ref<ProjectGroupSelectKey>) => {
     try {
       await toggleFollowProject(project)
       project.is_followed = !project.is_followed
+      if (selectedGroupRef.value === 'followed') {
+        projects.value = await getMyFollowedProjectList()
+      }
     } catch (error) {
       //
     }

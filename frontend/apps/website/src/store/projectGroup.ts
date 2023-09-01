@@ -27,7 +27,7 @@ export const useProjectGroupStore = defineStore('projectGroup', {
     },
 
     async createOrUpdateProjectGroup(group: ProjectGroup) {
-      group.id ? await updateProjectGroup(group) : await createProjectGroup(group)
+      return group.id ? await updateProjectGroup(group) : await createProjectGroup(group)
     },
 
     async deleteProjectGroup(id: number) {
