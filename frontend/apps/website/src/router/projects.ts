@@ -8,5 +8,7 @@ export const pojectsRoute: RouteRecordRaw = {
   path: PROJECT_LIST_ROOT_PATH,
   alias: MAIN_PATH_ALIAS,
   component: ProjectListPage,
-  meta: {},
+  meta: {
+    title: '项目列表',
+  },
 }
