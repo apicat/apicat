@@ -225,6 +225,20 @@ func ProjectsCreate(ctx *gin.Context) {
 		return
 	}
 
+	pg, err := models.NewProjectGroups(data.GroupID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
+		})
+		return
+	}
+	if pg.UserID != user.ID {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
+		})
+		return
+	}
+
 	project, _ := models.NewProjects()
 
 	if data.DataType != "" {
