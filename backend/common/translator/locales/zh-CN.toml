@@ -282,3 +282,24 @@ other = "关注项目失败"
 
 [ProjectFollows.UnfollowFailed]
 other = "取消项目关注失败"
+
+[ProjectGroups.QueryFailed]
+other = "项目分组查询失败"
+
+[ProjectGroups.CreateFailed]
+other = "项目分组创建失败"
+
+[ProjectGroups.UpdateFailed]
+other = "项目分组修改失败"
+
+[ProjectGroups.DeleteFailed]
+other = "项目分组删除失败"
+
+[ProjectGroups.ChangeFailed]
+other = "项目分组改变失败"
+
+[ProjectGroups.NameExists]
+other = "项目分组名称已存在"
+
+[ProjectGroups.NotFound]
+other = "项目分组不存在"

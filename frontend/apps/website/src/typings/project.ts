@@ -46,6 +46,11 @@ export declare interface ProjectInfo {
    * 是否关注
    */
   is_followed?: boolean
+
+  /**
+   * 分组id
+   */
+  group_id?: number
 }
 
 /**
@@ -129,3 +134,18 @@ export declare interface TrashModel {
    */
   type: DocumentTypeEnum
 }
+
+export interface ProjectGroup {
+  /**
+   * 分组id
+   */
+  id?: number
+  /**
+   * 分组名称
+   */
+  name: string
+}
+
+export type ProjectGroupSelectKey = 'all' | 'followed' | 'my' | 'create' | number | null
+
+export type SwitchProjectGroupInfo = { key: ProjectGroupSelectKey; title: string }

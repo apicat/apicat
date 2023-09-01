@@ -11,6 +11,7 @@ type ProjectMembers struct {
 	ID         uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
 	ProjectID  uint   `gorm:"type:bigint;index;not null;comment:项目id"`
 	UserID     uint   `gorm:"type:bigint;index;not null;comment:用户id"`
+	GroupID    uint   `gorm:"type:bigint;not null;default:0;comment:分组id"`
 	Authority  string `gorm:"type:varchar(255);not null;comment:项目权限:manage,write,read"`
 	FollowedAt *time.Time
 	CreatedAt  time.Time
@@ -87,7 +88,12 @@ func GetUserInvolvedProject(UserID uint, PMAuthorities ...string) ([]ProjectMemb
 	return projectMembers, query.Order("created_at desc").Find(&projectMembers).Error
 }
 
-func GetUserFollowByUserID(UserID uint) ([]uint, error) {
-	var projectIDs []uint
-	return projectIDs, Conn.Model(&ProjectMembers{}).Where("user_id = ? AND followed_at is not null", UserID).Pluck("project_id", &projectIDs).Error
+func GetProjectGroupedByUser(UserID, GroupID uint) ([]ProjectMembers, error) {
+	var projectMembers []ProjectMembers
+	return projectMembers, Conn.Where("user_id = ? AND group_id = ?", UserID, GroupID).Find(&projectMembers).Error
+}
+
+func GetProjectFollowedByUser(UserID uint) ([]ProjectMembers, error) {
+	var projectMembers []ProjectMembers
+	return projectMembers, Conn.Where("user_id = ? AND followed_at is not null", UserID).Find(&projectMembers).Error
 }

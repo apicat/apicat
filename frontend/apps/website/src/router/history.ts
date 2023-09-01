@@ -4,8 +4,8 @@ import DocumentHistoryLayout from '@/layouts/DocumentHistoryLayout.vue'
 import SchemaHistoryLayout from '@/layouts/SchemaHistoryLayout.vue'
 import { resetEmptyPathParams } from '@/commons'
 
-const docuemntHistoryPath = '/history/document/:project_id/:doc_id/:history_id?'
-const shcemaHistoryPath = '/history/schema/:project_id/:schema_id/:history_id?'
+const docuemntHistoryPath = '/projects/:project_id/doc/:doc_id/history/:history_id?'
+const shcemaHistoryPath = '/projects/:project_id/schema/:schema_id/history/:history_id?'
 
 export const getDocumentHistoryPath = (project_id: string, doc_id: string, history_id?: string) =>
   compile(docuemntHistoryPath)(resetEmptyPathParams({ project_id, doc_id, history_id }))
@@ -18,6 +18,7 @@ export const documentHistoryRoute: RouteRecordRaw = {
   name: 'history.docuemnt',
   path: docuemntHistoryPath,
   component: DocumentHistoryLayout,
+
   children: [
     {
       name: 'history.docuemnt.detail',
