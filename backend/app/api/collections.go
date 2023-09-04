@@ -521,14 +521,16 @@ func CollectionDataGet(ctx *gin.Context) {
 	project, err := models.NewProjects(uriData.ProjectID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": err.Error(),
+			"code":    enum.Display404ErrorMessage,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
 	}
 	collection, err := models.NewCollections(uriData.CollectionID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": err.Error(),
+			"code":    enum.Display404ErrorMessage,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 		})
 		return
 	}

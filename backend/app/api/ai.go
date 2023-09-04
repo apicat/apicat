@@ -296,6 +296,7 @@ func AICreateApiNames(ctx *gin.Context) {
 	if err != nil {
 		slog.DebugCtx(ctx, "DefinitionSchemas get failed", slog.String("err", err.Error()), slog.String("SchemaID", strconv.Itoa(int(data.SchemaID))))
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
 		})
 		return

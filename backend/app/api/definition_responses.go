@@ -18,6 +18,7 @@ type DefinitionResponsesID struct {
 func (cr *DefinitionResponsesID) CheckDefinitionResponses(ctx *gin.Context) (*models.DefinitionResponses, error) {
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&cr)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err
@@ -26,6 +27,7 @@ func (cr *DefinitionResponsesID) CheckDefinitionResponses(ctx *gin.Context) (*mo
 	definitionResponses, err := models.NewDefinitionResponses(cr.DefinitionResponsesID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err

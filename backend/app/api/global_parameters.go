@@ -40,6 +40,7 @@ type GlobalParametersID struct {
 func (gp *GlobalParametersID) CheckGlobalParameters(ctx *gin.Context) (*models.GlobalParameters, error) {
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&gp)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err
@@ -48,6 +49,7 @@ func (gp *GlobalParametersID) CheckGlobalParameters(ctx *gin.Context) (*models.G
 	globalParameters, err := models.NewGlobalParameters(gp.ParameterID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err

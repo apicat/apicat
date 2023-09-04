@@ -17,6 +17,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		project, exists := ctx.Get("CurrentProject")
 		if !exists {
 			ctx.JSON(http.StatusNotFound, gin.H{
+				"code":    enum.Display404ErrorMessage,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 			})
 			ctx.Abort()
@@ -111,6 +112,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 				collectionID, err := strconv.Atoi(collectionIDStr)
 				if err != nil {
 					ctx.JSON(http.StatusNotFound, gin.H{
+						"code":    enum.Display404ErrorMessage,
 						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 					})
 					ctx.Abort()
@@ -120,6 +122,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 				collection, err := models.NewCollections(uint(collectionID))
 				if err != nil {
 					ctx.JSON(http.StatusNotFound, gin.H{
+						"code":    enum.Display404ErrorMessage,
 						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 					})
 					ctx.Abort()

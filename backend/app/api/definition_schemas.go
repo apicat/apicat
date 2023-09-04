@@ -69,7 +69,8 @@ func DefinitionSchemasList(ctx *gin.Context) {
 	definitions, err := definition.List()
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.QueryFailed"}),
+			"code":    enum.Display404ErrorMessage,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
 		})
 		return
 	}
@@ -301,7 +302,7 @@ func DefinitionSchemasGet(ctx *gin.Context) {
 	var data DefinitionSchemaID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
+		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
