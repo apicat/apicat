@@ -62,20 +62,25 @@ func DefinitionResponsesList(ctx *gin.Context) {
 	result := []map[string]interface{}{}
 	for _, v := range definitionResponsesList {
 		header := []*spec.Schema{}
-		if err := json.Unmarshal([]byte(v.Header), &header); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-			})
-			return
+		if v.Header != "" {
+			if err := json.Unmarshal([]byte(v.Header), &header); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+				})
+				return
+			}
 		}
 
 		content := map[string]spec.Schema{}
-		if err := json.Unmarshal([]byte(v.Content), &content); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-			})
-			return
+		if v.Content != "" {
+			if err := json.Unmarshal([]byte(v.Content), &content); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{
+					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+				})
+				return
+			}
 		}
+
 		result = append(result, map[string]interface{}{
 			"id":          v.ID,
 			"name":        v.Name,
@@ -97,19 +102,22 @@ func DefinitionResponsesDetail(ctx *gin.Context) {
 	}
 
 	header := []*spec.Schema{}
-	if err := json.Unmarshal([]byte(definitionResponses.Header), &header); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-		})
-		return
+	if definitionResponses.Header != "" {
+		if err := json.Unmarshal([]byte(definitionResponses.Header), &header); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			})
+			return
+		}
 	}
-
 	content := map[string]spec.Schema{}
-	if err := json.Unmarshal([]byte(definitionResponses.Content), &content); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-		})
-		return
+	if definitionResponses.Content != "" {
+		if err := json.Unmarshal([]byte(definitionResponses.Content), &content); err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			})
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusOK, map[string]interface{}{
