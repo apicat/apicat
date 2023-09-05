@@ -300,6 +300,7 @@ func ProjectsCreate(ctx *gin.Context) {
 			DefinitionSchemas:    models.DefinitionSchemasImport(project.ID, content.Definitions.Schemas),
 			DefinitionResponses:  models.DefinitionResponsesImport(project.ID, content.Definitions.Responses),
 			DefinitionParameters: models.DefinitionParametersImport(project.ID, content.Definitions.Parameters),
+			GolbalParameters:     models.GlobalParametersImport(project.ID, &content.Globals.Parameters),
 		}
 
 		models.CollectionsImport(project.ID, 0, content.Collections, refContentVirtualIDToId)
