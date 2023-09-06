@@ -55,8 +55,8 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		stt := models.NewShareTmpTokens()
 		stt.ShareToken = encrypt.GetMD5Encode(token)
 		if err := stt.GetByShareToken(); err != nil {
-			ctx.JSON(http.StatusForbidden, gin.H{
-				"code":    enum.ShareTokenInsufficientPermissionsCode,
+			ctx.JSON(http.StatusNotFound, gin.H{
+				"code":    enum.Redirect404Page,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
 			})
 			ctx.Abort()
