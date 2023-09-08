@@ -18,6 +18,12 @@ export const enum PERMISSION_CHANGE_CODE {
   SHARE_KEY_ERROR = 301,
 }
 
+// 404 二级响应code字典
+export const RESPONSE_NOT_FOUND_MAPS = {
+  REDIRECT_NOT_FOUND_PAGE: 101,
+  SHOW_NOT_FOUND_MESSAGE: 201,
+}
+
 // 请求超时时长
 export const REQUEST_TIMEOUT = 1000 * 60
 

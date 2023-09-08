@@ -1,10 +1,10 @@
 import { useShareStore } from '@/store/share'
 import { useUserStoreWithOut } from '@/store/user'
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { API_URL, PERMISSION_CHANGE_CODE, REQUEST_TIMEOUT } from '@/commons/constant'
+import { API_URL, PERMISSION_CHANGE_CODE, REQUEST_TIMEOUT, RESPONSE_NOT_FOUND_MAPS } from '@/commons/constant'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Storage from '@/commons/storage'
-import { LOGIN_PATH, router } from '@/router'
+import { LOGIN_PATH, NOT_FOUND_PATH, router } from '@/router'
 import { i18n } from '@/i18n'
 import { ShareSecretKeyError, TargetMemberPermissionError } from './error'
 import useProjectStore from '@/store/project'
@@ -43,9 +43,10 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
   let errorMsg = ''
   if (axios.isAxiosError(error)) {
     const { response = { data: {} } } = error
+    const { code, message } = response.data
     const { status } = (error.response as AxiosResponse) ?? {}
     const { t } = i18n.global as any
-    errorMsg = response.data.message
+    errorMsg = message
 
     switch (status) {
       case 401: // 未登录
@@ -54,7 +55,6 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
         break
 
       case 403: // 无权限
-        const { code } = response.data
         errorMsg = ''
 
         if (isShowPermissionChangeModal) {
@@ -118,6 +118,9 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
 
       case 400: // bad request
       case 404: // not found
+        if (code === RESPONSE_NOT_FOUND_MAPS.REDIRECT_NOT_FOUND_PAGE) {
+          setTimeout(() => router.replace(NOT_FOUND_PATH), 0)
+        }
         break
 
       default:
