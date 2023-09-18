@@ -4,6 +4,7 @@ import { MAIN_PATH, NOT_FOUND_PATH, PROJECT_DETAIL_PATH_NAME, ITERATION_DETAIL_P
 import { ProjectInfo } from '@/typings'
 import { useIterationStore } from '@/store/iteration'
 import { useTitle } from '@/hooks/useTitle'
+import { ShareSecretKeyError } from '@/api/error'
 
 const title = useTitle()
 
@@ -50,6 +51,12 @@ export const setupGetProjectInfoFilter = (router: Router) => {
 
           return next()
         } catch (error) {
+          // 密钥错误
+          if (error instanceof ShareSecretKeyError) {
+            projectStore.removeProjectSecretKeyWithReload()
+            return
+          }
+
           return next(MAIN_PATH)
         }
       }

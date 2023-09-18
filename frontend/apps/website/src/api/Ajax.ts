@@ -59,21 +59,7 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
         // 分享文档｜项目密钥失效
         if (code === RESPONSE_UNAUTHORIZED_MAPS.PROJECT_OR_DOCUMENT_SECRET_TOKEN_EXPIRED_OR_ERROR) {
           errorMsg = response.data.message
-
           error = new ShareSecretKeyError()
-
-          const currentRouteMatched = router.currentRoute.value.matched
-          const params = router.currentRoute.value.params
-
-          if (currentRouteMatched.find((route) => route.name === 'share.document') && params.doc_public_id) {
-            shareStore.removeDocumentSecretKeyWithReload()
-          }
-
-          if (currentRouteMatched.find((route) => route.name === 'project.detail') && params.project_id) {
-            projectStore.removeProjectSecretKeyWithReload()
-          }
-
-          return Promise.reject(error)
         }
 
         break
