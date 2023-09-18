@@ -1,10 +1,10 @@
 import { useShareStore } from '@/store/share'
 import { useUserStoreWithOut } from '@/store/user'
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios'
-import { API_URL, PERMISSION_CHANGE_CODE, REQUEST_TIMEOUT, RESPONSE_NOT_FOUND_MAPS } from '@/commons/constant'
+import { API_URL, PERMISSION_CHANGE_CODE, REQUEST_TIMEOUT, RESPONSE_NOT_FOUND_MAPS, RESPONSE_UNAUTHORIZED_MAPS } from '@/commons/constant'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import Storage from '@/commons/storage'
-import { LOGIN_PATH, NOT_FOUND_PATH, router } from '@/router'
+import { LOGIN_PATH, NOT_FOUND_PATH, NO_PERMISSION_PATH, router } from '@/router'
 import { i18n } from '@/i18n'
 import { ShareSecretKeyError, TargetMemberPermissionError } from './error'
 import useProjectStore from '@/store/project'
@@ -50,8 +50,32 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
 
     switch (status) {
       case 401: // 未登录
-        useUserStore.logout()
-        setTimeout(() => router.replace(LOGIN_PATH), 0)
+        if (code === RESPONSE_UNAUTHORIZED_MAPS.LOGIN_TOKEN_EXPIRED_OR_ERROR) {
+          useUserStore.logout()
+          setTimeout(() => router.replace(LOGIN_PATH), 0)
+          return Promise.reject(error)
+        }
+
+        // 分享文档｜项目密钥失效
+        if (code === RESPONSE_UNAUTHORIZED_MAPS.PROJECT_OR_DOCUMENT_SECRET_TOKEN_EXPIRED_OR_ERROR) {
+          errorMsg = response.data.message
+
+          error = new ShareSecretKeyError()
+
+          const currentRouteMatched = router.currentRoute.value.matched
+          const params = router.currentRoute.value.params
+
+          if (currentRouteMatched.find((route) => route.name === 'share.document') && params.doc_public_id) {
+            shareStore.removeDocumentSecretKeyWithReload()
+          }
+
+          if (currentRouteMatched.find((route) => route.name === 'project.detail') && params.project_id) {
+            projectStore.removeProjectSecretKeyWithReload()
+          }
+
+          return Promise.reject(error)
+        }
+
         break
 
       case 403: // 无权限
@@ -98,21 +122,9 @@ const onErrorResponse = (error: AxiosError | Error): Promise<AxiosError> => {
           error = new TargetMemberPermissionError()
         }
 
-        if (code === PERMISSION_CHANGE_CODE.SHARE_KEY_ERROR) {
-          errorMsg = response.data.message
-
-          error = new ShareSecretKeyError()
-
-          const currentRouteMatched = router.currentRoute.value.matched
-          const params = router.currentRoute.value.params
-
-          if (currentRouteMatched.find((route) => route.name === 'share.document') && params.doc_public_id) {
-            shareStore.removeDocumentSecretKeyWithReload()
-          }
-
-          if (currentRouteMatched.find((route) => route.name === 'project.detail') && params.project_id) {
-            projectStore.removeProjectSecretKeyWithReload()
-          }
+        // 重定向403页面
+        if (code === PERMISSION_CHANGE_CODE.REDIRECT_UNAUTHORIZED_PAGE) {
+          setTimeout(() => router.replace(NO_PERMISSION_PATH), 0)
         }
         break
 
