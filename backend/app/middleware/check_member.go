@@ -6,6 +6,7 @@ import (
 
 	"github.com/apicat/apicat/backend/common/auth"
 	"github.com/apicat/apicat/backend/common/translator"
+	"github.com/apicat/apicat/backend/enum"
 	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
@@ -44,6 +45,7 @@ func CheckMember() func(ctx *gin.Context) {
 
 		if user == nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"code":    enum.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			ctx.Abort()
@@ -52,6 +54,7 @@ func CheckMember() func(ctx *gin.Context) {
 
 		if user == nil || user.IsEnabled == 0 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"code":    enum.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.AccountDisabled"}),
 			})
 			ctx.Abort()

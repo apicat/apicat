@@ -55,6 +55,14 @@ func ProjectShareStatus(ctx *gin.Context) {
 		authority = "none"
 	}
 
+	if authority == "none" && visibility == "private" && !hasShared {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.Redirect403Page,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, gin.H{
 		"authority":  authority,
 		"visibility": visibility,
