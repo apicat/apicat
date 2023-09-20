@@ -24,7 +24,6 @@ interface Props {
 }
 
 const emits = defineEmits(['onExpand'])
-
 const props = withDefaults(defineProps<Props>(), {
   title: '',
   type: 'default',
@@ -32,13 +31,16 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const ns = useNamespace('toggle-heading')
-
 const [isShow, toggle] = useToggle(props.expand)
 
 const handleTitleClick = () => {
   toggle()
   emits('onExpand', unref(isShow))
 }
+
+defineExpose({
+  expand: () => toggle(true),
+})
 </script>
 <style lang="scss" scoped>
 @use '@/styles/mixins/mixins.scss' as *;

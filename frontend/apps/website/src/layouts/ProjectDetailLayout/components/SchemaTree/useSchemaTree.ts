@@ -7,10 +7,10 @@ import { TreeOptionProps } from '@/components/AcTree/tree.type'
 import { DocumentTypeEnum } from '@/commons/constant'
 import { useActiveTree } from './useActiveTree'
 import { useGoPage } from '@/hooks/useGoPage'
-import { SCHEMA_DETAIL_NAME, SCHEMA_EDIT_NAME } from '@/router'
-import useDefinitionStore from '@/store/definition'
-import { useProjectId } from '@/hooks/useProjectId'
+import { SCHEMA_DETAIL_NAME, SCHEMA_EDIT_NAME, ITERATION_SCHEMA_DETAIL_NAME, ITERATION_SCHEMA_EDIT_NAME } from '@/router'
+import useDefinitionStore from '@/store/definitionSchema'
 import { createTreeMaxDepthFn } from '@/commons'
+import { useParams } from '@/hooks/useParams'
 
 /**
  * 获取节点树最大深度
@@ -22,15 +22,13 @@ const getTreeMaxDepth = createTreeMaxDepthFn('items')
  * @returns
  */
 export const useSchemaTree = () => {
-  const definitionStore = useDefinitionStore()
-  const project_id = useProjectId()
-  const { goSchemaDetailPage, goSchemaEditPage } = useGoPage()
-  const route = useRoute()
+  const { project_id, computedRouteParams } = useParams()
   const router = useRouter()
-  const { params } = route
-  const { getDefinitions } = definitionStore
+
+  const definitionStore = useDefinitionStore()
+  const { goSchemaDetailPage, goSchemaEditPage } = useGoPage()
   const { definitions } = storeToRefs(definitionStore)
-  const [isLoading, getDefinitionsApi] = useApi(getDefinitions)
+  const [isLoading, getDefinitionsApi] = useApi(definitionStore.getDefinitions)
 
   const treeOptions: TreeOptionProps = {
     children: 'items',
@@ -42,6 +40,18 @@ export const useSchemaTree = () => {
   const treeIns = ref<InstanceType<typeof AcTree>>()
 
   const { reactiveNode, activeNode } = useActiveTree(treeIns as any)
+
+  /**
+   * 是否展开目录
+   */
+  const isExpandTree = computed(() =>
+    [SCHEMA_DETAIL_NAME, SCHEMA_EDIT_NAME, ITERATION_SCHEMA_DETAIL_NAME, ITERATION_SCHEMA_EDIT_NAME].includes(router.currentRoute.value.name as any)
+  )
+
+  /**
+   * 是否当前模块路由
+   */
+  const isCurrentMoudleRouter = isExpandTree
 
   /**
    * 目录树 点击
@@ -136,9 +146,11 @@ export const useSchemaTree = () => {
   }
 
   const initSchemaTree = async (activeId?: any) => {
+    const { schema_id } = unref(computedRouteParams)
+
     await getDefinitionsApi(project_id as string)
-    if (route.name === SCHEMA_DETAIL_NAME || route.name === SCHEMA_EDIT_NAME) {
-      router.currentRoute.value.params.schema_id ? activeNode(activeId || params.schema_id) : reactiveNode()
+    if (unref(isCurrentMoudleRouter)) {
+      schema_id ? activeNode(activeId || schema_id) : reactiveNode()
     }
   }
 
@@ -149,7 +161,10 @@ export const useSchemaTree = () => {
 
   onMounted(async () => await initSchemaTree())
   onUnmounted(() => definitionStore.$reset())
+
   return {
+    isExpandTree,
+
     isLoading,
     treeIns,
     treeOptions,

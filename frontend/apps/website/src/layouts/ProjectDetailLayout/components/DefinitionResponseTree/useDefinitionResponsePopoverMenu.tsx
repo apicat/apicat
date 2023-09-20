@@ -1,4 +1,5 @@
 import AcTree from '@/components/AcTree'
+import ToggleHeading from '@/components/ToggleHeading.vue'
 import Node from '@/components/AcTree/model/node'
 import { ActiveNodeInfo } from '@/typings/common'
 import { AsyncMsgBox } from '@/components/AsyncMessageBox'
@@ -17,7 +18,7 @@ import { storeToRefs } from 'pinia'
  * 目录弹层菜单逻辑
  * @param treeIns 目录树
  */
-export const useDefinitionResponsePopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>) => {
+export const useDefinitionResponsePopoverMenu = (treeIns: Ref<InstanceType<typeof AcTree>>, toggleHeadingRef: Ref<InstanceType<typeof ToggleHeading>>) => {
   const { t } = useI18n()
 
   const definitionResponseStore = useDefinitionResponseStore()
@@ -104,6 +105,7 @@ export const useDefinitionResponsePopoverMenu = (treeIns: Ref<InstanceType<typeo
       tree.setCurrentKey(newNode.id)
       goResponseEditPage(newNode.id)
       activeNode(newNode.id)
+      toggleHeadingRef.value?.expand()
     } finally {
       NProgress.done()
     }

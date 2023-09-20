@@ -15,9 +15,16 @@ export const PROJECT_LIST_ROOT_PATH_NAME = 'projects'
 export const PROJECT_LIST_ROOT_PATH = '/projects'
 
 export const PROJECT_DETAIL_PATH_NAME = 'project.detail'
-export const PROJECT_DETAIL_PATH = '/project/:project_id'
+export const PROJECT_DETAIL_PATH = '/projects/:project_id'
 
 export const PROJECT_SHARE_VALIDATION_NAME = 'share.proejct.verification'
-export const PROJECT_SHARE_VALIDATION_PATH = '/project/:project_id/verification'
+export const PROJECT_SHARE_VALIDATION_PATH = '/projects/:project_id/verification'
 
 export const DOCUMENT_SHARE_PATH = '/share/:doc_public_id'
+
+// iteration
+export const ITERATION_LIST_ROOT_PATH_NAME = 'iterations'
+export const ITERATION_LIST_ROOT_PATH = '/iterations'
+
+export const ITERATION_DETAIL_PATH_NAME = 'iteration.detail'
+export const ITERATION_DETAIL_PATH = '/iterations/:iteration_id'

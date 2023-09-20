@@ -41,6 +41,11 @@ export declare interface ProjectInfo {
    * 当前成员在此项目的权限
    */
   authority?: MemberAuthorityInProject
+
+  /**
+   * 是否关注
+   */
+  is_followed?: boolean
 }
 
 /**
@@ -64,6 +69,7 @@ export declare interface CollectionNode {
   name?: string
   type: DocumentTypeEnum
   items?: CollectionNode[]
+  selected?: boolean
   _oldName?: string | undefined
   _extend?: {
     isLeaf: boolean

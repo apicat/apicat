@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/apicat/apicat/backend/app/util"
 	"github.com/apicat/apicat/backend/common/spec"
@@ -46,10 +47,28 @@ type TranslateProject struct {
 	MemberID uint `json:"member_id" binding:"required,lte=255"`
 }
 
+type ProjectsListData struct {
+	Auth []string `form:"auth" binding:"omitempty,dive,oneof=manage write read"`
+}
+
 func ProjectsList(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
-	projectMembers, err := models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
+	var data ProjectsListData
+	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	var projectMembers []models.ProjectMembers
+	var err error
+	if len(data.Auth) == 0 {
+		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
+	} else {
+		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID, data.Auth...)
+	}
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
@@ -62,6 +81,11 @@ func ProjectsList(ctx *gin.Context) {
 		projectIDs = append(projectIDs, v.ProjectID)
 	}
 
+	if len(projectIDs) == 0 {
+		ctx.JSON(http.StatusOK, []gin.H{})
+		return
+	}
+
 	project, _ := models.NewProjects()
 	projects, err := project.List(projectIDs...)
 	if err != nil {
@@ -71,13 +95,30 @@ func ProjectsList(ctx *gin.Context) {
 		return
 	}
 
+	pIDs, err := models.GetUserFollowByUserID(currentUser.(*models.Users).ID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
+		})
+		return
+	}
+
 	projectsList := []gin.H{}
 	for _, v := range projects {
+		isFollow := false
+		for _, pID := range pIDs {
+			if v.ID == pID {
+				isFollow = true
+				break
+			}
+		}
+
 		projectsList = append(projectsList, gin.H{
 			"id":          v.PublicId,
 			"title":       v.Title,
 			"description": v.Description,
 			"cover":       v.Cover,
+			"is_followed": isFollow,
 			"created_at":  v.CreatedAt.Format("2006-01-02 15:04:05"),
 			"updated_at":  v.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
@@ -507,4 +548,72 @@ func ProjectTransfer(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusCreated)
+}
+
+func ProjectFollowList(ctx *gin.Context) {
+	currentUser, _ := ctx.Get("CurrentUser")
+	projectsList := []gin.H{}
+
+	pIDs, err := models.GetUserFollowByUserID(currentUser.(*models.Users).ID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.QueryFailed"}),
+		})
+		return
+	}
+	if len(pIDs) == 0 {
+		ctx.JSON(http.StatusOK, projectsList)
+		return
+	}
+
+	project, _ := models.NewProjects()
+	projects, err := project.List(pIDs...)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.QueryFailed"}),
+		})
+		return
+	}
+
+	for _, v := range projects {
+		projectsList = append(projectsList, gin.H{
+			"id":          v.PublicId,
+			"title":       v.Title,
+			"description": v.Description,
+			"cover":       v.Cover,
+			"created_at":  v.CreatedAt.Format("2006-01-02 15:04:05"),
+			"updated_at":  v.UpdatedAt.Format("2006-01-02 15:04:05"),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, projectsList)
+}
+
+func ProjectFollow(ctx *gin.Context) {
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+
+	nowTime := time.Now()
+	currentProjectMember.(*models.ProjectMembers).FollowedAt = &nowTime
+	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.FollowFailed"}),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusCreated)
+}
+
+func ProjectUnFollow(ctx *gin.Context) {
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+
+	currentProjectMember.(*models.ProjectMembers).FollowedAt = nil
+	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.UnfollowFailed"}),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusNoContent)
 }

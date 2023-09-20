@@ -31,7 +31,9 @@ type DB struct {
 }
 
 type OpenAI struct {
-	Key string `yaml:"key" env:"APICAT_OPENAI_KEY"`
+	Source   string `yaml:"source" env:"APICAT_OPENAI_SOURCE"`
+	Key      string `yaml:"key" env:"APICAT_OPENAI_KEY"`
+	Endpoint string `yaml:"endpoint" env:"APICAT_OPENAI_ENDPOINT"`
 }
 
 type Sysconfig struct {

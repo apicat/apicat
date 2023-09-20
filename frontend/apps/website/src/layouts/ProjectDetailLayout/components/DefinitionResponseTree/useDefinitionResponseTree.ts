@@ -6,10 +6,10 @@ import { TreeOptionProps } from '@/components/AcTree/tree.type'
 import { DocumentTypeEnum } from '@/commons/constant'
 import { useActiveTree } from './useActiveTree'
 import { useGoPage } from '@/hooks/useGoPage'
-import { RESPONSE_DETAIL_NAME, RESPONSE_EDIT_NAME } from '@/router'
+import { ITERATION_RESPONSE_DETAIL_NAME, ITERATION_RESPONSE_EDIT_NAME, RESPONSE_DETAIL_NAME, RESPONSE_EDIT_NAME } from '@/router'
 import useDefinitionResponseStore from '@/store/definitionResponse'
-import { useProjectId } from '@/hooks/useProjectId'
 import { createTreeMaxDepthFn } from '@/commons'
+import { useParams } from '@/hooks/useParams'
 
 /**
  * 获取节点树最大深度
@@ -22,11 +22,9 @@ const getTreeMaxDepth = createTreeMaxDepthFn('items')
  */
 export const useDefinitionResponseTree = () => {
   const definitionResponseStore = useDefinitionResponseStore()
-  const project_id = useProjectId()
+  const { project_id, computedRouteParams } = useParams()
   const { goResponseDetailPage } = useGoPage()
-  const route = useRoute()
   const router = useRouter()
-  const { params } = route
   const { getDefinitions } = definitionResponseStore
   const { responses } = storeToRefs(definitionResponseStore)
   const [isLoading, getDefinitionsApi] = useApi(getDefinitions)
@@ -41,6 +39,14 @@ export const useDefinitionResponseTree = () => {
   const treeIns = ref<InstanceType<typeof AcTree>>()
 
   const { reactiveNode, activeNode } = useActiveTree(treeIns as any)
+
+  /**
+   * 是否展开目录
+   */
+  const isExpandTree = computed(() =>
+    [RESPONSE_DETAIL_NAME, RESPONSE_EDIT_NAME, ITERATION_RESPONSE_DETAIL_NAME, ITERATION_RESPONSE_EDIT_NAME].includes(router.currentRoute.value.name as any)
+  )
+  const isCurrentMoudleRouter = isExpandTree
 
   /**
    * 目录树 点击
@@ -124,7 +130,6 @@ export const useDefinitionResponseTree = () => {
     }
 
     oldDraggingNodeInfo = null
-    // moveDefinitionSchema(project_id as string, sortParams)
   }
 
   const updateTitle = (id: any, name: string) => {
@@ -136,8 +141,9 @@ export const useDefinitionResponseTree = () => {
 
   const initDefinitionResponseTree = async (activeId?: any) => {
     await getDefinitionsApi(project_id as string)
-    if (route.name === RESPONSE_DETAIL_NAME || route.name === RESPONSE_EDIT_NAME) {
-      router.currentRoute.value.params.response_id ? activeNode(activeId || params.response_id) : reactiveNode()
+    const { response_id } = unref(computedRouteParams)
+    if (unref(isCurrentMoudleRouter)) {
+      response_id ? activeNode(activeId || response_id) : reactiveNode()
     }
   }
 
@@ -145,6 +151,7 @@ export const useDefinitionResponseTree = () => {
   onUnmounted(() => definitionResponseStore.$reset())
 
   return {
+    isExpandTree,
     isLoading,
     treeIns,
     treeOptions,

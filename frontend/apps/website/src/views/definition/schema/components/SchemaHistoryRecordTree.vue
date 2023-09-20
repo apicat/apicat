@@ -30,7 +30,7 @@
 <script lang="ts" setup>
 import AcTree from '@/components/AcTree'
 import scrollIntoView from 'smooth-scroll-into-view-if-needed'
-import { useDefinitionSchemaStore } from '@/store/definition'
+import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 import { storeToRefs } from 'pinia'
 import { traverseTree } from '@apicat/shared'
 import { DocumentTypeEnum } from '@/commons/constant'
@@ -39,7 +39,7 @@ import { CollectionNode } from '@/typings/project'
 
 const $route = useRoute()
 const $router = useRouter()
-const { project_id, schema_id } = useParams()
+const { project_id, computedRouteParams } = useParams()
 const { params } = $route
 
 const definitionSchemaStore = useDefinitionSchemaStore()
@@ -149,6 +149,7 @@ const reactiveNode = () => {
 }
 
 onMounted(async () => {
+  const { schema_id } = unref(computedRouteParams)
   await definitionSchemaStore.getSchemaHistoryRecordList(project_id, schema_id)
   params.history_id ? activeNode(params.history_id) : reactiveNode()
 })

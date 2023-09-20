@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { getDefinitionSchemaDetail } from '@/api/definitionSchema'
 import SchmaEditor from './components/SchemaEditor.vue'
-import useDefinitionStore from '@/store/definition'
+import useDefinitionStore from '@/store/definitionSchema'
 import { storeToRefs } from 'pinia'
 import { useParams } from '@/hooks/useParams'
 import { DefinitionSchema } from '@/components/APIEditor/types'
@@ -33,9 +33,9 @@ const route = useRoute()
 const definitionStore = useDefinitionStore()
 const { definitions } = storeToRefs(definitionStore)
 const [isLoading, getDefinitionDetailApi] = getDefinitionSchemaDetail()
-const { project_id, schema_id } = useParams()
+const { project_id } = useParams()
 const { goSchemaDetailPage } = useGoPage()
-const isUpdate = schema_id !== undefined
+const isUpdate = route.params.schema_id !== undefined
 const isSaving = ref(false)
 const schemaTree: any = inject('schemaTree')
 const ns = useNamespace('document')

@@ -49,7 +49,7 @@ const nsEditor = useNamespace('schema-editor')
 const nsRow = useNamespace('schema-row')
 
 const emits = defineEmits(['update:modelValue'])
-const expandKeys = ref<Set<string>>(new Set([constNodeType.root]))
+// const expandKeys = ref<Set<string>>(new Set([constNodeType.root]))
 const localSchema = ref()
 const root = computed(() => convertTreeData(undefined, constNodeType.root, constNodeType.root, localSchema.value))
 const importSchemaModalRef = ref<InstanceType<typeof ImportSchemaModal>>()
@@ -59,28 +59,28 @@ watch(
   () => {
     // recompute root
     localSchema.value = props.modelValue
-    expandKeys.value.clear()
-    setDefaultExpandKeys(root.value)
+    // expandKeys.value.clear()
+    // setDefaultExpandKeys(root.value)
   },
   {
     immediate: true,
   }
 )
 
-provide('expandKeys', expandKeys.value)
+// provide('expandKeys', expandKeys.value)
 provide('definitions', () => props.definitions)
 provide('change', changeEvent)
 
-// 默认展开所有
-function setDefaultExpandKeys(tree: Tree) {
-  const child = tree.children || []
-  if (child && child.length) {
-    expandKeys.value.add(tree.key)
-  }
-  for (let i = 0; i < child.length; i++) {
-    setDefaultExpandKeys(child[i])
-  }
-}
+// // 默认展开所有
+// function setDefaultExpandKeys(tree: Tree) {
+//   const child = tree.children || []
+//   if (child && child.length) {
+//     expandKeys.value.add(tree.key)
+//   }
+//   for (let i = 0; i < child.length; i++) {
+//     setDefaultExpandKeys(child[i])
+//   }
+// }
 
 function changeEvent(root?: JSONSchema) {
   if (root) {

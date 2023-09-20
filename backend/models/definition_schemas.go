@@ -54,7 +54,7 @@ func (d *DefinitionSchemas) List() ([]DefinitionSchemas, error) {
 	}
 
 	var definitions []DefinitionSchemas
-	return definitions, tx.Order("display_order asc").Order("id desc").Find(&definitions).Error
+	return definitions, tx.Order("display_order asc").Find(&definitions).Error
 }
 
 func (d *DefinitionSchemas) Get() error {
@@ -69,6 +69,11 @@ func (d *DefinitionSchemas) Get() error {
 }
 
 func (d *DefinitionSchemas) Create() error {
+	var node *DefinitionSchemas
+	if err := Conn.Where("project_id = ? AND parent_id = ?", d.ProjectId, d.ParentId).Order("display_order desc").First(&node).Error; err == nil {
+		d.DisplayOrder = node.DisplayOrder + 1
+	}
+
 	return Conn.Create(d).Error
 }
 

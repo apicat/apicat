@@ -6,25 +6,48 @@
       </router-link>
     </div>
 
-    <el-popover placement="bottom" width="250px" v-else>
-      <template #reference>
-        <div :class="ns.e('img')">
-          <img src="@/assets/images/logo-square.svg" :alt="projectDetailInfo?.title" />
-          <router-link to="/main">
-            <el-icon :class="ns.e('back')"><ac-icon-ep-arrow-left-bold /></el-icon>
-          </router-link>
+    <template v-else>
+      <div :class="ns.e('img')" v-if="isIterationRoute">
+        <img src="@/assets/images/logo-square.svg" :alt="projectDetailInfo?.title" />
+        <router-link to="/iterations">
+          <el-icon :class="ns.e('back')"><ac-icon-ep-arrow-left-bold /></el-icon>
+        </router-link>
+      </div>
+
+      <el-popover placement="bottom" width="250px" v-else>
+        <template #reference>
+          <div :class="ns.e('img')">
+            <img src="@/assets/images/logo-square.svg" :alt="projectDetailInfo?.title" />
+            <router-link to="/main">
+              <el-icon :class="ns.e('back')"><ac-icon-ep-arrow-left-bold /></el-icon>
+            </router-link>
+          </div>
+        </template>
+
+        <PopperMenu :menus="allMenus" class="clear-popover-space" @menu-click="onMenuItemClick" />
+      </el-popover>
+    </template>
+
+    <template v-if="isIterationRoute">
+      <div class="pr-2 overflow-hidden">
+        <div :title="projectDetailInfo?.title" class="flex-y-center">
+          <p class="text-base truncate">{{ projectDetailInfo?.title }}</p>
+          <el-tooltip effect="dark" content="私有项目" placement="bottom" v-if="isPrivate">
+            <el-icon class="ml-4px"><ac-icon-ep-lock /></el-icon>
+          </el-tooltip>
         </div>
-      </template>
+        <p class="text-sm truncate" :title="iterationInfo?.title">{{ iterationInfo?.title }}</p>
+      </div>
+    </template>
 
-      <PopperMenu :menus="allMenus" class="clear-popover-space" @menu-click="onMenuItemClick" />
-    </el-popover>
-
-    <div :class="ns.e('title')" :title="projectDetailInfo?.title">
-      {{ projectDetailInfo?.title }}
-      <el-tooltip effect="dark" content="私有项目" placement="bottom" v-if="isPrivate">
-        <el-icon :class="ns.e('icon')"><ac-icon-ep-lock /></el-icon>
-      </el-tooltip>
-    </div>
+    <template v-else>
+      <div :class="ns.e('title')" :title="projectDetailInfo?.title">
+        {{ projectDetailInfo?.title }}
+        <el-tooltip effect="dark" content="私有项目" placement="bottom" v-if="isPrivate">
+          <el-icon :class="ns.e('icon')"><ac-icon-ep-lock /></el-icon>
+        </el-tooltip>
+      </div>
+    </template>
   </div>
 
   <ProjectSettingModal ref="projectSettingModalRef" />
@@ -41,11 +64,15 @@ import { useI18n } from 'vue-i18n'
 import { quitProject } from '@/api/project'
 import { useUserStore } from '@/store/user'
 import { ProjectDetailModalsContextKey } from '../constants'
+import { useIterationStore } from '@/store/iteration'
 
 const { t } = useI18n()
 const ns = useNamespace('project-info')
 const projectSettingModalRef = ref<InstanceType<typeof ProjectSettingModal>>()
 const projectStore = useProjectStore()
+const iterationStore = useIterationStore()
+const { isIterationRoute, iterationInfo } = storeToRefs(iterationStore)
+
 const { projectDetailInfo, isManager, isPrivate, isGuest, isReader } = storeToRefs(projectStore)
 const projectDetailModals = inject(ProjectDetailModalsContextKey)
 

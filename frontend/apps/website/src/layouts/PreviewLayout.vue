@@ -14,7 +14,7 @@
 import PreviewHeader from '@/views/share/components/PreviewHeader.vue'
 import DocumentVerification from '@/views/share/DocumentVerification.vue'
 
-import { useDefinitionSchemaStore } from '@/store/definition'
+import { useDefinitionSchemaStore } from '@/store/definitionSchema'
 import { useDefinitionParametersStore } from '@/store/globalParameters'
 import useProjectStore from '@/store/project'
 import useDefinitionResponseStore from '@/store/definitionResponse'

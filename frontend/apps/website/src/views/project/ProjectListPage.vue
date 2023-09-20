@@ -4,7 +4,7 @@
       {{ $t('app.project.list.tabTitle') }}
     </p>
 
-    <ul class="ac-project-list my-20px py-10px">
+    <ul :class="ns.b()">
       <li
         v-if="!isNormalUser"
         class="flex flex-col justify-between rounded cursor-pointer w-250px h-156px hover:shadow-lg bg-gray-110 px-20px py-16px"
@@ -14,15 +14,19 @@
         <p>{{ $t('app.project.createModal.title') }}</p>
       </li>
 
-      <li
-        class="flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px"
-        v-for="project in projectList"
-        @click="$router.push(getProjectDetailPath(project.id))"
-      >
-        <div class="flex items-center justify-center h-112px" :style="{ backgroundColor: (project.cover as ProjectCover).coverBgColor }">
+      <li :class="ns.e('item')" v-for="project in projectList" @click="$router.push(getProjectDetailPath(project.id))">
+        <div :class="ns.e('cover')" :style="{ backgroundColor: (project.cover as ProjectCover).coverBgColor }">
           <Iconfont class="text-white" :icon="(project.cover as ProjectCover).coverIcon" :size="55" />
         </div>
-        <p class="flex items-center flex-1 truncate px-16px">{{ project.title }}</p>
+        <div :class="ns.e('title')">
+          <p class="flex-1 truncate">{{ project.title }}</p>
+          <el-tooltip :content="project.is_followed ? '取消关注' : '关注项目'" placement="bottom">
+            <div :class="ns.e('follow')">
+              <el-icon size="18" v-if="!project.is_followed" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star-outline /></el-icon>
+              <el-icon size="18" v-else color="#FF9966" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star /></el-icon>
+            </div>
+          </el-tooltip>
+        </div>
       </li>
     </ul>
     <el-empty v-if="isNormalUser && !projectList.length" :image-size="200" :description="$t('app.project.tips.noData')" />
@@ -34,27 +38,51 @@
 <script lang="ts" setup>
 import { getProjectDetailPath } from '@/router'
 import CreateProjectModal from './CreateProjectModal.vue'
-import useProjectStore from '@/store/project'
-import useApi from '@/hooks/useApi'
-import { storeToRefs } from 'pinia'
 import { ProjectCover } from '@/typings'
 import { useUserStore } from '@/store/user'
+import { useProjectList } from './logic/useProjectList'
+import { useNamespace } from '@/hooks'
 
+const ns = useNamespace('project-list')
 const createProjectModal = ref<InstanceType<typeof CreateProjectModal>>()
-const handleShowModelClick = () => createProjectModal.value!.show()
-const projectStore = useProjectStore()
 const { isNormalUser } = useUserStore()
-const { projectList } = storeToRefs(projectStore)
-const [isLoading, getProjectListApi] = useApi(projectStore.getProjects)
+const { isLoading, projectList, handleFollowProject } = useProjectList()
 
-onBeforeMount(async () => await getProjectListApi())
-onBeforeUnmount(() => (projectStore.projects = []))
+const handleShowModelClick = () => {
+  createProjectModal.value!.show()
+}
 </script>
-<style scoped>
-.ac-project-list {
+<style scoped lang="scss">
+@use '@/styles/mixins/mixins' as *;
+
+@include b(project-list) {
   display: grid;
   justify-content: space-between;
   grid-template-columns: repeat(auto-fill, 250px);
   grid-gap: 20px;
+  @apply my-20px py-10px;
+
+  @include e(item) {
+    @apply flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px;
+
+    &:hover {
+      @include e(follow) {
+        visibility: visible;
+      }
+    }
+  }
+
+  @include e(cover) {
+    @apply flex items-center justify-center h-112px;
+  }
+
+  @include e(title) {
+    @apply flex items-center flex-1 px-16px;
+  }
+
+  @include e(follow) {
+    visibility: hidden;
+    @apply flex pt-1px;
+  }
 }
 </style>

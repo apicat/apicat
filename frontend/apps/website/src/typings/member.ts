@@ -9,6 +9,8 @@ export const enum MemberAuthorityInProject {
   NONE = 'none',
 }
 
+export type MemberAuthority = 'manage' | 'write' | 'read' | 'none'
+
 export const MemberAuthorityMap = {
   [MemberAuthorityInProject.MANAGER]: '管理',
   [MemberAuthorityInProject.WRITE]: '编辑',
