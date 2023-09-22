@@ -107,7 +107,7 @@ export const useProjectStore = defineStore('project', {
     removeProjectSecretKeyWithReload() {
       const { project_id } = this.projectAuthInfo!
       Cookies.remove(Cookies.KEYS.SHARE_PROJECT + project_id)
-      setTimeout(() => location.replace(getProjectDetailPath(project_id as string)), 1000)
+      setTimeout(() => location.replace(getProjectDetailPath(project_id as string)), 500)
     },
   },
 })

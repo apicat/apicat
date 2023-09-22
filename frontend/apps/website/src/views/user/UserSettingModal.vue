@@ -1,14 +1,5 @@
 <template>
-  <el-dialog
-    v-model="dialogVisible"
-    append-to-body
-    :close-on-click-modal="false"
-    :close-on-press-escape="false"
-    class="fullscree hide-header"
-    destroy-on-close
-    align-center
-    width="700px"
-  >
+  <el-dialog v-model="dialogVisible" append-to-body :close-on-click-modal="false" class="fullscree hide-header" destroy-on-close align-center width="700px">
     <ModalLayout style="height: 40vh">
       <template #nav>
         <p class="text-16px text-gray-950 font-500">{{ $t('app.common.setting') }}</p>

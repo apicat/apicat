@@ -51,7 +51,7 @@ export const useShareStore = defineStore('share', {
     removeDocumentSecretKeyWithReload() {
       const { doc_public_id } = this.sharedDocumentInfo!
       Cookies.remove(Cookies.KEYS.SHARE_DOCUMENT + doc_public_id)
-      setTimeout(() => location.replace(getDocumentShareDetailPath(doc_public_id as string)), 1000)
+      setTimeout(() => location.replace(getDocumentShareDetailPath(doc_public_id as string)), 500)
     },
   },
 })

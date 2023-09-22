@@ -154,6 +154,8 @@ func ProjectsList(ctx *gin.Context) {
 
 func ProjectsGet(ctx *gin.Context) {
 	currentProjectMember, currentProjectMemberExists := ctx.Get("CurrentProjectMember")
+	currentProject, _ := ctx.Get("CurrentProject")
+	project := currentProject.(*models.Projects)
 
 	var (
 		data       ProjectID
@@ -164,14 +166,6 @@ func ProjectsGet(ctx *gin.Context) {
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
-		})
-		return
-	}
-
-	project, err := models.NewProjects(data.ID)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
 	}
@@ -306,6 +300,7 @@ func ProjectsCreate(ctx *gin.Context) {
 			DefinitionSchemas:    models.DefinitionSchemasImport(project.ID, content.Definitions.Schemas),
 			DefinitionResponses:  models.DefinitionResponsesImport(project.ID, content.Definitions.Responses),
 			DefinitionParameters: models.DefinitionParametersImport(project.ID, content.Definitions.Parameters),
+			GolbalParameters:     models.GlobalParametersImport(project.ID, &content.Globals.Parameters),
 		}
 
 		models.CollectionsImport(project.ID, 0, content.Collections, refContentVirtualIDToId)
@@ -415,6 +410,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 	project, err := models.NewProjects(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -479,6 +475,7 @@ func ProjectsDelete(ctx *gin.Context) {
 	project, err := models.NewProjects(data.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -518,6 +515,7 @@ func ProjectDataGet(ctx *gin.Context) {
 	project, err := models.NewProjects(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -618,6 +616,7 @@ func ProjectTransfer(ctx *gin.Context) {
 	pm, err := models.NewProjectMembers(data.MemberID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
 		})
 		return

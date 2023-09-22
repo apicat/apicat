@@ -236,6 +236,7 @@ func ProjectMembersDelete(ctx *gin.Context) {
 	pm.ProjectID = currentProjectMember.(*models.ProjectMembers).ProjectID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
 		})
 		return

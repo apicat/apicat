@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/apicat/apicat/backend/common/apicat_struct"
 	"github.com/apicat/apicat/backend/common/spec"
 	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 )
@@ -59,16 +60,11 @@ func (gp *GlobalParameters) Delete() error {
 	return Conn.Delete(gp).Error
 }
 
-func GlobalParametersImport(projectID uint, parameters *spec.HTTPParameters) map[string]nameToIdMap {
-	var parametersMap = map[string]nameToIdMap{
-		"header": make(nameToIdMap),
-		"cookie": make(nameToIdMap),
-		"query":  make(nameToIdMap),
-		"path":   make(nameToIdMap),
-	}
+func GlobalParametersImport(projectID uint, parameters *spec.HTTPParameters) map[int64]uint {
+	res := virtualIDToIDMap{}
 
 	if parameters.Header == nil && parameters.Cookie == nil && parameters.Query == nil && parameters.Path == nil {
-		return parametersMap
+		return res
 	}
 
 	var params []*spec.Schema
@@ -101,13 +97,13 @@ func GlobalParametersImport(projectID uint, parameters *spec.HTTPParameters) map
 				}
 
 				if Conn.Create(record).Error == nil {
-					parametersMap[key][parameter.Name] = record.ID
+					res[parameter.ID] = record.ID
 				}
 			}
 		}
 	}
 
-	return parametersMap
+	return res
 }
 
 func GlobalParametersExport(projectID uint) spec.HTTPParameters {
@@ -152,4 +148,64 @@ func GlobalParametersExport(projectID uint) spec.HTTPParameters {
 	}
 
 	return specHTTPParameters
+}
+
+func ReplaceGlobalParametersVirtualIDToID(content string, virtualIDToIDMap virtualIDToIDMap) string {
+	docContent := []map[string]interface{}{}
+	if err := json.Unmarshal([]byte(content), &docContent); err != nil {
+		return content
+	}
+
+	var (
+		request    []byte
+		newContent []byte
+		err        error
+	)
+
+	for _, v := range docContent {
+		if v["type"] == "apicat-http-request" {
+			request, err = json.Marshal(v["attrs"])
+			if err != nil {
+				return content
+			}
+		}
+	}
+
+	apicatRequest := apicat_struct.RequestObject{}
+	if err := json.Unmarshal(request, &apicatRequest); err != nil {
+		return content
+	}
+
+	for k, v := range apicatRequest.GlobalExcepts.Cookie {
+		if id, ok := virtualIDToIDMap[int64(v)]; ok {
+			apicatRequest.GlobalExcepts.Cookie[k] = int(id)
+		}
+	}
+	for k, v := range apicatRequest.GlobalExcepts.Header {
+		if id, ok := virtualIDToIDMap[int64(v)]; ok {
+			apicatRequest.GlobalExcepts.Header[k] = int(id)
+		}
+	}
+	for k, v := range apicatRequest.GlobalExcepts.Path {
+		if id, ok := virtualIDToIDMap[int64(v)]; ok {
+			apicatRequest.GlobalExcepts.Path[k] = int(id)
+		}
+	}
+	for k, v := range apicatRequest.GlobalExcepts.Query {
+		if id, ok := virtualIDToIDMap[int64(v)]; ok {
+			apicatRequest.GlobalExcepts.Path[k] = int(id)
+		}
+	}
+
+	for i, v := range docContent {
+		if v["type"] == "apicat-http-request" {
+			docContent[i]["attrs"] = apicatRequest
+		}
+	}
+
+	if newContent, err = json.Marshal(docContent); err != nil {
+		return content
+	}
+
+	return string(newContent)
 }

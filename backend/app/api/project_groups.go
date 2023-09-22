@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/translator"
+	"github.com/apicat/apicat/backend/enum"
 	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
@@ -119,6 +120,7 @@ func ProjectGroupRename(ctx *gin.Context) {
 	pg, err := models.NewProjectGroups(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
 		})
 		return
@@ -164,6 +166,7 @@ func ProjectGroupDelete(ctx *gin.Context) {
 	pg, err := models.NewProjectGroups(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
 		})
 		return

@@ -129,7 +129,9 @@ go build
 | APICAT_DB_USER | MySQL 用户名，必须 | root |
 | APICAT_DB_PASSWORD | MySQL 密码，必须 | 123456 |
 | APICAT_DB_NAME | MySQL 数据库名称，必须 | apicat |
+| APICAT_OPENAI_SOURCE | OpenAI 调用途径(openai, azure) | openai |
 | APICAT_OPENAI_KEY | OpenAI Key | sk-xxxxxx |
+| APICAT_OPENAI_ENDPOINT | OpenAI 调用终端地址，当 APICAT_OPENAI_SOURCE 为 azure 时有效 | https://xxxxxx.openai.azure.com/ |
 
 ## 交流
 

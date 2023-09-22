@@ -250,6 +250,9 @@ other = "Failed to verify key"
 [Share.AccessPasswordError]
 other = "Wrong access password"
 
+[Share.DeleteFailed]
+other = "Access token deletion failed"
+
 [History.NotFound]
 other = "History does not exist"
 

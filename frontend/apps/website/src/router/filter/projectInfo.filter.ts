@@ -3,6 +3,10 @@ import type { Router } from 'vue-router'
 import { MAIN_PATH, NOT_FOUND_PATH, PROJECT_DETAIL_PATH_NAME, ITERATION_DETAIL_PATH_NAME, ITERATION_LIST_ROOT_PATH } from '../constant'
 import { ProjectInfo } from '@/typings'
 import { useIterationStore } from '@/store/iteration'
+import { useTitle } from '@/hooks/useTitle'
+import { ShareSecretKeyError } from '@/api/error'
+
+const title = useTitle()
 
 export const setupGetProjectAuthInfoFilter = (router: Router) => {
   router.beforeEach(async (to, from, next) => {
@@ -29,7 +33,6 @@ export const setupGetProjectAuthInfoFilter = (router: Router) => {
 export const setupGetProjectInfoFilter = (router: Router) => {
   router.beforeEach(async (to, from, next) => {
     const projectStore = useProjectStore()
-
     // 项目详情 | 历史记录
     if (
       (to.matched.find((item: any) => item.name === PROJECT_DETAIL_PATH_NAME) && !projectStore.isShowProjectSecretLayer) ||
@@ -40,12 +43,20 @@ export const setupGetProjectInfoFilter = (router: Router) => {
         try {
           const projectInfo: ProjectInfo = await projectStore.getProjectDetailInfo(project_id as string)
 
+          title.value = projectInfo.title
+
           if (!projectInfo) {
             return next(NOT_FOUND_PATH)
           }
 
           return next()
         } catch (error) {
+          // 密钥错误
+          if (error instanceof ShareSecretKeyError) {
+            projectStore.removeProjectSecretKeyWithReload()
+            return
+          }
+
           return next(MAIN_PATH)
         }
       }
@@ -76,6 +87,8 @@ export const setupGetProjectInfoByIterationFilter = (router: Router) => {
           if (!iterationStore.iterationInfo || !projectStore.projectDetailInfo || !projectStore.projectAuthInfo) {
             return next(NOT_FOUND_PATH)
           }
+
+          title.value = `${projectStore.projectDetailInfo.title}(${iterationStore.iterationInfo.title})`
 
           return next()
         } catch (error) {

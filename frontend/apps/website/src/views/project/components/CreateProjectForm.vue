@@ -1,111 +1,123 @@
 <template>
-  <el-form class="m-auto px-36px w-776px" label-position="top" label-width="100px" :model="form" :rules="rules" ref="projectFormRef" @submit.prevent="handleSubmit(projectFormRef)">
-    <el-form-item v-if="bgColorRef && iconRef" :label="$t('app.project.form.cover')" v-show="bgColorRef && iconRef">
-      <div class="w-full text-white rounded h-128px flex-center" :style="{ backgroundColor: bgColorRef }">
-        <Iconfont :icon="iconRef" :size="55" />
-      </div>
-    </el-form-item>
+  <div class="flex flex-col justify-center mx-auto px-36px">
+    <p class="border-b border-solid border-gray-lighter pb-30px text-18px text-gray-title">创建项目</p>
 
-    <el-form-item v-if="bgColorRef && iconRef">
-      <el-form-item :label="$t('app.project.form.coverColor')" class="flex-1 mr-10px">
-        <AcSelect v-model="bgColorRef" class="w-full" :options="projectCoverBgColorsOptions">
-          <template #default="{ selected }">
-            <div class="flex-center wh-full">
-              <span class="inline-flex rounded w-40% h-15px" :style="{ backgroundColor: selected }"></span>
-            </div>
-          </template>
-
-          <template #option="{ option }">
-            <span :style="{ backgroundColor: option.value }" class="flex h-15px"></span>
-          </template>
-        </AcSelect>
-      </el-form-item>
-
-      <el-form-item :label="$t('app.project.form.coverIcon')" class="flex-1 mr-10px">
-        <AcSelect v-model="iconRef" class="w-full" :options="projectCoverIcons">
-          <template #default="{ selected }">
-            <div class="flex-center wh-full">
-              <Iconfont :icon="selected" />
-            </div>
-          </template>
-
-          <template #option="{ option }">
-            <div class="flex-center wh-full">
-              <Iconfont :icon="option.value" />
-            </div>
-          </template>
-        </AcSelect>
-      </el-form-item>
-    </el-form-item>
-
-    <el-form-item>
-      <el-form-item :label="$t('app.project.form.title')" prop="title" class="flex-1 mr-10px">
-        <el-input v-model="form.title" :placeholder="$t('app.project.form.title')" clearable />
-      </el-form-item>
-
-      <el-form-item label="项目分组" prop="group_id" class="flex-1 mr-10px">
-        <el-select v-model="form.group_id" class="w-full">
-          <el-option v-for="item in groups" :key="item.id" :label="item.name" :value="item.id!" />
-          <el-option-group></el-option-group>
-          <el-option-group>
-            <el-option label="创建分组" :value="-1" />
-          </el-option-group>
-        </el-select>
-      </el-form-item>
-    </el-form-item>
-
-    <el-form-item :label="$t('app.project.form.visibility')">
-      <el-radio-group v-model="form.visibility">
-        <el-radio-button :label="ProjectVisibilityEnum.PRIVATE">
-          <el-icon class="mr-1"><ac-icon-ep-lock /></el-icon>{{ $t('app.common.private') }}
-        </el-radio-button>
-        <el-radio-button :label="ProjectVisibilityEnum.PUBLIC">
-          <el-icon class="mr-1"><ac-icon-ep-view /></el-icon>{{ $t('app.common.public') }}
-        </el-radio-button>
-      </el-radio-group>
-    </el-form-item>
-
-    <div class="my-40px">
-      <el-divider>
-        <span class="font-400">
-          {{ $t('app.project.createModal.dividerLine') }}
-        </span>
-      </el-divider>
-    </div>
-    <div :class="ns.b()">
-      <div :class="[ns.e('items'), { [ns.is('active')]: selectedProjectType === 'blank' }]" @click="handleSelectedProjectType('blank')">
-        <ac-icon-uil-file-blank class="text-40px" />
-        <div :class="ns.e('text')">
-          {{ $t('app.project.createModal.blackProject') }}
+    <el-form
+      class="m-auto w-776px mt-30px"
+      label-position="top"
+      label-width="100px"
+      :model="form"
+      :rules="rules"
+      ref="projectFormRef"
+      @submit.prevent="handleSubmit(projectFormRef)"
+    >
+      <el-form-item v-if="bgColorRef && iconRef" :label="$t('app.project.form.cover')" v-show="bgColorRef && iconRef">
+        <div class="w-full text-white rounded h-128px flex-center" :style="{ backgroundColor: bgColorRef }">
+          <Iconfont :icon="iconRef" :size="55" />
         </div>
-      </div>
+      </el-form-item>
 
-      <FileUploaderWrapper
-        :class="[ns.e('items'), { [ns.is('active')]: selectedProjectType === item.type }]"
-        :ref="(ref:any)=>setFileUploaderWrapper(ref, item.type)"
-        v-for="item in importTypes"
-        accept=".json,.yaml"
-        @change="handleFileSelect"
-        v-slot="{ fileName }"
-      >
-        <div :key="item.type" class="flex flex-col w-full flex-y-center" @click="handleSelectedProjectType(item.type)">
-          <img :src="item.logo" />
-          <div :class="ns.e('text')" :title="!!fileName ? fileName : item.name">
-            {{ !!fileName ? fileName : item.name }}
+      <el-form-item v-if="bgColorRef && iconRef">
+        <el-form-item :label="$t('app.project.form.coverColor')" class="flex-1 mr-10px">
+          <AcSelect v-model="bgColorRef" class="w-full" :options="projectCoverBgColorsOptions">
+            <template #default="{ selected }">
+              <div class="flex-center wh-full">
+                <span class="inline-flex rounded w-40% h-15px" :style="{ backgroundColor: selected }"></span>
+              </div>
+            </template>
+
+            <template #option="{ option }">
+              <span :style="{ backgroundColor: option.value }" class="flex h-15px"></span>
+            </template>
+          </AcSelect>
+        </el-form-item>
+
+        <el-form-item :label="$t('app.project.form.coverIcon')" class="flex-1 mr-10px">
+          <AcSelect v-model="iconRef" class="w-full" :options="projectCoverIcons">
+            <template #default="{ selected }">
+              <div class="flex-center wh-full">
+                <Iconfont :icon="selected" />
+              </div>
+            </template>
+
+            <template #option="{ option }">
+              <div class="flex-center wh-full">
+                <Iconfont :icon="option.value" />
+              </div>
+            </template>
+          </AcSelect>
+        </el-form-item>
+      </el-form-item>
+
+      <el-form-item>
+        <el-form-item :label="$t('app.project.form.title')" prop="title" class="flex-1 mr-10px">
+          <el-input v-model="form.title" :placeholder="$t('app.project.form.title')" clearable />
+        </el-form-item>
+
+        <el-form-item label="项目分组" prop="group_id" class="flex-1 mr-10px">
+          <el-select v-model="form.group_id" class="w-full">
+            <el-option v-for="item in groups" :key="item.id" :label="item.name" :value="item.id!" />
+            <el-option-group></el-option-group>
+            <el-option-group>
+              <el-option label="创建分组" :value="-1" />
+            </el-option-group>
+          </el-select>
+        </el-form-item>
+      </el-form-item>
+
+      <el-form-item :label="$t('app.project.form.visibility')">
+        <el-radio-group v-model="form.visibility">
+          <el-radio-button :label="ProjectVisibilityEnum.PRIVATE">
+            <el-icon class="mr-1"><ac-icon-ep-lock /></el-icon>{{ $t('app.common.private') }}
+          </el-radio-button>
+          <el-radio-button :label="ProjectVisibilityEnum.PUBLIC">
+            <el-icon class="mr-1"><ac-icon-ep-view /></el-icon>{{ $t('app.common.public') }}
+          </el-radio-button>
+        </el-radio-group>
+      </el-form-item>
+
+      <div class="my-40px">
+        <el-divider>
+          <span class="font-400">
+            {{ $t('app.project.createModal.dividerLine') }}
+          </span>
+        </el-divider>
+      </div>
+      <div :class="ns.b()">
+        <div :class="[ns.e('items'), { [ns.is('active')]: selectedProjectType === 'blank' }]" @click="handleSelectedProjectType('blank')">
+          <ac-icon-uil-file-blank class="text-40px" />
+          <div :class="ns.e('text')">
+            {{ $t('app.project.createModal.blackProject') }}
           </div>
         </div>
-      </FileUploaderWrapper>
-    </div>
 
-    <div class="text-right mt-20px">
-      <el-button @click="emits('cancel')">
-        {{ $t('app.common.cancel') }}
-      </el-button>
-      <el-button type="primary" :loading="isLoading" @click="handleSubmit(projectFormRef)">
-        {{ $t('app.common.confirm') }}
-      </el-button>
-    </div>
-  </el-form>
+        <FileUploaderWrapper
+          :class="[ns.e('items'), { [ns.is('active')]: selectedProjectType === item.type }]"
+          :ref="(ref:any)=>setFileUploaderWrapper(ref, item.type)"
+          v-for="item in importTypes"
+          accept=".json,.yaml"
+          @change="handleFileSelect"
+          v-slot="{ fileName }"
+        >
+          <div :key="item.type" class="flex flex-col w-full flex-y-center" @click="handleSelectedProjectType(item.type)">
+            <img :src="item.logo" />
+            <div :class="ns.e('text')" :title="!!fileName ? fileName : item.name">
+              {{ !!fileName ? fileName : item.name }}
+            </div>
+          </div>
+        </FileUploaderWrapper>
+      </div>
+
+      <div class="text-right mt-20px">
+        <el-button @click="emits('cancel')">
+          {{ $t('app.common.cancel') }}
+        </el-button>
+        <el-button type="primary" :loading="isLoading" @click="handleSubmit(projectFormRef)">
+          {{ $t('app.common.confirm') }}
+        </el-button>
+      </div>
+    </el-form>
+  </div>
 </template>
 
 <script setup lang="ts">

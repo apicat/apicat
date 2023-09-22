@@ -6,5 +6,7 @@ export const membersRoute: RouteRecordRaw = {
   name: 'members',
   path: '/members',
   component: MemberListPage,
-  meta: {},
+  meta: {
+    title: '成员列表',
+  },
 }

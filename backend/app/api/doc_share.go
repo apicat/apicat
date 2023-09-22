@@ -34,6 +34,7 @@ func DocShareStatus(ctx *gin.Context) {
 	collection.PublicId = data.PublicCollectionID
 	if err := collection.GetByPublicId(); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 		})
 		return
@@ -42,6 +43,7 @@ func DocShareStatus(ctx *gin.Context) {
 	project, err := models.NewProjects(collection.ProjectId)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return

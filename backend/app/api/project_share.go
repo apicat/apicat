@@ -43,6 +43,7 @@ func ProjectShareStatus(ctx *gin.Context) {
 		hasShared = true
 	}
 
+	authority = "none"
 	if currentUserExists {
 		member, _ := models.NewProjectMembers()
 		member.UserID = currentUser.(*models.Users).ID
@@ -51,8 +52,14 @@ func ProjectShareStatus(ctx *gin.Context) {
 		if err := member.GetByUserIDAndProjectID(); err == nil {
 			authority = member.Authority
 		}
-	} else {
-		authority = "none"
+	}
+
+	if authority == "none" && visibility == "private" && !hasShared {
+		ctx.JSON(http.StatusForbidden, gin.H{
+			"code":    enum.Redirect403Page,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+		})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
