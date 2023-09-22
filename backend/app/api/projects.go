@@ -11,6 +11,7 @@ import (
 	"github.com/apicat/apicat/backend/common/spec"
 	"github.com/apicat/apicat/backend/common/spec/plugin/export"
 	"github.com/apicat/apicat/backend/common/spec/plugin/openapi"
+	"github.com/apicat/apicat/backend/common/spec/plugin/postman"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/apicat/apicat/backend/models"
@@ -25,6 +26,8 @@ type CreateProject struct {
 	Data       string `json:"data"`
 	Cover      string `json:"cover" binding:"lte=255"`
 	Visibility string `json:"visibility" binding:"required,oneof=private public"`
+	DataType   string `json:"data_type" binding:"omitempty,oneof=apicat swagger openapi postman"`
+	GroupID    uint   `json:"group_id" binding:"omitempty"`
 }
 
 type UpdateProject struct {
@@ -48,7 +51,13 @@ type TranslateProject struct {
 }
 
 type ProjectsListData struct {
-	Auth []string `form:"auth" binding:"omitempty,dive,oneof=manage write read"`
+	Auth       []string `form:"auth" binding:"omitempty,dive,oneof=manage write read"`
+	GroupID    uint     `form:"group_id"`
+	IsFollowed bool     `form:"is_followed"`
+}
+
+type ProjectChangeGroupData struct {
+	TargetGroupID uint `json:"target_group_id" binding:"lte=255"`
 }
 
 func ProjectsList(ctx *gin.Context) {
@@ -62,28 +71,33 @@ func ProjectsList(ctx *gin.Context) {
 		return
 	}
 
-	var projectMembers []models.ProjectMembers
-	var err error
-	if len(data.Auth) == 0 {
-		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
-	} else {
+	var (
+		projectMembers []models.ProjectMembers
+		err            error
+	)
+	if data.GroupID > 0 {
+		projectMembers, err = models.GetProjectGroupedByUser(currentUser.(*models.Users).ID, data.GroupID)
+	} else if data.IsFollowed {
+		projectMembers, err = models.GetProjectFollowedByUser(currentUser.(*models.Users).ID)
+	} else if len(data.Auth) > 0 {
 		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID, data.Auth...)
+	} else {
+		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
 		})
+		return
+	}
+	if len(projectMembers) == 0 {
+		ctx.JSON(http.StatusOK, []gin.H{})
 		return
 	}
 
 	projectIDs := []uint{}
 	for _, v := range projectMembers {
 		projectIDs = append(projectIDs, v.ProjectID)
-	}
-
-	if len(projectIDs) == 0 {
-		ctx.JSON(http.StatusOK, []gin.H{})
-		return
 	}
 
 	project, _ := models.NewProjects()
@@ -95,20 +109,30 @@ func ProjectsList(ctx *gin.Context) {
 		return
 	}
 
-	pIDs, err := models.GetUserFollowByUserID(currentUser.(*models.Users).ID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
-		})
-		return
+	followProjects := projectMembers
+	if !data.IsFollowed {
+		followProjects, err = models.GetProjectFollowedByUser(currentUser.(*models.Users).ID)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
+			})
+			return
+		}
 	}
 
 	projectsList := []gin.H{}
 	for _, v := range projects {
 		isFollow := false
-		for _, pID := range pIDs {
-			if v.ID == pID {
+		for _, followProject := range followProjects {
+			if v.ID == followProject.ProjectID {
 				isFollow = true
+				break
+			}
+		}
+		groupID := 0
+		for _, pm := range projectMembers {
+			if v.ID == pm.ProjectID {
+				groupID = int(pm.GroupID)
 				break
 			}
 		}
@@ -119,6 +143,7 @@ func ProjectsList(ctx *gin.Context) {
 			"description": v.Description,
 			"cover":       v.Cover,
 			"is_followed": isFollow,
+			"group_id":    groupID,
 			"created_at":  v.CreatedAt.Format("2006-01-02 15:04:05"),
 			"updated_at":  v.UpdatedAt.Format("2006-01-02 15:04:05"),
 		})
@@ -129,6 +154,8 @@ func ProjectsList(ctx *gin.Context) {
 
 func ProjectsGet(ctx *gin.Context) {
 	currentProjectMember, currentProjectMemberExists := ctx.Get("CurrentProjectMember")
+	currentProject, _ := ctx.Get("CurrentProject")
+	project := currentProject.(*models.Projects)
 
 	var (
 		data       ProjectID
@@ -139,14 +166,6 @@ func ProjectsGet(ctx *gin.Context) {
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
-		})
-		return
-	}
-
-	project, err := models.NewProjects(data.ID)
-	if err != nil {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
 	}
@@ -188,10 +207,9 @@ func ProjectsCreate(ctx *gin.Context) {
 	}
 
 	var (
-		data       CreateProject
-		content    *spec.Spec
-		rawContent []byte
-		err        error
+		data    CreateProject
+		content *spec.Spec
+		err     error
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -201,15 +219,41 @@ func ProjectsCreate(ctx *gin.Context) {
 		return
 	}
 
-	project, _ := models.NewProjects()
-	if data.Data != "" {
-		var base64Content string
-		if strings.Contains(data.Data, "data:application/json;base64,") {
-			base64Content = strings.Replace(data.Data, "data:application/json;base64,", "", 1)
-		} else {
-			base64Content = strings.Replace(data.Data, "data:application/x-yaml;base64,", "", 1)
+	if data.GroupID > 0 {
+		pg, err := models.NewProjectGroups(data.GroupID)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
+			})
+			return
 		}
-		rawContent, err = base64.StdEncoding.DecodeString(base64Content)
+		if pg.UserID != user.ID {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
+			})
+			return
+		}
+	}
+
+	project, _ := models.NewProjects()
+
+	if data.DataType != "" {
+		switch data.DataType {
+		case "apicat":
+			content, err = apicatFileParse(data.Data)
+		case "swagger":
+			content, err = openapiAndSwaggerFileParse(data.Data)
+		case "openapi":
+			content, err = openapiAndSwaggerFileParse(data.Data)
+		case "postman":
+			content, err = postmanFileParse(data.Data)
+		default:
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.ImportFail"}),
+			})
+			return
+		}
+
 		if err != nil {
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.ImportFail"}),
@@ -217,13 +261,6 @@ func ProjectsCreate(ctx *gin.Context) {
 			return
 		}
 
-		content, err = openapi.Decode(rawContent)
-		if err != nil {
-			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.ImportFail"}),
-			})
-			return
-		}
 		project.Description = content.Info.Description
 	}
 
@@ -237,7 +274,7 @@ func ProjectsCreate(ctx *gin.Context) {
 	project.PublicId = shortuuid.New()
 	project.Cover = data.Cover
 	if err := project.Create(); err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.CreateFail"}),
 		})
 		return
@@ -247,8 +284,9 @@ func ProjectsCreate(ctx *gin.Context) {
 	pm.ProjectID = project.ID
 	pm.UserID = user.ID
 	pm.Authority = models.ProjectMembersManage
+	pm.GroupID = data.GroupID
 	if err := pm.Create(); err != nil {
-		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
+		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.CreateFail"}),
 		})
 		return
@@ -262,6 +300,7 @@ func ProjectsCreate(ctx *gin.Context) {
 			DefinitionSchemas:    models.DefinitionSchemasImport(project.ID, content.Definitions.Schemas),
 			DefinitionResponses:  models.DefinitionResponsesImport(project.ID, content.Definitions.Responses),
 			DefinitionParameters: models.DefinitionParametersImport(project.ID, content.Definitions.Parameters),
+			GolbalParameters:     models.GlobalParametersImport(project.ID, &content.Globals.Parameters),
 		}
 
 		models.CollectionsImport(project.ID, 0, content.Collections, refContentVirtualIDToId)
@@ -275,6 +314,68 @@ func ProjectsCreate(ctx *gin.Context) {
 		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
 		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
+}
+
+// openapi & swagger 导出文件解析
+func openapiAndSwaggerFileParse(fileContent string) (*spec.Spec, error) {
+	var (
+		base64Content string
+		rawContent    []byte
+		err           error
+	)
+
+	if strings.Contains(fileContent, "data:application/json;base64,") {
+		base64Content = strings.Replace(fileContent, "data:application/json;base64,", "", 1)
+	} else {
+		base64Content = strings.Replace(fileContent, "data:application/x-yaml;base64,", "", 1)
+	}
+
+	rawContent, err = base64.StdEncoding.DecodeString(base64Content)
+	if err != nil {
+		return nil, err
+	}
+
+	return openapi.Decode(rawContent)
+}
+
+// apicat 导出文件解析
+func apicatFileParse(fileContent string) (*spec.Spec, error) {
+	var (
+		base64Content string
+		rawContent    []byte
+		err           error
+	)
+
+	if strings.Contains(fileContent, "data:application/json;base64,") {
+		base64Content = strings.Replace(fileContent, "data:application/json;base64,", "", 1)
+	}
+
+	rawContent, err = base64.StdEncoding.DecodeString(base64Content)
+	if err != nil {
+		return nil, err
+	}
+
+	return spec.ParseJSON(rawContent)
+}
+
+// postman 导出文件解析
+func postmanFileParse(fileContent string) (*spec.Spec, error) {
+	var (
+		base64Content string
+		rawContent    []byte
+		err           error
+	)
+
+	if strings.Contains(fileContent, "data:application/json;base64,") {
+		base64Content = strings.Replace(fileContent, "data:application/json;base64,", "", 1)
+	}
+
+	rawContent, err = base64.StdEncoding.DecodeString(base64Content)
+	if err != nil {
+		return nil, err
+	}
+
+	return postman.Import(rawContent)
 }
 
 func ProjectsUpdate(ctx *gin.Context) {
@@ -309,6 +410,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 	project, err := models.NewProjects(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -373,6 +475,7 @@ func ProjectsDelete(ctx *gin.Context) {
 	project, err := models.NewProjects(data.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -412,6 +515,7 @@ func ProjectDataGet(ctx *gin.Context) {
 	project, err := models.NewProjects(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -452,6 +556,8 @@ func ProjectDataGet(ctx *gin.Context) {
 		content, err = export.HTML(apicatData)
 	case "md":
 		content, err = export.Markdown(apicatData)
+	case "apicat":
+		content, err = apicatData.ToJSON(spec.JSONOption{Indent: "  "})
 	default:
 		content, err = apicatData.ToJSON(spec.JSONOption{Indent: "  "})
 	}
@@ -510,6 +616,7 @@ func ProjectTransfer(ctx *gin.Context) {
 	pm, err := models.NewProjectMembers(data.MemberID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
 		})
 		return
@@ -550,45 +657,6 @@ func ProjectTransfer(ctx *gin.Context) {
 	ctx.Status(http.StatusCreated)
 }
 
-func ProjectFollowList(ctx *gin.Context) {
-	currentUser, _ := ctx.Get("CurrentUser")
-	projectsList := []gin.H{}
-
-	pIDs, err := models.GetUserFollowByUserID(currentUser.(*models.Users).ID)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.QueryFailed"}),
-		})
-		return
-	}
-	if len(pIDs) == 0 {
-		ctx.JSON(http.StatusOK, projectsList)
-		return
-	}
-
-	project, _ := models.NewProjects()
-	projects, err := project.List(pIDs...)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.QueryFailed"}),
-		})
-		return
-	}
-
-	for _, v := range projects {
-		projectsList = append(projectsList, gin.H{
-			"id":          v.PublicId,
-			"title":       v.Title,
-			"description": v.Description,
-			"cover":       v.Cover,
-			"created_at":  v.CreatedAt.Format("2006-01-02 15:04:05"),
-			"updated_at":  v.UpdatedAt.Format("2006-01-02 15:04:05"),
-		})
-	}
-
-	ctx.JSON(http.StatusOK, projectsList)
-}
-
 func ProjectFollow(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 
@@ -616,4 +684,26 @@ func ProjectUnFollow(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusNoContent)
+}
+
+func ProjectChangeGroup(ctx *gin.Context) {
+	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
+
+	var data ProjectChangeGroupData
+	if err := ctx.ShouldBindJSON(&data); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	currentProjectMember.(*models.ProjectMembers).GroupID = data.TargetGroupID
+	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.ChangeFailed"}),
+		})
+		return
+	}
+
+	ctx.Status(http.StatusCreated)
 }

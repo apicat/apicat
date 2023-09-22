@@ -23,6 +23,7 @@ func CheckProjectMember() gin.HandlerFunc {
 		user, exists := ctx.Get("CurrentUser")
 		if !exists {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
+				"code":    enum.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			ctx.Abort()

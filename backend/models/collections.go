@@ -187,7 +187,7 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 	collectionList := []*Collections{}
 
 	for i, collection := range collections {
-		if len(collection.Items) > 0 {
+		if len(collection.Items) > 0 || collection.Type == "category" {
 			category := &Collections{
 				ProjectId: projectID,
 				ParentId:  parentID,
@@ -205,6 +205,7 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 				collectionStr = replaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionSchemas, "#/definitions/schemas/")
 				collectionStr = replaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionResponses, "#/definitions/responses/")
 				collectionStr = replaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionParameters, "#/definitions/parameters/")
+				collectionStr = ReplaceGlobalParametersVirtualIDToID(collectionStr, refContentNameToId.GolbalParameters)
 
 				record := &Collections{
 					ProjectId:    projectID,

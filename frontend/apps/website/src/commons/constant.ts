@@ -6,7 +6,7 @@ import AcIconLogout from '~icons/mdi/logout'
 // API请求前缀
 export const API_URL = '/api'
 
-// 权限变更状态码
+// 403 二级响应code字典 权限变更状态码
 export const enum PERMISSION_CHANGE_CODE {
   // 用户权限变更
   USER_PREMISSION_ERROR = 101,
@@ -14,8 +14,22 @@ export const enum PERMISSION_CHANGE_CODE {
   MEMBER_PREMISSION_ERROR = 201,
   // 目标成员在项目中的权限发生变更
   TARGET_MEMBER_PREMISSION_ERROR = 202,
-  // 分享密钥错误
-  SHARE_KEY_ERROR = 301,
+  // 重定向403页面
+  REDIRECT_UNAUTHORIZED_PAGE = 301,
+}
+
+// 404 二级响应code字典
+export const RESPONSE_NOT_FOUND_MAPS = {
+  REDIRECT_NOT_FOUND_PAGE: 101,
+  SHOW_NOT_FOUND_MESSAGE: 201,
+}
+
+// 401 二级响应code字典
+export const RESPONSE_UNAUTHORIZED_MAPS = {
+  // 登录密钥失效或错误
+  LOGIN_TOKEN_EXPIRED_OR_ERROR: 101,
+  // 文档｜项目密钥失效或错误
+  PROJECT_OR_DOCUMENT_SECRET_TOKEN_EXPIRED_OR_ERROR: 201,
 }
 
 // 请求超时时长
@@ -119,6 +133,15 @@ export const enum ExportProjectTypes {
   OpenAPI = 'openapi',
   HTML = 'HTML',
   MARKDOWN = 'md',
+  ApiCat = 'apicat',
+}
+
+// 项目导入类型
+export const enum ImportProjectTypes {
+  ApiCat = 'apicat',
+  OpenAPI = 'openapi',
+  Swagger = 'swagger',
+  Postman = 'postman',
 }
 
 export const enum CommonParameterType {

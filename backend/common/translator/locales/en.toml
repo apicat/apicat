@@ -250,6 +250,9 @@ other = "Failed to verify key"
 [Share.AccessPasswordError]
 other = "Wrong access password"
 
+[Share.DeleteFailed]
+other = "Access token deletion failed"
+
 [History.NotFound]
 other = "History does not exist"
 
@@ -282,3 +285,24 @@ other = "Failed to follow item"
 
 [ProjectFollows.UnfollowFailed]
 other = "Failed to unfollow project"
+
+[ProjectGroups.QueryFailed]
+other = "Project group query failed"
+
+[ProjectGroups.CreateFailed]
+other = "Item group creation failed"
+
+[ProjectGroups.UpdateFailed]
+other = "Failed to modify project group"
+
+[ProjectGroups.DeleteFailed]
+other = "Failed to delete item group"
+
+[ProjectGroups.ChangeFailed]
+other = "Failed to change project group"
+
+[ProjectGroups.NameExists]
+other = "Project group name already exists"
+
+[ProjectGroups.NotFound]
+other = "Project group does not exist"

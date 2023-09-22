@@ -214,6 +214,7 @@ func IterationsDetails(ctx *gin.Context) {
 	iteration, err := models.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Redirect404Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
 		})
 		return
@@ -222,6 +223,7 @@ func IterationsDetails(ctx *gin.Context) {
 	project, err := models.NewProjects(iteration.ProjectID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Redirect404Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -275,6 +277,7 @@ func IterationsCreate(ctx *gin.Context) {
 	project, err := models.NewProjects(data.ProjectID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -363,6 +366,7 @@ func IterationsUpdate(ctx *gin.Context) {
 	iteration, err := models.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
 		})
 		return
@@ -423,6 +427,7 @@ func IterationsDelete(ctx *gin.Context) {
 	iteration, err := models.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
 		})
 		return

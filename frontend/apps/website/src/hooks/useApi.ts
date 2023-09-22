@@ -7,7 +7,7 @@ interface UseApiOptions {
   msg?: string
 }
 
-export function useApi(execute: any, options?: UseApiOptions): any {
+export function useApi(execute: any, options?: UseApiOptions): [Ref<boolean>, (...args: any[]) => Promise<any>] {
   options = { isCatch: false, isShowMessage: true, ...options }
 
   const isLoading = ref(false)

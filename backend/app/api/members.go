@@ -255,6 +255,7 @@ func DeleteMember(ctx *gin.Context) {
 	user, err := models.NewUsers(userIDData.UserID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
 		})
 		return

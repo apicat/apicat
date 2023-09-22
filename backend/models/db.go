@@ -71,6 +71,7 @@ func initTable() {
 		&DefinitionSchemaHistories{},
 		&Iterations{},
 		&IterationApis{},
+		&ProjectGroups{},
 	); err != nil {
 		panic(err.Error())
 	}

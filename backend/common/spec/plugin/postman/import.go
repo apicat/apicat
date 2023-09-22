@@ -178,7 +178,7 @@ func encodeResponseBody(res []Response) *spec.HTTPResponsesNode {
 		switch v.PostmanePreviewLanguage {
 		case "json":
 
-			fmt.Println("json.........")
+			// fmt.Println("json.........")
 			b := jsonToSchema(v.Body)
 			b.Example = v.Body
 			r.Content = map[string]*spec.Schema{
@@ -213,7 +213,7 @@ func encodeResponseBody(res []Response) *spec.HTTPResponsesNode {
 
 		}
 
-		fmt.Println(r)
+		// fmt.Println(r)
 
 		response.List = append(response.List, r)
 	}

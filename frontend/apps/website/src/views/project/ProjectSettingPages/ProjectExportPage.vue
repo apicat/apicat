@@ -22,6 +22,7 @@ import swaggerLogo from '@/assets/images/logo-swagger@2x.png'
 import openApiLogo from '@/assets/images/logo-openapis.svg'
 import htmlLogo from '@/assets/images/logo-html@2x.png'
 import mdLogo from '@/assets/images/logo-markdown@2x.png'
+import apiCatLogo from '@/assets/images/logo-square.svg'
 import { ExportProjectTypes } from '@/commons/constant'
 import { exportProject } from '@/api/project'
 import { useParams } from '@/hooks/useParams'
@@ -57,6 +58,7 @@ const props = withDefaults(
 let { project_id, computedRouteParams } = useParams()
 
 const exportList: ExportItem[] = [
+  { logo: apiCatLogo, text: 'ApiCat', type: ExportProjectTypes.ApiCat },
   { logo: swaggerLogo, text: 'Swagger 2.0', type: ExportProjectTypes.Swagger },
   {
     logo: openApiLogo,

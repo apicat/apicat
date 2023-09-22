@@ -121,6 +121,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 	dsh, err := models.NewDefinitionSchemaHistories(uriData.HistoryID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Redirect404Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -128,6 +129,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 
 	if currentDefinitionSchema.(*models.DefinitionSchemas).ID != dsh.SchemaID {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Redirect404Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -136,6 +138,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 	u, err := models.NewUsers(dsh.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
@@ -176,12 +179,14 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	dsh1, err := models.NewDefinitionSchemaHistories(data.HistoryID1)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
 	if dsh1.SchemaID != currentDefinitionSchema.(*models.DefinitionSchemas).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -189,6 +194,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	u1, err := models.NewUsers(dsh1.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
@@ -214,6 +220,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 		u2, err := models.NewUsers(currentDefinitionSchema.(*models.DefinitionSchemas).UpdatedBy)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
+				"code":    enum.Display404ErrorMessage,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 			})
 			return
@@ -242,6 +249,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	dsh2, err := models.NewDefinitionSchemaHistories(data.HistoryID2)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -249,6 +257,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 
 	if dsh2.SchemaID != currentDefinitionSchema.(*models.DefinitionSchemas).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -257,6 +266,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	u2, err := models.NewUsers(dsh2.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
@@ -306,6 +316,7 @@ func DefinitionSchemaHistoryRestore(ctx *gin.Context) {
 	dsh, err := models.NewDefinitionSchemaHistories(uriData.HistoryID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -313,6 +324,7 @@ func DefinitionSchemaHistoryRestore(ctx *gin.Context) {
 
 	if currentDefinitionSchema.(*models.DefinitionSchemas).ID != dsh.SchemaID {
 		ctx.JSON(http.StatusNotFound, gin.H{
+			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return

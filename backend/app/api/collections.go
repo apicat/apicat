@@ -131,7 +131,7 @@ func buildTree(parentID uint, collections []*models.Collections, isIteration boo
 		if c.ParentId == parentID {
 			children := buildTree(c.ID, collections, isIteration, selectCIDs...)
 
-			c := CollectionList{
+			cl := CollectionList{
 				ID:       c.ID,
 				ParentID: c.ParentId,
 				Title:    c.Title,
@@ -142,12 +142,12 @@ func buildTree(parentID uint, collections []*models.Collections, isIteration boo
 			isSelected := false
 			if isIteration {
 				for _, cid := range selectCIDs {
-					if cid == c.ID {
+					if cid == cl.ID {
 						isSelected = true
 						break
 					}
 					if !isSelected {
-						for _, v := range c.Items {
+						for _, v := range cl.Items {
 							if *v.Selected {
 								isSelected = true
 								break
@@ -155,10 +155,10 @@ func buildTree(parentID uint, collections []*models.Collections, isIteration boo
 						}
 					}
 				}
-				c.Selected = &isSelected
+				cl.Selected = &isSelected
 			}
 
-			result = append(result, &c)
+			result = append(result, &cl)
 		}
 	}
 
@@ -521,14 +521,16 @@ func CollectionDataGet(ctx *gin.Context) {
 	project, err := models.NewProjects(uriData.ProjectID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": err.Error(),
+			"code":    enum.Display404ErrorMessage,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
 	}
 	collection, err := models.NewCollections(uriData.CollectionID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"message": err.Error(),
+			"code":    enum.Display404ErrorMessage,
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 		})
 		return
 	}

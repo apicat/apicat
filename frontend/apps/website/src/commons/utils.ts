@@ -29,7 +29,7 @@ export const queryStringify = (data?: Record<string, any>): string => {
     if (Array.isArray(value)) {
       value.forEach((value) => params.append(key, (value || '').toString()))
     } else {
-      params.append(key, (value || '').toString())
+      value && params.append(key, (value || '').toString())
     }
   })
 
@@ -63,7 +63,7 @@ export const getResponseStatusCodeBgColor = (code: number): any => {
 }
 
 export const getRequestMethodColor = (method: string): any => {
-  const color = (HttpMethodTypeMap as any)[method].color
+  const color = (HttpMethodTypeMap as any)[(method || '').toLowerCase()].color
   return color ?? HttpMethodTypeMap.get.color
 }
 

@@ -1,7 +1,16 @@
 <template>
-  <el-dialog v-model="dialogVisible" :title="$t('app.project.createModal.title')" :width="580" align-center :close-on-click-modal="false">
-    <!-- 内容 -->
-    <el-form label-position="top" label-width="100px" :model="form" :rules="rules" ref="projectFormRef" @submit.prevent="handleSubmit(projectFormRef)">
+  <div class="flex flex-col justify-center mx-auto px-36px">
+    <p class="border-b border-solid border-gray-lighter pb-30px text-18px text-gray-title">创建项目</p>
+
+    <el-form
+      class="m-auto w-776px mt-30px"
+      label-position="top"
+      label-width="100px"
+      :model="form"
+      :rules="rules"
+      ref="projectFormRef"
+      @submit.prevent="handleSubmit(projectFormRef)"
+    >
       <el-form-item v-if="bgColorRef && iconRef" :label="$t('app.project.form.cover')" v-show="bgColorRef && iconRef">
         <div class="w-full text-white rounded h-128px flex-center" :style="{ backgroundColor: bgColorRef }">
           <Iconfont :icon="iconRef" :size="55" />
@@ -40,8 +49,20 @@
         </el-form-item>
       </el-form-item>
 
-      <el-form-item :label="$t('app.project.form.title')" prop="title">
-        <el-input v-model="form.title" :placeholder="$t('app.project.form.title')" clearable />
+      <el-form-item>
+        <el-form-item :label="$t('app.project.form.title')" prop="title" class="flex-1 mr-10px">
+          <el-input v-model="form.title" :placeholder="$t('app.project.form.title')" clearable />
+        </el-form-item>
+
+        <el-form-item label="项目分组" prop="group_id" class="flex-1 mr-10px">
+          <el-select v-model="form.group_id" class="w-full">
+            <el-option v-for="item in groups" :key="item.id" :label="item.name" :value="item.id!" />
+            <el-option-group></el-option-group>
+            <el-option-group>
+              <el-option label="创建分组" :value="-1" />
+            </el-option-group>
+          </el-select>
+        </el-form-item>
       </el-form-item>
 
       <el-form-item :label="$t('app.project.form.visibility')">
@@ -64,93 +85,110 @@
       </div>
       <div :class="ns.b()">
         <div :class="[ns.e('items'), { [ns.is('active')]: selectedProjectType === 'blank' }]" @click="handleSelectedProjectType('blank')">
-          <ac-icon-uil-file-blank class="text-30px" />
+          <ac-icon-uil-file-blank class="text-40px" />
           <div :class="ns.e('text')">
             {{ $t('app.project.createModal.blackProject') }}
           </div>
         </div>
 
         <FileUploaderWrapper
-          ref="fileUploaderWrapper"
+          :class="[ns.e('items'), { [ns.is('active')]: selectedProjectType === item.type }]"
+          :ref="(ref:any)=>setFileUploaderWrapper(ref, item.type)"
+          v-for="item in importTypes"
           accept=".json,.yaml"
           @change="handleFileSelect"
           v-slot="{ fileName }"
-          :class="[ns.e('items'), { [ns.is('active')]: selectedProjectType === 'import' }]"
         >
-          <div class="flex flex-col items-center w-full" @click="handleSelectedProjectType('import')" :title="fileName">
-            <ac-icon-lucide-file-text class="text-30px" />
-            <div :class="ns.e('text')" class="w-full">
-              <p v-if="!fileName">{{ $t('app.project.createModal.importProject') }}</p>
-              <p v-else class="truncate">{{ fileName }}</p>
-              <p class="text-gray-400 text-12px">
-                {{ $t('app.project.createModal.importProjectTip') }}
-              </p>
+          <div :key="item.type" class="flex flex-col w-full flex-y-center" @click="handleSelectedProjectType(item.type)">
+            <img :src="item.logo" />
+            <div :class="ns.e('text')" :title="!!fileName ? fileName : item.name">
+              {{ !!fileName ? fileName : item.name }}
             </div>
           </div>
         </FileUploaderWrapper>
       </div>
+
+      <div class="text-right mt-20px">
+        <el-button @click="emits('cancel')">
+          {{ $t('app.common.cancel') }}
+        </el-button>
+        <el-button type="primary" :loading="isLoading" @click="handleSubmit(projectFormRef)">
+          {{ $t('app.common.confirm') }}
+        </el-button>
+      </div>
     </el-form>
-    <!-- 底部按钮 -->
-    <div slot="footer" class="text-right mt-20px">
-      <el-button @click="dialogVisible = false">
-        {{ $t('app.common.cancel') }}
-      </el-button>
-      <el-button type="primary" :loading="isLoading" @click="handleSubmit(projectFormRef)">
-        {{ $t('app.common.confirm') }}
-      </el-button>
-    </div>
-  </el-dialog>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { useNamespace, useModal } from '@/hooks'
+import { useNamespace } from '@/hooks'
 import { useI18n } from 'vue-i18n'
 import type { FormInstance, FormRules } from 'element-plus'
 import { createProject } from '@/api/project'
 import { getProjectDetailPath } from '@/router'
-import { ProjectInfo } from '@/typings'
-import useProjectStore from '@/store/project'
-import { useProjectCover } from './logic/useProjectCover'
+import { ProjectGroup, ProjectInfo } from '@/typings'
+import { useProjectCover } from '../logic/useProjectCover'
 import { ProjectVisibilityEnum } from '@/commons'
+import swaggerLogo from '@/assets/images/logo-swagger@2x.png'
+import openApiLogo from '@/assets/images/logo-openapis.svg'
+import apiCatLogo from '@/assets/images/logo-square.svg'
+import postmanLogo from '@/assets/images/logo-postman@2x.png'
 
-const ns = useNamespace('project-types')
+const emits = defineEmits<{ (e: 'cancel'): void; (e: 'create-group'): void }>()
+const props = withDefaults(defineProps<{ group_id: number; groups: ProjectGroup[] }>(), {
+  group_id: 0,
+  groups: () => [],
+})
+
 const { t } = useI18n()
+const ns = useNamespace('project-types')
 const router = useRouter()
-const projectStore = useProjectStore()
 
 const projectFormRef = ref<FormInstance>()
-const fileUploaderWrapper = ref()
+const fileUploaderWrappers = new Map()
 const isLoading = ref(false)
-const { dialogVisible, showModel } = useModal(projectFormRef as any)
 
 const selectedProjectType = ref('blank')
 
+const importTypes = [
+  { type: 'apicat', name: 'ApiCat', logo: apiCatLogo },
+  { type: 'openapi', name: 'OpenAPI', logo: openApiLogo },
+  { type: 'swagger', name: 'Swagger', logo: swaggerLogo },
+  { type: 'postman', name: 'Postman', logo: postmanLogo },
+]
+
+const setFileUploaderWrapper = (refInstance: any, type: string) => {
+  if (!fileUploaderWrappers.has(type)) {
+    fileUploaderWrappers.set(type, refInstance)
+  }
+}
+
 const form = reactive({
+  group_id: props.group_id,
   title: '',
   cover: '',
   data: '',
+  data_type: '',
   visibility: ProjectVisibilityEnum.PRIVATE,
 })
 
 const { projectCoverBgColorsOptions, projectCoverIcons, bgColorRef, iconRef } = useProjectCover(form)
-
-watch(dialogVisible, () => {
-  if (!dialogVisible.value) {
-    fileUploaderWrapper.value.clear()
-    form.data = ''
-    form.cover = ''
-  }
-})
 
 const rules = reactive<FormRules>({
   title: [{ required: true, message: t('app.project.rules.title'), trigger: 'change' }],
 })
 
 const handleSelectedProjectType = (type: string) => {
-  selectedProjectType.value = type
+  fileUploaderWrappers.forEach((fileUploaderWrapper) => {
+    fileUploaderWrapper.clear()
+  })
 
-  if (type !== 'import') {
+  selectedProjectType.value = type
+  form.data_type = type
+
+  if (type === 'blank') {
     form.data = ''
+    form.data_type = ''
   }
 }
 
@@ -181,8 +219,22 @@ const handleSubmit = async (formEl: FormInstance | undefined) => {
   }
 }
 
+const setSelectedGroup = (group_id: number) => {
+  form.group_id = group_id
+}
+
+watch(
+  () => form.group_id,
+  (val, oldVal) => {
+    if (val === -1) {
+      form.group_id = oldVal
+      emits('create-group')
+    }
+  }
+)
+
 defineExpose({
-  show: showModel,
+  setSelectedGroup,
 })
 </script>
 
@@ -190,10 +242,14 @@ defineExpose({
 @use '@/styles/mixins/mixins.scss' as *;
 
 @include b(project-types) {
-  @apply flex justify-between gap-30px;
+  @apply flex justify-between gap-14px;
 
   @include e(items) {
-    @apply flex flex-col items-center flex-1 border border-solid rounded cursor-pointer p-20px border-gray-lighter hover:border-gray-45;
+    @apply w-full flex flex-col items-center flex-1 border border-solid rounded cursor-pointer p-20px border-gray-lighter hover:border-gray-45;
+
+    img {
+      width: 48px;
+    }
 
     @include when('active') {
       @apply border-blue-primary text-blue-primary;
@@ -201,7 +257,7 @@ defineExpose({
   }
 
   @include e(text) {
-    @apply h-30px mt-20px;
+    @apply h-30px mt-20px truncate w-full text-center;
     line-height: 20px;
   }
 }
