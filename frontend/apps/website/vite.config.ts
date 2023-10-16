@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'url'
+import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
@@ -9,8 +10,11 @@ import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import { createHtmlPlugin } from 'vite-plugin-html'
 
-export default () => {
+export default ({ mode }) => {
+  const isProd = mode === 'production'
+
   return defineConfig({
     plugins: [
       vue(),
@@ -39,6 +43,26 @@ export default () => {
       Icons({
         autoInstall: true,
       }),
+      createHtmlPlugin({
+        minify: false,
+        pages: [
+          {
+            entry: 'src/main.ts',
+            filename: 'index.html',
+            template: 'index.html',
+          },
+          {
+            entry: 'src/dbConfigMain.ts',
+            filename: 'db-config.html',
+            template: 'db-config.html',
+            injectOptions: {
+              data: {
+                injectDBConfig: isProd ? '<script type="text/javascript">var DB_CONFIG = {{.dbConfig}}</script>' : ''
+              }
+            }
+          },
+        ]
+      })
     ],
     resolve: {
       alias: {
@@ -73,7 +97,12 @@ export default () => {
     },
     build: {
       outDir: '../../dist',
+      emptyOutDir: true,
       rollupOptions: {
+        // input: {
+        //   index: resolve(__dirname, 'index.html'),
+        //   dbConfig: resolve(__dirname, 'db-config.html'),
+        // },
         output: {
           manualChunks(id) {
             if (id.includes('element-plus')) {
