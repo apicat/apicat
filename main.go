@@ -11,11 +11,10 @@ import (
 )
 
 func main() {
-	var configFilePath string
-	flag.StringVar(&configFilePath, "c", "", "The config file path, if not set, it will start with the example config.")
+	flag.StringVar(&config.FilePath, "c", "", "The config file path, if not set, it will start with the example config.")
 	flag.Parse()
 
-	config.InitConfig(configFilePath)
+	config.InitConfig()
 	translator.Init()
 	log.Init()
 	models.Init()
