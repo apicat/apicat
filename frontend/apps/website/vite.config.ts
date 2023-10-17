@@ -58,7 +58,7 @@ export default ({ mode }) => {
             template: 'db-config.html',
             injectOptions: {
               data: {
-                injectDBConfig: isProd ? '<script type="text/javascript">var DB_CONFIG = {{.dbConfig}}</script>' : ''
+                injectDBConfig: isProd ? '<script type="text/javascript">var DB_CONFIG = {{.db_config}}</script>' : ''
               }
             }
           },
@@ -69,9 +69,9 @@ export default ({ mode }) => {
         verbose: true,
         targets: [
           {
-            src: resolve(__dirname, '../../dist/db-config.html'),
-            rename: 'db-config.tmpl',
-            dest: resolve(__dirname, '../../dist/')
+            src: resolve(__dirname, '../../dist/*.html'),
+            rename: (name) => `${name}.tmpl`,
+            dest: resolve(__dirname, '../../dist/templates/')
           }
         ]
       })
