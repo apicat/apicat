@@ -1,11 +1,10 @@
 package middleware
 
 import (
-	"fmt"
-	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 type skipPath struct {
@@ -14,12 +13,23 @@ type skipPath struct {
 }
 
 var skipPaths = []skipPath{
-	{"/api/config/db", "GET"},
-	{"/api/config/db", "PUT"},
+	{"/config/db", "GET"},
+	{"/config/db", "PUT"},
 }
 
-func CheckDBConnStatus() gin.HandlerFunc {
+func CheckDBConnStatus(skip ...string) gin.HandlerFunc {
+	skipPrefix := make(map[string]bool)
+	for i := range skip {
+		skipPrefix[skip[i]] = true
+	}
 	return func(ctx *gin.Context) {
+		path := ctx.Request.URL.Path
+		for k := range skipPrefix {
+			if strings.HasPrefix(path, k) {
+				return
+			}
+		}
+
 		for _, skipPath := range skipPaths {
 			if skipPath.URL == ctx.Request.URL.Path && skipPath.Method == ctx.Request.Method {
 				ctx.Next()
@@ -27,22 +37,9 @@ func CheckDBConnStatus() gin.HandlerFunc {
 			}
 		}
 
-		connStatus, err := models.DBConnStatus()
-
-		var tm string
+		connStatus, _ := models.DBConnStatus()
 		if connStatus != 1 {
-			switch connStatus {
-			case 2:
-				tm = translator.Trasnlate(ctx, &translator.TT{ID: "DB.ConnectFailed"})
-			case 3:
-				tm = translator.Trasnlate(ctx, &translator.TT{ID: "DB.NotFound"})
-			default:
-				tm = translator.Trasnlate(ctx, &translator.TT{ID: "DB.ConnectFailed"})
-			}
-			ctx.JSON(http.StatusInternalServerError, gin.H{
-				"message": fmt.Sprintf(tm, err.Error()),
-			})
-			ctx.Abort()
+			ctx.Redirect(http.StatusMovedPermanently, "/config/db")
 			return
 		}
 	}

@@ -17,9 +17,11 @@ func InitApiRouter(r *gin.Engine) {
 	r.Use(
 		middleware.RequestIDLog("/assets/", "/static/"),
 		translator.UseValidatori18n(),
-		middleware.CheckDBConnStatus(),
+		middleware.CheckDBConnStatus("/assets/", "/static/"),
 		gin.Recovery(),
 	)
+
+	r.LoadHTMLGlob("frontend/dist/templates/*.tmpl")
 
 	assets, err := fs.Sub(frontend.FrontDist, "dist/assets")
 	if err != nil {
@@ -37,20 +39,18 @@ func InitApiRouter(r *gin.Engine) {
 		ctx.FileFromFS("dist/", http.FS(frontend.FrontDist))
 	})
 
-	r.LoadHTMLGlob("frontend/templates/*")
-
 	mocksrv := api.NewMockServer()
 
 	r.Any("/mock/:id/*path", mocksrv.Handler)
 
+	config := r.Group("/config")
+	{
+		config.GET("/db", api.GetDBConfig)
+		config.PUT("/db", api.SetDBConfig)
+	}
+
 	apiRouter := r.Group("/api")
 	{
-		config := apiRouter.Group("/config")
-		{
-			config.GET("/db", api.GetDBConfig)
-			config.PUT("/db", api.SetDBConfig)
-		}
-
 		// 未登录状态下可访问的API
 		notLogin := apiRouter.Group("")
 		{
