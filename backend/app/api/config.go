@@ -31,30 +31,58 @@ type DBConfigData struct {
 	DBName   DBConfigItemData `json:"dbname" binding:"required"`
 }
 
-func GetDBConfig(ctx *gin.Context) {
-	sysCfg := config.GetSysConfig()
+func dataStructProcess(field *config.ConfigItem) DBConfigItemData {
+	if field.DataSource == "env" {
+		return DBConfigItemData{
+			Value: field.EnvName,
+			Type:  field.DataSource,
+		}
+	} else {
+		dataSource := "value"
+		if field.DataSource != "" {
+			dataSource = field.DataSource
+		}
+		return DBConfigItemData{
+			Value: field.Value,
+			Type:  dataSource,
+		}
+	}
+}
 
-	dataStructureProcess := func(field *config.ConfigItem) DBConfigItemData {
-		if field.DataSource == "env" {
-			return DBConfigItemData{
-				Value: field.EnvName,
-				Type:  field.DataSource,
-			}
+func generateConfigItem(value, dataSource string) (config.ConfigItem, error) {
+	var field config.ConfigItem
+
+	if dataSource == "env" {
+		if ev, exist := os.LookupEnv(value); !exist {
+			return field, fmt.Errorf("env var %s read failed", value)
 		} else {
-			return DBConfigItemData{
-				Value: field.Value,
-				Type:  field.DataSource,
+			field = config.ConfigItem{
+				Value:      ev,
+				DataSource: "env",
+				EnvName:    fmt.Sprintf("${%s}", value),
 			}
+		}
+	} else {
+		field = config.ConfigItem{
+			Value:      value,
+			DataSource: "value",
 		}
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{
+	return field, nil
+}
+
+func GetDBConfig(ctx *gin.Context) {
+	sysCfg := config.GetSysConfig()
+	fmt.Printf("sysCfg: %+v\n", sysCfg)
+
+	ctx.HTML(http.StatusOK, "db-config.tmpl", gin.H{
 		"db_config": DBConfigData{
-			Host:     dataStructureProcess(&sysCfg.DB.Host),
-			Port:     dataStructureProcess(&sysCfg.DB.Port),
-			User:     dataStructureProcess(&sysCfg.DB.User),
-			Password: dataStructureProcess(&sysCfg.DB.Password),
-			DBName:   dataStructureProcess(&sysCfg.DB.Dbname),
+			Host:     dataStructProcess(&sysCfg.DB.Host),
+			Port:     dataStructProcess(&sysCfg.DB.Port),
+			User:     dataStructProcess(&sysCfg.DB.User),
+			Password: dataStructProcess(&sysCfg.DB.Password),
+			DBName:   dataStructProcess(&sysCfg.DB.Dbname),
 		},
 	})
 }
@@ -69,35 +97,41 @@ func SetDBConfig(ctx *gin.Context) {
 	}
 
 	sysCfg := config.GetSysConfig()
-	generateConfigItem := func(field *config.ConfigItem, value, dataSource string) {
-		if dataSource == "env" {
-			if ev, exist := os.LookupEnv(value); exist {
-				field = &config.ConfigItem{
-					Value:      ev,
-					DataSource: "env",
-					EnvName:    fmt.Sprintf("${%s}", value),
-				}
-			} else {
-				ctx.JSON(http.StatusInternalServerError, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "ENV.VarReadFailed"}),
-				})
-				return
-			}
+	fmt.Printf("sysCfg: %+v\n", sysCfg)
 
-		} else {
-			field = &config.ConfigItem{
-				Value:      value,
-				DataSource: "value",
-			}
-		}
+	ok := true
+	hostField, err := generateConfigItem(data.Host.Value, data.Host.Type)
+	if err != nil {
+		ok = false
+	}
+	portField, err := generateConfigItem(data.Port.Value, data.Port.Type)
+	if err != nil {
+		ok = false
+	}
+	userField, err := generateConfigItem(data.User.Value, data.User.Type)
+	if err != nil {
+		ok = false
+	}
+	passwordField, err := generateConfigItem(data.Password.Value, data.Password.Type)
+	if err != nil {
+		ok = false
+	}
+	dbNameField, err := generateConfigItem(data.DBName.Value, data.DBName.Type)
+	if err != nil {
+		ok = false
+	}
+	if !ok {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ENV.VarReadFailed"}),
+		})
+		return
 	}
 
-	generateConfigItem(&sysCfg.DB.Host, data.Host.Value, data.Host.Type)
-	generateConfigItem(&sysCfg.DB.Port, data.Port.Value, data.Port.Type)
-	generateConfigItem(&sysCfg.DB.User, data.User.Value, data.User.Type)
-	generateConfigItem(&sysCfg.DB.Password, data.Password.Value, data.Password.Type)
-	generateConfigItem(&sysCfg.DB.Dbname, data.DBName.Value, data.DBName.Type)
-
+	sysCfg.DB.Host = hostField
+	sysCfg.DB.Port = portField
+	sysCfg.DB.User = userField
+	sysCfg.DB.Password = passwordField
+	sysCfg.DB.Dbname = dbNameField
 	config.SetSysConfig(&sysCfg)
 
 	models.Init()
