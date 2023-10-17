@@ -21,23 +21,23 @@ const DataTypes = [
 
 const config = ref<DBConfig>({
   host: {
-    value: '127.0.0.1',
+    value: '',
     type: 'value',
   },
   port: {
-    value: '3306',
+    value: '',
     type: 'value',
   },
   user: {
-    value: 'root',
+    value: '',
     type: 'value',
   },
   password: {
-    value: '123456',
+    value: '',
     type: 'value',
   },
   dbname: {
-    value: 'apicat',
+    value: '',
     type: 'value',
   },
 } || (window as any)['DB_CONFIG'])
