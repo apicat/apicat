@@ -300,8 +300,12 @@ func fileExists(filePath string) (bool, error) {
 	}
 }
 
-func GetSysConfig() *SysConfig {
-	return sysConfig
+func GetSysConfig() SysConfig {
+	return *sysConfig
+}
+
+func SetSysConfig(sysCfg *SysConfig) {
+	sysConfig = sysCfg
 }
 
 func InitConfig() {

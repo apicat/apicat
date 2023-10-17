@@ -16,14 +16,14 @@ func Init() {
 	var output io.Writer
 
 	if err := level.UnmarshalText(
-		[]byte(strings.ToUpper(config.SysConfig.Log.Level)),
+		[]byte(strings.ToUpper(config.GetSysConfig().Log.Level.Value)),
 	); err != nil {
 		level = slog.LevelInfo
 	}
 
-	if config.SysConfig.Log.Path != "" {
+	if config.GetSysConfig().Log.Path.Value != "" {
 		output = &lumberjack.Logger{
-			Filename:   path.Join(config.SysConfig.Log.Path, "apicat.log"),
+			Filename:   path.Join(config.GetSysConfig().Log.Path.Value, "apicat.log"),
 			MaxSize:    500, // megabytes
 			MaxBackups: 3,
 			MaxAge:     28,   //days
