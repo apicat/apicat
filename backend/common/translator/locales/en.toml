@@ -306,3 +306,15 @@ other = "Project group name already exists"
 
 [ProjectGroups.NotFound]
 other = "Project group does not exist"
+
+[DB.ConnectFailed]
+other = "Database connection failed: %s"
+
+[DB.NotFound]
+other = "Database does not exist: %s"
+
+[Config.SaveFailed]
+other = "Failed to save configuration file"
+
+[ENV.VarReadFailed]
+other = "Failed to read environment variables"
