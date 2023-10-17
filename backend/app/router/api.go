@@ -1,12 +1,12 @@
 package router
 
 import (
+	"github.com/apicat/apicat/backend/common/translator"
 	"io/fs"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/app/api"
 	"github.com/apicat/apicat/backend/app/middleware"
-	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/frontend"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +16,8 @@ func InitApiRouter(r *gin.Engine) {
 
 	r.Use(
 		middleware.RequestIDLog("/assets/", "/static/"),
+		translator.UseValidatori18n(),
+		middleware.CheckDBConnStatus(),
 		gin.Recovery(),
 	)
 
@@ -35,13 +37,20 @@ func InitApiRouter(r *gin.Engine) {
 		ctx.FileFromFS("dist/", http.FS(frontend.FrontDist))
 	})
 
+	r.LoadHTMLGlob("frontend/templates/*")
+
 	mocksrv := api.NewMockServer()
 
 	r.Any("/mock/:id/*path", mocksrv.Handler)
 
 	apiRouter := r.Group("/api")
-	apiRouter.Use(translator.UseValidatori18n())
 	{
+		config := apiRouter.Group("/config")
+		{
+			config.GET("/db", api.GetDBConfig)
+			config.PUT("/db", api.SetDBConfig)
+		}
+
 		// 未登录状态下可访问的API
 		notLogin := apiRouter.Group("")
 		{
