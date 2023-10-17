@@ -229,13 +229,42 @@ func loadConfig(filepath string) (*SysConfig, error) {
 	return &sysConfig, nil
 }
 
+func sysToFile(sysConfig *SysConfig) *FileConfig {
+	fileConfig := &FileConfig{}
+
+	setFileValues := func(sysStructPtr interface{}, fileStructPtr interface{}) {
+		sysConfigValue := reflect.ValueOf(sysStructPtr).Elem()
+		fileConfigValue := reflect.ValueOf(fileStructPtr).Elem()
+
+		for i := 0; i < sysConfigValue.NumField(); i++ {
+			sysField := sysConfigValue.Field(i)
+
+			if sysField.FieldByName("DataSource").String() == "env" {
+				fileConfigValue.Field(i).SetString(fmt.Sprintf("${%s}", sysField.FieldByName("EnvName").String()))
+			} else {
+				fileConfigValue.Field(i).SetString(sysField.FieldByName("Value").String())
+
+			}
+		}
+	}
+
+	setFileValues(&sysConfig.App, &fileConfig.App)
+	setFileValues(&sysConfig.Log, &fileConfig.Log)
+	setFileValues(&sysConfig.DB, &fileConfig.DB)
+	setFileValues(&sysConfig.OpenAI, &fileConfig.OpenAI)
+
+	return fileConfig
+}
+
 func SaveConfig(cfg *SysConfig) error {
 	path := DefaultConfigFilePath
 	if FilePath != "" {
 		path = FilePath
 	}
 
-	data, err := yaml.Marshal(cfg)
+	fileConfig := sysToFile(cfg)
+
+	data, err := yaml.Marshal(fileConfig)
 	if err != nil {
 		return err
 	}
