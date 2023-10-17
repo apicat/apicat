@@ -16,6 +16,7 @@ apicat
 # vendor/
 
 .vscode/
+.idea/
 data/*.db
 logs/
 .DS_Store
