@@ -11,6 +11,7 @@ import IconsResolver from 'unplugin-icons/resolver'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import vueJsx from '@vitejs/plugin-vue-jsx'
 import { createHtmlPlugin } from 'vite-plugin-html'
+import copy from 'rollup-plugin-copy'
 
 export default ({ mode }) => {
   const isProd = mode === 'production'
@@ -62,6 +63,17 @@ export default ({ mode }) => {
             }
           },
         ]
+      }),
+      copy({
+        hook: 'writeBundle',
+        verbose: true,
+        targets: [
+          {
+            src: resolve(__dirname, '../../dist/db-config.html'),
+            rename: 'db-config.tmpl',
+            dest: resolve(__dirname, '../../dist/')
+          }
+        ]
       })
     ],
     resolve: {
@@ -99,10 +111,6 @@ export default ({ mode }) => {
       outDir: '../../dist',
       emptyOutDir: true,
       rollupOptions: {
-        // input: {
-        //   index: resolve(__dirname, 'index.html'),
-        //   dbConfig: resolve(__dirname, 'db-config.html'),
-        // },
         output: {
           manualChunks(id) {
             if (id.includes('element-plus')) {
