@@ -19,7 +19,7 @@ const DataTypes = [
   { label: '环境变量', value: 'env' },
 ]
 
-const config = ref<DBConfig>({
+const config = ref<DBConfig>((window as any)['DB_CONFIG'] || {
   host: {
     value: '',
     type: 'value',
@@ -40,7 +40,7 @@ const config = ref<DBConfig>({
     value: '',
     type: 'value',
   },
-} || (window as any)['DB_CONFIG'])
+})
 
 const rules = reactive({
   'host.value': [
