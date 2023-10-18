@@ -72,7 +72,7 @@ func Init() {
 		if err != nil {
 			connStatus = connFail
 			connErr = err
-			fmt.Println("连接数据库时出错：", err)
+			slog.Error("failed to connect to database", slog.String("err", err.Error()))
 			return
 		}
 
@@ -101,13 +101,13 @@ func DBConnStatus() (status uint, err error) {
 func pingConn() error {
 	sqlDB, err := Conn.DB()
 	if err != nil {
-		fmt.Println("获取数据库连接对象失败：", err)
+		slog.Error("failed to obtain database connection object", slog.String("err", err.Error()))
 		return err
 	}
 
 	// 测试连接
 	if err := sqlDB.Ping(); err != nil {
-		fmt.Println("测试连接数据库时出错：", err)
+		slog.Error("failed to ping database", slog.String("err", err.Error()))
 		return err
 	}
 
@@ -118,14 +118,14 @@ func pingConn() error {
 func connectDB(dbName string) error {
 	var count int64
 	if result := Conn.Raw("SELECT COUNT(*) FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?", dbName).Count(&count); result.Error != nil {
-		fmt.Println("检查数据库时出错：", result.Error)
+		slog.Error("failed to check database", slog.String("err", result.Error.Error()))
 		return result.Error
 	}
 
 	if count == 0 {
 		// 当数据库连接正常但数据库不存在时，帮用户创建数据库
 		if err := Conn.Exec("CREATE DATABASE IF NOT EXISTS " + dbName + " DEFAULT CHARSET utf8mb4 COLLATE utf8mb4_unicode_ci;").Error; err != nil {
-			fmt.Println("创建数据库时出错：", err)
+			slog.Error("failed to create database", slog.String("err", err.Error()))
 			return err
 		}
 	}

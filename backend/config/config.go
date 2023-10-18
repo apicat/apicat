@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"github.com/imdario/mergo"
+	"golang.org/x/exp/slog"
 	"gopkg.in/yaml.v2"
 	"os"
 	"reflect"
@@ -283,20 +284,21 @@ func SaveConfig(cfg *SysConfig) error {
 	return nil
 }
 
-func fileExists(filePath string) (bool, error) {
+func fileExists(filePath string) bool {
 	// 使用os.Stat()函数来获取文件信息
 	_, err := os.Stat(filePath)
 
 	// 如果文件存在
 	if err == nil {
 		// 文件存在
-		return true, nil
+		return true
 	} else if os.IsNotExist(err) {
 		// 文件不存在
-		return false, nil
+		return false
 	} else {
 		// 无法确定文件是否存在
-		return false, err
+		slog.Error("get file stat failed", slog.String("err", err.Error()))
+		return false
 	}
 }
 
@@ -311,28 +313,30 @@ func SetSysConfig(sysCfg *SysConfig) {
 func InitConfig() {
 	cfg := createDefault()
 
-	exist, err := fileExists(DefaultConfigFilePath)
-	if err != nil {
-		fmt.Println(err)
-	}
+	exist := fileExists(DefaultConfigFilePath)
 
 	// 不存在默认配置文件并且未指定配置文件时，使用默认配置，创建默认配置文件
 	if !exist && FilePath == "" {
+		slog.Debug("config file not exist and not specify config file, use example config and create default config file")
 		envCfg := getEnvConfig()
 		mergo.Merge(&envCfg, cfg)
 		sysConfig = &envCfg
 
 		if err := SaveConfig(cfg); err != nil {
-			fmt.Println(err)
+			slog.Error("save config file failed", slog.String("err", err.Error()))
 		}
 
 		return
 	}
 
 	// 指定配置文件时，使用指定配置文件，未指定时，使用默认配置文件
-	filepath := DefaultConfigFilePath
+	var filepath string
 	if FilePath != "" {
 		filepath = FilePath
+		slog.Debug("use specify config file", slog.String("filepath", FilePath))
+	} else {
+		filepath = DefaultConfigFilePath
+		slog.Debug("use default config file", slog.String("filepath", DefaultConfigFilePath))
 	}
 
 	userCfg, err := loadConfig(filepath)
