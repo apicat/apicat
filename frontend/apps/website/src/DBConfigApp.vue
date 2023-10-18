@@ -56,7 +56,6 @@ const rules = reactive({
   ],
   'port.value': { required: true, message: '请输入Port', trigger: 'blur' },
   'user.value': { required: true, message: '请输入数据库用户名称', trigger: 'blur' },
-  'password.value': { required: true, message: '请输入数据库密码', trigger: 'blur' },
   'dbname.value': { required: true, message: '请输入数据库名称', trigger: 'blur' },
 })
 
