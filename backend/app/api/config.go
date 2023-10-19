@@ -10,16 +10,8 @@ import (
 	"os"
 )
 
-type SetDBConfigData struct {
-	Host     string `json:"host" binding:"required"`
-	Port     int    `json:"port" binding:"required"`
-	User     string `json:"user" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	DBName   string `json:"dbname" binding:"required"`
-}
-
 type DBConfigItemData struct {
-	Value string `json:"value" binding:"required"`
+	Value string `json:"value"`
 	Type  string `json:"type" binding:"required,oneof=value env"`
 }
 
@@ -59,7 +51,7 @@ func generateConfigItem(value, dataSource string) (config.ConfigItem, error) {
 			field = config.ConfigItem{
 				Value:      ev,
 				DataSource: "env",
-				EnvName:    fmt.Sprintf("${%s}", value),
+				EnvName:    value,
 			}
 		}
 	} else {
@@ -97,7 +89,6 @@ func SetDBConfig(ctx *gin.Context) {
 	}
 
 	sysCfg := config.GetSysConfig()
-	fmt.Printf("sysCfg: %+v\n", sysCfg)
 
 	ok := true
 	hostField, err := generateConfigItem(data.Host.Value, data.Host.Type)

@@ -51,6 +51,11 @@ func InitApiRouter(r *gin.Engine) {
 
 	apiRouter := r.Group("/api")
 	{
+		config := apiRouter.Group("/config")
+		{
+			config.PUT("/db", api.SetDBConfig)
+		}
+
 		// 未登录状态下可访问的API
 		notLogin := apiRouter.Group("")
 		{
