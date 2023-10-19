@@ -317,12 +317,12 @@ func InitConfig() {
 
 	// 不存在默认配置文件并且未指定配置文件时，使用默认配置，创建默认配置文件
 	if !exist && FilePath == "" {
-		slog.Debug("config file not exist and not specify config file, use example config and create default config file")
+		slog.Debug("config file not exist and not specify config file, use default config and create default config file")
 		envCfg := getEnvConfig()
 		mergo.Merge(&envCfg, cfg)
 		sysConfig = &envCfg
 
-		if err := SaveConfig(cfg); err != nil {
+		if err := SaveConfig(sysConfig); err != nil {
 			slog.Error("save config file failed", slog.String("err", err.Error()))
 		}
 
