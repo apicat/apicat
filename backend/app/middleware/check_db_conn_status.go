@@ -14,7 +14,7 @@ type skipPath struct {
 
 var skipPaths = []skipPath{
 	{"/config/db", "GET"},
-	{"/config/db", "PUT"},
+	{"/api/config/db", "PUT"},
 }
 
 func CheckDBConnStatus(skip ...string) gin.HandlerFunc {
@@ -24,6 +24,7 @@ func CheckDBConnStatus(skip ...string) gin.HandlerFunc {
 	}
 	return func(ctx *gin.Context) {
 		path := ctx.Request.URL.Path
+
 		for k := range skipPrefix {
 			if strings.HasPrefix(path, k) {
 				return
@@ -32,7 +33,6 @@ func CheckDBConnStatus(skip ...string) gin.HandlerFunc {
 
 		for _, skipPath := range skipPaths {
 			if skipPath.URL == ctx.Request.URL.Path && skipPath.Method == ctx.Request.Method {
-				ctx.Next()
 				return
 			}
 		}
@@ -40,6 +40,7 @@ func CheckDBConnStatus(skip ...string) gin.HandlerFunc {
 		connStatus, _ := models.DBConnStatus()
 		if connStatus != 1 {
 			ctx.Redirect(http.StatusMovedPermanently, "/config/db")
+			ctx.Abort()
 			return
 		}
 	}

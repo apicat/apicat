@@ -1,14 +1,13 @@
 package router
 
 import (
+	"github.com/apicat/apicat/backend/app/api"
+	"github.com/apicat/apicat/backend/app/middleware"
 	"github.com/apicat/apicat/backend/common/translator"
+	"github.com/apicat/apicat/frontend"
 	"html/template"
 	"io/fs"
 	"net/http"
-
-	"github.com/apicat/apicat/backend/app/api"
-	"github.com/apicat/apicat/backend/app/middleware"
-	"github.com/apicat/apicat/frontend"
 
 	"github.com/gin-gonic/gin"
 )
@@ -48,7 +47,6 @@ func InitApiRouter(r *gin.Engine) {
 	config := r.Group("/config")
 	{
 		config.GET("/db", api.GetDBConfig)
-		config.PUT("/db", api.SetDBConfig)
 	}
 
 	apiRouter := r.Group("/api")

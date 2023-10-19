@@ -66,7 +66,6 @@ func generateConfigItem(value, dataSource string) (config.ConfigItem, error) {
 
 func GetDBConfig(ctx *gin.Context) {
 	sysCfg := config.GetSysConfig()
-	fmt.Printf("sysCfg: %+v\n", sysCfg)
 
 	ctx.HTML(http.StatusOK, "db-config.tmpl", gin.H{
 		"db_config": DBConfigData{
