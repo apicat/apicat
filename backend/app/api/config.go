@@ -138,7 +138,7 @@ func SetDBConfig(ctx *gin.Context) {
 		default:
 			tm = translator.Trasnlate(ctx, &translator.TT{ID: "DB.ConnectFailed"})
 		}
-		ctx.JSON(http.StatusInternalServerError, gin.H{
+		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf(tm, err.Error()),
 		})
 		return
