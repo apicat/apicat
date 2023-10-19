@@ -39,7 +39,7 @@ func CheckDBConnStatus(skip ...string) gin.HandlerFunc {
 
 		connStatus, _ := models.DBConnStatus()
 		if connStatus != 1 {
-			ctx.Redirect(http.StatusMovedPermanently, "/config/db")
+			ctx.Redirect(http.StatusFound, "/config/db")
 			ctx.Abort()
 			return
 		}
