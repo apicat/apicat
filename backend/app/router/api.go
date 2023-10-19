@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/apicat/apicat/backend/common/translator"
+	"html/template"
 	"io/fs"
 	"net/http"
 
@@ -21,8 +22,6 @@ func InitApiRouter(r *gin.Engine) {
 		gin.Recovery(),
 	)
 
-	r.LoadHTMLGlob("frontend/dist/templates/*.tmpl")
-
 	assets, err := fs.Sub(frontend.FrontDist, "dist/assets")
 	if err != nil {
 		panic(err)
@@ -34,6 +33,9 @@ func InitApiRouter(r *gin.Engine) {
 		panic(err)
 	}
 	r.StaticFS("/static", http.FS(static))
+
+	t, _ := template.ParseFS(frontend.FrontDist, "dist/templates/*.tmpl")
+	r.SetHTMLTemplate(t)
 
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.FileFromFS("dist/", http.FS(frontend.FrontDist))
