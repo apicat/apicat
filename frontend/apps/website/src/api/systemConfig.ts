@@ -11,10 +11,14 @@ const QuietAjax = axios.create({
   },
 })
 
-QuietAjax.interceptors.response.use((response) => response.data, (error) => {
+QuietAjax.interceptors.response.use((response) => {
+  console.log('interceptors response.data', response.data)
+  return response.data
+}, (error) => {
   const { response = { data: {} } } = error
   const { message } = response.data
   message && ElMessage.error(message)
+  return Promise.reject(error)
 })
 
 
