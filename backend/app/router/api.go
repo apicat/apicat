@@ -5,7 +5,6 @@ import (
 	"github.com/apicat/apicat/backend/app/middleware"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/frontend"
-	"html/template"
 	"io/fs"
 	"net/http"
 
@@ -16,8 +15,8 @@ func InitApiRouter(r *gin.Engine) {
 
 	r.Use(
 		middleware.RequestIDLog("/assets/", "/static/"),
-		translator.UseValidatori18n(),
 		middleware.CheckDBConnStatus("/assets/", "/static/"),
+		translator.UseValidatori18n(),
 		gin.Recovery(),
 	)
 
@@ -32,9 +31,6 @@ func InitApiRouter(r *gin.Engine) {
 		panic(err)
 	}
 	r.StaticFS("/static", http.FS(static))
-
-	t, _ := template.ParseFS(frontend.FrontDist, "dist/templates/*.tmpl")
-	r.SetHTMLTemplate(t)
 
 	r.GET("/", func(ctx *gin.Context) {
 		ctx.FileFromFS("dist/", http.FS(frontend.FrontDist))
