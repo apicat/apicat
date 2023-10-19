@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { FormInstance } from 'element-plus'
-import isIP from 'validator/es/lib/isIP'
 import { saveDBConfig } from '@/api/systemConfig'
 import useApi from '@/hooks/useApi'
 
@@ -43,17 +42,7 @@ const config = ref<DBConfig>((window as any)['DB_CONFIG'] || {
 })
 
 const rules = reactive({
-  'host.value': [
-    { required: true, message: '请输入Host', trigger: 'blur' },
-    {
-      validator(rule: any, value: string, callback: any) {
-        if (!isIP(value)) {
-          return callback(new Error('请输入正确的IP地址'))
-        }
-        return callback()
-      }, trigger: 'blur'
-    },
-  ],
+  'host.value': { required: true, message: '请输入Host', trigger: 'blur' },
   'port.value': { required: true, message: '请输入Port', trigger: 'blur' },
   'user.value': { required: true, message: '请输入数据库用户名称', trigger: 'blur' },
   'dbname.value': { required: true, message: '请输入数据库名称', trigger: 'blur' },
@@ -109,7 +98,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     </el-form-item>
 
     <el-form-item label="Password" prop="password.value">
-      <el-input v-model="config.password.value" placeholder="Password" type="password" maxlength="100">
+      <el-input v-model="config.password.value" placeholder="Password" maxlength="100">
         <template #append>
           <el-select v-model="config.password.type" class="w-110px">
             <el-option v-for="item in DataTypes" :key="item.value" :label="item.label" :value="item.value" />
