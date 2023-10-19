@@ -112,7 +112,7 @@ func SetDBConfig(ctx *gin.Context) {
 		ok = false
 	}
 	if !ok {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
+		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ENV.VarReadFailed"}),
 		})
 		return
