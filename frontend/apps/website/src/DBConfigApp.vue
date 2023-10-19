@@ -54,7 +54,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   try {
     await formEl.validate()
     await saveDBConfigApi(toRaw(config.value))
-    location.replace("/")
+    location.replace("/home")
   } catch (error) {
     //
   }
