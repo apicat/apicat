@@ -1,4 +1,5 @@
 import { fileURLToPath, URL } from 'url'
+import { resolve } from 'node:path'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
@@ -9,8 +10,12 @@ import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import { createHtmlPlugin } from 'vite-plugin-html'
+import copy from 'rollup-plugin-copy'
 
-export default () => {
+export default ({ mode }) => {
+  const isProd = mode === 'production'
+
   return defineConfig({
     plugins: [
       vue(),
@@ -39,6 +44,37 @@ export default () => {
       Icons({
         autoInstall: true,
       }),
+      createHtmlPlugin({
+        minify: false,
+        pages: [
+          {
+            entry: 'src/main.ts',
+            filename: 'index.html',
+            template: 'index.html',
+          },
+          {
+            entry: 'src/dbConfigMain.ts',
+            filename: 'db-config.html',
+            template: 'db-config.html',
+            injectOptions: {
+              data: {
+                injectDBConfig: isProd ? '<script type="text/javascript">var DB_CONFIG = {{.db_config}}</script>' : ''
+              }
+            }
+          },
+        ]
+      }),
+      copy({
+        hook: 'writeBundle',
+        verbose: true,
+        targets: [
+          {
+            src: resolve(__dirname, '../../dist/*.html'),
+            rename: (name) => `${name}.tmpl`,
+            dest: resolve(__dirname, '../../dist/templates/')
+          }
+        ]
+      })
     ],
     resolve: {
       alias: {
@@ -73,6 +109,7 @@ export default () => {
     },
     build: {
       outDir: '../../dist',
+      emptyOutDir: true,
       rollupOptions: {
         output: {
           manualChunks(id) {

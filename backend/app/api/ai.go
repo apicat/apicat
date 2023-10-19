@@ -81,7 +81,7 @@ func AICreateCollection(ctx *gin.Context) {
 			return
 		}
 
-		o := openai.NewOpenAI(config.SysConfig.OpenAI, lang)
+		o := openai.NewOpenAI(config.GetSysConfig().OpenAI, lang)
 		o.SetMaxTokens(3000)
 		openapiContent, err = o.CreateApiBySchema(data.Title, data.Path, data.Method, schema.Schema)
 		if err != nil || openapiContent == "" {
@@ -92,7 +92,7 @@ func AICreateCollection(ctx *gin.Context) {
 			return
 		}
 	} else {
-		o := openai.NewOpenAI(config.SysConfig.OpenAI, lang)
+		o := openai.NewOpenAI(config.GetSysConfig().OpenAI, lang)
 		o.SetMaxTokens(2000)
 		openapiContent, err = o.CreateApi(data.Title)
 		if err != nil || openapiContent == "" {
@@ -208,7 +208,7 @@ func AICreateSchema(ctx *gin.Context) {
 	}
 
 	lang := util.GetUserLanguage(ctx)
-	o := openai.NewOpenAI(config.SysConfig.OpenAI, lang)
+	o := openai.NewOpenAI(config.GetSysConfig().OpenAI, lang)
 	o.SetMaxTokens(2000)
 	openapiContent, err = o.CreateSchema(data.Name)
 	if err != nil || openapiContent == "" {
@@ -303,7 +303,7 @@ func AICreateApiNames(ctx *gin.Context) {
 	}
 
 	lang := util.GetUserLanguage(ctx)
-	o := openai.NewOpenAI(config.SysConfig.OpenAI, lang)
+	o := openai.NewOpenAI(config.GetSysConfig().OpenAI, lang)
 	openapiContent, err = o.ListApiBySchema(schema.Name)
 	if err != nil || openapiContent == "" {
 		slog.DebugCtx(ctx, "ListApiBySchema Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))

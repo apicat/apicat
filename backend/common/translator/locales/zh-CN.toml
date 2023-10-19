@@ -306,3 +306,15 @@ other = "项目分组名称已存在"
 
 [ProjectGroups.NotFound]
 other = "项目分组不存在"
+
+[DB.ConnectFailed]
+other = "数据库连接失败：%s"
+
+[DB.NotFound]
+other = "数据库不存在：%s"
+
+[Config.SaveFailed]
+other = "配置文件保存失败"
+
+[ENV.VarReadFailed]
+other = "环境变量读取失败"
