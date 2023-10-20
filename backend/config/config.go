@@ -343,7 +343,14 @@ func InitConfig() {
 	if err != nil {
 		panic(err.Error())
 	}
+	fileCfg := *userCfg
 
 	mergo.Merge(userCfg, cfg)
 	sysConfig = userCfg
+
+	if fileCfg != *sysConfig {
+		if err := SaveConfig(sysConfig); err != nil {
+			slog.Error("save config file failed", slog.String("err", err.Error()))
+		}
+	}
 }
