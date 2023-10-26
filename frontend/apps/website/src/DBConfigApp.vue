@@ -69,7 +69,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     <h1 class="text-center mb-20px text-24px">MySQL 设置</h1>
 
     <el-form-item label="Host" prop="host.value">
-      <el-input v-model="config.host.value" placeholder="Host">
+      <el-input v-model="config.host.value" placeholder="Host" maxlength="255">
         <template #append>
           <el-select v-model="config.host.type" class="w-110px">
             <el-option v-for="item in DataTypes" :key="item.value" :label="item.label" :value="item.value" />
@@ -79,7 +79,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     </el-form-item>
 
     <el-form-item label="Port" prop="port.value">
-      <el-input v-model="config.port.value" placeholder="Port" maxlength="9">
+      <el-input v-model="config.port.value" placeholder="Port" maxlength="255">
         <template #append>
           <el-select v-model="config.port.type" class="w-110px">
             <el-option v-for="item in DataTypes" :key="item.value" :label="item.label" :value="item.value" />
@@ -89,7 +89,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     </el-form-item>
 
     <el-form-item label="User" prop="user.value">
-      <el-input v-model="config.user.value" placeholder="User" maxlength="50">
+      <el-input v-model="config.user.value" placeholder="User" maxlength="255">
         <template #append>
           <el-select v-model="config.user.type" class="w-110px">
             <el-option v-for="item in DataTypes" :key="item.value" :label="item.label" :value="item.value" />
@@ -99,7 +99,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     </el-form-item>
 
     <el-form-item label="Password" prop="password.value">
-      <el-input v-model="config.password.value" placeholder="Password" maxlength="100">
+      <el-input v-model="config.password.value" placeholder="Password" maxlength="255">
         <template #append>
           <el-select v-model="config.password.type" class="w-110px">
             <el-option v-for="item in DataTypes" :key="item.value" :label="item.label" :value="item.value" />
@@ -109,7 +109,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
     </el-form-item>
 
     <el-form-item label="Database" prop="dbname.value">
-      <el-input v-model="config.dbname.value" placeholder="Database" maxlength="100">
+      <el-input v-model="config.dbname.value" placeholder="Database" maxlength="255">
         <template #append>
           <el-select v-model="config.dbname.type" class="w-110px">
             <el-option v-for="item in DataTypes" :key="item.value" :label="item.label" :value="item.value" />
