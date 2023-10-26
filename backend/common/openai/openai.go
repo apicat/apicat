@@ -21,9 +21,9 @@ type OpenAI struct {
 
 func NewOpenAI(configs config.OpenAI, language string) *OpenAI {
 	return &OpenAI{
-		source:    configs.Source,
-		key:       configs.Key,
-		endpoint:  configs.Endpoint,
+		source:    configs.Source.Value,
+		key:       configs.Key.Value,
+		endpoint:  configs.Endpoint.Value,
 		language:  strings.ToLower(language),
 		maxTokens: 1000,
 	}
