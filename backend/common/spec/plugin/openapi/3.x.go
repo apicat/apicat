@@ -347,10 +347,12 @@ func (o *toOpenapi) toReqParameters(spe *spec.Spec, ps spec.HTTPRequestNode, ver
 				}
 			}
 			item := openAPIParamter{
-				Name:     p.Name,
-				Required: p.Required,
-				Schema:   o.convertJSONSchema(ver, p.Schema),
-				In:       in,
+				Name:        p.Name,
+				Required:    p.Required,
+				Description: p.Description,
+				Example:     p.Example,
+				Schema:      o.convertJSONSchema(ver, p.Schema),
+				In:          in,
 			}
 			out = append(out, item)
 		}

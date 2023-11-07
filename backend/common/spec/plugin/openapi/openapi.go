@@ -117,6 +117,7 @@ type openAPIParamter struct {
 	Format    string  `json:"format,omitempty"`
 	Default   any     `json:"default,omitempty"`
 	Reference *string `json:"$ref,omitempty"`
+	Example   any     `json:"example,omitempty"`
 }
 
 func toParameter(p *spec.Schema, in string) openAPIParamter {

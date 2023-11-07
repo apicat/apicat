@@ -11,8 +11,10 @@ type Schema struct {
 	Name        string             `json:"name,omitempty"`
 	Description string             `json:"description,omitempty"`
 	Required    bool               `json:"required,omitempty"`
+	Example     any                `json:"example,omitempty"`
 	Schema      *jsonschema.Schema `json:"schema,omitempty"`
 	Reference   *string            `json:"$ref,omitempty"`
+	XDiff       *string            `json:"x-apicat-diff,omitempty"`
 }
 
 func (s *Schema) Ref() bool { return s.Reference != nil }
