@@ -1,13 +1,13 @@
-package middleware
+package log
 
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/apicat/apicat/backend/module/logger"
 	"io"
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/backend/common/log"
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/shortuuid/v4"
 	"golang.org/x/exp/slog"
@@ -42,7 +42,7 @@ func RequestIDLog(skip ...string) func(*gin.Context) {
 
 		reqid := shortuuid.New()
 		ctx := c.Request.Context()
-		c.Request = c.Request.WithContext(log.ContextLogID(ctx, reqid))
+		c.Request = c.Request.WithContext(logger.ContextLogID(ctx, reqid))
 		c.Header("x-apicat-requestid", reqid)
 
 		// Read the Body content
