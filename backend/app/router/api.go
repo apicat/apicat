@@ -2,8 +2,11 @@ package router
 
 import (
 	"github.com/apicat/apicat/backend/app/api"
-	"github.com/apicat/apicat/backend/app/middleware"
 	"github.com/apicat/apicat/backend/common/translator"
+	"github.com/apicat/apicat/backend/route/middleware/check"
+	"github.com/apicat/apicat/backend/route/middleware/db"
+	"github.com/apicat/apicat/backend/route/middleware/jwt"
+	"github.com/apicat/apicat/backend/route/middleware/log"
 	"github.com/apicat/apicat/frontend"
 	"io/fs"
 	"net/http"
@@ -14,8 +17,8 @@ import (
 func InitApiRouter(r *gin.Engine) {
 
 	r.Use(
-		middleware.RequestIDLog("/assets/", "/static/"),
-		middleware.CheckDBConnStatus("/assets/", "/static/"),
+		log.RequestIDLog("/assets/", "/static/"),
+		db.CheckDBConnStatus("/assets/", "/static/"),
 		translator.UseValidatori18n(),
 		gin.Recovery(),
 	)
@@ -62,18 +65,18 @@ func InitApiRouter(r *gin.Engine) {
 			}
 
 			project := notLogin.Group("/projects")
-			project.Use(middleware.CheckProject())
+			project.Use(check.CheckProject())
 			{
 				project.GET("/:project-id/data", api.ProjectDataGet)
-				project.GET("/:project-id/share/status", middleware.CheckMemberHalfLogin(), api.ProjectShareStatus)
+				project.GET("/:project-id/share/status", check.CheckMemberHalfLogin(), api.ProjectShareStatus)
 				project.POST("/:project-id/share/check", api.ProjectShareSecretkeyCheck)
 			}
 
 			collection := notLogin.Group("/projects/:project-id/collections")
-			collection.Use(middleware.CheckProject())
+			collection.Use(check.CheckProject())
 			{
-				collection.GET("/:collection-id/data", middleware.CheckCollection(), api.CollectionDataGet)
-				collection.POST("/:collection-id/share/check", middleware.CheckCollection(), api.DocShareCheck)
+				collection.GET("/:collection-id/data", check.CheckCollection(), api.CollectionDataGet)
+				collection.POST("/:collection-id/share/check", check.CheckCollection(), api.DocShareCheck)
 			}
 
 			collection_share := notLogin.Group("/collections")
@@ -84,7 +87,7 @@ func InitApiRouter(r *gin.Engine) {
 
 		// 半登录状态下可访问的API。半登录：登录或不登录时都可访问，但响应的参数不同
 		halfLogin := apiRouter.Group("")
-		halfLogin.Use(middleware.CheckProject(), middleware.CheckMemberHalfLogin(), middleware.CheckProjectMemberHalfLogin(), mocksrv.ClearCache())
+		halfLogin.Use(check.CheckProject(), check.CheckMemberHalfLogin(), check.CheckProjectMemberHalfLogin(), mocksrv.ClearCache())
 		{
 			project := halfLogin.Group("/projects/:project-id")
 			{
@@ -98,14 +101,14 @@ func InitApiRouter(r *gin.Engine) {
 
 			definitionSchemas := halfLogin.Group("/projects/:project-id/definition/schemas")
 			{
-				definitionSchemas.GET("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasGet)
+				definitionSchemas.GET("/:schemas-id", check.CheckDefinitionSchema(), api.DefinitionSchemasGet)
 				definitionSchemas.GET("", api.DefinitionSchemasList)
 			}
 
 			collections := halfLogin.Group("/projects/:project-id/collections")
 			{
 				collections.GET("", api.CollectionsList)
-				collections.GET("/:collection-id", middleware.CheckCollection(), api.CollectionsGet)
+				collections.GET("/:collection-id", check.CheckCollection(), api.CollectionsGet)
 			}
 
 			globalParameters := halfLogin.Group("/projects/:project-id/global/parameters")
@@ -122,7 +125,7 @@ func InitApiRouter(r *gin.Engine) {
 
 		// 仅登录状态下可访问的API。仅登录：仅登录了apicat便可访问，一般为项目外的操作
 		onlyLogin := apiRouter.Group("")
-		onlyLogin.Use(middleware.CheckMember())
+		onlyLogin.Use(check.CheckMember())
 		{
 			user := onlyLogin.Group("/user")
 			{
@@ -166,7 +169,7 @@ func InitApiRouter(r *gin.Engine) {
 
 		// 项目内部操作
 		project := apiRouter.Group("/projects/:project-id")
-		project.Use(middleware.JWTAuthMiddleware(), middleware.CheckProject(), middleware.CheckProjectMember(), mocksrv.ClearCache())
+		project.Use(jwt.JWTAuthMiddleware(), check.CheckProject(), check.CheckProjectMember(), mocksrv.ClearCache())
 		{
 			projects := project.Group("")
 			{
@@ -185,9 +188,9 @@ func InitApiRouter(r *gin.Engine) {
 			definitionSchemas := project.Group("/definition/schemas")
 			{
 				definitionSchemas.POST("", api.DefinitionSchemasCreate)
-				definitionSchemas.PUT("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasUpdate)
-				definitionSchemas.DELETE("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasDelete)
-				definitionSchemas.POST("/:schemas-id", middleware.CheckDefinitionSchema(), api.DefinitionSchemasCopy)
+				definitionSchemas.PUT("/:schemas-id", check.CheckDefinitionSchema(), api.DefinitionSchemasUpdate)
+				definitionSchemas.DELETE("/:schemas-id", check.CheckDefinitionSchema(), api.DefinitionSchemasDelete)
+				definitionSchemas.POST("/:schemas-id", check.CheckDefinitionSchema(), api.DefinitionSchemasCopy)
 				definitionSchemas.PUT("/movement", api.DefinitionSchemasMove)
 			}
 
@@ -213,13 +216,13 @@ func InitApiRouter(r *gin.Engine) {
 			collections := project.Group("/collections")
 			{
 				collections.POST("", api.CollectionsCreate)
-				collections.PUT("/:collection-id", middleware.CheckCollection(), api.CollectionsUpdate)
-				collections.POST("/:collection-id", middleware.CheckCollection(), api.CollectionsCopy)
+				collections.PUT("/:collection-id", check.CheckCollection(), api.CollectionsUpdate)
+				collections.POST("/:collection-id", check.CheckCollection(), api.CollectionsCopy)
 				collections.PUT("/movement", api.CollectionsMovement)
-				collections.DELETE("/:collection-id", middleware.CheckCollection(), api.CollectionsDelete)
-				collections.GET("/:collection-id/share", middleware.CheckCollection(), api.DocShareDetails)
-				collections.PUT("/:collection-id/share/switch", middleware.CheckCollection(), api.DocShareSwitch)
-				collections.PUT("/:collection-id/share/reset", middleware.CheckCollection(), api.DocShareReset)
+				collections.DELETE("/:collection-id", check.CheckCollection(), api.CollectionsDelete)
+				collections.GET("/:collection-id/share", check.CheckCollection(), api.DocShareDetails)
+				collections.PUT("/:collection-id/share/switch", check.CheckCollection(), api.DocShareSwitch)
+				collections.PUT("/:collection-id/share/reset", check.CheckCollection(), api.DocShareReset)
 			}
 
 			trashs := project.Group("/trashs")
@@ -245,7 +248,7 @@ func InitApiRouter(r *gin.Engine) {
 			}
 
 			collectionHistories := project.Group("/collections/:collection-id/histories")
-			collectionHistories.Use(middleware.CheckCollection())
+			collectionHistories.Use(check.CheckCollection())
 			{
 				collectionHistories.GET("", api.CollectionHistoryList)
 				collectionHistories.GET("/:history-id", api.CollectionHistoryDetails)
@@ -255,7 +258,7 @@ func InitApiRouter(r *gin.Engine) {
 			}
 
 			definitionSchemaHistories := project.Group("/definition/schemas/:schemas-id/histories")
-			definitionSchemaHistories.Use(middleware.CheckDefinitionSchema())
+			definitionSchemaHistories.Use(check.CheckDefinitionSchema())
 			{
 				definitionSchemaHistories.GET("", api.DefinitionSchemaHistoryList)
 				definitionSchemaHistories.GET("/:history-id", api.DefinitionSchemaHistoryDetails)

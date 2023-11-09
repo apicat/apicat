@@ -1,6 +1,7 @@
-package middleware
+package jwt
 
 import (
+	"github.com/apicat/apicat/backend/route/middleware/log"
 	"net/http"
 	"strings"
 
@@ -76,5 +77,6 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 		ctx.Set("CurrentUser", user)
 		//后续的处理函数可以通过c.Get("CurrentUser")来获取请求的用户信息
 		ctx.Next()
+		log.RequestIDLog()
 	}
 }

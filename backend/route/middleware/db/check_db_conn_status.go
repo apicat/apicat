@@ -1,4 +1,4 @@
-package middleware
+package db
 
 import (
 	"github.com/apicat/apicat/backend/models"
