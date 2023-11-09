@@ -10,33 +10,6 @@ import (
 	"regexp"
 )
 
-type AppFile struct {
-	Name string `yaml:"name" env:"APICAT_APP_NAME"`
-	Host string `yaml:"host" env:"APICAT_APP_HOST"`
-	Port string `yaml:"port" env:"APICAT_APP_PORT"`
-}
-
-type LogFile struct {
-	Path  string `yaml:"path" env:"APICAT_LOG_PATH"`
-	Level string `yaml:"level" env:"APICAT_LOG_LEVEL"`
-}
-
-type DBFile struct {
-	Driver   string `yaml:"driver" env:"APICAT_DB_DRIVER"`
-	Path     string `yaml:"path" env:"APICAT_DB_PATH"`
-	Host     string `yaml:"host" env:"APICAT_DB_HOST"`
-	Port     string `yaml:"port" env:"APICAT_DB_PORT"`
-	User     string `yaml:"user" env:"APICAT_DB_USER"`
-	Password string `yaml:"password" env:"APICAT_DB_PASSWORD"`
-	Dbname   string `yaml:"dbname" env:"APICAT_DB_NAME"`
-}
-
-type OpenAIFile struct {
-	Source   string `yaml:"source" env:"APICAT_OPENAI_SOURCE"`
-	Key      string `yaml:"key" env:"APICAT_OPENAI_KEY"`
-	Endpoint string `yaml:"endpoint" env:"APICAT_OPENAI_ENDPOINT"`
-}
-
 type FileConfig struct {
 	App    AppFile    `yaml:"application"`
 	Log    LogFile    `yaml:"log"`
@@ -44,44 +17,17 @@ type FileConfig struct {
 	OpenAI OpenAIFile `yaml:"openai"`
 }
 
-type ConfigItem struct {
-	Value      string
-	DataSource string
-	EnvName    string
-}
-
-type App struct {
-	Name ConfigItem `env:"APICAT_APP_NAME"`
-	Host ConfigItem `env:"APICAT_APP_HOST"`
-	Port ConfigItem `env:"APICAT_APP_PORT"`
-}
-
-type Log struct {
-	Path  ConfigItem `env:"APICAT_LOG_PATH"`
-	Level ConfigItem `env:"APICAT_LOG_LEVEL"`
-}
-
-type DB struct {
-	Driver   ConfigItem `env:"APICAT_DB_DRIVER"`
-	Path     ConfigItem `env:"APICAT_DB_PATH"`
-	Host     ConfigItem `env:"APICAT_DB_HOST"`
-	Port     ConfigItem `env:"APICAT_DB_PORT"`
-	User     ConfigItem `env:"APICAT_DB_USER"`
-	Password ConfigItem `env:"APICAT_DB_PASSWORD"`
-	Dbname   ConfigItem `env:"APICAT_DB_NAME"`
-}
-
-type OpenAI struct {
-	Source   ConfigItem `env:"APICAT_OPENAI_SOURCE"`
-	Key      ConfigItem `env:"APICAT_OPENAI_KEY"`
-	Endpoint ConfigItem `env:"APICAT_OPENAI_ENDPOINT"`
-}
-
 type SysConfig struct {
 	App    App
 	Log    Log
 	DB     DB
 	OpenAI OpenAI
+}
+
+type ConfigItem struct {
+	Value      string
+	DataSource string
+	EnvName    string
 }
 
 var (
