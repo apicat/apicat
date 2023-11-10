@@ -7,6 +7,7 @@ import (
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/iteration"
 	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/module/exportresp"
 	"github.com/apicat/apicat/backend/module/spec"
 	"github.com/apicat/apicat/backend/module/spec/plugin/export"
 	"github.com/apicat/apicat/backend/module/spec/plugin/openapi"
@@ -14,7 +15,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/apicat/apicat/backend/app/util"
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"
@@ -571,5 +571,5 @@ func CollectionDataGet(ctx *gin.Context) {
 		return
 	}
 
-	util.ExportResponse(data.Type, data.Download, p.Title+"-"+data.Type, content, ctx)
+	exportresp.ExportResponse(data.Type, data.Download, p.Title+"-"+data.Type, content, ctx)
 }

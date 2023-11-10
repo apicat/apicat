@@ -11,6 +11,7 @@ import (
 	"github.com/apicat/apicat/backend/model/server"
 	"github.com/apicat/apicat/backend/model/share"
 	"github.com/apicat/apicat/backend/model/user"
+	"github.com/apicat/apicat/backend/module/exportresp"
 	"github.com/apicat/apicat/backend/module/spec"
 	"github.com/apicat/apicat/backend/module/spec/plugin/export"
 	"github.com/apicat/apicat/backend/module/spec/plugin/openapi"
@@ -20,7 +21,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/backend/app/util"
 	"github.com/apicat/apicat/backend/enum"
 	"golang.org/x/exp/slog"
 
@@ -578,7 +578,7 @@ func ProjectDataGet(ctx *gin.Context) {
 		return
 	}
 
-	util.ExportResponse(data.Type, data.Download, p.Title+"-"+data.Type, content, ctx)
+	exportresp.ExportResponse(data.Type, data.Download, p.Title+"-"+data.Type, content, ctx)
 }
 
 // ProjectExit handles the exit of a project member.

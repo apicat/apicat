@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	spec2 "github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec"
 	"github.com/apicat/apicat/backend/module/spec/jsonschema"
 	"sort"
 	"strings"
@@ -13,7 +13,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func Markdown(in *spec2.Spec) ([]byte, error) {
+func Markdown(in *spec.Spec) ([]byte, error) {
 	paths := in.CollectionsMap(true, 2)
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "# %s\n", in.Info.Title)
@@ -65,7 +65,7 @@ func Markdown(in *spec2.Spec) ([]byte, error) {
 var jsonschemaHeaderCols = []string{"name", "type", "required", "comment"}
 var paramsHeaderCols = []string{"name", "in", "type", "required", "comment"}
 
-func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec2.HTTPPart, globls spec2.HTTPParameters) {
+func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTTPPart, globls spec.HTTPParameters) {
 	fmt.Fprintf(buf, "## <span id=\"api-%d\">%d. %s</span>\n", i, i, part.Title)
 	fmt.Fprintf(buf, "### Path\n [%s](%s)\n", path, path)
 	fmt.Fprintf(buf, "### Method\n %s\n", strings.ToUpper(method))

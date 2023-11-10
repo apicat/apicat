@@ -2,7 +2,7 @@ package openapi
 
 import (
 	"fmt"
-	jsonschema2 "github.com/apicat/apicat/backend/module/spec/jsonschema"
+	"github.com/apicat/apicat/backend/module/spec/jsonschema"
 	"strconv"
 	"strings"
 
@@ -29,15 +29,15 @@ func jsonschemaIsRef(b *base.SchemaProxy) *string {
 	return nil
 }
 
-func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema2.Schema, error) {
+func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 	if refname := jsonschemaIsRef(b); refname != nil {
 		refid := fmt.Sprintf("#/definitions/schemas/%d", stringToUnid(*refname))
-		return &jsonschema2.Schema{Reference: &refid}, nil
+		return &jsonschema.Schema{Reference: &refid}, nil
 	}
 	in := b.Schema()
-	var t jsonschema2.SliceOrOneValue[string]
+	var t jsonschema.SliceOrOneValue[string]
 	t.SetValue(in.Type...)
-	out := jsonschema2.Schema{
+	out := jsonschema.Schema{
 		Type:          &t,
 		Title:         in.Title,
 		Description:   in.Description,
@@ -61,7 +61,7 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema2.Schema, error) {
 	}
 
 	if in.ExclusiveMaximum != nil {
-		em := &jsonschema2.ValueOrBoolean[int64]{}
+		em := &jsonschema.ValueOrBoolean[int64]{}
 		if in.ExclusiveMaximum.IsA() {
 			em.SetBoolean(in.ExclusiveMaximum.A)
 		} else {
@@ -71,7 +71,7 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema2.Schema, error) {
 	}
 
 	if in.ExclusiveMinimum != nil {
-		em := &jsonschema2.ValueOrBoolean[int64]{}
+		em := &jsonschema.ValueOrBoolean[int64]{}
 		if in.ExclusiveMinimum.IsA() {
 			em.SetBoolean(in.ExclusiveMinimum.A)
 		} else {
@@ -81,7 +81,7 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema2.Schema, error) {
 	}
 
 	if in.Properties != nil {
-		props := make(map[string]*jsonschema2.Schema)
+		props := make(map[string]*jsonschema.Schema)
 		names := make([]string, 0)
 		for name, v := range in.Properties {
 			js, err := jsonSchemaConverter(v)
@@ -97,7 +97,7 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema2.Schema, error) {
 	}
 
 	if in.AdditionalProperties != nil {
-		ap := &jsonschema2.ValueOrBoolean[*jsonschema2.Schema]{}
+		ap := &jsonschema.ValueOrBoolean[*jsonschema.Schema]{}
 		switch addprop := in.AdditionalProperties.(type) {
 		case *base.SchemaProxy:
 			v, err := jsonSchemaConverter(addprop)
@@ -114,7 +114,7 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema2.Schema, error) {
 	}
 
 	if in.Items != nil {
-		items := &jsonschema2.ValueOrBoolean[*jsonschema2.Schema]{}
+		items := &jsonschema.ValueOrBoolean[*jsonschema.Schema]{}
 		if in.Items.IsA() {
 			v, err := jsonSchemaConverter(in.Items.A)
 			if err != nil {
