@@ -1,6 +1,7 @@
-package models
+package share
 
 import (
+	"github.com/apicat/apicat/backend/model"
 	"time"
 )
 
@@ -14,30 +15,34 @@ type ShareTmpTokens struct {
 	UpdatedAt    time.Time
 }
 
+func init() {
+	model.RegMigrate(&ShareTmpTokens{})
+}
+
 func NewShareTmpTokens() *ShareTmpTokens {
 	return &ShareTmpTokens{}
 }
 
 func (stt *ShareTmpTokens) GetByShareToken() error {
-	return Conn.Where("share_token = ?", stt.ShareToken).Take(stt).Error
+	return model.Conn.Where("share_token = ?", stt.ShareToken).Take(stt).Error
 }
 
 func (stt *ShareTmpTokens) Create() error {
-	return Conn.Create(stt).Error
+	return model.Conn.Create(stt).Error
 }
 
 func (stt *ShareTmpTokens) Delete() error {
-	return Conn.Delete(stt).Error
+	return model.Conn.Delete(stt).Error
 }
 
 func (stt *ShareTmpTokens) DeleteByProjectID() error {
-	return Conn.Where("project_id = ?", stt.ProjectID).Delete(stt).Error
+	return model.Conn.Where("project_id = ?", stt.ProjectID).Delete(stt).Error
 }
 
 func (stt *ShareTmpTokens) DeleteByCollectionID() error {
-	return Conn.Where("collection_id = ?", stt.CollectionID).Delete(stt).Error
+	return model.Conn.Where("collection_id = ?", stt.CollectionID).Delete(stt).Error
 }
 
 func (stt *ShareTmpTokens) DeleteByProjectIDAndCollectionID() error {
-	return Conn.Where("project_id = ? and collection_id = ?", stt.ProjectID, stt.CollectionID).Delete(stt).Error
+	return model.Conn.Where("project_id = ? and collection_id = ?", stt.ProjectID, stt.CollectionID).Delete(stt).Error
 }
