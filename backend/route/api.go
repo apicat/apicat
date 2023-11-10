@@ -1,4 +1,4 @@
-package router
+package route
 
 import (
 	"github.com/apicat/apicat/backend/common/translator"
