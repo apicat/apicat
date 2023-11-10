@@ -1,12 +1,15 @@
 package api
 
 import (
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/iteration"
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/user"
 	"math"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/shortuuid/v4"
 )
@@ -78,9 +81,9 @@ func IterationsList(ctx *gin.Context) {
 	res.CurrentPage = data.Page
 	res.Iterations = []IterationSchemaData{}
 
-	pmDict := map[uint]models.ProjectMembers{}
+	pmDict := map[uint]project.ProjectMembers{}
 	if data.ProjectID != "" {
-		targetProject, err := models.NewProjects(data.ProjectID)
+		targetProject, err := project.NewProjects(data.ProjectID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
@@ -88,9 +91,9 @@ func IterationsList(ctx *gin.Context) {
 			return
 		}
 
-		pm, _ := models.NewProjectMembers()
+		pm, _ := project.NewProjectMembers()
 		pm.ProjectID = targetProject.ID
-		pm.UserID = currentUser.(*models.Users).ID
+		pm.UserID = currentUser.(*user.Users).ID
 		if err := pm.GetByUserIDAndProjectID(); err != nil {
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"code":    enum.ProjectMemberInsufficientPermissionsCode,
@@ -101,7 +104,7 @@ func IterationsList(ctx *gin.Context) {
 		pIDs = append(pIDs, targetProject.ID)
 		pmDict[targetProject.ID] = *pm
 	} else {
-		pms, err := models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
+		pms, err := project.GetUserInvolvedProject(currentUser.(*user.Users).ID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
@@ -119,8 +122,8 @@ func IterationsList(ctx *gin.Context) {
 		}
 	}
 
-	project, _ := models.NewProjects()
-	projects, err := project.List(pIDs...)
+	p, _ := project.NewProjects()
+	projects, err := p.List(pIDs...)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
@@ -132,12 +135,12 @@ func IterationsList(ctx *gin.Context) {
 		return
 	}
 
-	pDict := map[uint]models.Projects{}
+	pDict := map[uint]project.Projects{}
 	for _, v := range projects {
 		pDict[v.ID] = v
 	}
 
-	iterationTotal, err := models.IterationsCount(pIDs...)
+	iterationTotal, err := iteration.IterationsCount(pIDs...)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
@@ -147,8 +150,8 @@ func IterationsList(ctx *gin.Context) {
 	res.TotalPage = int64(math.Ceil(float64(iterationTotal) / float64(data.PageSize)))
 	res.Total = iterationTotal
 
-	iteration, _ := models.NewIterations()
-	iterations, err := iteration.List(int(data.Page), int(data.PageSize), pIDs...)
+	i, _ := iteration.NewIterations()
+	iterations, err := i.List(int(data.Page), int(data.PageSize), pIDs...)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
@@ -165,7 +168,7 @@ func IterationsList(ctx *gin.Context) {
 		iterationIDs = append(iterationIDs, v.ID)
 	}
 
-	iterationApi, _ := models.NewIterationApis()
+	iterationApi, _ := iteration.NewIterationApis()
 	iterationApis, err := iterationApi.List(iterationIDs...)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -211,7 +214,7 @@ func IterationsDetails(ctx *gin.Context) {
 		return
 	}
 
-	iteration, err := models.NewIterations(uriData.IterationID)
+	i, err := iteration.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Redirect404Page,
@@ -220,7 +223,7 @@ func IterationsDetails(ctx *gin.Context) {
 		return
 	}
 
-	project, err := models.NewProjects(iteration.ProjectID)
+	p, err := project.NewProjects(i.ProjectID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Redirect404Page,
@@ -229,9 +232,9 @@ func IterationsDetails(ctx *gin.Context) {
 		return
 	}
 
-	pm, _ := models.NewProjectMembers()
-	pm.ProjectID = project.ID
-	pm.UserID = currentUser.(*models.Users).ID
+	pm, _ := project.NewProjectMembers()
+	pm.ProjectID = p.ID
+	pm.UserID = currentUser.(*user.Users).ID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
@@ -240,7 +243,7 @@ func IterationsDetails(ctx *gin.Context) {
 		return
 	}
 
-	apiNum, err := models.IterationApiCount(iteration.ID, "api")
+	apiNum, err := iteration.IterationApiCount(i.ID, "api")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.CreateFailed"}),
@@ -249,14 +252,14 @@ func IterationsDetails(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, IterationSchemaData{
-		ID:           iteration.PublicID,
-		Title:        iteration.Title,
-		Description:  iteration.Description,
-		ProjectID:    project.PublicId,
-		ProjectTitle: project.Title,
+		ID:           i.PublicID,
+		Title:        i.Title,
+		Description:  i.Description,
+		ProjectID:    p.PublicId,
+		ProjectTitle: p.Title,
 		ApiNum:       apiNum,
 		Authority:    pm.Authority,
-		CreatedAt:    iteration.CreatedAt.Format("2006-01-02 15:04:05"),
+		CreatedAt:    i.CreatedAt.Format("2006-01-02 15:04:05"),
 	})
 }
 
@@ -274,7 +277,7 @@ func IterationsCreate(ctx *gin.Context) {
 		return
 	}
 
-	project, err := models.NewProjects(data.ProjectID)
+	p, err := project.NewProjects(data.ProjectID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -283,9 +286,9 @@ func IterationsCreate(ctx *gin.Context) {
 		return
 	}
 
-	pm, _ := models.NewProjectMembers()
-	pm.ProjectID = project.ID
-	pm.UserID = currentUser.(*models.Users).ID
+	pm, _ := project.NewProjectMembers()
+	pm.ProjectID = p.ID
+	pm.UserID = currentUser.(*user.Users).ID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
@@ -301,27 +304,27 @@ func IterationsCreate(ctx *gin.Context) {
 		return
 	}
 
-	iteration, _ := models.NewIterations()
-	iteration.PublicID = shortuuid.New()
-	iteration.ProjectID = project.ID
-	iteration.Title = data.Title
-	iteration.Description = data.Description
-	iteration.CreatedBy = currentUser.(*models.Users).ID
-	if err := iteration.Create(); err != nil {
+	i, _ := iteration.NewIterations()
+	i.PublicID = shortuuid.New()
+	i.ProjectID = p.ID
+	i.Title = data.Title
+	i.Description = data.Description
+	i.CreatedBy = currentUser.(*user.Users).ID
+	if err := i.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.CreateFailed"}),
 		})
 		return
 	}
 
-	if err := iteration.PlanningIterationApi(data.CollectionIDs); err != nil {
+	if err := collection.PlanningIterationApi(data.CollectionIDs, i); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.CreateFailed"}),
 		})
 		return
 	}
 
-	apiNum, err := models.IterationApiCount(iteration.ID, "api")
+	apiNum, err := iteration.IterationApiCount(i.ID, "api")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.CreateFailed"}),
@@ -330,14 +333,14 @@ func IterationsCreate(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, IterationSchemaData{
-		ID:           iteration.PublicID,
-		Title:        iteration.Title,
-		Description:  iteration.Description,
-		ProjectID:    project.PublicId,
-		ProjectTitle: project.Title,
+		ID:           i.PublicID,
+		Title:        i.Title,
+		Description:  i.Description,
+		ProjectID:    p.PublicId,
+		ProjectTitle: p.Title,
 		ApiNum:       apiNum,
 		Authority:    pm.Authority,
-		CreatedAt:    iteration.CreatedAt.Format("2006-01-02 15:04:05"),
+		CreatedAt:    i.CreatedAt.Format("2006-01-02 15:04:05"),
 	})
 }
 
@@ -363,7 +366,7 @@ func IterationsUpdate(ctx *gin.Context) {
 		return
 	}
 
-	iteration, err := models.NewIterations(uriData.IterationID)
+	i, err := iteration.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -372,9 +375,9 @@ func IterationsUpdate(ctx *gin.Context) {
 		return
 	}
 
-	pm, _ := models.NewProjectMembers()
-	pm.ProjectID = iteration.ProjectID
-	pm.UserID = currentUser.(*models.Users).ID
+	pm, _ := project.NewProjectMembers()
+	pm.ProjectID = i.ProjectID
+	pm.UserID = currentUser.(*user.Users).ID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
@@ -390,11 +393,11 @@ func IterationsUpdate(ctx *gin.Context) {
 		return
 	}
 
-	iteration.Title = data.Title
-	iteration.Description = data.Description
-	iteration.UpdatedBy = currentUser.(*models.Users).ID
-	if err := iteration.Update(); err == nil {
-		if err := iteration.PlanningIterationApi(data.CollectionIDs); err != nil {
+	i.Title = data.Title
+	i.Description = data.Description
+	i.UpdatedBy = currentUser.(*user.Users).ID
+	if err := i.Update(); err == nil {
+		if err := collection.PlanningIterationApi(data.CollectionIDs, i); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.UpdateFailed"}),
 			})
@@ -424,7 +427,7 @@ func IterationsDelete(ctx *gin.Context) {
 		return
 	}
 
-	iteration, err := models.NewIterations(uriData.IterationID)
+	i, err := iteration.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -433,9 +436,9 @@ func IterationsDelete(ctx *gin.Context) {
 		return
 	}
 
-	pm, _ := models.NewProjectMembers()
-	pm.ProjectID = iteration.ProjectID
-	pm.UserID = currentUser.(*models.Users).ID
+	pm, _ := project.NewProjectMembers()
+	pm.ProjectID = i.ProjectID
+	pm.UserID = currentUser.(*user.Users).ID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
@@ -451,15 +454,15 @@ func IterationsDelete(ctx *gin.Context) {
 		return
 	}
 
-	iteration.DeletedBy = currentUser.(*models.Users).ID
-	if err := iteration.Update(); err != nil {
+	i.DeletedBy = currentUser.(*user.Users).ID
+	if err := i.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.DeleteFailed"}),
 		})
 		return
 	}
 
-	if err := iteration.Delete(); err != nil {
+	if err := i.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.DeleteFailed"}),
 		})

@@ -2,12 +2,14 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/definition"
+	"github.com/apicat/apicat/backend/model/project"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/spec"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -15,7 +17,7 @@ type DefinitionResponsesID struct {
 	DefinitionResponsesID uint `uri:"response-id" binding:"required,gt=0"`
 }
 
-func (cr *DefinitionResponsesID) CheckDefinitionResponses(ctx *gin.Context) (*models.DefinitionResponses, error) {
+func (cr *DefinitionResponsesID) CheckDefinitionResponses(ctx *gin.Context) (*definition.DefinitionResponses, error) {
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&cr)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -24,7 +26,7 @@ func (cr *DefinitionResponsesID) CheckDefinitionResponses(ctx *gin.Context) (*mo
 		return nil, err
 	}
 
-	definitionResponses, err := models.NewDefinitionResponses(cr.DefinitionResponsesID)
+	definitionResponses, err := definition.NewDefinitionResponses(cr.DefinitionResponsesID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -47,10 +49,10 @@ type ResponseDetailData struct {
 
 func DefinitionResponsesList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
+	p, _ := currentProject.(*project.Projects)
 
-	definitionResponses, _ := models.NewDefinitionResponses()
-	definitionResponses.ProjectID = project.ID
+	definitionResponses, _ := definition.NewDefinitionResponses()
+	definitionResponses.ProjectID = p.ID
 	definitionResponsesList, err := definitionResponses.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -132,7 +134,7 @@ func DefinitionResponsesDetail(ctx *gin.Context) {
 
 func DefinitionResponsesCreate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -141,7 +143,7 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 	}
 
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
+	p, _ := currentProject.(*project.Projects)
 
 	data := ResponseDetailData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -151,8 +153,8 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 		return
 	}
 
-	definitionResponses, _ := models.NewDefinitionResponses()
-	definitionResponses.ProjectID = project.ID
+	definitionResponses, _ := definition.NewDefinitionResponses()
+	definitionResponses.ProjectID = p.ID
 	definitionResponses.Name = data.Name
 	definitionResponses.Type = data.Type
 
@@ -214,7 +216,7 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 
 func DefinitionResponsesUpdate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -283,7 +285,7 @@ func DefinitionResponsesUpdate(ctx *gin.Context) {
 
 func DefinitionResponsesDelete(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -306,9 +308,9 @@ func DefinitionResponsesDelete(ctx *gin.Context) {
 	}
 
 	if data.IsUnRef == 1 {
-		err = models.DefinitionsResponseUnRef(definitionResponses)
+		err = collection.DefinitionsResponseUnRef(definitionResponses)
 	} else {
-		err = models.DefinitionsResponseDelRef(definitionResponses)
+		err = collection.DefinitionsResponseDelRef(definitionResponses)
 	}
 
 	if err != nil {

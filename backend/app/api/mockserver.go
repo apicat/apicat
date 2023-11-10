@@ -3,13 +3,15 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/definition"
+	"github.com/apicat/apicat/backend/model/project"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/apicat/apicat/backend/common/spec"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/apicat/datagen"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"
@@ -28,7 +30,7 @@ func NewMockServer() *MockServer {
 // Handler requests to process fake data
 // [method] /mock/{id}/path*
 func (m *MockServer) Handler(c *gin.Context) {
-	p := &models.Projects{}
+	p := &project.Projects{}
 	slog.InfoCtx(c, "mock", slog.String("path", c.Param("path")))
 	if err := p.Get(c.Param("id")); err != nil {
 		c.Writer.WriteHeader(http.StatusNotFound)
@@ -72,7 +74,7 @@ func (m *MockServer) ClearCache() gin.HandlerFunc {
 			p, ok := ctx.Get("CurrentProject")
 			if ok {
 				ctx.Next()
-				m.cache.Delete(p.(*models.Projects).ID)
+				m.cache.Delete(p.(*project.Projects).ID)
 			}
 		}
 	}
@@ -84,10 +86,10 @@ func (m *MockServer) getRequestRoutesSchemaOrCache(id uint) map[string]map[strin
 		return cm.(map[string]map[string]spec.HTTPPart)
 	}
 	specObj := &spec.Spec{}
-	specObj.Definitions.Schemas = models.DefinitionSchemasExport(id)
-	specObj.Definitions.Parameters = models.DefinitionParametersExport(id)
-	specObj.Definitions.Responses = models.DefinitionResponsesExport(id)
-	specObj.Collections = models.CollectionsExport(id)
+	specObj.Definitions.Schemas = definition.DefinitionSchemasExport(id)
+	specObj.Definitions.Parameters = definition.DefinitionParametersExport(id)
+	specObj.Definitions.Responses = definition.DefinitionResponsesExport(id)
+	specObj.Collections = collection.CollectionsExport(id)
 	newcm := specObj.CollectionsMap(true, 3)
 	m.cache.Store(id, newcm)
 	return newcm

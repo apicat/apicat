@@ -1,12 +1,12 @@
 package api
 
 import (
+	"github.com/apicat/apicat/backend/model/user"
 	"net/http"
 	"strings"
 
 	"github.com/apicat/apicat/backend/common/auth"
 	"github.com/apicat/apicat/backend/common/translator"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -29,22 +29,22 @@ func EmailLogin(ctx *gin.Context) {
 		return
 	}
 
-	user, _ := models.NewUsers()
-	if err := user.GetByEmail(data.Email); err != nil {
+	u, _ := user.NewUsers()
+	if err := u.GetByEmail(data.Email); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
 	}
 
-	if !auth.CheckPasswordHash(data.Password, user.Password) {
+	if !auth.CheckPasswordHash(data.Password, u.Password) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.WrongPassword"}),
 		})
 		return
 	}
 
-	token, err := auth.GenerateToken(user.ID)
+	token, err := auth.GenerateToken(u.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.LoginFailed"}),
@@ -56,12 +56,12 @@ func EmailLogin(ctx *gin.Context) {
 		"access_token": token,
 		"expires_in":   auth.TokenExpireDuration,
 		"user": map[string]interface{}{
-			"id":         user.ID,
-			"username":   user.Username,
-			"email":      user.Email,
-			"role":       user.Role,
-			"created_at": user.CreatedAt.Format("2006-01-02 15:04:05"),
-			"updated_at": user.UpdatedAt.Format("2006-01-02 15:04:05"),
+			"id":         u.ID,
+			"username":   u.Username,
+			"email":      u.Email,
+			"role":       u.Role,
+			"created_at": u.CreatedAt.Format("2006-01-02 15:04:05"),
+			"updated_at": u.UpdatedAt.Format("2006-01-02 15:04:05"),
 		},
 	})
 }
@@ -75,8 +75,8 @@ func EmailRegister(ctx *gin.Context) {
 		return
 	}
 
-	user, _ := models.NewUsers()
-	if err := user.GetByEmail(data.Email); err == nil {
+	u, _ := user.NewUsers()
+	if err := u.GetByEmail(data.Email); err == nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.MailboxAlreadyExists"}),
 		})
@@ -91,11 +91,11 @@ func EmailRegister(ctx *gin.Context) {
 		return
 	}
 
-	user.Username = strings.Split(data.Email, "@")[0]
-	user.Email = data.Email
-	user.Password = hashedPassword
+	u.Username = strings.Split(data.Email, "@")[0]
+	u.Email = data.Email
+	u.Password = hashedPassword
 	// 第一个注册的用户权限为superadmin
-	userCount, err := user.Count()
+	userCount, err := u.Count()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.RegistrationFailed"}),
@@ -103,19 +103,19 @@ func EmailRegister(ctx *gin.Context) {
 		return
 	}
 	if userCount == 0 {
-		user.Role = "superadmin"
+		u.Role = "superadmin"
 	} else {
-		user.Role = "admin"
+		u.Role = "admin"
 	}
 
-	if err := user.Save(); err != nil {
+	if err := u.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.RegistrationFailed"}),
 		})
 		return
 	}
 
-	token, err := auth.GenerateToken(user.ID)
+	token, err := auth.GenerateToken(u.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.RegistrationFailed"}),
@@ -127,12 +127,12 @@ func EmailRegister(ctx *gin.Context) {
 		"access_token": token,
 		"expires_in":   auth.TokenExpireDuration,
 		"user": map[string]interface{}{
-			"id":         user.ID,
-			"username":   user.Username,
-			"email":      user.Email,
-			"role":       user.Role,
-			"created_at": user.CreatedAt.Format("2006-01-02 15:04:05"),
-			"updated_at": user.UpdatedAt.Format("2006-01-02 15:04:05"),
+			"id":         u.ID,
+			"username":   u.Username,
+			"email":      u.Email,
+			"role":       u.Role,
+			"created_at": u.CreatedAt.Format("2006-01-02 15:04:05"),
+			"updated_at": u.UpdatedAt.Format("2006-01-02 15:04:05"),
 		},
 	})
 }

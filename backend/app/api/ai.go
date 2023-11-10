@@ -2,6 +2,11 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/definition"
+	"github.com/apicat/apicat/backend/model/iteration"
+	"github.com/apicat/apicat/backend/model/project"
 	"net/http"
 	"strconv"
 	"time"
@@ -12,7 +17,6 @@ import (
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/config"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"
 )
@@ -37,7 +41,7 @@ type AICreateApiNameStructure struct {
 
 func AICreateCollection(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -47,7 +51,7 @@ func AICreateCollection(ctx *gin.Context) {
 
 	var (
 		openapiContent string
-		schema         *models.DefinitionSchemas
+		schema         *definition.DefinitionSchemas
 		err            error
 	)
 
@@ -62,7 +66,7 @@ func AICreateCollection(ctx *gin.Context) {
 	lang := util.GetUserLanguage(ctx)
 
 	if data.IterationID != "" {
-		_, err := models.NewIterations(data.IterationID)
+		_, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
@@ -72,7 +76,7 @@ func AICreateCollection(ctx *gin.Context) {
 	}
 
 	if data.SchemaID > 0 {
-		schema, err = models.NewDefinitionSchemas(data.SchemaID)
+		schema, err = definition.NewDefinitionSchemas(data.SchemaID)
 		if err != nil {
 			slog.DebugCtx(ctx, "DefinitionSchemas get failed", slog.String("err", err.Error()), slog.String("SchemaID", strconv.Itoa(int(data.SchemaID))))
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
@@ -122,12 +126,12 @@ func AICreateCollection(ctx *gin.Context) {
 	}
 
 	currentProject, _ := ctx.Get("CurrentProject")
-	refContentVirtualIDToId := &models.RefContentVirtualIDToId{
-		DefinitionSchemas:    models.DefinitionSchemasImport(currentProject.(*models.Projects).ID, content.Definitions.Schemas),
-		DefinitionResponses:  models.DefinitionResponsesImport(currentProject.(*models.Projects).ID, content.Definitions.Responses),
-		DefinitionParameters: models.DefinitionParametersImport(currentProject.(*models.Projects).ID, content.Definitions.Parameters),
+	refContentVirtualIDToId := &model.RefContentVirtualIDToId{
+		DefinitionSchemas:    definition.DefinitionSchemasImport(currentProject.(*project.Projects).ID, content.Definitions.Schemas),
+		DefinitionResponses:  definition.DefinitionResponsesImport(currentProject.(*project.Projects).ID, content.Definitions.Responses),
+		DefinitionParameters: definition.DefinitionParametersImport(currentProject.(*project.Projects).ID, content.Definitions.Parameters),
 	}
-	records := models.CollectionsImport(currentProject.(*models.Projects).ID, data.ParentID, content.Collections, refContentVirtualIDToId)
+	records := collection.CollectionsImport(currentProject.(*project.Projects).ID, data.ParentID, content.Collections, refContentVirtualIDToId)
 
 	if len(records) == 0 {
 		slog.DebugCtx(ctx, "CollectionsImport Failed")
@@ -139,7 +143,7 @@ func AICreateCollection(ctx *gin.Context) {
 
 	if data.IterationID != "" {
 		for _, v := range records {
-			iteration, err := models.NewIterations(data.IterationID)
+			i, err := iteration.NewIterations(data.IterationID)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
@@ -147,8 +151,8 @@ func AICreateCollection(ctx *gin.Context) {
 				return
 			}
 
-			ia, _ := models.NewIterationApis()
-			ia.IterationID = iteration.ID
+			ia, _ := iteration.NewIterationApis()
+			ia.IterationID = i.ID
 			ia.CollectionID = v.ID
 			ia.CollectionType = v.Type
 			if err := ia.Create(); err != nil {
@@ -175,7 +179,7 @@ func AICreateCollection(ctx *gin.Context) {
 
 func AICreateSchema(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -228,26 +232,26 @@ func AICreateSchema(ctx *gin.Context) {
 		return
 	}
 
-	project, _ := ctx.Get("CurrentProject")
-	definition, _ := models.NewDefinitionSchemas()
-	definition.ProjectId = project.(*models.Projects).ID
-	definition.Name = js.Title
-	definitions, err := definition.List()
+	p, _ := ctx.Get("CurrentProject")
+	d, _ := definition.NewDefinitionSchemas()
+	d.ProjectId = p.(*project.Projects).ID
+	d.Name = js.Title
+	definitions, err := d.List()
 	if err != nil {
-		slog.DebugCtx(ctx, "definitions search Failed", slog.String("err", err.Error()), slog.String("ProjectId", strconv.FormatUint(uint64(definition.ProjectId), 10)), slog.String("Name", definition.Name))
+		slog.DebugCtx(ctx, "definitions search Failed", slog.String("err", err.Error()), slog.String("ProjectId", strconv.FormatUint(uint64(d.ProjectId), 10)), slog.String("Name", d.Name))
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.SchemaCreateFail"}),
 		})
 		return
 	}
 	if len(definitions) > 0 {
-		definition.Name = definition.Name + time.Now().Format("20060102150405")
+		d.Name = d.Name + time.Now().Format("20060102150405")
 	}
 
-	definition.Description = js.Description
-	definition.Type = "schema"
-	definition.Schema = openapiContent
-	if err := definition.Create(); err != nil {
+	d.Description = js.Description
+	d.Type = "schema"
+	d.Schema = openapiContent
+	if err := d.Create(); err != nil {
 		slog.DebugCtx(ctx, "definition Create Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CreateFail"}),
@@ -256,22 +260,22 @@ func AICreateSchema(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"id":          definition.ID,
-		"parent_id":   definition.ParentId,
-		"name":        definition.Name,
-		"description": definition.Description,
-		"type":        definition.Type,
-		"schema":      definition.Schema,
-		"created_at":  definition.CreatedAt.Format("2006-01-02 15:04:05"),
-		"created_by":  definition.Creator(),
-		"updated_at":  definition.UpdatedAt.Format("2006-01-02 15:04:05"),
-		"updated_by":  definition.Updater(),
+		"id":          d.ID,
+		"parent_id":   d.ParentId,
+		"name":        d.Name,
+		"description": d.Description,
+		"type":        d.Type,
+		"schema":      d.Schema,
+		"created_at":  d.CreatedAt.Format("2006-01-02 15:04:05"),
+		"created_by":  d.Creator(),
+		"updated_at":  d.UpdatedAt.Format("2006-01-02 15:04:05"),
+		"updated_by":  d.Updater(),
 	})
 }
 
 func AICreateApiNames(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -292,7 +296,7 @@ func AICreateApiNames(ctx *gin.Context) {
 		return
 	}
 
-	schema, err := models.NewDefinitionSchemas(data.SchemaID)
+	schema, err := definition.NewDefinitionSchemas(data.SchemaID)
 	if err != nil {
 		slog.DebugCtx(ctx, "DefinitionSchemas get failed", slog.String("err", err.Error()), slog.String("SchemaID", strconv.Itoa(int(data.SchemaID))))
 		ctx.JSON(http.StatusNotFound, gin.H{

@@ -3,14 +3,15 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/definition"
+	"github.com/apicat/apicat/backend/model/project"
 	"net/http"
 	"strconv"
 	"time"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -58,15 +59,15 @@ func DefinitionSchemasList(ctx *gin.Context) {
 		return
 	}
 
-	project, _ := ctx.Get("CurrentProject")
+	p, _ := ctx.Get("CurrentProject")
 
-	definition, _ := models.NewDefinitionSchemas()
-	definition.ProjectId = project.(*models.Projects).ID
-	definition.ParentId = data.ParentId
-	definition.Name = data.Name
-	definition.Type = data.Type
+	d, _ := definition.NewDefinitionSchemas()
+	d.ProjectId = p.(*project.Projects).ID
+	d.ParentId = data.ParentId
+	d.Name = data.Name
+	d.Type = data.Type
 
-	definitions, err := definition.List()
+	definitions, err := d.List()
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -99,7 +100,7 @@ func DefinitionSchemasList(ctx *gin.Context) {
 
 func DefinitionSchemasCreate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -124,11 +125,11 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 		return
 	}
 
-	project, _ := ctx.Get("CurrentProject")
-	definition, _ := models.NewDefinitionSchemas()
-	definition.ProjectId = project.(*models.Projects).ID
-	definition.Name = data.Name
-	definitions, err := definition.List()
+	p, _ := ctx.Get("CurrentProject")
+	d, _ := definition.NewDefinitionSchemas()
+	d.ProjectId = p.(*project.Projects).ID
+	d.Name = data.Name
+	definitions, err := d.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.QueryFailed"}),
@@ -142,12 +143,12 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 		return
 	}
 
-	definition.Description = data.Description
-	definition.Type = data.Type
-	definition.Schema = string(schemaJson)
-	definition.CreatedBy = currentProjectMember.(*models.ProjectMembers).UserID
-	definition.UpdatedBy = currentProjectMember.(*models.ProjectMembers).UserID
-	if err := definition.Create(); err != nil {
+	d.Description = data.Description
+	d.Type = data.Type
+	d.Schema = string(schemaJson)
+	d.CreatedBy = currentProjectMember.(*project.ProjectMembers).UserID
+	d.UpdatedBy = currentProjectMember.(*project.ProjectMembers).UserID
+	if err := d.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CreateFail"}),
 		})
@@ -155,22 +156,22 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"id":          definition.ID,
-		"parent_id":   definition.ParentId,
-		"name":        definition.Name,
-		"description": definition.Description,
-		"type":        definition.Type,
+		"id":          d.ID,
+		"parent_id":   d.ParentId,
+		"name":        d.Name,
+		"description": d.Description,
+		"type":        d.Type,
 		"schema":      data.Schema,
-		"created_at":  definition.CreatedAt.Format("2006-01-02 15:04:05"),
-		"created_by":  definition.Creator(),
-		"updated_at":  definition.UpdatedAt.Format("2006-01-02 15:04:05"),
-		"updated_by":  definition.Updater(),
+		"created_at":  d.CreatedAt.Format("2006-01-02 15:04:05"),
+		"created_by":  d.Creator(),
+		"updated_at":  d.UpdatedAt.Format("2006-01-02 15:04:05"),
+		"updated_by":  d.Updater(),
 	})
 }
 
 func DefinitionSchemasUpdate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -179,7 +180,7 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 	}
 
 	currentDefinitionSchema, _ := ctx.Get("CurrentDefinitionSchema")
-	definition := currentDefinitionSchema.(*models.DefinitionSchemas)
+	d := currentDefinitionSchema.(*definition.DefinitionSchemas)
 
 	var (
 		data DefinitionSchemaUpdate
@@ -192,14 +193,14 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 		return
 	}
 
-	dsh, _ := models.NewDefinitionSchemaHistories()
-	dsh.SchemaID = definition.ID
-	dsh.Name = definition.Name
-	dsh.Description = definition.Description
-	dsh.Type = definition.Type
-	dsh.Schema = definition.Schema
-	dsh.CreatedBy = currentProjectMember.(*models.ProjectMembers).UserID
-	if definition.UpdatedBy != currentProjectMember.(*models.ProjectMembers).UserID || definition.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
+	dsh, _ := definition.NewDefinitionSchemaHistories()
+	dsh.SchemaID = d.ID
+	dsh.Name = d.Name
+	dsh.Description = d.Description
+	dsh.Type = d.Type
+	dsh.Schema = d.Schema
+	dsh.CreatedBy = currentProjectMember.(*project.ProjectMembers).UserID
+	if d.UpdatedBy != currentProjectMember.(*project.ProjectMembers).UserID || d.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
 		if err := dsh.Create(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.UpdateFail"}),
@@ -216,9 +217,9 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 		return
 	}
 
-	definition.Name = data.Name
-	definition.Description = data.Description
-	definitions, err := definition.List()
+	d.Name = data.Name
+	d.Description = data.Description
+	definitions, err := d.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.QueryFailed"}),
@@ -226,16 +227,16 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 		return
 	}
 
-	if len(definitions) > 0 && definitions[0].ID != definition.ID {
+	if len(definitions) > 0 && definitions[0].ID != d.ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
 
-	definition.Schema = string(schemaJson)
-	definition.UpdatedBy = currentProjectMember.(*models.ProjectMembers).UserID
-	if err := definition.Save(); err != nil {
+	d.Schema = string(schemaJson)
+	d.UpdatedBy = currentProjectMember.(*project.ProjectMembers).UserID
+	if err := d.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.UpdateFail"}),
 		})
@@ -247,7 +248,7 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 
 func DefinitionSchemasDelete(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -256,7 +257,7 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 	}
 
 	currentDefinitionSchema, _ := ctx.Get("CurrentDefinitionSchema")
-	definition := currentDefinitionSchema.(*models.DefinitionSchemas)
+	d := currentDefinitionSchema.(*definition.DefinitionSchemas)
 
 	// 模型解引用
 	isUnRefData := IsUnRefData{}
@@ -267,26 +268,26 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 		return
 	}
 
-	if err := models.DefinitionsSchemaUnRefByCollections(definition, isUnRefData.IsUnRef); err != nil {
+	if err := collection.DefinitionsSchemaUnRefByCollections(d, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	if err := models.DefinitionsSchemaUnRefByDefinitionsResponse(definition, isUnRefData.IsUnRef); err != nil {
+	if err := definition.DefinitionsSchemaUnRefByDefinitionsResponse(d, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	if err := models.DefinitionsSchemaUnRefByDefinitionsSchema(definition, isUnRefData.IsUnRef); err != nil {
+	if err := definition.DefinitionsSchemaUnRefByDefinitionsSchema(d, isUnRefData.IsUnRef); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	if err := definition.Delete(); err != nil {
+	if err := d.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.DeleteFail"}),
 		})
@@ -298,7 +299,7 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 
 func DefinitionSchemasGet(ctx *gin.Context) {
 	currentDefinitionSchema, _ := ctx.Get("CurrentDefinitionSchema")
-	definition := currentDefinitionSchema.(*models.DefinitionSchemas)
+	d := currentDefinitionSchema.(*definition.DefinitionSchemas)
 	var data DefinitionSchemaID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
@@ -309,7 +310,7 @@ func DefinitionSchemasGet(ctx *gin.Context) {
 	}
 
 	schema := make(map[string]interface{})
-	if err := json.Unmarshal([]byte(currentDefinitionSchema.(*models.DefinitionSchemas).Schema), &schema); err != nil {
+	if err := json.Unmarshal([]byte(currentDefinitionSchema.(*definition.DefinitionSchemas).Schema), &schema); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 		})
@@ -317,22 +318,22 @@ func DefinitionSchemasGet(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"id":          definition.ID,
-		"parent_id":   definition.ParentId,
-		"name":        definition.Name,
-		"description": definition.Description,
-		"type":        definition.Type,
+		"id":          d.ID,
+		"parent_id":   d.ParentId,
+		"name":        d.Name,
+		"description": d.Description,
+		"type":        d.Type,
 		"schema":      schema,
-		"created_at":  definition.CreatedAt.Format("2006-01-02 15:04:05"),
-		"created_by":  definition.Creator(),
-		"updated_at":  definition.UpdatedAt.Format("2006-01-02 15:04:05"),
-		"updated_by":  definition.Updater(),
+		"created_at":  d.CreatedAt.Format("2006-01-02 15:04:05"),
+		"created_by":  d.Creator(),
+		"updated_at":  d.UpdatedAt.Format("2006-01-02 15:04:05"),
+		"updated_by":  d.Updater(),
 	})
 }
 
 func DefinitionSchemasCopy(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -341,7 +342,7 @@ func DefinitionSchemasCopy(ctx *gin.Context) {
 	}
 
 	currentDefinitionSchema, _ := ctx.Get("CurrentDefinitionSchema")
-	oldDefinition := currentDefinitionSchema.(*models.DefinitionSchemas)
+	oldDefinition := currentDefinitionSchema.(*definition.DefinitionSchemas)
 
 	schema := map[string]interface{}{}
 	if err := json.Unmarshal([]byte(oldDefinition.Schema), &schema); err != nil {
@@ -351,7 +352,7 @@ func DefinitionSchemasCopy(ctx *gin.Context) {
 		return
 	}
 
-	newDefinition, _ := models.NewDefinitionSchemas()
+	newDefinition, _ := definition.NewDefinitionSchemas()
 	newDefinition.ProjectId = oldDefinition.ProjectId
 	newDefinition.Name = oldDefinition.Name
 	newDefinition.Description = oldDefinition.Description
@@ -388,7 +389,7 @@ func DefinitionSchemasCopy(ctx *gin.Context) {
 
 func DefinitionSchemasMove(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -406,19 +407,19 @@ func DefinitionSchemasMove(ctx *gin.Context) {
 	}
 
 	for i, id := range data.Target.Ids {
-		if definition, err := models.NewDefinitionSchemas(id); err == nil {
-			definition.ParentId = data.Target.Pid
-			definition.DisplayOrder = i
-			definition.Save()
+		if d, err := definition.NewDefinitionSchemas(id); err == nil {
+			d.ParentId = data.Target.Pid
+			d.DisplayOrder = i
+			d.Save()
 		}
 	}
 
 	if data.Target.Pid != data.Origin.Pid {
 		for i, id := range data.Origin.Ids {
-			if definition, err := models.NewDefinitionSchemas(id); err == nil {
-				definition.ParentId = data.Origin.Pid
-				definition.DisplayOrder = i
-				definition.Save()
+			if d, err := definition.NewDefinitionSchemas(id); err == nil {
+				d.ParentId = data.Origin.Pid
+				d.DisplayOrder = i
+				d.Save()
 			}
 		}
 	}

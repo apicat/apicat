@@ -1,11 +1,11 @@
 package api
 
 import (
+	"github.com/apicat/apicat/backend/model/user"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/auth"
 	"github.com/apicat/apicat/backend/common/translator"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -22,22 +22,22 @@ type ChangePasswordData struct {
 
 func GetUserInfo(ctx *gin.Context) {
 	CurrentUser, _ := ctx.Get("CurrentUser")
-	user, _ := CurrentUser.(*models.Users)
+	u, _ := CurrentUser.(*user.Users)
 
 	ctx.JSON(200, gin.H{
-		"id":         user.ID,
-		"username":   user.Username,
-		"email":      user.Email,
-		"role":       user.Role,
-		"is_enabled": user.IsEnabled,
-		"created_at": user.CreatedAt.Format("2006-01-02 15:04:05"),
-		"updated_at": user.UpdatedAt.Format("2006-01-02 15:04:05"),
+		"id":         u.ID,
+		"username":   u.Username,
+		"email":      u.Email,
+		"role":       u.Role,
+		"is_enabled": u.IsEnabled,
+		"created_at": u.CreatedAt.Format("2006-01-02 15:04:05"),
+		"updated_at": u.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
 }
 
 func SetUserInfo(ctx *gin.Context) {
 	CurrentUser, _ := ctx.Get("CurrentUser")
-	currentUser, _ := CurrentUser.(*models.Users)
+	currentUser, _ := CurrentUser.(*user.Users)
 
 	var data SetUserInfoData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -47,8 +47,8 @@ func SetUserInfo(ctx *gin.Context) {
 		return
 	}
 
-	user, _ := models.NewUsers()
-	if err := user.GetByEmail(data.Email); err == nil && user.ID != currentUser.ID {
+	u, _ := user.NewUsers()
+	if err := u.GetByEmail(data.Email); err == nil && u.ID != currentUser.ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.MailboxAlreadyExists"}),
 		})
@@ -77,7 +77,7 @@ func SetUserInfo(ctx *gin.Context) {
 
 func ChangePassword(ctx *gin.Context) {
 	CurrentUser, _ := ctx.Get("CurrentUser")
-	currentUser, _ := CurrentUser.(*models.Users)
+	currentUser, _ := CurrentUser.(*user.Users)
 
 	var data ChangePasswordData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {

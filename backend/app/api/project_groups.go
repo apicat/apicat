@@ -1,11 +1,12 @@
 package api
 
 import (
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/user"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,8 +33,8 @@ type ProjectGroupOrderData struct {
 func ProjectGroupList(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
-	pg, _ := models.NewProjectGroups()
-	pg.UserID = currentUser.(*models.Users).ID
+	pg, _ := project.NewProjectGroups()
+	pg.UserID = currentUser.(*user.Users).ID
 	projectGroups, err := pg.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -69,7 +70,7 @@ func ProjectGroupCreate(ctx *gin.Context) {
 		return
 	}
 
-	count, _ := models.GetProjectGroupCountByName(currentUser.(*models.Users).ID, data.Name)
+	count, _ := project.GetProjectGroupCountByName(currentUser.(*user.Users).ID, data.Name)
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NameExists"}),
@@ -77,10 +78,10 @@ func ProjectGroupCreate(ctx *gin.Context) {
 		return
 	}
 
-	displayOrder, _ := models.GetProjectGroupDisplayOrder(currentUser.(*models.Users).ID)
+	displayOrder, _ := project.GetProjectGroupDisplayOrder(currentUser.(*user.Users).ID)
 
-	pg, _ := models.NewProjectGroups()
-	pg.UserID = currentUser.(*models.Users).ID
+	pg, _ := project.NewProjectGroups()
+	pg.UserID = currentUser.(*user.Users).ID
 	pg.Name = data.Name
 	pg.DisplayOrder = displayOrder + 1
 	if err := pg.Create(); err != nil {
@@ -117,7 +118,7 @@ func ProjectGroupRename(ctx *gin.Context) {
 		return
 	}
 
-	pg, err := models.NewProjectGroups(uriData.ID)
+	pg, err := project.NewProjectGroups(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -126,14 +127,14 @@ func ProjectGroupRename(ctx *gin.Context) {
 		return
 	}
 
-	if pg.UserID != currentUser.(*models.Users).ID {
+	if pg.UserID != currentUser.(*user.Users).ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.UpdateFailed"}),
 		})
 		return
 	}
 
-	count, _ := models.GetProjectGroupCountExcludeTheID(currentUser.(*models.Users).ID, data.Name, pg.ID)
+	count, _ := project.GetProjectGroupCountExcludeTheID(currentUser.(*user.Users).ID, data.Name, pg.ID)
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NameExists"}),
@@ -163,7 +164,7 @@ func ProjectGroupDelete(ctx *gin.Context) {
 		return
 	}
 
-	pg, err := models.NewProjectGroups(uriData.ID)
+	pg, err := project.NewProjectGroups(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -172,7 +173,7 @@ func ProjectGroupDelete(ctx *gin.Context) {
 		return
 	}
 
-	if pg.UserID != currentUser.(*models.Users).ID {
+	if pg.UserID != currentUser.(*user.Users).ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.DeleteFailed"}),
 		})
@@ -204,12 +205,12 @@ func ProjectGroupOrder(ctx *gin.Context) {
 	}
 
 	for _, v := range data.IDs {
-		pg, err := models.NewProjectGroups(v)
+		pg, err := project.NewProjectGroups(v)
 		if err != nil {
 			continue
 		}
 
-		if pg.UserID != currentUser.(*models.Users).ID {
+		if pg.UserID != currentUser.(*user.Users).ID {
 			continue
 		}
 

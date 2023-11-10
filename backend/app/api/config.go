@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/config"
-	"github.com/apicat/apicat/backend/models"
+	"github.com/apicat/apicat/backend/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
@@ -124,9 +124,9 @@ func SetDBConfig(ctx *gin.Context) {
 	sysCfg.DB.Dbname = dbNameField
 	config.SetSysConfig(&sysCfg)
 
-	models.Init()
+	model.Init()
 
-	connStatus, err := models.DBConnStatus()
+	connStatus, err := model.DBConnStatus()
 	var tm string
 	if connStatus != 1 {
 		switch connStatus {

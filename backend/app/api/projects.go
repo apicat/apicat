@@ -3,6 +3,14 @@ package api
 import (
 	"encoding/base64"
 	"encoding/json"
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/definition"
+	"github.com/apicat/apicat/backend/model/global"
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/server"
+	"github.com/apicat/apicat/backend/model/share"
+	"github.com/apicat/apicat/backend/model/user"
 	"net/http"
 	"strings"
 	"time"
@@ -14,7 +22,6 @@ import (
 	"github.com/apicat/apicat/backend/common/spec/plugin/postman"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"golang.org/x/exp/slog"
 
 	"github.com/gin-gonic/gin"
@@ -72,17 +79,17 @@ func ProjectsList(ctx *gin.Context) {
 	}
 
 	var (
-		projectMembers []models.ProjectMembers
+		projectMembers []project.ProjectMembers
 		err            error
 	)
 	if data.GroupID > 0 {
-		projectMembers, err = models.GetProjectGroupedByUser(currentUser.(*models.Users).ID, data.GroupID)
+		projectMembers, err = project.GetProjectGroupedByUser(currentUser.(*user.Users).ID, data.GroupID)
 	} else if data.IsFollowed {
-		projectMembers, err = models.GetProjectFollowedByUser(currentUser.(*models.Users).ID)
+		projectMembers, err = project.GetProjectFollowedByUser(currentUser.(*user.Users).ID)
 	} else if len(data.Auth) > 0 {
-		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID, data.Auth...)
+		projectMembers, err = project.GetUserInvolvedProject(currentUser.(*user.Users).ID, data.Auth...)
 	} else {
-		projectMembers, err = models.GetUserInvolvedProject(currentUser.(*models.Users).ID)
+		projectMembers, err = project.GetUserInvolvedProject(currentUser.(*user.Users).ID)
 	}
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -100,8 +107,8 @@ func ProjectsList(ctx *gin.Context) {
 		projectIDs = append(projectIDs, v.ProjectID)
 	}
 
-	project, _ := models.NewProjects()
-	projects, err := project.List(projectIDs...)
+	p, _ := project.NewProjects()
+	projects, err := p.List(projectIDs...)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
@@ -111,7 +118,7 @@ func ProjectsList(ctx *gin.Context) {
 
 	followProjects := projectMembers
 	if !data.IsFollowed {
-		followProjects, err = models.GetProjectFollowedByUser(currentUser.(*models.Users).ID)
+		followProjects, err = project.GetProjectFollowedByUser(currentUser.(*user.Users).ID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.QueryFailed"}),
@@ -155,7 +162,7 @@ func ProjectsList(ctx *gin.Context) {
 func ProjectsGet(ctx *gin.Context) {
 	currentProjectMember, currentProjectMemberExists := ctx.Get("CurrentProjectMember")
 	currentProject, _ := ctx.Get("CurrentProject")
-	project := currentProject.(*models.Projects)
+	p := currentProject.(*project.Projects)
 
 	var (
 		data       ProjectID
@@ -171,34 +178,34 @@ func ProjectsGet(ctx *gin.Context) {
 	}
 
 	if currentProjectMemberExists {
-		authority = currentProjectMember.(*models.ProjectMembers).Authority
+		authority = currentProjectMember.(*project.ProjectMembers).Authority
 	} else {
 		authority = "none"
 	}
 
-	if project.Visibility == 0 {
+	if p.Visibility == 0 {
 		visibility = "private"
 	} else {
 		visibility = "public"
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"id":          project.PublicId,
-		"title":       project.Title,
-		"description": project.Description,
-		"cover":       project.Cover,
+		"id":          p.PublicId,
+		"title":       p.Title,
+		"description": p.Description,
+		"cover":       p.Cover,
 		"authority":   authority,
 		"visibility":  visibility,
-		"secret_key":  project.SharePassword,
-		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
-		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
+		"secret_key":  p.SharePassword,
+		"created_at":  p.CreatedAt.Format("2006-01-02 15:04:05"),
+		"updated_at":  p.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
 }
 
 func ProjectsCreate(ctx *gin.Context) {
 	CurrentUser, _ := ctx.Get("CurrentUser")
-	user, _ := CurrentUser.(*models.Users)
-	if user.Role == "user" {
+	u, _ := CurrentUser.(*user.Users)
+	if u.Role == "user" {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.MemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -220,14 +227,14 @@ func ProjectsCreate(ctx *gin.Context) {
 	}
 
 	if data.GroupID > 0 {
-		pg, err := models.NewProjectGroups(data.GroupID)
+		pg, err := project.NewProjectGroups(data.GroupID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
 			})
 			return
 		}
-		if pg.UserID != user.ID {
+		if pg.UserID != u.ID {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
 			})
@@ -235,7 +242,7 @@ func ProjectsCreate(ctx *gin.Context) {
 		}
 	}
 
-	project, _ := models.NewProjects()
+	p, _ := project.NewProjects()
 
 	if data.DataType != "" {
 		switch data.DataType {
@@ -261,29 +268,29 @@ func ProjectsCreate(ctx *gin.Context) {
 			return
 		}
 
-		project.Description = content.Info.Description
+		p.Description = content.Info.Description
 	}
 
 	if data.Visibility == "private" {
-		project.Visibility = 0
+		p.Visibility = 0
 	} else {
-		project.Visibility = 1
+		p.Visibility = 1
 	}
 
-	project.Title = data.Title
-	project.PublicId = shortuuid.New()
-	project.Cover = data.Cover
-	if err := project.Create(); err != nil {
+	p.Title = data.Title
+	p.PublicId = shortuuid.New()
+	p.Cover = data.Cover
+	if err := p.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.CreateFail"}),
 		})
 		return
 	}
 
-	pm, _ := models.NewProjectMembers()
-	pm.ProjectID = project.ID
-	pm.UserID = user.ID
-	pm.Authority = models.ProjectMembersManage
+	pm, _ := project.NewProjectMembers()
+	pm.ProjectID = p.ID
+	pm.UserID = u.ID
+	pm.Authority = project.ProjectMembersManage
 	pm.GroupID = data.GroupID
 	if err := pm.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -294,25 +301,25 @@ func ProjectsCreate(ctx *gin.Context) {
 
 	// 进行数据导入工作
 	if data.Data != "" {
-		models.ServersImport(project.ID, content.Servers)
+		server.ServersImport(p.ID, content.Servers)
 
-		refContentVirtualIDToId := &models.RefContentVirtualIDToId{
-			DefinitionSchemas:    models.DefinitionSchemasImport(project.ID, content.Definitions.Schemas),
-			DefinitionResponses:  models.DefinitionResponsesImport(project.ID, content.Definitions.Responses),
-			DefinitionParameters: models.DefinitionParametersImport(project.ID, content.Definitions.Parameters),
-			GolbalParameters:     models.GlobalParametersImport(project.ID, &content.Globals.Parameters),
+		refContentVirtualIDToId := &model.RefContentVirtualIDToId{
+			DefinitionSchemas:    definition.DefinitionSchemasImport(p.ID, content.Definitions.Schemas),
+			DefinitionResponses:  definition.DefinitionResponsesImport(p.ID, content.Definitions.Responses),
+			DefinitionParameters: definition.DefinitionParametersImport(p.ID, content.Definitions.Parameters),
+			GolbalParameters:     global.GlobalParametersImport(p.ID, &content.Globals.Parameters),
 		}
 
-		models.CollectionsImport(project.ID, 0, content.Collections, refContentVirtualIDToId)
+		collection.CollectionsImport(p.ID, 0, content.Collections, refContentVirtualIDToId)
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"id":          project.PublicId,
-		"title":       project.Title,
-		"description": project.Description,
-		"cover":       project.Cover,
-		"created_at":  project.CreatedAt.Format("2006-01-02 15:04:05"),
-		"updated_at":  project.UpdatedAt.Format("2006-01-02 15:04:05"),
+		"id":          p.PublicId,
+		"title":       p.Title,
+		"description": p.Description,
+		"cover":       p.Cover,
+		"created_at":  p.CreatedAt.Format("2006-01-02 15:04:05"),
+		"updated_at":  p.UpdatedAt.Format("2006-01-02 15:04:05"),
 	})
 }
 
@@ -380,7 +387,7 @@ func postmanFileParse(fileContent string) (*spec.Spec, error) {
 
 func ProjectsUpdate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -407,7 +414,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 		return
 	}
 
-	project, err := models.NewProjects(uriData.ID)
+	p, err := project.NewProjects(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -416,26 +423,26 @@ func ProjectsUpdate(ctx *gin.Context) {
 		return
 	}
 
-	project.Title = data.Title
-	project.Description = data.Description
-	project.Cover = data.Cover
+	p.Title = data.Title
+	p.Description = data.Description
+	p.Cover = data.Cover
 	if data.Visibility == "private" {
-		project.Visibility = 0
+		p.Visibility = 0
 	} else {
-		project.Visibility = 1
+		p.Visibility = 1
 
 		// 将项目分享密钥及项目下集合的分享密钥置为空
-		project.SharePassword = ""
-		c, _ := models.NewCollections()
+		p.SharePassword = ""
+		c, _ := collection.NewCollections()
 		c.SharePassword = ""
-		if err := models.BatchUpdateByProjectID(project.ID, map[string]any{"share_password": ""}); err != nil {
+		if err := collection.BatchUpdateByProjectID(p.ID, map[string]any{"share_password": ""}); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
 			})
 		}
 
-		stt := models.NewShareTmpTokens()
-		stt.ProjectID = project.ID
+		stt := share.NewShareTmpTokens()
+		stt.ProjectID = p.ID
 		if err := stt.DeleteByProjectID(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
@@ -443,7 +450,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 		}
 	}
 
-	if err := project.Save(); err != nil {
+	if err := p.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.UpdateFail"}),
 		})
@@ -455,7 +462,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 
 func ProjectsDelete(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -472,7 +479,7 @@ func ProjectsDelete(ctx *gin.Context) {
 		return
 	}
 
-	project, err := models.NewProjects(data.ID)
+	p, err := project.NewProjects(data.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -480,7 +487,7 @@ func ProjectsDelete(ctx *gin.Context) {
 		})
 		return
 	}
-	if err := project.Delete(); err != nil {
+	if err := p.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.DeleteFail"}),
 		})
@@ -512,7 +519,7 @@ func ProjectDataGet(ctx *gin.Context) {
 		return
 	}
 
-	project, err := models.NewProjects(uriData.ID)
+	p, err := project.NewProjects(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -524,18 +531,18 @@ func ProjectDataGet(ctx *gin.Context) {
 	apicatData := &spec.Spec{}
 	apicatData.ApiCat = "apicat"
 	apicatData.Info = &spec.Info{
-		ID:          project.PublicId,
-		Title:       project.Title,
-		Description: project.Description,
+		ID:          p.PublicId,
+		Title:       p.Title,
+		Description: p.Description,
 		Version:     "1.0.0",
 	}
 
-	apicatData.Servers = models.ServersExport(project.ID)
-	apicatData.Globals.Parameters = models.GlobalParametersExport(project.ID)
-	apicatData.Definitions.Schemas = models.DefinitionSchemasExport(project.ID)
-	apicatData.Definitions.Parameters = models.DefinitionParametersExport(project.ID)
-	apicatData.Definitions.Responses = models.DefinitionResponsesExport(project.ID)
-	apicatData.Collections = models.CollectionsExport(project.ID)
+	apicatData.Servers = server.ServersExport(p.ID)
+	apicatData.Globals.Parameters = global.GlobalParametersExport(p.ID)
+	apicatData.Definitions.Schemas = definition.DefinitionSchemasExport(p.ID)
+	apicatData.Definitions.Parameters = definition.DefinitionParametersExport(p.ID)
+	apicatData.Definitions.Responses = definition.DefinitionResponsesExport(p.ID)
+	apicatData.Collections = collection.CollectionsExport(p.ID)
 
 	if apicatDataContent, err := json.Marshal(apicatData); err == nil {
 		slog.InfoCtx(ctx, "Export", slog.String("apicat", string(apicatDataContent)))
@@ -571,13 +578,13 @@ func ProjectDataGet(ctx *gin.Context) {
 		return
 	}
 
-	util.ExportResponse(data.Type, data.Download, project.Title+"-"+data.Type, content, ctx)
+	util.ExportResponse(data.Type, data.Download, p.Title+"-"+data.Type, content, ctx)
 }
 
 // ProjectExit handles the exit of a project member.
 func ProjectExit(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	if currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -585,7 +592,7 @@ func ProjectExit(ctx *gin.Context) {
 		return
 	}
 
-	if err := currentProjectMember.(*models.ProjectMembers).Delete(); err != nil {
+	if err := currentProjectMember.(*project.ProjectMembers).Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.ExitFail"}),
 		})
@@ -597,7 +604,7 @@ func ProjectExit(ctx *gin.Context) {
 
 func ProjectTransfer(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -613,7 +620,7 @@ func ProjectTransfer(ctx *gin.Context) {
 		return
 	}
 
-	pm, err := models.NewProjectMembers(data.MemberID)
+	pm, err := project.NewProjectMembers(data.MemberID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -622,7 +629,7 @@ func ProjectTransfer(ctx *gin.Context) {
 		return
 	}
 
-	if pm.Authority != models.ProjectMembersWrite {
+	if pm.Authority != project.ProjectMembersWrite {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.TargetProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
@@ -630,7 +637,7 @@ func ProjectTransfer(ctx *gin.Context) {
 		return
 	}
 
-	if pm.ProjectID != currentProjectMember.(*models.ProjectMembers).ProjectID {
+	if pm.ProjectID != currentProjectMember.(*project.ProjectMembers).ProjectID {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.TargetProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
@@ -638,15 +645,15 @@ func ProjectTransfer(ctx *gin.Context) {
 		return
 	}
 
-	currentProjectMember.(*models.ProjectMembers).Authority = models.ProjectMembersWrite
-	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
+	currentProjectMember.(*project.ProjectMembers).Authority = project.ProjectMembersWrite
+	if err := currentProjectMember.(*project.ProjectMembers).Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
 		})
 		return
 	}
 
-	pm.Authority = models.ProjectMembersManage
+	pm.Authority = project.ProjectMembersManage
 	if err := pm.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
@@ -661,8 +668,8 @@ func ProjectFollow(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 
 	nowTime := time.Now()
-	currentProjectMember.(*models.ProjectMembers).FollowedAt = &nowTime
-	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
+	currentProjectMember.(*project.ProjectMembers).FollowedAt = &nowTime
+	if err := currentProjectMember.(*project.ProjectMembers).Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.FollowFailed"}),
 		})
@@ -675,8 +682,8 @@ func ProjectFollow(ctx *gin.Context) {
 func ProjectUnFollow(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 
-	currentProjectMember.(*models.ProjectMembers).FollowedAt = nil
-	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
+	currentProjectMember.(*project.ProjectMembers).FollowedAt = nil
+	if err := currentProjectMember.(*project.ProjectMembers).Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectFollows.UnfollowFailed"}),
 		})
@@ -697,8 +704,8 @@ func ProjectChangeGroup(ctx *gin.Context) {
 		return
 	}
 
-	currentProjectMember.(*models.ProjectMembers).GroupID = data.TargetGroupID
-	if err := currentProjectMember.(*models.ProjectMembers).Update(); err != nil {
+	currentProjectMember.(*project.ProjectMembers).GroupID = data.TargetGroupID
+	if err := currentProjectMember.(*project.ProjectMembers).Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.ChangeFailed"}),
 		})

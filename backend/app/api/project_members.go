@@ -1,12 +1,13 @@
 package api
 
 import (
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/user"
 	"math"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -55,8 +56,8 @@ func ProjectMembersList(ctx *gin.Context) {
 		data.PageSize = 15
 	}
 
-	member, _ := models.NewProjectMembers()
-	member.ProjectID = currentProject.(*models.Projects).ID
+	member, _ := project.NewProjectMembers()
+	member.ProjectID = currentProject.(*project.Projects).ID
 	totalMember, err := member.Count()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -65,7 +66,7 @@ func ProjectMembersList(ctx *gin.Context) {
 		return
 	}
 
-	member.ProjectID = currentProject.(*models.Projects).ID
+	member.ProjectID = currentProject.(*project.Projects).ID
 	members, err := member.List(data.Page, data.PageSize)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -79,7 +80,7 @@ func ProjectMembersList(ctx *gin.Context) {
 		userIDs = append(userIDs, v.UserID)
 	}
 
-	users, err := models.UserListByIDs(userIDs)
+	users, err := user.UserListByIDs(userIDs)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
@@ -87,7 +88,7 @@ func ProjectMembersList(ctx *gin.Context) {
 		return
 	}
 
-	userIDToNameMap := map[uint]*models.Users{}
+	userIDToNameMap := map[uint]*user.Users{}
 	for _, v := range users {
 		userIDToNameMap[v.ID] = v
 	}
@@ -125,7 +126,7 @@ func MemberGetByUserID(ctx *gin.Context) {
 		return
 	}
 
-	user, err := models.NewUsers(data.UserID)
+	u, err := user.NewUsers(data.UserID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
@@ -133,9 +134,9 @@ func MemberGetByUserID(ctx *gin.Context) {
 		return
 	}
 
-	pm, _ := models.NewProjectMembers()
-	pm.UserID = user.ID
-	pm.ProjectID = currentProject.(*models.Projects).ID
+	pm, _ := project.NewProjectMembers()
+	pm.UserID = u.ID
+	pm.ProjectID = currentProject.(*project.Projects).ID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
@@ -145,8 +146,8 @@ func MemberGetByUserID(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, ProjectMemberData{
 		ID:        pm.ID,
-		UserID:    user.ID,
-		Username:  user.Username,
+		UserID:    u.ID,
+		Username:  u.Username,
 		Authority: pm.Authority,
 		CreatedAt: pm.CreatedAt.Format("2006-01-02 15:04:05"),
 	})
@@ -156,7 +157,7 @@ func MemberGetByUserID(ctx *gin.Context) {
 func ProjectMembersCreate(ctx *gin.Context) {
 	// 项目管理员才添加成员
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -174,14 +175,14 @@ func ProjectMembersCreate(ctx *gin.Context) {
 
 	result := []gin.H{}
 	for _, v := range data.UserIDs {
-		user, err := models.NewUsers(v)
+		u, err := user.NewUsers(v)
 		if err != nil {
 			continue
 		}
 
-		pm, _ := models.NewProjectMembers()
-		pm.UserID = user.ID
-		pm.ProjectID = currentProjectMember.(*models.ProjectMembers).ProjectID
+		pm, _ := project.NewProjectMembers()
+		pm.UserID = u.ID
+		pm.ProjectID = currentProjectMember.(*project.ProjectMembers).ProjectID
 		if err := pm.GetByUserIDAndProjectID(); err == nil {
 			continue
 		}
@@ -193,10 +194,10 @@ func ProjectMembersCreate(ctx *gin.Context) {
 
 		result = append(result, gin.H{
 			"id":         pm.ID,
-			"user_id":    user.ID,
-			"username":   user.Username,
-			"email":      user.Email,
-			"is_enabled": user.IsEnabled,
+			"user_id":    u.ID,
+			"username":   u.Username,
+			"email":      u.Email,
+			"is_enabled": u.IsEnabled,
 			"authority":  pm.Authority,
 			"created_at": pm.CreatedAt.Format("2006-01-02 15:04:05"),
 		})
@@ -208,7 +209,7 @@ func ProjectMembersCreate(ctx *gin.Context) {
 // DeleteMember deletes a project member by checking if the given member exists in the project.
 func ProjectMembersDelete(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -224,16 +225,16 @@ func ProjectMembersDelete(ctx *gin.Context) {
 		return
 	}
 
-	if data.UserID == currentProjectMember.(*models.ProjectMembers).UserID {
+	if data.UserID == currentProjectMember.(*project.ProjectMembers).UserID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.DeleteFailed"}),
 		})
 		return
 	}
 
-	pm, _ := models.NewProjectMembers()
+	pm, _ := project.NewProjectMembers()
 	pm.UserID = data.UserID
-	pm.ProjectID = currentProjectMember.(*models.ProjectMembers).ProjectID
+	pm.ProjectID = currentProjectMember.(*project.ProjectMembers).ProjectID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -254,7 +255,7 @@ func ProjectMembersDelete(ctx *gin.Context) {
 // UpdateMember updates the authority of a project member in the database.
 func ProjectMembersAuthUpdate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -270,9 +271,9 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 		return
 	}
 
-	pm, _ := models.NewProjectMembers()
+	pm, _ := project.NewProjectMembers()
 	pm.UserID = data.UserID
-	pm.ProjectID = currentProjectMember.(*models.ProjectMembers).ProjectID
+	pm.ProjectID = currentProjectMember.(*project.ProjectMembers).ProjectID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
@@ -300,7 +301,7 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 
 func ProjectMembersWithout(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberIsManage() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -308,8 +309,8 @@ func ProjectMembersWithout(ctx *gin.Context) {
 		return
 	}
 
-	user, _ := models.NewUsers()
-	users, err := user.List(0, 0)
+	u, _ := user.NewUsers()
+	users, err := u.List(0, 0)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
@@ -317,8 +318,8 @@ func ProjectMembersWithout(ctx *gin.Context) {
 		return
 	}
 
-	projectMember, _ := models.NewProjectMembers()
-	projectMember.ProjectID = currentProjectMember.(*models.ProjectMembers).ProjectID
+	projectMember, _ := project.NewProjectMembers()
+	projectMember.ProjectID = currentProjectMember.(*project.ProjectMembers).ProjectID
 	projectMembers, err := projectMember.List(0, 0)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -327,7 +328,7 @@ func ProjectMembersWithout(ctx *gin.Context) {
 		return
 	}
 
-	pmMap := map[uint]models.ProjectMembers{}
+	pmMap := map[uint]project.ProjectMembers{}
 	for _, v := range projectMembers {
 		pmMap[v.UserID] = v
 	}

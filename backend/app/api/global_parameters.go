@@ -2,12 +2,14 @@ package api
 
 import (
 	"encoding/json"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/global"
+	"github.com/apicat/apicat/backend/model/project"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/apicat_struct"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -37,7 +39,7 @@ type GlobalParametersID struct {
 	ParameterID uint `uri:"parameter-id" binding:"required,gt=0"`
 }
 
-func (gp *GlobalParametersID) CheckGlobalParameters(ctx *gin.Context) (*models.GlobalParameters, error) {
+func (gp *GlobalParametersID) CheckGlobalParameters(ctx *gin.Context) (*global.GlobalParameters, error) {
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&gp)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -46,7 +48,7 @@ func (gp *GlobalParametersID) CheckGlobalParameters(ctx *gin.Context) (*models.G
 		return nil, err
 	}
 
-	globalParameters, err := models.NewGlobalParameters(gp.ParameterID)
+	globalParameters, err := global.NewGlobalParameters(gp.ParameterID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -60,10 +62,10 @@ func (gp *GlobalParametersID) CheckGlobalParameters(ctx *gin.Context) (*models.G
 
 func GlobalParametersList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
+	p, _ := currentProject.(*project.Projects)
 
-	globalParameters := &models.GlobalParameters{
-		ProjectID: project.ID,
+	globalParameters := &global.GlobalParameters{
+		ProjectID: p.ID,
 	}
 	globalParametersList, err := globalParameters.List()
 	if err != nil {
@@ -101,7 +103,7 @@ func GlobalParametersList(ctx *gin.Context) {
 
 func GlobalParametersCreate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -110,7 +112,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	}
 
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
+	p, _ := currentProject.(*project.Projects)
 
 	var data GlobalParametersData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -120,8 +122,8 @@ func GlobalParametersCreate(ctx *gin.Context) {
 		return
 	}
 
-	globalParameters, _ := models.NewGlobalParameters()
-	globalParameters.ProjectID = project.ID
+	globalParameters, _ := global.NewGlobalParameters()
+	globalParameters.ProjectID = p.ID
 	globalParameters.Name = data.Name
 	globalParameters.In = data.In
 	count, err := globalParameters.GetCountByName()
@@ -173,7 +175,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 
 func GlobalParametersUpdate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -240,7 +242,7 @@ type IsUnRefData struct {
 
 func GlobalParametersDelete(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -249,7 +251,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 	}
 
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
+	p, _ := currentProject.(*project.Projects)
 
 	gp := GlobalParametersID{}
 	globalParameters, err := gp.CheckGlobalParameters(ctx)
@@ -282,8 +284,8 @@ func GlobalParametersDelete(ctx *gin.Context) {
 		},
 	}
 
-	collections, _ := models.NewCollections()
-	collections.ProjectId = project.ID
+	collections, _ := collection.NewCollections()
+	collections.ProjectId = p.ID
 	collectionList, err := collections.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -291,11 +293,11 @@ func GlobalParametersDelete(ctx *gin.Context) {
 		})
 		return
 	}
-	for _, collection := range collectionList {
-		if collection.Type == "http" {
+	for _, c := range collectionList {
+		if c.Type == "http" {
 			// 解析文档内容
 			docContent := []map[string]interface{}{}
-			if err := json.Unmarshal([]byte(collection.Content), &docContent); err != nil {
+			if err := json.Unmarshal([]byte(c.Content), &docContent); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
 				})
@@ -370,8 +372,8 @@ func GlobalParametersDelete(ctx *gin.Context) {
 				})
 				return
 			} else {
-				collection.Content = string(newContent)
-				if err := collection.Update(); err != nil {
+				c.Content = string(newContent)
+				if err := c.Update(); err != nil {
 					ctx.JSON(http.StatusBadRequest, gin.H{
 						"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.UpdateFailed"}),
 					})

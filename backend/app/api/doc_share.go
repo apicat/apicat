@@ -2,6 +2,9 @@ package api
 
 import (
 	"fmt"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/share"
 	"net/http"
 	"time"
 
@@ -9,7 +12,6 @@ import (
 	"github.com/apicat/apicat/backend/common/random"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/shortuuid/v4"
 )
@@ -30,9 +32,9 @@ func DocShareStatus(ctx *gin.Context) {
 		return
 	}
 
-	collection, _ := models.NewCollections()
-	collection.PublicId = data.PublicCollectionID
-	if err := collection.GetByPublicId(); err != nil {
+	c, _ := collection.NewCollections()
+	c.PublicId = data.PublicCollectionID
+	if err := c.GetByPublicId(); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
@@ -40,7 +42,7 @@ func DocShareStatus(ctx *gin.Context) {
 		return
 	}
 
-	project, err := models.NewProjects(collection.ProjectId)
+	p, err := project.NewProjects(c.ProjectId)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -50,19 +52,19 @@ func DocShareStatus(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"project_id":    project.PublicId,
-		"collection_id": collection.ID,
+		"project_id":    p.PublicId,
+		"collection_id": c.ID,
 	})
 }
 
 func DocShareDetails(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
+	c := currentCollection.(*collection.Collections)
 
 	currentProject, _ := ctx.Get("CurrentProject")
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if currentProject.(*models.Projects).Visibility == 0 {
-		if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if currentProject.(*project.Projects).Visibility == 0 {
+		if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"code":    enum.ProjectMemberInsufficientPermissionsCode,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -85,10 +87,10 @@ func DocShareDetails(ctx *gin.Context) {
 		return
 	}
 
-	if currentProject.(*models.Projects).Visibility == 0 {
+	if currentProject.(*project.Projects).Visibility == 0 {
 		visibility = "private"
-		collectionPublicID = collection.PublicId
-		secretKey = collection.SharePassword
+		collectionPublicID = c.PublicId
+		secretKey = c.SharePassword
 	} else {
 		visibility = "public"
 	}
@@ -102,11 +104,11 @@ func DocShareDetails(ctx *gin.Context) {
 
 func DocShareSwitch(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
+	c := currentCollection.(*collection.Collections)
 
 	currentProject, _ := ctx.Get("CurrentProject")
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -115,12 +117,12 @@ func DocShareSwitch(ctx *gin.Context) {
 	}
 
 	var (
-		project *models.Projects
-		data    ProjectSharingSwitchData
+		p    *project.Projects
+		data ProjectSharingSwitchData
 	)
 
-	project = currentProject.(*models.Projects)
-	if project.Visibility != 0 {
+	p = currentProject.(*project.Projects)
+	if p.Visibility != 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.PublicProject"}),
 		})
@@ -135,15 +137,15 @@ func DocShareSwitch(ctx *gin.Context) {
 	}
 
 	if data.Share == "open" {
-		if collection.PublicId == "" {
-			collection.PublicId = shortuuid.New()
+		if c.PublicId == "" {
+			c.PublicId = shortuuid.New()
 		}
 
-		if collection.SharePassword == "" {
-			collection.SharePassword = random.GenerateRandomString(4)
+		if c.SharePassword == "" {
+			c.SharePassword = random.GenerateRandomString(4)
 		}
 
-		if err := collection.Update(); err != nil {
+		if err := c.Update(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ModifySharingStatusFail"}),
 			})
@@ -151,12 +153,12 @@ func DocShareSwitch(ctx *gin.Context) {
 		}
 
 		ctx.JSON(http.StatusCreated, gin.H{
-			"collection_public_id": collection.PublicId,
-			"secret_key":           collection.SharePassword,
+			"collection_public_id": c.PublicId,
+			"secret_key":           c.SharePassword,
 		})
 	} else {
-		stt := models.NewShareTmpTokens()
-		stt.CollectionID = collection.ID
+		stt := share.NewShareTmpTokens()
+		stt.CollectionID = c.ID
 		if err := stt.DeleteByCollectionID(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ResetKeyFail"}),
@@ -164,8 +166,8 @@ func DocShareSwitch(ctx *gin.Context) {
 			return
 		}
 
-		collection.SharePassword = ""
-		if err := collection.Update(); err != nil {
+		c.SharePassword = ""
+		if err := c.Update(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ModifySharingStatusFail"}),
 			})
@@ -178,11 +180,11 @@ func DocShareSwitch(ctx *gin.Context) {
 
 func DocShareReset(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
+	c := currentCollection.(*collection.Collections)
 
 	currentProject, _ := ctx.Get("CurrentProject")
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -191,20 +193,20 @@ func DocShareReset(ctx *gin.Context) {
 	}
 
 	var (
-		project   *models.Projects
+		p         *project.Projects
 		secretKey string
 	)
 
-	project = currentProject.(*models.Projects)
-	if project.Visibility != 0 {
+	p = currentProject.(*project.Projects)
+	if p.Visibility != 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.PublicProject"}),
 		})
 		return
 	}
 
-	stt := models.NewShareTmpTokens()
-	stt.CollectionID = collection.ID
+	stt := share.NewShareTmpTokens()
+	stt.CollectionID = c.ID
 	if err := stt.DeleteByCollectionID(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ResetKeyFail"}),
@@ -213,9 +215,9 @@ func DocShareReset(ctx *gin.Context) {
 	}
 
 	secretKey = random.GenerateRandomString(4)
-	collection.SharePassword = secretKey
+	c.SharePassword = secretKey
 
-	if err := collection.Update(); err != nil {
+	if err := c.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ResetKeyFail"}),
 		})
@@ -229,7 +231,7 @@ func DocShareReset(ctx *gin.Context) {
 
 func DocShareCheck(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
+	c := currentCollection.(*collection.Collections)
 
 	var (
 		data ProjectShareSecretkeyCheckData
@@ -243,7 +245,7 @@ func DocShareCheck(ctx *gin.Context) {
 		return
 	}
 
-	if data.SecretKey != collection.SharePassword {
+	if data.SecretKey != c.SharePassword {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.AccessPasswordError"}),
 		})
@@ -252,11 +254,11 @@ func DocShareCheck(ctx *gin.Context) {
 
 	token := "d" + encrypt.GetMD5Encode(data.SecretKey+fmt.Sprint(time.Now().UnixNano()))
 
-	stt := models.NewShareTmpTokens()
+	stt := share.NewShareTmpTokens()
 	stt.ShareToken = encrypt.GetMD5Encode(token)
 	stt.Expiration = time.Now().Add(time.Hour * 24)
-	stt.ProjectID = collection.ProjectId
-	stt.CollectionID = collection.ID
+	stt.ProjectID = c.ProjectId
+	stt.CollectionID = c.ID
 	if err := stt.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),

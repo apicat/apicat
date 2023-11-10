@@ -1,11 +1,12 @@
 package api
 
 import (
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/project"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -19,11 +20,11 @@ type TrashsRecoverBody struct {
 
 func TrashsList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
+	p, _ := currentProject.(*project.Projects)
 
-	collection, _ := models.NewCollections()
-	collection.ProjectId = project.ID
-	collections, err := collection.TrashList()
+	c, _ := collection.NewCollections()
+	c.ProjectId = p.ID
+	collections, err := c.TrashList()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Trashs.QueryFailed"}),
@@ -46,7 +47,7 @@ func TrashsList(ctx *gin.Context) {
 
 func TrashsRecover(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -71,20 +72,20 @@ func TrashsRecover(ctx *gin.Context) {
 	}
 
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
+	p, _ := currentProject.(*project.Projects)
 
 	allOK := true
 
 	for _, v := range trashsRecoverQuery.CollectionID {
-		collection, _ := models.NewCollections()
-		collection.ID = v
-		collection.ProjectId = project.ID
-		if err := collection.GetUnscopedCollections(); err != nil {
+		c, _ := collection.NewCollections()
+		c.ID = v
+		c.ProjectId = p.ID
+		if err := c.GetUnscopedCollections(); err != nil {
 			allOK = false
 			continue
 		}
-		collection.ParentId = trashsRecoverBody.Category
-		collection.Restore()
+		c.ParentId = trashsRecoverBody.Category
+		c.Restore()
 	}
 
 	if !allOK {

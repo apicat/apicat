@@ -2,12 +2,14 @@ package api
 
 import (
 	"fmt"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/user"
 	"net/http"
 	"strings"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -47,7 +49,7 @@ func CollectionHistoryList(ctx *gin.Context) {
 		return
 	}
 
-	u, _ := models.NewUsers()
+	u, _ := user.NewUsers()
 	users, err := u.List(0, 0)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -56,12 +58,12 @@ func CollectionHistoryList(ctx *gin.Context) {
 		return
 	}
 
-	userDict := map[uint]models.Users{}
-	for _, user := range users {
-		userDict[user.ID] = user
+	userDict := map[uint]user.Users{}
+	for _, u := range users {
+		userDict[u.ID] = u
 	}
 
-	ch, _ := models.NewCollectionHistories()
+	ch, _ := collection.NewCollectionHistories()
 	histories, err := ch.List(uriData.CollectionID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -111,7 +113,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 		return
 	}
 
-	ch, err := models.NewCollectionHistories(uriData.HistoryID)
+	ch, err := collection.NewCollectionHistories(uriData.HistoryID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Redirect404Page,
@@ -120,7 +122,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 		return
 	}
 
-	if currentCollection.(*models.Collections).ID != ch.CollectionId {
+	if currentCollection.(*collection.Collections).ID != ch.CollectionId {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Redirect404Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
@@ -128,7 +130,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 		return
 	}
 
-	u, err := models.NewUsers(ch.CreatedBy)
+	u, err := user.NewUsers(ch.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -160,7 +162,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 
 	res := map[string]CollectionHistoryDetailsData{}
 
-	ch1, err := models.NewCollectionHistories(data.HistoryID1)
+	ch1, err := collection.NewCollectionHistories(data.HistoryID1)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -168,14 +170,14 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 		})
 		return
 	}
-	if ch1.CollectionId != currentCollection.(*models.Collections).ID {
+	if ch1.CollectionId != currentCollection.(*collection.Collections).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
-	u1, err := models.NewUsers(ch1.CreatedBy)
+	u1, err := user.NewUsers(ch1.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -194,7 +196,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 	}
 
 	if data.HistoryID2 == 0 {
-		u2, err := models.NewUsers(currentCollection.(*models.Collections).UpdatedBy)
+		u2, err := user.NewUsers(currentCollection.(*collection.Collections).UpdatedBy)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    enum.Display404ErrorMessage,
@@ -205,10 +207,10 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 
 		res["doc2"] = CollectionHistoryDetailsData{
 			ID:            0,
-			CollectionID:  currentCollection.(*models.Collections).ID,
-			Title:         currentCollection.(*models.Collections).Title,
-			Content:       currentCollection.(*models.Collections).Content,
-			CreatedTime:   currentCollection.(*models.Collections).CreatedAt.Format("2006-01-02 15:04"),
+			CollectionID:  currentCollection.(*collection.Collections).ID,
+			Title:         currentCollection.(*collection.Collections).Title,
+			Content:       currentCollection.(*collection.Collections).Content,
+			CreatedTime:   currentCollection.(*collection.Collections).CreatedAt.Format("2006-01-02 15:04"),
 			LastUpdatedBy: u2.Username,
 		}
 
@@ -216,7 +218,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 		return
 	}
 
-	ch2, err := models.NewCollectionHistories(data.HistoryID2)
+	ch2, err := collection.NewCollectionHistories(data.HistoryID2)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -224,14 +226,14 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 		})
 		return
 	}
-	if ch2.CollectionId != currentCollection.(*models.Collections).ID {
+	if ch2.CollectionId != currentCollection.(*collection.Collections).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
-	u2, err := models.NewUsers(ch2.CreatedBy)
+	u2, err := user.NewUsers(ch2.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -257,7 +259,7 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
 
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -273,7 +275,7 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 		return
 	}
 
-	ch, err := models.NewCollectionHistories(uriData.HistoryID)
+	ch, err := collection.NewCollectionHistories(uriData.HistoryID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -282,7 +284,7 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 		return
 	}
 
-	if currentCollection.(*models.Collections).ID != ch.CollectionId {
+	if currentCollection.(*collection.Collections).ID != ch.CollectionId {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
@@ -290,7 +292,7 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 		return
 	}
 
-	if err := ch.Restore(currentCollection.(*models.Collections), currentUser.(*models.Users).ID); err != nil {
+	if err := ch.Restore(currentCollection.(*collection.Collections), currentUser.(*user.Users).ID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.RestoreFailed"}),
 		})

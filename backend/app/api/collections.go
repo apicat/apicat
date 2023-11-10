@@ -3,6 +3,10 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/iteration"
+	"github.com/apicat/apicat/backend/model/project"
 	"net/http"
 	"time"
 
@@ -12,7 +16,6 @@ import (
 	"github.com/apicat/apicat/backend/common/spec/plugin/openapi"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"
 )
@@ -73,7 +76,7 @@ type CollectionsListData struct {
 
 func CollectionsList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
+	p, _ := currentProject.(*project.Projects)
 
 	var data CollectionsListData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
@@ -83,9 +86,9 @@ func CollectionsList(ctx *gin.Context) {
 		return
 	}
 
-	collection, _ := models.NewCollections()
-	collection.ProjectId = project.ID
-	collections, err := collection.List()
+	c, _ := collection.NewCollections()
+	c.ProjectId = p.ID
+	collections, err := c.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
@@ -95,7 +98,7 @@ func CollectionsList(ctx *gin.Context) {
 	if data.IterationID == "" {
 		ctx.JSON(http.StatusOK, buildProjectTree(0, collections))
 	} else {
-		iteration, err := models.NewIterations(data.IterationID)
+		i, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
@@ -103,8 +106,8 @@ func CollectionsList(ctx *gin.Context) {
 			return
 		}
 
-		ia, _ := models.NewIterationApis()
-		cIDs, err := ia.GetCollectionIDByIterationID(iteration.ID)
+		ia, _ := iteration.NewIterationApis()
+		cIDs, err := ia.GetCollectionIDByIterationID(i.ID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
@@ -116,15 +119,15 @@ func CollectionsList(ctx *gin.Context) {
 	}
 }
 
-func buildProjectTree(parentID uint, collections []*models.Collections) []*CollectionList {
+func buildProjectTree(parentID uint, collections []*collection.Collections) []*CollectionList {
 	return buildTree(parentID, collections, false)
 }
 
-func buildIterationTree(parentID uint, collections []*models.Collections, selectCIDs []uint) []*CollectionList {
+func buildIterationTree(parentID uint, collections []*collection.Collections, selectCIDs []uint) []*CollectionList {
 	return buildTree(parentID, collections, true, selectCIDs...)
 }
 
-func buildTree(parentID uint, collections []*models.Collections, isIteration bool, selectCIDs ...uint) []*CollectionList {
+func buildTree(parentID uint, collections []*collection.Collections, isIteration bool, selectCIDs ...uint) []*CollectionList {
 	result := make([]*CollectionList, 0)
 
 	for _, c := range collections {
@@ -167,24 +170,24 @@ func buildTree(parentID uint, collections []*models.Collections, isIteration boo
 
 func CollectionsGet(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
+	c := currentCollection.(*collection.Collections)
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"id":         collection.ID,
-		"parent_id":  collection.ParentId,
-		"title":      collection.Title,
-		"type":       collection.Type,
-		"content":    collection.Content,
-		"created_at": collection.CreatedAt.Format("2006-01-02 15:04:05"),
-		"created_by": collection.Creator(),
-		"updated_at": collection.UpdatedAt.Format("2006-01-02 15:04:05"),
-		"updated_by": collection.Updater(),
+		"id":         c.ID,
+		"parent_id":  c.ParentId,
+		"title":      c.Title,
+		"type":       c.Type,
+		"content":    c.Content,
+		"created_at": c.CreatedAt.Format("2006-01-02 15:04:05"),
+		"created_by": c.Creator(),
+		"updated_at": c.UpdatedAt.Format("2006-01-02 15:04:05"),
+		"updated_by": c.Updater(),
 	})
 }
 
 func CollectionsCreate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -201,10 +204,10 @@ func CollectionsCreate(ctx *gin.Context) {
 	}
 
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
+	p, _ := currentProject.(*project.Projects)
 
 	if data.IterationID != "" {
-		_, err := models.NewIterations(data.IterationID)
+		_, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
@@ -213,20 +216,20 @@ func CollectionsCreate(ctx *gin.Context) {
 		}
 	}
 
-	collection, _ := models.NewCollections()
-	collection.ProjectId = project.ID
-	collection.ParentId = data.ParentID
-	collection.Title = data.Title
-	collection.Type = data.Type
-	collection.Content = data.Content
-	collection.CreatedBy = currentProjectMember.(*models.ProjectMembers).UserID
-	collection.UpdatedBy = currentProjectMember.(*models.ProjectMembers).UserID
+	c, _ := collection.NewCollections()
+	c.ProjectId = p.ID
+	c.ParentId = data.ParentID
+	c.Title = data.Title
+	c.Type = data.Type
+	c.Content = data.Content
+	c.CreatedBy = currentProjectMember.(*project.ProjectMembers).UserID
+	c.UpdatedBy = currentProjectMember.(*project.ProjectMembers).UserID
 
 	var err error
-	if collection.Type == "category" {
-		err = collection.CreateCategory()
+	if c.Type == "category" {
+		err = c.CreateCategory()
 	} else {
-		err = collection.CreateDoc()
+		err = c.CreateDoc()
 	}
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -236,7 +239,7 @@ func CollectionsCreate(ctx *gin.Context) {
 	}
 
 	if data.IterationID != "" {
-		iteration, err := models.NewIterations(data.IterationID)
+		i, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
@@ -244,10 +247,10 @@ func CollectionsCreate(ctx *gin.Context) {
 			return
 		}
 
-		ia, _ := models.NewIterationApis()
-		ia.IterationID = iteration.ID
-		ia.CollectionID = collection.ID
-		ia.CollectionType = collection.Type
+		ia, _ := iteration.NewIterationApis()
+		ia.IterationID = i.ID
+		ia.CollectionID = c.ID
+		ia.CollectionType = c.Type
 		if err := ia.Create(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
@@ -257,24 +260,24 @@ func CollectionsCreate(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusCreated, gin.H{
-		"id":         collection.ID,
-		"parent_id":  collection.ParentId,
-		"title":      collection.Title,
-		"type":       collection.Type,
-		"content":    collection.Content,
-		"created_at": collection.CreatedAt.Format("2006-01-02 15:04:05"),
-		"created_by": collection.Creator(),
-		"updated_at": collection.UpdatedAt.Format("2006-01-02 15:04:05"),
-		"updated_by": collection.Updater(),
+		"id":         c.ID,
+		"parent_id":  c.ParentId,
+		"title":      c.Title,
+		"type":       c.Type,
+		"content":    c.Content,
+		"created_at": c.CreatedAt.Format("2006-01-02 15:04:05"),
+		"created_by": c.Creator(),
+		"updated_at": c.UpdatedAt.Format("2006-01-02 15:04:05"),
+		"updated_by": c.Updater(),
 	})
 }
 
 func CollectionsUpdate(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
+	c := currentCollection.(*collection.Collections)
 
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -290,15 +293,15 @@ func CollectionsUpdate(ctx *gin.Context) {
 		return
 	}
 
-	ch, _ := models.NewCollectionHistories()
-	ch.CollectionId = collection.ID
-	ch.Title = collection.Title
-	ch.Type = collection.Type
-	ch.Content = collection.Content
-	ch.CreatedBy = currentProjectMember.(*models.ProjectMembers).UserID
+	ch, _ := collection.NewCollectionHistories()
+	ch.CollectionId = c.ID
+	ch.Title = c.Title
+	ch.Type = c.Type
+	ch.Content = c.Content
+	ch.CreatedBy = currentProjectMember.(*project.ProjectMembers).UserID
 
 	// 不是同一个人编辑的文档或5分钟后编辑文档内容，保存历史记录
-	if collection.UpdatedBy != currentProjectMember.(*models.ProjectMembers).UserID || collection.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
+	if c.UpdatedBy != currentProjectMember.(*project.ProjectMembers).UserID || c.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
 		if err := ch.Create(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.UpdateFailed"}),
@@ -307,10 +310,10 @@ func CollectionsUpdate(ctx *gin.Context) {
 		}
 	}
 
-	collection.Title = data.Title
-	collection.Content = data.Content
-	collection.UpdatedBy = currentProjectMember.(*models.ProjectMembers).UserID
-	if err := collection.Update(); err != nil {
+	c.Title = data.Title
+	c.Content = data.Content
+	c.UpdatedBy = currentProjectMember.(*project.ProjectMembers).UserID
+	if err := c.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.UpdateFailed"}),
 		})
@@ -322,10 +325,10 @@ func CollectionsUpdate(ctx *gin.Context) {
 
 func CollectionsCopy(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
+	c := currentCollection.(*collection.Collections)
 
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -342,7 +345,7 @@ func CollectionsCopy(ctx *gin.Context) {
 	}
 
 	if data.IterationID != "" {
-		_, err := models.NewIterations(data.IterationID)
+		_, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
@@ -351,14 +354,14 @@ func CollectionsCopy(ctx *gin.Context) {
 		}
 	}
 
-	newCollection := models.Collections{
-		ProjectId:    collection.ProjectId,
-		ParentId:     collection.ParentId,
-		Title:        fmt.Sprintf("%s (copy)", collection.Title),
-		Type:         collection.Type,
-		Content:      collection.Content,
-		DisplayOrder: collection.DisplayOrder,
-		CreatedBy:    currentProjectMember.(*models.ProjectMembers).UserID,
+	newCollection := collection.Collections{
+		ProjectId:    c.ProjectId,
+		ParentId:     c.ParentId,
+		Title:        fmt.Sprintf("%s (copy)", c.Title),
+		Type:         c.Type,
+		Content:      c.Content,
+		DisplayOrder: c.DisplayOrder,
+		CreatedBy:    currentProjectMember.(*project.ProjectMembers).UserID,
 	}
 
 	if err := newCollection.CreateDoc(); err != nil {
@@ -369,7 +372,7 @@ func CollectionsCopy(ctx *gin.Context) {
 	}
 
 	if data.IterationID != "" {
-		iteration, err := models.NewIterations(data.IterationID)
+		i, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
@@ -377,8 +380,8 @@ func CollectionsCopy(ctx *gin.Context) {
 			return
 		}
 
-		ia, _ := models.NewIterationApis()
-		ia.IterationID = iteration.ID
+		ia, _ := iteration.NewIterationApis()
+		ia.IterationID = i.ID
 		ia.CollectionID = newCollection.ID
 		ia.CollectionType = newCollection.Type
 		if err := ia.Create(); err != nil {
@@ -404,7 +407,7 @@ func CollectionsCopy(ctx *gin.Context) {
 
 func CollectionsMovement(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -421,19 +424,19 @@ func CollectionsMovement(ctx *gin.Context) {
 	}
 
 	for i, id := range data.Target.Ids {
-		if collection, err := models.NewCollections(id); err == nil {
-			collection.ParentId = data.Target.Pid
-			collection.DisplayOrder = i
-			collection.Update()
+		if c, err := collection.NewCollections(id); err == nil {
+			c.ParentId = data.Target.Pid
+			c.DisplayOrder = i
+			c.Update()
 		}
 	}
 
 	if data.Target.Pid != data.Origin.Pid {
 		for i, id := range data.Origin.Ids {
-			if collection, err := models.NewCollections(id); err == nil {
-				collection.ParentId = data.Origin.Pid
-				collection.DisplayOrder = i
-				collection.Update()
+			if c, err := collection.NewCollections(id); err == nil {
+				c.ParentId = data.Origin.Pid
+				c.DisplayOrder = i
+				c.Update()
 			}
 		}
 	}
@@ -443,10 +446,9 @@ func CollectionsMovement(ctx *gin.Context) {
 
 func CollectionsDelete(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
-	collection := currentCollection.(*models.Collections)
-
+	c := currentCollection.(*collection.Collections)
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -463,7 +465,7 @@ func CollectionsDelete(ctx *gin.Context) {
 	}
 
 	if data.IterationID != "" {
-		_, err := models.NewIterations(data.IterationID)
+		_, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
@@ -471,7 +473,7 @@ func CollectionsDelete(ctx *gin.Context) {
 			return
 		}
 
-		collections, err := collection.GetSubCollectionsContainsSelf()
+		collections, err := c.GetSubCollectionsContainsSelf()
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
@@ -483,7 +485,7 @@ func CollectionsDelete(ctx *gin.Context) {
 			cIDs = append(cIDs, v.ID)
 		}
 
-		if err := models.DeleteIterationApisByCollectionID(cIDs...); err != nil {
+		if err := iteration.DeleteIterationApisByCollectionID(cIDs...); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
 			})
@@ -491,7 +493,7 @@ func CollectionsDelete(ctx *gin.Context) {
 		}
 	}
 
-	if err := models.Deletes(collection.ID, models.Conn, currentProjectMember.(*models.ProjectMembers).UserID); err != nil {
+	if err := collection.Deletes(c.ID, model.Conn, currentProjectMember.(*project.ProjectMembers).UserID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
 		})
@@ -518,7 +520,7 @@ func CollectionDataGet(ctx *gin.Context) {
 		return
 	}
 
-	project, err := models.NewProjects(uriData.ProjectID)
+	p, err := project.NewProjects(uriData.ProjectID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -526,7 +528,7 @@ func CollectionDataGet(ctx *gin.Context) {
 		})
 		return
 	}
-	collection, err := models.NewCollections(uriData.CollectionID)
+	c, err := collection.NewCollections(uriData.CollectionID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    enum.Display404ErrorMessage,
@@ -535,7 +537,7 @@ func CollectionDataGet(ctx *gin.Context) {
 		return
 	}
 
-	apicatData := models.CollectionExport(project, collection)
+	apicatData := collection.CollectionExport(p, c)
 	if apicatDataContent, err := json.Marshal(apicatData); err == nil {
 		slog.InfoCtx(ctx, "Export", slog.String("apicat", string(apicatDataContent)))
 	}
@@ -569,5 +571,5 @@ func CollectionDataGet(ctx *gin.Context) {
 		return
 	}
 
-	util.ExportResponse(data.Type, data.Download, project.Title+"-"+data.Type, content, ctx)
+	util.ExportResponse(data.Type, data.Download, p.Title+"-"+data.Type, content, ctx)
 }

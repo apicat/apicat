@@ -1,12 +1,12 @@
 package api
 
 import (
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/server"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,10 +17,10 @@ type CreateServer struct {
 
 func UrlList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
+	p, _ := currentProject.(*project.Projects)
 
-	server := models.NewServers()
-	servers, err := server.GetByProjectId(project.ID)
+	s := server.NewServers()
+	servers, err := s.GetByProjectId(p.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Servers.GetFailed"}),
@@ -41,7 +41,7 @@ func UrlList(ctx *gin.Context) {
 
 func UrlSettings(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
-	if !currentProjectMember.(*models.ProjectMembers).MemberHasWritePermission() {
+	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    enum.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
@@ -50,7 +50,7 @@ func UrlSettings(ctx *gin.Context) {
 	}
 
 	currentProject, _ := ctx.Get("CurrentProject")
-	project, _ := currentProject.(*models.Projects)
+	p, _ := currentProject.(*project.Projects)
 
 	data := []CreateServer{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -60,19 +60,19 @@ func UrlSettings(ctx *gin.Context) {
 		return
 	}
 
-	resule := []*models.Servers{}
+	resule := []*server.Servers{}
 
 	for k, v := range data {
-		server := models.NewServers()
-		server.ProjectId = project.ID
-		server.Description = v.Description
-		server.Url = v.Url
-		server.DisplayOrder = k
-		resule = append(resule, server)
+		s := server.NewServers()
+		s.ProjectId = p.ID
+		s.Description = v.Description
+		s.Url = v.Url
+		s.DisplayOrder = k
+		resule = append(resule, s)
 	}
 
-	server := models.NewServers()
-	if err := server.DeleteAndCreateServers(project.ID, resule); err != nil {
+	s := server.NewServers()
+	if err := s.DeleteAndCreateServers(p.ID, resule); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Servers.SetFailed"}),
 		})
