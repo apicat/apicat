@@ -1,6 +1,7 @@
-package models
+package project
 
 import (
+	"github.com/apicat/apicat/backend/model"
 	"time"
 
 	"golang.org/x/exp/slices"
@@ -19,6 +20,10 @@ type ProjectMembers struct {
 	DeletedAt  gorm.DeletedAt
 }
 
+func init() {
+	model.RegMigrate(&ProjectMembers{})
+}
+
 var (
 	ProjectMembersManage = "manage"
 	ProjectMembersWrite  = "write"
@@ -28,7 +33,7 @@ var (
 func NewProjectMembers(ids ...uint) (*ProjectMembers, error) {
 	members := &ProjectMembers{}
 	if len(ids) > 0 {
-		if err := Conn.Take(members, ids[0]).Error; err != nil {
+		if err := model.Conn.Take(members, ids[0]).Error; err != nil {
 			return members, err
 		}
 		return members, nil
@@ -40,35 +45,35 @@ func (pm *ProjectMembers) List(page, pageSize int) ([]ProjectMembers, error) {
 	var projectMembers []ProjectMembers
 
 	if page == 0 && pageSize == 0 {
-		return projectMembers, Conn.Where("project_id = ?", pm.ProjectID).Order("created_at desc").Find(&projectMembers).Error
+		return projectMembers, model.Conn.Where("project_id = ?", pm.ProjectID).Order("created_at desc").Find(&projectMembers).Error
 	}
 
-	return projectMembers, Conn.Where("project_id = ?", pm.ProjectID).Limit(pageSize).Offset((page - 1) * pageSize).Order("created_at desc").Find(&projectMembers).Error
+	return projectMembers, model.Conn.Where("project_id = ?", pm.ProjectID).Limit(pageSize).Offset((page - 1) * pageSize).Order("created_at desc").Find(&projectMembers).Error
 }
 
 func (pm *ProjectMembers) GetByUserIDAndProjectID() error {
-	return Conn.Where("user_id = ? and project_id = ?", pm.UserID, pm.ProjectID).Take(pm).Error
+	return model.Conn.Where("user_id = ? and project_id = ?", pm.UserID, pm.ProjectID).Take(pm).Error
 }
 
 func (pm *ProjectMembers) Create() error {
-	return Conn.Create(pm).Error
+	return model.Conn.Create(pm).Error
 }
 
 func (pm *ProjectMembers) Delete() error {
-	return Conn.Delete(pm).Error
+	return model.Conn.Delete(pm).Error
 }
 
 func (pm *ProjectMembers) Update() error {
-	return Conn.Save(pm).Error
+	return model.Conn.Save(pm).Error
 }
 
 func (pm *ProjectMembers) Count() (int64, error) {
 	var count int64
-	return count, Conn.Model(&ProjectMembers{}).Where("project_id = ?", pm.ProjectID).Count(&count).Error
+	return count, model.Conn.Model(&ProjectMembers{}).Where("project_id = ?", pm.ProjectID).Count(&count).Error
 }
 
 func DeleteAllMembersByProjectID(projectID uint) error {
-	return Conn.Where("project_id = ?", projectID).Delete(&ProjectMembers{}).Error
+	return model.Conn.Where("project_id = ?", projectID).Delete(&ProjectMembers{}).Error
 }
 
 func (pm *ProjectMembers) MemberIsManage() bool {
@@ -81,7 +86,7 @@ func (pm *ProjectMembers) MemberHasWritePermission() bool {
 
 func GetUserInvolvedProject(UserID uint, PMAuthorities ...string) ([]ProjectMembers, error) {
 	var projectMembers []ProjectMembers
-	query := Conn.Where("user_id = ?", UserID)
+	query := model.Conn.Where("user_id = ?", UserID)
 	if len(PMAuthorities) > 0 {
 		query = query.Where("authority IN ?", PMAuthorities)
 	}
@@ -90,10 +95,10 @@ func GetUserInvolvedProject(UserID uint, PMAuthorities ...string) ([]ProjectMemb
 
 func GetProjectGroupedByUser(UserID, GroupID uint) ([]ProjectMembers, error) {
 	var projectMembers []ProjectMembers
-	return projectMembers, Conn.Where("user_id = ? AND group_id = ?", UserID, GroupID).Find(&projectMembers).Error
+	return projectMembers, model.Conn.Where("user_id = ? AND group_id = ?", UserID, GroupID).Find(&projectMembers).Error
 }
 
 func GetProjectFollowedByUser(UserID uint) ([]ProjectMembers, error) {
 	var projectMembers []ProjectMembers
-	return projectMembers, Conn.Where("user_id = ? AND followed_at is not null", UserID).Find(&projectMembers).Error
+	return projectMembers, model.Conn.Where("user_id = ? AND followed_at is not null", UserID).Find(&projectMembers).Error
 }

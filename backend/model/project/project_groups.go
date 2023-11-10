@@ -1,6 +1,7 @@
-package models
+package project
 
 import (
+	"github.com/apicat/apicat/backend/model"
 	"time"
 )
 
@@ -13,10 +14,14 @@ type ProjectGroups struct {
 	UpdatedAt    time.Time
 }
 
+func init() {
+	model.RegMigrate(&ProjectGroups{})
+}
+
 func NewProjectGroups(ids ...uint) (*ProjectGroups, error) {
 	pg := &ProjectGroups{}
 	if len(ids) > 0 {
-		if err := Conn.Take(pg, ids[0]).Error; err != nil {
+		if err := model.Conn.Take(pg, ids[0]).Error; err != nil {
 			return pg, err
 		}
 		return pg, nil
@@ -26,28 +31,28 @@ func NewProjectGroups(ids ...uint) (*ProjectGroups, error) {
 
 func (pg *ProjectGroups) List() ([]ProjectGroups, error) {
 	var projectGroups []ProjectGroups
-	return projectGroups, Conn.Where("user_id = ?", pg.UserID).Order("display_order asc").Find(&projectGroups).Error
+	return projectGroups, model.Conn.Where("user_id = ?", pg.UserID).Order("display_order asc").Find(&projectGroups).Error
 }
 
 func (pg *ProjectGroups) Create() error {
-	return Conn.Create(pg).Error
+	return model.Conn.Create(pg).Error
 }
 
 func (pg *ProjectGroups) Delete() error {
-	if err := Conn.Model(&ProjectMembers{}).Where("user_id = ? AND group_id = ?", pg.UserID, pg.ID).Update("group_id", 0).Error; err != nil {
+	if err := model.Conn.Model(&ProjectMembers{}).Where("user_id = ? AND group_id = ?", pg.UserID, pg.ID).Update("group_id", 0).Error; err != nil {
 		return err
 	}
 
-	return Conn.Delete(pg).Error
+	return model.Conn.Delete(pg).Error
 }
 
 func (pg *ProjectGroups) Update() error {
-	return Conn.Save(pg).Error
+	return model.Conn.Save(pg).Error
 }
 
 func GetProjectGroupDisplayOrder(userID uint) (int, error) {
 	var projectGroup ProjectGroups
-	if err := Conn.Where("user_id = ?", userID).Order("display_order desc").First(&projectGroup).Error; err != nil {
+	if err := model.Conn.Where("user_id = ?", userID).Order("display_order desc").First(&projectGroup).Error; err != nil {
 		return 0, err
 	}
 	return projectGroup.DisplayOrder, nil
@@ -55,10 +60,10 @@ func GetProjectGroupDisplayOrder(userID uint) (int, error) {
 
 func GetProjectGroupCountByName(userID uint, name string) (int64, error) {
 	var count int64
-	return count, Conn.Model(&ProjectGroups{}).Where("user_id = ? and name = ?", userID, name).Count(&count).Error
+	return count, model.Conn.Model(&ProjectGroups{}).Where("user_id = ? and name = ?", userID, name).Count(&count).Error
 }
 
 func GetProjectGroupCountExcludeTheID(userID uint, name string, id uint) (int64, error) {
 	var count int64
-	return count, Conn.Model(&ProjectGroups{}).Where("user_id = ? and name = ? and id != ?", userID, name, id).Count(&count).Error
+	return count, model.Conn.Model(&ProjectGroups{}).Where("user_id = ? and name = ? and id != ?", userID, name, id).Count(&count).Error
 }

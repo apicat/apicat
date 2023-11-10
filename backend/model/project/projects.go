@@ -1,7 +1,8 @@
-package models
+package project
 
 import (
 	"errors"
+	"github.com/apicat/apicat/backend/model"
 	"time"
 
 	"gorm.io/gorm"
@@ -20,6 +21,10 @@ type Projects struct {
 	DeletedAt     gorm.DeletedAt
 }
 
+func init() {
+	model.RegMigrate(&Projects{})
+}
+
 func NewProjects(ids ...interface{}) (*Projects, error) {
 	project := &Projects{}
 
@@ -28,9 +33,9 @@ func NewProjects(ids ...interface{}) (*Projects, error) {
 
 		switch ids[0].(type) {
 		case string:
-			err = Conn.Where("public_id = ?", ids[0]).Take(project).Error
+			err = model.Conn.Where("public_id = ?", ids[0]).Take(project).Error
 		case uint:
-			err = Conn.Take(project, ids[0]).Error
+			err = model.Conn.Take(project, ids[0]).Error
 		default:
 			err = errors.New("invalid id type")
 		}
@@ -44,19 +49,19 @@ func NewProjects(ids ...interface{}) (*Projects, error) {
 }
 
 func (p *Projects) Create() error {
-	return Conn.Create(p).Error
+	return model.Conn.Create(p).Error
 }
 
 func (p *Projects) Get(id string) error {
-	return Conn.Where("public_id = ?", id).Take(p).Error
+	return model.Conn.Where("public_id = ?", id).Take(p).Error
 }
 
 func (p *Projects) List(ids ...uint) ([]Projects, error) {
 	var projects []Projects
 	if len(ids) > 0 {
-		return projects, Conn.Where("id IN ?", ids).Order("created_at desc").Find(&projects).Error
+		return projects, model.Conn.Where("id IN ?", ids).Order("created_at desc").Find(&projects).Error
 	}
-	return projects, Conn.Order("created_at desc").Find(&projects).Error
+	return projects, model.Conn.Order("created_at desc").Find(&projects).Error
 }
 
 func (p *Projects) Delete() error {
@@ -64,9 +69,9 @@ func (p *Projects) Delete() error {
 		return err
 	}
 
-	return Conn.Delete(p).Error
+	return model.Conn.Delete(p).Error
 }
 
 func (p *Projects) Save() error {
-	return Conn.Save(p).Error
+	return model.Conn.Save(p).Error
 }
