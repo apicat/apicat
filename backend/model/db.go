@@ -1,4 +1,4 @@
-package models
+package model
 
 import (
 	"context"
@@ -19,6 +19,9 @@ import (
 var (
 	// Conn 是一个指向数据库连接的指针
 	Conn *gorm.DB
+
+	// 数据库迁移结构
+	autoMigrateTables = []any{}
 
 	// connStatus 数据库连接状态，非成功状态跳转到配置页，
 	connStatus     uint = connOK
@@ -90,7 +93,15 @@ func Init() {
 	}
 
 	connStatus = connOK
-	initTable()
+
+	// 用来代替initTable()
+	if len(autoMigrateTables) > 0 {
+		if err := Conn.AutoMigrate(autoMigrateTables...); err != nil {
+			return
+		}
+	}
+
+	//initTable()
 }
 
 // DBConnStatus status 返回数据库连接状态，1-成功，2-失败，3-数据库不存在 err 连接遇到错误时返回错误信息
@@ -152,29 +163,33 @@ func connectDB(dbName string) error {
 	return nil
 }
 
-func initTable() {
-	if err := Conn.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4").AutoMigrate(
-		&Projects{},
-		&Collections{},
-		&CollectionHistories{},
-		&Servers{},
-		&Tags{},
-		&TagToCollections{},
-		&GlobalParameters{},
-		&DefinitionSchemas{},
-		&DefinitionResponses{},
-		&DefinitionParameters{},
-		&Users{},
-		&ProjectMembers{},
-		&ShareTmpTokens{},
-		&DefinitionSchemaHistories{},
-		&Iterations{},
-		&IterationApis{},
-		&ProjectGroups{},
-	); err != nil {
-		panic(err.Error())
-	}
+func RegMigrate(v ...any) {
+	autoMigrateTables = append(autoMigrateTables, v...)
 }
+
+//func initTable() {
+//	if err := Conn.Set("gorm:table_options", "ENGINE=InnoDB CHARSET=utf8mb4").AutoMigrate(
+//		&project.Projects{},
+//		&collection.Collections{},
+//		&collection.CollectionHistories{},
+//		&server.Servers{},
+//		&tag.Tags{},
+//		&tag.TagToCollections{},
+//		&global.GlobalParameters{},
+//		&definition.DefinitionSchemas{},
+//		&definition.DefinitionResponses{},
+//		&definition.DefinitionParameters{},
+//		&user.Users{},
+//		&project.ProjectMembers{},
+//		&share.ShareTmpTokens{},
+//		&definition.DefinitionSchemaHistories{},
+//		&iteration.Iterations{},
+//		&iteration.IterationApis{},
+//		&project.ProjectGroups{},
+//	); err != nil {
+//		panic(err.Error())
+//	}
+//}
 
 // tracelogger 集成traceid
 type tracelogger struct {
