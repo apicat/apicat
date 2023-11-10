@@ -1,17 +1,17 @@
 package check
 
 import (
+	"github.com/apicat/apicat/backend/model/user"
 	"net/http"
 	"strings"
 
 	"github.com/apicat/apicat/backend/common/auth"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
-func checkMemberStatus(authorization string) *models.Users {
+func checkMemberStatus(authorization string) *user.Users {
 	if authorization == "" {
 		return nil
 	}
@@ -30,20 +30,20 @@ func checkMemberStatus(authorization string) *models.Users {
 		return nil
 	}
 
-	user, err := models.NewUsers(mc.UserID)
+	u, err := user.NewUsers(mc.UserID)
 	if err != nil {
 		return nil
 	}
 
-	return user
+	return u
 }
 
 func CheckMember() func(ctx *gin.Context) {
 	return func(ctx *gin.Context) {
 		authorization := ctx.Request.Header.Get("Authorization")
-		user := checkMemberStatus(authorization)
+		u := checkMemberStatus(authorization)
 
-		if user == nil {
+		if u == nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    enum.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
@@ -52,7 +52,7 @@ func CheckMember() func(ctx *gin.Context) {
 			return
 		}
 
-		if user == nil || user.IsEnabled == 0 {
+		if u == nil || u.IsEnabled == 0 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    enum.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.AccountDisabled"}),
@@ -62,7 +62,7 @@ func CheckMember() func(ctx *gin.Context) {
 		}
 
 		//将当前请求的username信息保存到请求的上下文c上
-		ctx.Set("CurrentUser", user)
+		ctx.Set("CurrentUser", u)
 		//后续的处理函数可以通过c.Get("CurrentUser")来获取请求的用户信息
 		ctx.Next()
 	}

@@ -1,12 +1,11 @@
 package check
 
 import (
+	"github.com/apicat/apicat/backend/model/project"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,7 +31,7 @@ func CheckProject() gin.HandlerFunc {
 			return
 		}
 
-		project, err := models.NewProjects(data.ID)
+		p, err := project.NewProjects(data.ID)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    responseCode,
@@ -42,6 +41,6 @@ func CheckProject() gin.HandlerFunc {
 			return
 		}
 
-		ctx.Set("CurrentProject", project)
+		ctx.Set("CurrentProject", p)
 	}
 }

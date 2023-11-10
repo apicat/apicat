@@ -1,11 +1,12 @@
 package check
 
 import (
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/project"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,7 +36,7 @@ func CheckCollection() gin.HandlerFunc {
 			return
 		}
 
-		c, err := models.NewCollections(data.CollectionID)
+		c, err := collection.NewCollections(data.CollectionID)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    responseCode,
@@ -45,7 +46,7 @@ func CheckCollection() gin.HandlerFunc {
 			return
 		}
 
-		if c.ProjectId != currentProject.(*models.Projects).ID {
+		if c.ProjectId != currentProject.(*project.Projects).ID {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    responseCode,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),

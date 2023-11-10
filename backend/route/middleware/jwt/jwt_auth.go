@@ -1,6 +1,7 @@
 package jwt
 
 import (
+	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/route/middleware/log"
 	"net/http"
 	"strings"
@@ -8,7 +9,6 @@ import (
 	"github.com/apicat/apicat/backend/common/auth"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -54,7 +54,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 			return
 		}
 
-		user, err := models.NewUsers(mc.UserID)
+		u, err := user.NewUsers(mc.UserID)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    enum.InvalidOrIncorrectLoginToken,
@@ -64,7 +64,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 			return
 		}
 
-		if user.IsEnabled == 0 {
+		if u.IsEnabled == 0 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    enum.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.AccountDisabled"}),
@@ -74,7 +74,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 		}
 
 		//将当前请求的username信息保存到请求的上下文c上
-		ctx.Set("CurrentUser", user)
+		ctx.Set("CurrentUser", u)
 		//后续的处理函数可以通过c.Get("CurrentUser")来获取请求的用户信息
 		ctx.Next()
 		log.RequestIDLog()

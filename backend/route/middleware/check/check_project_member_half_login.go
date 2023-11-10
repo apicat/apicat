@@ -1,6 +1,10 @@
 package check
 
 import (
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/share"
+	"github.com/apicat/apicat/backend/model/user"
 	"net/http"
 	"strconv"
 	"time"
@@ -8,13 +12,12 @@ import (
 	"github.com/apicat/apicat/backend/common/encrypt"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
 func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		project, exists := ctx.Get("CurrentProject")
+		p, exists := ctx.Get("CurrentProject")
 		if !exists {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    enum.Redirect404Page,
@@ -24,11 +27,11 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 			return
 		}
 
-		user, exists := ctx.Get("CurrentUser")
+		u, exists := ctx.Get("CurrentUser")
 		if exists {
-			member, _ := models.NewProjectMembers()
-			member.UserID = user.(*models.Users).ID
-			member.ProjectID = project.(*models.Projects).ID
+			member, _ := project.NewProjectMembers()
+			member.UserID = u.(*user.Users).ID
+			member.ProjectID = p.(*project.Projects).ID
 
 			if err := member.GetByUserIDAndProjectID(); err == nil {
 				ctx.Set("CurrentProjectMember", member)
@@ -37,7 +40,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		}
 
 		// 判断是否为公开项目
-		if project.(*models.Projects).Visibility == 1 {
+		if p.(*project.Projects).Visibility == 1 {
 			return
 		}
 
@@ -52,7 +55,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		}
 
 		// 校验访问令牌是否存在
-		stt := models.NewShareTmpTokens()
+		stt := share.NewShareTmpTokens()
 		stt.ShareToken = encrypt.GetMD5Encode(token)
 		if err := stt.GetByShareToken(); err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
@@ -84,7 +87,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 
 		// 分享项目的访问令牌
 		if token[:1] == "p" {
-			if project.(*models.Projects).ID != stt.ProjectID {
+			if p.(*project.Projects).ID != stt.ProjectID {
 				ctx.JSON(http.StatusUnauthorized, gin.H{
 					"code":    enum.InvalidOrIncorrectAccessToken,
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
@@ -99,7 +102,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		if token[:1] == "d" {
 			collectionIDStr := ctx.Param("collection-id")
 			if collectionIDStr == "" {
-				if project.(*models.Projects).ID != stt.ProjectID {
+				if p.(*project.Projects).ID != stt.ProjectID {
 					ctx.JSON(http.StatusUnauthorized, gin.H{
 						"code":    enum.InvalidOrIncorrectAccessToken,
 						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
@@ -117,7 +120,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 					return
 				}
 
-				collection, err := models.NewCollections(uint(collectionID))
+				c, err := collection.NewCollections(uint(collectionID))
 				if err != nil {
 					ctx.JSON(http.StatusNotFound, gin.H{
 						"code":    enum.Redirect404Page,
@@ -127,7 +130,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 					return
 				}
 
-				if collection.ID != stt.CollectionID {
+				if c.ID != stt.CollectionID {
 					ctx.JSON(http.StatusUnauthorized, gin.H{
 						"code":    enum.InvalidOrIncorrectAccessToken,
 						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),

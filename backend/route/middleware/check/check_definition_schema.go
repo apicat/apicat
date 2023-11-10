@@ -1,11 +1,12 @@
 package check
 
 import (
+	"github.com/apicat/apicat/backend/model/definition"
+	"github.com/apicat/apicat/backend/model/project"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -35,7 +36,7 @@ func CheckDefinitionSchema() gin.HandlerFunc {
 			return
 		}
 
-		ds, err := models.NewDefinitionSchemas(data.SchemaID)
+		ds, err := definition.NewDefinitionSchemas(data.SchemaID)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    responseCode,
@@ -45,7 +46,7 @@ func CheckDefinitionSchema() gin.HandlerFunc {
 			return
 		}
 
-		if ds.ProjectId != currentProject.(*models.Projects).ID {
+		if ds.ProjectId != currentProject.(*project.Projects).ID {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    responseCode,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),

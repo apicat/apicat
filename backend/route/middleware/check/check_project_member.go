@@ -1,17 +1,18 @@
 package check
 
 import (
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/user"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
-	"github.com/apicat/apicat/backend/models"
 	"github.com/gin-gonic/gin"
 )
 
 func CheckProjectMember() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		project, exists := ctx.Get("CurrentProject")
+		p, exists := ctx.Get("CurrentProject")
 		if !exists {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
@@ -20,7 +21,7 @@ func CheckProjectMember() gin.HandlerFunc {
 			return
 		}
 
-		user, exists := ctx.Get("CurrentUser")
+		u, exists := ctx.Get("CurrentUser")
 		if !exists {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    enum.InvalidOrIncorrectLoginToken,
@@ -30,9 +31,9 @@ func CheckProjectMember() gin.HandlerFunc {
 			return
 		}
 
-		member, _ := models.NewProjectMembers()
-		member.UserID = user.(*models.Users).ID
-		member.ProjectID = project.(*models.Projects).ID
+		member, _ := project.NewProjectMembers()
+		member.UserID = u.(*user.Users).ID
+		member.ProjectID = p.(*project.Projects).ID
 
 		if err := member.GetByUserIDAndProjectID(); err != nil {
 			ctx.JSON(http.StatusForbidden, gin.H{

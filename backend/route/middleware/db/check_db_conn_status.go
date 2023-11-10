@@ -1,7 +1,7 @@
 package db
 
 import (
-	"github.com/apicat/apicat/backend/models"
+	"github.com/apicat/apicat/backend/model"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strings"
@@ -37,7 +37,7 @@ func CheckDBConnStatus(skip ...string) gin.HandlerFunc {
 			}
 		}
 
-		connStatus, _ := models.DBConnStatus()
+		connStatus, _ := model.DBConnStatus()
 		if connStatus != 1 {
 			ctx.Redirect(http.StatusFound, "/config/db")
 			ctx.Abort()
