@@ -1,7 +1,8 @@
-package models
+package global
 
 import (
 	"encoding/json"
+	"github.com/apicat/apicat/backend/model"
 	"time"
 
 	"github.com/apicat/apicat/backend/common/apicat_struct"
@@ -20,10 +21,14 @@ type GlobalParameters struct {
 	UpdatedAt time.Time
 }
 
+func init() {
+	model.RegMigrate(&GlobalParameters{})
+}
+
 func NewGlobalParameters(ids ...uint) (*GlobalParameters, error) {
 	globalParameters := &GlobalParameters{}
 	if len(ids) > 0 {
-		if err := Conn.Take(globalParameters, ids[0]).Error; err != nil {
+		if err := model.Conn.Take(globalParameters, ids[0]).Error; err != nil {
 			return globalParameters, err
 		}
 		return globalParameters, nil
@@ -32,7 +37,7 @@ func NewGlobalParameters(ids ...uint) (*GlobalParameters, error) {
 }
 
 func (gp *GlobalParameters) List() ([]*GlobalParameters, error) {
-	globalParametersQuery := Conn.Where("project_id = ?", gp.ProjectID)
+	globalParametersQuery := model.Conn.Where("project_id = ?", gp.ProjectID)
 
 	var globalParameters []*GlobalParameters
 	return globalParameters, globalParametersQuery.Find(&globalParameters).Error
@@ -40,28 +45,28 @@ func (gp *GlobalParameters) List() ([]*GlobalParameters, error) {
 
 func (gp *GlobalParameters) GetCountByName() (int64, error) {
 	var count int64
-	return count, Conn.Model(&GlobalParameters{}).Where("project_id = ? and name = ? and \"in\" = ?", gp.ProjectID, gp.Name, gp.In).Count(&count).Error
+	return count, model.Conn.Model(&GlobalParameters{}).Where("project_id = ? and name = ? and \"in\" = ?", gp.ProjectID, gp.Name, gp.In).Count(&count).Error
 }
 
 func (gp *GlobalParameters) GetCountExcludeTheID() (int64, error) {
 	var count int64
-	return count, Conn.Model(&GlobalParameters{}).Where("project_id = ? and name = ? and \"in\" = ? and id != ?", gp.ProjectID, gp.Name, gp.In, gp.ID).Count(&count).Error
+	return count, model.Conn.Model(&GlobalParameters{}).Where("project_id = ? and name = ? and \"in\" = ? and id != ?", gp.ProjectID, gp.Name, gp.In, gp.ID).Count(&count).Error
 }
 
 func (gp *GlobalParameters) Create() error {
-	return Conn.Create(gp).Error
+	return model.Conn.Create(gp).Error
 }
 
 func (gp *GlobalParameters) Update() error {
-	return Conn.Save(gp).Error
+	return model.Conn.Save(gp).Error
 }
 
 func (gp *GlobalParameters) Delete() error {
-	return Conn.Delete(gp).Error
+	return model.Conn.Delete(gp).Error
 }
 
 func GlobalParametersImport(projectID uint, parameters *spec.HTTPParameters) map[int64]uint {
-	res := virtualIDToIDMap{}
+	res := model.VirtualIDToIDMap{}
 
 	if parameters.Header == nil && parameters.Cookie == nil && parameters.Query == nil && parameters.Path == nil {
 		return res
@@ -96,7 +101,7 @@ func GlobalParametersImport(projectID uint, parameters *spec.HTTPParameters) map
 					Schema:    string(parameterStr),
 				}
 
-				if Conn.Create(record).Error == nil {
+				if model.Conn.Create(record).Error == nil {
 					res[parameter.ID] = record.ID
 				}
 			}
@@ -115,13 +120,13 @@ func GlobalParametersExport(projectID uint) spec.HTTPParameters {
 		Path:   make([]*spec.Schema, 0),
 	}
 
-	if err := Conn.Where("project_id = ?", projectID).Find(&globalParameters).Error; err != nil {
+	if err := model.Conn.Where("project_id = ?", projectID).Find(&globalParameters).Error; err != nil {
 		return specHTTPParameters
 	}
 
 	for _, globalParameter := range globalParameters {
-		jsonschema := &jsonschema.Schema{}
-		if err := json.Unmarshal([]byte(globalParameter.Schema), jsonschema); err == nil {
+		js := &jsonschema.Schema{}
+		if err := json.Unmarshal([]byte(globalParameter.Schema), js); err == nil {
 			required := false
 			if globalParameter.Required == 1 {
 				required = true
@@ -131,7 +136,7 @@ func GlobalParametersExport(projectID uint) spec.HTTPParameters {
 				ID:       int64(globalParameter.ID),
 				Name:     globalParameter.Name,
 				Required: required,
-				Schema:   jsonschema,
+				Schema:   js,
 			}
 
 			switch globalParameter.In {
@@ -150,7 +155,7 @@ func GlobalParametersExport(projectID uint) spec.HTTPParameters {
 	return specHTTPParameters
 }
 
-func ReplaceGlobalParametersVirtualIDToID(content string, virtualIDToIDMap virtualIDToIDMap) string {
+func ReplaceGlobalParametersVirtualIDToID(content string, virtualIDToIDMap model.VirtualIDToIDMap) string {
 	docContent := []map[string]interface{}{}
 	if err := json.Unmarshal([]byte(content), &docContent); err != nil {
 		return content
