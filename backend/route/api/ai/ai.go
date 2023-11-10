@@ -7,6 +7,7 @@ import (
 	"github.com/apicat/apicat/backend/model/definition"
 	"github.com/apicat/apicat/backend/model/iteration"
 	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/module/language"
 	"github.com/apicat/apicat/backend/module/openai"
 	"github.com/apicat/apicat/backend/module/spec/plugin/openapi"
 	"github.com/apicat/apicat/backend/module/translator"
@@ -14,7 +15,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/apicat/apicat/backend/app/util"
 	"github.com/apicat/apicat/backend/config"
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
@@ -63,7 +63,7 @@ func AICreateCollection(ctx *gin.Context) {
 		return
 	}
 
-	lang := util.GetUserLanguage(ctx)
+	lang := language.GetUserLanguage(ctx)
 
 	if data.IterationID != "" {
 		_, err := iteration.NewIterations(data.IterationID)
@@ -211,7 +211,7 @@ func AICreateSchema(ctx *gin.Context) {
 		return
 	}
 
-	lang := util.GetUserLanguage(ctx)
+	lang := language.GetUserLanguage(ctx)
 	o := openai.NewOpenAI(config.GetSysConfig().OpenAI, lang)
 	o.SetMaxTokens(2000)
 	openapiContent, err = o.CreateSchema(data.Name)
@@ -306,7 +306,7 @@ func AICreateApiNames(ctx *gin.Context) {
 		return
 	}
 
-	lang := util.GetUserLanguage(ctx)
+	lang := language.GetUserLanguage(ctx)
 	o := openai.NewOpenAI(config.GetSysConfig().OpenAI, lang)
 	openapiContent, err = o.ListApiBySchema(schema.Name)
 	if err != nil || openapiContent == "" {
