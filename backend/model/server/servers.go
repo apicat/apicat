@@ -1,6 +1,7 @@
-package models
+package server
 
 import (
+	"github.com/apicat/apicat/backend/model"
 	"time"
 
 	"github.com/apicat/apicat/backend/common/spec"
@@ -17,18 +18,22 @@ type Servers struct {
 	UpdatedAt    time.Time
 }
 
+func init() {
+	model.RegMigrate(&Servers{})
+}
+
 func NewServers() *Servers {
 	return &Servers{}
 }
 
 func (s *Servers) GetByProjectId(projectID uint) ([]Servers, error) {
 	var servers []Servers
-	return servers, Conn.Where("project_id = ?", projectID).Order("display_order asc").Find(&servers).Error
+	return servers, model.Conn.Where("project_id = ?", projectID).Order("display_order asc").Find(&servers).Error
 }
 
 func (s *Servers) DeleteAndCreateServers(projectID uint, newServers []*Servers) error {
 	// 开始事务
-	Conn.Transaction(func(tx *gorm.DB) error {
+	model.Conn.Transaction(func(tx *gorm.DB) error {
 		// 删除指定 ProjectId 的记录
 		if err := tx.Where("project_id = ?", projectID).Delete(&Servers{}).Error; err != nil {
 			return err
@@ -52,7 +57,7 @@ func (s *Servers) DeleteAndCreateServers(projectID uint, newServers []*Servers) 
 func ServersImport(projectID uint, servers []*spec.Server) {
 	if len(servers) > 0 {
 		for i, server := range servers {
-			Conn.Create(&Servers{
+			model.Conn.Create(&Servers{
 				ProjectId:    projectID,
 				Description:  server.Description,
 				Url:          server.URL,
@@ -65,7 +70,7 @@ func ServersImport(projectID uint, servers []*spec.Server) {
 func ServersExport(projectID uint) []*spec.Server {
 	servers := []*Servers{}
 	specServers := []*spec.Server{}
-	if err := Conn.Where("project_id = ?", projectID).Find(&servers).Error; err == nil {
+	if err := model.Conn.Where("project_id = ?", projectID).Find(&servers).Error; err == nil {
 		for _, server := range servers {
 			specServers = append(specServers, &spec.Server{
 				Description: server.Description,
