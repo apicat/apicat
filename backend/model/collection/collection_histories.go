@@ -1,6 +1,9 @@
-package models
+package collection
 
-import "time"
+import (
+	"github.com/apicat/apicat/backend/model"
+	"time"
+)
 
 type CollectionHistories struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
@@ -12,10 +15,14 @@ type CollectionHistories struct {
 	CreatedBy    uint `gorm:"type:bigint;not null;default:0;comment:创建人id"`
 }
 
+func init() {
+	model.RegMigrate(&CollectionHistories{})
+}
+
 func NewCollectionHistories(ids ...uint) (*CollectionHistories, error) {
 	if len(ids) > 0 {
 		ch := &CollectionHistories{ID: ids[0]}
-		if err := Conn.Take(ch).Error; err != nil {
+		if err := model.Conn.Take(ch).Error; err != nil {
 			return ch, err
 		}
 		return ch, nil
@@ -26,13 +33,13 @@ func NewCollectionHistories(ids ...uint) (*CollectionHistories, error) {
 func (ch *CollectionHistories) List(collectionIDs ...uint) ([]*CollectionHistories, error) {
 	var collectionHistories []*CollectionHistories
 	if len(collectionIDs) > 0 {
-		return collectionHistories, Conn.Where("collection_id IN ?", collectionIDs).Order("created_at desc").Find(&collectionHistories).Error
+		return collectionHistories, model.Conn.Where("collection_id IN ?", collectionIDs).Order("created_at desc").Find(&collectionHistories).Error
 	}
-	return collectionHistories, Conn.Order("created_at desc").Find(&collectionHistories).Error
+	return collectionHistories, model.Conn.Order("created_at desc").Find(&collectionHistories).Error
 }
 
 func (ch *CollectionHistories) Create() error {
-	return Conn.Create(ch).Error
+	return model.Conn.Create(ch).Error
 }
 
 func (ch *CollectionHistories) Restore(collection *Collections, uid uint) error {
