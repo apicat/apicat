@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/apicat/apicat"
+	"github.com/apicat/apicat/backend/config"
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
@@ -15,7 +16,7 @@ func main() {
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value:   "config.yaml",
+				Value:   config.DefaultConfigFilePath,
 				Usage:   "Load configuration from `FILE`",
 			},
 		},
