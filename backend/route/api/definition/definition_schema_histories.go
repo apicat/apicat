@@ -6,11 +6,11 @@ import (
 	"github.com/apicat/apicat/backend/model/definition"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
+	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/api/doc"
 	"net/http"
 	"strings"
 
-	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )

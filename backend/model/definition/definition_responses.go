@@ -3,9 +3,8 @@ package definition
 import (
 	"encoding/json"
 	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/module/spec"
 	"time"
-
-	"github.com/apicat/apicat/backend/common/spec"
 )
 
 type DefinitionResponses struct {

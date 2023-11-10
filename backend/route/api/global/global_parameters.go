@@ -5,10 +5,10 @@ import (
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/global"
 	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/module/apicat_struct"
+	"github.com/apicat/apicat/backend/module/translator"
 	"net/http"
 
-	"github.com/apicat/apicat/backend/common/apicat_struct"
-	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )

@@ -5,10 +5,10 @@ import (
 	"github.com/apicat/apicat/backend/model/iteration"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
+	"github.com/apicat/apicat/backend/module/translator"
 	"math"
 	"net/http"
 
-	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/shortuuid/v4"

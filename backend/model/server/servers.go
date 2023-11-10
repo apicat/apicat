@@ -2,9 +2,9 @@ package server
 
 import (
 	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/module/spec"
 	"time"
 
-	"github.com/apicat/apicat/backend/common/spec"
 	"gorm.io/gorm"
 )
 

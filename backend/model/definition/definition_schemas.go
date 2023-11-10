@@ -3,14 +3,14 @@ package definition
 import (
 	"encoding/json"
 	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/module/apicat_struct"
+	"github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec/jsonschema"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/backend/common/apicat_struct"
-	"github.com/apicat/apicat/backend/common/spec"
-	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 	"gorm.io/gorm"
 )
 

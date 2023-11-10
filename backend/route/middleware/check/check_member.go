@@ -2,11 +2,11 @@ package check
 
 import (
 	"github.com/apicat/apicat/backend/model/user"
+	"github.com/apicat/apicat/backend/module/auth"
+	"github.com/apicat/apicat/backend/module/translator"
 	"net/http"
 	"strings"
 
-	"github.com/apicat/apicat/backend/common/auth"
-	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )

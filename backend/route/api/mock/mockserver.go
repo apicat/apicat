@@ -6,12 +6,12 @@ import (
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/definition"
 	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/module/spec"
 	"net/http"
 	"strconv"
 	"strings"
 	"sync"
 
-	"github.com/apicat/apicat/backend/common/spec"
 	"github.com/apicat/datagen"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"

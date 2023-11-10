@@ -1,6 +1,8 @@
 package spec
 
-import "github.com/apicat/apicat/backend/common/spec/jsonschema"
+import (
+	"github.com/apicat/apicat/backend/module/spec/jsonschema"
+)
 
 type Referencer interface {
 	Ref() bool

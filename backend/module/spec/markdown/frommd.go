@@ -1,9 +1,9 @@
 package markdown
 
 import (
+	"github.com/apicat/apicat/backend/module/spec"
 	"io"
 
-	"github.com/apicat/apicat/backend/common/spec"
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/parser"

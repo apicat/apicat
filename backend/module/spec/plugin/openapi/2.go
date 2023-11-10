@@ -2,13 +2,12 @@ package openapi
 
 import (
 	"fmt"
+	spec2 "github.com/apicat/apicat/backend/module/spec"
+	jsonschema2 "github.com/apicat/apicat/backend/module/spec/jsonschema"
+	"github.com/apicat/apicat/backend/module/spec/markdown"
 	"net/url"
 	"strconv"
 	"strings"
-
-	"github.com/apicat/apicat/backend/common/spec"
-	"github.com/apicat/apicat/backend/common/spec/jsonschema"
-	"github.com/apicat/apicat/backend/common/spec/markdown"
 
 	"github.com/pb33f/libopenapi/datamodel/high/base"
 	v2 "github.com/pb33f/libopenapi/datamodel/high/v2"
@@ -19,18 +18,18 @@ type fromSwagger struct {
 	parametersMapping map[string]int64
 }
 
-func (s *fromSwagger) parseInfo(info *base.Info) *spec.Info {
-	return &spec.Info{
+func (s *fromSwagger) parseInfo(info *base.Info) *spec2.Info {
+	return &spec2.Info{
 		Title:       info.Title,
 		Description: info.Description,
 		Version:     info.Version,
 	}
 }
 
-func (s *fromSwagger) parseServers(in *v2.Swagger) []*spec.Server {
-	srvs := make([]*spec.Server, len(in.Schemes))
+func (s *fromSwagger) parseServers(in *v2.Swagger) []*spec2.Server {
+	srvs := make([]*spec2.Server, len(in.Schemes))
 	for k, v := range in.Schemes {
-		srvs[k] = &spec.Server{
+		srvs[k] = &spec2.Server{
 			URL:         fmt.Sprintf("%s://%s%s", v, in.Host, in.BasePath),
 			Description: v,
 		}
@@ -38,9 +37,9 @@ func (s *fromSwagger) parseServers(in *v2.Swagger) []*spec.Server {
 	return srvs
 }
 
-func (s *fromSwagger) parseDefinetions(defs *v2.Definitions) spec.Schemas {
+func (s *fromSwagger) parseDefinetions(defs *v2.Definitions) spec2.Schemas {
 	s.schemaMapping = make(map[string]int64)
-	defines := make(spec.Schemas, 0)
+	defines := make(spec2.Schemas, 0)
 	if defs == nil {
 		return defines
 	}
@@ -52,7 +51,7 @@ func (s *fromSwagger) parseDefinetions(defs *v2.Definitions) spec.Schemas {
 		}
 		id := stringToUnid(k)
 		s.schemaMapping[k] = id
-		defines = append(defines, &spec.Schema{
+		defines = append(defines, &spec2.Schema{
 			ID:          id,
 			Name:        k,
 			Description: k,
@@ -63,9 +62,9 @@ func (s *fromSwagger) parseDefinetions(defs *v2.Definitions) spec.Schemas {
 	return defines
 }
 
-func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) spec.Schemas {
+func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) spec2.Schemas {
 	s.parametersMapping = make(map[string]int64)
-	ps := make(spec.Schemas, 0)
+	ps := make(spec2.Schemas, 0)
 	// mapping key:swagger paranmters key value:apicat paramter id
 	if in.Parameters == nil {
 		return ps
@@ -81,13 +80,13 @@ func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) spec.Schemas {
 		}
 		id := stringToUnid(key)
 		s.parametersMapping[key] = id
-		ps = append(ps, &spec.Schema{
+		ps = append(ps, &spec2.Schema{
 			ID:          id,
 			Name:        v.Name,
 			Description: v.Description,
 			Required:    v.Required != nil && *v.Required,
-			Schema: &jsonschema.Schema{
-				Type:   jsonschema.CreateSliceOrOne(v.Type),
+			Schema: &jsonschema2.Schema{
+				Type:   jsonschema2.CreateSliceOrOne(v.Type),
 				Format: v.Format,
 			},
 		})
@@ -96,7 +95,7 @@ func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) spec.Schemas {
 }
 
 // 主要处理$ref引用问题
-func (s *fromSwagger) parseContent(b *base.SchemaProxy) *jsonschema.Schema {
+func (s *fromSwagger) parseContent(b *base.SchemaProxy) *jsonschema2.Schema {
 	js, err := jsonSchemaConverter(b)
 	if err != nil {
 		panic(err)
@@ -104,17 +103,17 @@ func (s *fromSwagger) parseContent(b *base.SchemaProxy) *jsonschema.Schema {
 	return js
 }
 
-func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTPRequestNode {
+func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec2.HTTPRequestNode {
 	// parameters := &spec.HttpParameters{}
-	request := spec.HTTPRequestNode{
-		Content: make(spec.HTTPBody),
+	request := spec2.HTTPRequestNode{
+		Content: make(spec2.HTTPBody),
 	}
 	request.Parameters.Fill()
-	var body *jsonschema.Schema
+	var body *jsonschema2.Schema
 	// 有效载荷application/x-www-form-urlencoded和multipart/form-data请求是通过使用form参数来描述，而不是body参数。
-	formData := &jsonschema.Schema{
-		Type:       jsonschema.CreateSliceOrOne("object"),
-		Properties: make(map[string]*jsonschema.Schema),
+	formData := &jsonschema2.Schema{
+		Type:       jsonschema2.CreateSliceOrOne("object"),
+		Properties: make(map[string]*jsonschema2.Schema),
 	}
 
 	for _, v := range info.Parameters {
@@ -124,19 +123,19 @@ func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTP
 		switch v.In {
 		case "query", "header", "path":
 			request.Parameters.Add(v.In,
-				&spec.Schema{
+				&spec2.Schema{
 					Name:        v.Name,
 					Description: v.Description,
 					Required:    required,
-					Schema: &jsonschema.Schema{
-						Type:   jsonschema.CreateSliceOrOne(v.Type),
+					Schema: &jsonschema2.Schema{
+						Type:   jsonschema2.CreateSliceOrOne(v.Type),
 						Format: v.Format,
 					},
 				},
 			)
 		case "formData":
-			formData.Properties[v.Name] = &jsonschema.Schema{
-				Type:        jsonschema.CreateSliceOrOne(v.Type),
+			formData.Properties[v.Name] = &jsonschema2.Schema{
+				Type:        jsonschema2.CreateSliceOrOne(v.Type),
 				Description: v.Description,
 				Format:      v.Format,
 				Default:     v.Default,
@@ -161,10 +160,10 @@ func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTP
 
 	for _, v := range consumes {
 		if strings.Contains(v, "form") {
-			request.Content[v] = &spec.Schema{Schema: formData}
+			request.Content[v] = &spec2.Schema{Schema: formData}
 		} else {
 			if body != nil {
-				request.Content[v] = &spec.Schema{Schema: body}
+				request.Content[v] = &spec2.Schema{Schema: body}
 			}
 		}
 	}
@@ -172,20 +171,20 @@ func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTP
 }
 
 // parseResponsesDefine 因为swagger response 没有code 所以这个只能放到definition里
-func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDefine {
-	list := make([]spec.HTTPResponseDefine, 0)
+func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec2.HTTPResponseDefine {
+	list := make([]spec2.HTTPResponseDefine, 0)
 	if in.Responses == nil {
 		return list
 	}
 	for key, res := range in.Responses.Definitions {
-		header := make([]*spec.Schema, 0)
-		content := make(spec.HTTPBody)
+		header := make([]*spec2.Schema, 0)
+		content := make(spec2.HTTPBody)
 		if res.Headers != nil {
 			for k, v := range res.Headers {
-				header = append(header, &spec.Schema{
+				header = append(header, &spec2.Schema{
 					Name: k,
-					Schema: &jsonschema.Schema{
-						Type:        jsonschema.CreateSliceOrOne(v.Type),
+					Schema: &jsonschema2.Schema{
+						Type:        jsonschema2.CreateSliceOrOne(v.Type),
 						Format:      v.Format,
 						Description: v.Description,
 					},
@@ -194,7 +193,7 @@ func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDe
 		}
 		if res.Schema != nil {
 			js := s.parseContent(res.Schema)
-			sh := &spec.Schema{
+			sh := &spec2.Schema{
 				Schema: js,
 			}
 			if len(in.Produces) == 0 {
@@ -205,7 +204,7 @@ func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDe
 				}
 			}
 		}
-		list = append(list, spec.HTTPResponseDefine{
+		list = append(list, spec2.HTTPResponseDefine{
 			Name:    key,
 			Header:  header,
 			Content: content,
@@ -214,11 +213,11 @@ func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDe
 	return list
 }
 
-func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode {
+func (s *fromSwagger) parseResponse(info *v2.Operation) *spec2.HTTPResponsesNode {
 	if info.Responses == nil {
 		return nil
 	}
-	var outresponses spec.HTTPResponsesNode
+	var outresponses spec2.HTTPResponsesNode
 	// if info.Responses.Default != nil {
 	// 	// 我们没有default
 	// 	// todo
@@ -230,19 +229,19 @@ func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode 
 		if err != nil {
 			continue
 		}
-		resp := spec.HTTPResponse{
+		resp := spec2.HTTPResponse{
 			Code: c,
 		}
 		resp.Name = res.Description
 		resp.Description = res.Description
-		resp.Content = make(spec.HTTPBody)
-		resp.Header = make(spec.Schemas, 0)
+		resp.Content = make(spec2.HTTPBody)
+		resp.Header = make(spec2.Schemas, 0)
 		if res.Headers != nil {
 			for k, v := range res.Headers {
-				resp.Header = append(resp.Header, &spec.Schema{
+				resp.Header = append(resp.Header, &spec2.Schema{
 					Name: k,
-					Schema: &jsonschema.Schema{
-						Type:        jsonschema.CreateSliceOrOne(v.Type),
+					Schema: &jsonschema2.Schema{
+						Type:        jsonschema2.CreateSliceOrOne(v.Type),
 						Format:      v.Format,
 						Description: v.Description,
 					},
@@ -252,7 +251,7 @@ func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode 
 		if res.Schema != nil {
 			js := s.parseContent(res.Schema)
 			for _, v := range info.Produces {
-				resp.Content[v] = &spec.Schema{
+				resp.Content[v] = &spec2.Schema{
 					Schema: js,
 				}
 			}
@@ -260,22 +259,22 @@ func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode 
 		outresponses.List = append(outresponses.List, resp)
 	}
 	if len(outresponses.List) == 0 {
-		outresponses.List = append(outresponses.List, spec.HTTPResponse{
+		outresponses.List = append(outresponses.List, spec2.HTTPResponse{
 			Code:               200,
-			HTTPResponseDefine: spec.HTTPResponseDefine{Description: "success"},
+			HTTPResponseDefine: spec2.HTTPResponseDefine{Description: "success"},
 		})
 	}
 	return &outresponses
 }
 
-func (s *fromSwagger) parseCollections(in *v2.Swagger, paths *v2.Paths) []*spec.CollectItem {
-	collects := make([]*spec.CollectItem, 0)
+func (s *fromSwagger) parseCollections(in *v2.Swagger, paths *v2.Paths) []*spec2.CollectItem {
+	collects := make([]*spec2.CollectItem, 0)
 	for path, p := range paths.PathItems {
 		op := p.GetOperations()
 		for method, info := range op {
-			content := []*spec.NodeProxy{
-				spec.MuseCreateNodeProxy(
-					spec.WarpHTTPNode(spec.HTTPURLNode{
+			content := []*spec2.NodeProxy{
+				spec2.MuseCreateNodeProxy(
+					spec2.WarpHTTPNode(spec2.HTTPURLNode{
 						Path:   path,
 						Method: method,
 					}),
@@ -285,23 +284,23 @@ func (s *fromSwagger) parseCollections(in *v2.Swagger, paths *v2.Paths) []*spec.
 			// parse markdown to doc
 			doctree := markdown.ToDocment([]byte(info.Description))
 			for _, v := range doctree.Items {
-				content = append(content, spec.MuseCreateNodeProxy(v))
+				content = append(content, spec2.MuseCreateNodeProxy(v))
 			}
 
 			// request
-			req := spec.WarpHTTPNode(s.parseRequest(in, info))
-			content = append(content, spec.MuseCreateNodeProxy(req))
+			req := spec2.WarpHTTPNode(s.parseRequest(in, info))
+			content = append(content, spec2.MuseCreateNodeProxy(req))
 			// response
-			res := spec.WarpHTTPNode(s.parseResponse(info))
-			content = append(content, spec.MuseCreateNodeProxy(res))
+			res := spec2.WarpHTTPNode(s.parseResponse(info))
+			content = append(content, spec2.MuseCreateNodeProxy(res))
 
 			title := info.Summary
 			if title == "" {
 				title = path
 			}
 
-			collects = append(collects, &spec.CollectItem{
-				Type:    spec.ContentItemTypeHttp,
+			collects = append(collects, &spec2.CollectItem{
+				Type:    spec2.ContentItemTypeHttp,
 				Title:   title,
 				Tags:    info.Tags,
 				Content: content,
@@ -315,12 +314,12 @@ func (s *fromSwagger) parseCollections(in *v2.Swagger, paths *v2.Paths) []*spec.
 
 type swaggerSpec struct {
 	Swagger     string                                `json:"swagger"`
-	Info        *spec.Info                            `json:"info"`
+	Info        *spec2.Info                           `json:"info"`
 	Tags        []tagObject                           `json:"tags,omitempty"`
 	Host        string                                `json:"host,omitempty"`
 	BasePath    string                                `json:"basePath"`
 	Schemas     []string                              `json:"schemas,omitempty"`
-	Definitions map[string]jsonschema.Schema          `json:"definitions"`
+	Definitions map[string]jsonschema2.Schema         `json:"definitions"`
 	Parameters  map[string]openAPIParamter            `json:"parameters,omitempty"`
 	Responses   map[string]any                        `json:"responses,omitempty"`
 	Paths       map[string]map[string]swaggerPathItem `json:"paths"`
@@ -330,16 +329,16 @@ type toSwagger struct {
 	schemas map[int64]string
 }
 
-func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
+func (s *toSwagger) toBase(in *spec2.Spec) *swaggerSpec {
 	s.schemas = map[int64]string{}
 	out := &swaggerSpec{
 		Swagger: "2.0",
-		Info: &spec.Info{
+		Info: &spec2.Info{
 			Title:       in.Info.Title,
 			Description: in.Info.Description,
 			Version:     in.Info.Version,
 		},
-		Definitions: make(map[string]jsonschema.Schema),
+		Definitions: make(map[string]jsonschema2.Schema),
 	}
 	for _, v := range in.Servers {
 		u, err := url.Parse(v.URL)
@@ -391,7 +390,7 @@ type swaggerPathItem struct {
 	Responses   map[string]any    `json:"responses,omitempty"`
 }
 
-func (s *toSwagger) toReqParameters(ps spec.HTTPRequestNode, spe *spec.Spec) []openAPIParamter {
+func (s *toSwagger) toReqParameters(ps spec2.HTTPRequestNode, spe *spec2.Spec) []openAPIParamter {
 	// 添加启用的全局参数
 	out := toParameterGlobal(spe.Globals.Parameters, true, ps.GlobalExcepts)
 	for in, params := range ps.Parameters.Map() {
@@ -469,14 +468,14 @@ func (s *toSwagger) toReqParameters(ps spec.HTTPRequestNode, spe *spec.Spec) []o
 	return out
 }
 
-func (s *toSwagger) convertJSONSchema(v *jsonschema.Schema) *jsonschema.Schema {
+func (s *toSwagger) convertJSONSchema(v *jsonschema2.Schema) *jsonschema2.Schema {
 	if v == nil {
 		return v
 	}
 	return toConvertJSONSchemaRef(v, "2.0", s.schemas)
 }
 
-func (s *toSwagger) parseResponse(in *spec.Spec, res spec.HTTPResponseDefine) map[string]any {
+func (s *toSwagger) parseResponse(in *spec2.Spec, res spec2.HTTPResponseDefine) map[string]any {
 	if res.Reference != nil {
 		ref := *res.Reference
 		if strings.HasPrefix(ref, "#/definitions/responses/") {
@@ -513,7 +512,7 @@ func (s *toSwagger) parseResponse(in *spec.Spec, res spec.HTTPResponseDefine) ma
 	return resp
 }
 
-func (s *toSwagger) toPathResponse(in *spec.Spec, resp []spec.HTTPResponse) (map[string]any, []string) {
+func (s *toSwagger) toPathResponse(in *spec2.Spec, resp []spec2.HTTPResponse) (map[string]any, []string) {
 	product := map[string]struct{}{}
 	reslist := make(map[string]any)
 	for _, r := range resp {
@@ -581,7 +580,7 @@ func (s *toSwagger) toPathResponse(in *spec.Spec, resp []spec.HTTPResponse) (map
 	}()
 }
 
-func (s *toSwagger) toPaths(in *spec.Spec) (map[string]map[string]swaggerPathItem, []tagObject) {
+func (s *toSwagger) toPaths(in *spec2.Spec) (map[string]map[string]swaggerPathItem, []tagObject) {
 	out := make(map[string]map[string]swaggerPathItem)
 	tags := make(map[string]struct{})
 	for path, ops := range walkHttpCollection(in) {
@@ -591,7 +590,7 @@ func (s *toSwagger) toPaths(in *spec.Spec) (map[string]map[string]swaggerPathIte
 		for method, op := range ops {
 			reslist, product := s.toPathResponse(in, op.Res.List)
 			if len(reslist) == 0 {
-				reslist["default"] = &spec.Schema{Description: "success"}
+				reslist["default"] = &spec2.Schema{Description: "success"}
 			}
 			item := swaggerPathItem{
 				Summary:     op.Title,

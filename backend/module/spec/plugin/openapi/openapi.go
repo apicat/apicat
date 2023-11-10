@@ -3,18 +3,18 @@ package openapi
 import (
 	"encoding/json"
 	"fmt"
+	spec2 "github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec/jsonschema"
+	"github.com/apicat/apicat/backend/module/spec/markdown"
 	"strings"
 
-	"github.com/apicat/apicat/backend/common/spec"
-	"github.com/apicat/apicat/backend/common/spec/jsonschema"
-	"github.com/apicat/apicat/backend/common/spec/markdown"
 	"github.com/pb33f/libopenapi"
 	"github.com/pb33f/libopenapi/utils"
 )
 
 // Decode 将openapi解码为spec对象
 // 支持swagger，openapi3/3.1
-func Decode(data []byte) (out *spec.Spec, err error) {
+func Decode(data []byte) (out *spec2.Spec, err error) {
 	defer func() {
 		if e := recover(); e != nil {
 			err = fmt.Errorf("%v", e)
@@ -39,7 +39,7 @@ func Decode(data []byte) (out *spec.Spec, err error) {
 
 const defaultSwaggerConsumerProduce = "application/json"
 
-func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
+func parseSwagger(document libopenapi.Document) (*spec2.Spec, error) {
 	model, errors := document.BuildV2Model()
 	if len(errors) > 0 {
 		return nil, fmt.Errorf("swagger version:%s parse faild", document.GetVersion())
@@ -49,32 +49,32 @@ func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 	responseDefinitions := sw.parseResponsesDefine(&model.Model)
 	parameters := sw.parseParametersDefine(&model.Model)
 
-	globalparameters := spec.HTTPParameters{}
+	globalparameters := spec2.HTTPParameters{}
 	globalparameters.Fill()
 
-	return &spec.Spec{
+	return &spec2.Spec{
 		ApiCat:      "2.0.1",
 		Info:        sw.parseInfo(model.Model.Info),
 		Servers:     sw.parseServers(&model.Model),
-		Definitions: spec.Definitions{Schemas: schemas, Responses: responseDefinitions, Parameters: parameters},
-		Globals:     spec.Global{Parameters: globalparameters},
+		Definitions: spec2.Definitions{Schemas: schemas, Responses: responseDefinitions, Parameters: parameters},
+		Globals:     spec2.Global{Parameters: globalparameters},
 		Collections: sw.parseCollections(&model.Model, model.Model.Paths),
 	}, nil
 }
 
-func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
+func parseOpenAPI3(document libopenapi.Document) (*spec2.Spec, error) {
 	model, errors := document.BuildV3Model()
 	if len(errors) > 0 {
 		return nil, fmt.Errorf("openapi version:%s parse faild", document.GetVersion())
 	}
 	o := &fromOpenapi{}
-	globalparameters := spec.HTTPParameters{}
+	globalparameters := spec2.HTTPParameters{}
 	globalparameters.Fill()
-	return &spec.Spec{
+	return &spec2.Spec{
 		ApiCat:      "2.0.1",
 		Info:        o.parseInfo(model.Model.Info),
 		Servers:     o.parseServers(model.Model.Servers),
-		Globals:     spec.Global{Parameters: globalparameters},
+		Globals:     spec2.Global{Parameters: globalparameters},
 		Definitions: o.parseDefinetions(model.Model.Components),
 		Collections: o.parseCollections(model.Model.Paths),
 	}, nil
@@ -82,7 +82,7 @@ func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
 
 // Encode 将spec编码为openapi协议
 // version 2.0/3.0.0/3.1.0
-func Encode(in *spec.Spec, version string) ([]byte, error) {
+func Encode(in *spec2.Spec, version string) ([]byte, error) {
 	switch version {
 	case "2.0":
 		sw := &toSwagger{}
@@ -119,7 +119,7 @@ type openAPIParamter struct {
 	Reference *string `json:"$ref,omitempty"`
 }
 
-func toParameter(p *spec.Schema, in string) openAPIParamter {
+func toParameter(p *spec2.Schema, in string) openAPIParamter {
 	tp := "string"
 	if n := len(p.Schema.Type.Value()); n > 0 {
 		tp = p.Schema.Type.Value()[0]
@@ -135,7 +135,7 @@ func toParameter(p *spec.Schema, in string) openAPIParamter {
 }
 
 // toParameterGlobal 返回全局请求参数过滤后的openapi格式参数
-func toParameterGlobal(globalsParmaters spec.HTTPParameters, isSwagger bool, skip map[string][]int64) []openAPIParamter {
+func toParameterGlobal(globalsParmaters spec2.HTTPParameters, isSwagger bool, skip map[string][]int64) []openAPIParamter {
 	var outs []openAPIParamter
 	skips := make(map[string]bool)
 	for k, v := range skip {
@@ -172,20 +172,20 @@ type specPathItem struct {
 	Description string
 	OperatorID  string
 	Tags        []string
-	Req         spec.HTTPRequestNode
-	Res         spec.HTTPResponsesNode
+	Req         spec2.HTTPRequestNode
+	Res         spec2.HTTPResponsesNode
 }
 
-func walkHttpCollection(doc *spec.Spec) map[string]map[string]specPathItem {
+func walkHttpCollection(doc *spec2.Spec) map[string]map[string]specPathItem {
 	paths := make(map[string]map[string]specPathItem)
 	doc.WalkCollections(
-		func(v *spec.CollectItem, _ []string) bool {
-			if v.Type != spec.ContentItemTypeHttp {
+		func(v *spec2.CollectItem, _ []string) bool {
+			if v.Type != spec2.ContentItemTypeHttp {
 				return true
 			}
 			var (
-				info    spec.HTTPURLNode
-				docRoot spec.Document
+				info    spec2.HTTPURLNode
+				docRoot spec2.Document
 			)
 			item := specPathItem{
 				Title:      v.Title,
@@ -194,13 +194,13 @@ func walkHttpCollection(doc *spec.Spec) map[string]map[string]specPathItem {
 			}
 			for _, n := range v.Content {
 				switch nx := n.Node.(type) {
-				case *spec.HTTPNode[spec.HTTPURLNode]:
+				case *spec2.HTTPNode[spec2.HTTPURLNode]:
 					info = nx.Attrs
-				case *spec.HTTPNode[spec.HTTPRequestNode]:
+				case *spec2.HTTPNode[spec2.HTTPRequestNode]:
 					item.Req = nx.Attrs
-				case *spec.HTTPNode[spec.HTTPResponsesNode]:
+				case *spec2.HTTPNode[spec2.HTTPResponsesNode]:
 					item.Res = nx.Attrs
-				case *spec.DocNode:
+				case *spec2.DocNode:
 					docRoot.Items = append(docRoot.Items, nx)
 				}
 			}

@@ -5,12 +5,12 @@ import (
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/share"
 	"github.com/apicat/apicat/backend/model/user"
+	"github.com/apicat/apicat/backend/module/encrypt"
+	"github.com/apicat/apicat/backend/module/translator"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/apicat/apicat/backend/common/encrypt"
-	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )

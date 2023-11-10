@@ -2,10 +2,9 @@ package openapi
 
 import (
 	"fmt"
+	"github.com/apicat/apicat/backend/module/spec"
 	"os"
 	"testing"
-
-	"github.com/apicat/apicat/backend/common/spec"
 )
 
 // func TestDecode(t *testing.T) {

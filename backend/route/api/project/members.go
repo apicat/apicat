@@ -4,12 +4,12 @@ import (
 	"fmt"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
+	"github.com/apicat/apicat/backend/module/auth"
+	"github.com/apicat/apicat/backend/module/translator"
 	"math"
 	"net/http"
 	"strings"
 
-	"github.com/apicat/apicat/backend/common/auth"
-	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )

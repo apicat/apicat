@@ -2,7 +2,6 @@ package collection
 
 import (
 	"encoding/json"
-	"github.com/apicat/apicat/backend/common/apicat_struct"
 	"github.com/apicat/apicat/backend/model"
 	"github.com/apicat/apicat/backend/model/definition"
 	"github.com/apicat/apicat/backend/model/global"
@@ -11,12 +10,13 @@ import (
 	"github.com/apicat/apicat/backend/model/server"
 	"github.com/apicat/apicat/backend/model/tag"
 	"github.com/apicat/apicat/backend/model/user"
+	"github.com/apicat/apicat/backend/module/apicat_struct"
+	"github.com/apicat/apicat/backend/module/spec"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/backend/common/spec"
 	"gorm.io/gorm"
 )
 

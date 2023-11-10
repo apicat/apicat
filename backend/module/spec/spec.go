@@ -3,10 +3,9 @@ package spec
 import (
 	"bytes"
 	"encoding/json"
+	"github.com/apicat/apicat/backend/module/spec/jsonschema"
 	"strconv"
 	"strings"
-
-	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 )
 
 // Content 文档类型

@@ -2,9 +2,9 @@ package config
 
 import (
 	"fmt"
-	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/config"
 	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"

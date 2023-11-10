@@ -3,10 +3,9 @@ package definition
 import (
 	"encoding/json"
 	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec/jsonschema"
 	"time"
-
-	"github.com/apicat/apicat/backend/common/spec"
-	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 )
 
 type DefinitionParameters struct {
