@@ -1,4 +1,4 @@
-package main
+package apicat
 
 import (
 	"flag"
