@@ -1,7 +1,9 @@
-package models
+package iteration
 
 import (
 	"errors"
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/user"
 	"time"
 
 	"gorm.io/gorm"
@@ -21,6 +23,10 @@ type Iterations struct {
 	DeletedBy   uint `gorm:"type:bigint;not null;default:0;comment:删除人id"`
 }
 
+func init() {
+	model.RegMigrate(&Iterations{})
+}
+
 func NewIterations(ids ...any) (*Iterations, error) {
 	iteration := &Iterations{}
 
@@ -29,9 +35,9 @@ func NewIterations(ids ...any) (*Iterations, error) {
 
 		switch ids[0].(type) {
 		case string:
-			err = Conn.Where("public_id = ?", ids[0]).Take(iteration).Error
+			err = model.Conn.Where("public_id = ?", ids[0]).Take(iteration).Error
 		case uint:
-			err = Conn.Take(iteration, ids[0]).Error
+			err = model.Conn.Take(iteration, ids[0]).Error
 		default:
 			err = errors.New("invalid id type")
 		}
@@ -51,9 +57,9 @@ func (i *Iterations) List(page, pageSize int, pIDs ...uint) ([]*Iterations, erro
 	)
 
 	if len(pIDs) > 0 {
-		query = Conn.Where("project_id IN ?", pIDs).Order("created_at desc")
+		query = model.Conn.Where("project_id IN ?", pIDs).Order("created_at desc")
 	} else {
-		query = Conn.Order("created_at desc")
+		query = model.Conn.Order("created_at desc")
 	}
 
 	if page != 0 && pageSize != 0 {
@@ -64,126 +70,47 @@ func (i *Iterations) List(page, pageSize int, pIDs ...uint) ([]*Iterations, erro
 }
 
 func (i *Iterations) Create() error {
-	return Conn.Create(i).Error
+	return model.Conn.Create(i).Error
 }
 
 func (i *Iterations) Update() error {
-	return Conn.Save(i).Error
+	return model.Conn.Save(i).Error
 }
 
 func (i *Iterations) Delete() error {
-	return Conn.Delete(i).Error
-}
-
-func (i *Iterations) PlanningIterationApi(cIDs []uint) error {
-	iterationApi, _ := NewIterationApis()
-	iterationApis, err := iterationApi.List(i.ID)
-	if err != nil {
-		return err
-	}
-
-	if len(cIDs) == 0 && len(iterationApis) != 0 {
-		if err := BatchDeleteIterationApi(iterationApis); err != nil {
-			return err
-		}
-	}
-
-	collection, _ := NewCollections()
-	collection.ProjectId = i.ProjectID
-	collections, err := collection.List()
-	if err != nil {
-		return err
-	}
-	collectionDict := map[uint]*Collections{}
-	for _, v := range collections {
-		collectionDict[v.ID] = v
-	}
-
-	iterationApiDict := map[uint]*IterationApis{}
-	for _, v := range iterationApis {
-		iterationApiDict[v.CollectionID] = v
-	}
-
-	wantPop := []*IterationApis{}
-	wantPush := []*IterationApis{}
-
-	// 找出iterationApis中存在但cIDs中不存在的元素
-	for _, iterationApi := range iterationApis {
-		found := false
-		for _, cid := range cIDs {
-			if iterationApi.CollectionID == cid {
-				found = true
-				break
-			}
-		}
-		if !found {
-			wantPop = append(wantPop, iterationApi)
-		}
-	}
-
-	// 找出cIDs中存在但iterationApis中不存在的元素
-	for _, cid := range cIDs {
-		if _, ok := collectionDict[cid]; ok {
-			found := false
-			for _, iterationApi := range iterationApis {
-				if cid == iterationApi.CollectionID {
-					found = true
-					break
-				}
-			}
-			if !found {
-				wantPush = append(wantPush, &IterationApis{
-					IterationID:    i.ID,
-					CollectionID:   collectionDict[cid].ID,
-					CollectionType: collectionDict[cid].Type,
-				})
-			}
-		}
-	}
-
-	if len(wantPop) > 0 {
-		if err := BatchDeleteIterationApi(wantPop); err != nil {
-			return err
-		}
-	}
-	if len(wantPush) > 0 {
-		if err := BatchInsertIterationApi(wantPush); err != nil {
-			return err
-		}
-	}
-	return nil
+	return model.Conn.Delete(i).Error
 }
 
 func (i *Iterations) Creator() string {
-	user, err := NewUsers(i.CreatedBy)
+	u, err := user.NewUsers(i.CreatedBy)
 	if err != nil {
 		return ""
 	}
 
-	return user.Username
+	return u.Username
 }
 
 func (i *Iterations) Updater() string {
-	user, err := NewUsers(i.UpdatedBy)
+	u, err := user.NewUsers(i.UpdatedBy)
 	if err != nil {
 		return ""
 	}
 
-	return user.Username
+	return u.Username
 }
 
 func (i *Iterations) Deleter() string {
-	user, err := NewUsers(i.DeletedBy)
+	u, err := user.NewUsers(i.DeletedBy)
 	if err != nil {
 		return ""
 	}
 
-	return user.Username
+	return u.Username
 }
 
 func IterationsCount(pIDs ...uint) (int64, error) {
 	var count int64
-	query := Conn.Model(&Iterations{})
+	query := model.Conn.Model(&Iterations{})
 	if len(pIDs) > 0 {
 		query = query.Where("project_id IN ?", pIDs)
 	}
