@@ -1,22 +1,29 @@
 package apicat
 
 import (
-	"flag"
 	"github.com/apicat/apicat/backend/model"
 	"github.com/apicat/apicat/backend/module/logger"
 	"github.com/apicat/apicat/backend/route"
 
-	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/config"
 )
 
-func main() {
-	flag.StringVar(&config.FilePath, "c", "", "The config file path, if not set, it will start with the example config.")
-	flag.Parse()
+type App struct{}
 
+func NewApp(conf string) *App {
+	config.FilePath = conf
 	config.InitConfig()
-	translator.Init()
-	logger.Init()
-	model.Init()
-	route.Run()
+	return &App{}
+}
+
+func (a *App) Run() error {
+	inits := []func(){
+		logger.Init,
+		model.Init,
+		route.Init,
+	}
+	for _, v := range inits {
+		v()
+	}
+	return nil
 }
