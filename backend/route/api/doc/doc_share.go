@@ -1,10 +1,12 @@
-package api
+package doc
 
 import (
 	"fmt"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/share"
+	collection2 "github.com/apicat/apicat/backend/route/api/collection"
+	project2 "github.com/apicat/apicat/backend/route/api/project"
 	"net/http"
 	"time"
 
@@ -74,7 +76,7 @@ func DocShareDetails(ctx *gin.Context) {
 	}
 
 	var (
-		uriData            CollectionDataGetData
+		uriData            collection2.CollectionDataGetData
 		visibility         string
 		collectionPublicID string
 		secretKey          string
@@ -118,7 +120,7 @@ func DocShareSwitch(ctx *gin.Context) {
 
 	var (
 		p    *project.Projects
-		data ProjectSharingSwitchData
+		data project2.ProjectSharingSwitchData
 	)
 
 	p = currentProject.(*project.Projects)
@@ -234,7 +236,7 @@ func DocShareCheck(ctx *gin.Context) {
 	c := currentCollection.(*collection.Collections)
 
 	var (
-		data ProjectShareSecretkeyCheckData
+		data project2.ProjectShareSecretkeyCheckData
 		err  error
 	)
 

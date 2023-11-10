@@ -1,4 +1,4 @@
-package api
+package ai
 
 import (
 	"encoding/json"

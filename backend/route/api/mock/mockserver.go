@@ -1,4 +1,4 @@
-package api
+package mock
 
 import (
 	"encoding/json"

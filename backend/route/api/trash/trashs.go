@@ -1,4 +1,4 @@
-package api
+package trash
 
 import (
 	"github.com/apicat/apicat/backend/model/collection"

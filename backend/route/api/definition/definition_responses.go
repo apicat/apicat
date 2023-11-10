@@ -1,10 +1,11 @@
-package api
+package definition
 
 import (
 	"encoding/json"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/definition"
 	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/route/api/global"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/common/spec"
@@ -299,7 +300,7 @@ func DefinitionResponsesDelete(ctx *gin.Context) {
 		return
 	}
 
-	data := IsUnRefData{}
+	data := global.IsUnRefData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

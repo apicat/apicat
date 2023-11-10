@@ -1,4 +1,4 @@
-package api
+package definition
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/definition"
 	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/route/api/global"
 	"net/http"
 	"strconv"
 	"time"
@@ -260,7 +261,7 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 	d := currentDefinitionSchema.(*definition.DefinitionSchemas)
 
 	// 模型解引用
-	isUnRefData := IsUnRefData{}
+	isUnRefData := global.IsUnRefData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&isUnRefData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

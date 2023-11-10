@@ -1,4 +1,4 @@
-package api
+package iteration
 
 import (
 	"github.com/apicat/apicat/backend/model/collection"

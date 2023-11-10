@@ -1,10 +1,11 @@
-package api
+package doc
 
 import (
 	"fmt"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
+	collection2 "github.com/apicat/apicat/backend/route/api/collection"
 	"net/http"
 	"strings"
 
@@ -41,7 +42,7 @@ type CollectionHistoryDetailsData struct {
 }
 
 func CollectionHistoryList(ctx *gin.Context) {
-	uriData := CollectionDataGetData{}
+	uriData := collection2.CollectionDataGetData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

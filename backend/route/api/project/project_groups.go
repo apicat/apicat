@@ -1,4 +1,4 @@
-package api
+package project
 
 import (
 	"github.com/apicat/apicat/backend/model/project"

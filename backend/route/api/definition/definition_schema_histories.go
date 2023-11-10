@@ -1,4 +1,4 @@
-package api
+package definition
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"github.com/apicat/apicat/backend/model/definition"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
+	"github.com/apicat/apicat/backend/route/api/doc"
 	"net/http"
 	"strings"
 
@@ -168,7 +169,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	currentDefinitionSchema, _ := ctx.Get("CurrentDefinitionSchema")
 
-	var data CollectionHistoryDiffData
+	var data doc.CollectionHistoryDiffData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
