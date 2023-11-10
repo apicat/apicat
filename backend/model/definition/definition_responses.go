@@ -1,13 +1,10 @@
-package models
+package definition
 
 import (
 	"encoding/json"
-	"regexp"
-	"strconv"
-	"strings"
+	"github.com/apicat/apicat/backend/model"
 	"time"
 
-	"github.com/apicat/apicat/backend/common/apicat_struct"
 	"github.com/apicat/apicat/backend/common/spec"
 )
 
@@ -24,10 +21,14 @@ type DefinitionResponses struct {
 	UpdatedAt    time.Time
 }
 
+func init() {
+	model.RegMigrate(&DefinitionResponses{})
+}
+
 func NewDefinitionResponses(ids ...uint) (*DefinitionResponses, error) {
 	definitionResponses := &DefinitionResponses{}
 	if len(ids) > 0 {
-		if err := Conn.Take(definitionResponses, ids[0]).Error; err != nil {
+		if err := model.Conn.Take(definitionResponses, ids[0]).Error; err != nil {
 			return definitionResponses, err
 		}
 		return definitionResponses, nil
@@ -36,7 +37,7 @@ func NewDefinitionResponses(ids ...uint) (*DefinitionResponses, error) {
 }
 
 func (dr *DefinitionResponses) List() ([]*DefinitionResponses, error) {
-	definitionResponsesQuery := Conn.Where("project_id = ?", dr.ProjectID)
+	definitionResponsesQuery := model.Conn.Where("project_id = ?", dr.ProjectID)
 
 	var definitionResponses []*DefinitionResponses
 	return definitionResponses, definitionResponsesQuery.Order("display_order asc").Order("id desc").Find(&definitionResponses).Error
@@ -44,33 +45,33 @@ func (dr *DefinitionResponses) List() ([]*DefinitionResponses, error) {
 
 func (dr *DefinitionResponses) GetCountByName() (int64, error) {
 	var count int64
-	return count, Conn.Model(&DefinitionResponses{}).Where("project_id = ? and name = ?", dr.ProjectID, dr.Name).Count(&count).Error
+	return count, model.Conn.Model(&DefinitionResponses{}).Where("project_id = ? and name = ?", dr.ProjectID, dr.Name).Count(&count).Error
 }
 
 func (dr *DefinitionResponses) GetCountExcludeTheID() (int64, error) {
 	var count int64
-	return count, Conn.Model(&DefinitionResponses{}).Where("project_id = ? and name = ? and id != ?", dr.ProjectID, dr.Name, dr.ID).Count(&count).Error
+	return count, model.Conn.Model(&DefinitionResponses{}).Where("project_id = ? and name = ? and id != ?", dr.ProjectID, dr.Name, dr.ID).Count(&count).Error
 }
 
 func (dr *DefinitionResponses) Create() error {
 	var node *DefinitionResponses
-	if err := Conn.Where("project_id = ?", dr.ProjectID).Order("display_order desc").First(&node).Error; err == nil {
+	if err := model.Conn.Where("project_id = ?", dr.ProjectID).Order("display_order desc").First(&node).Error; err == nil {
 		dr.DisplayOrder = node.DisplayOrder + 1
 	}
 
-	return Conn.Create(dr).Error
+	return model.Conn.Create(dr).Error
 }
 
 func (dr *DefinitionResponses) Update() error {
-	return Conn.Save(dr).Error
+	return model.Conn.Save(dr).Error
 }
 
 func (dr *DefinitionResponses) Delete() error {
-	return Conn.Delete(dr).Error
+	return model.Conn.Delete(dr).Error
 }
 
-func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponseDefines) virtualIDToIDMap {
-	responsesMap := virtualIDToIDMap{}
+func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponseDefines) model.VirtualIDToIDMap {
+	responsesMap := model.VirtualIDToIDMap{}
 
 	if len(responses) == 0 {
 		return responsesMap
@@ -112,7 +113,7 @@ func DefinitionResponsesExport(projectID uint) spec.HTTPResponseDefines {
 	definitionResponses := []*DefinitionResponses{}
 	specResponseDefines := spec.HTTPResponseDefines{}
 
-	if err := Conn.Where("project_id = ?", projectID).Find(&definitionResponses).Error; err != nil {
+	if err := model.Conn.Where("project_id = ?", projectID).Find(&definitionResponses).Error; err != nil {
 		return specResponseDefines
 	}
 
@@ -137,85 +138,4 @@ func DefinitionResponsesExport(projectID uint) spec.HTTPResponseDefines {
 	}
 
 	return specResponseDefines
-}
-
-func DefinitionsResponseUnRef(dr *DefinitionResponses) error {
-	ref := "\"$ref\":\"#/definitions/responses/" + strconv.Itoa(int(dr.ID)) + "\""
-
-	collections, _ := NewCollections()
-	collections.ProjectId = dr.ProjectID
-	collectionList, err := collections.List()
-	if err != nil {
-		return err
-	}
-
-	header := []interface{}{}
-	if err := json.Unmarshal([]byte(dr.Header), &header); err != nil {
-		return err
-	}
-
-	content := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(dr.Content), &content); err != nil {
-		return err
-	}
-
-	data := map[string]interface{}{
-		"name":        dr.Name,
-		"description": dr.Description,
-		"header":      header,
-		"content":     content,
-	}
-
-	dataJson, err := json.Marshal(data)
-	if err != nil {
-		return err
-	}
-
-	newStr := string(dataJson)[1 : len(string(dataJson))-1]
-
-	for _, collection := range collectionList {
-		if strings.Contains(collection.Content, ref) {
-			newContent := strings.Replace(collection.Content, ref, newStr, -1)
-			collection.Content = newContent
-
-			if err := collection.Update(); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func DefinitionsResponseDelRef(dr *DefinitionResponses) error {
-	re1 := regexp.MustCompile(`,{"code":\d+,"\$ref":"#/definitions/responses/` + strconv.Itoa(int(dr.ID)) + `"}`)
-	re2 := regexp.MustCompile(`{"code":\d+,"\$ref":"#/definitions/responses/` + strconv.Itoa(int(dr.ID)) + `"}`)
-
-	collections, _ := NewCollections()
-	collections.ProjectId = dr.ProjectID
-	collectionList, err := collections.List()
-	if err != nil {
-		return err
-	}
-
-	emptyResponse := apicat_struct.TypeEmptyStructure()["response"]
-
-	for _, collection := range collectionList {
-		matchRe1 := re1.FindString(collection.Content)
-		if matchRe1 != "" {
-			newContent := strings.Replace(collection.Content, matchRe1, "", -1)
-			collection.Content = newContent
-		} else {
-			matchRe2 := re2.FindString(collection.Content)
-			if matchRe2 != "" {
-				newContent := strings.Replace(collection.Content, matchRe2, emptyResponse, -1)
-				collection.Content = newContent
-			}
-		}
-
-		if err := collection.Update(); err != nil {
-			return err
-		}
-	}
-	return nil
 }

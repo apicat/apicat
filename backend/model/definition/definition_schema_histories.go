@@ -1,6 +1,7 @@
-package models
+package definition
 
 import (
+	"github.com/apicat/apicat/backend/model"
 	"time"
 )
 
@@ -15,10 +16,14 @@ type DefinitionSchemaHistories struct {
 	CreatedBy   uint `gorm:"type:bigint;not null;default:0;comment:创建人id"`
 }
 
+func init() {
+	model.RegMigrate(&DefinitionSchemaHistories{})
+}
+
 func NewDefinitionSchemaHistories(ids ...uint) (*DefinitionSchemaHistories, error) {
 	dsh := &DefinitionSchemaHistories{}
 	if len(ids) > 0 {
-		if err := Conn.Take(dsh, ids[0]).Error; err != nil {
+		if err := model.Conn.Take(dsh, ids[0]).Error; err != nil {
 			return dsh, err
 		}
 		return dsh, nil
@@ -29,13 +34,13 @@ func NewDefinitionSchemaHistories(ids ...uint) (*DefinitionSchemaHistories, erro
 func (dsh *DefinitionSchemaHistories) List(schemsIDs ...uint) ([]*DefinitionSchemaHistories, error) {
 	var definitionSchemaHistories []*DefinitionSchemaHistories
 	if len(schemsIDs) > 0 {
-		return definitionSchemaHistories, Conn.Where("schema_id IN ?", schemsIDs).Order("created_at desc").Find(&definitionSchemaHistories).Error
+		return definitionSchemaHistories, model.Conn.Where("schema_id IN ?", schemsIDs).Order("created_at desc").Find(&definitionSchemaHistories).Error
 	}
-	return definitionSchemaHistories, Conn.Order("created_at desc").Find(&definitionSchemaHistories).Error
+	return definitionSchemaHistories, model.Conn.Order("created_at desc").Find(&definitionSchemaHistories).Error
 }
 
 func (dsh *DefinitionSchemaHistories) Create() error {
-	return Conn.Create(dsh).Error
+	return model.Conn.Create(dsh).Error
 }
 
 func (dsh *DefinitionSchemaHistories) Restore(ds *DefinitionSchemas, uid uint) error {

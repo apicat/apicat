@@ -1,7 +1,8 @@
-package models
+package definition
 
 import (
 	"encoding/json"
+	"github.com/apicat/apicat/backend/model"
 	"time"
 
 	"github.com/apicat/apicat/backend/common/spec"
@@ -18,10 +19,14 @@ type DefinitionParameters struct {
 	UpdatedAt time.Time
 }
 
+func init() {
+	model.RegMigrate(&DefinitionParameters{})
+}
+
 func NewDefinitionParameters(ids ...uint) (*DefinitionParameters, error) {
 	definitionParameters := &DefinitionParameters{}
 	if len(ids) > 0 {
-		if err := Conn.Take(definitionParameters, ids[0]).Error; err != nil {
+		if err := model.Conn.Take(definitionParameters, ids[0]).Error; err != nil {
 			return definitionParameters, err
 		}
 		return definitionParameters, nil
@@ -30,26 +35,26 @@ func NewDefinitionParameters(ids ...uint) (*DefinitionParameters, error) {
 }
 
 func (dp *DefinitionParameters) List() ([]*DefinitionParameters, error) {
-	definitionParametersQuery := Conn.Where("project_id = ?", dp.ProjectID)
+	definitionParametersQuery := model.Conn.Where("project_id = ?", dp.ProjectID)
 
 	var definitionParameters []*DefinitionParameters
 	return definitionParameters, definitionParametersQuery.Find(&definitionParameters).Error
 }
 
 func (dp *DefinitionParameters) Create() error {
-	return Conn.Create(dp).Error
+	return model.Conn.Create(dp).Error
 }
 
 func (dp *DefinitionParameters) Save() error {
-	return Conn.Save(dp).Error
+	return model.Conn.Save(dp).Error
 }
 
 func (dp *DefinitionParameters) Delete() error {
-	return Conn.Delete(dp).Error
+	return model.Conn.Delete(dp).Error
 }
 
-func DefinitionParametersImport(projectID uint, parameters spec.Schemas) virtualIDToIDMap {
-	parametersMap := virtualIDToIDMap{}
+func DefinitionParametersImport(projectID uint, parameters spec.Schemas) model.VirtualIDToIDMap {
+	parametersMap := model.VirtualIDToIDMap{}
 
 	if len(parameters) == 0 {
 		return parametersMap
@@ -82,7 +87,7 @@ func DefinitionParametersExport(projectID uint) spec.Schemas {
 	parameters := []*DefinitionParameters{}
 	specParameters := spec.Schemas{}
 
-	if err := Conn.Where("project_id = ?", projectID).Find(&parameters).Error; err != nil {
+	if err := model.Conn.Where("project_id = ?", projectID).Find(&parameters).Error; err != nil {
 		return specParameters
 	}
 

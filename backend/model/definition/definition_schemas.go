@@ -1,7 +1,8 @@
-package models
+package definition
 
 import (
 	"encoding/json"
+	"github.com/apicat/apicat/backend/model"
 	"regexp"
 	"strconv"
 	"strings"
@@ -30,10 +31,14 @@ type DefinitionSchemas struct {
 	DeletedBy    uint `gorm:"type:bigint;not null;default:0;comment:删除人id"`
 }
 
+func init() {
+	model.RegMigrate(&DefinitionSchemas{})
+}
+
 func NewDefinitionSchemas(ids ...uint) (*DefinitionSchemas, error) {
 	definition := &DefinitionSchemas{}
 	if len(ids) > 0 {
-		if err := Conn.Take(definition, ids[0]).Error; err != nil {
+		if err := model.Conn.Take(definition, ids[0]).Error; err != nil {
 			return definition, err
 		}
 		return definition, nil
@@ -42,7 +47,7 @@ func NewDefinitionSchemas(ids ...uint) (*DefinitionSchemas, error) {
 }
 
 func (d *DefinitionSchemas) List() ([]DefinitionSchemas, error) {
-	tx := Conn.Where("project_id = ?", d.ProjectId)
+	tx := model.Conn.Where("project_id = ?", d.ProjectId)
 	if d.ParentId > 0 {
 		tx = tx.Where("parent_id = ?", d.ParentId)
 	}
@@ -58,7 +63,7 @@ func (d *DefinitionSchemas) List() ([]DefinitionSchemas, error) {
 }
 
 func (d *DefinitionSchemas) Get() error {
-	tx := Conn.Where("project_id = ?", d.ProjectId)
+	tx := model.Conn.Where("project_id = ?", d.ProjectId)
 	if d.Name != "" {
 		tx = tx.Where("name = ?", d.Name)
 	}
@@ -70,22 +75,22 @@ func (d *DefinitionSchemas) Get() error {
 
 func (d *DefinitionSchemas) Create() error {
 	var node *DefinitionSchemas
-	if err := Conn.Where("project_id = ? AND parent_id = ?", d.ProjectId, d.ParentId).Order("display_order desc").First(&node).Error; err == nil {
+	if err := model.Conn.Where("project_id = ? AND parent_id = ?", d.ProjectId, d.ParentId).Order("display_order desc").First(&node).Error; err == nil {
 		d.DisplayOrder = node.DisplayOrder + 1
 	}
 
-	return Conn.Create(d).Error
+	return model.Conn.Create(d).Error
 }
 
 func (d *DefinitionSchemas) Save() error {
-	return Conn.Save(d).Error
+	return model.Conn.Save(d).Error
 }
 
 func (d *DefinitionSchemas) Delete() error {
 	if d.Type == "category" {
-		Conn.Where("parent_id = ?", d.ID).Delete(&DefinitionSchemas{})
+		model.Conn.Where("parent_id = ?", d.ID).Delete(&DefinitionSchemas{})
 	}
-	return Conn.Delete(d).Error
+	return model.Conn.Delete(d).Error
 }
 
 func (d *DefinitionSchemas) Creator() string {
@@ -100,8 +105,8 @@ func (d *DefinitionSchemas) Deleter() string {
 	return ""
 }
 
-func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) virtualIDToIDMap {
-	schemasMap := virtualIDToIDMap{}
+func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) model.VirtualIDToIDMap {
+	schemasMap := model.VirtualIDToIDMap{}
 
 	if len(schemas) == 0 {
 		return schemasMap
@@ -135,12 +140,12 @@ func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) virtualIDToID
 	}
 
 	definitionschemas := []*DefinitionSchemas{}
-	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitionschemas).Error; err != nil {
+	if err := model.Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitionschemas).Error; err != nil {
 		return schemasMap
 	}
 
 	for _, v := range definitionschemas {
-		schema := replaceVirtualIDToID(v.Schema, schemasMap, "#/definitions/schemas/")
+		schema := model.ReplaceVirtualIDToID(v.Schema, schemasMap, "#/definitions/schemas/")
 		v.Schema = schema
 		v.Save()
 	}
@@ -152,7 +157,7 @@ func DefinitionSchemasExport(projectID uint) spec.Schemas {
 	definitions := []*DefinitionSchemas{}
 	specDefinitionSchemas := spec.Schemas{}
 
-	if err := Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err != nil {
+	if err := model.Conn.Where("project_id = ? AND type = ?", projectID, "schema").Find(&definitions).Error; err != nil {
 		return specDefinitionSchemas
 	}
 
@@ -171,7 +176,7 @@ func DefinitionSchemasExport(projectID uint) spec.Schemas {
 	return specDefinitionSchemas
 }
 
-func DefinitionIdToName(content string, idToNameMap IdToNameMap) string {
+func DefinitionIdToName(content string, idToNameMap model.IdToNameMap) string {
 	re := regexp.MustCompile(`#/definitions/schemas/\d+`)
 	reID := regexp.MustCompile(`\d+`)
 
@@ -253,41 +258,6 @@ func DefinitionsSchemaUnRefByDefinitionsResponse(d *DefinitionSchemas, isUnRef i
 			definitionResponse.Content = newContent
 
 			if err := definitionResponse.Update(); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
-}
-
-func DefinitionsSchemaUnRefByCollections(d *DefinitionSchemas, isUnRef int) error {
-	ref := "\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\""
-
-	collections, _ := NewCollections()
-	collections.ProjectId = d.ProjectId
-	collectionList, err := collections.List()
-	if err != nil {
-		return err
-	}
-
-	sourceJson := map[string]interface{}{}
-	if err := json.Unmarshal([]byte(d.Schema), &sourceJson); err != nil {
-		return err
-	}
-	typeEmptyStructure := apicat_struct.TypeEmptyStructure()
-
-	for _, collection := range collectionList {
-		if strings.Contains(collection.Content, ref) {
-			newStr := typeEmptyStructure[sourceJson["type"].(string)]
-			if isUnRef == 1 {
-				newStr = d.Schema
-			}
-
-			newContent := strings.Replace(collection.Content, ref, newStr[1:len(newStr)-1], -1)
-			collection.Content = newContent
-
-			if err := collection.Update(); err != nil {
 				return err
 			}
 		}
