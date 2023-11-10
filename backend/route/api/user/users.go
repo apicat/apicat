@@ -1,4 +1,4 @@
-package api
+package user
 
 import (
 	"github.com/apicat/apicat/backend/model/user"
