@@ -7,7 +7,7 @@ import (
 	"html/template"
 )
 
-func Run() {
+func Init() {
 	gin.SetMode(gin.DebugMode)
 
 	r := gin.New()
