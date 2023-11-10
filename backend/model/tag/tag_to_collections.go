@@ -1,6 +1,9 @@
-package models
+package tag
 
-import "time"
+import (
+	"github.com/apicat/apicat/backend/model"
+	"time"
+)
 
 type TagToCollections struct {
 	ID           uint `gorm:"type:bigint;primaryKey;autoIncrement"`
@@ -11,12 +14,16 @@ type TagToCollections struct {
 	UpdatedAt    time.Time
 }
 
+func init() {
+	model.RegMigrate(&TagToCollections{})
+}
+
 func NewTagToCollections() *TagToCollections {
 	return &TagToCollections{}
 }
 
 func (ttc *TagToCollections) Create() error {
-	return Conn.Create(ttc).Error
+	return model.Conn.Create(ttc).Error
 }
 
 func CollectionToTagIds(collectionID uint) []uint {
@@ -24,7 +31,7 @@ func CollectionToTagIds(collectionID uint) []uint {
 		tagIds  []uint
 		records []TagToCollections
 	)
-	if err := Conn.Where("collection_id = ?", collectionID).Find(&records).Error; err != nil {
+	if err := model.Conn.Where("collection_id = ?", collectionID).Find(&records).Error; err != nil {
 		for _, v := range records {
 			tagIds = append(tagIds, v.TagId)
 		}

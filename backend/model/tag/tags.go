@@ -1,6 +1,9 @@
-package models
+package tag
 
-import "time"
+import (
+	"github.com/apicat/apicat/backend/model"
+	"time"
+)
 
 type Tags struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
@@ -11,17 +14,21 @@ type Tags struct {
 	UpdatedAt    time.Time
 }
 
+func init() {
+	model.RegMigrate(&Tags{})
+}
+
 func NewTags() *Tags {
 	return &Tags{}
 }
 
 func (t *Tags) Create() error {
-	return Conn.Create(t).Error
+	return model.Conn.Create(t).Error
 }
 
 func GetByName(projectID uint, name string) (*Tags, error) {
 	t := NewTags()
-	err := Conn.Where("project_id = ? and name = ?", projectID, name).Take(t).Error
+	err := model.Conn.Where("project_id = ? and name = ?", projectID, name).Take(t).Error
 	return t, err
 }
 
@@ -51,7 +58,7 @@ func TagsExport(collectionID uint) []string {
 	tagIds := CollectionToTagIds(collectionID)
 	if len(tagIds) > 0 {
 		var tags []Tags
-		if err := Conn.Where("id IN ?", tagIds).Find(&tags).Error; err == nil {
+		if err := model.Conn.Where("id IN ?", tagIds).Find(&tags).Error; err == nil {
 			for _, tag := range tags {
 				tagNames = append(tagNames, tag.Name)
 			}
