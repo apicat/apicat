@@ -6,7 +6,7 @@ import (
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/translator"
-	collection2 "github.com/apicat/apicat/backend/route/api/collection"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strings"
 
@@ -14,35 +14,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type CollectionHistoryListData struct {
-	ID       uint                        `json:"id"`
-	Title    string                      `json:"title"`
-	Type     string                      `json:"type"`
-	SubNodes []CollectionHistoryListData `json:"sub_nodes,omitempty"`
-}
-
-type CollectionHistoryUriData struct {
-	ProjectID    string `uri:"project-id" binding:"required,gt=0"`
-	CollectionID uint   `uri:"collection-id" binding:"required,gt=0"`
-	HistoryID    uint   `uri:"history-id" binding:"required,gt=0"`
-}
-
-type CollectionHistoryDiffData struct {
-	HistoryID1 uint `form:"history_id1"`
-	HistoryID2 uint `form:"history_id2"`
-}
-
-type CollectionHistoryDetailsData struct {
-	ID            uint   `json:"id"`
-	CollectionID  uint   `json:"collection_id"`
-	Content       string `json:"content"`
-	CreatedTime   string `json:"created_time"`
-	LastUpdatedBy string `json:"last_updated_by"`
-	Title         string `json:"title"`
-}
-
 func CollectionHistoryList(ctx *gin.Context) {
-	uriData := collection2.CollectionDataGetData{}
+	uriData := proto.CollectionDataGetData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -73,7 +46,7 @@ func CollectionHistoryList(ctx *gin.Context) {
 		return
 	}
 
-	r1 := map[string][]CollectionHistoryListData{}
+	r1 := map[string][]proto.CollectionHistoryListData{}
 	for _, v := range histories {
 		month := v.CreatedAt.Format("2006-01")
 
@@ -83,16 +56,16 @@ func CollectionHistoryList(ctx *gin.Context) {
 			username = userDict[v.CreatedBy].Username
 		}
 
-		r1[month] = append(r1[month], CollectionHistoryListData{
+		r1[month] = append(r1[month], proto.CollectionHistoryListData{
 			ID:    v.ID,
 			Title: fmt.Sprintf("%s(%s)", date, username),
 			Type:  v.Type,
 		})
 	}
 
-	r2 := []CollectionHistoryListData{}
+	r2 := []proto.CollectionHistoryListData{}
 	for k, v := range r1 {
-		r2 = append(r2, CollectionHistoryListData{
+		r2 = append(r2, proto.CollectionHistoryListData{
 			ID:       0,
 			Title:    fmt.Sprintf("%s月", strings.Replace(k, "-", "年", -1)),
 			Type:     "category",
@@ -106,7 +79,7 @@ func CollectionHistoryList(ctx *gin.Context) {
 func CollectionHistoryDetails(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
 
-	uriData := CollectionHistoryUriData{}
+	uriData := proto.CollectionHistoryUriData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -140,7 +113,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, CollectionHistoryDetailsData{
+	ctx.JSON(http.StatusOK, proto.CollectionHistoryDetailsData{
 		ID:            ch.ID,
 		CollectionID:  ch.CollectionId,
 		Title:         ch.Title,
@@ -153,7 +126,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 func CollectionHistoryDiff(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
 
-	var data CollectionHistoryDiffData
+	var data proto.CollectionHistoryDiffData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -161,7 +134,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 		return
 	}
 
-	res := map[string]CollectionHistoryDetailsData{}
+	res := map[string]proto.CollectionHistoryDetailsData{}
 
 	ch1, err := collection.NewCollectionHistories(data.HistoryID1)
 	if err != nil {
@@ -187,7 +160,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 		return
 	}
 
-	res["doc1"] = CollectionHistoryDetailsData{
+	res["doc1"] = proto.CollectionHistoryDetailsData{
 		ID:            ch1.ID,
 		CollectionID:  ch1.CollectionId,
 		Title:         ch1.Title,
@@ -206,7 +179,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 			return
 		}
 
-		res["doc2"] = CollectionHistoryDetailsData{
+		res["doc2"] = proto.CollectionHistoryDetailsData{
 			ID:            0,
 			CollectionID:  currentCollection.(*collection.Collections).ID,
 			Title:         currentCollection.(*collection.Collections).Title,
@@ -243,7 +216,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 		return
 	}
 
-	res["doc2"] = CollectionHistoryDetailsData{
+	res["doc2"] = proto.CollectionHistoryDetailsData{
 		ID:            ch2.ID,
 		CollectionID:  ch2.CollectionId,
 		Title:         ch2.Title,
@@ -268,7 +241,7 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 		return
 	}
 
-	uriData := CollectionHistoryUriData{}
+	uriData := proto.CollectionHistoryUriData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

@@ -12,6 +12,7 @@ import (
 	"github.com/apicat/apicat/backend/module/spec/plugin/export"
 	"github.com/apicat/apicat/backend/module/spec/plugin/openapi"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"time"
 
@@ -20,65 +21,11 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-type CollectionDataGetData struct {
-	ProjectID    string `uri:"project-id" binding:"required,gt=0"`
-	CollectionID uint   `uri:"collection-id" binding:"required,gt=0"`
-}
-
-type ExportCollection struct {
-	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi3.0.0 openapi3.0.1 openapi3.0.2 openapi3.1.0 HTML md"`
-	Download string `form:"download" binding:"omitempty,oneof=true false"`
-}
-
-type CollectionList struct {
-	ID       uint              `json:"id"`
-	ParentID uint              `json:"parent_id"`
-	Title    string            `json:"title"`
-	Type     string            `json:"type"`
-	Selected *bool             `json:"selected,omitempty"`
-	Items    []*CollectionList `json:"items"`
-}
-
-type CollectionCreate struct {
-	ParentID    uint   `json:"parent_id" binding:"gte=0"`                       // 父级id
-	Title       string `json:"title" binding:"required,lte=255"`                // 名称
-	Type        string `json:"type" binding:"required,oneof=category doc http"` // 类型: category,doc,http
-	Content     string `json:"content"`                                         // 内容
-	IterationID string `json:"iteration_id" binding:"omitempty,gte=0"`          // 迭代id
-}
-
-type CollectionUpdate struct {
-	Title   string `json:"title" binding:"required,lte=255"`
-	Content string `json:"content"`
-}
-
-type CollectionCopyData struct {
-	IterationID string `json:"iteration_id" binding:"omitempty,gte=0"`
-}
-
-type CollectionMovement struct {
-	Target CollectionOrderContent `json:"target" binding:"required"`
-	Origin CollectionOrderContent `json:"origin" binding:"required"`
-}
-
-type CollectionOrderContent struct {
-	Pid uint   `json:"pid" binding:"gte=0"`
-	Ids []uint `json:"ids" binding:"required,dive,gte=0"`
-}
-
-type CollectionDeleteData struct {
-	IterationID string `form:"iteration_id" binding:"omitempty,gte=0"`
-}
-
-type CollectionsListData struct {
-	IterationID string `form:"iteration_id" binding:"omitempty,gte=0"`
-}
-
 func CollectionsList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	p, _ := currentProject.(*project.Projects)
 
-	var data CollectionsListData
+	var data proto.CollectionsListData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -119,22 +66,22 @@ func CollectionsList(ctx *gin.Context) {
 	}
 }
 
-func buildProjectTree(parentID uint, collections []*collection.Collections) []*CollectionList {
+func buildProjectTree(parentID uint, collections []*collection.Collections) []*proto.CollectionList {
 	return buildTree(parentID, collections, false)
 }
 
-func buildIterationTree(parentID uint, collections []*collection.Collections, selectCIDs []uint) []*CollectionList {
+func buildIterationTree(parentID uint, collections []*collection.Collections, selectCIDs []uint) []*proto.CollectionList {
 	return buildTree(parentID, collections, true, selectCIDs...)
 }
 
-func buildTree(parentID uint, collections []*collection.Collections, isIteration bool, selectCIDs ...uint) []*CollectionList {
-	result := make([]*CollectionList, 0)
+func buildTree(parentID uint, collections []*collection.Collections, isIteration bool, selectCIDs ...uint) []*proto.CollectionList {
+	result := make([]*proto.CollectionList, 0)
 
 	for _, c := range collections {
 		if c.ParentId == parentID {
 			children := buildTree(c.ID, collections, isIteration, selectCIDs...)
 
-			cl := CollectionList{
+			cl := proto.CollectionList{
 				ID:       c.ID,
 				ParentID: c.ParentId,
 				Title:    c.Title,
@@ -195,7 +142,7 @@ func CollectionsCreate(ctx *gin.Context) {
 		return
 	}
 
-	data := CollectionCreate{}
+	data := proto.CollectionCreate{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -285,7 +232,7 @@ func CollectionsUpdate(ctx *gin.Context) {
 		return
 	}
 
-	data := CollectionUpdate{}
+	data := proto.CollectionUpdate{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -336,7 +283,7 @@ func CollectionsCopy(ctx *gin.Context) {
 		return
 	}
 
-	data := CollectionCopyData{}
+	data := proto.CollectionCopyData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -415,7 +362,7 @@ func CollectionsMovement(ctx *gin.Context) {
 		return
 	}
 
-	data := CollectionMovement{}
+	data := proto.CollectionMovement{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -456,7 +403,7 @@ func CollectionsDelete(ctx *gin.Context) {
 		return
 	}
 
-	data := CollectionDeleteData{}
+	data := proto.CollectionDeleteData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -504,7 +451,7 @@ func CollectionsDelete(ctx *gin.Context) {
 }
 
 func CollectionDataGet(ctx *gin.Context) {
-	uriData := CollectionDataGetData{}
+	uriData := proto.CollectionDataGetData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -512,7 +459,7 @@ func CollectionDataGet(ctx *gin.Context) {
 		return
 	}
 
-	data := ExportCollection{}
+	data := proto.ExportCollection{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

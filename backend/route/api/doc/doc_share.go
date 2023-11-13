@@ -8,8 +8,7 @@ import (
 	"github.com/apicat/apicat/backend/module/encrypt"
 	"github.com/apicat/apicat/backend/module/random"
 	"github.com/apicat/apicat/backend/module/translator"
-	collection2 "github.com/apicat/apicat/backend/route/api/collection"
-	project2 "github.com/apicat/apicat/backend/route/api/project"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"time"
 
@@ -76,7 +75,7 @@ func DocShareDetails(ctx *gin.Context) {
 	}
 
 	var (
-		uriData            collection2.CollectionDataGetData
+		uriData            proto.CollectionDataGetData
 		visibility         string
 		collectionPublicID string
 		secretKey          string
@@ -120,7 +119,7 @@ func DocShareSwitch(ctx *gin.Context) {
 
 	var (
 		p    *project.Projects
-		data project2.ProjectSharingSwitchData
+		data proto.ProjectSharingSwitchData
 	)
 
 	p = currentProject.(*project.Projects)
@@ -236,7 +235,7 @@ func DocShareCheck(ctx *gin.Context) {
 	c := currentCollection.(*collection.Collections)
 
 	var (
-		data project2.ProjectShareSecretkeyCheckData
+		data proto.ProjectShareSecretkeyCheckData
 		err  error
 	)
 
