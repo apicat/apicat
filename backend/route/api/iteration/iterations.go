@@ -6,6 +6,7 @@ import (
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"math"
 	"net/http"
 
@@ -14,53 +15,12 @@ import (
 	"github.com/lithammer/shortuuid/v4"
 )
 
-type IterationSchemaData struct {
-	ID           string `json:"id,omitempty" binding:"required"`
-	Title        string `json:"title" binding:"required"`
-	Description  string `json:"description"`
-	ProjectID    string `json:"project_id" binding:"required"`
-	ProjectTitle string `json:"project_title" binding:"required"`
-	ApiNum       int64  `json:"api_num"`
-	Authority    string `json:"authority"`
-	CreatedAt    string `json:"created_at" binding:"required"`
-}
-
-type IterationListData struct {
-	ProjectID string `form:"project_id"`
-	Page      int64  `form:"page"`
-	PageSize  int64  `form:"page_size"`
-}
-
-type IterationListResData struct {
-	CurrentPage int64                 `json:"current_page"`
-	TotalPage   int64                 `json:"total_page"`
-	Total       int64                 `json:"total"`
-	Iterations  []IterationSchemaData `json:"iterations"`
-}
-
-type IterationCreateData struct {
-	Title         string `json:"title" binding:"required"`
-	Description   string `json:"description"`
-	ProjectID     string `json:"project_id" binding:"required"`
-	CollectionIDs []uint `json:"collection_ids"`
-}
-
-type IterationUriData struct {
-	IterationID string `uri:"iteration-id" binding:"required"`
-}
-
-type IterationUpdateData struct {
-	Title         string `json:"title" binding:"required"`
-	Description   string `json:"description"`
-	CollectionIDs []uint `json:"collection_ids"`
-}
-
 func IterationsList(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
 	var (
-		data IterationListData
-		res  IterationListResData
+		data proto.IterationListData
+		res  proto.IterationListResData
 		pIDs []uint
 	)
 
@@ -79,7 +39,7 @@ func IterationsList(ctx *gin.Context) {
 	}
 
 	res.CurrentPage = data.Page
-	res.Iterations = []IterationSchemaData{}
+	res.Iterations = []proto.IterationSchemaData{}
 
 	pmDict := map[uint]project.ProjectMembers{}
 	if data.ProjectID != "" {
@@ -185,7 +145,7 @@ func IterationsList(ctx *gin.Context) {
 			}
 		}
 
-		res.Iterations = append(res.Iterations, IterationSchemaData{
+		res.Iterations = append(res.Iterations, proto.IterationSchemaData{
 			ID:           i.PublicID,
 			Title:        i.Title,
 			Description:  i.Description,
@@ -204,7 +164,7 @@ func IterationsDetails(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
 	var (
-		uriData IterationUriData
+		uriData proto.IterationUriData
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
@@ -251,7 +211,7 @@ func IterationsDetails(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, IterationSchemaData{
+	ctx.JSON(http.StatusOK, proto.IterationSchemaData{
 		ID:           i.PublicID,
 		Title:        i.Title,
 		Description:  i.Description,
@@ -267,7 +227,7 @@ func IterationsCreate(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
 	var (
-		data IterationCreateData
+		data proto.IterationCreateData
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -332,7 +292,7 @@ func IterationsCreate(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, IterationSchemaData{
+	ctx.JSON(http.StatusOK, proto.IterationSchemaData{
 		ID:           i.PublicID,
 		Title:        i.Title,
 		Description:  i.Description,
@@ -348,8 +308,8 @@ func IterationsUpdate(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
 	var (
-		uriData IterationUriData
-		data    IterationUpdateData
+		uriData proto.IterationUriData
+		data    proto.IterationUpdateData
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
@@ -417,7 +377,7 @@ func IterationsDelete(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
 	var (
-		uriData IterationUriData
+		uriData proto.IterationUriData
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
