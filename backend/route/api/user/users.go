@@ -4,21 +4,11 @@ import (
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/auth"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
-
-type SetUserInfoData struct {
-	Email    string `json:"email" binding:"required,email,lte=255"`
-	Username string `json:"username" binding:"required,lte=255"`
-}
-
-type ChangePasswordData struct {
-	Password           string `json:"password" binding:"required,gte=6,lte=255"`
-	NewPassword        string `json:"new_password" binding:"required,gte=6,lte=255"`
-	ConfirmNewPassword string `json:"confirm_new_password" binding:"required,gte=6,lte=255,eqfield=NewPassword"`
-}
 
 func GetUserInfo(ctx *gin.Context) {
 	CurrentUser, _ := ctx.Get("CurrentUser")
@@ -39,7 +29,7 @@ func SetUserInfo(ctx *gin.Context) {
 	CurrentUser, _ := ctx.Get("CurrentUser")
 	currentUser, _ := CurrentUser.(*user.Users)
 
-	var data SetUserInfoData
+	var data proto.SetUserInfoData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -79,7 +69,7 @@ func ChangePassword(ctx *gin.Context) {
 	CurrentUser, _ := ctx.Get("CurrentUser")
 	currentUser, _ := CurrentUser.(*user.Users)
 
-	var data ChangePasswordData
+	var data proto.ChangePasswordData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

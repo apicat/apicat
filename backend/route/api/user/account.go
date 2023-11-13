@@ -4,24 +4,15 @@ import (
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/auth"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strings"
 
 	"github.com/gin-gonic/gin"
 )
 
-type LoginEmail struct {
-	Email    string `json:"email" binding:"required,email,lte=255"`
-	Password string `json:"password" binding:"required,gte=6,lte=255"`
-}
-
-type RegisterEmail struct {
-	Email    string `json:"email" binding:"required,email,lte=255"`
-	Password string `json:"password" binding:"required,gte=6,lte=255"`
-}
-
 func EmailLogin(ctx *gin.Context) {
-	var data LoginEmail
+	var data proto.LoginEmail
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -67,7 +58,7 @@ func EmailLogin(ctx *gin.Context) {
 }
 
 func EmailRegister(ctx *gin.Context) {
-	var data RegisterEmail
+	var data proto.RegisterEmail
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
