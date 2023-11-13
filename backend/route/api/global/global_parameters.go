@@ -7,33 +7,12 @@ import (
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/module/apicat_struct"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
-
-type GlobalParameterDetails struct {
-	ID       uint            `json:"id" binding:"required"`
-	In       string          `json:"in" binding:"required,oneof=header query path cookie"`
-	Name     string          `json:"name" binding:"required,lte=255"`
-	Required bool            `json:"required"`
-	Schema   ParameterSchema `json:"schema" binding:"required"`
-}
-
-type ParameterSchema struct {
-	Type        string `json:"type" binding:"required,oneof=string number integer array"`
-	Default     string `json:"default" binding:"omitempty,lte=255"`
-	Example     string `json:"example" binding:"omitempty,lte=255"`
-	Description string `json:"description" binding:"omitempty,lte=255"`
-}
-
-type GlobalParametersData struct {
-	In       string          `json:"in" binding:"required,oneof=header query path cookie"`
-	Name     string          `json:"name" binding:"required,lte=255"`
-	Required bool            `json:"required"`
-	Schema   ParameterSchema `json:"schema" binding:"required"`
-}
 
 type GlobalParametersID struct {
 	ParameterID uint `uri:"parameter-id" binding:"required,gt=0"`
@@ -75,13 +54,13 @@ func GlobalParametersList(ctx *gin.Context) {
 		return
 	}
 
-	result := map[string][]GlobalParameterDetails{}
-	result["header"] = []GlobalParameterDetails{}
-	result["cookie"] = []GlobalParameterDetails{}
-	result["path"] = []GlobalParameterDetails{}
-	result["query"] = []GlobalParameterDetails{}
+	result := map[string][]proto.GlobalParameterDetails{}
+	result["header"] = []proto.GlobalParameterDetails{}
+	result["cookie"] = []proto.GlobalParameterDetails{}
+	result["path"] = []proto.GlobalParameterDetails{}
+	result["query"] = []proto.GlobalParameterDetails{}
 	for _, v := range globalParametersList {
-		var schema ParameterSchema
+		var schema proto.ParameterSchema
 		if err := json.Unmarshal([]byte(v.Schema), &schema); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
@@ -89,7 +68,7 @@ func GlobalParametersList(ctx *gin.Context) {
 			return
 		}
 
-		result[v.In] = append(result[v.In], GlobalParameterDetails{
+		result[v.In] = append(result[v.In], proto.GlobalParameterDetails{
 			ID:       v.ID,
 			In:       v.In,
 			Name:     v.Name,
@@ -114,7 +93,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	p, _ := currentProject.(*project.Projects)
 
-	var data GlobalParametersData
+	var data proto.GlobalParametersData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -162,7 +141,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 		return
 	}
 
-	globalParameterDetails := &GlobalParameterDetails{
+	globalParameterDetails := &proto.GlobalParameterDetails{
 		ID:       globalParameters.ID,
 		In:       globalParameters.In,
 		Name:     globalParameters.Name,
@@ -183,7 +162,7 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 		return
 	}
 
-	var data GlobalParametersData
+	var data proto.GlobalParametersData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -266,7 +245,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 		return
 	}
 
-	globalParameterSchema := ParameterSchema{}
+	globalParameterSchema := proto.ParameterSchema{}
 	if err := json.Unmarshal([]byte(globalParameters.Schema), &globalParameterSchema); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
