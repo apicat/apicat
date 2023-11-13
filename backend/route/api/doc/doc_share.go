@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/shortuuid/v4"
 )
@@ -33,7 +32,7 @@ func DocShareStatus(ctx *gin.Context) {
 	c.PublicId = data.PublicCollectionID
 	if err := c.GetByPublicId(); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 		})
 		return
@@ -42,7 +41,7 @@ func DocShareStatus(ctx *gin.Context) {
 	p, err := project.NewProjects(c.ProjectId)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -63,7 +62,7 @@ func DocShareDetails(ctx *gin.Context) {
 	if currentProject.(*project.Projects).Visibility == 0 {
 		if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 			ctx.JSON(http.StatusForbidden, gin.H{
-				"code":    enum.ProjectMemberInsufficientPermissionsCode,
+				"code":    proto.ProjectMemberInsufficientPermissionsCode,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 			})
 			return
@@ -107,7 +106,7 @@ func DocShareSwitch(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -183,7 +182,7 @@ func DocShareReset(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return

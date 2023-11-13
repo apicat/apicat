@@ -3,9 +3,9 @@ package check
 import (
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,9 +17,9 @@ func CheckProject() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var data ProjectID
 
-		responseCode := enum.Display404ErrorMessage
+		responseCode := proto.Display404ErrorMessage
 		if ctx.Request.Method == "GET" {
-			responseCode = enum.Redirect404Page
+			responseCode = proto.Redirect404Page
 		}
 
 		if err := ctx.ShouldBindUri(&data); err != nil {

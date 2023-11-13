@@ -22,7 +22,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/backend/enum"
 	"golang.org/x/exp/slog"
 
 	"github.com/gin-gonic/gin"
@@ -169,7 +168,7 @@ func ProjectsCreate(ctx *gin.Context) {
 	u, _ := CurrentUser.(*user.Users)
 	if u.Role == "user" {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.MemberInsufficientPermissionsCode,
+			"code":    proto.MemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -351,7 +350,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -379,7 +378,7 @@ func ProjectsUpdate(ctx *gin.Context) {
 	p, err := project.NewProjects(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -426,7 +425,7 @@ func ProjectsDelete(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -444,7 +443,7 @@ func ProjectsDelete(ctx *gin.Context) {
 	p, err := project.NewProjects(data.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -484,7 +483,7 @@ func ProjectDataGet(ctx *gin.Context) {
 	p, err := project.NewProjects(uriData.ID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -548,7 +547,7 @@ func ProjectExit(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -568,7 +567,7 @@ func ProjectTransfer(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -585,7 +584,7 @@ func ProjectTransfer(ctx *gin.Context) {
 	pm, err := project.NewProjectMembers(data.MemberID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
 		})
 		return
@@ -593,7 +592,7 @@ func ProjectTransfer(ctx *gin.Context) {
 
 	if pm.Authority != project.ProjectMembersWrite {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.TargetProjectMemberInsufficientPermissionsCode,
+			"code":    proto.TargetProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
 		})
 		return
@@ -601,7 +600,7 @@ func ProjectTransfer(ctx *gin.Context) {
 
 	if pm.ProjectID != currentProjectMember.(*project.ProjectMembers).ProjectID {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.TargetProjectMemberInsufficientPermissionsCode,
+			"code":    proto.TargetProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.TransferFail"}),
 		})
 		return

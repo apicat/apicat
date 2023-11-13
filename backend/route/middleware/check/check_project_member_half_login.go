@@ -7,11 +7,11 @@ import (
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/encrypt"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strconv"
 	"time"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +20,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		p, exists := ctx.Get("CurrentProject")
 		if !exists {
 			ctx.JSON(http.StatusNotFound, gin.H{
-				"code":    enum.Redirect404Page,
+				"code":    proto.Redirect404Page,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 			})
 			ctx.Abort()
@@ -47,7 +47,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		token := ctx.Query("token")
 		if token == "" || len(token) < 1 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"code":    enum.InvalidOrIncorrectAccessToken,
+				"code":    proto.InvalidOrIncorrectAccessToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
 			})
 			ctx.Abort()
@@ -59,7 +59,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		stt.ShareToken = encrypt.GetMD5Encode(token)
 		if err := stt.GetByShareToken(); err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"code":    enum.InvalidOrIncorrectAccessToken,
+				"code":    proto.InvalidOrIncorrectAccessToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
 			})
 			ctx.Abort()
@@ -78,7 +78,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 			}
 
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"code":    enum.InvalidOrIncorrectAccessToken,
+				"code":    proto.InvalidOrIncorrectAccessToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.tokenHasExpired"}),
 			})
 			ctx.Abort()
@@ -89,7 +89,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		if token[:1] == "p" {
 			if p.(*project.Projects).ID != stt.ProjectID {
 				ctx.JSON(http.StatusUnauthorized, gin.H{
-					"code":    enum.InvalidOrIncorrectAccessToken,
+					"code":    proto.InvalidOrIncorrectAccessToken,
 					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
 				})
 				ctx.Abort()
@@ -104,7 +104,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 			if collectionIDStr == "" {
 				if p.(*project.Projects).ID != stt.ProjectID {
 					ctx.JSON(http.StatusUnauthorized, gin.H{
-						"code":    enum.InvalidOrIncorrectAccessToken,
+						"code":    proto.InvalidOrIncorrectAccessToken,
 						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
 					})
 					ctx.Abort()
@@ -123,7 +123,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 				c, err := collection.NewCollections(uint(collectionID))
 				if err != nil {
 					ctx.JSON(http.StatusNotFound, gin.H{
-						"code":    enum.Redirect404Page,
+						"code":    proto.Redirect404Page,
 						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
 					})
 					ctx.Abort()
@@ -132,7 +132,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 
 				if c.ID != stt.CollectionID {
 					ctx.JSON(http.StatusUnauthorized, gin.H{
-						"code":    enum.InvalidOrIncorrectAccessToken,
+						"code":    proto.InvalidOrIncorrectAccessToken,
 						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
 					})
 					ctx.Abort()
@@ -143,7 +143,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		}
 
 		ctx.JSON(http.StatusUnauthorized, gin.H{
-			"code":    enum.InvalidOrIncorrectAccessToken,
+			"code":    proto.InvalidOrIncorrectAccessToken,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		ctx.Abort()

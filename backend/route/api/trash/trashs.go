@@ -7,7 +7,6 @@ import (
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
 
@@ -42,7 +41,7 @@ func TrashsRecover(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return

@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
 
@@ -75,7 +74,7 @@ func AddMember(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 	if currentUser.(*user.Users).Role != "superadmin" {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.MemberInsufficientPermissionsCode,
+			"code":    proto.MemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -132,7 +131,7 @@ func SetMember(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 	if currentUser.(*user.Users).Role != "superadmin" {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.MemberInsufficientPermissionsCode,
+			"code":    proto.MemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -211,7 +210,7 @@ func DeleteMember(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 	if currentUser.(*user.Users).Role != "superadmin" {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.MemberInsufficientPermissionsCode,
+			"code":    proto.MemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -235,7 +234,7 @@ func DeleteMember(ctx *gin.Context) {
 	u, err := user.NewUsers(userIDData.UserID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
 		})
 		return

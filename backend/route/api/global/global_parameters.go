@@ -10,7 +10,6 @@ import (
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,7 +20,7 @@ type GlobalParametersID struct {
 func (gp *GlobalParametersID) CheckGlobalParameters(ctx *gin.Context) (*global.GlobalParameters, error) {
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&gp)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err
@@ -30,7 +29,7 @@ func (gp *GlobalParametersID) CheckGlobalParameters(ctx *gin.Context) (*global.G
 	globalParameters, err := global.NewGlobalParameters(gp.ParameterID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err
@@ -84,7 +83,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -156,7 +155,7 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -223,7 +222,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return

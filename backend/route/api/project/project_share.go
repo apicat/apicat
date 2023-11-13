@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
 
@@ -51,7 +50,7 @@ func ProjectShareStatus(ctx *gin.Context) {
 
 	if authority == "none" && visibility == "private" && !hasShared {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.Redirect403Page,
+			"code":    proto.Redirect403Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -71,7 +70,7 @@ func ProjectShareDetails(ctx *gin.Context) {
 	if currentProject.(*project.Projects).Visibility == 0 {
 		if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 			ctx.JSON(http.StatusForbidden, gin.H{
-				"code":    enum.ProjectMemberInsufficientPermissionsCode,
+				"code":    proto.ProjectMemberInsufficientPermissionsCode,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 			})
 			return
@@ -100,7 +99,7 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -169,7 +168,7 @@ func ProjectShareReset(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return

@@ -5,10 +5,10 @@ import (
 	"github.com/apicat/apicat/backend/module/auth"
 	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/middleware/log"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strings"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,7 +18,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 		authHeader := ctx.Request.Header.Get("Authorization")
 		if authHeader == "" {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"code":    enum.InvalidOrIncorrectLoginToken,
+				"code":    proto.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			//阻止调用后续的函数
@@ -28,7 +28,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 		parts := strings.SplitN(authHeader, " ", 2)
 		if !(len(parts) == 2 && parts[0] == "Bearer") {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"code":    enum.InvalidOrIncorrectLoginToken,
+				"code":    proto.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			ctx.Abort()
@@ -38,7 +38,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 		mc, err := auth.ParseToken(parts[1])
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"code":    enum.InvalidOrIncorrectLoginToken,
+				"code":    proto.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			ctx.Abort()
@@ -47,7 +47,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 
 		if mc.UserID == 0 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"code":    enum.InvalidOrIncorrectLoginToken,
+				"code":    proto.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			ctx.Abort()
@@ -57,7 +57,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 		u, err := user.NewUsers(mc.UserID)
 		if err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"code":    enum.InvalidOrIncorrectLoginToken,
+				"code":    proto.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			ctx.Abort()
@@ -66,7 +66,7 @@ func JWTAuthMiddleware() func(ctx *gin.Context) {
 
 		if u.IsEnabled == 0 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"code":    enum.InvalidOrIncorrectLoginToken,
+				"code":    proto.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.AccountDisabled"}),
 			})
 			ctx.Abort()

@@ -10,7 +10,6 @@ import (
 	"math"
 	"net/http"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 	"github.com/lithammer/shortuuid/v4"
 )
@@ -56,7 +55,7 @@ func IterationsList(ctx *gin.Context) {
 		pm.UserID = currentUser.(*user.Users).ID
 		if err := pm.GetByUserIDAndProjectID(); err != nil {
 			ctx.JSON(http.StatusForbidden, gin.H{
-				"code":    enum.ProjectMemberInsufficientPermissionsCode,
+				"code":    proto.ProjectMemberInsufficientPermissionsCode,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 			})
 			return
@@ -177,7 +176,7 @@ func IterationsDetails(ctx *gin.Context) {
 	i, err := iteration.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Redirect404Page,
+			"code":    proto.Redirect404Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
 		})
 		return
@@ -186,7 +185,7 @@ func IterationsDetails(ctx *gin.Context) {
 	p, err := project.NewProjects(i.ProjectID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Redirect404Page,
+			"code":    proto.Redirect404Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -197,7 +196,7 @@ func IterationsDetails(ctx *gin.Context) {
 	pm.UserID = currentUser.(*user.Users).ID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -240,7 +239,7 @@ func IterationsCreate(ctx *gin.Context) {
 	p, err := project.NewProjects(data.ProjectID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
 		})
 		return
@@ -251,14 +250,14 @@ func IterationsCreate(ctx *gin.Context) {
 	pm.UserID = currentUser.(*user.Users).ID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 	if !pm.MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -329,7 +328,7 @@ func IterationsUpdate(ctx *gin.Context) {
 	i, err := iteration.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
 		})
 		return
@@ -340,14 +339,14 @@ func IterationsUpdate(ctx *gin.Context) {
 	pm.UserID = currentUser.(*user.Users).ID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 	if !pm.MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -390,7 +389,7 @@ func IterationsDelete(ctx *gin.Context) {
 	i, err := iteration.NewIterations(uriData.IterationID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
 		})
 		return
@@ -401,14 +400,14 @@ func IterationsDelete(ctx *gin.Context) {
 	pm.UserID = currentUser.(*user.Users).ID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 	if !pm.MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return

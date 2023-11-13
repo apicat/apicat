@@ -11,7 +11,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
 
@@ -91,7 +90,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 	dsh, err := definition.NewDefinitionSchemaHistories(uriData.HistoryID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Redirect404Page,
+			"code":    proto.Redirect404Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -99,7 +98,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 
 	if currentDefinitionSchema.(*definition.DefinitionSchemas).ID != dsh.SchemaID {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Redirect404Page,
+			"code":    proto.Redirect404Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -108,7 +107,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 	u, err := user.NewUsers(dsh.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
@@ -149,14 +148,14 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	dsh1, err := definition.NewDefinitionSchemaHistories(data.HistoryID1)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
 	if dsh1.SchemaID != currentDefinitionSchema.(*definition.DefinitionSchemas).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -164,7 +163,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	u1, err := user.NewUsers(dsh1.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
@@ -190,7 +189,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 		u2, err := user.NewUsers(currentDefinitionSchema.(*definition.DefinitionSchemas).UpdatedBy)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
-				"code":    enum.Display404ErrorMessage,
+				"code":    proto.Display404ErrorMessage,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 			})
 			return
@@ -219,7 +218,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	dsh2, err := definition.NewDefinitionSchemaHistories(data.HistoryID2)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -227,7 +226,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 
 	if dsh2.SchemaID != currentDefinitionSchema.(*definition.DefinitionSchemas).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -236,7 +235,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	u2, err := user.NewUsers(dsh2.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
@@ -269,7 +268,7 @@ func DefinitionSchemaHistoryRestore(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -286,7 +285,7 @@ func DefinitionSchemaHistoryRestore(ctx *gin.Context) {
 	dsh, err := definition.NewDefinitionSchemaHistories(uriData.HistoryID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -294,7 +293,7 @@ func DefinitionSchemaHistoryRestore(ctx *gin.Context) {
 
 	if currentDefinitionSchema.(*definition.DefinitionSchemas).ID != dsh.SchemaID {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return

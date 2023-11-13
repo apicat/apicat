@@ -1,4 +1,4 @@
-package enum
+package proto
 
 const (
 	// 登录令牌无效或不正确

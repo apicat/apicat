@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
 
@@ -90,7 +89,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 	ch, err := collection.NewCollectionHistories(uriData.HistoryID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Redirect404Page,
+			"code":    proto.Redirect404Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -98,7 +97,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 
 	if currentCollection.(*collection.Collections).ID != ch.CollectionId {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Redirect404Page,
+			"code":    proto.Redirect404Page,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -107,7 +106,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 	u, err := user.NewUsers(ch.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
@@ -139,14 +138,14 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 	ch1, err := collection.NewCollectionHistories(data.HistoryID1)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
 	if ch1.CollectionId != currentCollection.(*collection.Collections).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -154,7 +153,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 	u1, err := user.NewUsers(ch1.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
@@ -173,7 +172,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 		u2, err := user.NewUsers(currentCollection.(*collection.Collections).UpdatedBy)
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
-				"code":    enum.Display404ErrorMessage,
+				"code":    proto.Display404ErrorMessage,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 			})
 			return
@@ -195,14 +194,14 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 	ch2, err := collection.NewCollectionHistories(data.HistoryID2)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
 	if ch2.CollectionId != currentCollection.(*collection.Collections).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -210,7 +209,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 	u2, err := user.NewUsers(ch2.CreatedBy)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
@@ -235,7 +234,7 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
-			"code":    enum.ProjectMemberInsufficientPermissionsCode,
+			"code":    proto.ProjectMemberInsufficientPermissionsCode,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
@@ -252,7 +251,7 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 	ch, err := collection.NewCollectionHistories(uriData.HistoryID)
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return
@@ -260,7 +259,7 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 
 	if currentCollection.(*collection.Collections).ID != ch.CollectionId {
 		ctx.JSON(http.StatusNotFound, gin.H{
-			"code":    enum.Display404ErrorMessage,
+			"code":    proto.Display404ErrorMessage,
 			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
 		})
 		return

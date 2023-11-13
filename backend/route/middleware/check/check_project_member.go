@@ -4,9 +4,9 @@ import (
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
-	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,7 +24,7 @@ func CheckProjectMember() gin.HandlerFunc {
 		u, exists := ctx.Get("CurrentUser")
 		if !exists {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
-				"code":    enum.InvalidOrIncorrectLoginToken,
+				"code":    proto.InvalidOrIncorrectLoginToken,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			ctx.Abort()
@@ -37,7 +37,7 @@ func CheckProjectMember() gin.HandlerFunc {
 
 		if err := member.GetByUserIDAndProjectID(); err != nil {
 			ctx.JSON(http.StatusForbidden, gin.H{
-				"code":    enum.ProjectMemberInsufficientPermissionsCode,
+				"code":    proto.ProjectMemberInsufficientPermissionsCode,
 				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
 			})
 			ctx.Abort()
