@@ -11,6 +11,7 @@ import (
 	"github.com/apicat/apicat/backend/module/openai"
 	"github.com/apicat/apicat/backend/module/spec/plugin/openapi"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strconv"
 	"time"
@@ -20,24 +21,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/exp/slog"
 )
-
-type AICreateCollectionStructure struct {
-	ParentID    uint   `json:"parent_id" binding:"gte=0"`              // 父级id
-	Title       string `json:"title" binding:"required,lte=255"`       // 名称
-	SchemaID    uint   `json:"schema_id" binding:"gte=0"`              // 模型id
-	Path        string `json:"path" binding:"lte=255"`                 // 请求路径
-	Method      string `json:"method" binding:"lte=255"`               // 请求方法
-	IterationID string `json:"iteration_id" binding:"omitempty,gte=0"` // 迭代id
-}
-
-type AICreateSchemaStructure struct {
-	ParentID uint   `json:"parent_id" binding:"gte=0"`       // 父级id
-	Name     string `json:"name" binding:"required,lte=255"` // 名称
-}
-
-type AICreateApiNameStructure struct {
-	SchemaID uint `form:"schema_id" binding:"gt=0"` // 模型id
-}
 
 func AICreateCollection(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
@@ -55,7 +38,7 @@ func AICreateCollection(ctx *gin.Context) {
 		err            error
 	)
 
-	data := &AICreateCollectionStructure{}
+	data := &proto.AICreateCollectionStructure{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -203,7 +186,7 @@ func AICreateSchema(ctx *gin.Context) {
 		Example     interface{}            `json:"example"`
 	}
 
-	data := &AICreateSchemaStructure{}
+	data := &proto.AICreateSchemaStructure{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -288,7 +271,7 @@ func AICreateApiNames(ctx *gin.Context) {
 		err            error
 	)
 
-	data := &AICreateApiNameStructure{}
+	data := &proto.AICreateApiNameStructure{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
