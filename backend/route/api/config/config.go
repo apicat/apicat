@@ -5,27 +5,15 @@ import (
 	"github.com/apicat/apicat/backend/config"
 	"github.com/apicat/apicat/backend/model"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"os"
 )
 
-type DBConfigItemData struct {
-	Value string `json:"value"`
-	Type  string `json:"type" binding:"required,oneof=value env"`
-}
-
-type DBConfigData struct {
-	Host     DBConfigItemData `json:"host" binding:"required"`
-	Port     DBConfigItemData `json:"port" binding:"required"`
-	User     DBConfigItemData `json:"user" binding:"required"`
-	Password DBConfigItemData `json:"password" binding:"required"`
-	DBName   DBConfigItemData `json:"dbname" binding:"required"`
-}
-
-func dataStructProcess(field *config.ConfigItem) DBConfigItemData {
+func dataStructProcess(field *config.ConfigItem) proto.DBConfigItemData {
 	if field.DataSource == "env" {
-		return DBConfigItemData{
+		return proto.DBConfigItemData{
 			Value: field.EnvName,
 			Type:  field.DataSource,
 		}
@@ -34,7 +22,7 @@ func dataStructProcess(field *config.ConfigItem) DBConfigItemData {
 		if field.DataSource != "" {
 			dataSource = field.DataSource
 		}
-		return DBConfigItemData{
+		return proto.DBConfigItemData{
 			Value: field.Value,
 			Type:  dataSource,
 		}
@@ -68,7 +56,7 @@ func GetDBConfig(ctx *gin.Context) {
 	sysCfg := config.GetSysConfig()
 
 	ctx.HTML(http.StatusOK, "db-config.tmpl", gin.H{
-		"db_config": DBConfigData{
+		"db_config": proto.DBConfigData{
 			Host:     dataStructProcess(&sysCfg.DB.Host),
 			Port:     dataStructProcess(&sysCfg.DB.Port),
 			User:     dataStructProcess(&sysCfg.DB.User),
@@ -79,7 +67,7 @@ func GetDBConfig(ctx *gin.Context) {
 }
 
 func SetDBConfig(ctx *gin.Context) {
-	data := DBConfigData{}
+	data := proto.DBConfigData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
