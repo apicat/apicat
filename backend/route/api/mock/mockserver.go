@@ -17,14 +17,19 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+var mock *MockServer
+
 type MockServer struct {
 	cache sync.Map
 }
 
 func NewMockServer() *MockServer {
-	return &MockServer{
-		cache: sync.Map{},
+	if mock == nil {
+		mock = &MockServer{
+			cache: sync.Map{},
+		}
 	}
+	return mock
 }
 
 // Handler requests to process fake data
@@ -144,6 +149,7 @@ func (m *MockServer) matchRoute(c *gin.Context, routes map[string]map[string]spe
 }
 
 func (m *MockServer) renderMockResponse(c *gin.Context, res spec.HTTPResponse) {
+
 	// find first contentType
 	for k, v := range res.Content {
 		b, _ := json.Marshal(v.Schema)
