@@ -4,16 +4,12 @@ import (
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/server"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
-
-type CreateServer struct {
-	Description string `json:"description" binding:"lte=255"`
-	Url         string `json:"url" binding:"required,lte=255"`
-}
 
 func UrlList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
@@ -52,7 +48,7 @@ func UrlSettings(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	p, _ := currentProject.(*project.Projects)
 
-	data := []CreateServer{}
+	data := []proto.CreateServer{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
