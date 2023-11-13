@@ -26,3 +26,7 @@ type CollectionHistoryDetailsData struct {
 	LastUpdatedBy string `json:"last_updated_by"`
 	Title         string `json:"title"`
 }
+
+type DocShareStatusData struct {
+	PublicCollectionID string `uri:"public_collection_id" binding:"required,lte=255"`
+}

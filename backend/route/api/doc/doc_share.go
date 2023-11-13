@@ -17,13 +17,9 @@ import (
 	"github.com/lithammer/shortuuid/v4"
 )
 
-type DocShareStatusData struct {
-	PublicCollectionID string `uri:"public_collection_id" binding:"required,lte=255"`
-}
-
 func DocShareStatus(ctx *gin.Context) {
 	var (
-		data DocShareStatusData
+		data proto.DocShareStatusData
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
