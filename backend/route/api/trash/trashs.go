@@ -4,19 +4,12 @@ import (
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
-
-type TrashsRecoverQuery struct {
-	CollectionID []uint `form:"collection-id" binding:"required,dive,gte=0"`
-}
-
-type TrashsRecoverBody struct {
-	Category uint `json:"category" binding:"gte=0"`
-}
 
 func TrashsList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
@@ -55,7 +48,7 @@ func TrashsRecover(ctx *gin.Context) {
 		return
 	}
 
-	trashsRecoverQuery := TrashsRecoverQuery{}
+	trashsRecoverQuery := proto.TrashsRecoverQuery{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&trashsRecoverQuery)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -63,7 +56,7 @@ func TrashsRecover(ctx *gin.Context) {
 		return
 	}
 
-	trashsRecoverBody := TrashsRecoverBody{}
+	trashsRecoverBody := proto.TrashsRecoverBody{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&trashsRecoverBody)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
