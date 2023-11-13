@@ -6,6 +6,7 @@ import (
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/auth"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"math"
 	"net/http"
 	"strings"
@@ -14,30 +15,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type GetMembersData struct {
-	Page     int `form:"page" binding:"omitempty,gte=1"`
-	PageSize int `form:"page_size" binding:"omitempty,gte=1,lte=100"`
-}
-
-type AddMemberData struct {
-	Email    string `json:"email" binding:"required,email,lte=255"`
-	Password string `json:"password" binding:"required,gte=6,lte=255"`
-	Role     string `json:"role" binding:"required,oneof=admin user"`
-}
-
-type UserIDData struct {
-	UserID uint `uri:"user-id" binding:"required,gte=1"`
-}
-
-type SetMemberData struct {
-	Email     string `json:"email" binding:"omitempty,email,lte=255"`
-	Password  string `json:"password" binding:"omitempty,gte=6,lte=255"`
-	Role      string `json:"role" binding:"omitempty,oneof=admin user"`
-	IsEnabled int    `json:"is_enabled" binding:"oneof=0 1"`
-}
-
 func GetMembers(ctx *gin.Context) {
-	var data GetMembersData
+	var data proto.GetMembersData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -102,7 +81,7 @@ func AddMember(ctx *gin.Context) {
 		return
 	}
 
-	var data AddMemberData
+	var data proto.AddMemberData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -159,7 +138,7 @@ func SetMember(ctx *gin.Context) {
 		return
 	}
 
-	var userIDData UserIDData
+	var userIDData proto.UserIDData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&userIDData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -174,7 +153,7 @@ func SetMember(ctx *gin.Context) {
 		return
 	}
 
-	var data SetMemberData
+	var data proto.SetMemberData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -238,7 +217,7 @@ func DeleteMember(ctx *gin.Context) {
 		return
 	}
 
-	var userIDData UserIDData
+	var userIDData proto.UserIDData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&userIDData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

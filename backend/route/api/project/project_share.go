@@ -8,20 +8,13 @@ import (
 	"github.com/apicat/apicat/backend/module/encrypt"
 	"github.com/apicat/apicat/backend/module/random"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"time"
 
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
-
-type ProjectSharingSwitchData struct {
-	Share string `json:"share" binding:"required,oneof=open close"`
-}
-
-type ProjectShareSecretkeyCheckData struct {
-	SecretKey string `json:"secret_key" binding:"required,lte=255"`
-}
 
 func ProjectShareStatus(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
@@ -115,7 +108,7 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 
 	var (
 		p    *project.Projects
-		data ProjectSharingSwitchData
+		data proto.ProjectSharingSwitchData
 	)
 
 	p = currentProject.(*project.Projects)
@@ -224,7 +217,7 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 
 	var (
 		p    *project.Projects
-		data ProjectShareSecretkeyCheckData
+		data proto.ProjectShareSecretkeyCheckData
 		err  error
 	)
 

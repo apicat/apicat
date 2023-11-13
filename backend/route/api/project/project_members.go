@@ -4,6 +4,7 @@ import (
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"math"
 	"net/http"
 
@@ -11,37 +12,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type ProjectMembersListData struct {
-	Page     int `form:"page" binding:"omitempty,gte=1"`
-	PageSize int `form:"page_size" binding:"omitempty,gte=1,lte=100"`
-}
-
-type GetPathUserID struct {
-	UserID uint `uri:"user-id" binding:"required"`
-}
-
-type CreateProjectMemberData struct {
-	UserIDs   []uint `json:"user_ids" binding:"required,gt=0,dive,required"`
-	Authority string `json:"authority" binding:"required,oneof=manage write read"`
-}
-
-type UpdateProjectMemberAuthData struct {
-	Authority string `json:"authority" binding:"required,oneof=manage write read"`
-}
-
-type ProjectMemberData struct {
-	ID        uint   `json:"id"`
-	UserID    uint   `json:"user_id"`
-	Username  string `json:"username"`
-	Authority string `json:"authority"`
-	CreatedAt string `json:"created_at"`
-}
-
 // MembersList handles GET requests to retrieve a list of members in the current project.
 func ProjectMembersList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 
-	var data GetMembersData
+	var data proto.GetMembersData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -118,7 +93,7 @@ func ProjectMembersList(ctx *gin.Context) {
 func MemberGetByUserID(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 
-	data := GetPathUserID{}
+	data := proto.GetPathUserID{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -144,7 +119,7 @@ func MemberGetByUserID(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, ProjectMemberData{
+	ctx.JSON(http.StatusOK, proto.ProjectMemberData{
 		ID:        pm.ID,
 		UserID:    u.ID,
 		Username:  u.Username,
@@ -165,7 +140,7 @@ func ProjectMembersCreate(ctx *gin.Context) {
 		return
 	}
 
-	data := CreateProjectMemberData{}
+	data := proto.CreateProjectMemberData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -217,7 +192,7 @@ func ProjectMembersDelete(ctx *gin.Context) {
 		return
 	}
 
-	data := GetPathUserID{}
+	data := proto.GetPathUserID{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -263,7 +238,7 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 		return
 	}
 
-	data := GetPathUserID{}
+	data := proto.GetPathUserID{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -281,7 +256,7 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 		return
 	}
 
-	bodyData := UpdateProjectMemberAuthData{}
+	bodyData := proto.UpdateProjectMemberAuthData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&bodyData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

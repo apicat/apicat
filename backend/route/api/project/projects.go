@@ -17,6 +17,7 @@ import (
 	"github.com/apicat/apicat/backend/module/spec/plugin/openapi"
 	"github.com/apicat/apicat/backend/module/spec/plugin/postman"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strings"
 	"time"
@@ -28,49 +29,10 @@ import (
 	"github.com/lithammer/shortuuid/v4"
 )
 
-type CreateProject struct {
-	Title      string `json:"title" binding:"required,lte=255"`
-	Data       string `json:"data"`
-	Cover      string `json:"cover" binding:"lte=255"`
-	Visibility string `json:"visibility" binding:"required,oneof=private public"`
-	DataType   string `json:"data_type" binding:"omitempty,oneof=apicat swagger openapi postman"`
-	GroupID    uint   `json:"group_id" binding:"omitempty"`
-}
-
-type UpdateProject struct {
-	Title       string `json:"title" binding:"required,lte=255"`
-	Description string `json:"description" binding:"lte=255"`
-	Cover       string `json:"cover" binding:"lte=255"`
-	Visibility  string `json:"visibility" binding:"required,oneof=private public"`
-}
-
-type ProjectID struct {
-	ID string `uri:"project-id" binding:"required"`
-}
-
-type ExportProject struct {
-	Type     string `form:"type" binding:"required,oneof=apicat swagger openapi3.0.0 openapi3.0.1 openapi3.0.2 openapi3.1.0 HTML md"`
-	Download string `form:"download" binding:"omitempty,oneof=true false"`
-}
-
-type TranslateProject struct {
-	MemberID uint `json:"member_id" binding:"required,lte=255"`
-}
-
-type ProjectsListData struct {
-	Auth       []string `form:"auth" binding:"omitempty,dive,oneof=manage write read"`
-	GroupID    uint     `form:"group_id"`
-	IsFollowed bool     `form:"is_followed"`
-}
-
-type ProjectChangeGroupData struct {
-	TargetGroupID uint `json:"target_group_id" binding:"lte=255"`
-}
-
 func ProjectsList(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
-	var data ProjectsListData
+	var data proto.ProjectsListData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -165,7 +127,7 @@ func ProjectsGet(ctx *gin.Context) {
 	p := currentProject.(*project.Projects)
 
 	var (
-		data       ProjectID
+		data       proto.ProjectID
 		authority  string
 		visibility string
 	)
@@ -214,7 +176,7 @@ func ProjectsCreate(ctx *gin.Context) {
 	}
 
 	var (
-		data    CreateProject
+		data    proto.CreateProject
 		content *spec.Spec
 		err     error
 	)
@@ -396,8 +358,8 @@ func ProjectsUpdate(ctx *gin.Context) {
 	}
 
 	var (
-		uriData ProjectID
-		data    UpdateProject
+		uriData proto.ProjectID
+		data    proto.UpdateProject
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
@@ -470,7 +432,7 @@ func ProjectsDelete(ctx *gin.Context) {
 		return
 	}
 
-	var data ProjectID
+	var data proto.ProjectID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -499,8 +461,8 @@ func ProjectsDelete(ctx *gin.Context) {
 
 func ProjectDataGet(ctx *gin.Context) {
 	var (
-		uriData ProjectID
-		data    ExportProject
+		uriData proto.ProjectID
+		data    proto.ExportProject
 		content []byte
 		err     error
 	)
@@ -612,7 +574,7 @@ func ProjectTransfer(ctx *gin.Context) {
 		return
 	}
 
-	data := TranslateProject{}
+	data := proto.TranslateProject{}
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -696,7 +658,7 @@ func ProjectUnFollow(ctx *gin.Context) {
 func ProjectChangeGroup(ctx *gin.Context) {
 	currentProjectMember, _ := ctx.Get("CurrentProjectMember")
 
-	var data ProjectChangeGroupData
+	var data proto.ProjectChangeGroupData
 	if err := ctx.ShouldBindJSON(&data); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

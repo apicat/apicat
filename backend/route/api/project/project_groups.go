@@ -4,31 +4,12 @@ import (
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/gin-gonic/gin"
 )
-
-type ProjectGroupCreateData struct {
-	Name string `json:"name" binding:"required,lte=255"`
-}
-
-type ProjectGroupRenameUriData struct {
-	ID uint `uri:"group_id" binding:"required,gt=0"`
-}
-
-type ProjectGroupRenameData struct {
-	Name string `json:"name" binding:"required,lte=255"`
-}
-
-type ProjectGroupDeleteUriData struct {
-	ID uint `uri:"group_id" binding:"required,gt=0"`
-}
-
-type ProjectGroupOrderData struct {
-	IDs []uint `json:"ids" binding:"required,dive,gte=0"`
-}
 
 func ProjectGroupList(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
@@ -62,7 +43,7 @@ func ProjectGroupList(ctx *gin.Context) {
 func ProjectGroupCreate(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
-	var data ProjectGroupCreateData
+	var data proto.ProjectGroupCreateData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -101,8 +82,8 @@ func ProjectGroupRename(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
 	var (
-		data    ProjectGroupRenameData
-		uriData ProjectGroupRenameUriData
+		data    proto.ProjectGroupRenameData
+		uriData proto.ProjectGroupRenameUriData
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -156,7 +137,7 @@ func ProjectGroupRename(ctx *gin.Context) {
 func ProjectGroupDelete(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
-	var uriData ProjectGroupRenameUriData
+	var uriData proto.ProjectGroupRenameUriData
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -194,7 +175,7 @@ func ProjectGroupOrder(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
 	var (
-		data         ProjectGroupOrderData
+		data         proto.ProjectGroupOrderData
 		displayOrder int = 1
 	)
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
