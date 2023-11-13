@@ -43,10 +43,7 @@ func registerSetConfig(g *gin.RouterGroup) {
 	}
 }
 
-// TODO 分类，分组
-func InitApiRouter(g *gin.RouterGroup) {
-	mocksrv := mock.NewMockServer()
-
+func registerNotLogin(g *gin.RouterGroup) {
 	// 未登录状态下可访问的API
 	notLogin := g.Group("")
 	{
@@ -76,6 +73,11 @@ func InitApiRouter(g *gin.RouterGroup) {
 			collectionShare.GET("/:public_collection_id/share/status", doc.DocShareStatus)
 		}
 	}
+}
+
+func registerHalfLogin(g *gin.RouterGroup) {
+
+	mocksrv := mock.NewMockServer()
 
 	// 半登录状态下可访问的API。半登录：登录或不登录时都可访问，但响应的参数不同
 	halfLogin := g.Group("")
@@ -114,7 +116,9 @@ func InitApiRouter(g *gin.RouterGroup) {
 			definitionResponses.GET("/:response-id", definition.DefinitionResponsesDetail)
 		}
 	}
+}
 
+func registerOnlyLogin(g *gin.RouterGroup) {
 	// 仅登录状态下可访问的API。仅登录：仅登录了apicat便可访问，一般为项目外的操作
 	onlyLogin := g.Group("")
 	onlyLogin.Use(check.CheckMember())
@@ -158,107 +162,144 @@ func InitApiRouter(g *gin.RouterGroup) {
 			projectGroup.PUT("/order", project.ProjectGroupOrder)
 		}
 	}
+}
+
+func registerSys(g *gin.RouterGroup) {
+
+	mocksrv := mock.NewMockServer()
 
 	// 项目内部操作
-	projects := g.Group("/projects/:project-id")
-	projects.Use(jwt.JWTAuthMiddleware(), check.CheckProject(), check.CheckProjectMember(), mocksrv.ClearCache())
+	sys := g.Group("/projects/:project-id")
+	sys.Use(jwt.JWTAuthMiddleware(), check.CheckProject(), check.CheckProjectMember(), mocksrv.ClearCache())
 	{
-		projects := projects.Group("")
-		{
-			projects.PUT("", project.ProjectsUpdate)
-			projects.DELETE("", project.ProjectsDelete)
-			projects.DELETE("/exit", project.ProjectExit)
-			projects.PUT("/transfer", project.ProjectTransfer)
-			projects.GET("/share", project.ProjectShareDetails)
-			projects.PUT("/share/switch", project.ProjectSharingSwitch)
-			projects.PUT("/share/reset", project.ProjectShareReset)
-			projects.POST("/follow", project.ProjectFollow)
-			projects.DELETE("/follow", project.ProjectUnFollow)
-			projects.PUT("/change_group", project.ProjectChangeGroup)
-		}
-
-		definitionSchemas := projects.Group("/definition/schemas")
-		{
-			definitionSchemas.POST("", definition.DefinitionSchemasCreate)
-			definitionSchemas.PUT("/:schemas-id", check.CheckDefinitionSchema(), definition.DefinitionSchemasUpdate)
-			definitionSchemas.DELETE("/:schemas-id", check.CheckDefinitionSchema(), definition.DefinitionSchemasDelete)
-			definitionSchemas.POST("/:schemas-id", check.CheckDefinitionSchema(), definition.DefinitionSchemasCopy)
-			definitionSchemas.PUT("/movement", definition.DefinitionSchemasMove)
-		}
-
-		servers := projects.Group("/servers")
-		{
-			servers.PUT("", server.UrlSettings)
-		}
-
-		globalParameters := projects.Group("/global/parameters")
-		{
-			globalParameters.POST("", global.GlobalParametersCreate)
-			globalParameters.PUT("/:parameter-id", global.GlobalParametersUpdate)
-			globalParameters.DELETE("/:parameter-id", global.GlobalParametersDelete)
-		}
-
-		definitionResponses := projects.Group("/definition/responses")
-		{
-			definitionResponses.POST("", definition.DefinitionResponsesCreate)
-			definitionResponses.PUT("/:response-id", definition.DefinitionResponsesUpdate)
-			definitionResponses.DELETE("/:response-id", definition.DefinitionResponsesDelete)
-		}
-
-		collections := projects.Group("/collections")
-		{
-			collections.POST("", collection.CollectionsCreate)
-			collections.PUT("/:collection-id", check.CheckCollection(), collection.CollectionsUpdate)
-			collections.POST("/:collection-id", check.CheckCollection(), collection.CollectionsCopy)
-			collections.PUT("/movement", collection.CollectionsMovement)
-			collections.DELETE("/:collection-id", check.CheckCollection(), collection.CollectionsDelete)
-			collections.GET("/:collection-id/share", check.CheckCollection(), doc.DocShareDetails)
-			collections.PUT("/:collection-id/share/switch", check.CheckCollection(), doc.DocShareSwitch)
-			collections.PUT("/:collection-id/share/reset", check.CheckCollection(), doc.DocShareReset)
-		}
-
-		trashs := projects.Group("/trashs")
-		{
-			trashs.GET("", trash.TrashsList)
-			trashs.PUT("", trash.TrashsRecover)
-		}
-
-		ais := projects.Group("/ai")
-		{
-			ais.GET("/collections/name", ai.AICreateApiNames)
-			ais.POST("/collections", ai.AICreateCollection)
-			ais.POST("/schemas", ai.AICreateSchema)
-		}
-
-		projectMember := projects.Group("/members")
-		{
-			projectMember.GET("", project.ProjectMembersList)
-			projectMember.POST("", project.ProjectMembersCreate)
-			projectMember.PUT("/authority/:user-id", project.ProjectMembersAuthUpdate)
-			projectMember.DELETE("/:user-id", project.ProjectMembersDelete)
-			projectMember.GET("/without", project.ProjectMembersWithout)
-		}
-
-		collectionHistories := projects.Group("/collections/:collection-id/histories")
-		collectionHistories.Use(check.CheckCollection())
-		{
-			collectionHistories.GET("", doc.CollectionHistoryList)
-			collectionHistories.GET("/:history-id", doc.CollectionHistoryDetails)
-			collectionHistories.GET("/diff", doc.CollectionHistoryDiff)
-			collectionHistories.PUT("/:history-id/restore", doc.CollectionHistoryRestore)
-
-		}
-
-		definitionSchemaHistories := projects.Group("/definition/schemas/:schemas-id/histories")
-		definitionSchemaHistories.Use(check.CheckDefinitionSchema())
-		{
-			definitionSchemaHistories.GET("", definition.DefinitionSchemaHistoryList)
-			definitionSchemaHistories.GET("/:history-id", definition.DefinitionSchemaHistoryDetails)
-			definitionSchemaHistories.GET("/diff", definition.DefinitionSchemaHistoryDiff)
-			definitionSchemaHistories.PUT("/:history-id/restore", definition.DefinitionSchemaHistoryRestore)
-		}
+		registerProject(sys)
+		registerDefinitionSchema(sys)
+		registerServer(sys)
+		registerGlobalParameter(sys)
+		registerDefinitionResponse(sys)
+		registerCollection(sys)
+		registerTrash(sys)
+		registerAI(sys)
+		registerProjectMember(sys)
+		registerCollectionHistory(sys)
+		registerDefinitionSchemaHistory(sys)
 	}
+}
 
+func registerProject(g *gin.RouterGroup) {
+	projects := g.Group("")
+	{
+		projects.PUT("", project.ProjectsUpdate)
+		projects.DELETE("", project.ProjectsDelete)
+		projects.DELETE("/exit", project.ProjectExit)
+		projects.PUT("/transfer", project.ProjectTransfer)
+		projects.GET("/share", project.ProjectShareDetails)
+		projects.PUT("/share/switch", project.ProjectSharingSwitch)
+		projects.PUT("/share/reset", project.ProjectShareReset)
+		projects.POST("/follow", project.ProjectFollow)
+		projects.DELETE("/follow", project.ProjectUnFollow)
+		projects.PUT("/change_group", project.ProjectChangeGroup)
+	}
+}
+
+func registerDefinitionSchema(g *gin.RouterGroup) {
+	definitionSchemas := g.Group("/definition/schemas")
+	{
+		definitionSchemas.POST("", definition.DefinitionSchemasCreate)
+		definitionSchemas.PUT("/:schemas-id", check.CheckDefinitionSchema(), definition.DefinitionSchemasUpdate)
+		definitionSchemas.DELETE("/:schemas-id", check.CheckDefinitionSchema(), definition.DefinitionSchemasDelete)
+		definitionSchemas.POST("/:schemas-id", check.CheckDefinitionSchema(), definition.DefinitionSchemasCopy)
+		definitionSchemas.PUT("/movement", definition.DefinitionSchemasMove)
+	}
+}
+
+func registerServer(g *gin.RouterGroup) {
+	servers := g.Group("/servers")
+	{
+		servers.PUT("", server.UrlSettings)
+	}
+}
+
+func registerGlobalParameter(g *gin.RouterGroup) {
+	globalParameters := g.Group("/global/parameters")
+	{
+		globalParameters.POST("", global.GlobalParametersCreate)
+		globalParameters.PUT("/:parameter-id", global.GlobalParametersUpdate)
+		globalParameters.DELETE("/:parameter-id", global.GlobalParametersDelete)
+	}
+}
+
+func registerDefinitionResponse(g *gin.RouterGroup) {
+	definitionResponses := g.Group("/definition/responses")
+	{
+		definitionResponses.POST("", definition.DefinitionResponsesCreate)
+		definitionResponses.PUT("/:response-id", definition.DefinitionResponsesUpdate)
+		definitionResponses.DELETE("/:response-id", definition.DefinitionResponsesDelete)
+	}
+}
+
+func registerCollection(g *gin.RouterGroup) {
+	collections := g.Group("/collections")
+	{
+		collections.POST("", collection.CollectionsCreate)
+		collections.PUT("/:collection-id", check.CheckCollection(), collection.CollectionsUpdate)
+		collections.POST("/:collection-id", check.CheckCollection(), collection.CollectionsCopy)
+		collections.PUT("/movement", collection.CollectionsMovement)
+		collections.DELETE("/:collection-id", check.CheckCollection(), collection.CollectionsDelete)
+		collections.GET("/:collection-id/share", check.CheckCollection(), doc.DocShareDetails)
+		collections.PUT("/:collection-id/share/switch", check.CheckCollection(), doc.DocShareSwitch)
+		collections.PUT("/:collection-id/share/reset", check.CheckCollection(), doc.DocShareReset)
+	}
+}
+
+func registerTrash(g *gin.RouterGroup) {
+	trashs := g.Group("/trashs")
+	{
+		trashs.GET("", trash.TrashsList)
+		trashs.PUT("", trash.TrashsRecover)
+	}
+}
+
+func registerAI(g *gin.RouterGroup) {
+	ais := g.Group("/ai")
+	{
+		ais.GET("/collections/name", ai.AICreateApiNames)
+		ais.POST("/collections", ai.AICreateCollection)
+		ais.POST("/schemas", ai.AICreateSchema)
+	}
+}
+
+func registerProjectMember(g *gin.RouterGroup) {
+	projectMember := g.Group("/members")
+	{
+		projectMember.GET("", project.ProjectMembersList)
+		projectMember.POST("", project.ProjectMembersCreate)
+		projectMember.PUT("/authority/:user-id", project.ProjectMembersAuthUpdate)
+		projectMember.DELETE("/:user-id", project.ProjectMembersDelete)
+		projectMember.GET("/without", project.ProjectMembersWithout)
+	}
+}
+
+func registerCollectionHistory(g *gin.RouterGroup) {
+	collectionHistories := g.Group("/collections/:collection-id/histories")
+	collectionHistories.Use(check.CheckCollection())
+	{
+		collectionHistories.GET("", doc.CollectionHistoryList)
+		collectionHistories.GET("/:history-id", doc.CollectionHistoryDetails)
+		collectionHistories.GET("/diff", doc.CollectionHistoryDiff)
+		collectionHistories.PUT("/:history-id/restore", doc.CollectionHistoryRestore)
+	}
+}
+
+func registerDefinitionSchemaHistory(g *gin.RouterGroup) {
+	definitionSchemaHistories := g.Group("/definition/schemas/:schemas-id/histories")
+	definitionSchemaHistories.Use(check.CheckDefinitionSchema())
+	{
+		definitionSchemaHistories.GET("", definition.DefinitionSchemaHistoryList)
+		definitionSchemaHistories.GET("/:history-id", definition.DefinitionSchemaHistoryDetails)
+		definitionSchemaHistories.GET("/diff", definition.DefinitionSchemaHistoryDiff)
+		definitionSchemaHistories.PUT("/:history-id/restore", definition.DefinitionSchemaHistoryRestore)
+	}
 }
 
 func registerNoRoute(r *gin.Engine) {

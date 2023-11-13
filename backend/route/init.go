@@ -40,9 +40,10 @@ func Init() {
 	apiRouter := r.Group("/api")
 
 	registerSetConfig(apiRouter)
-
-	InitApiRouter(apiRouter)
-
+	registerNotLogin(apiRouter)
+	registerHalfLogin(apiRouter)
+	registerOnlyLogin(apiRouter)
+	registerSys(apiRouter)
 	registerNoRoute(r)
 
 	r.Run(config.GetSysConfig().App.Host.Value + ":" + config.GetSysConfig().App.Port.Value)
