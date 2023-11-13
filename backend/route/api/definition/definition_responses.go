@@ -8,6 +8,7 @@ import (
 	"github.com/apicat/apicat/backend/module/spec"
 	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/api/global"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
 	"github.com/apicat/apicat/backend/enum"
@@ -37,15 +38,6 @@ func (cr *DefinitionResponsesID) CheckDefinitionResponses(ctx *gin.Context) (*de
 	}
 
 	return definitionResponses, nil
-}
-
-type ResponseDetailData struct {
-	Name        string                 `json:"name" binding:"required,lte=255"`
-	Description string                 `json:"description" binding:"lte=255"`
-	Type        string                 `json:"type" binding:"required,oneof=category response"`
-	Header      []*spec.Schema         `json:"header,omitempty" binding:"omitempty,dive"`
-	Content     map[string]spec.Schema `json:"content,omitempty" binding:"required"`
-	Ref         string                 `json:"$ref,omitempty" binding:"omitempty,lte=255"`
 }
 
 func DefinitionResponsesList(ctx *gin.Context) {
@@ -146,7 +138,7 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	p, _ := currentProject.(*project.Projects)
 
-	data := ResponseDetailData{}
+	data := proto.ResponseDetailData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
@@ -225,7 +217,7 @@ func DefinitionResponsesUpdate(ctx *gin.Context) {
 		return
 	}
 
-	data := ResponseDetailData{}
+	data := proto.ResponseDetailData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),

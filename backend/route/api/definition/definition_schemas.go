@@ -8,6 +8,7 @@ import (
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/api/global"
+	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,42 +17,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type DefinitionSchemaCreate struct {
-	ParentId    uint                   `json:"parent_id" binding:"gte=0"`
-	Name        string                 `json:"name" binding:"required,lte=255"`
-	Description string                 `json:"description" binding:"lte=255"`
-	Type        string                 `json:"type" binding:"required,oneof=category schema"`
-	Schema      map[string]interface{} `json:"schema"`
-}
-
-type DefinitionSchemaUpdate struct {
-	Name        string                 `json:"name" binding:"required,lte=255"`
-	Description string                 `json:"description" binding:"lte=255"`
-	Schema      map[string]interface{} `json:"schema"`
-}
-
-type DefinitionSchemaSearch struct {
-	ParentId uint   `form:"parent_id" binding:"gte=0"`
-	Name     string `form:"name" binding:"lte=255"`
-	Type     string `form:"type" binding:"omitempty,oneof=category schema"`
-}
-
-type DefinitionSchemaID struct {
-	ID uint `uri:"schemas-id" binding:"required,gte=0"`
-}
-
-type DefinitionSchemaMove struct {
-	Target OrderContent `json:"target" binding:"required"`
-	Origin OrderContent `json:"origin" binding:"required"`
-}
-
-type OrderContent struct {
-	Pid uint   `json:"pid" binding:"gte=0"`
-	Ids []uint `json:"ids" binding:"required,dive,gte=0"`
-}
-
 func DefinitionSchemasList(ctx *gin.Context) {
-	var data DefinitionSchemaSearch
+	var data proto.DefinitionSchemaSearch
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -109,7 +76,7 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 		return
 	}
 
-	var data DefinitionSchemaCreate
+	var data proto.DefinitionSchemaCreate
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -184,7 +151,7 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 	d := currentDefinitionSchema.(*definition.DefinitionSchemas)
 
 	var (
-		data DefinitionSchemaUpdate
+		data proto.DefinitionSchemaUpdate
 	)
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
@@ -301,7 +268,7 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 func DefinitionSchemasGet(ctx *gin.Context) {
 	currentDefinitionSchema, _ := ctx.Get("CurrentDefinitionSchema")
 	d := currentDefinitionSchema.(*definition.DefinitionSchemas)
-	var data DefinitionSchemaID
+	var data proto.DefinitionSchemaID
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -398,7 +365,7 @@ func DefinitionSchemasMove(ctx *gin.Context) {
 		return
 	}
 
-	var data DefinitionSchemaMove
+	var data proto.DefinitionSchemaMove
 
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
