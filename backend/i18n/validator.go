@@ -1,4 +1,4 @@
-package translator
+package i18n
 
 import (
 	"fmt"

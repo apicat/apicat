@@ -1,11 +1,11 @@
 package iteration
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/iteration"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"math"
 	"net/http"
@@ -23,7 +23,7 @@ func IterationsList(ctx *gin.Context) {
 		pIDs []uint
 	)
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -45,7 +45,7 @@ func IterationsList(ctx *gin.Context) {
 		targetProject, err := project.NewProjects(data.ProjectID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.QueryFailed"}),
 			})
 			return
 		}
@@ -56,7 +56,7 @@ func IterationsList(ctx *gin.Context) {
 		if err := pm.GetByUserIDAndProjectID(); err != nil {
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"code":    proto.ProjectMemberInsufficientPermissionsCode,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 			})
 			return
 		}
@@ -66,7 +66,7 @@ func IterationsList(ctx *gin.Context) {
 		pms, err := project.GetUserInvolvedProject(currentUser.(*user.Users).ID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.QueryFailed"}),
 			})
 			return
 		}
@@ -85,7 +85,7 @@ func IterationsList(ctx *gin.Context) {
 	projects, err := p.List(pIDs...)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.QueryFailed"}),
 		})
 		return
 	}
@@ -102,7 +102,7 @@ func IterationsList(ctx *gin.Context) {
 	iterationTotal, err := iteration.IterationsCount(pIDs...)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.QueryFailed"}),
 		})
 		return
 	}
@@ -113,7 +113,7 @@ func IterationsList(ctx *gin.Context) {
 	iterations, err := i.List(int(data.Page), int(data.PageSize), pIDs...)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.QueryFailed"}),
 		})
 		return
 	}
@@ -131,7 +131,7 @@ func IterationsList(ctx *gin.Context) {
 	iterationApis, err := iterationApi.List(iterationIDs...)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.QueryFailed"}),
 		})
 		return
 	}
@@ -166,7 +166,7 @@ func IterationsDetails(ctx *gin.Context) {
 		uriData proto.IterationUriData
 	)
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -177,7 +177,7 @@ func IterationsDetails(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Redirect404Page,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.NotFound"}),
 		})
 		return
 	}
@@ -186,7 +186,7 @@ func IterationsDetails(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Redirect404Page,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Projects.NotFound"}),
 		})
 		return
 	}
@@ -197,7 +197,7 @@ func IterationsDetails(ctx *gin.Context) {
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -205,7 +205,7 @@ func IterationsDetails(ctx *gin.Context) {
 	apiNum, err := iteration.IterationApiCount(i.ID, "api")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.CreateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.CreateFailed"}),
 		})
 		return
 	}
@@ -229,7 +229,7 @@ func IterationsCreate(ctx *gin.Context) {
 		data proto.IterationCreateData
 	)
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -240,7 +240,7 @@ func IterationsCreate(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Projects.NotFound"}),
 		})
 		return
 	}
@@ -251,14 +251,14 @@ func IterationsCreate(ctx *gin.Context) {
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 	if !pm.MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -271,14 +271,14 @@ func IterationsCreate(ctx *gin.Context) {
 	i.CreatedBy = currentUser.(*user.Users).ID
 	if err := i.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.CreateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.CreateFailed"}),
 		})
 		return
 	}
 
 	if err := collection.PlanningIterationApi(data.CollectionIDs, i); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.CreateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.CreateFailed"}),
 		})
 		return
 	}
@@ -286,7 +286,7 @@ func IterationsCreate(ctx *gin.Context) {
 	apiNum, err := iteration.IterationApiCount(i.ID, "api")
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.CreateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.CreateFailed"}),
 		})
 		return
 	}
@@ -311,14 +311,14 @@ func IterationsUpdate(ctx *gin.Context) {
 		data    proto.IterationUpdateData
 	)
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -329,7 +329,7 @@ func IterationsUpdate(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.NotFound"}),
 		})
 		return
 	}
@@ -340,14 +340,14 @@ func IterationsUpdate(ctx *gin.Context) {
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 	if !pm.MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -358,13 +358,13 @@ func IterationsUpdate(ctx *gin.Context) {
 	if err := i.Update(); err == nil {
 		if err := collection.PlanningIterationApi(data.CollectionIDs, i); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.UpdateFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.UpdateFailed"}),
 			})
 			return
 		}
 	} else {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.UpdateFailed"}),
 		})
 		return
 	}
@@ -379,7 +379,7 @@ func IterationsDelete(ctx *gin.Context) {
 		uriData proto.IterationUriData
 	)
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -390,7 +390,7 @@ func IterationsDelete(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.NotFound"}),
 		})
 		return
 	}
@@ -401,14 +401,14 @@ func IterationsDelete(ctx *gin.Context) {
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 	if !pm.MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -416,14 +416,14 @@ func IterationsDelete(ctx *gin.Context) {
 	i.DeletedBy = currentUser.(*user.Users).ID
 	if err := i.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.DeleteFailed"}),
 		})
 		return
 	}
 
 	if err := i.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Iteration.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Iteration.DeleteFailed"}),
 		})
 		return
 	}

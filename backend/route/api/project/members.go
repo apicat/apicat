@@ -2,10 +2,10 @@ package project
 
 import (
 	"fmt"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/auth"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"math"
 	"net/http"
@@ -16,7 +16,7 @@ import (
 
 func GetMembers(ctx *gin.Context) {
 	var data proto.GetMembersData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -34,7 +34,7 @@ func GetMembers(ctx *gin.Context) {
 	totalUsers, err := u.Count()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.QueryFailed"}),
 		})
 		return
 	}
@@ -42,7 +42,7 @@ func GetMembers(ctx *gin.Context) {
 	users, err := u.List(data.Page, data.PageSize)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.QueryFailed"}),
 		})
 		return
 	}
@@ -75,13 +75,13 @@ func AddMember(ctx *gin.Context) {
 	if currentUser.(*user.Users).Role != "superadmin" {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.MemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	var data proto.AddMemberData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -92,7 +92,7 @@ func AddMember(ctx *gin.Context) {
 	u.Email = data.Email
 	if err := u.GetByEmail(data.Email); err == nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.MailboxAlreadyExists"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.MailboxAlreadyExists"}),
 		})
 		return
 	}
@@ -100,7 +100,7 @@ func AddMember(ctx *gin.Context) {
 	hashedPassword, err := auth.HashPassword(data.Password)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.CreateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.CreateFailed"}),
 		})
 		return
 	}
@@ -111,7 +111,7 @@ func AddMember(ctx *gin.Context) {
 
 	if err := u.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.CreateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.CreateFailed"}),
 		})
 		return
 	}
@@ -132,13 +132,13 @@ func SetMember(ctx *gin.Context) {
 	if currentUser.(*user.Users).Role != "superadmin" {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.MemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	var userIDData proto.UserIDData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&userIDData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&userIDData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -147,13 +147,13 @@ func SetMember(ctx *gin.Context) {
 
 	if currentUser.(*user.Users).ID == userIDData.UserID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.UpdateFailed"}),
 		})
 		return
 	}
 
 	var data proto.SetMemberData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -164,7 +164,7 @@ func SetMember(ctx *gin.Context) {
 		checkUser, _ := user.NewUsers()
 		if err := checkUser.GetByEmail(data.Email); err == nil && checkUser.ID != userIDData.UserID {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.MailboxAlreadyExists"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.MailboxAlreadyExists"}),
 			})
 			return
 		}
@@ -173,7 +173,7 @@ func SetMember(ctx *gin.Context) {
 	u, err := user.NewUsers(userIDData.UserID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.UpdateFailed"}),
 		})
 		return
 	}
@@ -189,7 +189,7 @@ func SetMember(ctx *gin.Context) {
 		hashedPassword, err := auth.HashPassword(data.Password)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.UpdateFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.UpdateFailed"}),
 			})
 			return
 		}
@@ -198,7 +198,7 @@ func SetMember(ctx *gin.Context) {
 
 	if err := u.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.UpdateFailed"}),
 		})
 		return
 	}
@@ -211,13 +211,13 @@ func DeleteMember(ctx *gin.Context) {
 	if currentUser.(*user.Users).Role != "superadmin" {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.MemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	var userIDData proto.UserIDData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&userIDData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&userIDData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -226,7 +226,7 @@ func DeleteMember(ctx *gin.Context) {
 
 	if currentUser.(*user.Users).ID == userIDData.UserID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.DeleteFailed"}),
 		})
 		return
 	}
@@ -235,7 +235,7 @@ func DeleteMember(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.DeleteFailed"}),
 		})
 		return
 	}
@@ -244,7 +244,7 @@ func DeleteMember(ctx *gin.Context) {
 	pm, err := project.GetUserInvolvedProject(u.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.DeleteFailed"}),
 		})
 		return
 	}
@@ -256,7 +256,7 @@ func DeleteMember(ctx *gin.Context) {
 		}
 	}
 	if len(ps) > 0 {
-		tm := translator.Trasnlate(ctx, &translator.TT{ID: "Member.IsProjectManage"})
+		tm := i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.IsProjectManage"})
 		pns := []string{}
 		for _, v := range ps {
 			if p, err := project.NewProjects(v.ProjectID); err == nil {
@@ -274,7 +274,7 @@ func DeleteMember(ctx *gin.Context) {
 
 	if err := u.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Member.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Member.DeleteFailed"}),
 		})
 		return
 	}

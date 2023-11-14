@@ -3,6 +3,7 @@ package collection
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/iteration"
@@ -11,7 +12,6 @@ import (
 	"github.com/apicat/apicat/backend/module/spec"
 	"github.com/apicat/apicat/backend/module/spec/plugin/export"
 	"github.com/apicat/apicat/backend/module/spec/plugin/openapi"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"time"
@@ -25,7 +25,7 @@ func CollectionsList(ctx *gin.Context) {
 	p, _ := currentProject.(*project.Projects)
 
 	var data proto.CollectionsListData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -37,7 +37,7 @@ func CollectionsList(ctx *gin.Context) {
 	collections, err := c.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.QueryFailed"}),
 		})
 	}
 
@@ -47,7 +47,7 @@ func CollectionsList(ctx *gin.Context) {
 		i, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.QueryFailed"}),
 			})
 			return
 		}
@@ -56,7 +56,7 @@ func CollectionsList(ctx *gin.Context) {
 		cIDs, err := ia.GetCollectionIDByIterationID(i.ID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.QueryFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.QueryFailed"}),
 			})
 			return
 		}
@@ -136,13 +136,13 @@ func CollectionsCreate(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	data := proto.CollectionCreate{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -156,7 +156,7 @@ func CollectionsCreate(ctx *gin.Context) {
 		_, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.CreateFailed"}),
 			})
 			return
 		}
@@ -179,7 +179,7 @@ func CollectionsCreate(ctx *gin.Context) {
 	}
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.CreateFailed"}),
 		})
 		return
 	}
@@ -188,7 +188,7 @@ func CollectionsCreate(ctx *gin.Context) {
 		i, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.CreateFailed"}),
 			})
 			return
 		}
@@ -199,7 +199,7 @@ func CollectionsCreate(ctx *gin.Context) {
 		ia.CollectionType = c.Type
 		if err := ia.Create(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.CreateFailed"}),
 			})
 			return
 		}
@@ -226,13 +226,13 @@ func CollectionsUpdate(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	data := proto.CollectionUpdate{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -250,7 +250,7 @@ func CollectionsUpdate(ctx *gin.Context) {
 	if c.UpdatedBy != currentProjectMember.(*project.ProjectMembers).UserID || c.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
 		if err := ch.Create(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.UpdateFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.UpdateFailed"}),
 			})
 			return
 		}
@@ -261,7 +261,7 @@ func CollectionsUpdate(ctx *gin.Context) {
 	c.UpdatedBy = currentProjectMember.(*project.ProjectMembers).UserID
 	if err := c.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.UpdateFailed"}),
 		})
 		return
 	}
@@ -277,13 +277,13 @@ func CollectionsCopy(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	data := proto.CollectionCopyData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -294,7 +294,7 @@ func CollectionsCopy(ctx *gin.Context) {
 		_, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.CreateFailed"}),
 			})
 			return
 		}
@@ -312,7 +312,7 @@ func CollectionsCopy(ctx *gin.Context) {
 
 	if err := newCollection.CreateDoc(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.CreateFailed"}),
 		})
 		return
 	}
@@ -321,7 +321,7 @@ func CollectionsCopy(ctx *gin.Context) {
 		i, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.CreateFailed"}),
 			})
 			return
 		}
@@ -332,7 +332,7 @@ func CollectionsCopy(ctx *gin.Context) {
 		ia.CollectionType = newCollection.Type
 		if err := ia.Create(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.CreateFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.CreateFailed"}),
 			})
 			return
 		}
@@ -356,13 +356,13 @@ func CollectionsMovement(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	data := proto.CollectionMovement{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -397,13 +397,13 @@ func CollectionsDelete(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	data := proto.CollectionDeleteData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -414,7 +414,7 @@ func CollectionsDelete(ctx *gin.Context) {
 		_, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.DeleteFailed"}),
 			})
 			return
 		}
@@ -422,7 +422,7 @@ func CollectionsDelete(ctx *gin.Context) {
 		collections, err := c.GetSubCollectionsContainsSelf()
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.DeleteFailed"}),
 			})
 			return
 		}
@@ -433,7 +433,7 @@ func CollectionsDelete(ctx *gin.Context) {
 
 		if err := iteration.DeleteIterationApisByCollectionID(cIDs...); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.DeleteFailed"}),
 			})
 			return
 		}
@@ -441,7 +441,7 @@ func CollectionsDelete(ctx *gin.Context) {
 
 	if err := collection.Deletes(c.ID, model.Conn, currentProjectMember.(*project.ProjectMembers).UserID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.DeleteFailed"}),
 		})
 		return
 	}
@@ -451,7 +451,7 @@ func CollectionsDelete(ctx *gin.Context) {
 
 func CollectionDataGet(ctx *gin.Context) {
 	uriData := proto.CollectionDataGetData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -459,7 +459,7 @@ func CollectionDataGet(ctx *gin.Context) {
 	}
 
 	data := proto.ExportCollection{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -470,7 +470,7 @@ func CollectionDataGet(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Projects.NotFound"}),
 		})
 		return
 	}
@@ -478,7 +478,7 @@ func CollectionDataGet(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.NotFound"}),
 		})
 		return
 	}
@@ -512,7 +512,7 @@ func CollectionDataGet(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.ExportFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.ExportFail"}),
 		})
 		return
 	}

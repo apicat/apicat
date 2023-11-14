@@ -3,10 +3,10 @@ package definition
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/definition"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strings"
@@ -16,7 +16,7 @@ import (
 
 func DefinitionSchemaHistoryList(ctx *gin.Context) {
 	uriData := proto.SchemaUriData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -27,7 +27,7 @@ func DefinitionSchemaHistoryList(ctx *gin.Context) {
 	users, err := u.List(0, 0)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.QueryFailed"}),
 		})
 		return
 	}
@@ -41,7 +41,7 @@ func DefinitionSchemaHistoryList(ctx *gin.Context) {
 	histories, err := dsh.List(uriData.SchemaID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.QueryFailed"}),
 		})
 		return
 	}
@@ -80,7 +80,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 	currentDefinitionSchema, _ := ctx.Get("CurrentDefinitionSchema")
 
 	uriData := proto.SchemaHistoryUriData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -91,7 +91,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Redirect404Page,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
@@ -99,7 +99,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 	if currentDefinitionSchema.(*definition.DefinitionSchemas).ID != dsh.SchemaID {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Redirect404Page,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
@@ -108,7 +108,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
 	}
@@ -116,7 +116,7 @@ func DefinitionSchemaHistoryDetails(ctx *gin.Context) {
 	schema := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(dsh.Schema), &schema); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -136,7 +136,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	currentDefinitionSchema, _ := ctx.Get("CurrentDefinitionSchema")
 
 	var data proto.CollectionHistoryDiffData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -149,14 +149,14 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
 	if dsh1.SchemaID != currentDefinitionSchema.(*definition.DefinitionSchemas).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
@@ -164,14 +164,14 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
 	}
 	schema1 := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(dsh1.Schema), &schema1); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -190,14 +190,14 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    proto.Display404ErrorMessage,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.AccountDoesNotExist"}),
 			})
 			return
 		}
 		schema2 := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(currentDefinitionSchema.(*definition.DefinitionSchemas).Schema), &schema2); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 			})
 			return
 		}
@@ -219,7 +219,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
@@ -227,7 +227,7 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	if dsh2.SchemaID != currentDefinitionSchema.(*definition.DefinitionSchemas).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
@@ -236,14 +236,14 @@ func DefinitionSchemaHistoryDiff(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
 	}
 	schema2 := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(dsh2.Schema), &schema2); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -269,13 +269,13 @@ func DefinitionSchemaHistoryRestore(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	uriData := proto.SchemaHistoryUriData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -286,7 +286,7 @@ func DefinitionSchemaHistoryRestore(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
@@ -294,14 +294,14 @@ func DefinitionSchemaHistoryRestore(ctx *gin.Context) {
 	if currentDefinitionSchema.(*definition.DefinitionSchemas).ID != dsh.SchemaID {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
 
 	if err := dsh.Restore(currentDefinitionSchema.(*definition.DefinitionSchemas), currentUser.(*user.Users).ID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.RestoreFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.RestoreFailed"}),
 		})
 		return
 	}

@@ -2,7 +2,7 @@ package route
 
 import (
 	"github.com/apicat/apicat/backend/config"
-	"github.com/apicat/apicat/backend/module/translator"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/route/middleware/db"
 	"github.com/apicat/apicat/backend/route/middleware/log"
 	"github.com/apicat/apicat/frontend"
@@ -20,7 +20,7 @@ func Init() {
 	r.Use(
 		log.RequestIDLog("/assets/", "/static/"),
 		db.CheckDBConnStatus("/assets/", "/static/"),
-		translator.UseValidatori18n(),
+		i18n.UseValidatori18n(),
 		gin.Recovery(),
 	)
 

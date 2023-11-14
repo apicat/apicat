@@ -1,9 +1,9 @@
 package server
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/server"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
@@ -18,7 +18,7 @@ func UrlList(ctx *gin.Context) {
 	servers, err := s.GetByProjectId(p.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Servers.GetFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Servers.GetFailed"}),
 		})
 		return
 	}
@@ -39,7 +39,7 @@ func UrlSettings(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -48,7 +48,7 @@ func UrlSettings(ctx *gin.Context) {
 	p, _ := currentProject.(*project.Projects)
 
 	data := []proto.CreateServer{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -69,7 +69,7 @@ func UrlSettings(ctx *gin.Context) {
 	s := server.NewServers()
 	if err := s.DeleteAndCreateServers(p.ID, resule); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Servers.SetFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Servers.SetFailed"}),
 		})
 		return
 	}

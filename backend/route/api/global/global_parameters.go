@@ -2,11 +2,11 @@ package global
 
 import (
 	"encoding/json"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/global"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/module/apicat_struct"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
@@ -18,10 +18,10 @@ type GlobalParametersID struct {
 }
 
 func (gp *GlobalParametersID) CheckGlobalParameters(ctx *gin.Context) (*global.GlobalParameters, error) {
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&gp)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&gp)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err
 	}
@@ -30,7 +30,7 @@ func (gp *GlobalParametersID) CheckGlobalParameters(ctx *gin.Context) (*global.G
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func GlobalParametersList(ctx *gin.Context) {
 	globalParametersList, err := globalParameters.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.QueryFailed"}),
 		})
 		return
 	}
@@ -62,7 +62,7 @@ func GlobalParametersList(ctx *gin.Context) {
 		var schema proto.ParameterSchema
 		if err := json.Unmarshal([]byte(v.Schema), &schema); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 			})
 			return
 		}
@@ -84,7 +84,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -93,7 +93,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	p, _ := currentProject.(*project.Projects)
 
 	var data proto.GlobalParametersData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -107,13 +107,13 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	count, err := globalParameters.GetCountByName()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.QueryFailed"}),
 		})
 		return
 	}
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -126,7 +126,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	jsonSchema, err := json.Marshal(data.Schema)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -135,7 +135,7 @@ func GlobalParametersCreate(ctx *gin.Context) {
 	globalParameters.Schema = string(jsonSchema)
 	if err := globalParameters.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.CreateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.CreateFailed"}),
 		})
 		return
 	}
@@ -156,13 +156,13 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	var data proto.GlobalParametersData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -179,13 +179,13 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 	count, err := globalParameters.GetCountExcludeTheID()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.QueryFailed"}),
 		})
 		return
 	}
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -197,7 +197,7 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 	jsonSchema, err := json.Marshal(data.Schema)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -206,7 +206,7 @@ func GlobalParametersUpdate(ctx *gin.Context) {
 
 	if err := globalParameters.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.UpdateFailed"}),
 		})
 		return
 	}
@@ -223,7 +223,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -237,7 +237,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 		return
 	}
 	data := IsUnRefData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -247,7 +247,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 	globalParameterSchema := proto.ParameterSchema{}
 	if err := json.Unmarshal([]byte(globalParameters.Schema), &globalParameterSchema); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -267,7 +267,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 	collectionList, err := collections.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.QueryFailed"}),
 		})
 		return
 	}
@@ -277,7 +277,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 			docContent := []map[string]interface{}{}
 			if err := json.Unmarshal([]byte(c.Content), &docContent); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+					"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 				})
 				return
 			}
@@ -288,7 +288,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 					request, err = json.Marshal(v["attrs"])
 					if err != nil {
 						ctx.JSON(http.StatusBadRequest, gin.H{
-							"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+							"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 						})
 						return
 					}
@@ -299,7 +299,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 			apicatRequest := apicat_struct.RequestObject{}
 			if err := json.Unmarshal(request, &apicatRequest); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+					"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 				})
 				return
 			}
@@ -332,7 +332,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 				}
 			default:
 				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.TypeDoesNotExist"}),
+					"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.TypeDoesNotExist"}),
 				})
 				return
 			}
@@ -346,14 +346,14 @@ func GlobalParametersDelete(ctx *gin.Context) {
 
 			if newContent, err := json.Marshal(docContent); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+					"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 				})
 				return
 			} else {
 				c.Content = string(newContent)
 				if err := c.Update(); err != nil {
 					ctx.JSON(http.StatusBadRequest, gin.H{
-						"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.UpdateFailed"}),
+						"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.UpdateFailed"}),
 					})
 					return
 				}
@@ -362,7 +362,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 
 		if err := globalParameters.Delete(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.DeleteFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.DeleteFailed"}),
 			})
 			return
 		}

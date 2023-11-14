@@ -1,9 +1,9 @@
 package project
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
@@ -18,7 +18,7 @@ func ProjectGroupList(ctx *gin.Context) {
 	projectGroups, err := pg.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectGroups.QueryFailed"}),
 		})
 		return
 	}
@@ -43,7 +43,7 @@ func ProjectGroupCreate(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
 	var data proto.ProjectGroupCreateData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -53,7 +53,7 @@ func ProjectGroupCreate(ctx *gin.Context) {
 	count, _ := project.GetProjectGroupCountByName(currentUser.(*user.Users).ID, data.Name)
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NameExists"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectGroups.NameExists"}),
 		})
 		return
 	}
@@ -66,7 +66,7 @@ func ProjectGroupCreate(ctx *gin.Context) {
 	pg.DisplayOrder = displayOrder + 1
 	if err := pg.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.CreateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectGroups.CreateFailed"}),
 		})
 		return
 	}
@@ -85,13 +85,13 @@ func ProjectGroupRename(ctx *gin.Context) {
 		uriData proto.ProjectGroupRenameUriData
 	)
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
 		return
 	}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -102,14 +102,14 @@ func ProjectGroupRename(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectGroups.NotFound"}),
 		})
 		return
 	}
 
 	if pg.UserID != currentUser.(*user.Users).ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectGroups.UpdateFailed"}),
 		})
 		return
 	}
@@ -117,7 +117,7 @@ func ProjectGroupRename(ctx *gin.Context) {
 	count, _ := project.GetProjectGroupCountExcludeTheID(currentUser.(*user.Users).ID, data.Name, pg.ID)
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NameExists"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectGroups.NameExists"}),
 		})
 		return
 	}
@@ -125,7 +125,7 @@ func ProjectGroupRename(ctx *gin.Context) {
 	pg.Name = data.Name
 	if err := pg.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectGroups.UpdateFailed"}),
 		})
 		return
 	}
@@ -137,7 +137,7 @@ func ProjectGroupDelete(ctx *gin.Context) {
 	currentUser, _ := ctx.Get("CurrentUser")
 
 	var uriData proto.ProjectGroupRenameUriData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -148,21 +148,21 @@ func ProjectGroupDelete(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectGroups.NotFound"}),
 		})
 		return
 	}
 
 	if pg.UserID != currentUser.(*user.Users).ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectGroups.DeleteFailed"}),
 		})
 		return
 	}
 
 	if err := pg.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectGroups.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectGroups.DeleteFailed"}),
 		})
 		return
 	}
@@ -177,7 +177,7 @@ func ProjectGroupOrder(ctx *gin.Context) {
 		data         proto.ProjectGroupOrderData
 		displayOrder int = 1
 	)
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})

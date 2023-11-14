@@ -1,9 +1,9 @@
 package user
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/auth"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
@@ -30,7 +30,7 @@ func SetUserInfo(ctx *gin.Context) {
 	currentUser, _ := CurrentUser.(*user.Users)
 
 	var data proto.SetUserInfoData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -40,7 +40,7 @@ func SetUserInfo(ctx *gin.Context) {
 	u, _ := user.NewUsers()
 	if err := u.GetByEmail(data.Email); err == nil && u.ID != currentUser.ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.MailboxAlreadyExists"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.MailboxAlreadyExists"}),
 		})
 		return
 	}
@@ -49,7 +49,7 @@ func SetUserInfo(ctx *gin.Context) {
 	currentUser.Username = data.Username
 	if err := currentUser.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.UpdateFailed"}),
 		})
 		return
 	}
@@ -70,7 +70,7 @@ func ChangePassword(ctx *gin.Context) {
 	currentUser, _ := CurrentUser.(*user.Users)
 
 	var data proto.ChangePasswordData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -79,7 +79,7 @@ func ChangePassword(ctx *gin.Context) {
 
 	if !auth.CheckPasswordHash(data.Password, currentUser.Password) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.WrongPassword"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.WrongPassword"}),
 		})
 		return
 	}
@@ -87,7 +87,7 @@ func ChangePassword(ctx *gin.Context) {
 	hashedPassword, err := auth.HashPassword(data.NewPassword)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.UpdateFailed"}),
 		})
 		return
 	}
@@ -95,7 +95,7 @@ func ChangePassword(ctx *gin.Context) {
 	currentUser.Password = hashedPassword
 	if err := currentUser.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.UpdateFailed"}),
 		})
 		return
 	}

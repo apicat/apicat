@@ -2,12 +2,12 @@ package doc
 
 import (
 	"fmt"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/share"
 	"github.com/apicat/apicat/backend/module/encrypt"
 	"github.com/apicat/apicat/backend/module/random"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"time"
@@ -21,7 +21,7 @@ func DocShareStatus(ctx *gin.Context) {
 		data proto.DocShareStatusData
 	)
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -33,7 +33,7 @@ func DocShareStatus(ctx *gin.Context) {
 	if err := c.GetByPublicId(); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.NotFound"}),
 		})
 		return
 	}
@@ -42,7 +42,7 @@ func DocShareStatus(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Projects.NotFound"}),
 		})
 		return
 	}
@@ -63,7 +63,7 @@ func DocShareDetails(ctx *gin.Context) {
 		if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"code":    proto.ProjectMemberInsufficientPermissionsCode,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 			})
 			return
 		}
@@ -76,7 +76,7 @@ func DocShareDetails(ctx *gin.Context) {
 		secretKey          string
 	)
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -107,7 +107,7 @@ func DocShareSwitch(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -120,12 +120,12 @@ func DocShareSwitch(ctx *gin.Context) {
 	p = currentProject.(*project.Projects)
 	if p.Visibility != 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.PublicProject"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectShare.PublicProject"}),
 		})
 		return
 	}
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -143,7 +143,7 @@ func DocShareSwitch(ctx *gin.Context) {
 
 		if err := c.Update(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ModifySharingStatusFail"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DocShare.ModifySharingStatusFail"}),
 			})
 			return
 		}
@@ -157,7 +157,7 @@ func DocShareSwitch(ctx *gin.Context) {
 		stt.CollectionID = c.ID
 		if err := stt.DeleteByCollectionID(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ResetKeyFail"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DocShare.ResetKeyFail"}),
 			})
 			return
 		}
@@ -165,7 +165,7 @@ func DocShareSwitch(ctx *gin.Context) {
 		c.SharePassword = ""
 		if err := c.Update(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ModifySharingStatusFail"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DocShare.ModifySharingStatusFail"}),
 			})
 			return
 		}
@@ -183,7 +183,7 @@ func DocShareReset(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -196,7 +196,7 @@ func DocShareReset(ctx *gin.Context) {
 	p = currentProject.(*project.Projects)
 	if p.Visibility != 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.PublicProject"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectShare.PublicProject"}),
 		})
 		return
 	}
@@ -205,7 +205,7 @@ func DocShareReset(ctx *gin.Context) {
 	stt.CollectionID = c.ID
 	if err := stt.DeleteByCollectionID(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ResetKeyFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DocShare.ResetKeyFail"}),
 		})
 		return
 	}
@@ -215,7 +215,7 @@ func DocShareReset(ctx *gin.Context) {
 
 	if err := c.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DocShare.ResetKeyFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DocShare.ResetKeyFail"}),
 		})
 		return
 	}
@@ -234,7 +234,7 @@ func DocShareCheck(ctx *gin.Context) {
 		err  error
 	)
 
-	if err = translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err = i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -243,7 +243,7 @@ func DocShareCheck(ctx *gin.Context) {
 
 	if data.SecretKey != c.SharePassword {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.AccessPasswordError"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Share.AccessPasswordError"}),
 		})
 		return
 	}
@@ -257,7 +257,7 @@ func DocShareCheck(ctx *gin.Context) {
 	stt.CollectionID = c.ID
 	if err := stt.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Share.VerifyKeyFailed"}),
 		})
 		return
 	}

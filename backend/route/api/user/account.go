@@ -1,9 +1,9 @@
 package user
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/auth"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strings"
@@ -13,7 +13,7 @@ import (
 
 func EmailLogin(ctx *gin.Context) {
 	var data proto.LoginEmail
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -23,14 +23,14 @@ func EmailLogin(ctx *gin.Context) {
 	u, _ := user.NewUsers()
 	if err := u.GetByEmail(data.Email); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
 	}
 
 	if !auth.CheckPasswordHash(data.Password, u.Password) {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.WrongPassword"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.WrongPassword"}),
 		})
 		return
 	}
@@ -38,7 +38,7 @@ func EmailLogin(ctx *gin.Context) {
 	token, err := auth.GenerateToken(u.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.LoginFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.LoginFailed"}),
 		})
 		return
 	}
@@ -59,7 +59,7 @@ func EmailLogin(ctx *gin.Context) {
 
 func EmailRegister(ctx *gin.Context) {
 	var data proto.RegisterEmail
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -69,7 +69,7 @@ func EmailRegister(ctx *gin.Context) {
 	u, _ := user.NewUsers()
 	if err := u.GetByEmail(data.Email); err == nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.MailboxAlreadyExists"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.MailboxAlreadyExists"}),
 		})
 		return
 	}
@@ -77,7 +77,7 @@ func EmailRegister(ctx *gin.Context) {
 	hashedPassword, err := auth.HashPassword(data.Password)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.RegistrationFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.RegistrationFailed"}),
 		})
 		return
 	}
@@ -89,7 +89,7 @@ func EmailRegister(ctx *gin.Context) {
 	userCount, err := u.Count()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.RegistrationFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.RegistrationFailed"}),
 		})
 		return
 	}
@@ -101,7 +101,7 @@ func EmailRegister(ctx *gin.Context) {
 
 	if err := u.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.RegistrationFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.RegistrationFailed"}),
 		})
 		return
 	}
@@ -109,7 +109,7 @@ func EmailRegister(ctx *gin.Context) {
 	token, err := auth.GenerateToken(u.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.RegistrationFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.RegistrationFailed"}),
 		})
 		return
 	}

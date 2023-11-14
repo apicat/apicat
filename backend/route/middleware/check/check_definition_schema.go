@@ -1,9 +1,9 @@
 package check
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/definition"
 	"github.com/apicat/apicat/backend/model/project"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
@@ -30,7 +30,7 @@ func CheckDefinitionSchema() gin.HandlerFunc {
 		if err := ctx.ShouldBindUri(&data); err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    responseCode,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.NotFound"}),
 			})
 			ctx.Abort()
 			return
@@ -40,7 +40,7 @@ func CheckDefinitionSchema() gin.HandlerFunc {
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    responseCode,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.NotFound"}),
 			})
 			ctx.Abort()
 			return
@@ -49,7 +49,7 @@ func CheckDefinitionSchema() gin.HandlerFunc {
 		if ds.ProjectId != currentProject.(*project.Projects).ID {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    responseCode,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.NotFound"}),
 			})
 			ctx.Abort()
 			return

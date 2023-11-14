@@ -2,11 +2,11 @@ package definition
 
 import (
 	"encoding/json"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/definition"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/module/spec"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/api/global"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
@@ -19,10 +19,10 @@ type DefinitionResponsesID struct {
 }
 
 func (cr *DefinitionResponsesID) CheckDefinitionResponses(ctx *gin.Context) (*definition.DefinitionResponses, error) {
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&cr)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&cr)); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func (cr *DefinitionResponsesID) CheckDefinitionResponses(ctx *gin.Context) (*de
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "GlobalParameters.NotFound"}),
 		})
 		return nil, err
 	}
@@ -48,7 +48,7 @@ func DefinitionResponsesList(ctx *gin.Context) {
 	definitionResponsesList, err := definitionResponses.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionResponses.QueryFailed"}),
 		})
 		return
 	}
@@ -59,7 +59,7 @@ func DefinitionResponsesList(ctx *gin.Context) {
 		if v.Header != "" {
 			if err := json.Unmarshal([]byte(v.Header), &header); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+					"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 				})
 				return
 			}
@@ -69,7 +69,7 @@ func DefinitionResponsesList(ctx *gin.Context) {
 		if v.Content != "" {
 			if err := json.Unmarshal([]byte(v.Content), &content); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+					"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 				})
 				return
 			}
@@ -99,7 +99,7 @@ func DefinitionResponsesDetail(ctx *gin.Context) {
 	if definitionResponses.Header != "" {
 		if err := json.Unmarshal([]byte(definitionResponses.Header), &header); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 			})
 			return
 		}
@@ -108,7 +108,7 @@ func DefinitionResponsesDetail(ctx *gin.Context) {
 	if definitionResponses.Content != "" {
 		if err := json.Unmarshal([]byte(definitionResponses.Content), &content); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 			})
 			return
 		}
@@ -129,7 +129,7 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -138,7 +138,7 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 	p, _ := currentProject.(*project.Projects)
 
 	data := proto.ResponseDetailData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -153,13 +153,13 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 	count, err := definitionResponses.GetCountByName()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionResponses.QueryFailed"}),
 		})
 		return
 	}
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -174,7 +174,7 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 	header, err := json.Marshal(responseHeader)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -183,7 +183,7 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 	content, err := json.Marshal(data.Content)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -191,7 +191,7 @@ func DefinitionResponsesCreate(ctx *gin.Context) {
 
 	if err := definitionResponses.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.CreateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionResponses.CreateFailed"}),
 		})
 		return
 	}
@@ -211,13 +211,13 @@ func DefinitionResponsesUpdate(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	data := proto.ResponseDetailData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -234,13 +234,13 @@ func DefinitionResponsesUpdate(ctx *gin.Context) {
 	count, err := definitionResponses.GetCountExcludeTheID()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionResponses.QueryFailed"}),
 		})
 		return
 	}
 	if count > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -250,7 +250,7 @@ func DefinitionResponsesUpdate(ctx *gin.Context) {
 	header, err := json.Marshal(data.Header)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -259,7 +259,7 @@ func DefinitionResponsesUpdate(ctx *gin.Context) {
 	content, err := json.Marshal(data.Content)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -267,7 +267,7 @@ func DefinitionResponsesUpdate(ctx *gin.Context) {
 
 	if err := definitionResponses.Update(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionResponses.UpdateFailed"}),
 		})
 		return
 	}
@@ -280,7 +280,7 @@ func DefinitionResponsesDelete(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -292,7 +292,7 @@ func DefinitionResponsesDelete(ctx *gin.Context) {
 	}
 
 	data := global.IsUnRefData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -307,14 +307,14 @@ func DefinitionResponsesDelete(ctx *gin.Context) {
 
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionResponses.DeleteFailed"}),
 		})
 		return
 	}
 
 	if err := definitionResponses.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionResponses.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionResponses.DeleteFailed"}),
 		})
 		return
 	}

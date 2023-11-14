@@ -1,9 +1,9 @@
 package check
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
@@ -15,7 +15,7 @@ func CheckProjectMember() gin.HandlerFunc {
 		p, exists := ctx.Get("CurrentProject")
 		if !exists {
 			ctx.JSON(http.StatusNotFound, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Projects.NotFound"}),
 			})
 			ctx.Abort()
 			return
@@ -25,7 +25,7 @@ func CheckProjectMember() gin.HandlerFunc {
 		if !exists {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    proto.InvalidOrIncorrectLoginToken,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			ctx.Abort()
 			return
@@ -38,7 +38,7 @@ func CheckProjectMember() gin.HandlerFunc {
 		if err := member.GetByUserIDAndProjectID(); err != nil {
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"code":    proto.ProjectMemberInsufficientPermissionsCode,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 			})
 			ctx.Abort()
 			return

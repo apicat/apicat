@@ -1,9 +1,9 @@
 package project
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"math"
 	"net/http"
@@ -16,7 +16,7 @@ func ProjectMembersList(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 
 	var data proto.GetMembersData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -35,7 +35,7 @@ func ProjectMembersList(ctx *gin.Context) {
 	totalMember, err := member.Count()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.QueryFailed"}),
 		})
 		return
 	}
@@ -44,7 +44,7 @@ func ProjectMembersList(ctx *gin.Context) {
 	members, err := member.List(data.Page, data.PageSize)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.QueryFailed"}),
 		})
 		return
 	}
@@ -57,7 +57,7 @@ func ProjectMembersList(ctx *gin.Context) {
 	users, err := user.UserListByIDs(userIDs)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.QueryFailed"}),
 		})
 		return
 	}
@@ -93,7 +93,7 @@ func MemberGetByUserID(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 
 	data := proto.GetPathUserID{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -103,7 +103,7 @@ func MemberGetByUserID(ctx *gin.Context) {
 	u, err := user.NewUsers(data.UserID)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.QueryFailed"}),
 		})
 		return
 	}
@@ -113,7 +113,7 @@ func MemberGetByUserID(ctx *gin.Context) {
 	pm.ProjectID = currentProject.(*project.Projects).ID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.QueryFailed"}),
 		})
 		return
 	}
@@ -134,13 +134,13 @@ func ProjectMembersCreate(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	data := proto.CreateProjectMemberData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -186,13 +186,13 @@ func ProjectMembersDelete(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	data := proto.GetPathUserID{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -201,7 +201,7 @@ func ProjectMembersDelete(ctx *gin.Context) {
 
 	if data.UserID == currentProjectMember.(*project.ProjectMembers).UserID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.DeleteFailed"}),
 		})
 		return
 	}
@@ -212,14 +212,14 @@ func ProjectMembersDelete(ctx *gin.Context) {
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.NotFound"}),
 		})
 		return
 	}
 
 	if err := pm.Delete(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.DeleteFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.DeleteFailed"}),
 		})
 	}
 
@@ -232,13 +232,13 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	data := proto.GetPathUserID{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -250,13 +250,13 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 	pm.ProjectID = currentProjectMember.(*project.ProjectMembers).ProjectID
 	if err := pm.GetByUserIDAndProjectID(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.NotFound"}),
 		})
 		return
 	}
 
 	bodyData := proto.UpdateProjectMemberAuthData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&bodyData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&bodyData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -266,7 +266,7 @@ func ProjectMembersAuthUpdate(ctx *gin.Context) {
 	pm.Authority = bodyData.Authority
 	if err := pm.Update(); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.UpdateFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.UpdateFailed"}),
 		})
 	}
 
@@ -278,7 +278,7 @@ func ProjectMembersWithout(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberIsManage() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -287,7 +287,7 @@ func ProjectMembersWithout(ctx *gin.Context) {
 	users, err := u.List(0, 0)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.QueryFailed"}),
 		})
 		return
 	}
@@ -297,7 +297,7 @@ func ProjectMembersWithout(ctx *gin.Context) {
 	projectMembers, err := projectMember.List(0, 0)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectMember.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectMember.QueryFailed"}),
 		})
 		return
 	}

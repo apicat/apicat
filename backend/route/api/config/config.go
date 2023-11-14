@@ -3,8 +3,8 @@ package config
 import (
 	"fmt"
 	"github.com/apicat/apicat/backend/config"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -68,7 +68,7 @@ func GetDBConfig(ctx *gin.Context) {
 
 func SetDBConfig(ctx *gin.Context) {
 	data := proto.DBConfigData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -100,7 +100,7 @@ func SetDBConfig(ctx *gin.Context) {
 	}
 	if !ok {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ENV.VarReadFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ENV.VarReadFailed"}),
 		})
 		return
 	}
@@ -119,11 +119,11 @@ func SetDBConfig(ctx *gin.Context) {
 	if connStatus != 1 {
 		switch connStatus {
 		case 2:
-			tm = translator.Trasnlate(ctx, &translator.TT{ID: "DB.ConnectFailed"})
+			tm = i18n.Trasnlate(ctx, &i18n.TT{ID: "DB.ConnectFailed"})
 		case 3:
-			tm = translator.Trasnlate(ctx, &translator.TT{ID: "DB.NotFound"})
+			tm = i18n.Trasnlate(ctx, &i18n.TT{ID: "DB.NotFound"})
 		default:
-			tm = translator.Trasnlate(ctx, &translator.TT{ID: "DB.ConnectFailed"})
+			tm = i18n.Trasnlate(ctx, &i18n.TT{ID: "DB.ConnectFailed"})
 		}
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": fmt.Sprintf(tm, err.Error()),
@@ -133,7 +133,7 @@ func SetDBConfig(ctx *gin.Context) {
 
 	if err := config.SaveConfig(&sysCfg); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Config.SaveFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Config.SaveFailed"}),
 		})
 		return
 	}

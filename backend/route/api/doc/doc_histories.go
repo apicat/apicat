@@ -2,10 +2,10 @@ package doc
 
 import (
 	"fmt"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/user"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strings"
@@ -15,7 +15,7 @@ import (
 
 func CollectionHistoryList(ctx *gin.Context) {
 	uriData := proto.CollectionDataGetData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -26,7 +26,7 @@ func CollectionHistoryList(ctx *gin.Context) {
 	users, err := u.List(0, 0)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.QueryFailed"}),
 		})
 		return
 	}
@@ -40,7 +40,7 @@ func CollectionHistoryList(ctx *gin.Context) {
 	histories, err := ch.List(uriData.CollectionID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.QueryFailed"}),
 		})
 		return
 	}
@@ -79,7 +79,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
 
 	uriData := proto.CollectionHistoryUriData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -90,7 +90,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Redirect404Page,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
@@ -98,7 +98,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 	if currentCollection.(*collection.Collections).ID != ch.CollectionId {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Redirect404Page,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
@@ -107,7 +107,7 @@ func CollectionHistoryDetails(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
 	}
@@ -126,7 +126,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 	currentCollection, _ := ctx.Get("CurrentCollection")
 
 	var data proto.CollectionHistoryDiffData
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -139,14 +139,14 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
 	if ch1.CollectionId != currentCollection.(*collection.Collections).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
@@ -154,7 +154,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
 	}
@@ -173,7 +173,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    proto.Display404ErrorMessage,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.AccountDoesNotExist"}),
 			})
 			return
 		}
@@ -195,14 +195,14 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
 	if ch2.CollectionId != currentCollection.(*collection.Collections).ID {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
@@ -210,7 +210,7 @@ func CollectionHistoryDiff(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "User.AccountDoesNotExist"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "User.AccountDoesNotExist"}),
 		})
 		return
 	}
@@ -235,13 +235,13 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	uriData := proto.CollectionHistoryUriData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&uriData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -252,7 +252,7 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
@@ -260,14 +260,14 @@ func CollectionHistoryRestore(ctx *gin.Context) {
 	if currentCollection.(*collection.Collections).ID != ch.CollectionId {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.NotFound"}),
 		})
 		return
 	}
 
 	if err := ch.Restore(currentCollection.(*collection.Collections), currentUser.(*user.Users).ID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "History.RestoreFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "History.RestoreFailed"}),
 		})
 		return
 	}

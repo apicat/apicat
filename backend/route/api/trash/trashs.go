@@ -1,9 +1,9 @@
 package trash
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/project"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
@@ -19,7 +19,7 @@ func TrashsList(ctx *gin.Context) {
 	collections, err := c.TrashList()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Trashs.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Trashs.QueryFailed"}),
 		})
 	}
 
@@ -42,13 +42,13 @@ func TrashsRecover(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	trashsRecoverQuery := proto.TrashsRecoverQuery{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&trashsRecoverQuery)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&trashsRecoverQuery)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -56,7 +56,7 @@ func TrashsRecover(ctx *gin.Context) {
 	}
 
 	trashsRecoverBody := proto.TrashsRecoverBody{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&trashsRecoverBody)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&trashsRecoverBody)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -82,7 +82,7 @@ func TrashsRecover(ctx *gin.Context) {
 
 	if !allOK {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Trashs.PartialRecoveryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Trashs.PartialRecoveryFailed"}),
 		})
 		return
 	}

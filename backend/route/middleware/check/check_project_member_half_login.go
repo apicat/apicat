@@ -1,12 +1,12 @@
 package check
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/share"
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/encrypt"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strconv"
@@ -21,7 +21,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		if !exists {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    proto.Redirect404Page,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Projects.NotFound"}),
 			})
 			ctx.Abort()
 			return
@@ -48,7 +48,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		if token == "" || len(token) < 1 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    proto.InvalidOrIncorrectAccessToken,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Share.InvalidToken"}),
 			})
 			ctx.Abort()
 			return
@@ -60,7 +60,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		if err := stt.GetByShareToken(); err != nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    proto.InvalidOrIncorrectAccessToken,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Share.InvalidToken"}),
 			})
 			ctx.Abort()
 			return
@@ -71,7 +71,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 		if stt.Expiration.Before(now) {
 			if err := stt.Delete(); err != nil {
 				ctx.JSON(http.StatusInternalServerError, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.DeleteFailed"}),
+					"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Share.DeleteFailed"}),
 				})
 				ctx.Abort()
 				return
@@ -79,7 +79,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    proto.InvalidOrIncorrectAccessToken,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.tokenHasExpired"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Share.tokenHasExpired"}),
 			})
 			ctx.Abort()
 			return
@@ -90,7 +90,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 			if p.(*project.Projects).ID != stt.ProjectID {
 				ctx.JSON(http.StatusUnauthorized, gin.H{
 					"code":    proto.InvalidOrIncorrectAccessToken,
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
+					"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Share.InvalidToken"}),
 				})
 				ctx.Abort()
 				return
@@ -105,7 +105,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 				if p.(*project.Projects).ID != stt.ProjectID {
 					ctx.JSON(http.StatusUnauthorized, gin.H{
 						"code":    proto.InvalidOrIncorrectAccessToken,
-						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
+						"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Share.InvalidToken"}),
 					})
 					ctx.Abort()
 					return
@@ -114,7 +114,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 				collectionID, err := strconv.Atoi(collectionIDStr)
 				if err != nil {
 					ctx.JSON(http.StatusBadRequest, gin.H{
-						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
+						"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.NotFound"}),
 					})
 					ctx.Abort()
 					return
@@ -124,7 +124,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 				if err != nil {
 					ctx.JSON(http.StatusNotFound, gin.H{
 						"code":    proto.Redirect404Page,
-						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Collections.NotFound"}),
+						"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Collections.NotFound"}),
 					})
 					ctx.Abort()
 					return
@@ -133,7 +133,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 				if c.ID != stt.CollectionID {
 					ctx.JSON(http.StatusUnauthorized, gin.H{
 						"code":    proto.InvalidOrIncorrectAccessToken,
-						"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.InvalidToken"}),
+						"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Share.InvalidToken"}),
 					})
 					ctx.Abort()
 					return
@@ -144,7 +144,7 @@ func CheckProjectMemberHalfLogin() gin.HandlerFunc {
 
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"code":    proto.InvalidOrIncorrectAccessToken,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		ctx.Abort()
 		return

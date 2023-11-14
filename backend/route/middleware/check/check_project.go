@@ -1,8 +1,8 @@
 package check
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/project"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 
@@ -25,7 +25,7 @@ func CheckProject() gin.HandlerFunc {
 		if err := ctx.ShouldBindUri(&data); err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    responseCode,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Projects.NotFound"}),
 			})
 			ctx.Abort()
 			return
@@ -35,7 +35,7 @@ func CheckProject() gin.HandlerFunc {
 		if err != nil {
 			ctx.JSON(http.StatusNotFound, gin.H{
 				"code":    responseCode,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Projects.NotFound"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Projects.NotFound"}),
 			})
 			ctx.Abort()
 			return

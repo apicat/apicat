@@ -2,6 +2,7 @@ package ai
 
 import (
 	"encoding/json"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/definition"
@@ -10,7 +11,6 @@ import (
 	"github.com/apicat/apicat/backend/module/language"
 	"github.com/apicat/apicat/backend/module/openai"
 	"github.com/apicat/apicat/backend/module/spec/plugin/openapi"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strconv"
@@ -26,7 +26,7 @@ func AICreateCollection(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -38,7 +38,7 @@ func AICreateCollection(ctx *gin.Context) {
 	)
 
 	data := &proto.AICreateCollectionStructure{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -51,7 +51,7 @@ func AICreateCollection(ctx *gin.Context) {
 		_, err := iteration.NewIterations(data.IterationID)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.CollectionCreateFail"}),
 			})
 			return
 		}
@@ -62,7 +62,7 @@ func AICreateCollection(ctx *gin.Context) {
 		if err != nil {
 			slog.DebugCtx(ctx, "DefinitionSchemas get failed", slog.String("err", err.Error()), slog.String("SchemaID", strconv.Itoa(int(data.SchemaID))))
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.NotFound"}),
 			})
 			return
 		}
@@ -73,7 +73,7 @@ func AICreateCollection(ctx *gin.Context) {
 		if err != nil || openapiContent == "" {
 			slog.DebugCtx(ctx, "CreateApiBySchema Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.CollectionCreateFail"}),
 			})
 			return
 		}
@@ -84,7 +84,7 @@ func AICreateCollection(ctx *gin.Context) {
 		if err != nil || openapiContent == "" {
 			slog.DebugCtx(ctx, "CreateApi Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))
 			ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.CollectionCreateFail"}),
 			})
 			return
 		}
@@ -94,7 +94,7 @@ func AICreateCollection(ctx *gin.Context) {
 	if err != nil {
 		slog.DebugCtx(ctx, "JSON Unmarshal Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.CollectionCreateFail"}),
 		})
 		return
 	}
@@ -102,7 +102,7 @@ func AICreateCollection(ctx *gin.Context) {
 	if len(content.Collections) == 0 {
 		slog.DebugCtx(ctx, "No collection item")
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.CollectionCreateFail"}),
 		})
 		return
 	}
@@ -118,7 +118,7 @@ func AICreateCollection(ctx *gin.Context) {
 	if len(records) == 0 {
 		slog.DebugCtx(ctx, "CollectionsImport Failed")
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.CollectionCreateFail"}),
 		})
 		return
 	}
@@ -128,7 +128,7 @@ func AICreateCollection(ctx *gin.Context) {
 			i, err := iteration.NewIterations(data.IterationID)
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+					"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.CollectionCreateFail"}),
 				})
 				return
 			}
@@ -139,7 +139,7 @@ func AICreateCollection(ctx *gin.Context) {
 			ia.CollectionType = v.Type
 			if err := ia.Create(); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+					"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.CollectionCreateFail"}),
 				})
 				return
 			}
@@ -164,7 +164,7 @@ func AICreateSchema(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -186,7 +186,7 @@ func AICreateSchema(ctx *gin.Context) {
 	}
 
 	data := &proto.AICreateSchemaStructure{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -200,7 +200,7 @@ func AICreateSchema(ctx *gin.Context) {
 	if err != nil || openapiContent == "" {
 		slog.DebugCtx(ctx, "CreateSchema Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.SchemaCreateFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.SchemaCreateFail"}),
 		})
 		return
 	}
@@ -209,7 +209,7 @@ func AICreateSchema(ctx *gin.Context) {
 	if err := json.Unmarshal([]byte(openapiContent), js); err != nil {
 		slog.DebugCtx(ctx, "JSON Unmarshal Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.SchemaCreateFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.SchemaCreateFail"}),
 		})
 		return
 	}
@@ -222,7 +222,7 @@ func AICreateSchema(ctx *gin.Context) {
 	if err != nil {
 		slog.DebugCtx(ctx, "definitions search Failed", slog.String("err", err.Error()), slog.String("ProjectId", strconv.FormatUint(uint64(d.ProjectId), 10)), slog.String("Name", d.Name))
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.SchemaCreateFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.SchemaCreateFail"}),
 		})
 		return
 	}
@@ -236,7 +236,7 @@ func AICreateSchema(ctx *gin.Context) {
 	if err := d.Create(); err != nil {
 		slog.DebugCtx(ctx, "definition Create Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CreateFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.CreateFail"}),
 		})
 		return
 	}
@@ -260,7 +260,7 @@ func AICreateApiNames(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -271,7 +271,7 @@ func AICreateApiNames(ctx *gin.Context) {
 	)
 
 	data := &proto.AICreateApiNameStructure{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -283,7 +283,7 @@ func AICreateApiNames(ctx *gin.Context) {
 		slog.DebugCtx(ctx, "DefinitionSchemas get failed", slog.String("err", err.Error()), slog.String("SchemaID", strconv.Itoa(int(data.SchemaID))))
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.NotFound"}),
 		})
 		return
 	}
@@ -294,7 +294,7 @@ func AICreateApiNames(ctx *gin.Context) {
 	if err != nil || openapiContent == "" {
 		slog.DebugCtx(ctx, "ListApiBySchema Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.CollectionCreateFail"}),
 		})
 		return
 	}
@@ -303,7 +303,7 @@ func AICreateApiNames(ctx *gin.Context) {
 	if err := json.Unmarshal([]byte(openapiContent), &arr); err != nil {
 		slog.DebugCtx(ctx, "JSON Unmarshal Failed", slog.String("err", err.Error()), slog.String("openapiContent", openapiContent))
 		ctx.JSON(http.StatusUnprocessableEntity, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "AI.CollectionCreateFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "AI.CollectionCreateFail"}),
 		})
 		return
 	}

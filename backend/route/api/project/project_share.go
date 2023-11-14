@@ -2,12 +2,12 @@ package project
 
 import (
 	"fmt"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/project"
 	"github.com/apicat/apicat/backend/model/share"
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/encrypt"
 	"github.com/apicat/apicat/backend/module/random"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"time"
@@ -51,7 +51,7 @@ func ProjectShareStatus(ctx *gin.Context) {
 	if authority == "none" && visibility == "private" && !hasShared {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.Redirect403Page,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -71,7 +71,7 @@ func ProjectShareDetails(ctx *gin.Context) {
 		if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 			ctx.JSON(http.StatusForbidden, gin.H{
 				"code":    proto.ProjectMemberInsufficientPermissionsCode,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 			})
 			return
 		}
@@ -100,7 +100,7 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -113,12 +113,12 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 	p = currentProject.(*project.Projects)
 	if p.Visibility != 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.PublicProject"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectShare.PublicProject"}),
 		})
 		return
 	}
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -131,7 +131,7 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 
 			if err := p.Save(); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.ModifySharingStatusFail"}),
+					"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectShare.ModifySharingStatusFail"}),
 				})
 				return
 			}
@@ -146,7 +146,7 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 		stt.ProjectID = p.ID
 		if err := stt.DeleteByProjectIDAndCollectionID(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.ModifySharingStatusFail"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectShare.ModifySharingStatusFail"}),
 			})
 			return
 		}
@@ -154,7 +154,7 @@ func ProjectSharingSwitch(ctx *gin.Context) {
 		p.SharePassword = ""
 		if err := p.Save(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.ModifySharingStatusFail"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectShare.ModifySharingStatusFail"}),
 			})
 			return
 		}
@@ -169,7 +169,7 @@ func ProjectShareReset(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -182,7 +182,7 @@ func ProjectShareReset(ctx *gin.Context) {
 	p = currentProject.(*project.Projects)
 	if p.Visibility != 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.PublicProject"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectShare.PublicProject"}),
 		})
 		return
 	}
@@ -191,7 +191,7 @@ func ProjectShareReset(ctx *gin.Context) {
 	stt.ProjectID = p.ID
 	if err := stt.DeleteByProjectIDAndCollectionID(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.ResetKeyFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectShare.ResetKeyFail"}),
 		})
 		return
 	}
@@ -201,7 +201,7 @@ func ProjectShareReset(ctx *gin.Context) {
 	p.SharePassword = secretKey
 	if err := p.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "ProjectShare.ResetKeyFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "ProjectShare.ResetKeyFail"}),
 		})
 		return
 	}
@@ -221,7 +221,7 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 	)
 
 	p = currentProject.(*project.Projects)
-	if err = translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err = i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -230,7 +230,7 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 
 	if data.SecretKey != p.SharePassword {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.AccessPasswordError"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Share.AccessPasswordError"}),
 		})
 		return
 	}
@@ -243,7 +243,7 @@ func ProjectShareSecretkeyCheck(ctx *gin.Context) {
 	stt.ProjectID = p.ID
 	if err := stt.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Share.VerifyKeyFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Share.VerifyKeyFailed"}),
 		})
 		return
 	}

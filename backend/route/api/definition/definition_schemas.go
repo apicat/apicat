@@ -3,10 +3,10 @@ package definition
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/collection"
 	"github.com/apicat/apicat/backend/model/definition"
 	"github.com/apicat/apicat/backend/model/project"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/api/global"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
@@ -19,7 +19,7 @@ import (
 func DefinitionSchemasList(ctx *gin.Context) {
 	var data proto.DefinitionSchemaSearch
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -38,7 +38,7 @@ func DefinitionSchemasList(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{
 			"code":    proto.Display404ErrorMessage,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.NotFound"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.NotFound"}),
 		})
 		return
 	}
@@ -48,7 +48,7 @@ func DefinitionSchemasList(ctx *gin.Context) {
 		schema := make(map[string]interface{})
 		if err := json.Unmarshal([]byte(d.Schema), &schema); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 			})
 			return
 		}
@@ -70,14 +70,14 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	var data proto.DefinitionSchemaCreate
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -87,7 +87,7 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 	schemaJson, err := json.Marshal(data.Schema)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -99,13 +99,13 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 	definitions, err := d.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.QueryFailed"}),
 		})
 		return
 	}
 	if len(definitions) > 0 {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -117,7 +117,7 @@ func DefinitionSchemasCreate(ctx *gin.Context) {
 	d.UpdatedBy = currentProjectMember.(*project.ProjectMembers).UserID
 	if err := d.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CreateFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.CreateFail"}),
 		})
 		return
 	}
@@ -141,7 +141,7 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -153,7 +153,7 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 		data proto.DefinitionSchemaUpdate
 	)
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -170,7 +170,7 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 	if d.UpdatedBy != currentProjectMember.(*project.ProjectMembers).UserID || d.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
 		if err := dsh.Create(); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.UpdateFail"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.UpdateFail"}),
 			})
 			return
 		}
@@ -179,7 +179,7 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 	schemaJson, err := json.Marshal(data.Schema)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -189,14 +189,14 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 	definitions, err := d.List()
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.QueryFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.QueryFailed"}),
 		})
 		return
 	}
 
 	if len(definitions) > 0 && definitions[0].ID != d.ID {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.NameExists"}),
 		})
 		return
 	}
@@ -205,7 +205,7 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 	d.UpdatedBy = currentProjectMember.(*project.ProjectMembers).UserID
 	if err := d.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.UpdateFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.UpdateFail"}),
 		})
 		return
 	}
@@ -218,7 +218,7 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -228,7 +228,7 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 
 	// 模型解引用
 	isUnRefData := global.IsUnRefData{}
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&isUnRefData)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&isUnRefData)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -256,7 +256,7 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 
 	if err := d.Delete(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.DeleteFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.DeleteFail"}),
 		})
 		return
 	}
@@ -269,7 +269,7 @@ func DefinitionSchemasGet(ctx *gin.Context) {
 	d := currentDefinitionSchema.(*definition.DefinitionSchemas)
 	var data proto.DefinitionSchemaID
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindUri(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -279,7 +279,7 @@ func DefinitionSchemasGet(ctx *gin.Context) {
 	schema := make(map[string]interface{})
 	if err := json.Unmarshal([]byte(currentDefinitionSchema.(*definition.DefinitionSchemas).Schema), &schema); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.ContentParsingFailed"}),
 		})
 		return
 	}
@@ -303,7 +303,7 @@ func DefinitionSchemasCopy(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
@@ -314,7 +314,7 @@ func DefinitionSchemasCopy(ctx *gin.Context) {
 	schema := map[string]interface{}{}
 	if err := json.Unmarshal([]byte(oldDefinition.Schema), &schema); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CopyFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.CopyFail"}),
 		})
 		return
 	}
@@ -327,7 +327,7 @@ func DefinitionSchemasCopy(ctx *gin.Context) {
 	newDefinition.Schema = oldDefinition.Schema
 	if err := newDefinition.Create(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CopyFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.CopyFail"}),
 		})
 		return
 	}
@@ -335,7 +335,7 @@ func DefinitionSchemasCopy(ctx *gin.Context) {
 	newDefinition.Name = fmt.Sprintf("%s_%s", newDefinition.Name, strconv.Itoa(int(newDefinition.ID)))
 	if err := newDefinition.Save(); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.CopyFail"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "DefinitionSchemas.CopyFail"}),
 		})
 		return
 	}
@@ -359,14 +359,14 @@ func DefinitionSchemasMove(ctx *gin.Context) {
 	if !currentProjectMember.(*project.ProjectMembers).MemberHasWritePermission() {
 		ctx.JSON(http.StatusForbidden, gin.H{
 			"code":    proto.ProjectMemberInsufficientPermissionsCode,
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.InsufficientPermissions"}),
+			"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Common.InsufficientPermissions"}),
 		})
 		return
 	}
 
 	var data proto.DefinitionSchemaMove
 
-	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
+	if err := i18n.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})

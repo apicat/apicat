@@ -1,9 +1,9 @@
 package check
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model/user"
 	"github.com/apicat/apicat/backend/module/auth"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route/proto"
 	"net/http"
 	"strings"
@@ -46,7 +46,7 @@ func CheckMember() func(ctx *gin.Context) {
 		if u == nil {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    proto.InvalidOrIncorrectLoginToken,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.TokenParsingFailed"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Auth.TokenParsingFailed"}),
 			})
 			ctx.Abort()
 			return
@@ -55,7 +55,7 @@ func CheckMember() func(ctx *gin.Context) {
 		if u == nil || u.IsEnabled == 0 {
 			ctx.JSON(http.StatusUnauthorized, gin.H{
 				"code":    proto.InvalidOrIncorrectLoginToken,
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "Auth.AccountDisabled"}),
+				"message": i18n.Trasnlate(ctx, &i18n.TT{ID: "Auth.AccountDisabled"}),
 			})
 			ctx.Abort()
 			return
