@@ -119,7 +119,7 @@ func getEnvConfig() SysConfig {
 	return envConfig
 }
 
-func replaceEnvVars(fileConfig *FileConfig, sysConfig *SysConfig) {
+func replaceEnvVars(fileConfig *FileConfig, cfg *SysConfig) {
 	setEnvValues := func(fileStructPtr interface{}, sysStructPtr interface{}) {
 		fileConfigValue := reflect.ValueOf(fileStructPtr).Elem()
 		sysConfigValue := reflect.ValueOf(sysStructPtr).Elem() // 获取Sysconfig的可修改副本
@@ -150,10 +150,10 @@ func replaceEnvVars(fileConfig *FileConfig, sysConfig *SysConfig) {
 		}
 	}
 
-	setEnvValues(&fileConfig.App, &sysConfig.App)
-	setEnvValues(&fileConfig.Log, &sysConfig.Log)
-	setEnvValues(&fileConfig.DB, &sysConfig.DB)
-	setEnvValues(&fileConfig.OpenAI, &sysConfig.OpenAI)
+	setEnvValues(&fileConfig.App, &cfg.App)
+	setEnvValues(&fileConfig.Log, &cfg.Log)
+	setEnvValues(&fileConfig.DB, &cfg.DB)
+	setEnvValues(&fileConfig.OpenAI, &cfg.OpenAI)
 }
 
 func loadConfig(filepath string) (*SysConfig, error) {
@@ -167,16 +167,16 @@ func loadConfig(filepath string) (*SysConfig, error) {
 		return nil, err
 	}
 
-	var sysConfig SysConfig
-	replaceEnvVars(&fileConfig, &sysConfig)
+	var cfg SysConfig
+	replaceEnvVars(&fileConfig, &cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	return &sysConfig, nil
+	return &cfg, nil
 }
 
-func sysToFile(sysConfig *SysConfig) *FileConfig {
+func sysToFile(cfg *SysConfig) *FileConfig {
 	fileConfig := &FileConfig{}
 
 	setFileValues := func(sysStructPtr interface{}, fileStructPtr interface{}) {
@@ -195,10 +195,10 @@ func sysToFile(sysConfig *SysConfig) *FileConfig {
 		}
 	}
 
-	setFileValues(&sysConfig.App, &fileConfig.App)
-	setFileValues(&sysConfig.Log, &fileConfig.Log)
-	setFileValues(&sysConfig.DB, &fileConfig.DB)
-	setFileValues(&sysConfig.OpenAI, &fileConfig.OpenAI)
+	setFileValues(&cfg.App, &fileConfig.App)
+	setFileValues(&cfg.Log, &fileConfig.Log)
+	setFileValues(&cfg.DB, &fileConfig.DB)
+	setFileValues(&cfg.OpenAI, &fileConfig.OpenAI)
 
 	return fileConfig
 }
