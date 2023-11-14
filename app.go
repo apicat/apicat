@@ -1,9 +1,9 @@
 package apicat
 
 import (
+	"github.com/apicat/apicat/backend/i18n"
 	"github.com/apicat/apicat/backend/model"
 	"github.com/apicat/apicat/backend/module/logger"
-	"github.com/apicat/apicat/backend/module/translator"
 	"github.com/apicat/apicat/backend/route"
 
 	"github.com/apicat/apicat/backend/config"
@@ -19,7 +19,7 @@ func NewApp(conf string) *App {
 
 func (a *App) Run() error {
 	inits := []func(){
-		translator.Init,
+		i18n.Init,
 		logger.Init,
 		model.Init,
 		route.Init,
