@@ -1,7 +1,7 @@
 <template>
   <div class="relative" v-if="!hasExamples">
     <div class="flex justify-between mt-10px">
-      <p> {{ $t('app.response.tips.responseExample') }}<el-tag v-if="lang" class="ml-4px" disable-transitions effect="plain">format:{{ lang }}</el-tag></p>
+      <p> {{ $t('app.response.tips.responseExample') }}</p>
       <el-button v-if="!readonly" @click="handleAddExample" link type="primary"><el-icon><ac-icon-ep-plus /></el-icon>添加示例</el-button>
     </div>
     <el-tabs v-model="activeTabName" :closable="!readonly" @tab-remove="handleRemoveExample">
