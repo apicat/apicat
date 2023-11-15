@@ -26,10 +26,20 @@ export const useDefinitionResponse = (props: any) => {
     delete responseRef.value.content[oldtype]
   }
 
+  const examples = computed({
+    get:()=>{
+      return responseRef.value.content[contentDefaultType.value].examples || {}
+    },
+    set:(value: Record<string, any>)=>{
+      responseRef.value.content[contentDefaultType.value].examples = value
+    }
+  })
+
   return {
     responseRef,
     contentDefaultType,
     isJsonSchema,
+    examples,
 
     changeContentType,
   }

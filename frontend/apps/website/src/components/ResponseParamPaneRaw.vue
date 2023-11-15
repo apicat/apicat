@@ -17,6 +17,7 @@
       v-model="param.content[contentTypeKey].schema.example"
       :lang="contentTypes[contentTypeKey]"
     />
+    <ResponseExamplesForm :examples="examples" readonly :lang="contentTypes[contentTypeKey]" />
   </div>
 </template>
 
@@ -43,6 +44,8 @@ import SimpleParameterEditor from '@/components/APIEditor/SimpleEditor.vue'
 import JSONSchemaEditor from '@/components/APIEditor/Editor.vue'
 import CodeEditor from '@/components/APIEditor/CodeEditor.vue'
 import { APICatSchemaObject, DefinitionSchema, JSONSchema } from './APIEditor/types'
+import ResponseExamplesForm from '@/views/component/ResponseExamples.vue'
+import { isEmpty } from 'lodash-es'
 
 const props = defineProps<{
   param: APICatResponse | any
@@ -65,4 +68,5 @@ const contentDefaultType = computed(() => {
 })
 
 const isJsonschema = computed(() => contentDefaultType.value == 'application/json' || contentDefaultType.value == 'application/xml')
+const examples = computed(()=>props.param.content[contentDefaultType.value].examples || {})
 </script>

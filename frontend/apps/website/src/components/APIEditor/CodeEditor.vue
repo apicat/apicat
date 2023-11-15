@@ -1,12 +1,14 @@
 <template>
   <div :class="['ac-code-editor', { readonly: readonly }]">
-    <div class="sticky z-10 text-right top-4px">
-      <button class="copy-btn" @click="handlerCopy">
-        <el-icon class="mr-2px"><ac-icon-ep-copy-document /></el-icon>
-        <span>{{ $t('app.common.copy') }}</span>
-      </button>
+    <div class="scroll-content">
+      <div class="sticky z-10 text-right top-4px">
+        <button class="copy-btn" @click="handlerCopy">
+          <el-icon class="mr-2px"><ac-icon-ep-copy-document /></el-icon>
+          <span>{{ $t('app.common.copy') }}</span>
+        </button>
+      </div>
+      <div ref="domRef"></div>
     </div>
-    <div ref="domRef"></div>
   </div>
 </template>
 
@@ -118,6 +120,7 @@ onMounted(() => {
     EditorView.domEventHandlers({
       paste: handlePasteEvent,
     }),
+    EditorView.lineWrapping
   ]
   view = new EditorView({
     doc: props.modelValue || '',

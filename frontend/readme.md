@@ -1,14 +1,16 @@
 ## 相关技术文档 & Tip
 
-1. src/components 中的组件是通过 vite unplugin-vue-components 插件自动加载的，所以可以全局无需引用直接使用。
-2. i18n 使用 vue-i18n 插件完成 https://vue-i18n.intlify.dev/guide/
-3. 项目采用 pnpm workspace + turbo 完成 Monorepo 代码组织和构建流程管理
+1. i18n
+
+   a. https://vue-i18n.intlify.dev/guide/
+
+2. 项目采用 pnpm workspace + turbo 完成 Monorepo 代码组织和构建流程管理
 
    a. https://pnpm.io/workspaces
 
    b. https://turbo.build/repo/docs
 
-4. Vue 相关
+3. Vue 相关
 
    a. vue：https://vuejs.org/
 
@@ -16,15 +18,19 @@
 
    c. store：https://pinia.vuejs.org/
 
-5. UI：https://element-plus.org/
+4. U
 
-6. 编辑器相关
+   a. https://element-plus.org/
+
+5. 编辑器相关
 
    a. https://prosemirror.net/
 
    b. https://tiptap.dev/
 
-7. build tools：https://vitejs.dev/
+6. build tools
+
+   a. https://vitejs.dev/
 
 ## icons 使用
 
