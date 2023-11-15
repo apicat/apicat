@@ -12,9 +12,15 @@ type Schema struct {
 	Description string             `json:"description,omitempty"`
 	Required    bool               `json:"required,omitempty"`
 	Example     any                `json:"example,omitempty"`
+	Examples    map[string]Example `json:"examples,omitempty"`
 	Schema      *jsonschema.Schema `json:"schema,omitempty"`
 	Reference   *string            `json:"$ref,omitempty"`
 	XDiff       *string            `json:"x-apicat-diff,omitempty"`
+}
+
+type Example struct {
+	Summary string `json:"summary"`
+	Value   any    `json:"value"`
 }
 
 func (s *Schema) Ref() bool { return s.Reference != nil }
