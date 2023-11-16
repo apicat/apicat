@@ -1,0 +1,1043 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "v4_api",
+      "description": "v4.api 需要验证身份",
+      "version": "1.0.0"
+    },
+    "tags": [
+      {
+        "name": "User"
+      }
+    ],
+    "paths": {
+      "/user": {
+        "get": {
+          "summary": "获取用户详情",
+          "x-apifox-folder": "User",
+          "x-apifox-status": "released",
+          "deprecated": false,
+          "description": "",
+          "tags": [
+            "User"
+          ],
+          "parameters": [
+            {
+              "name": "hb_dev_host",
+              "in": "cookie",
+              "description": "",
+              "example": "{{HB_DEV_HOST}}",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "Authorization",
+              "in": "header",
+              "description": "",
+              "required": true,
+              "example": "Bearer {{ACCESS_TOKEN}}",
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "成功",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "user_id": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "pinyin": {
+                        "type": "string"
+                      },
+                      "first_letter": {
+                        "type": "string"
+                      },
+                      "gender": {
+                        "type": "string"
+                      },
+                      "title": {
+                        "type": "string"
+                      },
+                      "phone": {
+                        "type": "string"
+                      },
+                      "email": {
+                        "type": "string"
+                      },
+                      "send_mail_notification": {
+                        "type": "boolean"
+                      },
+                      "send_mobile_notification": {
+                        "type": "boolean"
+                      },
+                      "send_daily_paper": {
+                        "type": "boolean"
+                      },
+                      "secondary_valid": {
+                        "type": "boolean"
+                      },
+                      "receive_desktop_notification": {
+                        "type": "boolean"
+                      },
+                      "receive_popup_notification": {
+                        "type": "boolean"
+                      },
+                      "last_logged_on": {
+                        "type": "string"
+                      },
+                      "logged_clients": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "avatar": {
+                        "type": "string"
+                      },
+                      "has_password": {
+                        "type": "boolean"
+                      },
+                      "has_security_password": {
+                        "type": "boolean"
+                      },
+                      "market_contact_name": {
+                        "type": "string"
+                      },
+                      "market_contact_info": {
+                        "type": "string"
+                      },
+                      "accounts": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "account": {
+                              "type": "string"
+                            },
+                            "nickname": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string"
+                            },
+                            "user_id": {
+                              "type": "integer"
+                            },
+                            "verified": {
+                              "type": "boolean"
+                            },
+                            "sub_type": {
+                              "type": "string"
+                            },
+                            "union_id": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "account",
+                            "nickname",
+                            "type",
+                            "user_id",
+                            "verified",
+                            "sub_type",
+                            "union_id"
+                          ],
+                          "x-apifox-ignore-properties": [],
+                          "x-apifox-orders": [
+                            "account",
+                            "nickname",
+                            "type",
+                            "user_id",
+                            "verified",
+                            "sub_type",
+                            "union_id"
+                          ]
+                        }
+                      },
+                      "status": {
+                        "type": "string"
+                      },
+                      "is_single_login": {
+                        "type": "integer"
+                      },
+                      "im_config": {
+                        "type": "null"
+                      },
+                      "name_conf": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "x-apifox-ignore-properties": [],
+                        "x-apifox-orders": [
+                          "type"
+                        ]
+                      },
+                      "color_mode": {
+                        "type": "string"
+                      },
+                      "allow_merge_account": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "user_id",
+                      "name",
+                      "pinyin",
+                      "first_letter",
+                      "gender",
+                      "title",
+                      "phone",
+                      "email",
+                      "send_mail_notification",
+                      "send_mobile_notification",
+                      "send_daily_paper",
+                      "secondary_valid",
+                      "receive_desktop_notification",
+                      "receive_popup_notification",
+                      "last_logged_on",
+                      "logged_clients",
+                      "avatar",
+                      "has_password",
+                      "has_security_password",
+                      "market_contact_name",
+                      "market_contact_info",
+                      "accounts",
+                      "status",
+                      "is_single_login",
+                      "im_config",
+                      "name_conf",
+                      "color_mode",
+                      "allow_merge_account"
+                    ],
+                    "x-apifox-ignore-properties": [],
+                    "x-apifox-orders": [
+                      "user_id",
+                      "name",
+                      "pinyin",
+                      "first_letter",
+                      "gender",
+                      "title",
+                      "phone",
+                      "email",
+                      "send_mail_notification",
+                      "send_mobile_notification",
+                      "send_daily_paper",
+                      "secondary_valid",
+                      "receive_desktop_notification",
+                      "receive_popup_notification",
+                      "last_logged_on",
+                      "logged_clients",
+                      "avatar",
+                      "has_password",
+                      "has_security_password",
+                      "market_contact_name",
+                      "market_contact_info",
+                      "accounts",
+                      "status",
+                      "is_single_login",
+                      "im_config",
+                      "name_conf",
+                      "color_mode",
+                      "allow_merge_account"
+                    ]
+                  },
+                  "examples": {
+                    "1": {
+                      "summary": "成功示例",
+                      "value": {
+                        "user_id": 1369928,
+                        "name": "ZhangY",
+                        "pinyin": "zhangy",
+                        "first_letter": "z",
+                        "gender": "female",
+                        "title": "你想让大家去冒险，所有人都不准离开",
+                        "phone": "15011570010",
+                        "email": "bosstest8@sharklasers.com",
+                        "send_mail_notification": false,
+                        "send_mobile_notification": true,
+                        "send_daily_paper": true,
+                        "secondary_valid": false,
+                        "receive_desktop_notification": false,
+                        "receive_popup_notification": true,
+                        "last_logged_on": "2021-12-15 09:34:40",
+                        "logged_clients": [
+                          "huoban"
+                        ],
+                        "avatar": "https://dev-hb-public-1305349001.cos.ap-shanghai.myqcloud.com/user_avatar/188387939/0?imageMogr2/thumbnail/128x128>",
+                        "has_password": true,
+                        "has_security_password": true,
+                        "market_contact_name": "zhangY1",
+                        "market_contact_info": "15203126865",
+                        "accounts": [
+                          {
+                            "account": "bosstest@sharklasers.com",
+                            "nickname": "",
+                            "type": "huoban",
+                            "user_id": 2581087,
+                            "verified": true,
+                            "sub_type": "email"
+                          },
+                          {
+                            "account": "ww|wwdaa44f42ede225a9|SunZhangZi",
+                            "nickname": "SunZhangZi",
+                            "type": "wxwork",
+                            "user_id": 2581087,
+                            "verified": true,
+                            "union_id": "SunZhangZi"
+                          },
+                          {
+                            "account": "ww|ww08ffaf1ea62dded2|GuoXingYue",
+                            "nickname": "GuoXingYue",
+                            "type": "wxwork",
+                            "user_id": 2581087,
+                            "verified": true,
+                            "union_id": "GuoXingYue"
+                          },
+                          {
+                            "account": "15011570010",
+                            "nickname": "",
+                            "type": "huoban",
+                            "user_id": 2581087,
+                            "verified": true,
+                            "sub_type": "phone"
+                          },
+                          {
+                            "account": "ww|ww691f00cb69f44681|bosstest3333",
+                            "nickname": "bosstest3333",
+                            "type": "wxwork",
+                            "user_id": 2581087,
+                            "verified": true,
+                            "union_id": "bosstest3333"
+                          }
+                        ],
+                        "status": "active",
+                        "is_single_login": 0,
+                        "im_config": null,
+                        "name_conf": {
+                          "type": "real"
+                        },
+                        "color_mode": "light",
+                        "allow_merge_account": false
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "服务器错误",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "integer"
+                      },
+                      "message": {
+                        "type": "string"
+                      },
+                      "errors": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "message",
+                      "errors"
+                    ],
+                    "x-apifox-ignore-properties": [],
+                    "x-apifox-orders": [
+                      "code",
+                      "message",
+                      "errors"
+                    ]
+                  },
+                  "examples": {
+                    "1": {
+                      "summary": "异常示例",
+                      "value": {
+                        "code": 500,
+                        "message": "错误信息",
+                        "errors": []
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "流程完成": {
+          "type": "object",
+          "properties": {
+            "button_id": {
+              "type": "string"
+            },
+            "suggestion": {
+              "type": "string"
+            },
+            "file_ids": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "data": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/CountersignConfig"
+                },
+                {
+                  "$ref": "#/components/schemas/TransferConfig"
+                }
+              ]
+            }
+          },
+          "required": [
+            "button_id",
+            "data"
+          ],
+          "x-apifox-orders": [
+            "button_id",
+            "suggestion",
+            "file_ids",
+            "data"
+          ],
+          "x-apifox-refs": {},
+          "x-apifox-ignore-properties": [],
+          "x-apifox-folder": "BPMN"
+        },
+        "ProcessLog": {
+          "type": "object",
+          "properties": {
+            "process_log_id": {
+              "type": "integer"
+            },
+            "process_id": {
+              "type": "integer"
+            },
+            "content": {
+              "type": "string"
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "executors": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "phone": {
+                        "type": "string"
+                      },
+                      "name_conf": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "type"
+                        ],
+                        "x-apifox-orders": [
+                          "type"
+                        ],
+                        "x-apifox-ignore-properties": []
+                      },
+                      "email": {
+                        "type": "string"
+                      },
+                      "avatar": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "user_id": {
+                        "type": "integer"
+                      }
+                    },
+                    "x-apifox-orders": [
+                      "phone",
+                      "name_conf",
+                      "email",
+                      "avatar",
+                      "name",
+                      "user_id"
+                    ],
+                    "x-apifox-ignore-properties": []
+                  }
+                }
+              },
+              "required": [
+                "executors"
+              ],
+              "x-apifox-orders": [
+                "executors"
+              ],
+              "x-apifox-ignore-properties": []
+            },
+            "status": {
+              "type": "string"
+            },
+            "updated_on": {
+              "type": "string"
+            },
+            "mts_updated_on": {
+              "type": "string"
+            },
+            "mts_created_on": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "title": {
+              "type": "string"
+            },
+            "element_id": {
+              "type": "string"
+            },
+            "duration": {
+              "type": "integer"
+            },
+            "execute_type": {
+              "type": "string"
+            },
+            "is_view_parent_process": {
+              "type": "boolean"
+            },
+            "element_created_on": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "process_log_id",
+            "process_id",
+            "content",
+            "data",
+            "status",
+            "updated_on",
+            "mts_updated_on",
+            "mts_created_on",
+            "type",
+            "title",
+            "element_id",
+            "duration",
+            "execute_type",
+            "is_view_parent_process",
+            "element_created_on"
+          ],
+          "x-apifox-orders": [
+            "process_log_id",
+            "process_id",
+            "content",
+            "data",
+            "status",
+            "updated_on",
+            "mts_updated_on",
+            "mts_created_on",
+            "type",
+            "title",
+            "element_id",
+            "duration",
+            "execute_type",
+            "is_view_parent_process",
+            "element_created_on"
+          ],
+          "x-apifox-ignore-properties": [],
+          "x-apifox-folder": "BPMN"
+        },
+        "加签配置": {
+          "type": "object",
+          "properties": {
+            "task_id": {
+              "type": "integer"
+            },
+            "type": {
+              "type": "string"
+            },
+            "execute_type": {
+              "type": "string"
+            },
+            "executor_id": {
+              "type": "integer"
+            },
+            "executor": {
+              "type": "object",
+              "properties": {
+                "user_id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "avatar": {
+                  "type": "string"
+                }
+              },
+              "x-apifox-orders": [
+                "user_id",
+                "name",
+                "avatar"
+              ],
+              "required": [
+                "user_id",
+                "name",
+                "avatar"
+              ],
+              "x-apifox-ignore-properties": []
+            },
+            "executor_ids": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              }
+            },
+            "executors": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "integer"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "avatar": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "user_id",
+                  "name",
+                  "avatar"
+                ],
+                "x-apifox-orders": [
+                  "user_id",
+                  "name",
+                  "avatar"
+                ],
+                "x-apifox-ignore-properties": []
+              }
+            },
+            "created_on": {
+              "type": "string"
+            },
+            "updated_on": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "task_id",
+            "type",
+            "execute_type",
+            "executor_id",
+            "executor",
+            "executor_ids",
+            "executors",
+            "created_on",
+            "updated_on"
+          ],
+          "x-apifox-orders": [
+            "task_id",
+            "type",
+            "execute_type",
+            "executor_id",
+            "executor",
+            "executor_ids",
+            "executors",
+            "created_on",
+            "updated_on"
+          ],
+          "x-apifox-ignore-properties": [],
+          "x-apifox-folder": "BPMN"
+        },
+        "ProcedureVersion": {
+          "type": "object",
+          "properties": {
+            "table_id": {
+              "type": "string",
+              "description": "流程绑定的表格id"
+            },
+            "cancel_limit": {
+              "type": "string",
+              "description": "撤销流程 not_allow_cancel：不可撤销；anywhen_cancel：任意撤销"
+            },
+            "cancel_workflow": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "撤销后执行工作流  table_id：表格id；workflow_id：工作流id；params：工作流执行参数"
+            },
+            "comment": {
+              "type": "string"
+            },
+            "diagram": {
+              "type": "object",
+              "properties": {
+                "{element_id}": {
+                  "type": "object",
+                  "properties": {
+                    "element_id": {
+                      "type": "string"
+                    },
+                    "config": {
+                      "type": "object",
+                      "properties": {
+                        "table_id": {
+                          "type": "integer"
+                        }
+                      },
+                      "required": [
+                        "table_id"
+                      ],
+                      "x-apifox-orders": [
+                        "table_id"
+                      ],
+                      "x-apifox-ignore-properties": []
+                    },
+                    "parent_element_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "children_element_ids": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "type": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "element_id",
+                    "config",
+                    "parent_element_ids",
+                    "children_element_ids",
+                    "type"
+                  ],
+                  "x-apifox-orders": [
+                    "element_id",
+                    "config",
+                    "parent_element_ids",
+                    "children_element_ids",
+                    "type"
+                  ],
+                  "x-apifox-ignore-properties": []
+                }
+              },
+              "required": [
+                "{element_id}"
+              ],
+              "x-apifox-orders": [
+                "{element_id}"
+              ],
+              "description": "流程图",
+              "x-apifox-ignore-properties": []
+            },
+            "diagram_layout": {
+              "type": "object",
+              "properties": {
+                "62c67fca80f60": {
+                  "type": "object",
+                  "properties": {
+                    "points": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      }
+                    },
+                    "fromPort": {
+                      "type": "string"
+                    },
+                    "toPort": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "points",
+                    "fromPort",
+                    "toPort"
+                  ],
+                  "x-apifox-orders": [
+                    "points",
+                    "fromPort",
+                    "toPort"
+                  ],
+                  "x-apifox-ignore-properties": []
+                },
+                "62c67fca80fde": {
+                  "type": "object",
+                  "properties": {
+                    "points": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "integer"
+                          }
+                        ]
+                      }
+                    },
+                    "fromPort": {
+                      "type": "string"
+                    },
+                    "toPort": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "points",
+                    "fromPort",
+                    "toPort"
+                  ],
+                  "x-apifox-orders": [
+                    "points",
+                    "fromPort",
+                    "toPort"
+                  ],
+                  "x-apifox-ignore-properties": []
+                },
+                "62c67fca80f2a": {
+                  "type": "object",
+                  "properties": {
+                    "loc": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "loc"
+                  ],
+                  "x-apifox-orders": [
+                    "loc"
+                  ],
+                  "x-apifox-ignore-properties": []
+                },
+                "62c67fca80fa0": {
+                  "type": "object",
+                  "properties": {
+                    "loc": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "loc"
+                  ],
+                  "x-apifox-orders": [
+                    "loc"
+                  ],
+                  "x-apifox-ignore-properties": []
+                },
+                "62c67fca8101c": {
+                  "type": "object",
+                  "properties": {
+                    "loc": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "loc"
+                  ],
+                  "x-apifox-orders": [
+                    "loc"
+                  ],
+                  "x-apifox-ignore-properties": []
+                }
+              },
+              "required": [
+                "62c67fca80f60",
+                "62c67fca80fde",
+                "62c67fca80f2a",
+                "62c67fca80fa0",
+                "62c67fca8101c"
+              ],
+              "x-apifox-orders": [
+                "62c67fca80f60",
+                "62c67fca80fde",
+                "62c67fca80f2a",
+                "62c67fca80fa0",
+                "62c67fca8101c"
+              ],
+              "description": "流程图布局",
+              "x-apifox-ignore-properties": []
+            },
+            "icon": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string"
+                },
+                "color": {
+                  "type": "string"
+                },
+                "rgb": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "color",
+                "rgb"
+              ],
+              "x-apifox-orders": [
+                "id",
+                "color",
+                "rgb"
+              ],
+              "description": "流程图标，同表格图标",
+              "x-apifox-ignore-properties": []
+            },
+            "icon_sync_table": {
+              "type": "integer",
+              "description": "流程图标是否同步表格图标 true：同表格图标；false：自定义流程图标"
+            },
+            "name": {
+              "type": "string",
+              "description": "流程名称"
+            },
+            "procedure_id": {
+              "type": "integer",
+              "description": "流程ID"
+            },
+            "type": {
+              "type": "string",
+              "description": "流程类型 normal ：业务流程；audit：审批流程"
+            },
+            "var_config": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "流程变量，同返回值说明"
+            },
+            "auto_agree": {
+              "type": "string",
+              "description": "自动同意类型"
+            }
+          },
+          "required": [
+            "table_id",
+            "cancel_limit",
+            "cancel_workflow",
+            "comment",
+            "diagram",
+            "diagram_layout",
+            "icon",
+            "icon_sync_table",
+            "name",
+            "procedure_id",
+            "type",
+            "var_config",
+            "auto_agree"
+          ],
+          "x-apifox-orders": [
+            "table_id",
+            "cancel_limit",
+            "cancel_workflow",
+            "comment",
+            "diagram",
+            "diagram_layout",
+            "icon",
+            "icon_sync_table",
+            "name",
+            "procedure_id",
+            "type",
+            "var_config",
+            "auto_agree"
+          ],
+          "x-apifox-ignore-properties": [],
+          "x-apifox-folder": "BPMN"
+        },
+        "TransferConfig": {
+          "type": "object",
+          "properties": {
+            "executor_id": {
+              "description": "转交人",
+              "type": "integer"
+            }
+          },
+          "x-apifox-orders": [
+            "executor_id"
+          ],
+          "required": [
+            "executor_id"
+          ],
+          "x-apifox-ignore-properties": [],
+          "x-apifox-folder": "BPMN/完成Data"
+        },
+        "CountersignConfig": {
+          "type": "object",
+          "properties": {
+            "executor_ids": {
+              "type": "array",
+              "items": {
+                "type": "integer"
+              },
+              "description": "加签人"
+            },
+            "type": {
+              "type": "string",
+              "description": "加签方式"
+            },
+            "excute_type": {
+              "type": "string",
+              "description": "被加签人执行方式"
+            }
+          },
+          "x-apifox-orders": [
+            "executor_ids",
+            "type",
+            "excute_type"
+          ],
+          "required": [
+            "executor_ids",
+            "type",
+            "excute_type"
+          ],
+          "x-apifox-ignore-properties": [],
+          "x-apifox-folder": "BPMN/完成Data"
+        }
+      }
+    }
+  }
