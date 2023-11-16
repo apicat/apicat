@@ -21,7 +21,7 @@ import { ref } from 'vue'
 import debounce from 'lodash-es/debounce'
 interface Example {
   summary: string;
-  value: string
+  value: any
 }
 
 type Examples = Record<string, Example>
@@ -54,7 +54,9 @@ const debounceNotify = debounce(notify, 200)
 function initExamples(obj: Examples = props.examples): Example[] {
   const arr: Example[] = []
   Object.keys(obj).forEach(key => {
-    const example = { ...(obj[key] || {}) }
+    const item = obj[key] || {}
+    item.value = JSON.stringify(item.value || '',null,2)
+    const example = { ...item }
     arr.push(example)
   })
 
