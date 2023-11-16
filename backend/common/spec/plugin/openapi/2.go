@@ -199,9 +199,29 @@ func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDe
 			}
 			if len(in.Produces) == 0 {
 				content[defaultSwaggerConsumerProduce] = sh
+				if res.Examples != nil {
+					sh.Examples = make(map[string]spec.Example)
+					for k, v := range res.Examples.Values {
+						sh.Examples[k] = spec.Example{
+							Summary: "example",
+							Value:   v,
+						}
+					}
+				}
 			} else {
 				for _, v := range in.Produces {
 					content[v] = sh
+					if res.Examples != nil {
+						emp, ok := res.Examples.Values[v]
+						if ok {
+							sh.Examples = map[string]spec.Example{
+								v: {
+									Summary: "example",
+									Value:   emp,
+								},
+							}
+						}
+					}
 				}
 			}
 		}
@@ -252,9 +272,21 @@ func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode 
 		if res.Schema != nil {
 			js := s.parseContent(res.Schema)
 			for _, v := range info.Produces {
-				resp.Content[v] = &spec.Schema{
+				sh := &spec.Schema{
 					Schema: js,
 				}
+				if res.Examples != nil {
+					mp, ok := res.Examples.Values[v]
+					if ok {
+						sh.Examples = map[string]spec.Example{
+							v: {
+								Summary: "example",
+								Value:   mp,
+							},
+						}
+					}
+				}
+				resp.Content[v] = sh
 			}
 		}
 		outresponses.List = append(outresponses.List, resp)
@@ -505,8 +537,16 @@ func (s *toSwagger) parseResponse(in *spec.Spec, res spec.HTTPResponseDefine) ma
 		resp["headers"] = h
 	}
 	if res.Content != nil {
-		for _, v := range res.Content {
+		for k, v := range res.Content {
 			resp["schema"] = s.convertJSONSchema(v.Schema)
+			if v.Examples != nil {
+				for _, v := range v.Examples {
+					resp["examples"] = map[string]any{
+						k: v,
+					}
+					break
+				}
+			}
 			break
 		}
 	}
