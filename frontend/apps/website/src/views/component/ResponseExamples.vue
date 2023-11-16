@@ -5,7 +5,7 @@
       <el-button v-if="!readonly" @click="handleAddExample" link type="primary"><el-icon><ac-icon-ep-plus /></el-icon>添加示例</el-button>
     </div>
     <el-tabs v-model="activeTabName" :closable="!readonly" @tab-remove="handleRemoveExample">
-      <el-tab-pane :label="item.summary || 'Example ' + (index + 1)" v-for="(item, index) in examples" :key="index" :name="index">
+      <el-tab-pane :label="item.summary || 'Example ' + (index + 1)" v-for="(item, index) in examples" :key="index" :name="item.id || index">
         <p v-if="!readonly" class="mb-10px">示例名称</p>
         <el-input v-if="!readonly" :model-value="item.summary" :readonly="readonly" @update:model-value="(v) => changeExampleFeild(item, 'summary', v)" maxlength="150" placeholder="示例名称" />
         <p v-if="!readonly" class="my-10px">示例值</p>
@@ -19,7 +19,9 @@
 import CodeEditor from '@/components/APIEditor/CodeEditor.vue'
 import { ref } from 'vue'
 import debounce from 'lodash-es/debounce'
+import { markDataWithKey } from '@/commons';
 interface Example {
+  id?:string
   summary: string;
   value: any
 }
@@ -38,15 +40,18 @@ interface Emits {
 
 const props = defineProps<Props>()
 const emits = defineEmits<Emits>()
-const examples = ref<Example[]>(initExamples())
-const activeTabName = ref(0)
+const examples = ref<Example[]>([])
+const activeTabName = ref<string|number>(0)
+const localExamples = ref<Examples>({})
 
 function notify() {
-  emits('update:examples', examples.value.reduce((acc, cur, index) => {
+   examples.value.reduce((acc, cur, index) => {
     const key = index.toString()
     acc[key] = cur
     return acc
-  }, {} as any))
+  }, localExamples.value)
+
+  emits('update:examples', localExamples.value)
 }
 
 const debounceNotify = debounce(notify, 200)
@@ -55,9 +60,13 @@ function initExamples(obj: Examples = props.examples): Example[] {
   const arr: Example[] = []
   Object.keys(obj).forEach(key => {
     const item = obj[key] || {}
-    item.value = JSON.stringify(item.value || '',null,2)
-    const example = { ...item }
-    arr.push(example)
+      markDataWithKey(item,'id')
+    // 判断item.value 是不是字符串类型
+    if (item.value && typeof item.value !== 'string') {
+      item.value = JSON.stringify(item.value || '',null,2)
+    }
+
+    arr.push(item)
   })
 
   return arr
@@ -68,17 +77,19 @@ function handleAddExample() {
     summary: '',
     value: ''
   }
+  markDataWithKey(e,'id')
   examples.value.push(e)
-  activeTabName.value = examples.value.length - 1
+  activeTabName.value = e.id!
   notify()
 }
 
-function handleRemoveExample(index: any) {
-  examples.value.splice(index, 1)
-  if(index === activeTabName.value){
-    activeTabName.value = examples.value.length - 1
+function handleRemoveExample(id: any) {
+  const index = examples.value.findIndex((item) => item.id === id)
+    examples.value.splice(index, 1)
+  // examples.value.splice(index, 1)
+  if(id === activeTabName.value){
+    activeTabName.value = examples.value[examples.value.length - 1].id!
   }
-
   notify()
 }
 
@@ -88,8 +99,20 @@ function changeExampleFeild(e: any, feild: string, v: string) {
 }
 
 const hasExamples = computed(()=> props.readonly && !examples.value.length)
-
+let isUpdate = false
 watch(() => props.examples, () => {
-  examples.value = initExamples()
+  localExamples.value = props.examples
+
+  if(!isUpdate){
+    isUpdate = true
+    examples.value = initExamples()
+    if(examples.value.length)
+      activeTabName.value = examples.value[0].id!
+    nextTick(()=>{
+      isUpdate = false
+    })
+  }
+},{
+  immediate:true
 })
 </script>
