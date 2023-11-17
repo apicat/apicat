@@ -1,6 +1,9 @@
 package models
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
 type CollectionHistories struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
@@ -36,22 +39,7 @@ func (ch *CollectionHistories) Create() error {
 }
 
 func (ch *CollectionHistories) Restore(collection *Collections, uid uint) error {
-	nch, _ := NewCollectionHistories()
-	nch.CollectionId = collection.ID
-	nch.Title = collection.Title
-	nch.Type = collection.Type
-	nch.Content = collection.Content
-	nch.CreatedBy = uid
-	if err := nch.Create(); err != nil {
-		return err
-	}
-
-	collection.Title = ch.Title
-	collection.Content = ch.Content
-	collection.UpdatedBy = uid
-	if err := collection.Update(); err != nil {
-		return err
-	}
-
-	return nil
+	fmt.Printf("ch: %+v\n", *ch)
+	fmt.Printf("collection: %+v\n", *collection)
+	return collection.UpdateContent(true, ch.Title, ch.Content, uid)
 }

@@ -261,7 +261,7 @@ func DefinitionsSchemaUnRefByDefinitionsResponse(d *DefinitionSchemas, isUnRef i
 	return nil
 }
 
-func DefinitionsSchemaUnRefByCollections(d *DefinitionSchemas, isUnRef int) error {
+func DefinitionsSchemaUnRefByCollections(d *DefinitionSchemas, isUnRef int, uid uint) error {
 	ref := "\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\""
 
 	collections, _ := NewCollections()
@@ -287,7 +287,7 @@ func DefinitionsSchemaUnRefByCollections(d *DefinitionSchemas, isUnRef int) erro
 			newContent := strings.Replace(collection.Content, ref, newStr[1:len(newStr)-1], -1)
 			collection.Content = newContent
 
-			if err := collection.Update(); err != nil {
+			if err := collection.UpdateContent(false, collection.Title, newContent, uid); err != nil {
 				return err
 			}
 		}

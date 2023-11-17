@@ -95,6 +95,7 @@ func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponseDefine
 			ProjectID:    projectID,
 			Name:         response.Name,
 			Description:  response.Description,
+			Type:         "response",
 			Header:       header,
 			Content:      content,
 			DisplayOrder: i,
@@ -139,7 +140,7 @@ func DefinitionResponsesExport(projectID uint) spec.HTTPResponseDefines {
 	return specResponseDefines
 }
 
-func DefinitionsResponseUnRef(dr *DefinitionResponses) error {
+func DefinitionsResponseUnRef(dr *DefinitionResponses, uid uint) error {
 	ref := "\"$ref\":\"#/definitions/responses/" + strconv.Itoa(int(dr.ID)) + "\""
 
 	collections, _ := NewCollections()
@@ -176,9 +177,7 @@ func DefinitionsResponseUnRef(dr *DefinitionResponses) error {
 	for _, collection := range collectionList {
 		if strings.Contains(collection.Content, ref) {
 			newContent := strings.Replace(collection.Content, ref, newStr, -1)
-			collection.Content = newContent
-
-			if err := collection.Update(); err != nil {
+			if err := collection.UpdateContent(false, collection.Title, newContent, uid); err != nil {
 				return err
 			}
 		}
@@ -187,7 +186,7 @@ func DefinitionsResponseUnRef(dr *DefinitionResponses) error {
 	return nil
 }
 
-func DefinitionsResponseDelRef(dr *DefinitionResponses) error {
+func DefinitionsResponseDelRef(dr *DefinitionResponses, uid uint) error {
 	re1 := regexp.MustCompile(`,{"code":\d+,"\$ref":"#/definitions/responses/` + strconv.Itoa(int(dr.ID)) + `"}`)
 	re2 := regexp.MustCompile(`{"code":\d+,"\$ref":"#/definitions/responses/` + strconv.Itoa(int(dr.ID)) + `"}`)
 
@@ -202,18 +201,17 @@ func DefinitionsResponseDelRef(dr *DefinitionResponses) error {
 
 	for _, collection := range collectionList {
 		matchRe1 := re1.FindString(collection.Content)
+		var newContent string
 		if matchRe1 != "" {
-			newContent := strings.Replace(collection.Content, matchRe1, "", -1)
-			collection.Content = newContent
+			newContent = strings.Replace(collection.Content, matchRe1, "", -1)
 		} else {
 			matchRe2 := re2.FindString(collection.Content)
 			if matchRe2 != "" {
-				newContent := strings.Replace(collection.Content, matchRe2, emptyResponse, -1)
-				collection.Content = newContent
+				newContent = strings.Replace(collection.Content, matchRe2, emptyResponse, -1)
 			}
 		}
 
-		if err := collection.Update(); err != nil {
+		if err := collection.UpdateContent(false, collection.Title, newContent, uid); err != nil {
 			return err
 		}
 	}

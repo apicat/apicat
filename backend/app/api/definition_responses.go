@@ -306,9 +306,9 @@ func DefinitionResponsesDelete(ctx *gin.Context) {
 	}
 
 	if data.IsUnRef == 1 {
-		err = models.DefinitionsResponseUnRef(definitionResponses)
+		err = models.DefinitionsResponseUnRef(definitionResponses, currentProjectMember.(*models.ProjectMembers).UserID)
 	} else {
-		err = models.DefinitionsResponseDelRef(definitionResponses)
+		err = models.DefinitionsResponseDelRef(definitionResponses, currentProjectMember.(*models.ProjectMembers).UserID)
 	}
 
 	if err != nil {

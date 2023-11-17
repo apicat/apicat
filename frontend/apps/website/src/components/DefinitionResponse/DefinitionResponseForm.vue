@@ -14,11 +14,12 @@
 
       <div v-for="(_, ct) in responseRef.content" :key="ct" class="mt-10px">
         <Editor :definitions="definitionSchemas" v-model="responseRef.content[ct].schema" v-if="isJsonSchema" />
-        <p class="my-10px">
+        <p class="my-10px" v-if="responseRef.content[ct].schema.example">
           <span class="mr-4px">{{ $t('app.response.tips.responseExample') }}</span>
           <el-tag disable-transitions effect="plain">format:{{ contentTypes[ct] }}</el-tag>
         </p>
-        <CodeEditor v-model="responseRef.content[ct].schema.example" :lang="contentTypes[ct]" />
+        <CodeEditor v-if="responseRef.content[ct].schema.example" v-model="responseRef.content[ct].schema.example" :lang="contentTypes[ct]" />
+        <ResponseExamplesForm v-model:examples="examples" :lang="contentTypes[ct]"/>
       </div>
     </ToggleHeading>
   </div>
@@ -31,11 +32,12 @@ import Editor from '../APIEditor/Editor.vue'
 import CodeEditor from '../APIEditor/CodeEditor.vue'
 import { DefinitionResponse } from '@/typings'
 import { useDefinitionResponse, contentTypes } from './useDefinitionResponse'
+import ResponseExamplesForm from '@/views/component/ResponseExamples.vue'
 
 const props = defineProps<{
   response: DefinitionResponse
   definitionSchemas?: DefinitionSchema[]
 }>()
 
-const { responseRef, contentDefaultType, isJsonSchema, changeContentType } = useDefinitionResponse(props)
+const { responseRef, contentDefaultType, isJsonSchema,examples, changeContentType } = useDefinitionResponse(props)
 </script>

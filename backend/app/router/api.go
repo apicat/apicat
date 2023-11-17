@@ -1,12 +1,13 @@
 package router
 
 import (
+	"io/fs"
+	"net/http"
+
 	"github.com/apicat/apicat/backend/app/api"
 	"github.com/apicat/apicat/backend/app/middleware"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/frontend"
-	"io/fs"
-	"net/http"
 
 	"github.com/gin-gonic/gin"
 )

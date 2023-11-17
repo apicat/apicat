@@ -33,11 +33,12 @@
         </el-select>
       </div>
       <Editor :definitions="definitions" v-model="model.content[ct].schema" v-if="isJsonschema" />
-      <p class="my-10px">
+      <p class="my-10px" v-if="model.content[ct].schema.example">
         {{ $t('app.response.tips.responseExample') }}
         <el-tag disable-transitions effect="plain">format:{{ contentTypes[ct] }}</el-tag>
       </p>
-      <CodeEditor v-model="model.content[ct].schema.example" :lang="contentTypes[ct]" />
+      <CodeEditor v-if="model.content[ct].schema.example" v-model="model.content[ct].schema.example" :lang="contentTypes[ct]" />
+      <ResponseExamplesForm v-model:examples="examples" :lang="contentTypes[ct]"/>
     </el-space>
   </el-space>
 </template>
@@ -71,6 +72,7 @@ import CodeEditor from './APIEditor/CodeEditor.vue'
 import { computed } from 'vue'
 import { CheckboxValueType } from 'element-plus'
 import { APICatCommonResponse } from '@/typings'
+import ResponseExamplesForm from '@/views/component/ResponseExamples.vue'
 
 const props = defineProps<{
   modelValue: APICatResponse | APICatCommonResponse
@@ -98,6 +100,14 @@ const contentDefaultType = computed(() => {
 
 const isJsonschema = computed(() => contentDefaultType.value == 'application/json' || contentDefaultType.value == 'application/xml')
 
+const examples = computed({
+  get:()=>{
+    return model.value.content[contentDefaultType.value].examples || {}
+  },
+  set:(value: Record<string, any>)=>{
+    model.value.content[contentDefaultType.value].examples = value
+  }
+})
 const changeContentType = (v: string) => {
   const oldtype = contentDefaultType.value
   model.value.content[v] = model.value.content[oldtype]

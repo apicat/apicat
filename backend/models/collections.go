@@ -73,6 +73,26 @@ func (c *Collections) Update() error {
 	return Conn.Save(c).Error
 }
 
+func (c *Collections) UpdateContent(must bool, title string, content string, updatedBy uint) error {
+	// 不是同一个人编辑的文档或5分钟后编辑文档内容，保存历史记录
+	if must || c.UpdatedBy != updatedBy || c.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
+		// 保存历史记录
+		ch := CollectionHistories{
+			CollectionId: c.ID,
+			Title:        c.Title,
+			Type:         c.Type,
+			Content:      c.Content,
+			CreatedBy:    updatedBy,
+		}
+
+		if err := ch.Create(); err != nil {
+			return err
+		}
+	}
+
+	return Conn.Model(c).Updates(Collections{Title: title, Content: content, UpdatedBy: updatedBy}).Error
+}
+
 func BatchUpdateByProjectID(ProjectID uint, c map[string]any) error {
 	return Conn.Model(&Collections{}).Where("project_id = ?", ProjectID).Updates(c).Error
 }

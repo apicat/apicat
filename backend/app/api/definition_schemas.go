@@ -267,7 +267,7 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 		return
 	}
 
-	if err := models.DefinitionsSchemaUnRefByCollections(definition, isUnRefData.IsUnRef); err != nil {
+	if err := models.DefinitionsSchemaUnRefByCollections(definition, isUnRefData.IsUnRef, currentProjectMember.(*models.ProjectMembers).UserID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})

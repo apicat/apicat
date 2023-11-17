@@ -48,12 +48,12 @@ export default ({ mode }) => {
         minify: false,
         pages: [
           {
-            entry: 'src/main.ts',
+            entry: resolve(__dirname, './src/main.ts'),
             filename: 'index.html',
             template: 'index.html',
           },
           {
-            entry: 'src/dbConfigMain.ts',
+            entry: resolve(__dirname, './src/dbConfigMain.ts'),
             filename: 'db-config.html',
             template: 'db-config.html',
             injectOptions: {
