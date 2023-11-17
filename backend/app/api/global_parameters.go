@@ -4,7 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/apicat/apicat/backend/common/apicat_struct"
+	"github.com/apicat/apicat/backend/common/array_operations"
+	"github.com/apicat/apicat/backend/common/spec"
+	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
 	"github.com/apicat/apicat/backend/models"
@@ -251,141 +253,81 @@ func GlobalParametersDelete(ctx *gin.Context) {
 	currentProject, _ := ctx.Get("CurrentProject")
 	project, _ := currentProject.(*models.Projects)
 
-	gp := GlobalParametersID{}
-	globalParameters, err := gp.CheckGlobalParameters(ctx)
-	if err != nil {
-		return
-	}
 	data := IsUnRefData{}
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindQuery(&data)); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	globalParameterSchema := ParameterSchema{}
-	if err := json.Unmarshal([]byte(globalParameters.Schema), &globalParameterSchema); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-		})
+	gp := GlobalParametersID{}
+	globalParameter, err := gp.CheckGlobalParameters(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
 	}
 
-	parametersSchema := apicat_struct.SchemaObject{
-		Name:     globalParameters.Name,
-		Required: globalParameters.Required == 1,
-		Schema: apicat_struct.Schema{
-			Type:        globalParameterSchema.Type,
-			Example:     globalParameterSchema.Example,
-			Description: globalParameterSchema.Description,
-		},
+	var paramScheam *jsonschema.Schema
+	if err := json.Unmarshal([]byte(globalParameter.Schema), &paramScheam); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
+		return
+	}
+
+	param := &spec.Schema{
+		Name:     globalParameter.Name,
+		Required: globalParameter.Required == 1,
+		Schema:   paramScheam,
 	}
 
 	collections, _ := models.NewCollections()
 	collections.ProjectId = project.ID
 	collectionList, err := collections.List()
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.QueryFailed"}),
-		})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.QueryFailed"})})
 		return
 	}
+
 	for _, collection := range collectionList {
 		if collection.Type == "http" {
-			// 解析文档内容
-			docContent := []map[string]interface{}{}
-			if err := json.Unmarshal([]byte(collection.Content), &docContent); err != nil {
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-				})
+			var content []*spec.NodeProxy
+			if err := json.Unmarshal([]byte(collection.Content), &content); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 				return
 			}
 
-			var request []byte
-			for _, v := range docContent {
-				if v["type"] == "apicat-http-request" {
-					request, err = json.Marshal(v["attrs"])
-					if err != nil {
-						ctx.JSON(http.StatusBadRequest, gin.H{
-							"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-						})
-						return
-					}
+			var request *spec.HTTPNode[spec.HTTPRequestNode]
+			for _, i := range content {
+				switch nx := i.Node.(type) {
+				case *spec.HTTPNode[spec.HTTPRequestNode]:
+					request = nx
 				}
-
 			}
 
-			apicatRequest := apicat_struct.RequestObject{}
-			if err := json.Unmarshal(request, &apicatRequest); err != nil {
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-				})
+			request.Attrs.GlobalExcepts[globalParameter.In] = array_operations.Remove[int64](int64(globalParameter.ID), request.Attrs.GlobalExcepts[globalParameter.In])
+			if data.IsUnRef == 1 {
+				if !array_operations.InArray[int64](int64(globalParameter.ID), request.Attrs.GlobalExcepts[globalParameter.In]) {
+					request.Attrs.Parameters.Add(globalParameter.In, param)
+				}
+			}
+
+			newContent, err := json.Marshal(content)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 				return
 			}
 
-			// 删除GlobalExcepts中的全局参数，检查id是否在GlobalExcepts中存在，如果存在则删除GlobalExcepts中这个id。如果不存在则将解引用的参数补充在parameters中的第一位
-			switch globalParameters.In {
-			case "query":
-				if !apicatRequest.GlobalExcepts.CheckQueryRef(int(globalParameters.ID)) {
-					if data.IsUnRef == 1 {
-						apicatRequest.Parameters.CheckQueryRef(parametersSchema)
-					}
-				}
-			case "header":
-				if !apicatRequest.GlobalExcepts.CheckHeaderRef(int(globalParameters.ID)) {
-					if data.IsUnRef == 1 {
-						apicatRequest.Parameters.CheckHeaderRef(parametersSchema)
-					}
-				}
-			case "path":
-				if !apicatRequest.GlobalExcepts.CheckPathRef(int(globalParameters.ID)) {
-					if data.IsUnRef == 1 {
-						apicatRequest.Parameters.CheckPathRef(parametersSchema)
-					}
-				}
-			case "cookie":
-				if !apicatRequest.GlobalExcepts.CheckCookieRef(int(globalParameters.ID)) {
-					if data.IsUnRef == 1 {
-						apicatRequest.Parameters.CheckCookieRef(parametersSchema)
-					}
-				}
-			default:
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.TypeDoesNotExist"}),
-				})
+			collection.Content = string(newContent)
+			if err := collection.Update(); err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 				return
-			}
-
-			// 将修改后的参数重新写入文档内容
-			for i, v := range docContent {
-				if v["type"] == "apicat-http-request" {
-					docContent[i]["attrs"] = apicatRequest
-				}
-			}
-
-			if newContent, err := json.Marshal(docContent); err != nil {
-				ctx.JSON(http.StatusBadRequest, gin.H{
-					"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-				})
-				return
-			} else {
-				collection.Content = string(newContent)
-				if err := collection.Update(); err != nil {
-					ctx.JSON(http.StatusBadRequest, gin.H{
-						"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.UpdateFailed"}),
-					})
-					return
-				}
 			}
 		}
+	}
 
-		if err := globalParameters.Delete(); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.DeleteFailed"}),
-			})
-			return
-		}
+	if err := globalParameter.Delete(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"message": translator.Trasnlate(ctx, &translator.TT{ID: "GlobalParameters.DeleteFailed"}),
+		})
+		return
 	}
 
 	ctx.Status(http.StatusNoContent)
