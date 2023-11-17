@@ -315,8 +315,7 @@ func GlobalParametersDelete(ctx *gin.Context) {
 				return
 			}
 
-			collection.Content = string(newContent)
-			if err := collection.Update(); err != nil {
+			if err := collection.UpdateContent(false, collection.Title, string(newContent), currentProjectMember.(*models.ProjectMembers).UserID); err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 				return
 			}
