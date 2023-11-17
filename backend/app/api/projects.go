@@ -297,7 +297,7 @@ func ProjectsCreate(ctx *gin.Context) {
 		models.ServersImport(project.ID, content.Servers)
 
 		refContentVirtualIDToId := &models.RefContentVirtualIDToId{
-			DefinitionSchemas:    models.DefinitionSchemasImport(project.ID, content.Definitions.Schemas),
+			DefinitionSchemas:    models.DefinitionSchemasImport(project.ID, content.Definitions.Schemas, user.ID),
 			DefinitionResponses:  models.DefinitionResponsesImport(project.ID, content.Definitions.Responses),
 			DefinitionParameters: models.DefinitionParametersImport(project.ID, content.Definitions.Parameters),
 			GolbalParameters:     models.GlobalParametersImport(project.ID, &content.Globals.Parameters),

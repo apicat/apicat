@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -39,7 +38,5 @@ func (ch *CollectionHistories) Create() error {
 }
 
 func (ch *CollectionHistories) Restore(collection *Collections, uid uint) error {
-	fmt.Printf("ch: %+v\n", *ch)
-	fmt.Printf("collection: %+v\n", *collection)
 	return collection.UpdateContent(true, ch.Title, ch.Content, uid)
 }
