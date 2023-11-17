@@ -95,6 +95,7 @@ func DefinitionResponsesImport(projectID uint, responses spec.HTTPResponseDefine
 			ProjectID:    projectID,
 			Name:         response.Name,
 			Description:  response.Description,
+			Type:         "response",
 			Header:       header,
 			Content:      content,
 			DisplayOrder: i,
