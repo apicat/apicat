@@ -41,17 +41,17 @@ interface Emits {
 const props = defineProps<Props>()
 const emits = defineEmits<Emits>()
 const examples = ref<Example[]>([])
-const activeTabName = ref<string|number>(0)
+const activeTabName = ref<string|number>('')
 const localExamples = ref<Examples>({})
 
 function notify() {
-   examples.value.reduce((acc, cur, index) => {
+   const result = examples.value.reduce((acc, cur, index) => {
     const key = index.toString()
     acc[key] = cur
     return acc
-  }, localExamples.value)
+  }, {} as any)
 
-  emits('update:examples', localExamples.value)
+  emits('update:examples', result)
 }
 
 const debounceNotify = debounce(notify, 200)
@@ -86,7 +86,6 @@ function handleAddExample() {
 function handleRemoveExample(id: any) {
   const index = examples.value.findIndex((item) => item.id === id)
     examples.value.splice(index, 1)
-  // examples.value.splice(index, 1)
   if(id === activeTabName.value){
     activeTabName.value = examples.value[examples.value.length - 1].id!
   }
@@ -106,8 +105,10 @@ watch(() => props.examples, () => {
   if(!isUpdate){
     isUpdate = true
     examples.value = initExamples()
-    if(examples.value.length)
+
+    if(examples.value.length && !activeTabName.value)
       activeTabName.value = examples.value[0].id!
+
     nextTick(()=>{
       isUpdate = false
     })
