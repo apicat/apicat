@@ -12,7 +12,7 @@ type RefContentVirtualIDToId struct {
 	DefinitionSchemas    VirtualIDToIDMap
 	DefinitionResponses  VirtualIDToIDMap
 	DefinitionParameters VirtualIDToIDMap
-	GolbalParameters     VirtualIDToIDMap
+	GlobalParameters     VirtualIDToIDMap
 }
 
 func ReplaceVirtualIDToID(content string, nameIDMap VirtualIDToIDMap, prefix string) string {

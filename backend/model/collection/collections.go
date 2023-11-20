@@ -218,7 +218,7 @@ func CollectionsImport(projectID, parentID uint, collections []*spec.CollectItem
 				collectionStr = model.ReplaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionSchemas, "#/definitions/schemas/")
 				collectionStr = model.ReplaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionResponses, "#/definitions/responses/")
 				collectionStr = model.ReplaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionParameters, "#/definitions/parameters/")
-				collectionStr = global.ReplaceGlobalParametersVirtualIDToID(collectionStr, refContentNameToId.GolbalParameters)
+				collectionStr = global.ReplaceGlobalParametersVirtualIDToID(collectionStr, refContentNameToId.GlobalParameters)
 
 				record := &Collections{
 					ProjectId:    projectID,
