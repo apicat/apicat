@@ -37,10 +37,15 @@ import uesGlobalParametersStore from '@/store/globalParameters'
 import { useParams } from '@/hooks/useParams'
 import { ProjectDetailModalsContextKey } from './constants'
 import { storeToRefs } from 'pinia'
+import useDefinitionStore from '@/store/definitionSchema'
+import useDefinitionResponseStore from '@/store/definitionResponse'
 
 const ns = useNamespace('doc-layout')
 const projectStore = useProjectStore()
 const globalParametersStore = uesGlobalParametersStore()
+const definitionStore = useDefinitionStore()
+const definitionResponseStore = useDefinitionResponseStore()
+
 const { project_id } = useParams()
 
 const { isShowProjectSecretLayer } = storeToRefs(projectStore)
@@ -82,6 +87,24 @@ provide(ProjectDetailModalsContextKey, {
   exportDocument: (project_id?: string, doc_id?: string | number) => exportDocumentModalRef.value?.show(project_id, doc_id),
   shareDocument: (project_id: string, doc_id: string) => documentShareModalRef.value?.show({ project_id, collection_id: doc_id }),
   shareProject: (project_id: string) => projectShareModalRef.value?.show({ project_id }),
+})
+
+globalParametersStore.$onAction(({ name, after }) => {
+  if (name === 'deleteGlobalParameter') {
+    after(() => globalParametersStore.getGlobalParameters(project_id as string))
+  }
+})
+
+definitionStore.$onAction(({ name, after }) => {
+  if (name === 'deleteDefinition') {
+    after( () => definitionResponseStore.getDefinitions(project_id as string))
+  }
+})
+
+definitionResponseStore.$onAction(({ name, after }) => {
+  if (name === 'deleteDefinition') {
+    after(() =>  definitionResponseStore.getDefinitions(project_id as string))
+  }
 })
 
 onMounted(async () => {
