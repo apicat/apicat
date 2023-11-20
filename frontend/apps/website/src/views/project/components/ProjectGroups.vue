@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <div class="flex-1 overflow-scroll mb-10px">
+    <div class="flex-1 overflow-scroll mb-10px scroll-content">
       <Draggable tag="ul" :class="ns.b()" :list="groups" @end="onDragEnd">
         <li v-for="item in groups" :key="item.id" :class="[ns.e('item'),ns.em('item','more'), activeClass(item.id!)]" @click="handleItemClick(item.id!)">
           <div class="w-full flex-y-center">

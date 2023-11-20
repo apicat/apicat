@@ -17,6 +17,7 @@
       :lang="contentTypes[contentTypeKey]"
       v-model="responseRef.content[contentTypeKey].schema.example"
     />
+    <ResponseExamplesForm :examples="examples" readonly :lang="contentTypes[contentTypeKey]" />
   </div>
 </template>
 
@@ -27,11 +28,12 @@ import JSONSchemaEditor from '../APIEditor/Editor.vue'
 import CodeEditor from '../APIEditor/CodeEditor.vue'
 import { DefinitionResponse } from '@/typings'
 import { useDefinitionResponse, contentTypes } from './useDefinitionResponse'
+import ResponseExamplesForm from '@/views/component/ResponseExamples.vue'
 
 const props = defineProps<{
   response: DefinitionResponse
   definitionSchemas?: DefinitionSchema[]
 }>()
 
-const { responseRef, contentDefaultType, isJsonSchema } = useDefinitionResponse(props)
+const {examples,responseRef, contentDefaultType, isJsonSchema } = useDefinitionResponse(props)
 </script>

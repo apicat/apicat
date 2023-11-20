@@ -81,6 +81,28 @@ func (d *DefinitionSchemas) Save() error {
 	return Conn.Save(d).Error
 }
 
+func (d *DefinitionSchemas) UpdateContent(must bool, name, desc, schema string, updatedBy uint) error {
+	// 不是同一个人编辑的模型或5分钟后编辑模型内容，保存历史记录
+	if must || d.UpdatedBy != updatedBy || d.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
+		// 保存历史记录
+		dsh := DefinitionSchemaHistories{
+			SchemaID:    d.ID,
+			Name:        d.Name,
+			Description: d.Description,
+			Type:        d.Type,
+			Schema:      d.Schema,
+			CreatedBy:   updatedBy,
+		}
+
+		if err := dsh.Create(); err != nil {
+			return err
+		}
+	}
+
+	return Conn.Model(d).Updates(DefinitionSchemas{Name: name, Description: desc, Schema: schema, UpdatedBy: updatedBy}).Error
+
+}
+
 func (d *DefinitionSchemas) Delete() error {
 	if d.Type == "category" {
 		Conn.Where("parent_id = ?", d.ID).Delete(&DefinitionSchemas{})
@@ -100,7 +122,7 @@ func (d *DefinitionSchemas) Deleter() string {
 	return ""
 }
 
-func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) virtualIDToIDMap {
+func DefinitionSchemasImport(projectID uint, schemas spec.Schemas, uid uint) virtualIDToIDMap {
 	schemasMap := virtualIDToIDMap{}
 
 	if len(schemas) == 0 {
@@ -139,10 +161,9 @@ func DefinitionSchemasImport(projectID uint, schemas spec.Schemas) virtualIDToID
 		return schemasMap
 	}
 
-	for _, v := range definitionschemas {
-		schema := replaceVirtualIDToID(v.Schema, schemasMap, "#/definitions/schemas/")
-		v.Schema = schema
-		v.Save()
+	for _, definitionSchema := range definitionschemas {
+		schema := replaceVirtualIDToID(definitionSchema.Schema, schemasMap, "#/definitions/schemas/")
+		definitionSchema.UpdateContent(false, definitionSchema.Name, definitionSchema.Description, schema, uid)
 	}
 
 	return schemasMap
@@ -191,7 +212,7 @@ func DefinitionIdToName(content string, idToNameMap IdToNameMap) string {
 	return content
 }
 
-func DefinitionsSchemaUnRefByDefinitionsSchema(d *DefinitionSchemas, isUnRef int) error {
+func DefinitionsSchemaUnRefByDefinitionsSchema(d *DefinitionSchemas, isUnRef int, uid uint) error {
 	ref := "\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\""
 
 	definitions, _ := NewDefinitionSchemas()
@@ -215,9 +236,7 @@ func DefinitionsSchemaUnRefByDefinitionsSchema(d *DefinitionSchemas, isUnRef int
 			}
 
 			newContent := strings.Replace(definitions.Schema, ref, newStr[1:len(newStr)-1], -1)
-			definitions.Schema = newContent
-
-			if err := definitions.Save(); err != nil {
+			if err := definitions.UpdateContent(false, definitions.Name, definitions.Description, newContent, uid); err != nil {
 				return err
 			}
 		}
@@ -261,7 +280,7 @@ func DefinitionsSchemaUnRefByDefinitionsResponse(d *DefinitionSchemas, isUnRef i
 	return nil
 }
 
-func DefinitionsSchemaUnRefByCollections(d *DefinitionSchemas, isUnRef int) error {
+func DefinitionsSchemaUnRefByCollections(d *DefinitionSchemas, isUnRef int, uid uint) error {
 	ref := "\"$ref\":\"#/definitions/schemas/" + strconv.FormatUint(uint64(d.ID), 10) + "\""
 
 	collections, _ := NewCollections()
@@ -287,7 +306,7 @@ func DefinitionsSchemaUnRefByCollections(d *DefinitionSchemas, isUnRef int) erro
 			newContent := strings.Replace(collection.Content, ref, newStr[1:len(newStr)-1], -1)
 			collection.Content = newContent
 
-			if err := collection.Update(); err != nil {
+			if err := collection.UpdateContent(false, collection.Title, newContent, uid); err != nil {
 				return err
 			}
 		}

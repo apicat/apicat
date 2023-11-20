@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/apicat/apicat/backend/common/translator"
 	"github.com/apicat/apicat/backend/enum"
@@ -181,64 +180,34 @@ func DefinitionSchemasUpdate(ctx *gin.Context) {
 	currentDefinitionSchema, _ := ctx.Get("CurrentDefinitionSchema")
 	definition := currentDefinitionSchema.(*models.DefinitionSchemas)
 
-	var (
-		data DefinitionSchemaUpdate
-	)
-
+	var data DefinitionSchemaUpdate
 	if err := translator.ValiadteTransErr(ctx, ctx.ShouldBindJSON(&data)); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": err.Error(),
-		})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": err.Error()})
 		return
-	}
-
-	dsh, _ := models.NewDefinitionSchemaHistories()
-	dsh.SchemaID = definition.ID
-	dsh.Name = definition.Name
-	dsh.Description = definition.Description
-	dsh.Type = definition.Type
-	dsh.Schema = definition.Schema
-	dsh.CreatedBy = currentProjectMember.(*models.ProjectMembers).UserID
-	if definition.UpdatedBy != currentProjectMember.(*models.ProjectMembers).UserID || definition.UpdatedAt.Add(5*time.Minute).Before(time.Now()) {
-		if err := dsh.Create(); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{
-				"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.UpdateFail"}),
-			})
-			return
-		}
 	}
 
 	schemaJson, err := json.Marshal(data.Schema)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"}),
-		})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.ContentParsingFailed"})})
 		return
 	}
 
-	definition.Name = data.Name
-	definition.Description = data.Description
-	definitions, err := definition.List()
+	d := models.DefinitionSchemas{
+		ProjectId: definition.ProjectId,
+		Name:      data.Name,
+	}
+	definitions, err := d.List()
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.QueryFailed"}),
-		})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.QueryFailed"})})
 		return
 	}
-
 	if len(definitions) > 0 && definitions[0].ID != definition.ID {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"}),
-		})
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": translator.Trasnlate(ctx, &translator.TT{ID: "Common.NameExists"})})
 		return
 	}
 
-	definition.Schema = string(schemaJson)
-	definition.UpdatedBy = currentProjectMember.(*models.ProjectMembers).UserID
-	if err := definition.Save(); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.UpdateFail"}),
-		})
+	if err := definition.UpdateContent(false, data.Name, data.Description, string(schemaJson), currentProjectMember.(*models.ProjectMembers).UserID); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": translator.Trasnlate(ctx, &translator.TT{ID: "DefinitionSchemas.UpdateFail"})})
 		return
 	}
 
@@ -267,7 +236,7 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 		return
 	}
 
-	if err := models.DefinitionsSchemaUnRefByCollections(definition, isUnRefData.IsUnRef); err != nil {
+	if err := models.DefinitionsSchemaUnRefByCollections(definition, isUnRefData.IsUnRef, currentProjectMember.(*models.ProjectMembers).UserID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
@@ -279,7 +248,7 @@ func DefinitionSchemasDelete(ctx *gin.Context) {
 		})
 		return
 	}
-	if err := models.DefinitionsSchemaUnRefByDefinitionsSchema(definition, isUnRefData.IsUnRef); err != nil {
+	if err := models.DefinitionsSchemaUnRefByDefinitionsSchema(definition, isUnRefData.IsUnRef, currentProjectMember.(*models.ProjectMembers).UserID); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"message": err.Error(),
 		})
