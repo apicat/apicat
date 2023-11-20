@@ -97,7 +97,10 @@ globalParametersStore.$onAction(({ name, after }) => {
 
 definitionStore.$onAction(({ name, after }) => {
   if (name === 'deleteDefinition') {
-    after( () => definitionResponseStore.getDefinitions(project_id as string))
+    after(async () => {
+     await definitionStore.getDefinitions(project_id as string)
+     await definitionResponseStore.getDefinitions(project_id as string)
+    })
   }
 })
 
