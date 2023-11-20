@@ -123,7 +123,7 @@ func AICreateCollection(ctx *gin.Context) {
 
 	currentProject, _ := ctx.Get("CurrentProject")
 	refContentVirtualIDToId := &models.RefContentVirtualIDToId{
-		DefinitionSchemas:    models.DefinitionSchemasImport(currentProject.(*models.Projects).ID, content.Definitions.Schemas),
+		DefinitionSchemas:    models.DefinitionSchemasImport(currentProject.(*models.Projects).ID, content.Definitions.Schemas, currentProjectMember.(*models.ProjectMembers).UserID),
 		DefinitionResponses:  models.DefinitionResponsesImport(currentProject.(*models.Projects).ID, content.Definitions.Responses),
 		DefinitionParameters: models.DefinitionParametersImport(currentProject.(*models.Projects).ID, content.Definitions.Parameters),
 	}

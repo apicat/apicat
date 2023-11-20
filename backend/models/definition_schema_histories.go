@@ -39,24 +39,5 @@ func (dsh *DefinitionSchemaHistories) Create() error {
 }
 
 func (dsh *DefinitionSchemaHistories) Restore(ds *DefinitionSchemas, uid uint) error {
-	ndsh, _ := NewDefinitionSchemaHistories()
-	ndsh.SchemaID = ds.ID
-	ndsh.Name = ds.Name
-	ndsh.Description = ds.Description
-	ndsh.Type = ds.Type
-	ndsh.Schema = ds.Schema
-	ndsh.CreatedBy = uid
-	if err := ndsh.Create(); err != nil {
-		return err
-	}
-
-	ds.Name = dsh.Name
-	ds.Description = dsh.Description
-	ds.Schema = dsh.Schema
-	ds.UpdatedBy = uid
-	if err := ds.Save(); err != nil {
-		return err
-	}
-
-	return nil
+	return ds.UpdateContent(true, dsh.Name, dsh.Description, dsh.Schema, uid)
 }
