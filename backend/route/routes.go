@@ -43,44 +43,42 @@ func registerSetConfig(g *gin.RouterGroup) {
 	}
 }
 
-func registerNotLogin(g *gin.RouterGroup) {
+func registerNotLogin(notLogin *gin.RouterGroup) {
 	// 未登录状态下可访问的API
-	notLogin := g.Group("")
+
+	account := notLogin.Group("/account")
 	{
-		account := notLogin.Group("/account")
-		{
-			account.POST("/login/email", user.EmailLogin)
-			account.POST("/register/email", user.EmailRegister)
-		}
-
-		projects := notLogin.Group("/projects")
-		projects.Use(check.CheckProject())
-		{
-			projects.GET("/:project-id/data", project.ProjectDataGet)
-			projects.GET("/:project-id/share/status", check.CheckMemberHalfLogin(), project.ProjectShareStatus)
-			projects.POST("/:project-id/share/check", project.ProjectShareSecretkeyCheck)
-		}
-
-		collections := notLogin.Group("/projects/:project-id/collections")
-		collections.Use(check.CheckProject())
-		{
-			collections.GET("/:collection-id/data", check.CheckCollection(), collection.CollectionDataGet)
-			collections.POST("/:collection-id/share/check", check.CheckCollection(), doc.DocShareCheck)
-		}
-
-		collectionShare := notLogin.Group("/collections")
-		{
-			collectionShare.GET("/:public_collection_id/share/status", doc.DocShareStatus)
-		}
+		account.POST("/login/email", user.EmailLogin)
+		account.POST("/register/email", user.EmailRegister)
 	}
+
+	projects := notLogin.Group("/projects")
+	projects.Use(check.CheckProject())
+	{
+		projects.GET("/:project-id/data", project.ProjectDataGet)
+		projects.GET("/:project-id/share/status", check.CheckMemberHalfLogin(), project.ProjectShareStatus)
+		projects.POST("/:project-id/share/check", project.ProjectShareSecretkeyCheck)
+	}
+
+	collections := notLogin.Group("/projects/:project-id/collections")
+	collections.Use(check.CheckProject())
+	{
+		collections.GET("/:collection-id/data", check.CheckCollection(), collection.CollectionDataGet)
+		collections.POST("/:collection-id/share/check", check.CheckCollection(), doc.DocShareCheck)
+	}
+
+	collectionShare := notLogin.Group("/collections")
+	{
+		collectionShare.GET("/:public_collection_id/share/status", doc.DocShareStatus)
+	}
+
 }
 
-func registerHalfLogin(g *gin.RouterGroup) {
+func registerHalfLogin(halfLogin *gin.RouterGroup) {
 
 	mocksrv := mock.NewMockServer()
 
 	// 半登录状态下可访问的API。半登录：登录或不登录时都可访问，但响应的参数不同
-	halfLogin := g.Group("")
 	halfLogin.Use(check.CheckProject(), check.CheckMemberHalfLogin(), check.CheckProjectMemberHalfLogin(), mocksrv.ClearCache())
 	{
 		projects := halfLogin.Group("/projects/:project-id")
@@ -118,9 +116,8 @@ func registerHalfLogin(g *gin.RouterGroup) {
 	}
 }
 
-func registerOnlyLogin(g *gin.RouterGroup) {
+func registerOnlyLogin(onlyLogin *gin.RouterGroup) {
 	// 仅登录状态下可访问的API。仅登录：仅登录了apicat便可访问，一般为项目外的操作
-	onlyLogin := g.Group("")
 	onlyLogin.Use(check.CheckMember())
 	{
 		users := onlyLogin.Group("/user")
@@ -186,20 +183,17 @@ func registerSys(g *gin.RouterGroup) {
 	}
 }
 
-func registerProject(g *gin.RouterGroup) {
-	projects := g.Group("")
-	{
-		projects.PUT("", project.ProjectsUpdate)
-		projects.DELETE("", project.ProjectsDelete)
-		projects.DELETE("/exit", project.ProjectExit)
-		projects.PUT("/transfer", project.ProjectTransfer)
-		projects.GET("/share", project.ProjectShareDetails)
-		projects.PUT("/share/switch", project.ProjectSharingSwitch)
-		projects.PUT("/share/reset", project.ProjectShareReset)
-		projects.POST("/follow", project.ProjectFollow)
-		projects.DELETE("/follow", project.ProjectUnFollow)
-		projects.PUT("/change_group", project.ProjectChangeGroup)
-	}
+func registerProject(projects *gin.RouterGroup) {
+	projects.PUT("", project.ProjectsUpdate)
+	projects.DELETE("", project.ProjectsDelete)
+	projects.DELETE("/exit", project.ProjectExit)
+	projects.PUT("/transfer", project.ProjectTransfer)
+	projects.GET("/share", project.ProjectShareDetails)
+	projects.PUT("/share/switch", project.ProjectSharingSwitch)
+	projects.PUT("/share/reset", project.ProjectShareReset)
+	projects.POST("/follow", project.ProjectFollow)
+	projects.DELETE("/follow", project.ProjectUnFollow)
+	projects.PUT("/change_group", project.ProjectChangeGroup)
 }
 
 func registerDefinitionSchema(g *gin.RouterGroup) {
