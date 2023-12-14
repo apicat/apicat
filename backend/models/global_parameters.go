@@ -193,7 +193,7 @@ func ReplaceGlobalParametersVirtualIDToID(content string, virtualIDToIDMap virtu
 	}
 	for k, v := range apicatRequest.GlobalExcepts.Query {
 		if id, ok := virtualIDToIDMap[int64(v)]; ok {
-			apicatRequest.GlobalExcepts.Path[k] = int(id)
+			apicatRequest.GlobalExcepts.Query[k] = int(id)
 		}
 	}
 
