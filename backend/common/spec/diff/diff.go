@@ -31,7 +31,7 @@ func Diff(source, target *spec.Spec, del bool) (*spec.CollectItem, *spec.Collect
 	}
 	a, au := getMapOne(source.CollectionsMap(true, 1))
 	b, bu := getMapOne(target.CollectionsMap(true, 1))
-	if au.Method != bu.Method || au.Path != bu.Method {
+	if au.Path != bu.Path {
 		bu.XDiff = &diffUpdate
 	}
 	equalRequest(&a.HTTPRequestNode, &b.HTTPRequestNode, del)
