@@ -133,3 +133,13 @@ func Create(typ string) *Schema {
 		Type: CreateSliceOrOne(typ),
 	}
 }
+
+func (s *Schema) SetXDiff(x *string) {
+	if s.Properties != nil {
+		for _, v := range s.Properties {
+			v.SetXDiff(x)
+		}
+	} else {
+		s.XDiff = x
+	}
+}
