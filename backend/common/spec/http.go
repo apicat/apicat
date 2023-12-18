@@ -7,6 +7,8 @@ type HTTPParameters struct {
 	Header Schemas `json:"header"`
 }
 
+var HttpParameter = []string{"query", "path", "cookie", "header"}
+
 func (h *HTTPParameters) Fill() {
 	if h.Query == nil {
 		h.Query = make(Schemas, 0)
@@ -108,14 +110,35 @@ type HTTPResponse struct {
 	HTTPResponseDefine
 }
 
-type HTTPResponses []HTTPResponse
+type HTTPResponses []*HTTPResponse
 
-func (h HTTPResponses) Map() map[int]HTTPResponseDefine {
+func (h *HTTPResponses) Map() map[int]HTTPResponseDefine {
 	m := make(map[int]HTTPResponseDefine)
-	for _, v := range h {
+	for _, v := range *h {
 		m[v.Code] = v.HTTPResponseDefine
 	}
 	return m
+}
+
+func (h *HTTPResponses) Add(code int, hrd *HTTPResponseDefine) {
+	for _, v := range *h {
+		if v.Code == code {
+			v.HTTPResponseDefine = *hrd
+			v.XDiff = hrd.XDiff
+			return
+		}
+	}
+	*h = append(*h, &HTTPResponse{
+		Code:               code,
+		XDiff:              hrd.XDiff,
+		HTTPResponseDefine: *hrd,
+	})
+}
+
+func (h *HTTPResponse) SetXDiff(x *string) {
+	h.Header.SetXDiff(x)
+	h.Content.SetXDiff(x)
+	h.HTTPResponseDefine.SetXDiff(x)
 }
 
 type HTTPResponseDefine struct {
@@ -129,6 +152,12 @@ type HTTPResponseDefine struct {
 }
 
 func (h *HTTPResponseDefine) Ref() bool { return h.Reference != nil }
+
+func (h *HTTPResponseDefine) SetXDiff(x *string) {
+	h.Header.SetXDiff(x)
+	h.Content.SetXDiff(x)
+	h.XDiff = x
+}
 
 type HTTPResponseDefines []HTTPResponseDefine
 
@@ -150,6 +179,12 @@ func (h HTTPResponseDefines) LookupID(id int64) *HTTPResponseDefine {
 	return nil
 }
 
+func (h *HTTPResponseDefines) SetXDiff(x *string) {
+	for _, v := range *h {
+		v.SetXDiff(x)
+	}
+}
+
 type HTTPPart struct {
 	Title string
 	ID    int64
@@ -169,4 +204,10 @@ func (h *HTTPPart) ToCollectItem(urlnode HTTPURLNode) *CollectItem {
 	content = append(content, MuseCreateNodeProxy(WarpHTTPNode(&HTTPResponsesNode{List: h.Responses})))
 	item.Content = content
 	return item
+}
+
+func (hb *HTTPBody) SetXDiff(x *string) {
+	for _, v := range *hb {
+		v.SetXDiff(x)
+	}
 }
