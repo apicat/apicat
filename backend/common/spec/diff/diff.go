@@ -1,8 +1,6 @@
 package diff
 
 import (
-	"fmt"
-
 	"github.com/apicat/apicat/backend/common/spec"
 	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 	"golang.org/x/exp/slices"
@@ -25,7 +23,7 @@ var (
 // spec.Collections 里面只能有一个接口
 // 返回对比后的两个接口 其中只有最新的那个 也就是target里边会通过x-apicat-diff标记是否有差异
 // 差异并不包含排序
-func Diff(source, target *spec.Spec, del bool) (*spec.CollectItem, *spec.CollectItem) {
+func Diff(source, target *spec.Spec) (*spec.CollectItem, *spec.CollectItem) {
 	if len(source.Collections) != 1 || len(target.Collections) != 1 {
 		panic("source,target Collections length error")
 	}
@@ -34,8 +32,8 @@ func Diff(source, target *spec.Spec, del bool) (*spec.CollectItem, *spec.Collect
 	if au.Path != bu.Path {
 		bu.XDiff = &diffUpdate
 	}
-	equalRequest(&a.HTTPRequestNode, &b.HTTPRequestNode, del)
-	b.Responses = equalResponse(a.Responses, b.Responses, del)
+	equalRequest(&a.HTTPRequestNode, &b.HTTPRequestNode)
+	b.Responses = equalResponse(a.Responses, b.Responses)
 	return a.ToCollectItem(*au), b.ToCollectItem(*bu)
 }
 
@@ -51,16 +49,29 @@ func getMapOne(d map[string]map[string]spec.HTTPPart) (*spec.HTTPPart, *spec.HTT
 	return nil, nil
 }
 
-func equalParam(a spec.HTTPParameters, b *spec.HTTPParameters, del bool) {
+func equalParam(a spec.HTTPParameters, b *spec.HTTPParameters) {
 	a1 := a.Map()
 	b1 := b.Map()
-	for k, v := range b1 {
-		x, ok := a1[k]
-		if !ok {
-			x = make(spec.Schemas, 0)
+	for _, v := range spec.HttpParameter {
+		ap, a_has := a1[v]
+		bp, b_has := b1[v]
+
+		if !a_has && !b_has {
+			continue
 		}
-		newv := equalSchemas(x, v, del)
-		switch k {
+		// TODO可能会考虑到排序的问题
+		if a_has && !b_has {
+			ap.SetXDiff(&diffRemove)
+			bp = append(bp, ap...)
+			continue
+		}
+		if !a_has && b_has {
+			bp.SetXDiff(&diffNew)
+			continue
+		}
+
+		newv := equalSchemas(ap, bp)
+		switch v {
 		case "path":
 			b.Path = newv
 		case "header":
@@ -73,159 +84,155 @@ func equalParam(a spec.HTTPParameters, b *spec.HTTPParameters, del bool) {
 	}
 }
 
-func equalSchemas(a, b spec.Schemas, del bool) spec.Schemas {
-	if del {
-		for i, v := range a {
-			if s := b.Lookup(v.Name); s == nil {
-				newv := *v
-				newv.XDiff = &diffRemove
-				if i < len(b)-1 {
-					b = slices.Insert(b, i, &newv)
-				} else {
-					b = append(b, &newv)
-				}
-			}
-		}
+func equalSchemas(a, b spec.Schemas) spec.Schemas {
+	names := map[string]struct{}{}
+	for _, v := range a {
+		names[v.Name] = struct{}{}
+	}
+	for _, v := range b {
+		names[v.Name] = struct{}{}
 	}
 
-	for _, v := range b {
-		if v.XDiff == &diffRemove {
+	for v := range names {
+		as := a.Lookup(v)
+		bs := b.Lookup(v)
+
+		// TODO可能会考虑到排序的问题
+		if as == nil && bs != nil {
+			bs.SetXDiff(&diffNew)
 			continue
 		}
-		if s := a.Lookup(v.Name); s == nil {
-			v.XDiff = &diffNew
-		} else {
-			equalSchema(s, v, del)
+		if as != nil && bs == nil {
+			as.SetXDiff(&diffRemove)
+			b = append(b, as)
+			continue
 		}
+		equalSchema(as, bs)
 	}
 	return b
 }
 
-func equalContent(a, b spec.HTTPBody, del bool) spec.HTTPBody {
-	if del {
-		for k, v := range a {
-			if _, ok := b[k]; !ok {
-				newv := *v
-				newv.XDiff = &diffRemove
-				b[k] = &newv
-			}
-		}
+func equalContent(a, b spec.HTTPBody) spec.HTTPBody {
+	names := map[string]struct{}{}
+	for v := range a {
+		names[v] = struct{}{}
 	}
-	for k, v := range b {
-		if x, ok := a[k]; !ok {
-			v.XDiff = &diffNew
-		} else {
-			equalSchema(x, v, del)
+	for v := range b {
+		names[v] = struct{}{}
+	}
+	for v := range names {
+		as, a_has := a[v]
+		bs, b_has := b[v]
+		if !a_has && b_has {
+			bs.SetXDiff(&diffNew)
+			continue
 		}
+		if a_has && !b_has {
+			as.SetXDiff(&diffRemove)
+			b[v] = as
+			continue
+		}
+		equalSchema(as, bs)
 	}
 	return b
 }
 
-func equalRequest(a, b *spec.HTTPRequestNode, del bool) {
-	equalParam(a.Parameters, &b.Parameters, del)
-	b.Content = equalContent(a.Content, b.Content, del)
+func equalRequest(a, b *spec.HTTPRequestNode) {
+	equalParam(a.Parameters, &b.Parameters)
+	b.Content = equalContent(a.Content, b.Content)
 }
 
-func equalResponse(a, b spec.HTTPResponses, del bool) spec.HTTPResponses {
-	if del {
-		bb := b.Map()
-		for i, v := range a {
-			if _, ok := bb[v.Code]; !ok {
-				newv := v
-				newv.XDiff = &diffRemove
-				// 尽量保证顺序
-				if i < len(b)-1 {
-					b = slices.Insert(b, i, newv)
-				} else {
-					b = append(b, newv)
-				}
-			}
-		}
+func equalResponse(a, b spec.HTTPResponses) spec.HTTPResponses {
+	codes := map[int]struct{}{}
+	for _, v := range a {
+		codes[v.Code] = struct{}{}
+	}
+	for _, v := range b {
+		codes[v.Code] = struct{}{}
 	}
 	aa := a.Map()
-	for i, v := range b {
-		if v.XDiff == &diffRemove {
-			continue
+	bb := b.Map()
+	for k := range codes {
+		as, a_has := aa[k]
+		bs, b_has := bb[k]
+		if !a_has && b_has {
+			bs.SetXDiff(&diffNew)
+			goto e
 		}
-		if x, ok := aa[v.Code]; ok {
-			switch {
-			case x.Name != v.Name || x.Description != v.Description:
-				v.XDiff = &diffUpdate
-			default:
-				v.Header = equalSchemas(x.Header, v.Header, del)
-				v.Content = equalContent(x.Content, v.Content, del)
-			}
-		} else {
-			v.XDiff = &diffNew
+		if a_has && !b_has {
+			as.SetXDiff(&diffRemove)
+			bs = as
+			goto e
 		}
-		b[i] = v
+		if bs.Name != as.Name || bs.Description != as.Description {
+			bs.XDiff = &diffUpdate
+		}
+		bs.Header = equalSchemas(as.Header, bs.Header)
+		bs.Content = equalContent(as.Content, bs.Content)
+		// as,bs与b类型不同，需要特殊处理
+	e:
+		b.Add(k, &bs)
 	}
 	return b
 }
 
-func equalSchema(a, b *spec.Schema, del bool) {
-	switch {
-	case a.Name != b.Name:
-		fmt.Println("----->>>>>")
-	case a.Description != b.Description:
-	case a.Required != b.Required:
-	default:
-		equalJsonSchema(a.Schema, b.Schema, del)
-		return
+func equalSchema(a, b *spec.Schema) {
+	if !a.EqualNomal(b) {
+		b.XDiff = &diffUpdate
 	}
-	b.XDiff = &diffUpdate
+	equalJsonSchema(a.Schema, b.Schema)
 }
 
-func equalJsonSchema(a, b *jsonschema.Schema, del bool) {
+func equalJsonSchema(a, b *jsonschema.Schema) {
 	if !slices.Equal(a.Type.Value(), b.Type.Value()) {
-		b.XDiff = &diffUpdate
+		b.SetXDiff(&diffUpdate)
 		return
 	}
 	at := a.Type.Value()[0]
 	bt := b.Type.Value()[0]
+	//对array和object对象的之间变换一律变为update
 	if at != bt {
-		b.XDiff = &diffUpdate
+		b.SetXDiff(&diffUpdate)
 		return
 	}
-	equalJsonSchemaNormal(a, b)
+	if !equalJsonSchemaNormal(a, b) {
+		b.XDiff = &diffUpdate
+	}
 	switch bt {
 	case "object":
-		for k, v := range b.Properties {
-			if x, ok := a.Properties[k]; !ok {
-				v.XDiff = &diffNew
-			} else {
-				if slices.Contains(b.Required, k) != slices.Contains(a.Required, k) {
-					v.XDiff = &diffUpdate
-				} else {
-					equalJsonSchema(x, v, del)
-				}
-			}
+		names := map[string]struct{}{}
+		for v := range a.Properties {
+			names[v] = struct{}{}
 		}
-		if del {
-			for k, v := range a.Properties {
-				if _, ok := b.Properties[k]; !ok {
-					newv := *v
-					newv.XDiff = &diffRemove
-					b.Properties[k] = &newv
-				}
+		for v := range b.Properties {
+			names[v] = struct{}{}
+		}
+
+		for v := range names {
+			as, a_has := a.Properties[v]
+			bs, b_has := b.Properties[v]
+			if !a_has && b_has {
+				bs.SetXDiff(&diffNew)
+				continue
 			}
+			if a_has && !b_has {
+				as.SetXDiff(&diffRemove)
+				b.Properties[v] = as
+				continue
+			}
+			equalJsonSchema(as, bs)
 		}
 	case "array":
-		equalJsonSchema(a.Items.Value(), b.Items.Value(), del)
+		if a.Items != nil && b.Items != nil {
+			equalJsonSchema(a.Items.Value(), b.Items.Value())
+		}
 	}
 
 }
 
 func equalJsonSchemaNormal(a, b *jsonschema.Schema) bool {
-	switch {
-	case a.Default != b.Default:
-	case a.Description != b.Description:
-	case a.XMock != b.XMock:
-	// case a.Format != b.Format:
-	// case a.Pattern != b.Pattern
-	default:
-		return true
+	if a.Default != b.Default || a.Description != b.Description || a.Example != b.Example {
+		return false
 	}
-	b.XDiff = &diffUpdate
-	return false
+	return true
 }
