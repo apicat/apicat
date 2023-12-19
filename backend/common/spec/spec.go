@@ -232,6 +232,7 @@ type CollectItem struct {
 	Tags     []string       `json:"tag,omitempty"`
 	Content  []*NodeProxy   `json:"content,omitempty"`
 	Items    []*CollectItem `json:"items,omitempty"`
+	XDiff    *string        `json:"x-apicat-diff,omitempty"`
 }
 
 func walkCollectionHandle(list []*CollectItem, p []string,

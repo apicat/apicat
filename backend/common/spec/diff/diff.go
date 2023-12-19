@@ -32,6 +32,9 @@ func Diff(source, target *spec.Spec) (*spec.CollectItem, *spec.CollectItem) {
 	if au.Path != bu.Path {
 		bu.XDiff = &diffUpdate
 	}
+	if a.Title != b.Title {
+		b.XDiff = &diffUpdate
+	}
 	equalRequest(&a.HTTPRequestNode, &b.HTTPRequestNode)
 	b.Responses = equalResponse(a.Responses, b.Responses)
 	return a.ToCollectItem(*au), b.ToCollectItem(*bu)
