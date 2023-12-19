@@ -215,13 +215,13 @@ func encodeResponseBody(res []Response) *spec.HTTPResponsesNode {
 
 		// fmt.Println(r)
 
-		response.List = append(response.List, r)
+		response.List = append(response.List, &r)
 	}
 
 	if len(response.List) == 0 {
 		defaultres := spec.HTTPResponse{Code: 200}
 		defaultres.Name = "success"
-		response.List = append(response.List, defaultres)
+		response.List = append(response.List, &defaultres)
 	}
 	return response
 }

@@ -200,9 +200,9 @@ func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDe
 			if len(in.Produces) == 0 {
 				content[defaultSwaggerConsumerProduce] = sh
 				if res.Examples != nil {
-					sh.Examples = make(map[string]spec.Example)
+					sh.Examples = make(map[string]*spec.Example)
 					for k, v := range res.Examples.Values {
-						sh.Examples[k] = spec.Example{
+						sh.Examples[k] = &spec.Example{
 							Summary: "example",
 							Value:   v,
 						}
@@ -214,7 +214,7 @@ func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDe
 					if res.Examples != nil {
 						emp, ok := res.Examples.Values[v]
 						if ok {
-							sh.Examples = map[string]spec.Example{
+							sh.Examples = map[string]*spec.Example{
 								v: {
 									Summary: "example",
 									Value:   emp,
@@ -278,7 +278,7 @@ func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode 
 				if res.Examples != nil {
 					mp, ok := res.Examples.Values[v]
 					if ok {
-						sh.Examples = map[string]spec.Example{
+						sh.Examples = map[string]*spec.Example{
 							v: {
 								Summary: "example",
 								Value:   mp,
@@ -289,10 +289,10 @@ func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode 
 				resp.Content[v] = sh
 			}
 		}
-		outresponses.List = append(outresponses.List, resp)
+		outresponses.List = append(outresponses.List, &resp)
 	}
 	if len(outresponses.List) == 0 {
-		outresponses.List = append(outresponses.List, spec.HTTPResponse{
+		outresponses.List = append(outresponses.List, &spec.HTTPResponse{
 			Code:               200,
 			HTTPResponseDefine: spec.HTTPResponseDefine{Description: "success"},
 		})
@@ -553,7 +553,7 @@ func (s *toSwagger) parseResponse(in *spec.Spec, res spec.HTTPResponseDefine) ma
 	return resp
 }
 
-func (s *toSwagger) toPathResponse(in *spec.Spec, resp []spec.HTTPResponse) (map[string]any, []string) {
+func (s *toSwagger) toPathResponse(in *spec.Spec, resp []*spec.HTTPResponse) (map[string]any, []string) {
 	product := map[string]struct{}{}
 	reslist := make(map[string]any)
 	for _, r := range resp {

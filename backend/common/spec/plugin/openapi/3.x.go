@@ -176,9 +176,9 @@ func (o *fromOpenapi) parseContent(mts map[string]*v3.MediaType) spec.HTTPBody {
 		js.Example = mt.Example
 		// sh.Example = mt.Example
 		if len(mt.Examples) > 0 {
-			sh.Examples = make(map[string]spec.Example)
+			sh.Examples = make(map[string]*spec.Example)
 			for k, v := range mt.Examples {
-				sh.Examples[k] = spec.Example{
+				sh.Examples[k] = &spec.Example{
 					Summary: v.Summary,
 					Value:   v.Value,
 				}
@@ -214,7 +214,7 @@ func (o *fromOpenapi) parseeResoponse(responses map[string]*v3.Response) spec.HT
 			}
 		}
 		resp.Content = o.parseContent(res.Content)
-		outresponses.List = append(outresponses.List, resp)
+		outresponses.List = append(outresponses.List, &resp)
 	}
 	return outresponses
 }
