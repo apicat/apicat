@@ -15,7 +15,7 @@ func TestDuff(t *testing.T) {
 
 	bb, _ := os.ReadFile("../testdata/specdiff_b.json")
 	b, _ := spec.ParseJSON(bb)
-	_, collectitemB := Diff(a, b, true)
+	_, collectitemB := Diff(a, b)
 	// aaa, _ := json.MarshalIndent(collectitemA, "", " ")
 	bbb, _ := json.MarshalIndent(collectitemB, "", " ")
 	fmt.Println(string(bbb))
