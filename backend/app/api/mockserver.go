@@ -62,7 +62,7 @@ func (m *MockServer) Handler(c *gin.Context) {
 	if len(part.Responses) > 0 {
 		res := part.Responses[index]
 		slog.InfoCtx(c, "schema response", slog.String("name", res.Name))
-		m.renderMockResponse(c, res)
+		m.renderMockResponse(c, *res)
 	}
 }
 
