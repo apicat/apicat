@@ -69,9 +69,8 @@ func (s *Schemas) SetXDiff(x *string) {
 func (s *Schema) SetXDiff(x *string) {
 	if s.Schema != nil {
 		s.Schema.SetXDiff(x)
-	} else {
-		s.XDiff = x
 	}
+	s.XDiff = x
 }
 
 func (s *Schema) FindExample(summary string) (*Example, bool) {
