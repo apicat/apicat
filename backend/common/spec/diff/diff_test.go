@@ -18,7 +18,7 @@ func TestDuff(t *testing.T) {
 	ab, _ := spec.ParseJSON(a)
 	bb, _ := spec.ParseJSON(b)
 
-	collectitemB, err := Diff(ab, bb)
+	collectitemB, err := Diff(ab.Collections[0], bb.Collections[0])
 	if err != nil {
 		t.Log(err)
 	}

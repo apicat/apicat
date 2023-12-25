@@ -191,14 +191,12 @@ type HTTPPart struct {
 	Dir   string
 	HTTPRequestNode
 	Responses HTTPResponses `json:"responses,omitempty"`
-	XDiff     *string       `json:"x-apicat-diff,omitempty"`
 }
 
 func (h *HTTPPart) ToCollectItem(urlnode HTTPURLNode) *CollectItem {
 	item := &CollectItem{
 		Title: h.Title,
 		Type:  ContentItemTypeHttp,
-		XDiff: h.XDiff,
 	}
 	content := make([]*NodeProxy, 0)
 	content = append(content, MuseCreateNodeProxy(WarpHTTPNode(urlnode)))

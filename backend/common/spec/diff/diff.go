@@ -25,19 +25,24 @@ var (
 // spec.Collections 里面只能有一个接口
 // 返回对比后的两个接口 其中只有最新的那个 也就是target里边会通过x-apicat-diff标记是否有差异
 // 差异并不包含排序
-func Diff(source, target *spec.Spec) (*spec.CollectItem, error) {
+func Diff(ac, bc *spec.CollectItem) (*spec.CollectItem, error) {
 
-	if len(source.Collections) != 1 || len(target.Collections) != 1 {
+	if ac == nil || bc == nil {
 		return nil, errors.New("source,target Collections length error")
 	}
+
+	source := &spec.Spec{}
+	target := &spec.Spec{}
+
+	source.Collections = []*spec.CollectItem{ac}
+	target.Collections = []*spec.CollectItem{bc}
+
 	a, au := getMapOne(source.CollectionsMap(true, 1))
 	b, bu := getMapOne(target.CollectionsMap(true, 1))
 	if au.Path != bu.Path {
 		bu.XDiff = &diffUpdate
 	}
-	if a.Title != b.Title {
-		b.XDiff = &diffUpdate
-	}
+
 	equalRequest(&a.HTTPRequestNode, &b.HTTPRequestNode)
 	b.Responses = equalResponse(a.Responses, b.Responses)
 	return b.ToCollectItem(*bu), nil
