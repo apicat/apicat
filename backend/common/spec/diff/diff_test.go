@@ -5,12 +5,19 @@ import (
 	"fmt"
 	"os"
 	"testing"
+
+	"github.com/apicat/apicat/backend/common/spec"
+	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 )
 
 func TestDuff(t *testing.T) {
-	ab, _ := os.ReadFile("../testdata/specdiff_a.json")
+	a, _ := os.ReadFile("../testdata/specdiff_a.json")
 
-	bb, _ := os.ReadFile("../testdata/specdiff_b.json")
+	b, _ := os.ReadFile("../testdata/specdiff_b.json")
+
+	ab, _ := spec.ParseJSON(a)
+	bb, _ := spec.ParseJSON(b)
+
 	collectitemB, err := Diff(ab, bb)
 	if err != nil {
 		t.Log(err)
@@ -76,10 +83,36 @@ func TestSchemaDiff(t *testing.T) {
 		"example": ""
 	  }`
 
-	b, err := DiffSchema([]byte(sa), []byte(sb))
+	a := &jsonschema.Schema{}
+	_ = json.Unmarshal([]byte(sa), a)
+	b := &jsonschema.Schema{}
+	_ = json.Unmarshal([]byte(sb), b)
+
+	b, err := DiffSchema(a, b)
 	if err != nil {
 		t.Log(err)
 	}
 	res, _ := json.MarshalIndent(b, "", " ")
 	fmt.Println(string(res))
+}
+
+func TestCollectionMap(t *testing.T) {
+	ab, _ := os.ReadFile("../testdata/self_to_self.json")
+
+	source, err := spec.ParseJSON(ab)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	a, au := getMapOne(source.CollectionsMap(true, 1))
+
+	fmt.Println(a)
+	fmt.Println(au)
+
+	b, err := json.Marshal(a)
+
+	if err != nil {
+		t.Log(err)
+	}
+	fmt.Println(string(b))
 }

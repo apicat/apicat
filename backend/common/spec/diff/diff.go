@@ -1,7 +1,6 @@
 package diff
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/apicat/apicat/backend/common/spec"
@@ -26,16 +25,7 @@ var (
 // spec.Collections 里面只能有一个接口
 // 返回对比后的两个接口 其中只有最新的那个 也就是target里边会通过x-apicat-diff标记是否有差异
 // 差异并不包含排序
-func Diff(ac, bc []byte) (*spec.CollectItem, error) {
-
-	source, err := spec.ParseJSON(ac)
-	if err != nil {
-		return nil, errors.New("source parse error")
-	}
-	target, err := spec.ParseJSON(bc)
-	if err != nil {
-		return nil, errors.New("target parse error")
-	}
+func Diff(source, target *spec.Spec) (*spec.CollectItem, error) {
 
 	if len(source.Collections) != 1 || len(target.Collections) != 1 {
 		return nil, errors.New("source,target Collections length error")
@@ -53,18 +43,7 @@ func Diff(ac, bc []byte) (*spec.CollectItem, error) {
 	return b.ToCollectItem(*bu), nil
 }
 
-func DiffSchema(as, bs []byte) (*jsonschema.Schema, error) {
-
-	a := &jsonschema.Schema{}
-	err := json.Unmarshal(as, a)
-	if err != nil {
-		return nil, errors.New("source parse error")
-	}
-	b := &jsonschema.Schema{}
-	err = json.Unmarshal(bs, b)
-	if err != nil {
-		return nil, errors.New("target parse error")
-	}
+func DiffSchema(a, b *jsonschema.Schema) (*jsonschema.Schema, error) {
 
 	equalJsonSchema(a, b)
 	return b, nil

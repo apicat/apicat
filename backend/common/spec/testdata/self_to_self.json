@@ -1,0 +1,133 @@
+{
+    "apicat": "apicat",
+    "info": {
+      "id": "P4PCupowYrGNroeJ9AJQAR",
+      "title": "testtttt",
+      "version": "1.0.0"
+    },
+    "servers": [],
+    "globals": {
+      "parameters": {
+        "query": [],
+        "path": [],
+        "cookie": [],
+        "header": []
+      }
+    },
+    "definitions": {
+      "schemas": [],
+      "parameters": [],
+      "responses": []
+    },
+    "collections": [
+      {
+        "type": "http",
+        "id": 3994,
+        "title": "self_test",
+        "content": [
+          {
+            "type": "apicat-http-url",
+            "attrs": {
+              "path": "/test_self",
+              "method": "get"
+            }
+          },
+          {
+            "type": "apicat-http-request",
+            "attrs": {
+              "globalExcepts": {
+                "cookie": [],
+                "header": [],
+                "path": [],
+                "query": []
+              },
+              "parameters": {
+                "query": [],
+                "path": [],
+                "cookie": [],
+                "header": [
+                  {
+                    "name": "test",
+                    "schema": {
+                      "type": "string",
+                      "x-apicat-mock": "string"
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "type": "apicat-http-response",
+            "attrs": {
+              "list": [
+                {
+                  "code": 200,
+                  "name": "Response Name",
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "x-apicat-orders": [
+                          "self_property"
+                        ],
+                        "properties": {
+                          "self_property": {
+                            "type": "object",
+                            "x-apicat-orders": [
+                              "name",
+                              "self"
+                            ],
+                            "properties": {
+                              "name": {
+                                "type": "string",
+                                "x-apicat-mock": "string"
+                              },
+                              "self": {
+                                "type": "object",
+                                "x-apicat-orders": [
+                                  "name",
+                                  "self"
+                                ],
+                                "properties": {
+                                  "name": {
+                                    "type": "string",
+                                    "x-apicat-mock": "string"
+                                  },
+                                  "self": {
+                                    "type": "object",
+                                    "x-apicat-orders": [
+                                      "name",
+                                      "self"
+                                    ],
+                                    "properties": {
+                                      "name": {
+                                        "type": "string",
+                                        "x-apicat-mock": "string"
+                                      },
+                                      "self": {
+                                        "description": "this is self --------------",
+                                        "$ref": "#/definitions/schemas/2332"
+                                      }
+                                    },
+                                    "example": ""
+                                  }
+                                },
+                                "example": ""
+                              }
+                            },
+                            "example": ""
+                          }
+                        },
+                        "example": ""
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    ]
+  }
