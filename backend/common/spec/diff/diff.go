@@ -1,6 +1,9 @@
 package diff
 
 import (
+	"encoding/json"
+	"errors"
+
 	"github.com/apicat/apicat/backend/common/spec"
 	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 	"golang.org/x/exp/slices"
@@ -23,9 +26,19 @@ var (
 // spec.Collections 里面只能有一个接口
 // 返回对比后的两个接口 其中只有最新的那个 也就是target里边会通过x-apicat-diff标记是否有差异
 // 差异并不包含排序
-func Diff(source, target *spec.Spec) (*spec.CollectItem, *spec.CollectItem) {
+func Diff(ac, bc []byte) (*spec.CollectItem, error) {
+
+	source, err := spec.ParseJSON(ac)
+	if err != nil {
+		return nil, errors.New("source parse error")
+	}
+	target, err := spec.ParseJSON(bc)
+	if err != nil {
+		return nil, errors.New("target parse error")
+	}
+
 	if len(source.Collections) != 1 || len(target.Collections) != 1 {
-		panic("source,target Collections length error")
+		return nil, errors.New("source,target Collections length error")
 	}
 	a, au := getMapOne(source.CollectionsMap(true, 1))
 	b, bu := getMapOne(target.CollectionsMap(true, 1))
@@ -37,7 +50,24 @@ func Diff(source, target *spec.Spec) (*spec.CollectItem, *spec.CollectItem) {
 	}
 	equalRequest(&a.HTTPRequestNode, &b.HTTPRequestNode)
 	b.Responses = equalResponse(a.Responses, b.Responses)
-	return a.ToCollectItem(*au), b.ToCollectItem(*bu)
+	return b.ToCollectItem(*bu), nil
+}
+
+func DiffSchema(as, bs []byte) (*jsonschema.Schema, error) {
+
+	a := &jsonschema.Schema{}
+	err := json.Unmarshal(as, a)
+	if err != nil {
+		return nil, errors.New("source parse error")
+	}
+	b := &jsonschema.Schema{}
+	err = json.Unmarshal(bs, b)
+	if err != nil {
+		return nil, errors.New("target parse error")
+	}
+
+	equalJsonSchema(a, b)
+	return b, nil
 }
 
 func getMapOne(d map[string]map[string]spec.HTTPPart) (*spec.HTTPPart, *spec.HTTPURLNode) {
@@ -193,7 +223,7 @@ func equalJsonSchema(a, b *jsonschema.Schema) {
 	}
 	at := a.Type.Value()[0]
 	bt := b.Type.Value()[0]
-	//对array和object对象的之间变换一律变为update
+	// For array to object changes all are updated
 	if at != bt {
 		b.SetXDiff(&diffUpdate)
 		return
