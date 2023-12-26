@@ -27,25 +27,45 @@ var (
 // 差异并不包含排序
 func Diff(ac, bc *spec.CollectItem) (*spec.CollectItem, error) {
 
-	if ac == nil || bc == nil {
+	if ac == nil || bc == nil || len(ac.Content) != 3 || len(bc.Content) != 3 {
 		return nil, errors.New("source,target Collections length error")
 	}
 
-	source := &spec.Spec{}
-	target := &spec.Spec{}
-
-	source.Collections = []*spec.CollectItem{ac}
-	target.Collections = []*spec.CollectItem{bc}
-
-	a, au := getMapOne(source.CollectionsMap(true, 1))
-	b, bu := getMapOne(target.CollectionsMap(true, 1))
-	if au.Path != bu.Path {
-		bu.XDiff = &diffUpdate
+	for _, an := range ac.Content {
+		for _, bn := range bc.Content {
+			if an.Node.NodeType() == bn.Node.NodeType() {
+				// assertion in three parts to diff
+				switch an.Node.NodeType() {
+				case "apicat-http-url":
+					au, err := an.ToHTTPURLNode()
+					bu, err := bn.ToHTTPURLNode()
+					if err != nil {
+						return nil, err
+					}
+					if au.Path != bu.Path {
+						bu.XDiff = &diffUpdate
+					}
+				case "apicat-http-request":
+					ar, err := an.ToHTTPRequestNode()
+					br, err := bn.ToHTTPRequestNode()
+					if err != nil {
+						return nil, err
+					}
+					equalRequest(ar, br)
+				case "apicat-http-response":
+					ar, err := an.ToHTTPResponsesNode()
+					br, err := bn.ToHTTPResponsesNode()
+					if err != nil {
+						return nil, err
+					}
+					br.List = equalResponse(ar.List, br.List)
+				default:
+					return nil, errors.New("node type error")
+				}
+			}
+		}
 	}
-
-	equalRequest(&a.HTTPRequestNode, &b.HTTPRequestNode)
-	b.Responses = equalResponse(a.Responses, b.Responses)
-	return b.ToCollectItem(*bu), nil
+	return bc, nil
 }
 
 func DiffSchema(a, b *jsonschema.Schema) (*jsonschema.Schema, error) {
@@ -188,7 +208,7 @@ func equalResponse(a, b spec.HTTPResponses) spec.HTTPResponses {
 		}
 		bs.Header = equalSchemas(as.Header, bs.Header)
 		bs.Content = equalContent(as.Content, bs.Content)
-		// as,bs与b类型不同，需要特殊处理
+		// if bs is changed, goto e and add to result
 	e:
 		b.Add(k, &bs)
 	}

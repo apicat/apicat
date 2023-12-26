@@ -81,3 +81,27 @@ func (n *NodeProxy) UnmarshalJSON(b []byte) error {
 func (n NodeProxy) MarshalJSON() ([]byte, error) {
 	return json.Marshal(n.Node)
 }
+
+func (n NodeProxy) ToHTTPURLNode() (*HTTPURLNode, error) {
+	au, ok := n.Node.(*HTTPNode[HTTPURLNode])
+	if !ok {
+		return nil, errors.New("node type error")
+	}
+	return &au.Attrs, nil
+}
+
+func (n NodeProxy) ToHTTPRequestNode() (*HTTPRequestNode, error) {
+	au, ok := n.Node.(*HTTPNode[HTTPRequestNode])
+	if !ok {
+		return nil, errors.New("node type error")
+	}
+	return &au.Attrs, nil
+}
+
+func (n NodeProxy) ToHTTPResponsesNode() (*HTTPResponsesNode, error) {
+	au, ok := n.Node.(*HTTPNode[HTTPResponsesNode])
+	if !ok {
+		return nil, errors.New("node type error")
+	}
+	return &au.Attrs, nil
+}
