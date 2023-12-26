@@ -96,7 +96,7 @@ func TestSchemaDiff(t *testing.T) {
 	fmt.Println(string(res))
 }
 
-func TestCollectionMap(t *testing.T) {
+func TestGetMapOneCollectionMap(t *testing.T) {
 	ab, _ := os.ReadFile("../testdata/self_to_self.json")
 
 	source, err := spec.ParseJSON(ab)
@@ -110,6 +110,27 @@ func TestCollectionMap(t *testing.T) {
 	fmt.Println(au)
 
 	b, err := json.Marshal(a)
+
+	if err != nil {
+		t.Log(err)
+	}
+	fmt.Println(string(b))
+}
+
+func TestCollectionMap(t *testing.T) {
+
+	ab, _ := os.ReadFile("../testdata/self_to_self.json")
+
+	source, err := spec.ParseJSON(ab)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, v := range source.Definitions.Schemas {
+		source.ExpendRef(v, 2)
+	}
+
+	b, err := json.Marshal(source)
 
 	if err != nil {
 		t.Log(err)
