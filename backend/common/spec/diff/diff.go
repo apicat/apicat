@@ -149,7 +149,9 @@ func equalContent(a, b spec.HTTPBody) spec.HTTPBody {
 			b[v] = as
 			continue
 		}
-		equalSchema(as, bs)
+		if equalSchema(as, bs) {
+			bs.XDiff = &diffUpdate
+		}
 	}
 	return b
 }
@@ -193,28 +195,31 @@ func equalResponse(a, b spec.HTTPResponses) spec.HTTPResponses {
 	return b
 }
 
-func equalSchema(a, b *spec.Schema) {
+func equalSchema(a, b *spec.Schema) bool {
+	change := false
 	if !a.EqualNomal(b) {
 		b.XDiff = &diffUpdate
+		change = true
 	}
-	equalJsonSchema(a.Schema, b.Schema)
+	return change || equalJsonSchema(a.Schema, b.Schema)
 }
 
-func equalJsonSchema(a, b *jsonschema.Schema) {
+func equalJsonSchema(a, b *jsonschema.Schema) bool {
 	if !slices.Equal(a.Type.Value(), b.Type.Value()) {
 		b.SetXDiff(&diffUpdate)
-		return
+		return true
 	}
 	at := a.Type.Value()[0]
 	bt := b.Type.Value()[0]
 	// For array to object changes all are updated
 	if at != bt {
 		b.SetXDiff(&diffUpdate)
-		return
+		return true
 	}
 	if !equalJsonSchemaNormal(a, b) {
 		b.XDiff = &diffUpdate
 	}
+	change := false
 	switch bt {
 	case "object":
 		names := map[string]struct{}{}
@@ -237,14 +242,14 @@ func equalJsonSchema(a, b *jsonschema.Schema) {
 				b.Properties[v] = as
 				continue
 			}
-			equalJsonSchema(as, bs)
+			change = change || equalJsonSchema(as, bs)
 		}
 	case "array":
 		if a.Items != nil && b.Items != nil {
-			equalJsonSchema(a.Items.Value(), b.Items.Value())
+			change = change || equalJsonSchema(a.Items.Value(), b.Items.Value())
 		}
 	}
-
+	return change
 }
 
 func equalJsonSchemaNormal(a, b *jsonschema.Schema) bool {
