@@ -393,6 +393,9 @@ func (o *toOpenapi) toPaths(ver string, in *spec.Spec) (
 				tags[v] = struct{}{}
 			}
 			for k, v := range op.Req.Content {
+				if k == "none" {
+					continue
+				}
 				sp := &spec.Schema{
 					Schema:      o.convertJSONSchema(ver, v.Schema),
 					Description: v.Description,
