@@ -134,7 +134,6 @@ func toParameter(p *spec.Schema, in string) openAPIParamter {
 		Default:     p.Schema.Default,
 		Example:     p.Schema.Example,
 		Description: p.Schema.Description,
-		Schema:      p.Schema,
 	}
 }
 
