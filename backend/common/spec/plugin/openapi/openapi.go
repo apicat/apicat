@@ -126,12 +126,15 @@ func toParameter(p *spec.Schema, in string) openAPIParamter {
 		tp = p.Schema.Type.Value()[0]
 	}
 	return openAPIParamter{
-		In:       in,
-		Type:     tp,
-		Name:     p.Name,
-		Required: p.Required,
-		Format:   p.Schema.Format,
-		Default:  p.Schema.Default,
+		In:          in,
+		Type:        tp,
+		Name:        p.Name,
+		Required:    p.Required,
+		Format:      p.Schema.Format,
+		Default:     p.Schema.Default,
+		Example:     p.Schema.Example,
+		Description: p.Schema.Description,
+		Schema:      p.Schema,
 	}
 }
 
