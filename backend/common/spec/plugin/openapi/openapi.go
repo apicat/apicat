@@ -68,13 +68,14 @@ func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
 		return nil, fmt.Errorf("openapi version:%s parse faild", document.GetVersion())
 	}
 	o := &fromOpenapi{}
-	globalparameters := spec.HTTPParameters{}
-	globalparameters.Fill()
+	// 无用
+	// globalparameters := spec.HTTPParameters{}
+	// globalparameters.Fill()
 	return &spec.Spec{
 		ApiCat:      "2.0.1",
 		Info:        o.parseInfo(model.Model.Info),
 		Servers:     o.parseServers(model.Model.Servers),
-		Globals:     spec.Global{Parameters: globalparameters},
+		Globals:     o.parseGlobal(model.Model.Components.Parameters),
 		Definitions: o.parseDefinetions(model.Model.Components),
 		Collections: o.parseCollections(model.Model.Paths),
 	}, nil
@@ -121,19 +122,20 @@ type openAPIParamter struct {
 }
 
 func toParameter(p *spec.Schema, in string) openAPIParamter {
-	tp := "string"
-	if n := len(p.Schema.Type.Value()); n > 0 {
-		tp = p.Schema.Type.Value()[0]
-	}
+	// tp := "string"
+	// if n := len(p.Schema.Type.Value()); n > 0 {
+	// 	tp = p.Schema.Type.Value()[0]
+	// }
 	return openAPIParamter{
-		In:          in,
-		Type:        tp,
-		Name:        p.Name,
-		Required:    p.Required,
-		Format:      p.Schema.Format,
-		Default:     p.Schema.Default,
+		In: in,
+		// Type:        tp,
+		Name:     p.Name,
+		Required: p.Required,
+		Format:   p.Schema.Format,
+		// Default:     p.Schema.Default,
 		Example:     p.Schema.Example,
 		Description: p.Schema.Description,
+		Schema:      p.Schema,
 	}
 }
 

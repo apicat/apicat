@@ -133,13 +133,15 @@ func (o *fromOpenapi) parseParameters(inp []*v3.Parameter) spec.HTTPParameters {
 	rawparamter.Fill()
 	for _, v := range inp {
 		if g := v.GoLow(); g.IsReference() {
-			id, ok := o.parametersMapping[getRefName(g.GetReference())]
+			_, ok := o.parametersMapping[getRefName(g.GetReference())]
+			// if this parameter is a global parameter
 			if ok {
-				r := fmt.Sprintf("#/definitions/parameters/%d", id)
-				rawparamter.Add(v.In, &spec.Schema{
-					Reference: &r,
-				})
 				continue
+				// r := fmt.Sprintf("#/definitions/parameters/%d", id)
+				// rawparamter.Add(v.In, &spec.Schema{
+				// 	Reference: &r,
+				// })
+				// continue
 			}
 		}
 		var sp = &spec.Schema{
@@ -160,6 +162,30 @@ func (o *fromOpenapi) parseParameters(inp []*v3.Parameter) spec.HTTPParameters {
 		rawparamter.Add(v.In, sp)
 	}
 	return rawparamter
+}
+
+func (o *fromOpenapi) parseGlobal(inp map[string]*v3.Parameter) spec.Global {
+	var rawparamter spec.HTTPParameters
+	rawparamter.Fill()
+	for _, v := range inp {
+		var sp = &spec.Schema{
+			Name:     v.Name,
+			Required: v.Required,
+		}
+		sp.Schema = &jsonschema.Schema{}
+		if v.Schema != nil {
+			js, err := jsonSchemaConverter(v.Schema)
+			if err != nil {
+				panic(err)
+			}
+			sp.Schema = js
+		}
+		sp.Schema.Description = v.Description
+		sp.Schema.Example = v.Example
+		sp.Schema.Deprecated = v.Deprecated
+		rawparamter.Add(v.In, sp)
+	}
+	return spec.Global{rawparamter}
 }
 
 func (o *fromOpenapi) parseContent(mts map[string]*v3.MediaType) spec.HTTPBody {
