@@ -221,7 +221,8 @@ func equalSchema(a, b *spec.Schema) bool {
 		b.XDiff = &diffUpdate
 		change = true
 	}
-	return change || equalJsonSchema(a.Schema, b.Schema)
+	sc := equalJsonSchema(a.Schema, b.Schema)
+	return change || sc
 }
 
 func equalJsonSchema(a, b *jsonschema.Schema) bool {
