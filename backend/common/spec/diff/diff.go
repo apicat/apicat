@@ -263,11 +263,13 @@ func equalJsonSchema(a, b *jsonschema.Schema) bool {
 				b.Properties[v] = as
 				continue
 			}
-			change = change || equalJsonSchema(as, bs)
+			sc := equalJsonSchema(as, bs)
+			change = change || sc
 		}
 	case "array":
 		if a.Items != nil && b.Items != nil {
-			change = change || equalJsonSchema(a.Items.Value(), b.Items.Value())
+			sc := equalJsonSchema(a.Items.Value(), b.Items.Value())
+			change = change || sc
 		}
 	}
 	return change
