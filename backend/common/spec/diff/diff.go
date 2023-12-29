@@ -261,6 +261,8 @@ func equalJsonSchema(a, b *jsonschema.Schema) bool {
 			if a_has && !b_has {
 				as.SetXDiff(&diffRemove)
 				b.Properties[v] = as
+				// add to xorder
+				b.XOrder = append(b.XOrder, v)
 				continue
 			}
 			sc := equalJsonSchema(as, bs)
