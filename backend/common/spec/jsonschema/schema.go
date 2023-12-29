@@ -2,6 +2,7 @@ package jsonschema
 
 import (
 	"fmt"
+	"strings"
 
 	"golang.org/x/exp/slices"
 )
@@ -56,8 +57,6 @@ type Schema struct {
 	Reference *string `json:"$ref,omitempty"`
 }
 
-func (s *Schema) Ref() bool { return s != nil && s.Reference != nil }
-
 var coreTypes = []string{
 	"string",
 	"integer",
@@ -66,6 +65,74 @@ var coreTypes = []string{
 	"object",
 	"array",
 	"null",
+}
+
+func (s *Schema) Ref() bool { return s != nil && s.Reference != nil }
+
+func (s *Schema) FindRefById(id string) (refs []*Schema) {
+	if s == nil {
+		return nil
+	}
+
+	if s.IsRefId(id) {
+		refs = append(refs, s)
+		return refs
+	}
+
+	if s.Properties != nil {
+		for k := range s.Properties {
+			refs = append(refs, s.Properties[k].FindRefById(id)...)
+		}
+	}
+	return refs
+}
+
+// check this schema reference this id
+func (s *Schema) IsRefId(id string) bool {
+	if s == nil {
+		return false
+	}
+
+	if s.Reference != nil {
+		i := strings.LastIndex(*s.Reference, "/")
+		if i != -1 {
+			if id == (*s.Reference)[i+1:] {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (s *Schema) RemovePropertyByRefId(id string) {
+	if s == nil {
+		return
+	}
+	if s.Properties != nil {
+		for k, v := range s.Properties {
+			if v.IsRefId(id) {
+				delete(s.Properties, k)
+				s.RemoveXOrderByName(k)
+			}
+			v.RemovePropertyByRefId(id)
+		}
+	}
+}
+
+func (s *Schema) RemoveXOrderByName(name string) {
+	if s == nil {
+		return
+	}
+	if s.XOrder != nil {
+		i := 0
+		for i < len(s.XOrder) {
+			if s.XOrder[i] == name {
+				s.XOrder = append(s.XOrder[:i], s.XOrder[i+1:]...)
+				continue
+			}
+			i++
+		}
+	}
 }
 
 func (s *Schema) Validation(raw []byte) error {

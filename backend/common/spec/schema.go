@@ -1,6 +1,7 @@
 package spec
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/apicat/apicat/backend/common/spec/jsonschema"
@@ -32,6 +33,49 @@ type Example struct {
 }
 
 func (s *Schema) Ref() bool { return s.Reference != nil }
+
+func (s *Schema) DereferenceSchema(sub *Schema) error {
+	if sub == nil {
+		return errors.New("dereferenced schema is nil")
+	}
+
+	id := strconv.Itoa(int(sub.ID))
+	// If the type of root refers to sub
+	if s.Schema.IsRefId(id) {
+		s.Schema = jsonschema.Create("object")
+	}
+
+	refs := s.Schema.FindRefById(id)
+	if len(refs) == 0 {
+		// sub_schema with this id  not find in parent_schema
+		return nil
+	}
+
+	// if it's refers to itself, Dereference it self
+	err := sub.DereferenceSelf()
+	if err != nil {
+		return err
+	}
+
+	// replace all referenced sub.Schema with dereferenced sub.Schema
+	for i := range refs {
+		*refs[i] = *sub.Schema
+	}
+
+	return nil
+}
+
+func (s *Schema) DereferenceSelf() error {
+	if s.Schema == nil {
+		return errors.New("schema is nil")
+	}
+
+	id := strconv.Itoa(int(s.ID))
+
+	s.Schema.RemovePropertyByRefId(id)
+
+	return nil
+}
 
 type Schemas []*Schema
 
