@@ -66,6 +66,7 @@ func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 			return
 		}
 		if x.Ref() {
+			// this feature is important
 			// 重复出现的递归次数
 			count := refDept(*x.Reference, parentRef...)
 			if count > max {
@@ -77,13 +78,13 @@ func (s *Spec) expendRef(v Referencer, max int, parentRef ...string) {
 			}
 			parentRef = append(parentRef, *x.Reference)
 			b, _ := json.Marshal(*refv.Schema)
-			var s jsonschema.Schema
-			json.Unmarshal(b, &s)
-			*x = s
+			var sc jsonschema.Schema
+			json.Unmarshal(b, &sc)
+			*x = sc
 		}
 		if x.Properties != nil {
-			for _, v := range x.Properties {
-				s.expendRef(v, max, parentRef...)
+			for _, p := range x.Properties {
+				s.expendRef(p, max, parentRef...)
 			}
 		}
 		if x.Items != nil && !x.Items.IsBool() {
