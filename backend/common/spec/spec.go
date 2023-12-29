@@ -28,13 +28,15 @@ func init() {
 // Spec 是apicat的协议的整体结构
 type Spec struct {
 	// spec schema版本 当前固定2.0
-	ApiCat      string         `json:"apicat"`
-	Info        *Info          `json:"info"`
-	Servers     []*Server      `json:"servers"`
-	Globals     Global         `json:"globals"`
-	Definitions Definitions    `json:"definitions"`
-	Collections []*CollectItem `json:"collections"`
+	ApiCat      string      `json:"apicat"`
+	Info        *Info       `json:"info"`
+	Servers     []*Server   `json:"servers"`
+	Globals     Global      `json:"globals"`
+	Definitions Definitions `json:"definitions"`
+	Collections Collections `json:"collections"`
 }
+
+type Collections []*CollectItem
 
 // WalkCollections 遍历集合
 // 如果回调函数返回false等退出 否则继续遍历
