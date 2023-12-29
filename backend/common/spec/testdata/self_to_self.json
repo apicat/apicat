@@ -44,6 +44,7 @@
           "type": "object",
           "x-apicat-orders": [
             "name",
+            "age",
             "self"
           ],
           "properties": {
@@ -51,9 +52,37 @@
               "type": "string",
               "x-apicat-mock": "string"
             },
+            "age": {
+              "type": "interger",
+              "x-apicat-mock": "interger"
+            },
             "self": {
               "description": "this is self --------------",
               "$ref": "#/definitions/schemas/2332"
+            }
+          },
+          "example": ""
+        }
+      },
+      {
+        "id": 2336,
+        "name": "Model1",
+        "schema": {
+          "$ref": "#/definitions/schemas/2336"
+        }
+      },
+      {
+        "id": 2340,
+        "name": "Model2",
+        "schema": {
+          "type": "object",
+          "x-apicat-orders": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-apicat-mock": "string"
             }
           },
           "example": ""
