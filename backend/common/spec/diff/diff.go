@@ -27,7 +27,7 @@ var (
 // 差异并不包含排序
 func Diff(ac, bc *spec.CollectItem) (*spec.CollectItem, error) {
 
-	if ac == nil || bc == nil || len(ac.Content) != 3 || len(bc.Content) != 3 {
+	if ac == nil || bc == nil {
 		return nil, errors.New("source,target Collections length error")
 	}
 
