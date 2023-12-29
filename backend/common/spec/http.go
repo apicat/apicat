@@ -142,13 +142,16 @@ func (h *HTTPResponse) SetXDiff(x *string) {
 }
 
 type HTTPResponseDefine struct {
-	ID          int64    `json:"id,omitempty"`
-	Name        string   `json:"name,omitempty"`
-	Description string   `json:"description,omitempty"`
-	Content     HTTPBody `json:"content,omitempty"`
-	Header      Schemas  `json:"header,omitempty"`
-	Reference   *string  `json:"$ref,omitempty"`
-	XDiff       *string  `json:"x-apicat-diff,omitempty"`
+	ID          int64               `json:"id,omitempty"`
+	Name        string              `json:"name,omitempty"`
+	Type        string              `json:"type,omitempty"`
+	ParentId    uint64              `json:"parentid,omitempty"`
+	Description string              `json:"description,omitempty"`
+	Content     HTTPBody            `json:"content,omitempty"`
+	Header      Schemas             `json:"header,omitempty"`
+	Items       HTTPResponseDefines `json:"items,omitempty"`
+	Reference   *string             `json:"$ref,omitempty"`
+	XDiff       *string             `json:"x-apicat-diff,omitempty"`
 }
 
 func (h *HTTPResponseDefine) Ref() bool { return h.Reference != nil }

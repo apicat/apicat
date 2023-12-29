@@ -277,6 +277,18 @@ type Global struct {
 	Parameters HTTPParameters `json:"parameters,omitempty"`
 }
 
+// this type is only used to represent Definition item
+type DefinitionType string
+
+var (
+	// if item's type is "response", then it is a definition response
+	TypeResponse DefinitionType = "response"
+	// if item's type is "category", then it is a category, it's items property is a list of response or schema, like it self
+	TypeCategory DefinitionType = "category"
+	// if item's type is "schema", then it is a definition schema
+	TypeSchema DefinitionType = "schema"
+)
+
 type Definitions struct {
 	Schemas    Schemas             `json:"schemas"`
 	Parameters Schemas             `json:"parameters"`

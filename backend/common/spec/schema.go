@@ -13,11 +13,14 @@ type Referencer interface {
 type Schema struct {
 	ID          int64               `json:"id,omitempty"`
 	Name        string              `json:"name,omitempty"`
+	Type        string              `json:"type,omitempty"`
+	ParentId    uint64              `json:"parentid,omitempty"`
 	Description string              `json:"description,omitempty"`
 	Required    bool                `json:"required,omitempty"`
 	Example     any                 `json:"example,omitempty"`
 	Examples    map[string]*Example `json:"examples,omitempty"`
 	Schema      *jsonschema.Schema  `json:"schema,omitempty"`
+	Items       Schemas             `json:"items,omitempty"`
 	Reference   *string             `json:"$ref,omitempty"`
 	XDiff       *string             `json:"x-apicat-diff,omitempty"`
 }
