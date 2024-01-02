@@ -116,6 +116,88 @@ func (HTTPRequestNode) Name() string {
 	return "apicat-http-request"
 }
 
+func (h *HTTPRequestNode) AddGlobalExceptOfPath(id int64) {
+	h.AddGlobalExcept("path", id)
+}
+
+func (h *HTTPRequestNode) AddGlobalExceptOfQuery(id int64) {
+	h.AddGlobalExcept("query", id)
+}
+
+func (h *HTTPRequestNode) AddGlobalExceptOfHeader(id int64) {
+	h.AddGlobalExcept("header", id)
+}
+
+func (h *HTTPRequestNode) AddGlobalExceptOfCookie(id int64) {
+	h.AddGlobalExcept("cookie", id)
+}
+
+func (h *HTTPRequestNode) AddGlobalExcept(global_type string, id int64) {
+	if h == nil {
+		return
+	}
+	switch global_type {
+	case "path":
+		h.GlobalExcepts["path"] = append(h.GlobalExcepts["path"], id)
+	case "cookie":
+		h.GlobalExcepts["cookie"] = append(h.GlobalExcepts["cookie"], id)
+	case "header":
+		h.GlobalExcepts["header"] = append(h.GlobalExcepts["header"], id)
+	case "query":
+		h.GlobalExcepts["query"] = append(h.GlobalExcepts["query"], id)
+	default:
+		// not to do anything
+		return
+	}
+}
+
+func (h *HTTPRequestNode) RemoveGlobalExceptOfPath(id int64) {
+	h.RemoveGlobalExcept("path", id)
+}
+
+func (h *HTTPRequestNode) RemoveGlobalExceptOfQuery(id int64) {
+	h.RemoveGlobalExcept("query", id)
+}
+
+func (h *HTTPRequestNode) RemoveGlobalExceptOfHeader(id int64) {
+	h.RemoveGlobalExcept("header", id)
+}
+
+func (h *HTTPRequestNode) RemoveGlobalExceptOfCookie(id int64) {
+	h.RemoveGlobalExcept("cookie", id)
+}
+
+func (h *HTTPRequestNode) RemoveGlobalExcept(global_type string, id int64) {
+	if h == nil {
+		return
+	}
+	switch global_type {
+	case "path":
+		h.GlobalExcepts["path"] = removeId(h.GlobalExcepts["path"], id)
+	case "cookie":
+		h.GlobalExcepts["cookie"] = removeId(h.GlobalExcepts["cookie"], id)
+	case "header":
+		h.GlobalExcepts["header"] = removeId(h.GlobalExcepts["header"], id)
+	case "query":
+		h.GlobalExcepts["query"] = removeId(h.GlobalExcepts["query"], id)
+	default:
+		// not to do anything
+		return
+	}
+}
+
+func removeId(s []int64, id int64) []int64 {
+	if len(s) == 0 {
+		return s
+	}
+	for i, v := range s {
+		if v == id {
+			return append(s[:i], s[i+1:]...)
+		}
+	}
+	return s
+}
+
 type HTTPResponsesNode struct {
 	List HTTPResponses `json:"list,omitempty"`
 }

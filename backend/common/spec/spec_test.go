@@ -85,3 +85,32 @@ func TestResponseRef(t *testing.T) {
 
 	fmt.Println(string(bs))
 }
+
+func TestGlobalExcepts(t *testing.T) {
+	ab, err := os.ReadFile("./testdata/global_excepts.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	source, err := ParseJSON(ab)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, v := range source.Collections {
+		if v.ID == 4000 {
+			t := v.Items
+			for _, c := range t {
+				for _, cc := range c.Content {
+					r, err := cc.ToHTTPRequestNode()
+					if err == nil {
+						r.RemoveGlobalExceptOfPath(34)
+						r.AddGlobalExceptOfHeader(7788)
+					}
+				}
+			}
+		}
+	}
+	bs, _ := json.MarshalIndent(source, "", " ")
+
+	fmt.Println(string(bs))
+}
