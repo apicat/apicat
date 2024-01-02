@@ -50,8 +50,8 @@ func (s *Schema) DereferenceSchema(sub *Schema) {
 		return
 	}
 
-	// if it's refers to itself, Dereference it self
-	sub.DereferenceSelf()
+	// if sub's refers to itself, Dereference it self
+	sub.dereferenceSelf()
 
 	// replace all referenced sub.Schema with dereferenced sub.Schema
 	for i := range refs {
@@ -60,7 +60,21 @@ func (s *Schema) DereferenceSchema(sub *Schema) {
 
 }
 
-func (s *Schema) DereferenceSelf() {
+func (s *Schema) RemoveSchema(sub *Schema) {
+	if sub == nil {
+		return
+	}
+	id := strconv.Itoa(int(sub.ID))
+
+	if s.Schema.IsRefId(id) {
+		s.Schema = jsonschema.Create("object")
+	}
+
+	s.Schema.RemovePropertyByRefId(id)
+
+}
+
+func (s *Schema) dereferenceSelf() {
 	if s.Schema == nil {
 		return
 	}
@@ -103,12 +117,6 @@ func (s *Schemas) Length() int {
 func (s *Schemas) SetXDiff(x *string) {
 	for _, v := range *s {
 		v.SetXDiff(x)
-	}
-}
-
-func (s *Schemas) DereferenceSchema(sub *Schema) {
-	for _, v := range *s {
-		v.DereferenceSchema(sub)
 	}
 }
 

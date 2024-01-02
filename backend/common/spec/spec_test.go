@@ -45,6 +45,33 @@ func TestDereferenceSchema(t *testing.T) {
 	fmt.Println(string(bs))
 }
 
+func TestRemoveSchema(t *testing.T) {
+	ab, _ := os.ReadFile("./testdata/self_to_self.json")
+
+	source, err := ParseJSON(ab)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	parent := source.Definitions.Schemas.LookupID(2068)
+	// sub := source.Definitions.Schemas.LookupID(2332)
+
+	// parent.RemoveSchema(sub)
+
+	// bs, _ := json.MarshalIndent(parent, "", " ")
+
+	// fmt.Println(string(bs))
+
+	for _, c := range source.Collections {
+		c.RemoveSchema(parent)
+	}
+
+	bs, _ := json.MarshalIndent(source, "", " ")
+
+	fmt.Println(string(bs))
+
+}
+
 func TestDereferenceSelf(t *testing.T) {
 
 	ab, _ := os.ReadFile("./testdata/self_to_self.json")
@@ -56,7 +83,7 @@ func TestDereferenceSelf(t *testing.T) {
 
 	onlySelf := source.Definitions.Schemas.LookupID(2332)
 
-	onlySelf.DereferenceSelf()
+	onlySelf.dereferenceSelf()
 
 	bs, _ := json.MarshalIndent(onlySelf, "", " ")
 
@@ -64,7 +91,6 @@ func TestDereferenceSelf(t *testing.T) {
 
 }
 
-// TODO add response dereference function
 func TestResponseRef(t *testing.T) {
 
 	ab, err := os.ReadFile("./testdata/response_ref.json")
@@ -79,6 +105,27 @@ func TestResponseRef(t *testing.T) {
 	resp := source.Definitions.Responses.LookupID(378)
 	for _, c := range source.Collections {
 		c.DereferenceResponse(resp)
+	}
+
+	bs, _ := json.MarshalIndent(source, "", " ")
+
+	fmt.Println(string(bs))
+}
+
+func TestResponseRemove(t *testing.T) {
+	ab, err := os.ReadFile("./testdata/response_ref.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	source, err := ParseJSON(ab)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	resp := source.Definitions.Responses.LookupID(378)
+
+	for _, c := range source.Collections {
+		c.RemoveResponse(resp)
 	}
 
 	bs, _ := json.MarshalIndent(source, "", " ")

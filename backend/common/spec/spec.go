@@ -3,6 +3,7 @@ package spec
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -283,6 +284,23 @@ func (c *CollectItem) DereferenceResponse(sub *HTTPResponseDefine) error {
 	return nil
 }
 
+func (c *CollectItem) RemoveResponse(sub *HTTPResponseDefine) error {
+	if c == nil {
+		return nil
+	}
+	for _, node := range c.Content {
+		if node.NodeType() == "apicat-http-response" {
+			resps, err := node.ToHTTPResponsesNode()
+			if err != nil {
+				return err
+			}
+			// range responses list to dereference sub response
+			resps.RemoveResponse(sub)
+		}
+	}
+	return nil
+}
+
 func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 	if c == nil {
 		return nil
@@ -290,16 +308,6 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
-		case "apicat-http-request":
-			req, err := node.ToHTTPRequestNode()
-			if err != nil {
-				return err
-			}
-			for _, v := range req.Content {
-				v.DereferenceSchema(sub)
-			}
-			req.Parameters.DereferenceSchema(sub)
-
 		case "apicat-http-response":
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {
@@ -308,6 +316,30 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 			// range responses list to dereference sub response
 			for _, resp := range resps.List {
 				resp.HTTPResponseDefine.DereferenceSchema(sub)
+			}
+		default:
+			return fmt.Errorf("unknown node type: %s", node.NodeType())
+		}
+
+	}
+	return nil
+}
+
+func (c *CollectItem) RemoveSchema(sub *Schema) error {
+	if c == nil {
+		return nil
+	}
+
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case "apicat-http-response":
+			resps, err := node.ToHTTPResponsesNode()
+			if err != nil {
+				return err
+			}
+			// range responses list to dereference sub response
+			for _, resp := range resps.List {
+				resp.HTTPResponseDefine.RemoveSchema(sub)
 			}
 		}
 

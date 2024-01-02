@@ -59,21 +59,6 @@ func (h *HTTPParameters) Map() map[string]Schemas {
 	return m
 }
 
-func (h *HTTPParameters) DereferenceSchema(sub *Schema) {
-
-	// dereference header
-	h.Header.DereferenceSchema(sub)
-
-	// dereference query
-	h.Query.DereferenceSchema(sub)
-
-	// dereference path
-	h.Path.DereferenceSchema(sub)
-
-	// dereference cookie
-	h.Cookie.DereferenceSchema(sub)
-}
-
 type HTTPNode[T HTTPNoder] struct {
 	Type  string `json:"type"`
 	Attrs T      `json:"attrs"`
@@ -206,6 +191,19 @@ func (HTTPResponsesNode) Name() string {
 	return "apicat-http-response"
 }
 
+func (resp *HTTPResponsesNode) RemoveResponse(sub *HTTPResponseDefine) {
+	id := strconv.Itoa(int(sub.ID))
+
+	i := 0
+	for i < len(resp.List) {
+		if resp.List[i].IsRefId(id) {
+			resp.List = append(resp.List[:i], resp.List[i+1:]...)
+			continue
+		}
+		i++
+	}
+}
+
 type HTTPResponse struct {
 	Code  int     `json:"code"`
 	XDiff *string `json:"x-apicat-diff,omitempty"`
@@ -287,16 +285,18 @@ func (h *HTTPResponseDefine) DereferenceResponses(sub *HTTPResponseDefine) {
 
 func (h *HTTPResponseDefine) DereferenceSchema(sub *Schema) {
 
-	// dereference header
-	for _, s := range h.Header {
-		s.DereferenceSchema(sub)
-	}
-
 	// dereference content
 	for _, body := range h.Content {
 		body.DereferenceSchema(sub)
 	}
 
+}
+
+func (h *HTTPResponseDefine) RemoveSchema(sub *Schema) {
+	// remove content
+	for _, body := range h.Content {
+		body.RemoveSchema(sub)
+	}
 }
 
 func (h *HTTPResponseDefine) SetXDiff(x *string) {
