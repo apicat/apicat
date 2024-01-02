@@ -264,6 +264,57 @@ func (v *CollectItem) HasTag(tag string) bool {
 	return false
 }
 
+func (c *CollectItem) DereferenceResponse(sub *HTTPResponseDefine) error {
+	if c == nil {
+		return nil
+	}
+	for _, node := range c.Content {
+		if node.NodeType() == "apicat-http-response" {
+			resps, err := node.ToHTTPResponsesNode()
+			if err != nil {
+				return err
+			}
+			// range responses list to dereference sub response
+			for _, resp := range resps.List {
+				resp.HTTPResponseDefine.DereferenceResponses(sub)
+			}
+		}
+	}
+	return nil
+}
+
+func (c *CollectItem) DereferenceSchema(sub *Schema) error {
+	if c == nil {
+		return nil
+	}
+
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case "apicat-http-request":
+			req, err := node.ToHTTPRequestNode()
+			if err != nil {
+				return err
+			}
+			for _, v := range req.Content {
+				v.DereferenceSchema(sub)
+			}
+			req.Parameters.DereferenceSchema(sub)
+
+		case "apicat-http-response":
+			resps, err := node.ToHTTPResponsesNode()
+			if err != nil {
+				return err
+			}
+			// range responses list to dereference sub response
+			for _, resp := range resps.List {
+				resp.HTTPResponseDefine.DereferenceSchema(sub)
+			}
+		}
+
+	}
+	return nil
+}
+
 type Info struct {
 	ID          string `json:"id,omitempty"`
 	Title       string `json:"title"`
