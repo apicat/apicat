@@ -89,33 +89,30 @@ func (s *Schema) FindRefById(id string) (refs []*Schema) {
 
 // check this schema reference this id
 func (s *Schema) IsRefId(id string) bool {
-	if s == nil {
+	if s == nil || s.Reference == nil {
 		return false
 	}
 
-	if s.Reference != nil {
-		i := strings.LastIndex(*s.Reference, "/")
-		if i != -1 {
-			if id == (*s.Reference)[i+1:] {
-				return true
-			}
+	i := strings.LastIndex(*s.Reference, "/")
+	if i != -1 {
+		if id == (*s.Reference)[i+1:] {
+			return true
 		}
 	}
 	return false
 }
 
 func (s *Schema) RemovePropertyByRefId(id string) {
-	if s == nil {
+	if s == nil || s.Properties == nil {
 		return
 	}
-	if s.Properties != nil {
-		for k, v := range s.Properties {
-			if v.IsRefId(id) {
-				delete(s.Properties, k)
-				s.RemoveXOrderByName(k)
-			}
-			v.RemovePropertyByRefId(id)
+
+	for k, v := range s.Properties {
+		if v.IsRefId(id) {
+			delete(s.Properties, k)
+			s.RemoveXOrderByName(k)
 		}
+		v.RemovePropertyByRefId(id)
 	}
 }
 
