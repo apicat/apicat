@@ -1,7 +1,6 @@
 package spec
 
 import (
-	"errors"
 	"strconv"
 
 	"github.com/apicat/apicat/backend/common/spec/jsonschema"
@@ -34,9 +33,9 @@ type Example struct {
 
 func (s *Schema) Ref() bool { return s.Reference != nil }
 
-func (s *Schema) DereferenceSchema(sub *Schema) error {
+func (s *Schema) DereferenceSchema(sub *Schema) {
 	if sub == nil {
-		return errors.New("dereferenced schema is nil")
+		return
 	}
 
 	id := strconv.Itoa(int(sub.ID))
@@ -48,33 +47,27 @@ func (s *Schema) DereferenceSchema(sub *Schema) error {
 	refs := s.Schema.FindRefById(id)
 	if len(refs) == 0 {
 		// sub_schema with this id  not find in parent_schema
-		return nil
+		return
 	}
 
 	// if it's refers to itself, Dereference it self
-	err := sub.DereferenceSelf()
-	if err != nil {
-		return err
-	}
+	sub.DereferenceSelf()
 
 	// replace all referenced sub.Schema with dereferenced sub.Schema
 	for i := range refs {
 		*refs[i] = *sub.Schema
 	}
 
-	return nil
 }
 
-func (s *Schema) DereferenceSelf() error {
+func (s *Schema) DereferenceSelf() {
 	if s.Schema == nil {
-		return errors.New("schema is nil")
+		return
 	}
 
 	id := strconv.Itoa(int(s.ID))
 
 	s.Schema.RemovePropertyByRefId(id)
-
-	return nil
 }
 
 type Schemas []*Schema
@@ -110,6 +103,12 @@ func (s *Schemas) Length() int {
 func (s *Schemas) SetXDiff(x *string) {
 	for _, v := range *s {
 		v.SetXDiff(x)
+	}
+}
+
+func (s *Schemas) DereferenceSchema(sub *Schema) {
+	for _, v := range *s {
+		v.DereferenceSchema(sub)
 	}
 }
 
