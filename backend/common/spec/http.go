@@ -1,5 +1,10 @@
 package spec
 
+import (
+	"strconv"
+	"strings"
+)
+
 type HTTPParameters struct {
 	Query  Schemas `json:"query"`
 	Path   Schemas `json:"path"`
@@ -52,6 +57,21 @@ func (h *HTTPParameters) Map() map[string]Schemas {
 		m["cookie"] = h.Cookie
 	}
 	return m
+}
+
+func (h *HTTPParameters) DereferenceSchema(sub *Schema) {
+
+	// dereference header
+	h.Header.DereferenceSchema(sub)
+
+	// dereference query
+	h.Query.DereferenceSchema(sub)
+
+	// dereference path
+	h.Path.DereferenceSchema(sub)
+
+	// dereference cookie
+	h.Cookie.DereferenceSchema(sub)
 }
 
 type HTTPNode[T HTTPNoder] struct {
@@ -155,6 +175,47 @@ type HTTPResponseDefine struct {
 }
 
 func (h *HTTPResponseDefine) Ref() bool { return h.Reference != nil }
+
+func (h *HTTPResponseDefine) IsRefId(id string) bool {
+	if h == nil {
+		return false
+	}
+
+	if h.Reference != nil {
+		i := strings.LastIndex(*h.Reference, "/")
+		if i != -1 {
+			if id == (*h.Reference)[i+1:] {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (h *HTTPResponseDefine) DereferenceResponses(sub *HTTPResponseDefine) {
+	id := strconv.Itoa(int(sub.ID))
+
+	// this response is not reference sub
+	if !h.IsRefId(id) {
+		return
+	}
+
+	*h = *sub
+}
+
+func (h *HTTPResponseDefine) DereferenceSchema(sub *Schema) {
+
+	// dereference header
+	for _, s := range h.Header {
+		s.DereferenceSchema(sub)
+	}
+
+	// dereference content
+	for _, body := range h.Content {
+		body.DereferenceSchema(sub)
+	}
+
+}
 
 func (h *HTTPResponseDefine) SetXDiff(x *string) {
 	h.Header.SetXDiff(x)
