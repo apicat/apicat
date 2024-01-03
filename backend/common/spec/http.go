@@ -101,27 +101,23 @@ func (HTTPRequestNode) Name() string {
 	return "apicat-http-request"
 }
 
-func (h *HTTPRequestNode) AddGlobalExceptOfPath(id int64) {
-	h.AddGlobalExcept("path", id)
+func (h *HTTPRequestNode) tryRemoveGlobalExcept(in string, id int64) bool {
+	ids := h.GlobalExcepts[in]
+	for _, v := range ids {
+		if v == id {
+			// remove
+			h.RemoveGlobalExcept(in, id)
+			return true
+		}
+	}
+	return false
 }
 
-func (h *HTTPRequestNode) AddGlobalExceptOfQuery(id int64) {
-	h.AddGlobalExcept("query", id)
-}
-
-func (h *HTTPRequestNode) AddGlobalExceptOfHeader(id int64) {
-	h.AddGlobalExcept("header", id)
-}
-
-func (h *HTTPRequestNode) AddGlobalExceptOfCookie(id int64) {
-	h.AddGlobalExcept("cookie", id)
-}
-
-func (h *HTTPRequestNode) AddGlobalExcept(global_type string, id int64) {
+func (h *HTTPRequestNode) AddGlobalExcept(in string, id int64) {
 	if h == nil {
 		return
 	}
-	switch global_type {
+	switch in {
 	case "path":
 		h.GlobalExcepts["path"] = append(h.GlobalExcepts["path"], id)
 	case "cookie":
@@ -136,27 +132,11 @@ func (h *HTTPRequestNode) AddGlobalExcept(global_type string, id int64) {
 	}
 }
 
-func (h *HTTPRequestNode) RemoveGlobalExceptOfPath(id int64) {
-	h.RemoveGlobalExcept("path", id)
-}
-
-func (h *HTTPRequestNode) RemoveGlobalExceptOfQuery(id int64) {
-	h.RemoveGlobalExcept("query", id)
-}
-
-func (h *HTTPRequestNode) RemoveGlobalExceptOfHeader(id int64) {
-	h.RemoveGlobalExcept("header", id)
-}
-
-func (h *HTTPRequestNode) RemoveGlobalExceptOfCookie(id int64) {
-	h.RemoveGlobalExcept("cookie", id)
-}
-
-func (h *HTTPRequestNode) RemoveGlobalExcept(global_type string, id int64) {
+func (h *HTTPRequestNode) RemoveGlobalExcept(in string, id int64) {
 	if h == nil {
 		return
 	}
-	switch global_type {
+	switch in {
 	case "path":
 		h.GlobalExcepts["path"] = removeId(h.GlobalExcepts["path"], id)
 	case "cookie":
@@ -191,16 +171,38 @@ func (HTTPResponsesNode) Name() string {
 	return "apicat-http-response"
 }
 
+// range responses list to dereference sub response
+func (resp *HTTPResponsesNode) DereferenceResponses(sub *HTTPResponseDefine) {
+	for _, r := range resp.List {
+		r.HTTPResponseDefine.DereferenceResponses(sub)
+	}
+}
+
 func (resp *HTTPResponsesNode) RemoveResponse(sub *HTTPResponseDefine) {
 	id := strconv.Itoa(int(sub.ID))
 
 	i := 0
 	for i < len(resp.List) {
+		// just todo remove
 		if resp.List[i].IsRefId(id) {
 			resp.List = append(resp.List[:i], resp.List[i+1:]...)
 			continue
 		}
 		i++
+	}
+}
+
+// range responses list to dereference sub response
+func (resp *HTTPResponsesNode) DereferenceSchema(sub *Schema) {
+	for _, r := range resp.List {
+		r.HTTPResponseDefine.DereferenceSchema(sub)
+	}
+}
+
+// range responses list to remove sub response
+func (resp *HTTPResponsesNode) RemoveSchema(sub *Schema) {
+	for _, r := range resp.List {
+		r.HTTPResponseDefine.RemoveSchema(sub)
 	}
 }
 
