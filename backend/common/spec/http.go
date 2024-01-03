@@ -32,12 +32,24 @@ func (h *HTTPParameters) Fill() {
 func (h *HTTPParameters) Add(in string, v *Schema) {
 	switch in {
 	case "query":
+		if h.Query.LookupID(v.ID) != nil {
+			return
+		}
 		h.Query = append(h.Query, v)
 	case "path":
+		if h.Path.LookupID(v.ID) != nil {
+			return
+		}
 		h.Path = append(h.Path, v)
 	case "cookie":
+		if h.Cookie.LookupID(v.ID) != nil {
+			return
+		}
 		h.Cookie = append(h.Cookie, v)
 	case "header":
+		if h.Header.LookupID(v.ID) != nil {
+			return
+		}
 		h.Header = append(h.Header, v)
 	}
 }
@@ -117,38 +129,29 @@ func (h *HTTPRequestNode) AddGlobalExcept(in string, id int64) {
 	if h == nil {
 		return
 	}
-	switch in {
-	case "path":
-		h.GlobalExcepts["path"] = append(h.GlobalExcepts["path"], id)
-	case "cookie":
-		h.GlobalExcepts["cookie"] = append(h.GlobalExcepts["cookie"], id)
-	case "header":
-		h.GlobalExcepts["header"] = append(h.GlobalExcepts["header"], id)
-	case "query":
-		h.GlobalExcepts["query"] = append(h.GlobalExcepts["query"], id)
-	default:
-		// not to do anything
+	if findId(h.GlobalExcepts[in], id) {
 		return
 	}
+	h.GlobalExcepts[in] = append(h.GlobalExcepts[in], id)
 }
 
 func (h *HTTPRequestNode) RemoveGlobalExcept(in string, id int64) {
 	if h == nil {
 		return
 	}
-	switch in {
-	case "path":
-		h.GlobalExcepts["path"] = removeId(h.GlobalExcepts["path"], id)
-	case "cookie":
-		h.GlobalExcepts["cookie"] = removeId(h.GlobalExcepts["cookie"], id)
-	case "header":
-		h.GlobalExcepts["header"] = removeId(h.GlobalExcepts["header"], id)
-	case "query":
-		h.GlobalExcepts["query"] = removeId(h.GlobalExcepts["query"], id)
-	default:
-		// not to do anything
-		return
+	h.GlobalExcepts[in] = removeId(h.GlobalExcepts[in], id)
+}
+
+func findId(s []int64, id int64) bool {
+	if len(s) == 0 {
+		return false
 	}
+	for _, v := range s {
+		if v == id {
+			return true
+		}
+	}
+	return false
 }
 
 func removeId(s []int64, id int64) []int64 {
