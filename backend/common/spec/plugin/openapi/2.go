@@ -384,11 +384,27 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 		}
 		out.Schemas = append(out.Schemas, u.Scheme)
 	}
+
+	// twice range can replace to once range ?
 	for _, v := range in.Definitions.Schemas {
-		s.schemas[v.ID] = v.Name
+		if v.Type == string(spec.ContentItemTypeDir) {
+			items := v.ItemsTreeToList()
+			for _, item := range items {
+				s.schemas[item.ID] = item.Name
+			}
+		} else {
+			s.schemas[v.ID] = v.Name
+		}
 	}
 	for _, v := range in.Definitions.Schemas {
-		out.Definitions[v.Name] = *s.convertJSONSchema(v.Schema)
+		if v.Type == string(spec.ContentItemTypeDir) {
+			items := v.ItemsTreeToList()
+			for _, item := range items {
+				out.Definitions[item.Name] = *s.convertJSONSchema(item.Schema)
+			}
+		} else {
+			out.Definitions[v.Name] = *s.convertJSONSchema(v.Schema)
+		}
 	}
 
 	globalParam := in.Globals.Parameters

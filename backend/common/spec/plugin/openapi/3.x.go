@@ -504,8 +504,15 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 		o.schemaMapping[v.ID] = v.Name
 	}
 	for _, v := range in.Definitions.Schemas {
-		s := o.convertJSONSchema(ver, v.Schema)
-		schemas[v.Name] = *s
+		// if type is category, it's not have schema, need to range it's items
+		if v.Type == string(spec.ContentItemTypeDir) {
+			ss := v.ItemsTreeToList()
+			for _, s := range ss {
+				schemas[s.Name] = *o.convertJSONSchema(ver, s.Schema)
+			}
+		} else {
+			schemas[v.Name] = *o.convertJSONSchema(ver, v.Schema)
+		}
 	}
 	respons := make(map[string]any)
 	for _, v := range in.Definitions.Responses {
