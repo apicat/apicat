@@ -133,7 +133,8 @@ func TestResponseRemove(t *testing.T) {
 	fmt.Println(string(bs))
 }
 
-func TestGlobalExcepts(t *testing.T) {
+func TestDereferenceGlobalParameters(t *testing.T) {
+
 	ab, err := os.ReadFile("./testdata/global_excepts.json")
 	if err != nil {
 		fmt.Println(err)
@@ -143,21 +144,54 @@ func TestGlobalExcepts(t *testing.T) {
 		fmt.Println(err)
 	}
 
-	for _, v := range source.Collections {
-		if v.ID == 4000 {
-			t := v.Items
-			for _, c := range t {
-				for _, cc := range c.Content {
-					r, err := cc.ToHTTPRequestNode()
-					if err == nil {
-						r.RemoveGlobalExceptOfPath(34)
-						r.AddGlobalExceptOfHeader(7788)
-					}
-				}
-			}
-		}
+	for _, c := range source.Collections {
+		c.DereferenceGlobalParameters("header", source.Globals.Parameters.Header.LookupID(31))
 	}
+
 	bs, _ := json.MarshalIndent(source, "", " ")
 
 	fmt.Println(string(bs))
+
+}
+
+func TestCloseGlobalParameters(t *testing.T) {
+
+	ab, err := os.ReadFile("./testdata/global_excepts.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	source, err := ParseJSON(ab)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, c := range source.Collections {
+		c.CloseGlobalParameters("header", source.Globals.Parameters.Header.LookupID(31))
+	}
+
+	bs, _ := json.MarshalIndent(source, "", " ")
+
+	fmt.Println(string(bs))
+
+}
+
+func TestOpenGlobalParameters(t *testing.T) {
+
+	ab, err := os.ReadFile("./testdata/global_excepts.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	source, err := ParseJSON(ab)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, c := range source.Collections {
+		c.OpenGlobalParameters("path", source.Globals.Parameters.Path.LookupID(34))
+	}
+
+	bs, _ := json.MarshalIndent(source, "", " ")
+
+	fmt.Println(string(bs))
+
 }
