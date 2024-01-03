@@ -113,6 +113,7 @@ func (HTTPRequestNode) Name() string {
 	return "apicat-http-request"
 }
 
+// if content is exect, remove it and return true, else return false
 func (h *HTTPRequestNode) tryRemoveGlobalExcept(in string, id int64) bool {
 	ids := h.GlobalExcepts[in]
 	for _, v := range ids {
