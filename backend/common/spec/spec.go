@@ -3,7 +3,6 @@ package spec
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"strconv"
 	"strings"
 
@@ -269,16 +268,27 @@ func (c *CollectItem) DereferenceResponse(sub *HTTPResponseDefine) error {
 	if c == nil {
 		return nil
 	}
+
+	// if it type is "category", then todo all items
+	if c.Type == ContentItemTypeDir {
+		for _, item := range c.Items {
+			err := item.DereferenceResponse(sub)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	// just range 3 times
 	for _, node := range c.Content {
-		if node.NodeType() == "apicat-http-response" {
+		switch node.NodeType() {
+		// just this type to reference response
+		case "apicat-http-response":
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {
 				return err
 			}
-			// range responses list to dereference sub response
-			for _, resp := range resps.List {
-				resp.HTTPResponseDefine.DereferenceResponses(sub)
-			}
+			resps.DereferenceResponses(sub)
 		}
 	}
 	return nil
@@ -288,13 +298,23 @@ func (c *CollectItem) RemoveResponse(sub *HTTPResponseDefine) error {
 	if c == nil {
 		return nil
 	}
+
+	if c.Type == ContentItemTypeDir {
+		for _, item := range c.Items {
+			err := item.RemoveResponse(sub)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	for _, node := range c.Content {
-		if node.NodeType() == "apicat-http-response" {
+		switch node.NodeType() {
+		case "apicat-http-response":
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {
 				return err
 			}
-			// range responses list to dereference sub response
 			resps.RemoveResponse(sub)
 		}
 	}
@@ -306,6 +326,15 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 		return nil
 	}
 
+	if c.Type == ContentItemTypeDir {
+		for _, item := range c.Items {
+			err := item.DereferenceSchema(sub)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	for _, node := range c.Content {
 		switch node.NodeType() {
 		case "apicat-http-response":
@@ -313,14 +342,8 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 			if err != nil {
 				return err
 			}
-			// range responses list to dereference sub response
-			for _, resp := range resps.List {
-				resp.HTTPResponseDefine.DereferenceSchema(sub)
-			}
-		default:
-			return fmt.Errorf("unknown node type: %s", node.NodeType())
+			resps.DereferenceSchema(sub)
 		}
-
 	}
 	return nil
 }
@@ -330,6 +353,15 @@ func (c *CollectItem) RemoveSchema(sub *Schema) error {
 		return nil
 	}
 
+	if c.Type == ContentItemTypeDir {
+		for _, item := range c.Items {
+			err := item.RemoveSchema(sub)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
 	for _, node := range c.Content {
 		switch node.NodeType() {
 		case "apicat-http-response":
@@ -337,12 +369,87 @@ func (c *CollectItem) RemoveSchema(sub *Schema) error {
 			if err != nil {
 				return err
 			}
-			// range responses list to dereference sub response
-			for _, resp := range resps.List {
-				resp.HTTPResponseDefine.RemoveSchema(sub)
-			}
+			resps.RemoveSchema(sub)
 		}
 
+	}
+	return nil
+}
+
+func (c *CollectItem) DereferenceGlobalParameters(in string, sub *Schema) error {
+	if c == nil {
+		return nil
+	}
+
+	if c.Type == ContentItemTypeDir {
+		for _, item := range c.Items {
+			item.DereferenceGlobalParameters(in, sub)
+		}
+	}
+
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case "apicat-http-request":
+			req, err := node.ToHTTPRequestNode()
+			if err != nil {
+				return err
+			}
+
+			ok := req.tryRemoveGlobalExcept(in, sub.ID)
+			if ok {
+				return nil
+			} else {
+				req.Parameters.Add(in, sub)
+			}
+		}
+	}
+	return nil
+}
+
+func (c *CollectItem) OpenGlobalParameters(in string, sub *Schema) error {
+	if c == nil {
+		return nil
+	}
+
+	if c.Type == ContentItemTypeDir {
+		for _, item := range c.Items {
+			item.OpenGlobalParameters(in, sub)
+		}
+	}
+
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case "apicat-http-request":
+			req, err := node.ToHTTPRequestNode()
+			if err != nil {
+				return err
+			}
+			req.RemoveGlobalExcept(in, sub.ID)
+		}
+	}
+	return nil
+}
+
+func (c *CollectItem) CloseGlobalParameters(in string, sub *Schema) error {
+	if c == nil {
+		return nil
+	}
+
+	if c.Type == ContentItemTypeDir {
+		for _, item := range c.Items {
+			item.CloseGlobalParameters(in, sub)
+		}
+	}
+
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case "apicat-http-request":
+			req, err := node.ToHTTPRequestNode()
+			if err != nil {
+				return err
+			}
+			req.AddGlobalExcept(in, sub.ID)
+		}
 	}
 	return nil
 }
