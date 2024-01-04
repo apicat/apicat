@@ -1,0 +1,228 @@
+{
+    "apicat": "apicat",
+    "info": {
+      "id": "ZR4iiEyadqjTN45gmmzvBW",
+      "title": "t",
+      "version": "1.0.0"
+    },
+    "servers": [],
+    "globals": {
+      "parameters": {
+        "query": [
+          {
+            "id": 33,
+            "name": "global_query",
+            "schema": {
+              "type": "string",
+              "description": "这是说明",
+              "default": "",
+              "example": "这是示例"
+            }
+          }
+        ],
+        "path": [
+          {
+            "id": 34,
+            "name": "global_path",
+            "schema": {
+              "type": "string",
+              "description": "这是说明",
+              "default": "",
+              "example": "这是示例"
+            }
+          }
+        ],
+        "cookie": [
+          {
+            "id": 32,
+            "name": "global_cookie",
+            "schema": {
+              "type": "string",
+              "description": "这是说明",
+              "default": "",
+              "example": "这是示例"
+            }
+          }
+        ],
+        "header": [
+          {
+            "id": 31,
+            "name": "global_header",
+            "schema": {
+              "type": "string",
+              "description": "这是说明",
+              "default": "",
+              "example": "这是示例"
+            }
+          }
+        ]
+      }
+    },
+    "definitions": {
+      "schemas": [
+        {
+          "id": 2340,
+          "name": "Model2",
+          "schema": {
+            "type": "object",
+            "x-apicat-orders": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "x-apicat-mock": "string"
+              }
+            },
+            "example": ""
+          }
+        },
+        {
+          "id": 2341,
+          "name": "Model3",
+          "type": "category",
+          "items":[
+            {
+                "id": 2342,
+                "name": "item1",
+                "schema": {
+                  "type": "object",
+                  "x-apicat-orders": [
+                    "name"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "x-apicat-mock": "string"
+                    }
+                  },
+                  "example": ""
+                }
+              },
+              {
+                "id": 2343,
+                "name": "item2",
+                "schema": {
+                  "type": "object",
+                  "x-apicat-orders": [
+                    "name"
+                  ],
+                  "properties": {
+                    "name": {
+                      "type": "string",
+                      "x-apicat-mock": "string"
+                    }
+                  },
+                  "example": ""
+                }
+              }
+          ]
+        }
+      ],
+      "parameters": [],
+      "responses": [
+        {
+          "id": 373,
+          "name": "response1",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "x-apicat-orders": [
+                  "definition_res_1"
+                ],
+                "properties": {
+                  "definition_res_1": {
+                    "type": "string",
+                    "x-apicat-mock": "string"
+                  }
+                },
+                "example": ""
+              }
+            }
+          },
+          "header": [
+            {
+              "name": "resp_header_1",
+              "schema": {
+                "type": "string",
+                "x-apicat-mock": "string"
+              }
+            }
+          ]
+        },
+        {
+          "id": 374,
+          "name": "response2",
+          "type": "category",
+          "items": [
+            {
+                "id": 384,
+                "name": "resp2",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "x-apicat-orders": [
+                        "t2"
+                      ],
+                      "properties": {
+                        "t2": {
+                          "type": "string",
+                          "x-apicat-mock": "string"
+                        }
+                      },
+                      "example": ""
+                    }
+                  }
+                }
+              }
+          ]
+        }
+      ]
+    },
+    "collections": [
+        {
+          "type": "http",
+          "id": 4023,
+          "title": "test1",
+          "content": [
+            {
+              "type": "apicat-http-url",
+              "attrs": {
+                "path": "/api/test1",
+                "method": "get"
+              }
+            },
+            {
+              "type": "apicat-http-request",
+              "attrs": {
+                "globalExcepts": {
+                  "cookie": [],
+                  "header": [],
+                  "path": [],
+                  "query": []
+                },
+                "parameters": {
+                  "query": [],
+                  "path": [],
+                  "cookie": [],
+                  "header": []
+                }
+              }
+            },
+            {
+              "type": "apicat-http-response",
+              "attrs": {
+                "list": [
+                  {
+                    "code": 200,
+                    "$ref": "#/definitions/responses/384"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+  }

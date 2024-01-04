@@ -50,3 +50,20 @@ func TestDecode(t *testing.T) {
 // 	}
 
 // }
+
+func TestToOpenapi(t *testing.T) {
+	a, _ := os.ReadFile("../../testdata/items_tree_export_openapi.json")
+
+	ab, _ := spec.ParseJSON(a)
+
+	b, err := Encode(ab, "3.1.0")
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(string(b))
+	// s, err := json.MarshalIndent(b, "", " ")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(string(s))
+}
