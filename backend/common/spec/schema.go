@@ -108,8 +108,14 @@ func (s *Schemas) Lookup(name string) *Schema {
 		return nil
 	}
 	for _, v := range *s {
-		if name == v.Name {
-			return v
+		if v.Type == string(ContentItemTypeDir) {
+			if res := v.Items.Lookup(name); res != nil {
+				return res
+			}
+		} else {
+			if name == v.Name {
+				return v
+			}
 		}
 	}
 	return nil
@@ -120,8 +126,14 @@ func (s *Schemas) LookupID(id int64) *Schema {
 		return nil
 	}
 	for _, v := range *s {
-		if id == v.ID {
-			return v
+		if v.Type == string(ContentItemTypeDir) {
+			if res := v.Items.LookupID(id); res != nil {
+				return res
+			}
+		} else {
+			if id == v.ID {
+				return v
+			}
 		}
 	}
 	return nil

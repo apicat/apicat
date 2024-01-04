@@ -305,6 +305,22 @@ func (h *HTTPResponseDefine) RemoveSchema(sub *Schema) {
 	}
 }
 
+func (h *HTTPResponseDefine) ItemsTreeToList() (res HTTPResponseDefines) {
+	if h.Items == nil || len(h.Items) == 0 {
+		return res
+	}
+
+	for _, item := range h.Items {
+		if item.Type == string(ContentItemTypeDir) {
+			res = append(res, item.ItemsTreeToList()...)
+		} else {
+			res = append(res, item)
+		}
+	}
+
+	return res
+}
+
 func (h *HTTPResponseDefine) SetXDiff(x *string) {
 	h.Header.SetXDiff(x)
 	h.Content.SetXDiff(x)
@@ -315,8 +331,14 @@ type HTTPResponseDefines []HTTPResponseDefine
 
 func (h HTTPResponseDefines) Lookup(name string) *HTTPResponseDefine {
 	for _, v := range h {
-		if v.Name == name {
-			return &v
+		if v.Type == string(ContentItemTypeDir) {
+			if res := v.Items.Lookup(name); res != nil {
+				return res
+			}
+		} else {
+			if v.Name == name {
+				return &v
+			}
 		}
 	}
 	return nil
@@ -324,8 +346,14 @@ func (h HTTPResponseDefines) Lookup(name string) *HTTPResponseDefine {
 
 func (h HTTPResponseDefines) LookupID(id int64) *HTTPResponseDefine {
 	for _, v := range h {
-		if v.ID == id {
-			return &v
+		if v.Type == string(ContentItemTypeDir) {
+			if res := v.Items.LookupID(id); res != nil {
+				return res
+			}
+		} else {
+			if v.ID == id {
+				return &v
+			}
 		}
 	}
 	return nil
