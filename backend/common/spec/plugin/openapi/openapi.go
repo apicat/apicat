@@ -47,7 +47,7 @@ func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 	sw := &fromSwagger{}
 	schemas := sw.parseDefinetions(model.Model.Definitions)
 	responseDefinitions := sw.parseResponsesDefine(&model.Model)
-	parameters := sw.parseParametersDefine(&model.Model)
+	// parameters := sw.parseParametersDefine(&model.Model)
 
 	globalparameters := spec.HTTPParameters{}
 	globalparameters.Fill()
@@ -56,7 +56,7 @@ func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 		ApiCat:      "2.0.1",
 		Info:        sw.parseInfo(model.Model.Info),
 		Servers:     sw.parseServers(&model.Model),
-		Definitions: spec.Definitions{Schemas: schemas, Responses: responseDefinitions, Parameters: parameters},
+		Definitions: spec.Definitions{Schemas: schemas, Responses: responseDefinitions}, //Parameters: parameters
 		Globals:     spec.Global{Parameters: globalparameters},
 		Collections: sw.parseCollections(&model.Model, model.Model.Paths),
 	}, nil
@@ -75,7 +75,7 @@ func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
 		ApiCat:      "2.0.1",
 		Info:        o.parseInfo(model.Model.Info),
 		Servers:     o.parseServers(model.Model.Servers),
-		Globals:     o.parseGlobal(model.Model.Components.Parameters),
+		Globals:     o.parseGlobal(model.Model.Components.Extensions),
 		Definitions: o.parseDefinetions(model.Model.Components),
 		Collections: o.parseCollections(model.Model.Paths),
 	}, nil

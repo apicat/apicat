@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"testing"
@@ -66,4 +67,20 @@ func TestToOpenapi(t *testing.T) {
 	// 	fmt.Println(err)
 	// }
 	// fmt.Println(string(s))
+}
+
+func TestToApiCat(t *testing.T) {
+	a, _ := os.ReadFile("../../testdata/items_tree_import_openapi.json")
+
+	b, err := Decode(a)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	bs, err := json.MarshalIndent(b, "", " ")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(string(bs))
 }

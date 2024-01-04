@@ -1,6 +1,7 @@
 package spec
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/apicat/apicat/backend/common/spec/jsonschema"
@@ -99,6 +100,10 @@ func (s *Schema) ItemsTreeToList() (res Schemas) {
 	}
 
 	return res
+}
+
+func (s *Schema) JoinNameId() string {
+	return fmt.Sprintf("%s-%d", s.Name, s.ID)
 }
 
 type Schemas []*Schema

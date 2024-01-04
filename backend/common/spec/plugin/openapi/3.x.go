@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 	"strings"
@@ -77,7 +78,7 @@ func (o *fromOpenapi) parseDefinetions(comp *v3.Components) spec.Definitions {
 	if comp == nil {
 		return spec.Definitions{
 			Schemas:    make(spec.Schemas, 0),
-			Parameters: make(spec.Schemas, 0),
+			Parameters: spec.HTTPParameters{},
 			Responses:  make(spec.HTTPResponseDefines, 0),
 		}
 	}
@@ -91,7 +92,7 @@ func (o *fromOpenapi) parseDefinetions(comp *v3.Components) spec.Definitions {
 		schemas = append(schemas, &spec.Schema{
 			ID:          stringToUnid(k),
 			Name:        k,
-			Description: k,
+			Description: js.Description,
 			Schema:      js,
 		})
 	}
@@ -122,9 +123,9 @@ func (o *fromOpenapi) parseDefinetions(comp *v3.Components) spec.Definitions {
 		rets = append(rets, def)
 	}
 	return spec.Definitions{
-		Schemas:    schemas,
-		Responses:  rets,
-		Parameters: o.parseParametersDefine(comp),
+		Schemas:   schemas,
+		Responses: rets,
+		// Parameters: o.parseParametersDefine(comp),
 	}
 }
 
@@ -164,28 +165,70 @@ func (o *fromOpenapi) parseParameters(inp []*v3.Parameter) spec.HTTPParameters {
 	return rawparamter
 }
 
-func (o *fromOpenapi) parseGlobal(inp map[string]*v3.Parameter) spec.Global {
+func (o *fromOpenapi) parseGlobal(inp map[string]any) (res spec.Global) {
+	if inp == nil {
+		return res
+	}
+	global, ok := inp["x-apicat-globals"]
+	if !ok {
+		return res
+	}
 	var rawparamter spec.HTTPParameters
 	rawparamter.Fill()
-	for _, v := range inp {
+
+	for _, v := range global.(map[string]any) {
+
+		// if use type assertion, ok is false, but use jsonMarshal first and then Unmarshal is true
+		p := &v3.Parameter{}
+		b, err := json.Marshal(v)
+		if err != nil {
+			continue
+		}
+		err = json.Unmarshal(b, p)
+		if err != nil {
+			continue
+		}
+
 		var sp = &spec.Schema{
-			Name:     v.Name,
-			Required: v.Required,
+			Name:     p.Name,
+			Required: p.Required,
 		}
 		sp.Schema = &jsonschema.Schema{}
-		if v.Schema != nil {
-			js, err := jsonSchemaConverter(v.Schema)
-			if err != nil {
-				panic(err)
-			}
-			sp.Schema = js
+		// this is global parameter, not schema content
+		// if p.Schema != nil {
+		// 	js, err := jsonSchemaConverter(p.Schema)
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
+		// 	sp.Schema = js
+		// }
+
+		parameterschema, ok := v.(map[string]any)
+		if !ok {
+			continue
 		}
-		sp.Schema.Description = v.Description
-		sp.Schema.Example = v.Example
-		sp.Schema.Deprecated = v.Deprecated
-		rawparamter.Add(v.In, sp)
+		schemainfo, ok := parameterschema["schema"]
+		if ok {
+			si, ok := schemainfo.(map[string]any)
+			if !ok {
+				continue
+			}
+
+			// nedd check else
+			if t, ok := si["type"]; ok {
+				sp.Type = t.(string)
+			}
+			if r, ok := si["required"]; ok {
+				sp.Required = r.(bool)
+			}
+		}
+		sp.Schema.Description = p.Description
+		sp.Schema.Example = p.Example
+		sp.Schema.Deprecated = p.Deprecated
+		rawparamter.Add(p.In, sp)
 	}
-	return spec.Global{rawparamter}
+	res.Parameters = rawparamter
+	return res
 }
 
 func (o *fromOpenapi) parseContent(mts map[string]*v3.MediaType) spec.HTTPBody {
@@ -222,6 +265,12 @@ func (o *fromOpenapi) parseeResoponse(responses map[string]*v3.Response) spec.HT
 		c, _ := strconv.Atoi(code)
 		resp := spec.HTTPResponse{
 			Code: c,
+		}
+		s := res.GoLow().Reference.Reference
+		if s != "" {
+			resp.Reference = &s
+			outresponses.List = append(outresponses.List, &resp)
+			continue
 		}
 		resp.Name = res.Description
 		resp.Description = res.Description
