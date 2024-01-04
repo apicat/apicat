@@ -121,6 +121,7 @@ type openAPIParamter struct {
 	Example   any     `json:"example,omitempty"`
 }
 
+// 2.0 与3.0 此方法不同，导入与导出同理
 func toParameter(p *spec.Schema, in string) openAPIParamter {
 	// tp := "string"
 	// if n := len(p.Schema.Type.Value()); n > 0 {
@@ -155,9 +156,9 @@ func toParameterGlobal(globalsParmaters spec.HTTPParameters, isSwagger bool, ski
 			}
 			ref := fmt.Sprintf("%s-%s", in, v.Name)
 			if isSwagger {
-				ref = "#/parameters/" + ref
+				ref = "#/x-apicat-globals/" + ref
 			} else {
-				ref = "#/components/parameters/" + ref
+				ref = "#/components/x-apicat-globals/" + ref
 			}
 			outs = append(outs, openAPIParamter{
 				Reference: &ref,
@@ -233,10 +234,11 @@ func toConvertJSONSchemaRef(v *jsonschema.Schema, ver string, mapping map[int64]
 	if sh.Reference != nil {
 		if id := toInt64(getRefName(*sh.Reference)); id > 0 {
 			var ref string
+			name_id := fmt.Sprintf("%s-%d", mapping[id], id)
 			if ver[0] == '2' {
-				ref = fmt.Sprintf("#/definitions/%s", mapping[id])
+				ref = fmt.Sprintf("#/definitions/%s", name_id)
 			} else {
-				ref = fmt.Sprintf("#/components/schemas/%s", mapping[id])
+				ref = fmt.Sprintf("#/components/schemas/%s", name_id)
 			}
 			return &jsonschema.Schema{Reference: &ref}
 		}

@@ -468,8 +468,9 @@ func (o *toOpenapi) toResponse(in *spec.Spec, def spec.HTTPResponseDefine, ver s
 			if x := in.Definitions.Responses.LookupID(
 				toInt64(getRefName(*v.Reference)),
 			); x != nil {
+				name_id := fmt.Sprintf("%s-%d", x.Name, x.ID)
 				return map[string]any{
-					"$ref": "#/components/responses/" + x.Name,
+					"$ref": "#/components/responses/" + name_id,
 				}
 			}
 		}
@@ -508,30 +509,41 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 		if v.Type == string(spec.ContentItemTypeDir) {
 			ss := v.ItemsTreeToList()
 			for _, s := range ss {
-				schemas[s.Name] = *o.convertJSONSchema(ver, s.Schema)
+				name_id := fmt.Sprintf("%s-%d", s.Name, s.ID)
+				schemas[name_id] = *o.convertJSONSchema(ver, s.Schema)
 			}
 		} else {
-			schemas[v.Name] = *o.convertJSONSchema(ver, v.Schema)
+			name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
+			schemas[name_id] = *o.convertJSONSchema(ver, v.Schema)
 		}
 	}
 	respons := make(map[string]any)
 	for _, v := range in.Definitions.Responses {
-		res := o.toResponse(in, v, ver)
-		respons[v.Name] = res
+		if v.Type == string(spec.ContentItemTypeDir) {
+			rs := v.ItemsTreeToList()
+			for _, resp := range rs {
+				name_id := fmt.Sprintf("%s-%d", resp.Name, resp.ID)
+				respons[name_id] = o.toResponse(in, resp, ver)
+			}
+		} else {
+			name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
+			respons[name_id] = o.toResponse(in, v, ver)
+		}
 	}
 
 	globalParam := in.Globals.Parameters
 	m := globalParam.Map()
-	parameters := make(map[string]openAPIParamter)
+	globals := make(map[string]openAPIParamter)
 	for in, ps := range m {
 		for _, p := range ps {
-			parameters[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
+			globals[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
 		}
 	}
 
 	return map[string]any{
-		"schemas":    schemas,
-		"responses":  respons,
-		"parameters": parameters,
+		"schemas":   schemas,
+		"responses": respons,
+		// "parameters": parameters,
+		"x-apicat-globals": globals,
 	}
 }

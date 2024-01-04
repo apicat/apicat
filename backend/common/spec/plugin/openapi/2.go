@@ -356,6 +356,7 @@ type swaggerSpec struct {
 	Parameters  map[string]openAPIParamter            `json:"parameters,omitempty"`
 	Responses   map[string]any                        `json:"responses,omitempty"`
 	Paths       map[string]map[string]swaggerPathItem `json:"paths"`
+	Globals     map[string]openAPIParamter            `json:"x-apicat-globals,omitempty"`
 }
 
 type toSwagger struct {
@@ -400,19 +401,22 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 		if v.Type == string(spec.ContentItemTypeDir) {
 			items := v.ItemsTreeToList()
 			for _, item := range items {
-				out.Definitions[item.Name] = *s.convertJSONSchema(item.Schema)
+				name_id := fmt.Sprintf("%s-%d", item.Name, item.ID)
+				out.Definitions[name_id] = *s.convertJSONSchema(item.Schema)
 			}
 		} else {
-			out.Definitions[v.Name] = *s.convertJSONSchema(v.Schema)
+			name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
+			out.Definitions[name_id] = *s.convertJSONSchema(v.Schema)
 		}
 	}
 
 	globalParam := in.Globals.Parameters
 	m := globalParam.Map()
-	out.Parameters = make(map[string]openAPIParamter)
+	out.Globals = make(map[string]openAPIParamter)
 	for in, ps := range m {
 		for _, p := range ps {
-			out.Parameters[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
+			name_id := fmt.Sprintf("%s-%d", p.Name, p.ID)
+			out.Globals[name_id] = toParameter(p, in)
 		}
 	}
 
@@ -422,7 +426,16 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 	if len(in.Definitions.Responses) > 0 {
 		out.Responses = make(map[string]any)
 		for _, v := range in.Definitions.Responses {
-			out.Responses[v.Name] = s.parseResponse(in, v)
+			if v.Type == string(spec.ContentItemTypeDir) {
+				items := v.ItemsTreeToList()
+				for _, item := range items {
+					name_id := fmt.Sprintf("%s-%d", item.Name, item.ID)
+					out.Responses[name_id] = s.parseResponse(in, item)
+				}
+			} else {
+				name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
+				out.Responses[name_id] = s.parseResponse(in, v)
+			}
 		}
 	}
 	return out
