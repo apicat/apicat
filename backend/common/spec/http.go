@@ -14,6 +14,27 @@ type HTTPParameters struct {
 
 var HttpParameter = []string{"query", "path", "cookie", "header"}
 
+// test func
+func (h *HTTPParameters) LookupID(id int64) (s *Schema) {
+	s = h.Query.LookupID(id)
+	if s != nil {
+		return s
+	}
+	s = h.Path.LookupID(id)
+	if s != nil {
+		return s
+	}
+	s = h.Cookie.LookupID(id)
+	if s != nil {
+		return s
+	}
+	s = h.Header.LookupID(id)
+	if s != nil {
+		return s
+	}
+	return nil
+}
+
 func (h *HTTPParameters) Fill() {
 	if h.Query == nil {
 		h.Query = make(Schemas, 0)

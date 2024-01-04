@@ -484,7 +484,7 @@ var (
 
 type Definitions struct {
 	Schemas    Schemas             `json:"schemas"`
-	Parameters Schemas             `json:"parameters"`
+	Parameters HTTPParameters      `json:"parameters"`
 	Responses  HTTPResponseDefines `json:"responses"`
 }
 

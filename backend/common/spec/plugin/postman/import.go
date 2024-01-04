@@ -44,7 +44,7 @@ func Import(data []byte) (*spec.Spec, error) {
 		}(),
 		Definitions: spec.Definitions{
 			Schemas:    make(spec.Schemas, 0),
-			Parameters: make(spec.Schemas, 0),
+			Parameters: spec.HTTPParameters{},
 			Responses:  make(spec.HTTPResponseDefines, 0),
 		},
 		Collections: walkCpllection(pm.Items, 1000),
