@@ -151,10 +151,9 @@ func TestDereferenceGlobalParameters(t *testing.T) {
 	bs, _ := json.MarshalIndent(source, "", " ")
 
 	fmt.Println(string(bs))
-
 }
 
-func TestAddGlobalParameters(t *testing.T) {
+func TestAddParameters(t *testing.T) {
 
 	ab, err := os.ReadFile("./testdata/global_excepts.json")
 	if err != nil {
@@ -166,7 +165,7 @@ func TestAddGlobalParameters(t *testing.T) {
 	}
 
 	for _, c := range source.Collections {
-		c.AddGlobalParameters("header", source.Globals.Parameters.Header.LookupID(31))
+		c.AddParameters("header", source.Globals.Parameters.Header.LookupID(31))
 	}
 
 	bs, _ := json.MarshalIndent(source, "", " ")
