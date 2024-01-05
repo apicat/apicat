@@ -406,7 +406,7 @@ func (c *CollectItem) OpenGlobalParameters(in string, sub *Schema) error {
 	return nil
 }
 
-func (c *CollectItem) AddGlobalParameters(in string, sub *Schema) error {
+func (c *CollectItem) AddParameters(in string, sub *Schema) error {
 	if c == nil {
 		return nil
 	}
@@ -428,7 +428,7 @@ func (c *CollectItem) AddGlobalParameters(in string, sub *Schema) error {
 	return nil
 }
 
-func (c *CollectItem) RemoveGlobalParameters(in string, sub *Schema) error {
+func (c *CollectItem) RemoveParameters(in string, sub *Schema) error {
 	if c == nil {
 		return nil
 	}
