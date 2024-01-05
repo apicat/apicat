@@ -16,7 +16,7 @@
   },
   "definitions": {
     "schemas": [],
-    "parameters": [],
+    "parameters": {},
     "responses": []
   },
   "collections": [

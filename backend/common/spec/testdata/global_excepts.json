@@ -93,7 +93,7 @@
           }
         }
       ],
-      "parameters": [],
+      "parameters": {},
       "responses": [
         {
           "id": 373,
