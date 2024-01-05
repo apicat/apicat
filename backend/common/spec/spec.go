@@ -406,7 +406,7 @@ func (c *CollectItem) OpenGlobalParameters(in string, sub *Schema) error {
 	return nil
 }
 
-func (c *CollectItem) AddParameters(in string, sub *Schema) error {
+func (c *CollectItem) AddGlobalParameters(in string, sub *Schema) error {
 	if c == nil {
 		return nil
 	}
@@ -423,6 +423,28 @@ func (c *CollectItem) AddParameters(in string, sub *Schema) error {
 				return err
 			}
 			req.Parameters.Add(in, sub)
+		}
+	}
+	return nil
+}
+
+func (c *CollectItem) RemoveGlobalParameters(in string, sub *Schema) error {
+	if c == nil {
+		return nil
+	}
+
+	if c.Type == ContentItemTypeDir {
+		return nil
+	}
+
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case "apicat-http-request":
+			req, err := node.ToHTTPRequestNode()
+			if err != nil {
+				return err
+			}
+			req.Parameters.Remove(in, sub)
 		}
 	}
 	return nil

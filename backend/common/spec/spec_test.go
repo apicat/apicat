@@ -166,7 +166,7 @@ func TestAddGlobalParameters(t *testing.T) {
 	}
 
 	for _, c := range source.Collections {
-		c.AddParameters("header", source.Globals.Parameters.Header.LookupID(31))
+		c.AddGlobalParameters("header", source.Globals.Parameters.Header.LookupID(31))
 	}
 
 	bs, _ := json.MarshalIndent(source, "", " ")

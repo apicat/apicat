@@ -144,6 +144,21 @@ func (s *Schemas) LookupID(id int64) *Schema {
 	return nil
 }
 
+func (s *Schemas) RemoveId(id int64) {
+	if s == nil {
+		return
+	}
+	for i, v := range *s {
+		if v.Type == string(ContentItemTypeDir) {
+			v.Items.RemoveId(id)
+		} else {
+			if v.ID == id {
+				*s = append((*s)[:i], (*s)[i+1:]...)
+			}
+		}
+	}
+}
+
 func (s *Schemas) Length() int {
 	return len(*s)
 }

@@ -75,6 +75,19 @@ func (h *HTTPParameters) Add(in string, v *Schema) {
 	}
 }
 
+func (h *HTTPParameters) Remove(in string, v *Schema) {
+	switch in {
+	case "query":
+		h.Query.RemoveId(v.ID)
+	case "path":
+		h.Path.RemoveId(v.ID)
+	case "cookie":
+		h.Cookie.RemoveId(v.ID)
+	case "header":
+		h.Header.RemoveId(v.ID)
+	}
+}
+
 func (h *HTTPParameters) Map() map[string]Schemas {
 	m := make(map[string]Schemas)
 	if h.Query != nil {
