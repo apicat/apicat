@@ -154,7 +154,7 @@ func TestDereferenceGlobalParameters(t *testing.T) {
 
 }
 
-func TestCloseGlobalParameters(t *testing.T) {
+func TestAddGlobalParameters(t *testing.T) {
 
 	ab, err := os.ReadFile("./testdata/global_excepts.json")
 	if err != nil {
@@ -166,7 +166,7 @@ func TestCloseGlobalParameters(t *testing.T) {
 	}
 
 	for _, c := range source.Collections {
-		c.CloseGlobalParameters("header", source.Globals.Parameters.Header.LookupID(31))
+		c.AddParameters("header", source.Globals.Parameters.Header.LookupID(31))
 	}
 
 	bs, _ := json.MarshalIndent(source, "", " ")

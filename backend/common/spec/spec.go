@@ -269,14 +269,9 @@ func (c *CollectItem) DereferenceResponse(sub *HTTPResponseDefine) error {
 		return nil
 	}
 
-	// if it type is "category", then todo all items
+	// if it type is "category", just return nil
 	if c.Type == ContentItemTypeDir {
-		for _, item := range c.Items {
-			err := item.DereferenceResponse(sub)
-			if err != nil {
-				return err
-			}
-		}
+		return nil
 	}
 
 	// just range 3 times
@@ -300,12 +295,7 @@ func (c *CollectItem) RemoveResponse(sub *HTTPResponseDefine) error {
 	}
 
 	if c.Type == ContentItemTypeDir {
-		for _, item := range c.Items {
-			err := item.RemoveResponse(sub)
-			if err != nil {
-				return err
-			}
-		}
+		return nil
 	}
 
 	for _, node := range c.Content {
@@ -327,12 +317,7 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 	}
 
 	if c.Type == ContentItemTypeDir {
-		for _, item := range c.Items {
-			err := item.DereferenceSchema(sub)
-			if err != nil {
-				return err
-			}
-		}
+		return nil
 	}
 
 	for _, node := range c.Content {
@@ -354,12 +339,7 @@ func (c *CollectItem) RemoveSchema(sub *Schema) error {
 	}
 
 	if c.Type == ContentItemTypeDir {
-		for _, item := range c.Items {
-			err := item.RemoveSchema(sub)
-			if err != nil {
-				return err
-			}
-		}
+		return nil
 	}
 
 	for _, node := range c.Content {
@@ -382,9 +362,7 @@ func (c *CollectItem) DereferenceGlobalParameters(in string, sub *Schema) error 
 	}
 
 	if c.Type == ContentItemTypeDir {
-		for _, item := range c.Items {
-			item.DereferenceGlobalParameters(in, sub)
-		}
+		return nil
 	}
 
 	for _, node := range c.Content {
@@ -412,9 +390,7 @@ func (c *CollectItem) OpenGlobalParameters(in string, sub *Schema) error {
 	}
 
 	if c.Type == ContentItemTypeDir {
-		for _, item := range c.Items {
-			item.OpenGlobalParameters(in, sub)
-		}
+		return nil
 	}
 
 	for _, node := range c.Content {
@@ -430,15 +406,13 @@ func (c *CollectItem) OpenGlobalParameters(in string, sub *Schema) error {
 	return nil
 }
 
-func (c *CollectItem) CloseGlobalParameters(in string, sub *Schema) error {
+func (c *CollectItem) AddParameters(in string, sub *Schema) error {
 	if c == nil {
 		return nil
 	}
 
 	if c.Type == ContentItemTypeDir {
-		for _, item := range c.Items {
-			item.CloseGlobalParameters(in, sub)
-		}
+		return nil
 	}
 
 	for _, node := range c.Content {
@@ -448,7 +422,7 @@ func (c *CollectItem) CloseGlobalParameters(in string, sub *Schema) error {
 			if err != nil {
 				return err
 			}
-			req.AddGlobalExcept(in, sub.ID)
+			req.Parameters.Add(in, sub)
 		}
 	}
 	return nil
