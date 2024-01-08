@@ -53,24 +53,12 @@ func (h *HTTPParameters) Fill() {
 func (h *HTTPParameters) Add(in string, v *Schema) {
 	switch in {
 	case "query":
-		if h.Query.LookupID(v.ID) != nil {
-			return
-		}
 		h.Query = append(h.Query, v)
 	case "path":
-		if h.Path.LookupID(v.ID) != nil {
-			return
-		}
 		h.Path = append(h.Path, v)
 	case "cookie":
-		if h.Cookie.LookupID(v.ID) != nil {
-			return
-		}
 		h.Cookie = append(h.Cookie, v)
 	case "header":
-		if h.Header.LookupID(v.ID) != nil {
-			return
-		}
 		h.Header = append(h.Header, v)
 	}
 }
