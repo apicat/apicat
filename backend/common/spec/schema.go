@@ -250,16 +250,6 @@ func (s *Schema) SetXDiff(x *string) {
 	s.XDiff = x
 }
 
-func (s *Schemas) UnpackDereferenceSchema(sub Schemas) (err error) {
-	for _, v := range *s {
-		err = v.UnpackDereferenceSchema(sub)
-		if err != nil {
-			return err
-		}
-	}
-	return err
-}
-
 func (s *Schema) FindExample(summary string) (*Example, bool) {
 	for _, v := range s.Examples {
 		if v.Summary == summary {

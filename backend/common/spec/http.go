@@ -64,36 +64,6 @@ func (h *HTTPParameters) Add(in string, v *Schema) {
 	}
 }
 
-func (h *HTTPParameters) UnpackDereferenceSchema(sub Schemas) (err error) {
-	if h.Query != nil {
-		err = h.Query.UnpackDereferenceSchema(sub)
-		if err != nil {
-			return err
-		}
-	}
-	if h.Cookie != nil {
-		h.Cookie.UnpackDereferenceSchema(sub)
-		if err != nil {
-			return err
-		}
-	}
-
-	if h.Header != nil {
-		h.Header.UnpackDereferenceSchema(sub)
-		if err != nil {
-			return err
-		}
-	}
-
-	if h.Path != nil {
-		h.Path.UnpackDereferenceSchema(sub)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 func (h *HTTPParameters) Remove(in string, id int64) {
 	switch in {
 	case "query":
