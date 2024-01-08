@@ -333,7 +333,7 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 	return nil
 }
 
-func (c *CollectItem) RemoveSchema(sub *Schema) error {
+func (c *CollectItem) RemoveSchema(s_id int64) error {
 	if c == nil {
 		return nil
 	}
@@ -349,7 +349,7 @@ func (c *CollectItem) RemoveSchema(sub *Schema) error {
 			if err != nil {
 				return err
 			}
-			resps.RemoveSchema(sub)
+			resps.RemoveSchema(s_id)
 		}
 
 	}

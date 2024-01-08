@@ -61,11 +61,58 @@ func (s *Schema) DereferenceSchema(sub *Schema) {
 
 }
 
-func (s *Schema) RemoveSchema(sub *Schema) {
-	if sub == nil {
+func (s *Schema) UnparkDereferenceSchema(sub Schemas) {
+	dfsDereferenceSchemas(s.Schema, s.ID, sub, make(map[int64]bool))
+}
+
+func dfsDereferenceSchemas(s *jsonschema.Schema, id int64, sub Schemas, refs map[int64]bool) {
+	if s == nil {
 		return
 	}
-	id := strconv.Itoa(int(sub.ID))
+
+	if _, ok := refs[id]; ok && id != -1 {
+		return
+	}
+	refs[id] = true
+	// 添加array的元素类型分辨，注意order属性的影响
+	// no type, and not ref
+	if s.Type == nil {
+		s.Type = jsonschema.CreateSliceOrOne("")
+	}
+	t := s.Type.Value()[0]
+	switch t {
+	case "array":
+		if s.Items != nil {
+			if s.Items.IsBool() {
+				return
+			}
+			dfsDereferenceSchemas(s.Items.Value(), -1, sub, refs)
+		}
+	case "object":
+		for k, v := range s.Properties {
+			fmt.Println(k)
+			dfsDereferenceSchemas(v, -1, sub, refs)
+		}
+	case "":
+		// may be ref
+		if s.Ref() {
+			ps := sub.LookupID(mustGetRefID(*s.Reference))
+			if ps == nil {
+				return
+			}
+			if _, ok := refs[ps.ID]; ok {
+				*s = *jsonschema.Create("object")
+				return
+			}
+			*s = *ps.Schema
+			dfsDereferenceSchemas(s, ps.ID, sub, refs)
+			delete(refs, ps.ID)
+		}
+	}
+}
+
+func (s *Schema) RemoveSchema(s_id int64) {
+	id := strconv.Itoa(int(s_id))
 
 	if s.Schema.IsRefId(id) {
 		s.Schema = jsonschema.Create("object")

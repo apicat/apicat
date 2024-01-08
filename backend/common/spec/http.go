@@ -238,9 +238,9 @@ func (resp *HTTPResponsesNode) DereferenceSchema(sub *Schema) {
 }
 
 // range responses list to remove sub response
-func (resp *HTTPResponsesNode) RemoveSchema(sub *Schema) {
+func (resp *HTTPResponsesNode) RemoveSchema(s_id int64) {
 	for _, r := range resp.List {
-		r.HTTPResponseDefine.RemoveSchema(sub)
+		r.HTTPResponseDefine.RemoveSchema(s_id)
 	}
 }
 
@@ -332,10 +332,10 @@ func (h *HTTPResponseDefine) DereferenceSchema(sub *Schema) {
 
 }
 
-func (h *HTTPResponseDefine) RemoveSchema(sub *Schema) {
+func (h *HTTPResponseDefine) RemoveSchema(s_id int64) {
 	// remove content
 	for _, body := range h.Content {
-		body.RemoveSchema(sub)
+		body.RemoveSchema(s_id)
 	}
 }
 

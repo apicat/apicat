@@ -1,0 +1,343 @@
+{
+  "apicat": "apicat",
+  "info": {
+    "id": "ZR4iiEyadqjTN45gmmzvBW",
+    "title": "t",
+    "version": "1.0.0"
+  },
+  "servers": [],
+  "globals": {
+    "parameters": {
+      "query": [
+        {
+          "id": 33,
+          "name": "global_query",
+          "schema": {
+            "type": "string",
+            "description": "这是说明",
+            "default": "",
+            "example": "这是示例"
+          }
+        }
+      ],
+      "path": [
+        {
+          "id": 34,
+          "name": "global_path",
+          "schema": {
+            "type": "string",
+            "description": "这是说明",
+            "default": "",
+            "example": "这是示例"
+          }
+        }
+      ],
+      "cookie": [
+        {
+          "id": 32,
+          "name": "global_cookie",
+          "schema": {
+            "type": "string",
+            "description": "这是说明",
+            "default": "",
+            "example": "这是示例"
+          }
+        }
+      ],
+      "header": [
+        {
+          "id": 31,
+          "name": "global_header",
+          "schema": {
+            "type": "string",
+            "description": "这是说明",
+            "default": "",
+            "example": "这是示例"
+          }
+        }
+      ]
+    }
+  },
+  "definitions": {
+    "schemas": [
+      {
+        "id": 2336,
+        "name": "a",
+        "schema": {
+          "type": "object",
+          "x-apicat-orders": [
+            "bs",
+            "cs",
+            "aa",
+            "arr_normal",
+            "arr_ref_a"
+          ],
+          "properties": {
+            "aa": {
+              "$ref": "#/definitions/schemas/2336"
+            },
+            "arr_normal": {
+              "type": "array",
+              "x-apicat-mock": "array",
+              "items": {
+                "type": "string",
+                "x-apicat-mock": "string"
+              }
+            },
+            "arr_ref_a": {
+              "type": "array",
+              "x-apicat-mock": "array",
+              "items": {
+                "$ref": "#/definitions/schemas/2336"
+              }
+            },
+            "bs": {
+              "$ref": "#/definitions/schemas/2340"
+            },
+            "cs": {
+              "$ref": "#/definitions/schemas/2341"
+            }
+          }
+        }
+      },
+      {
+        "id": 2340,
+        "name": "b",
+        "schema": {
+          "type": "object",
+          "x-apicat-orders": [
+            "cs",
+            "ds",
+            "ba",
+            "b_normal"
+          ],
+          "properties": {
+            "b_normal": {
+              "type": "string",
+              "x-apicat-mock": "string"
+            },
+            "ba": {
+              "$ref": "#/definitions/schemas/2336"
+            },
+            "cs": {
+              "$ref": "#/definitions/schemas/2341"
+            },
+            "ds": {
+              "$ref": "#/definitions/schemas/2353"
+            }
+          },
+          "example": ""
+        }
+      },
+      {
+        "id": 2341,
+        "name": "c",
+        "schema": {
+          "type": "object",
+          "x-apicat-orders": [
+            "as",
+            "bc",
+            "c_normal"
+          ],
+          "properties": {
+            "as": {
+              "$ref": "#/definitions/schemas/2336"
+            },
+            "bc": {
+              "$ref": "#/definitions/schemas/2340"
+            },
+            "c_normal": {
+              "type": "string",
+              "x-apicat-mock": "string"
+            }
+          },
+          "example": ""
+        }
+      },
+      {
+        "id": 2353,
+        "name": "d",
+        "schema": {
+          "type": "object",
+          "example": ""
+        }
+      }
+    ],
+    "parameters": {},
+    "responses": [
+      {
+        "id": 373,
+        "name": "response1",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "x-apicat-orders": [
+                "definition_res_1"
+              ],
+              "properties": {
+                "definition_res_1": {
+                  "type": "string",
+                  "x-apicat-mock": "string"
+                }
+              },
+              "example": ""
+            }
+          }
+        },
+        "header": [
+          {
+            "name": "resp_header_1",
+            "schema": {
+              "type": "string",
+              "x-apicat-mock": "string"
+            }
+          }
+        ]
+      },
+      {
+        "id": 384,
+        "name": "resp2",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "x-apicat-orders": [
+                "t2"
+              ],
+              "properties": {
+                "t2": {
+                  "type": "string",
+                  "x-apicat-mock": "string"
+                }
+              },
+              "example": ""
+            }
+          }
+        }
+      }
+    ]
+  },
+  "collections": [
+    {
+      "type": "http",
+      "id": 4023,
+      "title": "test1",
+      "content": [
+        {
+          "type": "apicat-http-url",
+          "attrs": {
+            "path": "/test",
+            "method": "get"
+          }
+        },
+        {
+          "type": "apicat-http-request",
+          "attrs": {
+            "globalExcepts": {
+              "cookie": [],
+              "header": [],
+              "path": [],
+              "query": []
+            },
+            "parameters": {
+              "query": [],
+              "path": [],
+              "cookie": [],
+              "header": []
+            }
+          }
+        },
+        {
+          "type": "apicat-http-response",
+          "attrs": {
+            "list": [
+              {
+                "code": 200,
+                "$ref": "#/definitions/responses/373"
+              },
+              {
+                "code": 200,
+                "name": "Response Name",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "x-apicat-orders": [
+                        "t"
+                      ],
+                      "properties": {
+                        "t": {
+                          "$ref": "#/definitions/schemas/2340"
+                        }
+                      },
+                      "example": ""
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "type": "http",
+      "id": 4029,
+      "title": "test2",
+      "content": [
+        {
+          "type": "apicat-http-url",
+          "attrs": {
+            "path": "/tt",
+            "method": "get"
+          }
+        },
+        {
+          "type": "apicat-http-request",
+          "attrs": {
+            "globalExcepts": {
+              "cookie": [],
+              "header": [],
+              "path": [],
+              "query": []
+            },
+            "parameters": {
+              "query": [],
+              "path": [],
+              "cookie": [],
+              "header": []
+            }
+          }
+        },
+        {
+          "type": "apicat-http-response",
+          "attrs": {
+            "list": [
+              {
+                "code": 200,
+                "name": "Response Name",
+                "content": {
+                  "application/json": {
+                    "schema": {
+                      "type": "object",
+                      "x-apicat-orders": [
+                        "ar"
+                      ],
+                      "properties": {
+                        "ar": {
+                          "$ref": "#/definitions/schemas/2341"
+                        }
+                      },
+                      "example": ""
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

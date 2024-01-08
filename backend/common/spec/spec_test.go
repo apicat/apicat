@@ -45,6 +45,27 @@ func TestDereferenceSchema(t *testing.T) {
 	fmt.Println(string(bs))
 }
 
+func TestUnparkDereferenceSchema(t *testing.T) {
+	ab, _ := os.ReadFile("./testdata/ref_all_dereference.json")
+
+	source, err := ParseJSON(ab)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	a := source.Definitions.Schemas.LookupID(2336)
+	b := source.Definitions.Schemas.LookupID(2340)
+	c := source.Definitions.Schemas.LookupID(2341)
+
+	sub := Schemas{a, b, c}
+
+	a.UnparkDereferenceSchema(sub)
+
+	bs, _ := json.MarshalIndent(a, "", " ")
+
+	fmt.Println(string(bs))
+}
+
 func TestRemoveSchema(t *testing.T) {
 	ab, _ := os.ReadFile("./testdata/self_to_self.json")
 
@@ -63,7 +84,7 @@ func TestRemoveSchema(t *testing.T) {
 	// fmt.Println(string(bs))
 
 	for _, c := range source.Collections {
-		c.RemoveSchema(parent)
+		c.RemoveSchema(parent.ID)
 	}
 
 	bs, _ := json.MarshalIndent(source, "", " ")
