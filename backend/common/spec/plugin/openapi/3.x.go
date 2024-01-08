@@ -15,7 +15,7 @@ import (
 
 type fromOpenapi struct {
 	schemaMapping     map[string]int64
-	parametersMapping map[string]int64
+	parametersMapping map[string]*spec.Schema
 }
 
 func (o *fromOpenapi) parseInfo(info *base.Info) *spec.Info {
@@ -37,11 +37,9 @@ func (o *fromOpenapi) parseServers(servs []*v3.Server) []*spec.Server {
 	return srvs
 }
 
-func (o *fromOpenapi) parseParametersDefine(comp *v3.Components) spec.Schemas {
-	o.parametersMapping = map[string]int64{}
-	ps := make(spec.Schemas, 0)
+func (o *fromOpenapi) parseParametersDefine(comp *v3.Components) (res spec.HTTPParameters) {
 	if comp == nil {
-		return ps
+		return res
 	}
 	repeat := map[string]int{}
 	for _, v := range comp.Parameters {
@@ -51,10 +49,8 @@ func (o *fromOpenapi) parseParametersDefine(comp *v3.Components) spec.Schemas {
 		if repeat[v.Name] > 1 {
 			continue
 		}
-		id := stringToUnid(k)
-		o.parametersMapping[k] = id
+
 		var sp = &spec.Schema{
-			ID:       id,
 			Name:     v.Name,
 			Required: v.Required,
 		}
@@ -69,9 +65,11 @@ func (o *fromOpenapi) parseParametersDefine(comp *v3.Components) spec.Schemas {
 		sp.Schema.Description = v.Description
 		sp.Schema.Example = v.Example
 		sp.Schema.Deprecated = v.Deprecated
-		ps = append(ps, sp)
+		o.parametersMapping[k] = sp
+
+		res.Add(v.In, sp)
 	}
-	return ps
+	return res
 }
 
 func (o *fromOpenapi) parseDefinetions(comp *v3.Components) spec.Definitions {
@@ -123,9 +121,9 @@ func (o *fromOpenapi) parseDefinetions(comp *v3.Components) spec.Definitions {
 		rets = append(rets, def)
 	}
 	return spec.Definitions{
-		Schemas:   schemas,
-		Responses: rets,
-		// Parameters: o.parseParametersDefine(comp),
+		Schemas:    schemas,
+		Responses:  rets,
+		Parameters: o.parseParametersDefine(comp),
 	}
 }
 
@@ -134,9 +132,11 @@ func (o *fromOpenapi) parseParameters(inp []*v3.Parameter) spec.HTTPParameters {
 	rawparamter.Fill()
 	for _, v := range inp {
 		if g := v.GoLow(); g.IsReference() {
-			_, ok := o.parametersMapping[getRefName(g.GetReference())]
+			name := fmt.Sprintf("%s-%s", v.In, v.Name)
+			sc, ok := o.parametersMapping[name]
 			// if this parameter is a global parameter
 			if ok {
+				rawparamter.Add(v.In, sc)
 				continue
 				// r := fmt.Sprintf("#/definitions/parameters/%d", id)
 				// rawparamter.Add(v.In, &spec.Schema{
@@ -296,6 +296,9 @@ func (o *fromOpenapi) parseeResoponse(responses map[string]*v3.Response) spec.HT
 
 func (o *fromOpenapi) parseCollections(paths *v3.Paths) []*spec.CollectItem {
 	collects := make([]*spec.CollectItem, 0)
+	if paths == nil {
+		return collects
+	}
 	for path, p := range paths.PathItems {
 		op := p.GetOperations()
 		for method, info := range op {
@@ -589,10 +592,22 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 		}
 	}
 
+	definitionParameters := in.Definitions.Parameters
+	dp := definitionParameters.Map()
+	parameters := make(map[string]openAPIParamter)
+	for in, ps := range dp {
+		for _, p := range ps {
+			opp := toParameter(p, in)
+			// remove format from parameter, because it's not support in openapi3.components.parameters.item
+			opp.Format = ""
+			parameters[fmt.Sprintf("%s-%s", in, p.Name)] = opp
+		}
+	}
+
 	return map[string]any{
-		"schemas":   schemas,
-		"responses": respons,
-		// "parameters": parameters,
+		"schemas":          schemas,
+		"responses":        respons,
+		"parameters":       parameters,
 		"x-apicat-globals": globals,
 	}
 }

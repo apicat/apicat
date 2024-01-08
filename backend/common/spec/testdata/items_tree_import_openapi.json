@@ -146,6 +146,30 @@
           },
           "example": "这是示例"
         }
+      },
+      "parameters": {
+        "query-limit": {
+          "name": "limit",
+          "in": "query",
+          "required": true,
+          "description": "max records to return",
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "description": "max records to return"
+          }
+        },
+        "query-skip": {
+          "name": "skip",
+          "in": "query",
+          "required": true,
+          "description": "number of items to skip",
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "description": "number of items to skip"
+          }
+        }
       }
     },
     "paths": {
@@ -155,10 +179,10 @@
           "operationId": "4023",
           "parameters": [
             {
-              "$ref": "#/components/x-apicat-globals/query-global_query"
+              "$ref": "#/components/parameters/query-limit"
             },
             {
-              "$ref": "#/components/x-apicat-globals/path-global_path"
+              "$ref": "#/components/parameters/query-skip"
             },
             {
               "$ref": "#/components/x-apicat-globals/header-global_header"

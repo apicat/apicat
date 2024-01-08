@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -12,11 +13,12 @@ import (
 
 	"github.com/pb33f/libopenapi/datamodel/high/base"
 	v2 "github.com/pb33f/libopenapi/datamodel/high/v2"
+	v3 "github.com/pb33f/libopenapi/datamodel/high/v3"
 )
 
 type fromSwagger struct {
 	schemaMapping     map[string]int64
-	parametersMapping map[string]int64
+	parametersMapping map[string]*spec.Schema
 }
 
 func (s *fromSwagger) parseInfo(info *base.Info) *spec.Info {
@@ -63,12 +65,11 @@ func (s *fromSwagger) parseDefinetions(defs *v2.Definitions) spec.Schemas {
 	return defines
 }
 
-func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) spec.Schemas {
-	s.parametersMapping = make(map[string]int64)
-	ps := make(spec.Schemas, 0)
+func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) (res spec.HTTPParameters) {
+	s.parametersMapping = make(map[string]*spec.Schema)
 	// mapping key:swagger paranmters key value:apicat paramter id
 	if in.Parameters == nil {
-		return ps
+		return res
 	}
 	repeat := map[string]int{}
 	// 因为swagger参数是name+in apicat没有in 所以name不能重复 这里只处理不重复的
@@ -80,8 +81,7 @@ func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) spec.Schemas {
 			continue
 		}
 		id := stringToUnid(key)
-		s.parametersMapping[key] = id
-		ps = append(ps, &spec.Schema{
+		ss := &spec.Schema{
 			ID:          id,
 			Name:        v.Name,
 			Description: v.Description,
@@ -90,9 +90,77 @@ func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) spec.Schemas {
 				Type:   jsonschema.CreateSliceOrOne(v.Type),
 				Format: v.Format,
 			},
-		})
+		}
+		s.parametersMapping[key] = ss
+		res.Add(v.In, ss)
 	}
-	return ps
+	return res
+}
+
+func (s *fromSwagger) parseGlobalParameters(inp map[string]any) (res spec.Global) {
+	if inp == nil {
+		return res
+	}
+	global, ok := inp["x-apicat-globals"]
+	if !ok {
+		return res
+	}
+	var rawparamter spec.HTTPParameters
+	rawparamter.Fill()
+
+	for _, v := range global.(map[string]any) {
+
+		// if use type assertion, ok is false, but use jsonMarshal first and then Unmarshal is true
+		p := &v3.Parameter{}
+		b, err := json.Marshal(v)
+		if err != nil {
+			continue
+		}
+		err = json.Unmarshal(b, p)
+		if err != nil {
+			continue
+		}
+
+		var sp = &spec.Schema{
+			Name:     p.Name,
+			Required: p.Required,
+		}
+		sp.Schema = &jsonschema.Schema{}
+		// this is global parameter, not schema content
+		// if p.Schema != nil {
+		// 	js, err := jsonSchemaConverter(p.Schema)
+		// 	if err != nil {
+		// 		panic(err)
+		// 	}
+		// 	sp.Schema = js
+		// }
+
+		parameterschema, ok := v.(map[string]any)
+		if !ok {
+			continue
+		}
+		schemainfo, ok := parameterschema["schema"]
+		if ok {
+			si, ok := schemainfo.(map[string]any)
+			if !ok {
+				continue
+			}
+
+			// nedd check else
+			if t, ok := si["type"]; ok {
+				sp.Type = t.(string)
+			}
+			if r, ok := si["required"]; ok {
+				sp.Required = r.(bool)
+			}
+		}
+		sp.Schema.Description = p.Description
+		sp.Schema.Example = p.Example
+		sp.Schema.Deprecated = p.Deprecated
+		rawparamter.Add(p.In, sp)
+	}
+	res.Parameters = rawparamter
+	return res
 }
 
 // 主要处理$ref引用问题
@@ -122,7 +190,7 @@ func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTP
 		// 直接展开
 		required := v.Required != nil && *v.Required
 		switch v.In {
-		case "query", "header", "path":
+		case "query", "header", "path", "cookie":
 			request.Parameters.Add(v.In,
 				&spec.Schema{
 					Name:        v.Name,
@@ -351,7 +419,7 @@ type swaggerSpec struct {
 	Tags        []tagObject                           `json:"tags,omitempty"`
 	Host        string                                `json:"host,omitempty"`
 	BasePath    string                                `json:"basePath"`
-	Schemas     []string                              `json:"schemas,omitempty"`
+	Schemas     []string                              `json:"schemes,omitempty"`
 	Definitions map[string]jsonschema.Schema          `json:"definitions"`
 	Parameters  map[string]openAPIParamter            `json:"parameters,omitempty"`
 	Responses   map[string]any                        `json:"responses,omitempty"`
@@ -438,6 +506,20 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 			}
 		}
 	}
+
+	definitionParameters := in.Definitions.Parameters
+	dp := definitionParameters.Map()
+	parameters := make(map[string]openAPIParamter)
+	for in, ps := range dp {
+		for _, p := range ps {
+			opp := toParameter(p, in)
+			// remove format from parameter, because it's not support in openapi3.components.parameters.item
+			opp.Format = ""
+			parameters[fmt.Sprintf("%s-%s", in, p.Name)] = opp
+		}
+	}
+	// add Definitions parameters
+	out.Parameters = parameters
 	return out
 }
 
@@ -457,7 +539,7 @@ func (s *toSwagger) toReqParameters(ps spec.HTTPRequestNode, spe *spec.Spec) []o
 	out := toParameterGlobal(spe.Globals.Parameters, true, ps.GlobalExcepts)
 	for in, params := range ps.Parameters.Map() {
 		switch in {
-		case "header", "query", "path":
+		case "header", "query", "path", "cookie":
 			for _, v := range params {
 				if v.Reference != nil {
 					// 解开公共参数
@@ -545,8 +627,9 @@ func (s *toSwagger) parseResponse(in *spec.Spec, res spec.HTTPResponseDefine) ma
 				toInt64(getRefName(ref)),
 			)
 			if x != nil {
+				name := fmt.Sprintf("%s-%d", x.Name, x.ID)
 				return map[string]any{
-					"$ref": "#/responses/" + x.Name,
+					"$ref": "#/responses/" + name,
 				}
 			}
 		}

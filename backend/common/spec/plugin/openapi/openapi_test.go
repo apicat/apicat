@@ -57,7 +57,7 @@ func TestToOpenapi(t *testing.T) {
 
 	ab, _ := spec.ParseJSON(a)
 
-	b, err := Encode(ab, "3.1.0")
+	b, err := Encode(ab, "2.0")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -71,6 +71,22 @@ func TestToOpenapi(t *testing.T) {
 
 func TestToApiCat(t *testing.T) {
 	a, _ := os.ReadFile("../../testdata/items_tree_import_openapi.json")
+
+	b, err := Decode(a)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	bs, err := json.MarshalIndent(b, "", " ")
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	fmt.Println(string(bs))
+}
+
+func TestComponentsParamenters(t *testing.T) {
+	a, _ := os.ReadFile("../../testdata/components_parameters.yml")
 
 	b, err := Decode(a)
 	if err != nil {

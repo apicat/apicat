@@ -119,7 +119,31 @@
           ]
         }
       ],
-      "parameters": {},
+      "parameters": {
+        "query": [
+         {
+          "name": "limit",
+          "required": true,
+          "schema": {
+           "type": "integer",
+           "format": "int32",
+           "description": "max records to return"
+          }
+         },
+         {
+          "name": "skip",
+          "required": true,
+          "schema": {
+           "type": "integer",
+           "format": "int32",
+           "description": "number of items to skip"
+          }
+         }
+        ],
+        "path": null,
+        "cookie": null,
+        "header": null
+       },
       "responses": [
         {
           "id": 373,

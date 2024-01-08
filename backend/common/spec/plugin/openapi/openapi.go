@@ -47,17 +47,15 @@ func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 	sw := &fromSwagger{}
 	schemas := sw.parseDefinetions(model.Model.Definitions)
 	responseDefinitions := sw.parseResponsesDefine(&model.Model)
-	// parameters := sw.parseParametersDefine(&model.Model)
-
-	globalparameters := spec.HTTPParameters{}
-	globalparameters.Fill()
+	parameters := sw.parseParametersDefine(&model.Model)
+	globalparameters := sw.parseGlobalParameters(model.Model.Extensions)
 
 	return &spec.Spec{
 		ApiCat:      "2.0.1",
 		Info:        sw.parseInfo(model.Model.Info),
 		Servers:     sw.parseServers(&model.Model),
-		Definitions: spec.Definitions{Schemas: schemas, Responses: responseDefinitions}, //Parameters: parameters
-		Globals:     spec.Global{Parameters: globalparameters},
+		Definitions: spec.Definitions{Schemas: schemas, Responses: responseDefinitions, Parameters: parameters},
+		Globals:     globalparameters,
 		Collections: sw.parseCollections(&model.Model, model.Model.Paths),
 	}, nil
 }
@@ -67,7 +65,9 @@ func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
 	if len(errors) > 0 {
 		return nil, fmt.Errorf("openapi version:%s parse faild", document.GetVersion())
 	}
-	o := &fromOpenapi{}
+	o := &fromOpenapi{
+		parametersMapping: make(map[string]*spec.Schema),
+	}
 	// 无用
 	// globalparameters := spec.HTTPParameters{}
 	// globalparameters.Fill()
@@ -91,6 +91,16 @@ func Encode(in *spec.Spec, version string) ([]byte, error) {
 		paths, tags := sw.toPaths(in)
 		sp.Paths = paths
 		sp.Tags = tags
+
+		globalParam := in.Globals.Parameters
+		m := globalParam.Map()
+		sp.Globals = make(map[string]openAPIParamter)
+		for in, ps := range m {
+			for _, p := range ps {
+				sp.Globals[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
+			}
+		}
+
 		return json.MarshalIndent(sp, "", "  ")
 	default:
 		if strings.HasPrefix(version, "3.") && len(strings.Split(version, ".")) == 3 {
@@ -154,6 +164,7 @@ func toParameterGlobal(globalsParmaters spec.HTTPParameters, isSwagger bool, ski
 			if skips[fmt.Sprintf("%s|_%d", in, v.ID)] {
 				continue
 			}
+
 			ref := fmt.Sprintf("%s-%s", in, v.Name)
 			if isSwagger {
 				ref = "#/x-apicat-globals/" + ref
