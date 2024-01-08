@@ -289,7 +289,7 @@ func (c *CollectItem) DereferenceResponse(sub *HTTPResponseDefine) error {
 	return nil
 }
 
-func (c *CollectItem) RemoveResponse(sub *HTTPResponseDefine) error {
+func (c *CollectItem) RemoveResponse(s_id int64) error {
 	if c == nil {
 		return nil
 	}
@@ -305,7 +305,7 @@ func (c *CollectItem) RemoveResponse(sub *HTTPResponseDefine) error {
 			if err != nil {
 				return err
 			}
-			resps.RemoveResponse(sub)
+			resps.RemoveResponse(s_id)
 		}
 	}
 	return nil
@@ -384,7 +384,7 @@ func (c *CollectItem) DereferenceGlobalParameters(in string, sub *Schema) error 
 	return nil
 }
 
-func (c *CollectItem) OpenGlobalParameters(in string, sub *Schema) error {
+func (c *CollectItem) OpenGlobalParameters(in string, s_id int64) error {
 	if c == nil {
 		return nil
 	}
@@ -400,7 +400,7 @@ func (c *CollectItem) OpenGlobalParameters(in string, sub *Schema) error {
 			if err != nil {
 				return err
 			}
-			req.RemoveGlobalExcept(in, sub.ID)
+			req.RemoveGlobalExcept(in, s_id)
 		}
 	}
 	return nil
@@ -428,7 +428,7 @@ func (c *CollectItem) AddParameters(in string, sub *Schema) error {
 	return nil
 }
 
-func (c *CollectItem) RemoveParameters(in string, sub *Schema) error {
+func (c *CollectItem) RemoveParameters(in string, s_id int64) error {
 	if c == nil {
 		return nil
 	}
@@ -444,7 +444,7 @@ func (c *CollectItem) RemoveParameters(in string, sub *Schema) error {
 			if err != nil {
 				return err
 			}
-			req.Parameters.Remove(in, sub)
+			req.Parameters.Remove(in, s_id)
 		}
 	}
 	return nil

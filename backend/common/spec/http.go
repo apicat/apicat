@@ -75,16 +75,16 @@ func (h *HTTPParameters) Add(in string, v *Schema) {
 	}
 }
 
-func (h *HTTPParameters) Remove(in string, v *Schema) {
+func (h *HTTPParameters) Remove(in string, id int64) {
 	switch in {
 	case "query":
-		h.Query.RemoveId(v.ID)
+		h.Query.RemoveId(id)
 	case "path":
-		h.Path.RemoveId(v.ID)
+		h.Path.RemoveId(id)
 	case "cookie":
-		h.Cookie.RemoveId(v.ID)
+		h.Cookie.RemoveId(id)
 	case "header":
-		h.Header.RemoveId(v.ID)
+		h.Header.RemoveId(id)
 	}
 }
 
@@ -216,8 +216,8 @@ func (resp *HTTPResponsesNode) DereferenceResponses(sub *HTTPResponseDefine) {
 	}
 }
 
-func (resp *HTTPResponsesNode) RemoveResponse(sub *HTTPResponseDefine) {
-	id := strconv.Itoa(int(sub.ID))
+func (resp *HTTPResponsesNode) RemoveResponse(s_id int64) {
+	id := strconv.Itoa(int(s_id))
 
 	i := 0
 	for i < len(resp.List) {
