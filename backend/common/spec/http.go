@@ -199,6 +199,12 @@ func (h *HTTPRequestNode) DereferenceSchema(sub *Schema) (err error) {
 	return err
 }
 
+func (h *HTTPRequestNode) RemoveSchema(id int64) {
+	for _, v := range h.Content {
+		v.RemoveSchema(id)
+	}
+}
+
 func (h *HTTPRequestNode) AddGlobalExcept(in string, id int64) {
 	if h == nil {
 		return

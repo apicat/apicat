@@ -401,6 +401,12 @@ func (c *CollectItem) RemoveSchema(s_id int64) error {
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
+		case "apicat-http-request":
+			req, err := node.ToHTTPRequestNode()
+			if err != nil {
+				return err
+			}
+			req.RemoveSchema(s_id)
 		case "apicat-http-response":
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {
