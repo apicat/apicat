@@ -146,7 +146,7 @@ func TestResponseRemove(t *testing.T) {
 	resp := source.Definitions.Responses.LookupID(378)
 
 	for _, c := range source.Collections {
-		c.RemoveResponse(resp)
+		c.RemoveResponse(resp.ID)
 	}
 
 	bs, _ := json.MarshalIndent(source, "", " ")
@@ -207,7 +207,7 @@ func TestOpenGlobalParameters(t *testing.T) {
 	}
 
 	for _, c := range source.Collections {
-		c.OpenGlobalParameters("path", source.Globals.Parameters.Path.LookupID(34))
+		c.OpenGlobalParameters("path", source.Globals.Parameters.Path.LookupID(34).ID)
 	}
 
 	bs, _ := json.MarshalIndent(source, "", " ")
