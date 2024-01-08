@@ -313,7 +313,10 @@ func (c *CollectItem) RemoveResponse(s_id int64) error {
 			if err != nil {
 				return err
 			}
-			resps.RemoveResponse(s_id)
+			err = resps.RemoveResponse(s_id)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -330,6 +333,15 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
+		case "apicat-http-request":
+			req, err := node.ToHTTPRequestNode()
+			if err != nil {
+				return err
+			}
+			err = req.DereferenceSchema(sub)
+			if err != nil {
+				return err
+			}
 		case "apicat-http-response":
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {
@@ -355,6 +367,15 @@ func (c *CollectItem) UnpackDereferenceSchema(sub Schemas) error {
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
+		case "apicat-http-request":
+			req, err := node.ToHTTPRequestNode()
+			if err != nil {
+				return err
+			}
+			err = req.UnpackDereferenceSchema(sub)
+			if err != nil {
+				return err
+			}
 		case "apicat-http-response":
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {

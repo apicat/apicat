@@ -132,7 +132,13 @@ func dfsDereferenceSchemas(s *jsonschema.Schema, id int64, sub Schemas, refs map
 	}
 }
 
-func (s *Schema) RemoveSchema(s_id int64) {
+func (s *Schema) RemoveSchema(s_id int64) error {
+	if s == nil {
+		return errors.New("schema is nil")
+	}
+	if s.Type == string(ContentItemTypeDir) {
+		return errors.New("schema type is dir")
+	}
 	id := strconv.Itoa(int(s_id))
 
 	if s.Schema.IsRefId(id) {
@@ -140,7 +146,7 @@ func (s *Schema) RemoveSchema(s_id int64) {
 	}
 
 	s.Schema.RemovePropertyByRefId(id)
-
+	return nil
 }
 
 func (s *Schema) dereferenceSelf() {
@@ -242,6 +248,16 @@ func (s *Schema) SetXDiff(x *string) {
 		s.Schema.SetXDiff(x)
 	}
 	s.XDiff = x
+}
+
+func (s *Schemas) UnpackDereferenceSchema(sub Schemas) (err error) {
+	for _, v := range *s {
+		err = v.UnpackDereferenceSchema(sub)
+		if err != nil {
+			return err
+		}
+	}
+	return err
 }
 
 func (s *Schema) FindExample(summary string) (*Example, bool) {

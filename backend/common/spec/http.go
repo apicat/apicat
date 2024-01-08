@@ -64,6 +64,36 @@ func (h *HTTPParameters) Add(in string, v *Schema) {
 	}
 }
 
+func (h *HTTPParameters) UnpackDereferenceSchema(sub Schemas) (err error) {
+	if h.Query != nil {
+		err = h.Query.UnpackDereferenceSchema(sub)
+		if err != nil {
+			return err
+		}
+	}
+	if h.Cookie != nil {
+		h.Cookie.UnpackDereferenceSchema(sub)
+		if err != nil {
+			return err
+		}
+	}
+
+	if h.Header != nil {
+		h.Header.UnpackDereferenceSchema(sub)
+		if err != nil {
+			return err
+		}
+	}
+
+	if h.Path != nil {
+		h.Path.UnpackDereferenceSchema(sub)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (h *HTTPParameters) Remove(in string, id int64) {
 	switch in {
 	case "query":
@@ -149,6 +179,26 @@ func (h *HTTPRequestNode) tryRemoveGlobalExcept(in string, id int64) bool {
 	return false
 }
 
+func (h *HTTPRequestNode) UnpackDereferenceSchema(sub Schemas) (err error) {
+	for _, v := range h.Content {
+		err = v.UnpackDereferenceSchema(sub)
+		if err != nil {
+			return err
+		}
+	}
+	return err
+}
+
+func (h *HTTPRequestNode) DereferenceSchema(sub *Schema) (err error) {
+	for _, v := range h.Content {
+		err = v.DereferenceSchema(sub)
+		if err != nil {
+			return err
+		}
+	}
+	return err
+}
+
 func (h *HTTPRequestNode) AddGlobalExcept(in string, id int64) {
 	if h == nil {
 		return
@@ -211,7 +261,10 @@ func (resp *HTTPResponsesNode) DereferenceResponses(sub []*HTTPResponseDefine) (
 	return err
 }
 
-func (resp *HTTPResponsesNode) RemoveResponse(s_id int64) {
+func (resp *HTTPResponsesNode) RemoveResponse(s_id int64) error {
+	if resp == nil {
+		return errors.New("responses is nil")
+	}
 	id := strconv.Itoa(int(s_id))
 
 	i := 0
@@ -223,6 +276,7 @@ func (resp *HTTPResponsesNode) RemoveResponse(s_id int64) {
 		}
 		i++
 	}
+	return nil
 }
 
 // range responses list to dereference sub response
@@ -358,11 +412,15 @@ func (h *HTTPResponseDefine) UnpackDereferenceSchema(sub Schemas) (err error) {
 	return err
 }
 
-func (h *HTTPResponseDefine) RemoveSchema(s_id int64) {
+func (h *HTTPResponseDefine) RemoveSchema(s_id int64) (err error) {
 	// remove content
 	for _, body := range h.Content {
-		body.RemoveSchema(s_id)
+		err = body.RemoveSchema(s_id)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (h *HTTPResponseDefine) ItemsTreeToList() (res HTTPResponseDefines) {
