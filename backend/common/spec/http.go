@@ -358,7 +358,7 @@ func (h *HTTPResponseDefine) DereferenceResponses(sub *HTTPResponseDefine) error
 	id := strconv.Itoa(int(sub.ID))
 
 	if !h.IsRefId(id) {
-		return errors.New("this response is not reference sub")
+		return nil
 	}
 
 	*h = *sub

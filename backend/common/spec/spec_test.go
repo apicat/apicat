@@ -124,12 +124,12 @@ func TestResponseRef(t *testing.T) {
 	}
 
 	resp := source.Definitions.Responses.LookupID(378)
-	resp1 := source.Definitions.Responses.LookupID(378)
-	rr := []*HTTPResponseDefine{
-		resp, resp1,
-	}
+	// resp1 := source.Definitions.Responses.LookupID(378)
+	// rr := []*HTTPResponseDefine{
+	// 	resp, resp1,
+	// }
 	for _, c := range source.Collections {
-		c.DereferenceResponse(rr...)
+		c.DereferenceResponse(resp)
 	}
 
 	bs, _ := json.MarshalIndent(source, "", " ")
