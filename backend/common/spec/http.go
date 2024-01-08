@@ -1,6 +1,7 @@
 package spec
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -198,10 +199,16 @@ func (HTTPResponsesNode) Name() string {
 }
 
 // range responses list to dereference sub response
-func (resp *HTTPResponsesNode) DereferenceResponses(sub *HTTPResponseDefine) {
+func (resp *HTTPResponsesNode) DereferenceResponses(sub []*HTTPResponseDefine) (err error) {
 	for _, r := range resp.List {
-		r.HTTPResponseDefine.DereferenceResponses(sub)
+		for _, subr := range sub {
+			err = r.HTTPResponseDefine.DereferenceResponses(subr)
+			if err != nil {
+				return err
+			}
+		}
 	}
+	return err
 }
 
 func (resp *HTTPResponsesNode) RemoveResponse(s_id int64) {
@@ -219,16 +226,24 @@ func (resp *HTTPResponsesNode) RemoveResponse(s_id int64) {
 }
 
 // range responses list to dereference sub response
-func (resp *HTTPResponsesNode) DereferenceSchema(sub *Schema) {
+func (resp *HTTPResponsesNode) DereferenceSchema(sub *Schema) (err error) {
 	for _, r := range resp.List {
-		r.HTTPResponseDefine.DereferenceSchema(sub)
+		err = r.HTTPResponseDefine.DereferenceSchema(sub)
+		if err != nil {
+			return err
+		}
 	}
+	return err
 }
 
-func (resp *HTTPResponsesNode) UnparkDereferenceSchema(sub Schemas) {
+func (resp *HTTPResponsesNode) UnpackDereferenceSchema(sub Schemas) (err error) {
 	for _, r := range resp.List {
-		r.HTTPResponseDefine.UnparkDereferenceSchema(sub)
+		err = r.HTTPResponseDefine.UnpackDereferenceSchema(sub)
+		if err != nil {
+			return err
+		}
 	}
+	return err
 }
 
 // range responses list to remove sub response
@@ -306,30 +321,41 @@ func (h *HTTPResponseDefine) IsRefId(id string) bool {
 	return false
 }
 
-func (h *HTTPResponseDefine) DereferenceResponses(sub *HTTPResponseDefine) {
+func (h *HTTPResponseDefine) DereferenceResponses(sub *HTTPResponseDefine) error {
+	if h == nil {
+		return errors.New("sub response is nil")
+	}
 	id := strconv.Itoa(int(sub.ID))
 
-	// this response is not reference sub
 	if !h.IsRefId(id) {
-		return
+		return errors.New("this response is not reference sub")
 	}
 
 	*h = *sub
+	return nil
 }
 
-func (h *HTTPResponseDefine) DereferenceSchema(sub *Schema) {
+func (h *HTTPResponseDefine) DereferenceSchema(sub *Schema) (err error) {
 
 	// dereference content
 	for _, body := range h.Content {
-		body.DereferenceSchema(sub)
+		err = body.DereferenceSchema(sub)
+		if err != nil {
+			return err
+		}
 	}
+	return err
 
 }
 
-func (h *HTTPResponseDefine) UnparkDereferenceSchema(sub Schemas) {
+func (h *HTTPResponseDefine) UnpackDereferenceSchema(sub Schemas) (err error) {
 	for _, body := range h.Content {
-		body.UnparkDereferenceSchema(sub)
+		err = body.UnpackDereferenceSchema(sub)
+		if err != nil {
+			return err
+		}
 	}
+	return err
 }
 
 func (h *HTTPResponseDefine) RemoveSchema(s_id int64) {

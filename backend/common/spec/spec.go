@@ -265,7 +265,7 @@ func (v *CollectItem) HasTag(tag string) bool {
 	return false
 }
 
-func (c *CollectItem) DereferenceResponse(sub *HTTPResponseDefine) error {
+func (c *CollectItem) DereferenceResponse(sub ...*HTTPResponseDefine) error {
 	if c == nil {
 		return errors.New("collect item is nil")
 	}
@@ -288,7 +288,10 @@ func (c *CollectItem) DereferenceResponse(sub *HTTPResponseDefine) error {
 			if err != nil {
 				return err
 			}
-			resps.DereferenceResponses(sub)
+			err = resps.DereferenceResponses(sub)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -332,13 +335,16 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 			if err != nil {
 				return err
 			}
-			resps.DereferenceSchema(sub)
+			err = resps.DereferenceSchema(sub)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
 
-func (c *CollectItem) UnparkDereferenceSchema(sub Schemas) error {
+func (c *CollectItem) UnpackDereferenceSchema(sub Schemas) error {
 	if c == nil {
 		return errors.New("collect item is nil")
 	}
@@ -354,7 +360,10 @@ func (c *CollectItem) UnparkDereferenceSchema(sub Schemas) error {
 			if err != nil {
 				return err
 			}
-			resps.UnparkDereferenceSchema(sub)
+			err = resps.UnpackDereferenceSchema(sub)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil

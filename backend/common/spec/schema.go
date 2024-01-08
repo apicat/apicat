@@ -2,6 +2,7 @@ package spec
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 
@@ -35,9 +36,13 @@ type Example struct {
 
 func (s *Schema) Ref() bool { return s.Reference != nil }
 
-func (s *Schema) DereferenceSchema(sub *Schema) {
+func (s *Schema) DereferenceSchema(sub *Schema) error {
 	if sub == nil {
-		return
+		return errors.New("sub schema is nil")
+	}
+
+	if sub.Type == string(ContentItemTypeDir) {
+		return errors.New("sub schema type is dir")
 	}
 
 	id := strconv.Itoa(int(sub.ID))
@@ -49,21 +54,32 @@ func (s *Schema) DereferenceSchema(sub *Schema) {
 	refs := s.Schema.FindRefById(id)
 	if len(refs) == 0 {
 		// sub_schema with this id  not find in parent_schema
-		return
+		return errors.New("sub schema not find in parent schema")
 	}
 
 	// if sub's refers to itself, Dereference it self
-	sub.dereferenceSelf()
+	// sub.dereferenceSelf()
 
 	// replace all referenced sub.Schema with dereferenced sub.Schema
 	for i := range refs {
 		*refs[i] = *sub.Schema
 	}
 
+	return nil
 }
 
-func (s *Schema) UnparkDereferenceSchema(sub Schemas) {
+func (s *Schema) UnpackDereferenceSchema(sub Schemas) error {
+	if s == nil {
+		return errors.New("schema is nil")
+	}
+	if s.Type == string(ContentItemTypeDir) {
+		return errors.New("schema type is dir")
+	}
+	if len(sub) == 0 {
+		return errors.New("sub schema is nil")
+	}
 	dfsDereferenceSchemas(s.Schema, s.ID, sub, make(map[int64]bool))
+	return nil
 }
 
 func dfsDereferenceSchemas(s *jsonschema.Schema, id int64, sub Schemas, refs map[int64]bool) {

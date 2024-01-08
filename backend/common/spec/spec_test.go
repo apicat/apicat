@@ -59,7 +59,7 @@ func TestUnparkDereferenceSchema(t *testing.T) {
 
 	sub := Schemas{a, b, c}
 
-	a.UnparkDereferenceSchema(sub)
+	a.UnpackDereferenceSchema(sub)
 
 	bs, _ := json.MarshalIndent(a, "", " ")
 
@@ -124,8 +124,12 @@ func TestResponseRef(t *testing.T) {
 	}
 
 	resp := source.Definitions.Responses.LookupID(378)
+	resp1 := source.Definitions.Responses.LookupID(378)
+	rr := []*HTTPResponseDefine{
+		resp, resp1,
+	}
 	for _, c := range source.Collections {
-		c.DereferenceResponse(resp)
+		c.DereferenceResponse(rr...)
 	}
 
 	bs, _ := json.MarshalIndent(source, "", " ")
