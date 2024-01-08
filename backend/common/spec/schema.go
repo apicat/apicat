@@ -1,6 +1,7 @@
 package spec
 
 import (
+	"encoding/json"
 	"fmt"
 	"strconv"
 
@@ -73,11 +74,31 @@ func dfsDereferenceSchemas(s *jsonschema.Schema, id int64, sub Schemas, refs map
 	if _, ok := refs[id]; ok && id != -1 {
 		return
 	}
+
 	refs[id] = true
-	// 添加array的元素类型分辨，注意order属性的影响
-	// no type, and not ref
+	if s.Reference != nil {
+		ps := sub.LookupID(mustGetRefID(*s.Reference))
+		if ps == nil {
+			return
+		}
+		if _, ok := refs[ps.ID]; ok {
+			*s = *jsonschema.Create("object")
+			return
+		}
+
+		// Prevent the data in sub from being modified by pointers
+		// jsonmarshal just like deep copy
+		ss := jsonschema.Schema{}
+		b, _ := json.Marshal(ps.Schema)
+		_ = json.Unmarshal(b, &ss)
+		*s = ss
+		dfsDereferenceSchemas(s, ps.ID, sub, refs)
+		delete(refs, ps.ID)
+		return
+	}
+	// no type
 	if s.Type == nil {
-		s.Type = jsonschema.CreateSliceOrOne("")
+		return
 	}
 	t := s.Type.Value()[0]
 	switch t {
@@ -89,24 +110,8 @@ func dfsDereferenceSchemas(s *jsonschema.Schema, id int64, sub Schemas, refs map
 			dfsDereferenceSchemas(s.Items.Value(), -1, sub, refs)
 		}
 	case "object":
-		for k, v := range s.Properties {
-			fmt.Println(k)
+		for _, v := range s.Properties {
 			dfsDereferenceSchemas(v, -1, sub, refs)
-		}
-	case "":
-		// may be ref
-		if s.Ref() {
-			ps := sub.LookupID(mustGetRefID(*s.Reference))
-			if ps == nil {
-				return
-			}
-			if _, ok := refs[ps.ID]; ok {
-				*s = *jsonschema.Create("object")
-				return
-			}
-			*s = *ps.Schema
-			dfsDereferenceSchemas(s, ps.ID, sub, refs)
-			delete(refs, ps.ID)
 		}
 	}
 }

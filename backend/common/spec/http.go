@@ -237,6 +237,12 @@ func (resp *HTTPResponsesNode) DereferenceSchema(sub *Schema) {
 	}
 }
 
+func (resp *HTTPResponsesNode) UnparkDereferenceSchema(sub Schemas) {
+	for _, r := range resp.List {
+		r.HTTPResponseDefine.UnparkDereferenceSchema(sub)
+	}
+}
+
 // range responses list to remove sub response
 func (resp *HTTPResponsesNode) RemoveSchema(s_id int64) {
 	for _, r := range resp.List {
@@ -330,6 +336,12 @@ func (h *HTTPResponseDefine) DereferenceSchema(sub *Schema) {
 		body.DereferenceSchema(sub)
 	}
 
+}
+
+func (h *HTTPResponseDefine) UnparkDereferenceSchema(sub Schemas) {
+	for _, body := range h.Content {
+		body.UnparkDereferenceSchema(sub)
+	}
 }
 
 func (h *HTTPResponseDefine) RemoveSchema(s_id int64) {

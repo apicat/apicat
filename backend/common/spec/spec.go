@@ -333,6 +333,28 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 	return nil
 }
 
+func (c *CollectItem) UnparkDereferenceSchema(sub Schemas) error {
+	if c == nil {
+		return nil
+	}
+
+	if c.Type == ContentItemTypeDir {
+		return nil
+	}
+
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case "apicat-http-response":
+			resps, err := node.ToHTTPResponsesNode()
+			if err != nil {
+				return err
+			}
+			resps.UnparkDereferenceSchema(sub)
+		}
+	}
+	return nil
+}
+
 func (c *CollectItem) RemoveSchema(s_id int64) error {
 	if c == nil {
 		return nil
