@@ -3,6 +3,7 @@ package spec
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"strconv"
 	"strings"
 
@@ -266,12 +267,16 @@ func (v *CollectItem) HasTag(tag string) bool {
 
 func (c *CollectItem) DereferenceResponse(sub *HTTPResponseDefine) error {
 	if c == nil {
-		return nil
+		return errors.New("collect item is nil")
+	}
+
+	if sub == nil {
+		return errors.New("sub is nil")
 	}
 
 	// if it type is "category", just return nil
 	if c.Type == ContentItemTypeDir {
-		return nil
+		return errors.New("collect item type is dir")
 	}
 
 	// just range 3 times
@@ -291,11 +296,11 @@ func (c *CollectItem) DereferenceResponse(sub *HTTPResponseDefine) error {
 
 func (c *CollectItem) RemoveResponse(s_id int64) error {
 	if c == nil {
-		return nil
+		return errors.New("collect item is nil")
 	}
 
 	if c.Type == ContentItemTypeDir {
-		return nil
+		return errors.New("collect item type is dir")
 	}
 
 	for _, node := range c.Content {
@@ -313,11 +318,11 @@ func (c *CollectItem) RemoveResponse(s_id int64) error {
 
 func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 	if c == nil {
-		return nil
+		return errors.New("collect item is nil")
 	}
 
 	if c.Type == ContentItemTypeDir {
-		return nil
+		return errors.New("collect item type is dir")
 	}
 
 	for _, node := range c.Content {
@@ -335,11 +340,11 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 
 func (c *CollectItem) UnparkDereferenceSchema(sub Schemas) error {
 	if c == nil {
-		return nil
+		return errors.New("collect item is nil")
 	}
 
 	if c.Type == ContentItemTypeDir {
-		return nil
+		return errors.New("collect item type is dir")
 	}
 
 	for _, node := range c.Content {
@@ -357,11 +362,11 @@ func (c *CollectItem) UnparkDereferenceSchema(sub Schemas) error {
 
 func (c *CollectItem) RemoveSchema(s_id int64) error {
 	if c == nil {
-		return nil
+		return errors.New("collect item is nil")
 	}
 
 	if c.Type == ContentItemTypeDir {
-		return nil
+		return errors.New("collect item type is dir")
 	}
 
 	for _, node := range c.Content {
@@ -380,11 +385,11 @@ func (c *CollectItem) RemoveSchema(s_id int64) error {
 
 func (c *CollectItem) DereferenceGlobalParameters(in string, sub *Schema) error {
 	if c == nil {
-		return nil
+		return errors.New("collect item is nil")
 	}
 
 	if c.Type == ContentItemTypeDir {
-		return nil
+		return errors.New("collect item type is dir")
 	}
 
 	for _, node := range c.Content {
@@ -408,11 +413,11 @@ func (c *CollectItem) DereferenceGlobalParameters(in string, sub *Schema) error 
 
 func (c *CollectItem) OpenGlobalParameters(in string, s_id int64) error {
 	if c == nil {
-		return nil
+		return errors.New("collect item is nil")
 	}
 
 	if c.Type == ContentItemTypeDir {
-		return nil
+		return errors.New("collect item type is dir")
 	}
 
 	for _, node := range c.Content {
@@ -430,11 +435,11 @@ func (c *CollectItem) OpenGlobalParameters(in string, s_id int64) error {
 
 func (c *CollectItem) AddParameters(in string, sub *Schema) error {
 	if c == nil {
-		return nil
+		return errors.New("collect item is nil")
 	}
 
 	if c.Type == ContentItemTypeDir {
-		return nil
+		return errors.New("collect item type is dir")
 	}
 
 	for _, node := range c.Content {
@@ -452,11 +457,11 @@ func (c *CollectItem) AddParameters(in string, sub *Schema) error {
 
 func (c *CollectItem) RemoveParameters(in string, s_id int64) error {
 	if c == nil {
-		return nil
+		return errors.New("collect item is nil")
 	}
 
 	if c.Type == ContentItemTypeDir {
-		return nil
+		return errors.New("collect item type is dir")
 	}
 
 	for _, node := range c.Content {
