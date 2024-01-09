@@ -203,7 +203,6 @@ func (s *Schema) SetXDiff(x *string) {
 		for _, v := range s.Properties {
 			v.SetXDiff(x)
 		}
-	} else {
-		s.XDiff = x
 	}
+	s.XDiff = x
 }
