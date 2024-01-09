@@ -15,6 +15,8 @@ type Schema struct {
 	XMock  string   `json:"x-apicat-mock,omitempty"`
 	// diff 如果有值就代表有变化
 	XDiff *string `json:"x-apicat-diff,omitempty"`
+	// category path
+	Category string `json:"x-apicat-category,omitempty"`
 	// 3.1 schema or bool
 	Items *ValueOrBoolean[*Schema] `json:"items,omitempty"`
 

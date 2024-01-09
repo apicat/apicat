@@ -159,16 +159,25 @@ func (s *Schema) dereferenceSelf() {
 	s.Schema.RemovePropertyByRefId(id)
 }
 
-// this schema's type is dir
+// this schema's type must be dir
 func (s *Schema) ItemsTreeToList() (res Schemas) {
+	if s.Type != string(ContentItemTypeDir) {
+		return
+	}
+	return s.itemsTreeToList(s.Name)
+}
+
+func (s *Schema) itemsTreeToList(path string) (res Schemas) {
 	if s.Items == nil || len(s.Items) == 0 {
 		return res
 	}
 
 	for _, item := range s.Items {
 		if item.Type == string(ContentItemTypeDir) {
-			res = append(res, item.ItemsTreeToList()...)
+			path = path + "/" + item.Name
+			res = append(res, item.itemsTreeToList(path)...)
 		} else {
+			item.Schema.Category = path
 			res = append(res, item)
 		}
 	}

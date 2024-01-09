@@ -343,6 +343,7 @@ type HTTPResponseDefine struct {
 	Items       HTTPResponseDefines `json:"items,omitempty"`
 	Reference   *string             `json:"$ref,omitempty"`
 	XDiff       *string             `json:"x-apicat-diff,omitempty"`
+	Category    string              `json:"x-apicat-category,omitempty"`
 }
 
 func (h *HTTPResponseDefine) Ref() bool { return h.Reference != nil }
@@ -411,15 +412,25 @@ func (h *HTTPResponseDefine) RemoveSchema(s_id int64) (err error) {
 	return nil
 }
 
+// this obj's type must be dir
 func (h *HTTPResponseDefine) ItemsTreeToList() (res HTTPResponseDefines) {
+	if h.Type != string(ContentItemTypeDir) {
+		return
+	}
+	return h.itemsTreeToList(h.Name)
+}
+
+func (h *HTTPResponseDefine) itemsTreeToList(path string) (res HTTPResponseDefines) {
 	if h.Items == nil || len(h.Items) == 0 {
 		return res
 	}
 
 	for _, item := range h.Items {
 		if item.Type == string(ContentItemTypeDir) {
+			path = path + "/" + item.Name
 			res = append(res, item.ItemsTreeToList()...)
 		} else {
+			item.Category = path
 			res = append(res, item)
 		}
 	}
