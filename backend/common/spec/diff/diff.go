@@ -26,14 +26,14 @@ var (
 // spec.Collections 里面只能有一个接口
 // 返回对比后的两个接口 其中只有最新的那个 也就是target里边会通过x-apicat-diff标记是否有差异
 // 差异并不包含排序
-func Diff(ac, bc *spec.CollectItem) (*spec.CollectItem, error) {
+func Diff(ref_obj, diff_obj *spec.CollectItem) (*spec.CollectItem, error) {
 
-	if ac == nil || bc == nil {
+	if ref_obj == nil || diff_obj == nil {
 		return nil, errors.New("source,target Collections length error")
 	}
 
-	for _, an := range ac.Content {
-		for _, bn := range bc.Content {
+	for _, an := range ref_obj.Content {
+		for _, bn := range diff_obj.Content {
 			if an.Node.NodeType() == bn.Node.NodeType() {
 				// assertion in three parts to diff
 				switch an.Node.NodeType() {
@@ -66,7 +66,7 @@ func Diff(ac, bc *spec.CollectItem) (*spec.CollectItem, error) {
 			}
 		}
 	}
-	return bc, nil
+	return diff_obj, nil
 }
 
 func DiffSchema(a, b *jsonschema.Schema) (*jsonschema.Schema, error) {
