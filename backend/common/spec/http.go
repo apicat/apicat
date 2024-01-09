@@ -299,9 +299,9 @@ func (h *HTTPResponses) Map() map[int]HTTPResponseDefine {
 	return m
 }
 
-func (h *HTTPResponses) Add(code int, hrd *HTTPResponseDefine) {
+func (h *HTTPResponses) Add(id int64, code int, hrd *HTTPResponseDefine) {
 	for _, v := range *h {
-		if v.Code == code {
+		if v.ID == id {
 			v.HTTPResponseDefine = *hrd
 			v.XDiff = hrd.XDiff
 			return
@@ -312,6 +312,15 @@ func (h *HTTPResponses) Add(code int, hrd *HTTPResponseDefine) {
 		XDiff:              hrd.XDiff,
 		HTTPResponseDefine: *hrd,
 	})
+}
+
+func (h *HTTPResponses) LookupID(id int64) *HTTPResponse {
+	for _, v := range *h {
+		if v.ID == id {
+			return v
+		}
+	}
+	return nil
 }
 
 func (h *HTTPResponse) SetXDiff(x *string) {

@@ -338,6 +338,7 @@
           }
         }
       ]
-    }
+    },
+    {"type":"http","id":1,"title":"test-1","content":[{"type":"apicat-http-url","attrs":{"path":"/11222222222","method":"get","x-apicat-diff":""}},{"type":"apicat-http-request","attrs":{"globalExcepts":{"cookie":[],"header":[],"path":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[{"id":1,"name":"token","required":true,"schema":{"type":"string","x-apicat-mock":"string"}}]},"content":{"application/json":{"schema":{"type":"object","x-apicat-orders":["1","2"],"properties":{"1":{"$ref":"#/definitions/schemas/1"},"2":{"$ref":"#/definitions/schemas/2"}}}}}}},{"type":"apicat-http-response","attrs":{"list":[{"code":200,"name":"Response Name","content":{"application/json":{"schema":{"example":"","$ref":"#/definitions/schemas/3"}}}},{"code":200,"$ref":"#/definitions/responses/2"}]}}]}
   ]
 }

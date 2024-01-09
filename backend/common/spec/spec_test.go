@@ -53,15 +53,23 @@ func TestUnparkDereferenceSchema(t *testing.T) {
 		fmt.Println(err)
 	}
 
-	a := source.Definitions.Schemas.LookupID(2336)
-	b := source.Definitions.Schemas.LookupID(2340)
-	c := source.Definitions.Schemas.LookupID(2341)
+	// a := source.Definitions.Schemas.LookupID(2336)
+	// b := source.Definitions.Schemas.LookupID(2340)
+	// c := source.Definitions.Schemas.LookupID(2341)
+	s := `[{"id":2,"name":"schema-2","type":"schema","parentid":6,"schema":{"type":"object","x-apicat-orders":["fuck1","fuck2"],"properties":{"fuck1":{"type":"string","x-apicat-mock":"string"},"fuck2":{"$ref":"#/definitions/schemas/1"}}}},{"id":11,"name":"schema-1","type":"schema","schema":{"type":"object","x-apicat-orders":["fuck"],"properties":{"fuck":{"type":"string","x-apicat-mock":"string"}}}},{"id":1,"name":"schema-1","type":"schema","parentid":5,"schema":{"type":"object","x-apicat-orders":["1","2","3"],"properties":{"1":{"type":"string","x-apicat-mock":"string"},"2":{"type":"string","x-apicat-mock":"string"},"3":{"type":"string","x-apicat-mock":"string"}},"required":["1","2"]}},{"id":3,"name":"schema-3","type":"schema","schema":{"$ref":"#/definitions/schemas/1"}},{"id":4,"name":"schema-4","type":"schema","schema":{"$ref":"#/definitions/schemas/4"}}]`
+	sub := Schemas{}
+	err = json.Unmarshal([]byte(s), &sub)
+	if err != nil {
+		fmt.Println(err)
+	}
 
-	sub := Schemas{a, b, c}
+	for _, cc := range source.Collections {
+		cc.UnpackDereferenceSchema(sub)
+	}
 
-	a.UnpackDereferenceSchema(sub)
+	// a.UnpackDereferenceSchema(sub)
 
-	bs, _ := json.MarshalIndent(a, "", " ")
+	bs, _ := json.MarshalIndent(source, "", " ")
 
 	fmt.Println(string(bs))
 }

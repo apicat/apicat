@@ -182,18 +182,20 @@ func equalRequest(a, b *spec.HTTPRequestNode) {
 }
 
 func equalResponse(a, b spec.HTTPResponses) spec.HTTPResponses {
-	codes := map[int]struct{}{}
+	ids := map[int64]struct{}{}
 	for _, v := range a {
-		codes[v.Code] = struct{}{}
+		ids[v.ID] = struct{}{}
 	}
 	for _, v := range b {
-		codes[v.Code] = struct{}{}
+		ids[v.ID] = struct{}{}
 	}
-	aa := a.Map()
-	bb := b.Map()
-	for k := range codes {
-		as, a_has := aa[k]
-		bs, b_has := bb[k]
+	// aa := a.Map()
+	// bb := b.Map()
+	for k := range ids {
+		as := a.LookupID(k)
+		a_has := as != nil
+		bs := b.LookupID(k)
+		b_has := bs != nil
 		if !a_has && b_has {
 			bs.SetXDiff(&diffNew)
 			goto e
@@ -210,7 +212,7 @@ func equalResponse(a, b spec.HTTPResponses) spec.HTTPResponses {
 		bs.Content = equalContent(as.Content, bs.Content)
 		// if bs is changed, goto e and add to result
 	e:
-		b.Add(k, &bs)
+		b.Add(bs.ID, bs.Code, &bs.HTTPResponseDefine)
 	}
 	return b
 }
