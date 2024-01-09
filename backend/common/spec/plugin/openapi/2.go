@@ -68,6 +68,7 @@ func (s *fromSwagger) parseDefinetions(defs *v2.Definitions) spec.Schemas {
 func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) (res spec.HTTPParameters) {
 	s.parametersMapping = make(map[string]*spec.Schema)
 	// mapping key:swagger paranmters key value:apicat paramter id
+	res.Fill()
 	if in.Parameters == nil {
 		return res
 	}
@@ -98,6 +99,7 @@ func (s *fromSwagger) parseParametersDefine(in *v2.Swagger) (res spec.HTTPParame
 }
 
 func (s *fromSwagger) parseGlobalParameters(inp map[string]any) (res spec.Global) {
+	res.Parameters.Fill()
 	if inp == nil {
 		return res
 	}

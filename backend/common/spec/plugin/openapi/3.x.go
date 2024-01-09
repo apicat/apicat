@@ -38,6 +38,7 @@ func (o *fromOpenapi) parseServers(servs []*v3.Server) []*spec.Server {
 }
 
 func (o *fromOpenapi) parseParametersDefine(comp *v3.Components) (res spec.HTTPParameters) {
+	res.Fill()
 	if comp == nil {
 		return res
 	}
@@ -166,6 +167,7 @@ func (o *fromOpenapi) parseParameters(inp []*v3.Parameter) spec.HTTPParameters {
 }
 
 func (o *fromOpenapi) parseGlobal(inp map[string]any) (res spec.Global) {
+	res.Parameters.Fill()
 	if inp == nil {
 		return res
 	}
@@ -547,6 +549,7 @@ func (o *toOpenapi) toResponse(in *spec.Spec, def spec.HTTPResponseDefine, ver s
 		res["headers"] = headers
 	}
 	res["description"] = v.Description
+	res["x-apicat-category"] = v.Category
 	return res
 }
 
