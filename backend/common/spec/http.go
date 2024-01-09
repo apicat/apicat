@@ -2,6 +2,7 @@ package spec
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -299,9 +300,10 @@ func (h *HTTPResponses) Map() map[int]HTTPResponseDefine {
 	return m
 }
 
-func (h *HTTPResponses) Add(id int64, code int, hrd *HTTPResponseDefine) {
+func (h *HTTPResponses) Add(code int, code_name string, hrd *HTTPResponseDefine) {
 	for _, v := range *h {
-		if v.ID == id {
+		s := fmt.Sprintf("%d-%s", v.Code, v.Name)
+		if s == code_name {
 			v.HTTPResponseDefine = *hrd
 			v.XDiff = hrd.XDiff
 			return
@@ -314,9 +316,10 @@ func (h *HTTPResponses) Add(id int64, code int, hrd *HTTPResponseDefine) {
 	})
 }
 
-func (h *HTTPResponses) LookupID(id int64) *HTTPResponse {
+func (h *HTTPResponses) LookupID(code_name string) *HTTPResponse {
 	for _, v := range *h {
-		if v.ID == id {
+		s := fmt.Sprintf("%d-%s", v.Code, v.Name)
+		if s == code_name {
 			return v
 		}
 	}

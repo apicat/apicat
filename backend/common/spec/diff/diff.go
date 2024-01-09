@@ -2,6 +2,7 @@ package diff
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/apicat/apicat/backend/common/spec"
 	"github.com/apicat/apicat/backend/common/spec/jsonschema"
@@ -182,12 +183,12 @@ func equalRequest(a, b *spec.HTTPRequestNode) {
 }
 
 func equalResponse(a, b spec.HTTPResponses) spec.HTTPResponses {
-	ids := map[int64]struct{}{}
+	ids := map[string]struct{}{}
 	for _, v := range a {
-		ids[v.ID] = struct{}{}
+		ids[fmt.Sprintf("%d-%s", v.Code, v.Name)] = struct{}{}
 	}
 	for _, v := range b {
-		ids[v.ID] = struct{}{}
+		ids[fmt.Sprintf("%d-%s", v.Code, v.Name)] = struct{}{}
 	}
 	// aa := a.Map()
 	// bb := b.Map()
@@ -212,7 +213,7 @@ func equalResponse(a, b spec.HTTPResponses) spec.HTTPResponses {
 		bs.Content = equalContent(as.Content, bs.Content)
 		// if bs is changed, goto e and add to result
 	e:
-		b.Add(bs.ID, bs.Code, &bs.HTTPResponseDefine)
+		b.Add(bs.Code, k, &bs.HTTPResponseDefine)
 	}
 	return b
 }
