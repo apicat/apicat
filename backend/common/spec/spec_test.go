@@ -227,3 +227,44 @@ func TestOpenGlobalParameters(t *testing.T) {
 	fmt.Println(string(bs))
 
 }
+
+func TestSItemsListToTree(t *testing.T) {
+	ab, err := os.ReadFile("./testdata/items_tree_export_openapi.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	source, err := ParseJSON(ab)
+	if err != nil {
+		fmt.Println(err)
+	}
+	ss := source.Definitions.Schemas
+	ts := Schemas{}
+	for _, v := range ss {
+		ts = append(ts, v.ItemsTreeToList()...)
+	}
+	res := ts.ItemsListToTree()
+	bs, _ := json.MarshalIndent(res, "", " ")
+
+	fmt.Println(string(bs))
+}
+
+func TestSMakeSelfTree(t *testing.T) {
+	ab, err := os.ReadFile("./testdata/items_tree_export_openapi.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	source, err := ParseJSON(ab)
+	if err != nil {
+		fmt.Println(err)
+	}
+	ss := source.Definitions.Schemas
+	ts := Schemas{}
+	for _, v := range ss {
+		ts = append(ts, v.ItemsTreeToList()...)
+	}
+	s := ts.LookupID(2342)
+	s2 := s.makeSelfTree(s.Schema.Category, map[string]*Schema{})
+	bs, _ := json.MarshalIndent(s2, "", " ")
+
+	fmt.Println(string(bs))
+}

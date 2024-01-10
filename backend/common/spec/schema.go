@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 )
@@ -162,7 +163,7 @@ func (s *Schema) dereferenceSelf() {
 // this schema's type must be dir
 func (s *Schema) ItemsTreeToList() (res Schemas) {
 	if s.Type != string(ContentItemTypeDir) {
-		return
+		return append(res, s)
 	}
 	return s.itemsTreeToList(s.Name)
 }
@@ -250,6 +251,53 @@ func (s *Schemas) SetXDiff(x *string) {
 	for _, v := range *s {
 		v.SetXDiff(x)
 	}
+}
+
+// this schemas must not have category
+func (s *Schemas) ItemsListToTree() Schemas {
+	root := &Schema{
+		Items: Schemas{},
+	}
+	if s == nil || len(*s) == 0 {
+		return root.Items
+	}
+
+	category := map[string]*Schema{
+		"": root,
+	}
+
+	for _, v := range *s {
+		if parent, ok := category[v.Schema.Category]; ok {
+			parent.Items = append(parent.Items, v)
+		} else {
+			root.Items = append(root.Items, v.makeSelfTree(v.Schema.Category, category))
+		}
+	}
+
+	return root.Items
+}
+
+func (s *Schema) makeSelfTree(path string, category map[string]*Schema) *Schema {
+	if path == "" {
+		return s
+	}
+	i := strings.Index(path, "/")
+	if i == -1 {
+		parent := &Schema{
+			Name:  path,
+			Items: Schemas{s},
+			Type:  string(ContentItemTypeDir),
+		}
+		category[path] = parent
+		return parent
+	}
+	parent := &Schema{
+		Name:  path[:i],
+		Items: Schemas{s.makeSelfTree(path[i+1:], category)},
+		Type:  string(ContentItemTypeDir),
+	}
+	category[path] = parent
+	return parent
 }
 
 func (s *Schema) SetXDiff(x *string) {
