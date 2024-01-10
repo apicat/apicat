@@ -415,7 +415,7 @@ func (h *HTTPResponseDefine) RemoveSchema(s_id int64) (err error) {
 // this obj's type must be dir
 func (h *HTTPResponseDefine) ItemsTreeToList() (res HTTPResponseDefines) {
 	if h.Type != string(ContentItemTypeDir) {
-		return
+		return append(res, *h)
 	}
 	return h.itemsTreeToList(h.Name)
 }
@@ -480,6 +480,53 @@ func (h *HTTPResponseDefines) SetXDiff(x *string) {
 	for _, v := range *h {
 		v.SetXDiff(x)
 	}
+}
+
+func (h *HTTPResponseDefines) ItemsListToTree() HTTPResponseDefines {
+	root := &HTTPResponseDefine{
+		Items: HTTPResponseDefines{},
+	}
+
+	if h == nil || len(*h) == 0 {
+		return root.Items
+	}
+
+	category := map[string]*HTTPResponseDefine{
+		"": root,
+	}
+
+	for _, v := range *h {
+		if parent, ok := category[v.Category]; ok {
+			parent.Items = append(parent.Items, v)
+		} else {
+			root.Items = append(root.Items, *v.makeSelfTree(v.Category, category))
+		}
+	}
+
+	return root.Items
+}
+
+func (h *HTTPResponseDefine) makeSelfTree(path string, category map[string]*HTTPResponseDefine) *HTTPResponseDefine {
+	if path == "" {
+		return h
+	}
+	i := strings.Index(path, "/")
+	if i == -1 {
+		parent := &HTTPResponseDefine{
+			Name:  path,
+			Items: HTTPResponseDefines{*h},
+			Type:  string(ContentItemTypeDir),
+		}
+		category[path] = parent
+		return parent
+	}
+	parent := &HTTPResponseDefine{
+		Name:  path[:i],
+		Items: HTTPResponseDefines{*h.makeSelfTree(path[i+1:], category)},
+		Type:  string(ContentItemTypeDir),
+	}
+	category[path] = parent
+	return parent
 }
 
 type HTTPPart struct {

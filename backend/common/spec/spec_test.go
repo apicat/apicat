@@ -268,3 +268,23 @@ func TestSMakeSelfTree(t *testing.T) {
 
 	fmt.Println(string(bs))
 }
+
+func TestRItemsListToTree(t *testing.T) {
+	ab, err := os.ReadFile("./testdata/items_tree_export_openapi.json")
+	if err != nil {
+		fmt.Println(err)
+	}
+	source, err := ParseJSON(ab)
+	if err != nil {
+		fmt.Println(err)
+	}
+	ss := source.Definitions.Responses
+	ts := HTTPResponseDefines{}
+	for _, v := range ss {
+		ts = append(ts, v.ItemsTreeToList()...)
+	}
+	res := ts.ItemsListToTree()
+	bs, _ := json.MarshalIndent(res, "", " ")
+
+	fmt.Println(string(bs))
+}
