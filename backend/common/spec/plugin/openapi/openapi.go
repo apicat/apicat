@@ -48,14 +48,14 @@ func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 	schemas := sw.parseDefinetions(model.Model.Definitions)
 	responseDefinitions := sw.parseResponsesDefine(&model.Model)
 	parameters := sw.parseParametersDefine(&model.Model)
-	globalparameters := sw.parseGlobalParameters(model.Model.Extensions)
+	globals := sw.parseGlobal(model.Model.Extensions)
 
 	return &spec.Spec{
 		ApiCat:      "2.0.1",
 		Info:        sw.parseInfo(model.Model.Info),
 		Servers:     sw.parseServers(&model.Model),
 		Definitions: spec.Definitions{Schemas: schemas, Responses: responseDefinitions, Parameters: parameters},
-		Globals:     globalparameters,
+		Globals:     globals,
 		Collections: sw.parseCollections(&model.Model, model.Model.Paths),
 	}, nil
 }

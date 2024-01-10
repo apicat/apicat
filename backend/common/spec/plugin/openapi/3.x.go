@@ -178,56 +178,19 @@ func (o *fromOpenapi) parseGlobal(inp map[string]any) (res spec.Global) {
 	var rawparamter spec.HTTPParameters
 	rawparamter.Fill()
 
-	for _, v := range global.(map[string]any) {
-
-		// if use type assertion, ok is false, but use jsonMarshal first and then Unmarshal is true
-		p := &v3.Parameter{}
-		b, err := json.Marshal(v)
-		if err != nil {
-			continue
-		}
-		err = json.Unmarshal(b, p)
+	for k, v := range global.(map[string]any) {
+		nb, err := json.Marshal(v)
 		if err != nil {
 			continue
 		}
 
-		var sp = &spec.Schema{
-			Name:     p.Name,
-			Required: p.Required,
-		}
-		sp.Schema = &jsonschema.Schema{}
-		// this is global parameter, not schema content
-		// if p.Schema != nil {
-		// 	js, err := jsonSchemaConverter(p.Schema)
-		// 	if err != nil {
-		// 		panic(err)
-		// 	}
-		// 	sp.Schema = js
-		// }
-
-		parameterschema, ok := v.(map[string]any)
-		if !ok {
+		s := &spec.Schema{}
+		json.Unmarshal(nb, s)
+		in := strings.Index(k, "-")
+		if in == -1 {
 			continue
 		}
-		schemainfo, ok := parameterschema["schema"]
-		if ok {
-			si, ok := schemainfo.(map[string]any)
-			if !ok {
-				continue
-			}
-
-			// nedd check else
-			if t, ok := si["type"]; ok {
-				sp.Type = t.(string)
-			}
-			if r, ok := si["required"]; ok {
-				sp.Required = r.(bool)
-			}
-		}
-		sp.Schema.Description = p.Description
-		sp.Schema.Example = p.Example
-		sp.Schema.Deprecated = p.Deprecated
-		rawparamter.Add(p.In, sp)
+		rawparamter.Add(k[:in], s)
 	}
 	res.Parameters = rawparamter
 	return res
