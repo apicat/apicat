@@ -10,7 +10,7 @@
       "parameters": {
         "query": [
           {
-            "id": 33,
+            "id": 33, 
             "name": "global_query",
             "schema": {
               "type": "string",
@@ -181,26 +181,34 @@
           "type": "category",
           "items": [
             {
-                "id": 384,
-                "name": "resp2",
-                "content": {
-                  "application/json": {
-                    "schema": {
-                      "type": "object",
-                      "x-apicat-orders": [
-                        "t2"
-                      ],
-                      "properties": {
-                        "t2": {
-                          "type": "string",
-                          "x-apicat-mock": "string"
-                        }
-                      },
-                      "example": ""
-                    }
+              "id": 375,
+          "name": "response2_2",
+          "type": "category",
+          "items": [
+            {
+              "id": 384,
+              "name": "resp2",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "x-apicat-orders": [
+                      "t2"
+                    ],
+                    "properties": {
+                      "t2": {
+                        "type": "string",
+                        "x-apicat-mock": "string"
+                      }
+                    },
+                    "example": ""
                   }
                 }
               }
+            }
+          ]
+            }
+            
           ]
         }
       ]

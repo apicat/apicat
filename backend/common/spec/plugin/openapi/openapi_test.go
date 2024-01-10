@@ -57,7 +57,7 @@ func TestToOpenapi(t *testing.T) {
 
 	ab, _ := spec.ParseJSON(a)
 
-	b, err := Encode(ab, "2.0")
+	b, err := Encode(ab, "3.1.0")
 	if err != nil {
 		fmt.Println(err)
 	}
