@@ -44,7 +44,14 @@ func Diff(ref_obj, diff_obj *spec.CollectItem) (*spec.CollectItem, error) {
 						return nil, err
 					}
 					if au.Path != bu.Path {
-						bu.XDiff = &diffUpdate
+						if au.Path == "" {
+							bu.XDiff = &diffNew
+						} else if bu.Path == "" {
+							bu.Path = au.Path
+							bu.XDiff = &diffRemove
+						} else {
+							bu.XDiff = &diffUpdate
+						}
 					}
 				case "apicat-http-request":
 					ar, err := an.ToHTTPRequestNode()
@@ -167,6 +174,9 @@ func equalContent(a, b spec.HTTPBody) spec.HTTPBody {
 		}
 		if a_has && !b_has {
 			as.SetXDiff(&diffRemove)
+			if b == nil {
+				b = make(spec.HTTPBody)
+			}
 			b[v] = as
 			continue
 		}
@@ -263,8 +273,14 @@ func equalJsonSchema(a, b *jsonschema.Schema) bool {
 			}
 			if a_has && !b_has {
 				as.SetXDiff(&diffRemove)
+				if b.Properties == nil {
+					b.Properties = make(map[string]*jsonschema.Schema)
+				}
 				b.Properties[v] = as
 				// add to xorder
+				if b.XOrder == nil {
+					b.XOrder = make([]string, 0)
+				}
 				b.XOrder = append(b.XOrder, v)
 				continue
 			}

@@ -13,12 +13,68 @@ import (
 func TestDuff(t *testing.T) {
 	a, _ := os.ReadFile("../testdata/specdiff_a.json")
 
-	b, _ := os.ReadFile("../testdata/specdiff_b.json")
+	// b, _ := os.ReadFile("../testdata/specdiff_b.json")
 
 	ab, _ := spec.ParseJSON(a)
-	bb, _ := spec.ParseJSON(b)
+	// bb, _ := spec.ParseJSON(b)
 
-	collectitemB, err := Diff(ab.Collections[0], bb.Collections[0])
+	cs := `{
+		"type": "http",
+		"id": 4216,
+		"title": "Unnamed interface",
+		"content": [
+		  {
+			"type": "apicat-http-url",
+			"attrs": {
+			  "path": "",
+			  "method": "get"
+			}
+		  },
+		  {
+			"type": "apicat-http-request",
+			"attrs": {
+			  "globalExcepts": {
+				"cookie": [],
+				"header": [],
+				"path": [],
+				"query": []
+			  },
+			  "parameters": {
+				"query": [],
+				"path": [],
+				"cookie": [],
+				"header": []
+			  }
+			}
+		  },
+		  {
+			"type": "apicat-http-response",
+			"attrs": {
+			  "list": [
+				{
+				  "code": 200,
+				  "name": "Response Name",
+				  "content": {
+					"application/json": {
+					  "schema": {
+						"type": "object",
+						"example": ""
+					  }
+					}
+				  }
+				}
+			  ]
+			}
+		  }
+		]
+	  }`
+	nullc := &spec.CollectItem{}
+	err := json.Unmarshal([]byte(cs), nullc)
+	if err != nil {
+		t.Log(err)
+	}
+
+	collectitemB, err := Diff(nullc, ab.Collections[0])
 	if err != nil {
 		t.Log(err)
 	}
