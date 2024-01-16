@@ -10,7 +10,7 @@ import (
 	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 )
 
-func TestDuff(t *testing.T) {
+func TestDiff(t *testing.T) {
 	a, _ := os.ReadFile("../testdata/specdiff_a.json")
 
 	// b, _ := os.ReadFile("../testdata/specdiff_b.json")
