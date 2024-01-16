@@ -186,6 +186,11 @@ func (s *Schema) itemsTreeToList(path string) (res Schemas) {
 	return res
 }
 
+// basic info just have name and type
+func IsChangedBasic(a, b *Schema) bool {
+	return a.Name != b.Name || a.Type != b.Type || jsonschema.IsChangedBasic(a.Schema, b.Schema)
+}
+
 func (s *Schema) JoinNameId() string {
 	return fmt.Sprintf("%s-%d", s.Name, s.ID)
 }

@@ -81,9 +81,33 @@ func DiffSchema(a, b *jsonschema.Schema) (*jsonschema.Schema, error) {
 	return b, nil
 }
 
-// basic info just have name and type
-func IsChangedBasic(a, b *spec.Schema) bool {
-	return a.Name != b.Name || a.Type != b.Type || jsonschema.IsChangedBasic(a.Schema, b.Schema)
+func IsChangedBasic(ref_obj, diff_obj *spec.CollectItem) (bool, error) {
+
+	if ref_obj == nil || diff_obj == nil {
+		return false, errors.New("source,target Collections length error")
+	}
+
+	for _, an := range ref_obj.Content {
+		for _, bn := range diff_obj.Content {
+			if an.Node.NodeType() == bn.Node.NodeType() {
+				// assertion in three parts to diff
+				switch an.Node.NodeType() {
+				case "apicat-http-request":
+					ar, err := an.ToHTTPRequestNode()
+					br, err := bn.ToHTTPRequestNode()
+					if err != nil {
+						return false, err
+					}
+					return changeBasicRequest(ar, br), nil
+				case "apicat-http-response":
+					// not todo
+				default:
+					// not todo
+				}
+			}
+		}
+	}
+	return false, nil
 }
 
 func getMapOne(d map[string]map[string]spec.HTTPPart) (*spec.HTTPPart, *spec.HTTPURLNode) {
@@ -108,7 +132,6 @@ func equalParam(a spec.HTTPParameters, b *spec.HTTPParameters) {
 		if !a_has && !b_has {
 			continue
 		}
-		// TODO可能会考虑到排序的问题
 		if a_has && !b_has {
 			ap.SetXDiff(&diffRemove)
 			bp = append(bp, ap...)
@@ -133,6 +156,30 @@ func equalParam(a spec.HTTPParameters, b *spec.HTTPParameters) {
 	}
 }
 
+func changeBasicParam(a spec.HTTPParameters, b spec.HTTPParameters) bool {
+	a1 := a.Map()
+	b1 := b.Map()
+	for _, v := range spec.HttpParameter {
+		ap, a_has := a1[v]
+		bp, b_has := b1[v]
+
+		if !a_has && !b_has {
+			continue
+		}
+		if a_has && !b_has {
+			return true
+		}
+		if !a_has && b_has {
+			return true
+		}
+
+		if changeBasicSchemas(ap, bp) {
+			return true
+		}
+	}
+	return false
+}
+
 func equalSchemas(a, b spec.Schemas) spec.Schemas {
 	names := map[string]struct{}{}
 	for _, v := range a {
@@ -146,7 +193,9 @@ func equalSchemas(a, b spec.Schemas) spec.Schemas {
 		as := a.Lookup(v)
 		bs := b.Lookup(v)
 
-		// TODO可能会考虑到排序的问题
+		if as == nil && bs == nil {
+			continue
+		}
 		if as == nil && bs != nil {
 			bs.SetXDiff(&diffNew)
 			continue
@@ -159,6 +208,32 @@ func equalSchemas(a, b spec.Schemas) spec.Schemas {
 		equalSchema(as, bs)
 	}
 	return b
+}
+
+func changeBasicSchemas(a, b spec.Schemas) bool {
+	names := map[string]struct{}{}
+	for _, v := range a {
+		names[v.Name] = struct{}{}
+	}
+	for _, v := range b {
+		names[v.Name] = struct{}{}
+	}
+
+	for v := range names {
+		as := a.Lookup(v)
+		bs := b.Lookup(v)
+
+		if as == nil && bs != nil {
+			return true
+		}
+		if as != nil && bs == nil {
+			return true
+		}
+		if spec.IsChangedBasic(as, bs) {
+			return true
+		}
+	}
+	return false
 }
 
 func equalContent(a, b spec.HTTPBody) spec.HTTPBody {
@@ -191,9 +266,37 @@ func equalContent(a, b spec.HTTPBody) spec.HTTPBody {
 	return b
 }
 
+func changeBasicContent(a, b spec.HTTPBody) bool {
+	names := map[string]struct{}{}
+	for v := range a {
+		names[v] = struct{}{}
+	}
+	for v := range b {
+		names[v] = struct{}{}
+	}
+	for v := range names {
+		as, a_has := a[v]
+		bs, b_has := b[v]
+		if !a_has && b_has {
+			return true
+		}
+		if a_has && !b_has {
+			return true
+		}
+		if spec.IsChangedBasic(as, bs) {
+			return true
+		}
+	}
+	return false
+}
+
 func equalRequest(a, b *spec.HTTPRequestNode) {
 	equalParam(a.Parameters, &b.Parameters)
 	b.Content = equalContent(a.Content, b.Content)
+}
+
+func changeBasicRequest(a, b *spec.HTTPRequestNode) bool {
+	return changeBasicParam(a.Parameters, b.Parameters) || changeBasicContent(a.Content, b.Content)
 }
 
 func equalResponse(a, b spec.HTTPResponses) spec.HTTPResponses {
