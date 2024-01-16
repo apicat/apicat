@@ -105,6 +105,18 @@ func (s *Schema) IsRefId(id string) bool {
 }
 
 func IsChangedBasic(a, b *Schema) bool {
+	if a == nil && b == nil {
+		return false
+	}
+
+	if a == nil && b != nil {
+		return true
+	}
+
+	if a != nil && b == nil {
+		return true
+	}
+
 	if !slices.Equal(a.Type.Value(), b.Type.Value()) {
 		return true
 	}
@@ -118,7 +130,6 @@ func IsChangedBasic(a, b *Schema) bool {
 		return true
 	}
 
-	change := false
 	switch bt {
 	case "object":
 		names := map[string]struct{}{}
@@ -138,16 +149,18 @@ func IsChangedBasic(a, b *Schema) bool {
 			if a_has && !b_has {
 				return true
 			}
-			sc := IsChangedBasic(as, bs)
-			change = change || sc
+			if IsChangedBasic(as, bs) {
+				return true
+			}
 		}
 	case "array":
 		if a.Items != nil && b.Items != nil {
-			sc := IsChangedBasic(a.Items.Value(), b.Items.Value())
-			change = change || sc
+			if IsChangedBasic(a.Items.Value(), b.Items.Value()) {
+				return true
+			}
 		}
 	}
-	return change
+	return false
 }
 
 func (s *Schema) RemovePropertyByRefId(id string) {
