@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	"github.com/apicat/apicat/backend/common/spec"
-	"github.com/apicat/apicat/backend/common/spec/jsonschema"
 )
 
 func TestDiff(t *testing.T) {
@@ -85,63 +84,72 @@ func TestDiff(t *testing.T) {
 
 func TestSchemaDiff(t *testing.T) {
 	sa := `{
-		"type": "object",
-		"x-apicat-orders": [
-		  "sex",
-		  "money",
-		  "test"
-		],
-		"properties": {
-		  "money": {
-			"type": "string",
-			"x-apicat-mock": "string"
-		  },
-		  "sex": {
-			"type": "string",
-			"x-apicat-mock": "string"
-		  },
-		  "test": {
+		"id": 2360,
+        "name": "tt",
+		"schema": {
 			"type": "object",
 			"x-apicat-orders": [
-			  "test_a"
+			  "sex",
+			  "money",
+			  "test"
 			],
 			"properties": {
-			  "test_a": {
+			  "money": {
 				"type": "string",
 				"x-apicat-mock": "string"
+			  },
+			  "sex": {
+				"type": "string",
+				"x-apicat-mock": "string"
+			  },
+			  "test": {
+				"type": "object",
+				"x-apicat-orders": [
+				  "test_a"
+				],
+				"properties": {
+				  "test_a": {
+					"type": "string",
+					"x-apicat-mock": "string"
+				  }
+				}
 			  }
-			}
+			},
+			"example": ""
 		  }
-		},
-		"example": ""
-	  }`
-
+		}
+		`
 	sb := `{
-		"type": "object",
-		"x-apicat-orders": [
-		  "name",
-		  "money",
-		  "test"
-		],
-		"properties": {
-		  "money": {
-			"type": "interger",
-			"x-apicat-mock": "interger"
-		  },
-		  "name": {
-			"type": "string",
-			"x-apicat-mock": "string"
-		  },
-		  "test": {
-			"type": "array"
+		"id": 2361,
+        "name": "tt2",
+		"schema": {
+			"type": "object",
+			"x-apicat-orders": [
+			  "name",
+			  "money",
+			  "test"
+			],
+			"properties": {
+			  "money": {
+				"type": "interger",
+				"x-apicat-mock": "interger"
+			  },
+			  "name": {
+				"type": "string",
+				"x-apicat-mock": "string"
+			  },
+			  "test": {
+				"type": "array"
+			  }
+			},
+			"example": ""
 		  }
-		},
-		"example": ""
-	  }`
+		}
+		`
 
-	a := &jsonschema.Schema{}
+	a := &spec.Schema{}
 	_ = json.Unmarshal([]byte(sa), a)
-	b := &jsonschema.Schema{}
+	b := &spec.Schema{}
 	_ = json.Unmarshal([]byte(sb), b)
 
 	b, err := DiffSchema(a, b)

@@ -76,8 +76,14 @@ func Diff(ref_obj, diff_obj *spec.CollectItem) (*spec.CollectItem, error) {
 	return diff_obj, nil
 }
 
-func DiffSchema(a, b *jsonschema.Schema) (*jsonschema.Schema, error) {
-	equalJsonSchema(a, b)
+func DiffSchema(a, b *spec.Schema) (*spec.Schema, error) {
+	if a == nil || b == nil {
+		return nil, errors.New("schema is nil")
+	}
+	// if a.Name != b.Name {
+	// 	b.XDiff = &diffUpdate
+	// }
+	equalJsonSchema(a.Schema, b.Schema)
 	return b, nil
 }
 
@@ -346,6 +352,21 @@ func equalSchema(a, b *spec.Schema) bool {
 }
 
 func equalJsonSchema(a, b *jsonschema.Schema) bool {
+	if a == nil && b == nil {
+		return false
+	}
+
+	if a == nil && b != nil {
+		b.SetXDiff(&diffNew)
+		return true
+	}
+
+	if a != nil && b == nil {
+		a.SetXDiff(&diffRemove)
+		*b = *a
+		return true
+	}
+
 	if !slices.Equal(a.Type.Value(), b.Type.Value()) {
 		b.SetXDiff(&diffUpdate)
 		return true
