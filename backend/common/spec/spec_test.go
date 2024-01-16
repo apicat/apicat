@@ -263,7 +263,7 @@ func TestSMakeSelfTree(t *testing.T) {
 		ts = append(ts, v.ItemsTreeToList()...)
 	}
 	s := ts.LookupID(2342)
-	s2 := s.makeSelfTree(s.Schema.Category, map[string]*Schema{})
+	s2 := s.makeSelfTree(s.Schema.XCategory, map[string]*Schema{})
 	bs, _ := json.MarshalIndent(s2, "", " ")
 
 	fmt.Println(string(bs))

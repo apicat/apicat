@@ -178,7 +178,7 @@ func (s *Schema) itemsTreeToList(path string) (res Schemas) {
 			path = fmt.Sprintf("%s/%s", path, item.Name)
 			res = append(res, item.itemsTreeToList(path)...)
 		} else {
-			item.Schema.Category = path
+			item.Schema.XCategory = path
 			res = append(res, item)
 		}
 	}
@@ -267,10 +267,10 @@ func (s *Schemas) ItemsListToTree() Schemas {
 	}
 
 	for _, v := range *s {
-		if parent, ok := category[v.Schema.Category]; ok {
+		if parent, ok := category[v.Schema.XCategory]; ok {
 			parent.Items = append(parent.Items, v)
 		} else {
-			root.Items = append(root.Items, v.makeSelfTree(v.Schema.Category, category))
+			root.Items = append(root.Items, v.makeSelfTree(v.Schema.XCategory, category))
 		}
 	}
 
