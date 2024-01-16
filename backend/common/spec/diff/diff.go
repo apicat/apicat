@@ -77,9 +77,13 @@ func Diff(ref_obj, diff_obj *spec.CollectItem) (*spec.CollectItem, error) {
 }
 
 func DiffSchema(a, b *jsonschema.Schema) (*jsonschema.Schema, error) {
-
 	equalJsonSchema(a, b)
 	return b, nil
+}
+
+// basic info just have name and type
+func IsChangedBasic(a, b *spec.Schema) bool {
+	return a.Name != b.Name || a.Type != b.Type || jsonschema.IsChangedBasic(a.Schema, b.Schema)
 }
 
 func getMapOne(d map[string]map[string]spec.HTTPPart) (*spec.HTTPPart, *spec.HTTPURLNode) {
@@ -243,6 +247,9 @@ func equalJsonSchema(a, b *jsonschema.Schema) bool {
 		b.SetXDiff(&diffUpdate)
 		return true
 	}
+	if len(a.Type.Value()) == 0 {
+		return false
+	}
 	at := a.Type.Value()[0]
 	bt := b.Type.Value()[0]
 	// For array to object changes all are updated
@@ -250,9 +257,11 @@ func equalJsonSchema(a, b *jsonschema.Schema) bool {
 		b.SetXDiff(&diffUpdate)
 		return true
 	}
+
 	if !equalJsonSchemaNormal(a, b) {
 		b.XDiff = &diffUpdate
 	}
+
 	change := false
 	switch bt {
 	case "object":
