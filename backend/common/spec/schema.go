@@ -37,6 +37,20 @@ type Example struct {
 
 func (s *Schema) Ref() bool { return s.Reference != nil }
 
+func (s *Schema) IsRefId(id string) bool {
+	if s == nil || s.Reference == nil {
+		return false
+	}
+
+	i := strings.LastIndex(*s.Reference, "/")
+	if i != -1 {
+		if id == (*s.Reference)[i+1:] {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *Schema) DereferenceSchema(sub *Schema) error {
 	if sub == nil {
 		return errors.New("sub schema is nil")
@@ -47,16 +61,26 @@ func (s *Schema) DereferenceSchema(sub *Schema) error {
 	}
 
 	id := strconv.Itoa(int(sub.ID))
+
+	// If the type of root refers to sub
+	if s.IsRefId(id) {
+		s.Schema = jsonschema.Create("object")
+		return nil
+	}
+
 	// If the type of root refers to sub
 	if s.Schema.IsRefId(id) {
 		s.Schema = jsonschema.Create("object")
+		return nil
 	}
 
 	refs := s.Schema.FindRefById(id)
-	if len(refs) == 0 {
-		// sub_schema with this id  not find in parent_schema
-		return errors.New("sub schema not find in parent schema")
-	}
+
+	// if not find, skip
+	// if len(refs) == 0 {
+	// 	// sub_schema with this id  not find in parent_schema
+	// 	return errors.New("sub schema not find in parent schema")
+	// }
 
 	// if sub's refers to itself, Dereference it self
 	// sub.dereferenceSelf()
