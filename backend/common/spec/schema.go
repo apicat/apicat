@@ -63,14 +63,8 @@ func (s *Schema) DereferenceSchema(sub *Schema) error {
 	id := strconv.Itoa(int(sub.ID))
 
 	// If the type of root refers to sub
-	if s.IsRefId(id) {
-		s.Schema = jsonschema.Create("object")
-		return nil
-	}
-
-	// If the type of root refers to sub
-	if s.Schema.IsRefId(id) {
-		s.Schema = jsonschema.Create("object")
+	if s.Schema.IsRefId(id) || s.IsRefId(id) {
+		*s.Schema = *sub.Schema
 		return nil
 	}
 
