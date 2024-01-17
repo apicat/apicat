@@ -162,6 +162,7 @@ func (s *Schema) RemoveSchema(s_id int64) error {
 
 	if s.Schema.IsRefId(id) {
 		s.Schema = jsonschema.Create("object")
+		return nil
 	}
 
 	s.Schema.RemovePropertyByRefId(id)

@@ -167,13 +167,16 @@ func (s *Schema) RemovePropertyByRefId(id string) {
 	if s == nil || s.Properties == nil {
 		return
 	}
-
+	ks := []string{}
 	for k, v := range s.Properties {
 		if v.IsRefId(id) {
-			delete(s.Properties, k)
-			s.RemoveXOrderByName(k)
+			ks = append(ks, k)
 		}
 		v.RemovePropertyByRefId(id)
+	}
+	for _, v := range ks {
+		delete(s.Properties, v)
+		s.RemoveXOrderByName(v)
 	}
 }
 
