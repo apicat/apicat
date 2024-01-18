@@ -2,7 +2,6 @@ package diff
 
 import (
 	"encoding/json"
-	"fmt"
 	"os"
 	"testing"
 
@@ -70,16 +69,16 @@ func TestDiff(t *testing.T) {
 	nullc := &spec.CollectItem{}
 	err := json.Unmarshal([]byte(cs), nullc)
 	if err != nil {
-		t.Log(err)
+		t.Errorf("unmarshal error: %v", err)
 	}
 
 	collectitemB, err := Diff(nullc, ab.Collections[0])
 	if err != nil {
-		t.Log(err)
+		t.Errorf("diff error: %v", err)
 	}
 	// aaa, _ := json.MarshalIndent(collectitemA, "", " ")
 	res, _ := json.MarshalIndent(collectitemB, "", " ")
-	fmt.Println(string(res))
+	t.Log(string(res))
 }
 
 func TestSchemaDiff(t *testing.T) {
@@ -154,10 +153,10 @@ func TestSchemaDiff(t *testing.T) {
 
 	b, err := DiffSchema(a, b)
 	if err != nil {
-		t.Log(err)
+		t.Errorf("diffschema error: %v", err)
 	}
 	res, _ := json.MarshalIndent(b, "", " ")
-	fmt.Println(string(res))
+	t.Log(string(res))
 }
 
 func TestGetMapOneCollectionMap(t *testing.T) {
@@ -165,18 +164,244 @@ func TestGetMapOneCollectionMap(t *testing.T) {
 
 	source, err := spec.ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Errorf("parse source error: %v", err)
 	}
 
-	a, au := getMapOne(source.CollectionsMap(true, 1))
-
-	fmt.Println(a)
-	fmt.Println(au)
+	a, _ := getMapOne(source.CollectionsMap(true, 1))
 
 	b, err := json.Marshal(a)
 
 	if err != nil {
-		t.Log(err)
+		t.Errorf("marshal error: %v", err)
 	}
-	fmt.Println(string(b))
+	t.Log(string(b))
+}
+
+func TestIsChangedBasic(t *testing.T) {
+	as := `{
+		"type": "http",
+      "id": 4223,
+      "title": "importent_info_changed",
+	  "content": [{
+		"type": "apicat-http-request",
+          "attrs": {
+		  "globalExcepts": {
+			"cookie": [],
+			"header": [],
+			"path": [],
+			"query": []
+		  },
+		  "parameters": {
+			"query": [
+				{
+					"name": "query_1",
+					"schema": {
+					  "type": "string",
+					  "x-apicat-mock": "string"
+					}
+				  },
+			  {
+				"name": "query_2",
+				"schema": {
+				  "type": "string",
+				  "x-apicat-mock": "string"
+				}
+			  }
+			],
+			"path": [],
+			"cookie": [
+			  {
+				"name": "cookie_1",
+				"schema": {
+				  "type": "string",
+				  "x-apicat-mock": "string"
+				}
+			  },
+			  {
+				"name": "cookie_2",
+				"schema": {
+				  "type": "string",
+				  "x-apicat-mock": "string"
+				}
+			  }
+			],
+			"header": [
+			  {
+				"name": "header_1",
+				"schema": {
+				  "type": "string",
+				  "x-apicat-mock": "name",
+				  "description": "这是名称",
+				  "example": "李四"
+				}
+			  },
+			  {
+				"name": "header_2",
+				"schema": {
+				  "type": "integer",
+				  "x-apicat-mock": "integer",
+				  "description": "这是年龄",
+				  "example": "18"
+				}
+			  }
+			]
+		  },
+		  "content": {
+			"application/json": {
+			  "schema": {
+				"type": "object",
+				"x-apicat-orders": [
+				  "json_1",
+				  "json_obj"
+				],
+				"properties": {
+				  "json_1": {
+					"type": "string",
+					"x-apicat-mock": "string"
+				  },
+				  "json_obj": {
+					"type": "object",
+					"x-apicat-orders": [
+					  "name",
+					  "age"
+					],
+					"properties": {
+					  "age": {
+						"type": "integer",
+						"description": "这是年龄",
+						"x-apicat-mock": "integer"
+					  },
+					  "name": {
+						"type": "string",
+						"x-apicat-mock": "string"
+					  }
+					}
+				  }
+				},
+				"example": ""
+			  }
+			}
+		  }
+		}}]}
+	  `
+	bs := `{
+		"type": "http",
+		"id": 4223,
+		"title": "importent_info_changed",
+		"content": [{
+			"type": "apicat-http-request",
+          "attrs": {
+		  "globalExcepts": {
+			"cookie": [],
+			"header": [],
+			"path": [],
+			"query": []
+		  },
+		  "parameters": {
+			"query": [
+			  {
+				"name": "query_1",
+				"schema": {
+				  "type": "string",
+				  "x-apicat-mock": "string"
+				}
+			  },
+			  {
+				"name": "query_2",
+				"schema": {
+				  "type": "string",
+				  "x-apicat-mock": "string"
+				}
+			  }
+			],
+			"path": [],
+			"cookie": [
+			  {
+				"name": "cookie_1",
+				"schema": {
+				  "type": "string",
+				  "x-apicat-mock": "string"
+				}
+			  },
+			  {
+				"name": "cookie_2",
+				"schema": {
+				  "type": "string",
+				  "x-apicat-mock": "string"
+				}
+			  }
+			],
+			"header": [
+			  {
+				"name": "header_1",
+				"schema": {
+				  "type": "string",
+				  "x-apicat-mock": "name",
+				  "description": "这是名称",
+				  "example": "张三"
+				}
+			  },
+			  {
+				"name": "header_2",
+				"schema": {
+				  "type": "integer",
+				  "x-apicat-mock": "integer",
+				  "description": "这是年龄",
+				  "example": "18"
+				}
+			  }
+			]
+		  },
+		  "content": {
+			"application/json": {
+			  "schema": {
+				"type": "object",
+				"x-apicat-orders": [
+				  "json_1",
+				  "json_obj"
+				],
+				"properties": {
+				  "json_1": {
+					"type": "string",
+					"x-apicat-mock": "string"
+				  },
+				  "json_obj": {
+					"type": "object",
+					"x-apicat-orders": [
+					  "name",
+					  "age"
+					],
+					"properties": {
+					  "age": {
+						"type": "integer",
+						"x-apicat-mock": "integer"
+					  },
+					  "name": {
+						"type": "string",
+						"x-apicat-mock": "string"
+					  }
+					}
+				  }
+				},
+				"example": ""
+			  }
+			}
+		  }
+		}}]}
+	  `
+	ar := &spec.CollectItem{}
+	br := &spec.CollectItem{}
+	err := json.Unmarshal([]byte(as), ar)
+	if err != nil {
+		t.Errorf("Marshal ar error: %s", err)
+	}
+	err = json.Unmarshal([]byte(bs), br)
+	if err != nil {
+		t.Errorf("Marshal br error: %s", err)
+	}
+	ok, err := IsChangedBasic(ar, br)
+	if err != nil {
+		t.Errorf("IsChangedBasic error: %s", err)
+	}
+	t.Log(ok)
 }
