@@ -77,7 +77,7 @@ func (s *Schema) DereferenceSchema(sub *Schema) error {
 	// }
 
 	// if sub's refers to itself, Dereference it self
-	// sub.dereferenceSelf()
+	sub.dereferenceSelf()
 
 	// replace all referenced sub.Schema with dereferenced sub.Schema
 	for i := range refs {
