@@ -75,7 +75,7 @@ func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
 		ApiCat:      "2.0.1",
 		Info:        o.parseInfo(model.Model.Info),
 		Servers:     o.parseServers(model.Model.Servers),
-		Globals:     o.parseGlobal(model.Model.Components.Extensions),
+		Globals:     o.parseGlobal(model.Model.Components),
 		Definitions: o.parseDefinetions(model.Model.Components),
 		Collections: o.parseCollections(model.Model.Paths),
 	}, nil

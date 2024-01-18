@@ -166,8 +166,12 @@ func (o *fromOpenapi) parseParameters(inp []*v3.Parameter) spec.HTTPParameters {
 	return rawparamter
 }
 
-func (o *fromOpenapi) parseGlobal(inp map[string]any) (res spec.Global) {
+func (o *fromOpenapi) parseGlobal(com *v3.Components) (res spec.Global) {
 	res.Parameters.Fill()
+	if com == nil {
+		return res
+	}
+	inp := com.Extensions
 	if inp == nil {
 		return res
 	}
