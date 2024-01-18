@@ -170,11 +170,15 @@ func (s *Schema) RemoveSchema(s_id int64) error {
 }
 
 func (s *Schema) dereferenceSelf() {
-	if s.Schema == nil {
+	if s.Schema == nil || s == nil {
 		return
 	}
 
 	id := strconv.Itoa(int(s.ID))
+	if s.IsRefId(id) {
+		s.Schema = jsonschema.Create("object")
+		return
+	}
 
 	s.Schema.RemovePropertyByRefId(id)
 }
