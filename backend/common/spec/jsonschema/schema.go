@@ -81,11 +81,21 @@ func (s *Schema) FindRefById(id string) (refs []*Schema) {
 		return refs
 	}
 
+	// this s is object
 	if s.Properties != nil {
 		for k := range s.Properties {
 			refs = append(refs, s.Properties[k].FindRefById(id)...)
 		}
 	}
+
+	// this s is array
+	if s.Items != nil {
+		if s.Items.IsBool() {
+			return
+		}
+		refs = append(refs, s.Items.value.FindRefById(id)...)
+	}
+
 	return refs
 }
 
@@ -168,12 +178,19 @@ func (s *Schema) RemovePropertyByRefId(id string) {
 		return
 	}
 	ks := []string{}
-	for k, v := range s.Properties {
-		if v.IsRefId(id) {
-			ks = append(ks, k)
+	if s.Properties != nil {
+		for k, v := range s.Properties {
+			if v.IsRefId(id) {
+				ks = append(ks, k)
+			}
+			v.RemovePropertyByRefId(id)
 		}
-		v.RemovePropertyByRefId(id)
 	}
+
+	if s.Items != nil {
+		s.Items.value.RemovePropertyByRefId(id)
+	}
+
 	for _, v := range ks {
 		delete(s.Properties, v)
 		s.RemoveXOrderByName(v)
