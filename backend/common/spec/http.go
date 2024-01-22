@@ -170,9 +170,9 @@ func (h *HTTPRequestNode) DereferenceSchema(sub *Schema) (err error) {
 	return err
 }
 
-func (h *HTTPRequestNode) RemoveSchema(id int64) {
+func (h *HTTPRequestNode) RemoveSchema(sub *Schema) {
 	for _, v := range h.Content {
-		v.RemoveSchema(id)
+		v.RemoveSchema(sub)
 	}
 }
 
@@ -278,9 +278,9 @@ func (resp *HTTPResponsesNode) UnpackDereferenceSchema(sub Schemas) (err error) 
 }
 
 // range responses list to remove sub response
-func (resp *HTTPResponsesNode) RemoveSchema(s_id int64) {
+func (resp *HTTPResponsesNode) RemoveSchema(sub *Schema) {
 	for _, r := range resp.List {
-		r.HTTPResponseDefine.RemoveSchema(s_id)
+		r.HTTPResponseDefine.RemoveSchema(sub)
 	}
 }
 
@@ -401,10 +401,10 @@ func (h *HTTPResponseDefine) UnpackDereferenceSchema(sub Schemas) (err error) {
 	return err
 }
 
-func (h *HTTPResponseDefine) RemoveSchema(s_id int64) (err error) {
+func (h *HTTPResponseDefine) RemoveSchema(sub *Schema) (err error) {
 	// remove content
 	for _, body := range h.Content {
-		err = body.RemoveSchema(s_id)
+		err = body.RemoveSchema(sub)
 		if err != nil {
 			return err
 		}

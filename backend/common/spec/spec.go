@@ -390,7 +390,7 @@ func (c *CollectItem) UnpackDereferenceSchema(sub Schemas) error {
 	return nil
 }
 
-func (c *CollectItem) RemoveSchema(s_id int64) error {
+func (c *CollectItem) RemoveSchema(sub *Schema) error {
 	if c == nil {
 		return errors.New("collect item is nil")
 	}
@@ -406,13 +406,13 @@ func (c *CollectItem) RemoveSchema(s_id int64) error {
 			if err != nil {
 				return err
 			}
-			req.RemoveSchema(s_id)
+			req.RemoveSchema(sub)
 		case "apicat-http-response":
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {
 				return err
 			}
-			resps.RemoveSchema(s_id)
+			resps.RemoveSchema(sub)
 		}
 
 	}

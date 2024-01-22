@@ -173,7 +173,7 @@ func IsChangedBasic(a, b *Schema) bool {
 	return false
 }
 
-func (s *Schema) RemovePropertyByRefId(id string) {
+func (s *Schema) RemovePropertyByRefId(id string, stype string) {
 	if s == nil {
 		return
 	}
@@ -183,7 +183,7 @@ func (s *Schema) RemovePropertyByRefId(id string) {
 			if v.IsRefId(id) {
 				ks = append(ks, k)
 			}
-			v.RemovePropertyByRefId(id)
+			v.RemovePropertyByRefId(id, stype)
 		}
 		for _, v := range ks {
 			delete(s.Properties, v)
@@ -193,7 +193,7 @@ func (s *Schema) RemovePropertyByRefId(id string) {
 
 	if s.Items != nil {
 		if !s.Items.IsBool() && s.Items.value.IsRefId(id) {
-			s.Items.value = Create("object")
+			s.Items.value = Create(stype)
 		}
 	}
 }

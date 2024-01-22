@@ -117,7 +117,11 @@ func dfsDereferenceSchemas(s *jsonschema.Schema, id int64, sub Schemas, refs map
 			return
 		}
 		if _, ok := refs[ps.ID]; ok {
-			*s = *jsonschema.Create("object")
+			stype := "object"
+			if len(ps.Schema.Type.Value()) > 0 {
+				stype = ps.Schema.Type.Value()[0]
+			}
+			*s = *jsonschema.Create(stype)
 			return
 		}
 
@@ -151,21 +155,26 @@ func dfsDereferenceSchemas(s *jsonschema.Schema, id int64, sub Schemas, refs map
 	}
 }
 
-func (s *Schema) RemoveSchema(s_id int64) error {
+func (s *Schema) RemoveSchema(sub *Schema) error {
 	if s == nil {
 		return errors.New("schema is nil")
 	}
 	if s.Type == string(ContentItemTypeDir) {
 		return errors.New("schema type is dir")
 	}
-	id := strconv.Itoa(int(s_id))
+	id := strconv.Itoa(int(sub.ID))
+	stype := "object"
+	if len(sub.Schema.Type.Value()) > 0 {
+		stype = sub.Schema.Type.Value()[0]
+	}
 
 	if s.Schema.IsRefId(id) {
-		s.Schema = jsonschema.Create("object")
+		// need change to sub.type
+		s.Schema = jsonschema.Create(stype)
 		return nil
 	}
 
-	s.Schema.RemovePropertyByRefId(id)
+	s.Schema.RemovePropertyByRefId(id, stype)
 	return nil
 }
 
@@ -174,13 +183,18 @@ func (s *Schema) dereferenceSelf() {
 		return
 	}
 
+	stype := "object"
+	if len(s.Schema.Type.Value()) > 0 {
+		stype = s.Schema.Type.Value()[0]
+	}
+
 	id := strconv.Itoa(int(s.ID))
 	if s.IsRefId(id) {
-		s.Schema = jsonschema.Create("object")
+		s.Schema = jsonschema.Create(stype)
 		return
 	}
 
-	s.Schema.RemovePropertyByRefId(id)
+	s.Schema.RemovePropertyByRefId(id, stype)
 }
 
 // this schema's type must be dir
