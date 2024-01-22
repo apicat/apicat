@@ -10,29 +10,29 @@ import (
 func TestParseSpec(t *testing.T) {
 	raw, err := os.ReadFile("./testdata/spec.json")
 	if err != nil {
-		t.Log(err)
-		t.Fail()
+		t.Fatal("read file error", err)
 	}
 	spec, err := ParseJSON(raw)
 	if err != nil {
-		t.Log(err)
-		t.Fail()
+		t.Fatal("parse json error", err)
 	}
 	w, err := spec.ToJSON(JSONOption{Indent: "  "})
 	if err != nil {
-		t.Log(err)
-		t.Fail()
+		t.Fatal("spec to json error", err)
 	}
-	fmt.Println(string(w))
+	t.Log(string(w))
 }
 
 func TestDereferenceSchema(t *testing.T) {
 
-	ab, _ := os.ReadFile("./testdata/self_to_self.json")
+	ab, err := os.ReadFile("./testdata/self_to_self.json")
+	if err != nil {
+		t.Fatal("read file error", err)
+	}
 
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 
 	parent := source.Definitions.Schemas.LookupID(2068)
@@ -42,15 +42,18 @@ func TestDereferenceSchema(t *testing.T) {
 
 	bs, _ := json.MarshalIndent(parent, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
 }
 
 func TestUnparkDereferenceSchema(t *testing.T) {
-	ab, _ := os.ReadFile("./testdata/ref_all_dereference.json")
+	ab, err := os.ReadFile("./testdata/ref_all_dereference.json")
+	if err != nil {
+		t.Fatal("read file error", err)
+	}
 
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 
 	// a := source.Definitions.Schemas.LookupID(2336)
@@ -71,15 +74,18 @@ func TestUnparkDereferenceSchema(t *testing.T) {
 
 	bs, _ := json.MarshalIndent(source, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
 }
 
 func TestRemoveSchema(t *testing.T) {
-	ab, _ := os.ReadFile("./testdata/self_to_self.json")
+	ab, err := os.ReadFile("./testdata/self_to_self.json")
+	if err != nil {
+		t.Fatal("read file error", err)
+	}
 
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 
 	parent := source.Definitions.Schemas.LookupID(2068)
@@ -92,22 +98,25 @@ func TestRemoveSchema(t *testing.T) {
 	// fmt.Println(string(bs))
 
 	for _, c := range source.Collections {
-		c.RemoveSchema(parent.ID)
+		c.RemoveSchema(parent)
 	}
 
 	bs, _ := json.MarshalIndent(source, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
 
 }
 
 func TestDereferenceSelf(t *testing.T) {
 
-	ab, _ := os.ReadFile("./testdata/self_to_self.json")
+	ab, err := os.ReadFile("./testdata/self_to_self.json")
+	if err != nil {
+		t.Fatal("read file error", err)
+	}
 
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 
 	onlySelf := source.Definitions.Schemas.LookupID(2332)
@@ -116,7 +125,7 @@ func TestDereferenceSelf(t *testing.T) {
 
 	bs, _ := json.MarshalIndent(onlySelf, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
 
 }
 
@@ -124,11 +133,11 @@ func TestResponseRef(t *testing.T) {
 
 	ab, err := os.ReadFile("./testdata/response_ref.json")
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("read file error", err)
 	}
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 
 	resp := source.Definitions.Responses.LookupID(378)
@@ -142,17 +151,18 @@ func TestResponseRef(t *testing.T) {
 
 	bs, _ := json.MarshalIndent(source, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
+
 }
 
 func TestResponseRemove(t *testing.T) {
 	ab, err := os.ReadFile("./testdata/response_ref.json")
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("read file error", err)
 	}
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 
 	resp := source.Definitions.Responses.LookupID(378)
@@ -163,18 +173,19 @@ func TestResponseRemove(t *testing.T) {
 
 	bs, _ := json.MarshalIndent(source, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
+
 }
 
 func TestDereferenceGlobalParameters(t *testing.T) {
 
 	ab, err := os.ReadFile("./testdata/global_excepts.json")
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("read file error", err)
 	}
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 
 	for _, c := range source.Collections {
@@ -183,18 +194,19 @@ func TestDereferenceGlobalParameters(t *testing.T) {
 
 	bs, _ := json.MarshalIndent(source, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
+
 }
 
 func TestAddParameters(t *testing.T) {
 
 	ab, err := os.ReadFile("./testdata/global_excepts.json")
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("read file error", err)
 	}
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 
 	for _, c := range source.Collections {
@@ -203,7 +215,7 @@ func TestAddParameters(t *testing.T) {
 
 	bs, _ := json.MarshalIndent(source, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
 
 }
 
@@ -211,11 +223,11 @@ func TestOpenGlobalParameters(t *testing.T) {
 
 	ab, err := os.ReadFile("./testdata/global_excepts.json")
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("read file error", err)
 	}
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 
 	for _, c := range source.Collections {
@@ -224,18 +236,18 @@ func TestOpenGlobalParameters(t *testing.T) {
 
 	bs, _ := json.MarshalIndent(source, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
 
 }
 
 func TestSItemsListToTree(t *testing.T) {
 	ab, err := os.ReadFile("./testdata/items_tree_export_openapi.json")
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("read file error", err)
 	}
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 	ss := source.Definitions.Schemas
 	ts := Schemas{}
@@ -245,17 +257,17 @@ func TestSItemsListToTree(t *testing.T) {
 	res := ts.ItemsListToTree()
 	bs, _ := json.MarshalIndent(res, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
 }
 
 func TestSMakeSelfTree(t *testing.T) {
 	ab, err := os.ReadFile("./testdata/items_tree_export_openapi.json")
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("read file error", err)
 	}
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 	ss := source.Definitions.Schemas
 	ts := Schemas{}
@@ -266,17 +278,17 @@ func TestSMakeSelfTree(t *testing.T) {
 	s2 := s.makeSelfTree(s.Schema.XCategory, map[string]*Schema{})
 	bs, _ := json.MarshalIndent(s2, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
 }
 
 func TestRItemsListToTree(t *testing.T) {
 	ab, err := os.ReadFile("./testdata/items_tree_export_openapi.json")
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("read file error", err)
 	}
 	source, err := ParseJSON(ab)
 	if err != nil {
-		fmt.Println(err)
+		t.Fatal("parse json error", err)
 	}
 	ss := source.Definitions.Responses
 	ts := HTTPResponseDefines{}
@@ -286,5 +298,5 @@ func TestRItemsListToTree(t *testing.T) {
 	res := ts.ItemsListToTree()
 	bs, _ := json.MarshalIndent(res, "", " ")
 
-	fmt.Println(string(bs))
+	t.Log(string(bs))
 }
