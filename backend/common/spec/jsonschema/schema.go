@@ -191,8 +191,8 @@ func (s *Schema) RemovePropertyByRefId(id string, stype string) {
 		}
 	}
 
-	if s.Items != nil {
-		if !s.Items.IsBool() && s.Items.value.IsRefId(id) {
+	if s.Items != nil && s.Items.value != nil {
+		if s.Items.value.IsRefId(id) {
 			s.Items.value = Create(stype)
 		}
 	}
