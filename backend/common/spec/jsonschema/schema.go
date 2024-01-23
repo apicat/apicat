@@ -8,7 +8,7 @@ import (
 )
 
 type Schema struct {
-	// 3.1 []string 2,3.0 string
+	// 3.1 []string 2,3.0 string, if this schema is reference, it will be null
 	Type *SliceOrOneValue[string] `json:"type,omitempty"`
 
 	XOrder []string `json:"x-apicat-orders,omitempty"`
@@ -285,6 +285,9 @@ func (s *Schema) SetXDiff(x *string) {
 		for _, v := range s.Properties {
 			v.SetXDiff(x)
 		}
+	}
+	if s.Items.value != nil {
+		s.Items.value.SetXDiff(x)
 	}
 	s.XDiff = x
 }
