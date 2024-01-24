@@ -148,6 +148,12 @@ func (h *HTTPRequestNode) FillGlobalExcepts() {
 	}
 }
 
+func (h *HTTPRequestNode) InitContent() {
+	if h.Content == nil {
+		h.Content = make(HTTPBody)
+	}
+}
+
 // if content is exect, remove it and return true, else return false
 func (h *HTTPRequestNode) tryRemoveGlobalExcept(in string, id int64) bool {
 	ids := h.GlobalExcepts[in]
