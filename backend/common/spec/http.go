@@ -150,7 +150,7 @@ func (h *HTTPRequestNode) FillGlobalExcepts() {
 
 func (h *HTTPRequestNode) InitContent() {
 	if h.Content == nil {
-		h.Content = make(HTTPBody, 1)
+		h.Content = make(HTTPBody)
 	}
 }
 
