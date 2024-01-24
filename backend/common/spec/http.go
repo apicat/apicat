@@ -427,8 +427,7 @@ func (h *HTTPResponseDefine) itemsTreeToList(path string) (res HTTPResponseDefin
 
 	for _, item := range h.Items {
 		if item.Type == string(ContentItemTypeDir) {
-			path = fmt.Sprintf("%s/%s", path, item.Name)
-			res = append(res, item.itemsTreeToList(path)...)
+			res = append(res, item.itemsTreeToList(fmt.Sprintf("%s/%s", path, item.Name))...)
 		} else {
 			item.Category = path
 			res = append(res, item)

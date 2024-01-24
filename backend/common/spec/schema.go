@@ -212,8 +212,7 @@ func (s *Schema) itemsTreeToList(path string) (res Schemas) {
 
 	for _, item := range s.Items {
 		if item.Type == string(ContentItemTypeDir) {
-			path = fmt.Sprintf("%s/%s", path, item.Name)
-			res = append(res, item.itemsTreeToList(path)...)
+			res = append(res, item.itemsTreeToList(fmt.Sprintf("%s/%s", path, item.Name))...)
 		} else {
 			item.Schema.XCategory = path
 			res = append(res, item)
