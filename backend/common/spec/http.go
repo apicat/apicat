@@ -130,7 +130,7 @@ type HTTPBody map[string]*Schema
 type HTTPRequestNode struct {
 	GlobalExcepts map[string][]int64 `json:"globalExcepts,omitempty"`
 	Parameters    HTTPParameters     `json:"parameters,omitempty"`
-	Content       HTTPBody           `json:"content,omitempty"`
+	Content       HTTPBody           `json:"content"`
 }
 
 func (HTTPRequestNode) Name() string {
@@ -150,7 +150,7 @@ func (h *HTTPRequestNode) FillGlobalExcepts() {
 
 func (h *HTTPRequestNode) InitContent() {
 	if h.Content == nil {
-		h.Content = make(HTTPBody)
+		h.Content = make(HTTPBody, 1)
 	}
 }
 
