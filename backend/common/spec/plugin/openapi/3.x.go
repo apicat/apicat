@@ -133,9 +133,12 @@ func (o *fromOpenapi) parseParameters(inp []*v3.Parameter) spec.HTTPParameters {
 	rawparamter.Fill()
 	for _, v := range inp {
 		if g := v.GoLow(); g.IsReference() {
+			// if this parameter is a global parameter
+			if isGlobalParameter(g.Reference.Reference) {
+				continue
+			}
 			name := fmt.Sprintf("%s-%s", v.In, v.Name)
 			sc, ok := o.parametersMapping[name]
-			// if this parameter is a global parameter
 			if ok {
 				rawparamter.Add(v.In, sc)
 				continue

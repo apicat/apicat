@@ -151,3 +151,7 @@ func stringToUnid(s string) int64 {
 	}
 	return x
 }
+
+func isGlobalParameter(ref string) bool {
+	return strings.Contains(ref, "/x-apicat-globals/")
+}
