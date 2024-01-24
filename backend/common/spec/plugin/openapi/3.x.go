@@ -518,6 +518,7 @@ func (o *toOpenapi) toResponse(in *spec.Spec, def spec.HTTPResponseDefine, ver s
 	}
 	res["description"] = v.Description
 	res["x-apicat-category"] = v.Category
+	res["name"] = v.Name
 	return res
 }
 
