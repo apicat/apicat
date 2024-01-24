@@ -327,6 +327,7 @@ type openapiSpec struct {
 }
 
 type toOpenapi struct {
+	// get all schema that type is not category,in toComponents func, used to toConvertJSONSchemaRef func, get schema's name by schema's id
 	schemaMapping map[int64]string
 }
 
@@ -524,19 +525,18 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 	schemas := make(map[string]jsonschema.Schema)
 	o.schemaMapping = map[int64]string{}
 	for _, v := range in.Definitions.Schemas {
-		o.schemaMapping[v.ID] = v.Name
-	}
-	for _, v := range in.Definitions.Schemas {
 		// if type is category, it's not have schema, need to range it's items
 		if v.Type == string(spec.ContentItemTypeDir) {
 			ss := v.ItemsTreeToList()
 			for _, s := range ss {
 				name_id := fmt.Sprintf("%s-%d", s.Name, s.ID)
 				schemas[name_id] = *o.convertJSONSchema(ver, s.Schema)
+				o.schemaMapping[s.ID] = s.Name
 			}
 		} else {
 			name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
 			schemas[name_id] = *o.convertJSONSchema(ver, v.Schema)
+			o.schemaMapping[v.ID] = v.Name
 		}
 	}
 	respons := make(map[string]any)
