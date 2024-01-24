@@ -291,6 +291,8 @@ func (o *fromOpenapi) parseCollections(paths *v3.Paths) []*spec.CollectItem {
 
 			// request
 			var req spec.HTTPRequestNode
+			req.FillGlobalExcepts()
+			req.Content = make(spec.HTTPBody)
 			req.Parameters = o.parseParameters(info.Parameters)
 			if info.RequestBody != nil {
 				req.Content = o.parseContent(info.RequestBody.Content)
