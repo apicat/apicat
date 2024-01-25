@@ -286,7 +286,7 @@ func (s *Schema) SetXDiff(x *string) {
 			v.SetXDiff(x)
 		}
 	}
-	if s.Items.value != nil {
+	if s.Items != nil && !s.Items.IsBool() {
 		s.Items.value.SetXDiff(x)
 	}
 	s.XDiff = x
