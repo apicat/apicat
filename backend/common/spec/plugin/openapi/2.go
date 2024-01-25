@@ -102,7 +102,7 @@ func (s *fromSwagger) parseGlobal(inp map[string]any) (res spec.Global) {
 	if inp == nil {
 		return res
 	}
-	global, ok := inp["x-apicat-globals"]
+	global, ok := inp["x-apicat-global-parameters"]
 	if !ok {
 		return res
 	}
@@ -379,17 +379,17 @@ func (s *fromSwagger) parseCollections(in *v2.Swagger, paths *v2.Paths) []*spec.
 //
 
 type swaggerSpec struct {
-	Swagger     string                                `json:"swagger"`
-	Info        *spec.Info                            `json:"info"`
-	Tags        []tagObject                           `json:"tags,omitempty"`
-	Host        string                                `json:"host,omitempty"`
-	BasePath    string                                `json:"basePath"`
-	Schemas     []string                              `json:"schemes,omitempty"`
-	Definitions map[string]jsonschema.Schema          `json:"definitions"`
-	Parameters  map[string]openAPIParamter            `json:"parameters,omitempty"`
-	Responses   map[string]any                        `json:"responses,omitempty"`
-	Paths       map[string]map[string]swaggerPathItem `json:"paths"`
-	Globals     map[string]openAPIParamter            `json:"x-apicat-globals,omitempty"`
+	Swagger          string                                `json:"swagger"`
+	Info             *spec.Info                            `json:"info"`
+	Tags             []tagObject                           `json:"tags,omitempty"`
+	Host             string                                `json:"host,omitempty"`
+	BasePath         string                                `json:"basePath"`
+	Schemas          []string                              `json:"schemes,omitempty"`
+	Definitions      map[string]jsonschema.Schema          `json:"definitions"`
+	Parameters       map[string]openAPIParamter            `json:"parameters,omitempty"`
+	Responses        map[string]any                        `json:"responses,omitempty"`
+	Paths            map[string]map[string]swaggerPathItem `json:"paths"`
+	GlobalParameters map[string]openAPIParamter            `json:"x-apicat-global-parameters,omitempty"`
 }
 
 type toSwagger struct {
@@ -445,11 +445,11 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 
 	globalParam := in.Globals.Parameters
 	m := globalParam.Map()
-	out.Globals = make(map[string]openAPIParamter)
+	out.GlobalParameters = make(map[string]openAPIParamter)
 	for in, ps := range m {
 		for _, p := range ps {
 			name_id := fmt.Sprintf("%s-%d", p.Name, p.ID)
-			out.Globals[name_id] = toParameter(p, in)
+			out.GlobalParameters[name_id] = toParameter(p, in)
 		}
 	}
 

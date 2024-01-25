@@ -178,7 +178,7 @@ func (o *fromOpenapi) parseGlobal(com *v3.Components) (res spec.Global) {
 	if inp == nil {
 		return res
 	}
-	global, ok := inp["x-apicat-globals"]
+	global, ok := inp["x-apicat-global-parameters"]
 	if !ok {
 		return res
 	}
@@ -582,9 +582,9 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 	}
 
 	return map[string]any{
-		"schemas":          schemas,
-		"responses":        respons,
-		"parameters":       parameters,
-		"x-apicat-globals": globals,
+		"schemas":                    schemas,
+		"responses":                  respons,
+		"parameters":                 parameters,
+		"x-apicat-global-parameters": globals,
 	}
 }

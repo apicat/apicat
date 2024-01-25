@@ -97,7 +97,7 @@
           "example": ""
         }
       },
-      "x-apicat-globals": {
+      "x-apicat-global-parameters": {
         "cookie-global_cookie": {
           "name": "global_cookie",
           "in": "cookie",
@@ -185,10 +185,10 @@
               "$ref": "#/components/parameters/query-skip"
             },
             {
-              "$ref": "#/components/x-apicat-globals/header-global_header"
+              "$ref": "#/components/x-apicat-global-parameters/header-global_header"
             },
             {
-              "$ref": "#/components/x-apicat-globals/cookie-global_cookie"
+              "$ref": "#/components/x-apicat-global-parameters/cookie-global_cookie"
             }
           ],
           "responses": {

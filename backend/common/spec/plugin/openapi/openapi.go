@@ -94,10 +94,10 @@ func Encode(in *spec.Spec, version string) ([]byte, error) {
 
 		globalParam := in.Globals.Parameters
 		m := globalParam.Map()
-		sp.Globals = make(map[string]openAPIParamter)
+		sp.GlobalParameters = make(map[string]openAPIParamter)
 		for in, ps := range m {
 			for _, p := range ps {
-				sp.Globals[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
+				sp.GlobalParameters[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
 			}
 		}
 
@@ -167,9 +167,9 @@ func toParameterGlobal(globalsParmaters spec.HTTPParameters, isSwagger bool, ski
 
 			ref := fmt.Sprintf("%s-%s", in, v.Name)
 			if isSwagger {
-				ref = "#/x-apicat-globals/" + ref
+				ref = "#/x-apicat-global-parameters/" + ref
 			} else {
-				ref = "#/components/x-apicat-globals/" + ref
+				ref = "#/components/x-apicat-global-parameters/" + ref
 			}
 			outs = append(outs, openAPIParamter{
 				Reference: &ref,
