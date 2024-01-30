@@ -106,8 +106,6 @@ func (s *fromSwagger) parseGlobal(inp map[string]any) (res spec.Global) {
 	if !ok {
 		return res
 	}
-	var rawparamter spec.HTTPParameters
-	rawparamter.Fill()
 
 	for k, v := range global.(map[string]any) {
 
@@ -122,9 +120,8 @@ func (s *fromSwagger) parseGlobal(inp map[string]any) (res spec.Global) {
 		if in == -1 {
 			continue
 		}
-		rawparamter.Add(k[:in], s)
+		res.Parameters.Add(k[:in], s)
 	}
-	res.Parameters = rawparamter
 	return res
 }
 
