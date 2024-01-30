@@ -242,6 +242,9 @@ func walkHttpCollection(doc *spec.Spec) map[string]map[string]specPathItem {
 // 将jsonschema 转为对应的 openaapi版本 主要是引用
 func toConvertJSONSchemaRef(v *jsonschema.Schema, ver string, mapping map[int64]string) *jsonschema.Schema {
 	sh := *v
+	if sh.Example == "" {
+		sh.Example = nil
+	}
 	if sh.Reference != nil {
 		if id := toInt64(getRefName(*sh.Reference)); id > 0 {
 			var ref string
