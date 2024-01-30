@@ -37,7 +37,7 @@ func Diff(ref_obj, diff_obj *spec.CollectItem) (*spec.CollectItem, error) {
 			if an.Node.NodeType() == bn.Node.NodeType() {
 				// assertion in three parts to diff
 				switch an.Node.NodeType() {
-				case "apicat-http-url":
+				case spec.NAME_HTTP_URL:
 					au, err := an.ToHTTPURLNode()
 					bu, err := bn.ToHTTPURLNode()
 					if err != nil {
@@ -53,14 +53,14 @@ func Diff(ref_obj, diff_obj *spec.CollectItem) (*spec.CollectItem, error) {
 							bu.XDiff = &diffUpdate
 						}
 					}
-				case "apicat-http-request":
+				case spec.NAME_HTTP_REQUEST:
 					ar, err := an.ToHTTPRequestNode()
 					br, err := bn.ToHTTPRequestNode()
 					if err != nil {
 						return nil, err
 					}
 					equalRequest(ar, br)
-				case "apicat-http-response":
+				case spec.NAME_HTTP_RESPONSES:
 					ar, err := an.ToHTTPResponsesNode()
 					br, err := bn.ToHTTPResponsesNode()
 					if err != nil {
@@ -98,14 +98,14 @@ func IsChangedBasic(ref_obj, diff_obj *spec.CollectItem) (bool, error) {
 			if an.Node.NodeType() == bn.Node.NodeType() {
 				// assertion in three parts to diff
 				switch an.Node.NodeType() {
-				case "apicat-http-request":
+				case spec.NAME_HTTP_REQUEST:
 					ar, err := an.ToHTTPRequestNode()
 					br, err := bn.ToHTTPRequestNode()
 					if err != nil {
 						return false, err
 					}
 					return changeBasicRequest(ar, br), nil
-				case "apicat-http-response":
+				case spec.NAME_HTTP_RESPONSES:
 					// not todo
 				default:
 					// not todo

@@ -283,7 +283,7 @@ func (c *CollectItem) DereferenceResponse(sub ...*HTTPResponseDefine) error {
 	for _, node := range c.Content {
 		switch node.NodeType() {
 		// just this type to reference response
-		case "apicat-http-response":
+		case NAME_HTTP_RESPONSES:
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {
 				return err
@@ -308,7 +308,7 @@ func (c *CollectItem) RemoveResponse(s_id int64) error {
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
-		case "apicat-http-response":
+		case NAME_HTTP_RESPONSES:
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {
 				return err
@@ -333,7 +333,7 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
-		case "apicat-http-request":
+		case NAME_HTTP_REQUEST:
 			req, err := node.ToHTTPRequestNode()
 			if err != nil {
 				return err
@@ -342,7 +342,7 @@ func (c *CollectItem) DereferenceSchema(sub *Schema) error {
 			if err != nil {
 				return err
 			}
-		case "apicat-http-response":
+		case NAME_HTTP_RESPONSES:
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {
 				return err
@@ -367,7 +367,7 @@ func (c *CollectItem) UnpackDereferenceSchema(sub Schemas) error {
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
-		case "apicat-http-request":
+		case NAME_HTTP_REQUEST:
 			req, err := node.ToHTTPRequestNode()
 			if err != nil {
 				return err
@@ -376,7 +376,7 @@ func (c *CollectItem) UnpackDereferenceSchema(sub Schemas) error {
 			if err != nil {
 				return err
 			}
-		case "apicat-http-response":
+		case NAME_HTTP_RESPONSES:
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {
 				return err
@@ -401,13 +401,13 @@ func (c *CollectItem) RemoveSchema(sub *Schema) error {
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
-		case "apicat-http-request":
+		case NAME_HTTP_REQUEST:
 			req, err := node.ToHTTPRequestNode()
 			if err != nil {
 				return err
 			}
 			req.RemoveSchema(sub)
-		case "apicat-http-response":
+		case NAME_HTTP_RESPONSES:
 			resps, err := node.ToHTTPResponsesNode()
 			if err != nil {
 				return err
@@ -430,7 +430,7 @@ func (c *CollectItem) DereferenceGlobalParameters(in string, sub *Schema) error 
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
-		case "apicat-http-request":
+		case NAME_HTTP_REQUEST:
 			req, err := node.ToHTTPRequestNode()
 			if err != nil {
 				return err
@@ -458,7 +458,7 @@ func (c *CollectItem) OpenGlobalParameters(in string, s_id int64) error {
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
-		case "apicat-http-request":
+		case NAME_HTTP_REQUEST:
 			req, err := node.ToHTTPRequestNode()
 			if err != nil {
 				return err
@@ -480,7 +480,7 @@ func (c *CollectItem) AddParameters(in string, sub *Schema) error {
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
-		case "apicat-http-request":
+		case NAME_HTTP_REQUEST:
 			req, err := node.ToHTTPRequestNode()
 			if err != nil {
 				return err
@@ -502,7 +502,7 @@ func (c *CollectItem) RemoveParameters(in string, s_id int64) error {
 
 	for _, node := range c.Content {
 		switch node.NodeType() {
-		case "apicat-http-request":
+		case NAME_HTTP_REQUEST:
 			req, err := node.ToHTTPRequestNode()
 			if err != nil {
 				return err

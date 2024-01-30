@@ -121,8 +121,10 @@ type HTTPURLNode struct {
 	XDiff  *string `json:"x-apicat-diff,omitempty"`
 }
 
+const NAME_HTTP_URL string = "apicat-http-url"
+
 func (HTTPURLNode) Name() string {
-	return "apicat-http-url"
+	return NAME_HTTP_URL
 }
 
 type HTTPBody map[string]*Schema
@@ -133,8 +135,10 @@ type HTTPRequestNode struct {
 	Content       HTTPBody           `json:"content"`
 }
 
+const NAME_HTTP_REQUEST string = "apicat-http-request"
+
 func (HTTPRequestNode) Name() string {
-	return "apicat-http-request"
+	return NAME_HTTP_REQUEST
 }
 
 func (h *HTTPRequestNode) FillGlobalExcepts() {
@@ -238,8 +242,10 @@ type HTTPResponsesNode struct {
 	List HTTPResponses `json:"list,omitempty"`
 }
 
+const NAME_HTTP_RESPONSES string = "apicat-http-response"
+
 func (HTTPResponsesNode) Name() string {
-	return "apicat-http-response"
+	return NAME_HTTP_RESPONSES
 }
 
 // range responses list to dereference sub response
