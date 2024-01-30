@@ -14,7 +14,7 @@ type HTTPParameters struct {
 	Header Schemas `json:"header"`
 }
 
-var HttpParameter = []string{"query", "path", "cookie", "header"}
+var HttpParameterType = []string{"query", "path", "cookie", "header"}
 
 // test func
 func (h *HTTPParameters) LookupID(id int64) (s *Schema) {
@@ -144,7 +144,7 @@ func (HTTPRequestNode) Name() string {
 func (h *HTTPRequestNode) FillGlobalExcepts() {
 	if h.GlobalExcepts == nil {
 		h.GlobalExcepts = make(map[string][]int64)
-		for _, v := range HttpParameter {
+		for _, v := range HttpParameterType {
 			if _, ok := h.GlobalExcepts[v]; !ok {
 				h.GlobalExcepts[v] = []int64{}
 			}

@@ -148,7 +148,7 @@ func getMapOne(d map[string]map[string]spec.HTTPPart) (*spec.HTTPPart, *spec.HTT
 func equalParam(a spec.HTTPParameters, b *spec.HTTPParameters) {
 	a1 := a.Map()
 	b1 := b.Map()
-	for _, v := range spec.HttpParameter {
+	for _, v := range spec.HttpParameterType {
 		ap, a_has := a1[v]
 		bp, b_has := b1[v]
 
@@ -182,7 +182,7 @@ func equalParam(a spec.HTTPParameters, b *spec.HTTPParameters) {
 func changeBasicParam(a spec.HTTPParameters, b spec.HTTPParameters) bool {
 	a1 := a.Map()
 	b1 := b.Map()
-	for _, v := range spec.HttpParameter {
+	for _, v := range spec.HttpParameterType {
 		ap, a_has := a1[v]
 		bp, b_has := b1[v]
 
