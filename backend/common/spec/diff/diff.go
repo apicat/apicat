@@ -260,28 +260,21 @@ func changeBasicSchemas(a, b spec.Schemas) bool {
 }
 
 func equalContent(a, b spec.HTTPBody) spec.HTTPBody {
+
 	names := map[string]struct{}{}
+	as, bs := &spec.Schema{}, &spec.Schema{}
+	// httpbody just have one value
 	for v := range a {
 		names[v] = struct{}{}
+		as = a[v]
 	}
 	for v := range b {
 		names[v] = struct{}{}
+		bs = b[v]
 	}
-	for v := range names {
-		as, a_has := a[v]
-		bs, b_has := b[v]
-		if !a_has && b_has {
-			bs.SetXDiff(&diffNew)
-			continue
-		}
-		if a_has && !b_has {
-			as.SetXDiff(&diffRemove)
-			if b == nil {
-				b = make(spec.HTTPBody)
-			}
-			b[v] = as
-			continue
-		}
+	if len(names) != 1 {
+		bs.SetXDiff(&diffNew)
+	} else {
 		equalSchema(as, bs)
 	}
 	return b
