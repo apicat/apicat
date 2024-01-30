@@ -416,28 +416,23 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 		out.Schemas = append(out.Schemas, u.Scheme)
 	}
 
-	// twice range can replace to once range ?
+	ss := spec.Schemas{}
+	// fill s.schemas
 	for _, v := range in.Definitions.Schemas {
 		if v.Type == string(spec.ContentItemTypeDir) {
 			items := v.ItemsTreeToList()
 			for _, item := range items {
 				s.schemas[item.ID] = item.Name
 			}
+			ss = append(ss, items...)
 		} else {
 			s.schemas[v.ID] = v.Name
+			ss = append(ss, v)
 		}
 	}
-	for _, v := range in.Definitions.Schemas {
-		if v.Type == string(spec.ContentItemTypeDir) {
-			items := v.ItemsTreeToList()
-			for _, item := range items {
-				name_id := fmt.Sprintf("%s-%d", item.Name, item.ID)
-				out.Definitions[name_id] = *s.convertJSONSchema(item.Schema)
-			}
-		} else {
-			name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
-			out.Definitions[name_id] = *s.convertJSONSchema(v.Schema)
-		}
+	for _, v := range ss {
+		name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
+		out.Definitions[name_id] = *s.convertJSONSchema(v.Schema)
 	}
 
 	globalParam := in.Globals.Parameters

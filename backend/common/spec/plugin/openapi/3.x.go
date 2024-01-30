@@ -531,21 +531,27 @@ func (o *toOpenapi) toResponse(in *spec.Spec, def spec.HTTPResponseDefine, ver s
 func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 	schemas := make(map[string]jsonschema.Schema)
 	o.schemaMapping = map[int64]string{}
+
+	ss := spec.Schemas{}
+	// fill o.schemaMapping
 	for _, v := range in.Definitions.Schemas {
 		// if type is category, it's not have schema, need to range it's items
 		if v.Type == string(spec.ContentItemTypeDir) {
-			ss := v.ItemsTreeToList()
-			for _, s := range ss {
-				name_id := fmt.Sprintf("%s-%d", s.Name, s.ID)
-				schemas[name_id] = *o.convertJSONSchema(ver, s.Schema)
-				o.schemaMapping[s.ID] = s.Name
+			items := v.ItemsTreeToList()
+			for _, item := range items {
+				o.schemaMapping[item.ID] = item.Name
 			}
+			ss = append(ss, items...)
 		} else {
-			name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
-			schemas[name_id] = *o.convertJSONSchema(ver, v.Schema)
 			o.schemaMapping[v.ID] = v.Name
+			ss = append(ss, v)
 		}
 	}
+	for _, v := range ss {
+		name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
+		schemas[name_id] = *o.convertJSONSchema(ver, v.Schema)
+	}
+
 	respons := make(map[string]any)
 	for _, v := range in.Definitions.Responses {
 		if v.Type == string(spec.ContentItemTypeDir) {
