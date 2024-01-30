@@ -1,6 +1,7 @@
 package diff
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -26,14 +27,24 @@ var (
 // spec.Collections 里面只能有一个接口
 // 返回对比后的两个接口 其中只有最新的那个 也就是target里边会通过x-apicat-diff标记是否有差异
 // 差异并不包含排序
-func Diff(ref_obj, diff_obj *spec.CollectItem) (*spec.CollectItem, error) {
+func Diff(original, target *spec.CollectItem) error {
 
-	if ref_obj == nil || diff_obj == nil {
-		return nil, errors.New("source,target Collections length error")
+	if original == nil || target == nil {
+		return errors.New("source,target Collections length error")
 	}
 
-	for _, an := range ref_obj.Content {
-		for _, bn := range diff_obj.Content {
+	copy_original := &spec.CollectItem{}
+	b, err := json.Marshal(original)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(b, copy_original)
+	if err != nil {
+		return err
+	}
+
+	for _, an := range copy_original.Content {
+		for _, bn := range target.Content {
 			if an.Node.NodeType() == bn.Node.NodeType() {
 				// assertion in three parts to diff
 				switch an.Node.NodeType() {
@@ -41,7 +52,7 @@ func Diff(ref_obj, diff_obj *spec.CollectItem) (*spec.CollectItem, error) {
 					au, err := an.ToHTTPURLNode()
 					bu, err := bn.ToHTTPURLNode()
 					if err != nil {
-						return nil, err
+						return err
 					}
 					if au.Path != bu.Path {
 						if au.Path == "" {
@@ -57,34 +68,40 @@ func Diff(ref_obj, diff_obj *spec.CollectItem) (*spec.CollectItem, error) {
 					ar, err := an.ToHTTPRequestNode()
 					br, err := bn.ToHTTPRequestNode()
 					if err != nil {
-						return nil, err
+						return err
 					}
 					equalRequest(ar, br)
 				case spec.NAME_HTTP_RESPONSES:
 					ar, err := an.ToHTTPResponsesNode()
 					br, err := bn.ToHTTPResponsesNode()
 					if err != nil {
-						return nil, err
+						return err
 					}
 					br.List = equalResponse(ar.List, br.List)
 				default:
-					return nil, errors.New("node type error")
+					return errors.New("node type error")
 				}
 			}
 		}
 	}
-	return diff_obj, nil
+	return nil
 }
 
-func DiffSchema(a, b *spec.Schema) (*spec.Schema, error) {
-	if a == nil || b == nil {
-		return nil, errors.New("schema is nil")
+func DiffSchema(original, target *spec.Schema) error {
+	if original == nil || target == nil {
+		return errors.New("schema is nil")
 	}
-	// if a.Name != b.Name {
-	// 	b.XDiff = &diffUpdate
-	// }
-	equalJsonSchema(a.Schema, b.Schema)
-	return b, nil
+	copy_original := &spec.Schema{}
+	bb, err := json.Marshal(original)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(bb, copy_original)
+	if err != nil {
+		return err
+	}
+	equalJsonSchema(copy_original.Schema, target.Schema)
+	return nil
 }
 
 func IsChangedBasic(ref_obj, diff_obj *spec.CollectItem) (bool, error) {

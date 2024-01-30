@@ -72,12 +72,12 @@ func TestDiff(t *testing.T) {
 		t.Errorf("unmarshal error: %v", err)
 	}
 
-	collectitemB, err := Diff(nullc, ab.Collections[0])
+	err = Diff(nullc, ab.Collections[0])
 	if err != nil {
 		t.Errorf("diff error: %v", err)
 	}
 	// aaa, _ := json.MarshalIndent(collectitemA, "", " ")
-	res, _ := json.MarshalIndent(collectitemB, "", " ")
+	res, _ := json.MarshalIndent(ab.Collections[0], "", " ")
 	t.Log(string(res))
 }
 
@@ -151,7 +151,7 @@ func TestSchemaDiff(t *testing.T) {
 	b := &spec.Schema{}
 	_ = json.Unmarshal([]byte(sb), b)
 
-	b, err := DiffSchema(a, b)
+	err := DiffSchema(a, b)
 	if err != nil {
 		t.Errorf("diffschema error: %v", err)
 	}
