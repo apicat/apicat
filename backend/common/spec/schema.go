@@ -26,7 +26,6 @@ type Schema struct {
 	Schema      *jsonschema.Schema  `json:"schema,omitempty"`
 	Items       Schemas             `json:"items,omitempty"`
 	Reference   *string             `json:"$ref,omitempty"`
-	XDiff       *string             `json:"x-apicat-diff,omitempty"`
 }
 
 type Example struct {
@@ -345,7 +344,6 @@ func (s *Schema) SetXDiff(x *string) {
 	if s.Schema != nil {
 		s.Schema.SetXDiff(x)
 	}
-	s.XDiff = x
 }
 
 func (s *Schema) FindExample(summary string) (*Example, bool) {

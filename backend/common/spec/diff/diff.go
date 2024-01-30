@@ -265,9 +265,7 @@ func equalContent(a, b spec.HTTPBody) spec.HTTPBody {
 			b[v] = as
 			continue
 		}
-		if equalSchema(as, bs) {
-			bs.XDiff = &diffUpdate
-		}
+		equalSchema(as, bs)
 	}
 	return b
 }
@@ -344,7 +342,6 @@ func equalResponse(a, b spec.HTTPResponses) spec.HTTPResponses {
 func equalSchema(a, b *spec.Schema) bool {
 	change := false
 	if !a.EqualNomal(b) {
-		b.XDiff = &diffUpdate
 		change = true
 	}
 	sc := equalJsonSchema(a.Schema, b.Schema)
