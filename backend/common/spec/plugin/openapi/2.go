@@ -16,8 +16,9 @@ import (
 )
 
 type fromSwagger struct {
-	schemaMapping     map[string]int64
-	parametersMapping map[string]*spec.Schema
+	schemaMapping          map[string]int64
+	parametersMapping      map[string]*spec.Schema
+	globalParamtersMappint map[string]struct{}
 }
 
 func (s *fromSwagger) parseInfo(info *base.Info) *spec.Info {
@@ -107,6 +108,7 @@ func (s *fromSwagger) parseGlobal(inp map[string]any) (res spec.Global) {
 		return res
 	}
 
+	s.globalParamtersMappint = make(map[string]struct{})
 	for k, v := range global.(map[string]any) {
 
 		nb, err := json.Marshal(v)
@@ -114,13 +116,14 @@ func (s *fromSwagger) parseGlobal(inp map[string]any) (res spec.Global) {
 			continue
 		}
 
-		s := &spec.Schema{}
-		json.Unmarshal(nb, s)
+		sc := &spec.Schema{}
+		json.Unmarshal(nb, sc)
 		in := strings.Index(k, "-")
 		if in == -1 {
 			continue
 		}
-		res.Parameters.Add(k[:in], s)
+		res.Parameters.Add(k[:in], sc)
+		s.globalParamtersMappint[sc.Name] = struct{}{}
 	}
 	return res
 }
@@ -140,7 +143,7 @@ func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTP
 		Content: make(spec.HTTPBody),
 	}
 	request.Parameters.Fill()
-	var body *jsonschema.Schema
+	body := &jsonschema.Schema{}
 	// 有效载荷application/x-www-form-urlencoded和multipart/form-data请求是通过使用form参数来描述，而不是body参数。
 	formData := &jsonschema.Schema{
 		Type:       jsonschema.CreateSliceOrOne("object"),
@@ -150,6 +153,14 @@ func (s *fromSwagger) parseRequest(in *v2.Swagger, info *v2.Operation) spec.HTTP
 	for _, v := range info.Parameters {
 		// 这里引用 #/parameters 暂时无法获取
 		// 直接展开
+		_, ok := s.parametersMapping[v.Name]
+		if ok {
+			continue
+		}
+		_, ok = s.globalParamtersMappint[v.Name]
+		if ok {
+			continue
+		}
 		required := v.Required != nil && *v.Required
 		switch v.In {
 		case "query", "header", "path", "cookie":
