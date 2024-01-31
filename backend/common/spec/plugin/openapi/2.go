@@ -294,7 +294,9 @@ func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode 
 		resp := spec.HTTPResponse{
 			Code: c,
 		}
-		resp.Name = res.Description
+		if _, ok := res.Extensions["x-apicat-response-name"]; ok {
+			resp.Name = res.Extensions["x-apicat-response-name"].(string)
+		}
 		resp.Description = res.Description
 		resp.Content = make(spec.HTTPBody)
 		resp.Header = make(spec.Schemas, 0)
@@ -604,7 +606,8 @@ func (s *toSwagger) parseResponse(in *spec.Spec, res spec.HTTPResponseDefine) ma
 		return nil
 	}
 	resp := map[string]any{
-		"description": res.Description,
+		"description":            res.Description,
+		"x-apicat-response-name": res.Name,
 	}
 	if len(res.Header) > 0 {
 		h := make(map[string]any)

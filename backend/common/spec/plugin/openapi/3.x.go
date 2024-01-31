@@ -245,7 +245,9 @@ func (o *fromOpenapi) parseeResoponse(responses map[string]*v3.Response) spec.HT
 			outresponses.List = append(outresponses.List, &resp)
 			continue
 		}
-		resp.Name = res.Description
+		if _, ok := res.Extensions["x-apicat-response-name"]; ok {
+			resp.Name = res.Extensions["x-apicat-response-name"].(string)
+		}
 		resp.Description = res.Description
 		resp.Header = make(spec.Schemas, 0)
 		if res.Headers != nil {
@@ -524,7 +526,7 @@ func (o *toOpenapi) toResponse(in *spec.Spec, def spec.HTTPResponseDefine, ver s
 	}
 	res["description"] = v.Description
 	res["x-apicat-category"] = v.Category
-	res["name"] = v.Name
+	res["x-apicat-response-name"] = v.Name
 	return res
 }
 
