@@ -97,7 +97,7 @@ func Encode(in *spec.Spec, version string) ([]byte, error) {
 		sp.GlobalParameters = make(map[string]openAPIParamter)
 		for in, ps := range m {
 			for _, p := range ps {
-				sp.GlobalParameters[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
+				sp.GlobalParameters[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in, version)
 			}
 		}
 
@@ -131,20 +131,45 @@ type openAPIParamter struct {
 	Example   any     `json:"example,omitempty"`
 }
 
+func toParameter(p *spec.Schema, in string, ver string) openAPIParamter {
+	if ver[0] == '3' {
+		return toParameter3(p, in)
+	}
+	return toParameter2(p, in)
+}
+
 // 2.0 与3.0 此方法不同，导入与导出同理
-func toParameter(p *spec.Schema, in string) openAPIParamter {
+func toParameter3(p *spec.Schema, in string) openAPIParamter {
 	// tp := "string"
 	// if n := len(p.Schema.Type.Value()); n > 0 {
 	// 	tp = p.Schema.Type.Value()[0]
 	// }
 	return openAPIParamter{
-		In: in,
-		// Type:        tp,
-		Name:     p.Name,
-		Required: p.Required,
-		Format:   p.Schema.Format,
-		// Default:     p.Schema.Default,
+		In:          in,
+		Name:        p.Name,
+		Required:    p.Required,
+		Format:      p.Schema.Format,
 		Example:     p.Schema.Example,
+		Description: p.Schema.Description,
+		Schema:      p.Schema,
+	}
+}
+
+func toParameter2(p *spec.Schema, in string) openAPIParamter {
+	tp := "any"
+	if n := len(p.Schema.Type.Value()); n > 0 {
+		tp = p.Schema.Type.Value()[0]
+	}
+	if in == "cookie" {
+		in = "header"
+	}
+	return openAPIParamter{
+		In:          in,
+		Type:        tp,
+		Name:        p.Name,
+		Required:    p.Required,
+		Format:      p.Schema.Format,
+		Default:     p.Schema.Default,
 		Description: p.Schema.Description,
 		Schema:      p.Schema,
 	}

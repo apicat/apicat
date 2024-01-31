@@ -573,7 +573,7 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 	globals := make(map[string]openAPIParamter)
 	for in, ps := range m {
 		for _, p := range ps {
-			globals[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in)
+			globals[fmt.Sprintf("%s-%s", in, p.Name)] = toParameter(p, in, ver)
 		}
 	}
 
@@ -582,7 +582,7 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 	parameters := make(map[string]openAPIParamter)
 	for in, ps := range dp {
 		for _, p := range ps {
-			opp := toParameter(p, in)
+			opp := toParameter(p, in, ver)
 			// remove format from parameter, because it's not support in openapi3.components.parameters.item
 			opp.Format = ""
 			parameters[fmt.Sprintf("%s-%s", in, p.Name)] = opp

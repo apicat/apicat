@@ -462,7 +462,7 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 	for in, ps := range m {
 		for _, p := range ps {
 			name_id := fmt.Sprintf("%s-%d", p.Name, p.ID)
-			out.GlobalParameters[name_id] = toParameter(p, in)
+			out.GlobalParameters[name_id] = toParameter(p, in, "2.0")
 		}
 	}
 
@@ -490,7 +490,7 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 	parameters := make(map[string]openAPIParamter)
 	for in, ps := range dp {
 		for _, p := range ps {
-			opp := toParameter(p, in)
+			opp := toParameter(p, in, "2.0")
 			// remove format from parameter, because it's not support in openapi3.components.parameters.item
 			opp.Format = ""
 			parameters[fmt.Sprintf("%s-%s", in, p.Name)] = opp
@@ -527,7 +527,7 @@ func (s *toSwagger) toReqParameters(ps spec.HTTPRequestNode, spe *spec.Spec) []o
 				}
 				newv := *v
 				newv.Schema = s.convertJSONSchema(v.Schema)
-				out = append(out, toParameter(&newv, in))
+				out = append(out, toParameter(&newv, in, "2.0"))
 			}
 		}
 	}
@@ -553,6 +553,7 @@ func (s *toSwagger) toReqParameters(ps spec.HTTPRequestNode, spe *spec.Spec) []o
 				content := openAPIParamter{
 					Name:        k,
 					In:          "formData",
+					Type:        v.Type.Value()[0],
 					Description: v.Description,
 					Schema:      s.convertJSONSchema(v),
 					Required: func() bool {
