@@ -240,7 +240,7 @@ func (o *fromOpenapi) parseeResoponse(responses map[string]*v3.Response) spec.HT
 		}
 		s := res.GoLow().Reference.Reference
 		if s != "" {
-			refs := fmt.Sprintf("#/definitions/responses/%s", s[strings.LastIndex(s, "/")+1:])
+			refs := fmt.Sprintf("#/definitions/responses/%d", stringToUnid(s[strings.LastIndex(s, "/")+1:]))
 			resp.Reference = &refs
 			outresponses.List = append(outresponses.List, &resp)
 			continue

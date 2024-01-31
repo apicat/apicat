@@ -267,6 +267,7 @@ func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDe
 			}
 		}
 		list = append(list, spec.HTTPResponseDefine{
+			ID:      stringToUnid(key),
 			Name:    key,
 			Header:  header,
 			Content: content,
@@ -300,6 +301,13 @@ func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode 
 		resp.Description = res.Description
 		resp.Content = make(spec.HTTPBody)
 		resp.Header = make(spec.Schemas, 0)
+		if res.Schema.GetReference() != "" {
+			ref := res.Schema.GetReference()
+			refs := fmt.Sprintf("#/definitions/responses/%d", stringToUnid(ref[strings.LastIndex(ref, "/")+1:]))
+			resp.Reference = &refs
+			outresponses.List = append(outresponses.List, &resp)
+			continue
+		}
 		if res.Headers != nil {
 			for k, v := range res.Headers {
 				resp.Header = append(resp.Header, &spec.Schema{
