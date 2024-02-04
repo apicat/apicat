@@ -370,7 +370,7 @@ func equalJsonSchema(a, b *jsonschema.Schema) bool {
 
 	if a != nil && b == nil {
 		a.SetXDiff(&diffRemove)
-		*b = *a
+		b = a
 		return true
 	}
 
