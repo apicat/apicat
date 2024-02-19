@@ -232,6 +232,7 @@ func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDe
 						Type:        jsonschema.CreateSliceOrOne(v.Type),
 						Format:      v.Format,
 						Description: v.Description,
+						Example:     v.Default,
 					},
 				})
 			}
@@ -320,6 +321,7 @@ func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode 
 						Type:        jsonschema.CreateSliceOrOne(v.Type),
 						Format:      v.Format,
 						Description: v.Description,
+						Example:     v.Default,
 					},
 				})
 			}
@@ -457,7 +459,6 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 	}
 	for _, v := range ss {
 		name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
-		v.Schema.Description = v.Description
 		out.Definitions[name_id] = *s.convertJSONSchema(v.Schema)
 	}
 
@@ -629,6 +630,8 @@ func (s *toSwagger) parseResponse(in *spec.Spec, res spec.HTTPResponseDefine) ma
 			if v.Schema.Description == "" {
 				v.Schema.Description = v.Description
 			}
+			v.Schema.Default = v.Schema.Example
+			v.Schema.Example = nil
 			h[v.Name] = v.Schema
 		}
 		resp["headers"] = h

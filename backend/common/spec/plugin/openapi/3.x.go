@@ -552,7 +552,6 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 	}
 	for _, v := range ss {
 		name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
-		v.Schema.Description = v.Description
 		schemas[name_id] = *o.convertJSONSchema(ver, v.Schema)
 	}
 
