@@ -305,8 +305,8 @@ func (s *fromSwagger) parseResponse(info *v2.Operation) *spec.HTTPResponsesNode 
 		resp.Description = res.Description
 		resp.Content = make(spec.HTTPBody)
 		resp.Header = make(spec.Schemas, 0)
-		if res.Schema.GetReference() != "" {
-			ref := res.Schema.GetReference()
+		if res.GoLow().Schema.GetReference() != "" {
+			ref := res.GoLow().Schema.GetReference()
 			refs := fmt.Sprintf("#/definitions/responses/%d", stringToUnid(ref[strings.LastIndex(ref, "/")+1:]))
 			resp.Reference = &refs
 			outresponses.List = append(outresponses.List, &resp)
