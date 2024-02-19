@@ -31,6 +31,9 @@ func (s *fromSwagger) parseInfo(info *base.Info) *spec.Info {
 
 func (s *fromSwagger) parseServers(in *v2.Swagger) []*spec.Server {
 	srvs := make([]*spec.Server, len(in.Schemes))
+	if in.BasePath == "/" {
+		in.BasePath = ""
+	}
 	for k, v := range in.Schemes {
 		srvs[k] = &spec.Server{
 			URL:         fmt.Sprintf("%s://%s%s", v, in.Host, in.BasePath),
