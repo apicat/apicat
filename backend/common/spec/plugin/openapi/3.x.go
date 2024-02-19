@@ -99,9 +99,10 @@ func (o *fromOpenapi) parseDefinetions(comp *v3.Components) spec.Definitions {
 	for k, v := range comp.Responses {
 		id := stringToUnid(k)
 		def := spec.HTTPResponseDefine{
-			Header: make(spec.Schemas, 0),
-			Name:   k,
-			ID:     id,
+			Header:      make(spec.Schemas, 0),
+			Name:        k,
+			ID:          id,
+			Description: v.Description,
 		}
 		if v.Headers != nil {
 			for k, v := range v.Headers {
@@ -551,6 +552,7 @@ func (o *toOpenapi) toComponents(ver string, in *spec.Spec) map[string]any {
 	}
 	for _, v := range ss {
 		name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
+		v.Schema.Description = v.Description
 		schemas[name_id] = *o.convertJSONSchema(ver, v.Schema)
 	}
 

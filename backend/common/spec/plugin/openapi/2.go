@@ -267,10 +267,11 @@ func (s *fromSwagger) parseResponsesDefine(in *v2.Swagger) []spec.HTTPResponseDe
 			}
 		}
 		list = append(list, spec.HTTPResponseDefine{
-			ID:      stringToUnid(key),
-			Name:    key,
-			Header:  header,
-			Content: content,
+			ID:          stringToUnid(key),
+			Name:        key,
+			Header:      header,
+			Content:     content,
+			Description: res.Description,
 		})
 	}
 	return list
@@ -453,6 +454,7 @@ func (s *toSwagger) toBase(in *spec.Spec) *swaggerSpec {
 	}
 	for _, v := range ss {
 		name_id := fmt.Sprintf("%s-%d", v.Name, v.ID)
+		v.Schema.Description = v.Description
 		out.Definitions[name_id] = *s.convertJSONSchema(v.Schema)
 	}
 
