@@ -20,7 +20,8 @@ const resizeHandler = function (entries: ResizeObserverEntry[]) {
 
 /** @deprecated use `useResizeObserver` or `useElementSize` in vueuse */
 export const addResizeListener = function (element: ResizableElement, fn: (...args: unknown[]) => unknown): void {
-  if (!isClient || !element) return
+  if (!isClient || !element)
+    return
   if (!element.__resizeListeners__) {
     element.__resizeListeners__ = []
     element.__ro__ = new ResizeObserver(resizeHandler)
@@ -31,9 +32,9 @@ export const addResizeListener = function (element: ResizableElement, fn: (...ar
 
 /** @deprecated use `useResizeObserver` or `useElementSize` in vueuse */
 export const removeResizeListener = function (element: ResizableElement, fn: (...args: unknown[]) => unknown): void {
-  if (!element || !element.__resizeListeners__) return
+  if (!element || !element.__resizeListeners__)
+    return
   element.__resizeListeners__.splice(element.__resizeListeners__.indexOf(fn), 1)
-  if (!element.__resizeListeners__.length) {
+  if (!element.__resizeListeners__.length)
     element.__ro__?.disconnect()
-  }
 }

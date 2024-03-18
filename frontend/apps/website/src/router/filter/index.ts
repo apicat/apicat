@@ -1,23 +1,15 @@
 import type { Router } from 'vue-router'
-import { setupGetProjectInfoFilter, setupGetProjectAuthInfoFilter, setupGetProjectInfoByIterationFilter } from './projectInfo.filter'
-import { setupMemberPermissionFilter } from './memberPermission.filter'
+
 import { setupAuthFilter } from './auth.filter'
 import { setupGetUserInfoFilter } from './userInfo.filter'
-import { setupShareDocumentFilter, setupShareProjectDetailFilter } from './share.filter'
+import { setupGetTeamFilter } from './team.filter'
+import { setupTitleI18n } from './titleI18n.filter'
+import { setupNavigationFailureFilter } from './navigationFailures.filter'
 
-export const setupRouterFilter = (router: Router) => {
+export function setupRouterFilter(router: Router) {
+  setupNavigationFailureFilter(router)
+  setupTitleI18n(router)
   setupAuthFilter(router)
   setupGetUserInfoFilter(router)
-
-  setupGetProjectAuthInfoFilter(router)
-
-  setupShareProjectDetailFilter(router)
-
-  setupGetProjectInfoFilter(router)
-
-  setupMemberPermissionFilter(router)
-
-  setupShareDocumentFilter(router)
-
-  setupGetProjectInfoByIterationFilter(router)
+  setupGetTeamFilter(router)
 }

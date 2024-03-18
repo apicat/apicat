@@ -8,6 +8,6 @@ export const iterationsRoute: RouteRecordRaw = {
   path: ITERATION_LIST_ROOT_PATH,
   component: IterationsListPage,
   meta: {
-    title: '迭代列表',
+    title: 'app.pageTitles.iterationList',
   },
 }

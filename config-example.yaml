@@ -1,0 +1,59 @@
+App:
+  Debug: false
+  Name: ApiCat
+  AppUrl: http://localhost:8000
+  AppServerBind: 0.0.0.0:8000
+  MockUrl: http://localhost:8001
+  MockServerBind: 0.0.0.0:8001
+Database:
+  Host: 127.0.0.1:3306
+  Username: root
+  Password: apicat123456
+  Database: apicat
+Cache:
+  Driver: redis
+  Redis:
+    Host: 127.0.0.1:6379
+    Password: apicat123456
+    Database: 0
+Storage:
+  Driver: localdisk
+  LocalDisk:
+    Path: ./uploads
+  Cloudflare:
+    AccountID: your-account-id
+    AccessKeyID: your-access-key-id
+    AccessKeySecret: your-access-key-secret
+    BucketName: apicat-bucket
+    Url: your-bucket-url
+  Qiniu:
+    AccessKeyID: your
+    AccessKeySecret: your-access-key-secret
+    BucketName: apicat-bucket
+    Url: your-bucket-url
+Email:
+  Driver: smtp
+  SendCloud:
+    ApiUser: your-api-user
+    ApiKey: your-api-key
+    From: your-email-address
+    FromName: your-email-name
+  Smtp:
+    Host: your-smtp-host:your-smtp-port
+    From:
+      Name: your-email-name
+      Address: your-email-address
+    Password: your-email-password
+Oauth2:
+  github:
+    ClientID: your-client-id
+    ClientSecret: your-client-secret
+LLM:
+  Driver: openai
+  AzureOpenAI:
+    Endpoint: your-endpoint
+    ApiKey: your-api-key
+    LLMName: your-llm-name
+  OpenAI:
+    ApiKey: your-api-key
+    LLMName: gpt-3.5-turbo

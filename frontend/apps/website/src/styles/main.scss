@@ -8,6 +8,8 @@
 @use './ac-login.scss';
 @use './ac-group.scss';
 @use './element/overwrite.scss';
+@use './ac-sign-page.scss';
+@use './font.scss';
 
 @use '@/assets/iconfont/iconfont.css';
 @use 'nprogress/nprogress.css';
@@ -16,11 +18,14 @@
 
 html {
   box-sizing: border-box;
+  font-family: Cantarell, PingFangSC, var(--el-font-family);
 }
 
 body {
   width: 100%;
   height: 100%;
+  color: var(--color-text);
+  background: var(--color-background);
 }
 
 *,
@@ -43,13 +48,23 @@ body {
   margin-bottom: 0;
 }
 
+.normal-popover-space {
+  margin: -7px;
+}
+
 // tippy 阴影调整
 .tippy-box[data-theme~='light'] {
-  box-shadow: 0 0 20px 4px rgba(154, 161, 177, 0.15), 0 4px 40px -8px rgba(36, 40, 47, 0.25), 0 4px 4px -2px rgba(91, 94, 105, 0.15);
+  box-shadow:
+    0 0 20px 4px rgba(154, 161, 177, 0.15),
+    0 4px 40px -8px rgba(36, 40, 47, 0.25),
+    0 4px 4px -2px rgba(91, 94, 105, 0.15);
 }
 
 // fixed mac 插拔USB鼠标所导致的滚动条样式变形
 .scroll-content {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+
   &::-webkit-scrollbar {
     width: 0;
     height: 0;
@@ -71,4 +86,222 @@ td {
 
 .copy_text {
   cursor: pointer;
+}
+
+// shake 抖动使用
+.shake {
+  animation: shake 800ms ease-in-out;
+}
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%,
+  80% {
+    transform: translate3d(+2px, 0, 0);
+  }
+  30%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+  40%,
+  60% {
+    transform: translate3d(+4px, 0, 0);
+  }
+  50% {
+    transform: translate3d(-4px, 0, 0);
+  }
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.fade-fast-enter-active,
+.fade-fast-leave-active {
+  transition: opacity 0.1s ease;
+}
+.fade-fast-enter-from,
+.fade-fast-leave-to {
+  opacity: 0;
+}
+
+.fade-faster-enter-active,
+.fade-faster-leave-active {
+  transition: opacity 0.07s ease;
+}
+.fade-faster-enter-from,
+.fade-faster-leave-to {
+  opacity: 0;
+}
+
+.fade-fastest-enter-active,
+.fade-fastest-leave-active {
+  transition: opacity 0.03s ease;
+}
+.fade-fastest-enter-from,
+.fade-fastest-leave-to {
+  opacity: 0;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+
+.none-enter-active,
+.none-leave-active {
+  transition: opacity 0s ease;
+}
+.none-enter-from,
+.none-leave-to {
+  opacity: 0;
+}
+
+button.red {
+  background-color: #ff6060 !important;
+  color: #fff !important;
+  border: none;
+  transition: 0.2s all;
+}
+button.red:hover {
+  background-color: #ff9999 !important;
+  transition: 0.2s all;
+}
+
+button.red-outline {
+  background-color: transparent !important;
+  color: #ff6060 !important;
+  border-color: #ff6060 !important;
+  transition: 0.2s all;
+}
+
+button.red-outline:hover {
+  color: white !important;
+  background-color: #ff6060 !important;
+  transition: 0.2s all;
+}
+
+:deep(.el-message-box__message p) {
+  line-height: unset !important;
+}
+
+.text-width-detector {
+  position: absolute;
+}
+
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.05s ease-out;
+}
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+}
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+.slide-down-enter-active,
+.slide-down-leave-active {
+  transition: all 0.05s ease-out;
+}
+.slide-down-enter-from {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+.slide-down-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.mask {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  background-color: rgba(242, 242, 242, 0.5);
+  z-index: 100;
+  background-image: radial-gradient(transparent 1px, var(--bg-color) 1px);
+  background-size: 4px 4px;
+  backdrop-filter: saturate(50%) blur(4px);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .spin {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #ccc;
+    border-top-color: #333;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.el-popover.el-popper {
+  box-shadow: 0px 2px 6px 0px rgba(0, 0, 0, 0.25) !important;
+}
+
+.row-lr {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+
+  .left,
+  .right {
+    display: flex;
+    align-items: center;
+  }
+
+  .left {
+    justify-content: flex-start;
+    /* flex-grow: 1; */
+  }
+
+  .right {
+    /* justify-content: flex-end; */
+    flex-grow: 1;
+  }
+}
+
+.row-rl {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+
+  .left,
+  .right {
+    display: flex;
+    align-items: center;
+  }
+
+  .left {
+    // justify-content: flex-start;
+    flex-grow: 1;
+  }
+
+  .right {
+    justify-content: flex-end;
+    // flex-grow: 1;
+  }
 }

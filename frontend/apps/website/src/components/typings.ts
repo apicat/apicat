@@ -1,10 +1,13 @@
 export interface Menu {
-  text: string
+  text?: string
+  content?: HTMLElement
   icon?: string
   image?: string
   elIcon?: any
   divided?: boolean
-  onClick?: () => void
+  onClick?: (...args: any) => void
+  iconify?: string
+  refText?: Ref<string>
   [key: string]: any
 }
 

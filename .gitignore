@@ -4,26 +4,29 @@
 *.dll
 *.so
 *.dylib
-apicat
 
 # Test binary, built with `go test -c`
 *.test
+cmd/app/config.yaml
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+cmd/app/app
 
+.DS_Store
+.idea
+.vscode
+.neoconf.json
 # Dependency directories (remove the comment below to include it)
 # vendor/
+cmd/app/start.sh
 
-.vscode/
-.idea/
-data/*.db
-logs/
-.DS_Store
-
-setting.default.yaml
-setting.yaml
-
-deploy/mysql/
-tmp
-package
+frontend/dist/*
+frontend/packages/ac-editor/neovide_backtraces.log
+frontend/.neoconf.json
+frontend/apps/website/commandLog.json
+frontend/bun.lockb
+frontend/.nx/cache
+logs/*
+uploads/*
+config.yaml

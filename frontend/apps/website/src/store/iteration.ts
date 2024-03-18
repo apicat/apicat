@@ -1,10 +1,9 @@
-import { getIterationDetail } from '@/api/iteration'
-import { ITERATION_DETAIL_PATH_NAME } from '@/router/constant'
-import { Iteration } from '@/typings'
 import { defineStore } from 'pinia'
+import { ITERATION_DETAIL_PATH_NAME } from '@/router/constant'
+import { apiGetIterationInfo } from '@/api/iteration'
 
 interface IterationState {
-  iterationInfo: Iteration | null
+  iterationInfo: IterationAPI.ResponseIteration | null
 }
 
 export const useIterationStore = defineStore('iterationStore', {
@@ -13,22 +12,20 @@ export const useIterationStore = defineStore('iterationStore', {
   }),
 
   getters: {
-    isIterationRoute: function (): boolean {
+    isIterationRoute(): boolean {
       return !!this.$router.currentRoute.value.matched.find((item) => item.name === ITERATION_DETAIL_PATH_NAME)
     },
   },
   actions: {
-    async getIterationInfo(iteration_id: string): Promise<Iteration> {
-      const iterationDetail = await getIterationDetail({ iteration_id })
-      this.iterationInfo = iterationDetail
-      return iterationDetail
+    async getIterationInfo(id: string): Promise<IterationAPI.ResponseIteration> {
+      this.iterationInfo = await apiGetIterationInfo(id)
+      return this.iterationInfo
     },
 
     gatherIterationInfo(params?: Record<string, any>) {
       params = params || {}
-      if (this.isIterationRoute) {
-        params.iteration_id = this.$router.currentRoute.value.params.iteration_id
-      }
+      if (this.isIterationRoute) params.iteration_id = this.$router.currentRoute.value.params.iteration_id
+
       return params
     },
   },

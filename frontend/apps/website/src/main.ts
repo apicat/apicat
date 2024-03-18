@@ -1,17 +1,24 @@
-import 'uno.css'
+import '@/styles/element/index.scss'
+import '@apicat/components/dist/style.css'
 import '@/styles/main.scss'
+import 'uno.css'
+import '@/assets/iconfont/iconfont'
 
 import { createApp } from 'vue'
-import { pinia, elementPlus, initI18n, errorHandler, setupPiniaWithRouter } from './plugins'
-import clipboardHelper from '@/components/ClipboardHelper'
-import router, { setupRouterFilter } from '@/router'
-import limitInput from '@/directives/LimitInput'
-
 import App from './App.vue'
 
-const run = async () => {
+import { elementPlus, errorHandler, pinia, setupPiniaWithRouter } from './plugins'
+import clipboardHelper from '@/components/ClipboardHelper'
+import limitInput from '@/directives/LimitInput'
+import router, { setupRouterFilter } from '@/router'
+import { useLocaleStoreWithOut } from '@/store/locale'
+
+async function run() {
   const app = createApp(App)
-  const i18n = await initI18n()
+
+  const { i18n, initLocale } = useLocaleStoreWithOut()
+  await initLocale()
+
   app.use(i18n)
   app.use(pinia)
   app.use(elementPlus)

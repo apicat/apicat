@@ -6,8 +6,8 @@
     padding-right: 3px;
   }
 
-  .el-tree .el-tree__empty-block {
-    min-height: 60px;
+  :deep(.el-tree .el-tree__empty-block) {
+    min-height: 60px ;
   }
 
   .el-tree-node__label {

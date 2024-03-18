@@ -1,130 +1,173 @@
-import {
-  getDefinitionSchemaList,
-  updateDefinitionSchema,
-  createDefinitionSchema,
-  copyDefinitionSchema,
-  deleteDefinitionSchema,
-  getSchemaHistoryRecordList,
-} from '@/api/definitionSchema'
-import { DefinitionTypeEnum, RefPrefixKeys, markDataWithKey, removeJsonSchemaTempProperty } from '@/commons'
-import { DefinitionSchema, JSONSchema } from '@/components/APIEditor/types'
-import { traverseTree } from '@apicat/shared'
-import { cloneDeep } from 'lodash-es'
 import { defineStore } from 'pinia'
+import { useI18n } from 'vue-i18n'
+import dayjs from 'dayjs'
+import { traverseTree } from '@apicat/shared'
+import {
+  apiAICreateSchema,
+  apiCopySchema,
+  apiCreateSchema,
+  apiDeleteSchema,
+  apiEditSchema,
+  apiGetSchemaHistories,
+  apiGetSchemaInfo,
+  apiGetSchemaTree,
+  apiMoveSchema,
+} from '@/api/project/definition/schema'
+import { RefPrefixKeys, SchemaTypeEnum } from '@/commons'
 
-export const extendDocTreeFeild = (node = {} as any) => {
-  node = node || {}
-  node._extend = {
-    isLeaf: node.type !== DefinitionTypeEnum.DIR,
-    isEditable: false,
-    isCurrent: false,
-  }
-  markDataWithKey(node.schema)
-  return node
+interface SchemaState {
+  t: any
+  schemaDetail: Definition.SchemaNode | null
+  schemas: Definition.SchemaNode[]
+  histories: HistoryRecord.SchemaHistory[]
+  isLoading: boolean
 }
 
-export const useDefinitionStore = defineStore('definitionSchema', {
-  state: () => ({
-    definitions: [] as DefinitionSchema[],
-    tempCreateSchemaParentId: undefined as number | undefined,
-    historyRecordTree: [] as Array<DefinitionSchema>,
-  }),
+export const useDefinitionSchemaStore = defineStore('project.definitionSchema', {
+  state: (): SchemaState => {
+    const { t } = useI18n()
+    return {
+      t,
+      isLoading: false,
+      schemaDetail: null,
+      schemas: [] as Definition.SchemaNode[],
+      histories: [] as HistoryRecord.SchemaHistory[],
+    }
+  },
   getters: {
-    definitionsForCodeGenerate: (state): Record<string, JSONSchema> => {
-      const definitions: Record<string, JSONSchema> = {}
-
-      state.definitions.forEach((item: DefinitionSchema) => {
-        ;(item.schema as JSONSchema & { title: string }).title = item.name
-        definitions[`${RefPrefixKeys.DefinitionSchema.refForCodeGeneratePrefix}${item.id}`] = item.schema
-      })
+    flatSchemas: (state): Definition.SchemaNode[] => {
+      const definitions: Definition.SchemaNode[] = []
+      traverseTree<Definition.SchemaNode>(
+        (item) => {
+          if (item.type === SchemaTypeEnum.Schema) {
+            ;(item.schema as Definition.SchemaNode & { title: string }).title = item.name
+            definitions.push(item)
+          }
+          return true
+        },
+        state.schemas,
+        { subKey: 'items' },
+      )
+      return definitions
+    },
+    definitionsForCodeGenerate: (state): Record<string, Definition.SchemaNode> => {
+      const definitions: Record<string, Definition.SchemaNode> = {}
+      traverseTree<Definition.SchemaNode>(
+        (item) => {
+          if (item.type === SchemaTypeEnum.Schema) {
+            ;(item.schema as Definition.SchemaNode & { title: string }).title = item.name
+            definitions[`${RefPrefixKeys.DefinitionSchema.refForCodeGeneratePrefix}${item.id}`] =
+              item.schema as Definition.SchemaNode
+          }
+          return true
+        },
+        state.schemas,
+        { subKey: 'items' },
+      )
 
       return definitions
     },
+    historyRecord: (state): HistoryRecord.SchemaHistoryNode[] => {
+      const historyMap: Record<string, HistoryRecord.SchemaHistoryNode[]> = {}
+      ;(state.histories || []).forEach((item: HistoryRecord.SchemaHistory) => {
+        const categoryTitle = dayjs(item.createdAt * 1000).format('l')
+        const items = (historyMap[categoryTitle] = historyMap[categoryTitle] || [])
+        const node: HistoryRecord.SchemaHistoryNode = {
+          id: item.id,
+          title: dayjs(item.createdAt * 1000).format('LLL LT') + (item.createdBy ? `(${item.createdBy})` : ''),
+        }
+        items.push(node)
+      })
 
-    historyRecordForOptions: (state) => {
-      const options = state.historyRecordTree
-        .reduce((result: any, item: any) => result.concat(item.sub_nodes || []), [])
-        .map((item: any) => ({ id: item.id, title: item.name || item.title }))
-      return [{ id: 0, title: '最新内容' }].concat(options)
+      const tree = Object.keys(historyMap).map((key) => {
+        const node: HistoryRecord.SchemaHistoryNode = {
+          id: key,
+          title: key,
+          items: historyMap[key] || [],
+        }
+
+        return node
+      })
+      return tree
+    },
+    historyRecordForOptions(state): HistoryRecord.SchemaInfoForOptions[] {
+      const options = this.historyRecord
+        .reduce((result: any[], item: HistoryRecord.SchemaHistoryNode) => result.concat(item.items || []), [])
+        .map(
+          (item: HistoryRecord.SchemaHistoryNode) =>
+            ({ id: item.id, title: item.title }) as HistoryRecord.SchemaInfoForOptions,
+        )
+      return [{ id: 0, title: state.t('app.historyLayout.current') }].concat(options)
     },
   },
   actions: {
-    transformSchemaForCodeGenerate(definitionSchema: DefinitionSchema): string {
+    async getSchemaDetail(projectID: string, schemaID: number) {
       try {
-        const schema = definitionSchema.schema || {}
-        let json = JSON.stringify({ ...schema, description: definitionSchema.description || schema.description, definitions: this.definitionsForCodeGenerate })
-        json = json.replaceAll(RefPrefixKeys.DefinitionSchema.key, RefPrefixKeys.DefinitionSchema.replaceForCodeGenerate)
-        return json
-      } catch (error) {
-        return JSON.stringify({ type: 'object' })
+        this.isLoading = true
+        await nextTick()
+        this.schemaDetail = await apiGetSchemaInfo(projectID, schemaID)
+      } finally {
+        this.isLoading = false
       }
     },
-
-    async getDefinitions(project_id: string) {
-      const tree = await getDefinitionSchemaList(project_id)
-      this.definitions = traverseTree((item: any) => extendDocTreeFeild(item), tree) as any
-      return this.definitions
+    async getSchemas(projectID: string) {
+      this.schemas = await apiGetSchemaTree(projectID)
+      return this.schemas
     },
 
-    async updateDefinition(data: any) {
-      const copy = cloneDeep(data)
-      const jsonSchema = copy.schema as JSONSchema
-      removeJsonSchemaTempProperty(jsonSchema)
-      await updateDefinitionSchema(copy)
-      copy.id = copy.def_id
-      this.updateDefinitionStore(copy)
+    async renameSchemaCategory(projectID: string, schema: Definition.SchemaNode) {
+      await apiEditSchema(projectID, schema)
     },
 
-    async createDefinition(data: any) {
-      try {
-        const definition: any = await createDefinitionSchema(data)
-        this.definitions.push(extendDocTreeFeild(definition))
-        return definition
-      } catch (error) {
-        // error
-      }
+    async updateSchema(projectID: string, schema: Definition.SchemaNode) {
+      await apiEditSchema(projectID, schema)
+      this.updateSchemaToStore(schema)
     },
 
-    async copyDefinition(project_id: string, def_id: string | number) {
-      const definition: any = await copyDefinitionSchema(project_id, def_id)
-      const index = this.definitions.findIndex((item: any) => item.id === def_id)
-      if (index !== -1) {
-        this.definitions.splice(index + 1, 0, extendDocTreeFeild(definition))
-      }
-      return definition
+    async createSchema(projectID: string, data: Omit<Definition.Schema, 'id'>) {
+      return await apiCreateSchema(projectID, data)
     },
 
-    updateDefinitionStore(definition: any) {
-      const { id, name, description, schema } = definition
-      const target = this.definitions.find((item: any) => item.id === id)
-      if (target) {
-        target.name = name
-        target.description = description
-        target.schema = { ...target.schema, ...schema }
-      }
+    async createSchemaWithAI(projectID: string, data: Definition.RequestCreateSchemaWithAI) {
+      return await apiAICreateSchema(projectID, data)
     },
 
-    async deleteDefinition(project_id: string, def_id: string | number, is_unref = 1) {
-      await deleteDefinitionSchema(project_id as string, def_id, is_unref)
+    // copy schema
+    async copySchema(projectID: string, schema: Definition.SchemaNode) {
+      return await apiCopySchema(projectID, schema.id)
     },
 
-    async getSchemaHistoryRecordList(project_id: string, def_id: string) {
-      if (!project_id || !def_id) {
-        return []
-      }
+    // delete schema
+    async deleteSchema(projectID: string, schema: Definition.SchemaNode, deref: boolean = false) {
+      await apiDeleteSchema(projectID, schema.id, deref)
+      // this.schemas = this.schemas.filter((item) => item.id !== schema.id)
+    },
 
-      try {
-        const tree = await getSchemaHistoryRecordList({ project_id, def_id })
-        this.historyRecordTree = traverseTree((item: DefinitionSchema) => extendDocTreeFeild(item), tree || [], { subKey: 'sub_nodes' }) as Array<DefinitionSchema>
-      } catch (error) {
-        return []
-      }
+    // move schema
+    async moveSchema(projectID: string, data: Definition.RequestSortParams) {
+      return await apiMoveSchema(projectID, data)
+    },
 
-      return this.historyRecordTree
+    // 获取schema历史记录
+    async getHistories(projectID: string, schemaID: number) {
+      this.histories = await apiGetSchemaHistories(projectID, schemaID)
+      return this.histories
+    },
+
+    updateSchemaToStore(newScehma: Partial<Definition.Schema>) {
+      traverseTree<Definition.SchemaNode>(
+        (schema) => {
+          if (schema.id === newScehma.id) {
+            Object.assign(schema, newScehma)
+            return false
+          }
+          return true
+        },
+        this.schemas,
+        { subKey: 'items' },
+      )
     },
   },
 })
 
-export const useDefinitionSchemaStore = useDefinitionStore
-
-export default useDefinitionStore
+export default useDefinitionSchemaStore

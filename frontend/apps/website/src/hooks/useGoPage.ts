@@ -1,121 +1,107 @@
-import {
-  getDocumentDetailPath,
-  getDocumentEditPath,
-  getSchemaDetailPath,
-  getSchemaEditPath,
-  getDefinitionResponseDetailPath,
-  getDefinitionResponseEditPath,
-  getDocumentDetailPathWithIterationId,
-  getDocumentEditPathWithIterationId,
-  getSchemaDetailPathWithIterationId,
-  getSchemaEditPathWithIterationId,
-  getDefinitionResponseDetailPathWithIterationId,
-  getDefinitionResponseEditPathWithIterationId,
-} from '@/router'
-import { useIterationStore } from '@/store/iteration'
+import { compile } from 'path-to-regexp'
+import type { RouteLocationRaw } from 'vue-router'
 import { useParams } from './useParams'
+import {
+  ITERATION_COLLECTION_PATH_NAME,
+  ITERATION_RESPONSE_PATH_NAME,
+  ITERATION_SCHEMA_PATH_NAME,
+  PROJECT_COLLECTION_PATH,
+  PROJECT_COLLECTION_PATH_NAME,
+  PROJECT_DETAIL_PATH,
+  PROJECT_RESPONSE_PATH,
+  PROJECT_RESPONSE_PATH_NAME,
+  PROJECT_SCHEMA_PATH,
+  PROJECT_SCHEMA_PATH_NAME,
+} from '@/router'
 
-export const useGoPage = () => {
+export function getProjectDetailPath(project_id: number | string) {
+  return compile(PROJECT_DETAIL_PATH)({ project_id })
+}
+
+export function getCollectionPath(project_id: number | string, collectionID: number | string) {
+  return compile(PROJECT_COLLECTION_PATH)({ project_id, collectionID })
+}
+
+export function getSchemaPath(project_id: number | string, schemaID: number | string) {
+  return compile(PROJECT_SCHEMA_PATH)({ project_id, schemaID })
+}
+
+export function getResponsePath(project_id: number | string, responseID: number | string) {
+  return compile(PROJECT_RESPONSE_PATH)({ project_id, responseID })
+}
+
+export function useGoPage() {
   const router = useRouter()
-  const { project_id, iteration_id, computedRouteParams } = useParams()
-  const iterationStore = useIterationStore()
-
-  const goSchemaDetailPage = (schemaId?: string | number, replace?: boolean) => {
-    const { schema_id } = unref(computedRouteParams)
-
-    const params = {
-      path: getSchemaDetailPath(project_id, schemaId || schema_id),
+  const { iterationID } = useParams()
+  const goProjectDetailPage = (projectId: string | number, replace?: boolean) => {
+    router.push({
+      path: getProjectDetailPath(projectId),
       replace: replace === undefined ? false : replace,
-    }
-
-    if (iterationStore.isIterationRoute) {
-      params.path = getSchemaDetailPathWithIterationId(iteration_id, schemaId || schema_id)
-    }
-
-    router.push(params)
+    })
   }
 
-  const goSchemaEditPage = (schemaId?: string | number, replace?: boolean) => {
-    const { schema_id } = unref(computedRouteParams)
-
-    const params = {
-      path: getSchemaEditPath(project_id, schemaId || schema_id),
-      replace: replace === undefined ? false : replace,
+  const goCollectionPage = (project_id: string, collectionID: string | number, replace = false) => {
+    const r: RouteLocationRaw = {
+      replace,
+    }
+    if (iterationID.value) {
+      r.name = ITERATION_COLLECTION_PATH_NAME
+      r.params = {
+        collectionID,
+      }
+    } else {
+      r.name = PROJECT_COLLECTION_PATH_NAME
+      r.params = {
+        project_id,
+        collectionID,
+      }
     }
 
-    if (iterationStore.isIterationRoute) {
-      params.path = getSchemaEditPathWithIterationId(iteration_id, schemaId || schema_id)
-    }
-
-    router.push(params)
+    return router.push(r)
   }
 
-  const goResponseDetailPage = (responseId?: string | number, replace?: boolean) => {
-    const { response_id } = unref(computedRouteParams)
-
-    const params = {
-      path: getDefinitionResponseDetailPath(project_id, responseId || response_id),
-      replace: replace === undefined ? false : replace,
+  const goSchemaPage = (project_id: string, schemaID: string | number, replace = false) => {
+    const r: RouteLocationRaw = {
+      replace,
     }
-
-    if (iterationStore.isIterationRoute) {
-      params.path = getDefinitionResponseDetailPathWithIterationId(iteration_id, responseId || response_id)
+    if (iterationID.value) {
+      r.name = ITERATION_SCHEMA_PATH_NAME
+      r.params = {
+        schemaID,
+      }
+    } else {
+      r.name = PROJECT_SCHEMA_PATH_NAME
+      r.params = {
+        project_id,
+        schemaID,
+      }
     }
-
-    router.push(params)
+    return router.push(r)
   }
 
-  const goResponseEditPage = (responseId?: string | number, replace?: boolean) => {
-    const { response_id } = unref(computedRouteParams)
-
-    const params = {
-      path: getDefinitionResponseEditPath(project_id, responseId || response_id),
-      replace: replace === undefined ? false : replace,
+  const goResponsePage = (project_id: string, responseID: string | number, replace = false) => {
+    const r: RouteLocationRaw = {
+      replace,
     }
-
-    if (iterationStore.isIterationRoute) {
-      params.path = getDefinitionResponseEditPathWithIterationId(iteration_id, responseId || response_id)
+    if (iterationID.value) {
+      r.name = ITERATION_RESPONSE_PATH_NAME
+      r.params = {
+        responseID,
+      }
+    } else {
+      r.name = PROJECT_RESPONSE_PATH_NAME
+      r.params = {
+        project_id,
+        responseID,
+      }
     }
-
-    router.push(params)
-  }
-
-  const goDocumentDetailPage = (docId?: string | number, replace?: boolean) => {
-    const { doc_id } = unref(computedRouteParams)
-    const params = {
-      path: getDocumentDetailPath(project_id, docId || doc_id),
-      replace: replace === undefined ? false : replace,
-    }
-
-    if (iterationStore.isIterationRoute) {
-      params.path = getDocumentDetailPathWithIterationId(iteration_id, docId || doc_id)
-    }
-
-    router.push(params)
-  }
-
-  const goDocumentEditPage = (docId?: string | number, replace?: boolean) => {
-    const { doc_id } = unref(computedRouteParams)
-    const params = {
-      path: getDocumentEditPath(project_id, docId || doc_id),
-      replace: replace === undefined ? false : replace,
-    }
-
-    if (iterationStore.isIterationRoute) {
-      params.path = getDocumentEditPathWithIterationId(iteration_id, docId || doc_id)
-    }
-
-    router.push(params)
+    return router.push(r)
   }
 
   return {
-    goSchemaDetailPage,
-    goSchemaEditPage,
-
-    goDocumentDetailPage,
-    goDocumentEditPage,
-
-    goResponseDetailPage,
-    goResponseEditPage,
+    goProjectDetailPage,
+    goCollectionPage,
+    goSchemaPage,
+    goResponsePage,
   }
 }

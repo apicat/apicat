@@ -1,6 +1,3 @@
-<template>
-  <i class="leading-none ac-iconfont" :class="icon" :style="style" />
-</template>
 <script setup lang="ts">
 const props = defineProps({
   icon: {
@@ -14,6 +11,10 @@ const props = defineProps({
 })
 
 const style = computed(() => ({
-  fontSize: props.size + 'px',
+  fontSize: `${props.size}px`,
 }))
 </script>
+
+<template>
+  <i class="leading-none ac-iconfont" :class="icon" :style="style" />
+</template>

@@ -1,65 +1,22 @@
-<template>
-  <el-dialog v-model="dialogVisible" append-to-body :close-on-click-modal="false" class="fullscree hide-header" align-center destroy-on-close width="1200px">
-    <ModalLayout v-loading="isLoading">
-      <template #nav>
-        <p class="text-16px text-gray-950 font-500">{{ $t('app.project.setting.title') }}</p>
-        <ul class="mt-20px">
-          <template v-for="(menu, type) in menus">
-            <li
-              v-if="menu.component"
-              :text="menu.text"
-              @click="onMenuTabClick(menu, type as string)"
-              class="cursor-pointer py-10px"
-              :class="{ 'text-blue-primary': activeTab.type === type }"
-            >
-              <Iconfont :icon="menu.icon" />
-              {{ menu.text }}
-            </li>
-          </template>
-        </ul>
-      </template>
-      <template v-if="activeTab" #title>{{ activeTab.menu.text }}</template>
-      <component v-if="activeTab && activeTab.menu.component" :is="activeTab.menu.component" />
-    </ModalLayout>
-  </el-dialog>
-</template>
 <script setup lang="ts">
-import ModalLayout from '@/layouts/ModalLayout.vue'
+import { ProjectNavigateListEnum, getProjectNavigateList } from '@/layouts/ProjectDetailLayout/constants'
+import type { Menu } from '@/components/typings'
 import { useModal } from '@/hooks'
-import { Menu } from '@/components/typings'
-import { getProjectNavigateList, ProjectNavigateListEnum } from '@/commons/constant'
-import BaseInfoSetting from './ProjectSettingPages/BaseInfoSetting.vue'
-import ProjectMemberList from './ProjectSettingPages/ProjectMemberList.vue'
-import ServerUrlSetting from './ProjectSettingPages/ServerUrlSetting.vue'
-import GlobalParametersSetting from './ProjectSettingPages/GlobalParametersSetting.vue'
-import ProjectExportPage from './ProjectSettingPages/ProjectExportPage.vue'
-import ProjectTrashPage from './ProjectSettingPages/ProjectTrashPage.vue'
+import ModalLayout from '@/layouts/ModalLayout.vue'
 import useProjectStore from '@/store/project'
-import { useParams } from '@/hooks/useParams'
-import useApi from '@/hooks/useApi'
 
-const menus = getProjectNavigateList({
-  [ProjectNavigateListEnum.BaseInfoSetting]: { component: BaseInfoSetting },
-  [ProjectNavigateListEnum.ProjectMemberList]: { component: ProjectMemberList },
-  [ProjectNavigateListEnum.ServerUrlSetting]: { component: ServerUrlSetting },
-  [ProjectNavigateListEnum.GlobalParamsSetting]: { component: GlobalParametersSetting },
-  [ProjectNavigateListEnum.ProjectExport]: { component: ProjectExportPage },
-  [ProjectNavigateListEnum.ProjectTrash]: { component: ProjectTrashPage },
-})
+const projectStore = useProjectStore()
+const menus = computed(() => getProjectNavigateList(true, projectStore.project!.selfMember.permission))
 
 const activeTab = shallowRef<{ menu: any; type: string }>({
-  menu: menus[ProjectNavigateListEnum.BaseInfoSetting],
-  type: ProjectNavigateListEnum.BaseInfoSetting,
+  menu: menus.value[ProjectNavigateListEnum.General],
+  type: ProjectNavigateListEnum.General,
 })
 
 const { dialogVisible, showModel } = useModal()
-const projectStore = useProjectStore()
-const [isLoading, getProjectDetailInfo] = useApi(projectStore.getProjectDetailInfo)
-const { project_id } = useParams()
-const onMenuTabClick = async (menu: Menu, type: string) => {
-  if (!menu) {
-    throw new Error('ProjectSettingModal active menu is null')
-  }
+const isLoading = ref(false)
+async function onMenuTabClick(menu: Menu, type: string) {
+  if (!menu) throw new Error('ProjectSettingModal active menu is null')
 
   if (menu.action) {
     await menu.action()
@@ -72,13 +29,65 @@ const onMenuTabClick = async (menu: Menu, type: string) => {
   }
 }
 
-const show = async (type: ProjectNavigateListEnum) => {
-  onMenuTabClick(menus[type], type)
+async function show(type: ProjectNavigateListEnum) {
+  onMenuTabClick(menus.value[type], type)
   showModel()
-  await getProjectDetailInfo(project_id as string)
 }
 
 defineExpose({
   show,
 })
 </script>
+
+<template>
+  <el-dialog
+    v-model="dialogVisible"
+    :close-on-click-modal="false"
+    class="fullscree hide-header"
+    append-to-body
+    align-center
+    destroy-on-close
+    width="1200px">
+    <ModalLayout v-loading="isLoading">
+      <template #nav>
+        <p class="text-16px text-gray-950 font-500">
+          {{ $t('app.project.setting.title') }}
+        </p>
+        <div class="grid-container mt-20px">
+          <template v-for="(menu, type) in menus" :key="menu.icon">
+            <div class="box">
+              <Iconfont :icon="menu.icon" />
+            </div>
+            <div
+              class="cursor-pointer box pl-10px line-height-40px"
+              :class="{ 'text-blue-primary': activeTab.type === type }"
+              @click="onMenuTabClick(menu, type as string)">
+              {{ menu.text }}
+            </div>
+          </template>
+        </div>
+      </template>
+      <template v-if="activeTab" #title>
+        {{ activeTab.menu.detailTitle ?? activeTab.menu.text }}
+      </template>
+      <component :is="activeTab.menu.component" v-if="activeTab && activeTab.menu.component" />
+    </ModalLayout>
+  </el-dialog>
+</template>
+
+<style scoped>
+.grid-container {
+  display: grid;
+  /* grid-template-columns: repeat(2, 1fr); */
+  grid-template-columns: max-content 1fr;
+  /* grid-template-rows: repeat(2, 1fr); */
+  align-items: center;
+  justify-content: center;
+  /* gap: 10px; */
+}
+
+.box {
+  display: flex;
+  user-select: none;
+}
+</style>

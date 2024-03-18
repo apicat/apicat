@@ -1,30 +1,24 @@
-FROM node:18-alpine3.16 AS frontend-builder
+FROM node:21-alpine3.18 AS frontend-builder
 WORKDIR /app
 COPY frontend/ /app/
-RUN ls
 RUN apk update \
     && apk add curl \
-    && npm config set registry https://registry.npmmirror.com \
-    && curl -f https://get.pnpm.io/v6.16.js | node - add --global pnpm turbo-cli \
-    && SHELL=bash pnpm setup \
-    && source /root/.bashrc \
-    && pnpm install \ 
+    && npm install -g pnpm \
+    && pnpm i \
     && pnpm build
 
-
-FROM golang:1.20 AS backend-builder
+FROM golang:1.21 AS backend-builder
 WORKDIR /app
-ENV GORPOXY="https://goproxy.cn,direct"
 COPY . /app/
-COPY --from=frontend-builder /app/dist /app/frontend/dist 
-COPY --from=frontend-builder /app/embed.go /app/frontend/embed.go 
+COPY --from=frontend-builder /app/dist /app/frontend/dist
+COPY --from=frontend-builder /app/embed.go /app/frontend/embed.go
 RUN go mod tidy
-RUN CGO_ENABLED=0  go build -o apicat-server .
+RUN CGO_ENABLED=0  go build -o apicat-server ./cmd/app/
 
-
-FROM alpine:3.18 
-WORKDIR /app 
-COPY backend/config/setting.example.yaml ./
-COPY --from=backend-builder /app/apicat-server /app/apicat-server 
-EXPOSE 8000
-ENTRYPOINT ["/app/apicat-server"]
+FROM alpine:latest
+WORKDIR /app
+COPY ./wait-for-it.sh /app/wait-for-it.sh
+COPY --from=backend-builder /app/apicat-server /app/apicat-server
+RUN apk add bash \
+    && chmod +x /app/wait-for-it.sh
+ENTRYPOINT ["/bin/bash", "/app/wait-for-it.sh", "apicat_db:3306", "-s", "-t", "60", "--", "/app/apicat-server"]

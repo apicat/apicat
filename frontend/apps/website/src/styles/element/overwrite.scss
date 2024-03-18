@@ -134,3 +134,14 @@
     z-index: 100;
   }
 }
+
+.hide-dropdown-arrow {
+  .el-popper__arrow{
+    display: none;
+  }
+}
+
+.el-dropdown-menu__item:not(.is-disabled):hover {
+  background-color: var(--el-dropdown-menuItem-hover-fill);
+  color: var(--el-dropdown-menuItem-hover-color);
+}

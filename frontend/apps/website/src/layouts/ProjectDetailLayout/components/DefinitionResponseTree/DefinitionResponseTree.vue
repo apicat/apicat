@@ -1,60 +1,87 @@
-<template>
-  <ToggleHeading :title="$t('app.definitionResponse.title')" :expand="isExpandTree" ref="toggleHeadingRef">
-    <template #extra>
-      <el-icon v-if="isManager || isWriter" class="cursor-pointer text-zinc-500" @click="onCreateMenuClick"><ac-icon-ep-plus /></el-icon>
-    </template>
-    <div ref="dir" :class="[ns.b(), { [ns.is('loading')]: isLoading }]" v-loading="isLoading">
-      <ac-tree :data="definitions" node-key="id" empty-text="" ref="treeIns" :expand-on-click-node="false" :props="treeOptions">
-        <template #default="{ node, data }">
-          <div class="flex justify-between ac-tree-node" :class="{ 'is-editable': data._extend.isEditable }">
-            <div class="ac-tree-node__main" @click="handleTreeNodeClick(node, data, $event)">
-              <div class="ac-doc-node" :class="{ 'is-active': data._extend.isCurrent }" :id="'response_tree_node_' + data.id">
-                <Iconfont v-if="data._extend.isLeaf" class="ac-doc-node__icon" icon="ac-response" />
-                <span class="ac-doc-node__label" v-show="!data._extend.isEditable" :title="data.name">{{ data.name }}</span>
-              </div>
-            </div>
-            <div class="ac-tree-node__more" :class="{ active: data.id === activeNodeInfo?.id }" v-if="isManager || isWriter">
-              <el-icon v-show="!data._extend.isLeaf"><ac-icon-ep-plus /></el-icon>
-              <span class="mx-1"></span>
-              <el-icon @click="onPopoverRefIconClick($event, node)"><ac-icon-ep-more-filled /></el-icon>
-            </div>
-          </div>
-        </template>
-      </ac-tree>
-    </div>
-  </ToggleHeading>
-
-  <el-popover :virtual-ref="popoverRefEl" trigger="click" virtual-triggering :visible="isShowPopoverMenu" width="auto">
-    <PopperMenu :menus="popoverMenus" size="small" class="clear-popover-space" />
-  </el-popover>
-</template>
-
 <script setup lang="ts">
-import AcTree from '@/components/AcTree'
-import { useDefinitionResponsePopoverMenu } from './useDefinitionResponsePopoverMenu'
-import { useDefinitionResponseTree } from './useDefinitionResponseTree'
-import { useActiveTree } from './useActiveTree'
-import { useNamespace } from '@/hooks'
 import { storeToRefs } from 'pinia'
+import { ToggleHeading } from '@apicat/components'
+import AcTreeWrapper from '../AcTreeWrapper'
+import { CurrentNodeContextKey, PopoverMoreMenuType } from '../../constants'
+import { useMenus } from './useMenus'
+import { useSelectedNode } from './useSelectedNode'
 import useProjectStore from '@/store/project'
+import useDefinitionResponseStore from '@/store/definitionResponse'
+import type Node from '@/components/AcTree/model/node'
 
-const ns = useNamespace('catalog-tree')
+const { isManager, isWriter, projectID } = storeToRefs(useProjectStore())
+const definitionResponseStore = useDefinitionResponseStore()
+const { responses } = storeToRefs(definitionResponseStore)
 const toggleHeadingRef = ref()
-const { isManager, isWriter } = storeToRefs(useProjectStore())
-
-const { isExpandTree, isLoading, treeIns, treeOptions, definitions, handleTreeNodeClick, updateTitle, initDefinitionResponseTree } = useDefinitionResponseTree()
-
-const { popoverMenus, popoverRefEl, isShowPopoverMenu, activeNodeInfo, onPopoverRefIconClick, onCreateMenuClick } = useDefinitionResponsePopoverMenu(
-  treeIns as any,
-  toggleHeadingRef
+const treeWrapper = ref<InstanceType<typeof AcTreeWrapper>>()
+const { popoverRefEl, isShowPopoverMenu, popoverMenus, onPopoverIconClick, handleRename } = useMenus(
+  treeWrapper,
+  toggleHeadingRef,
 )
+const { expandOnStartup, selectFirstNode, selectedNodeWithGoPage, defaultExpandedKeys, handleNodeCollapse, handleNodeExpand } = useSelectedNode(treeWrapper, toggleHeadingRef)
+const ctx = inject(CurrentNodeContextKey)
 
-const { activeNode, reactiveNode } = useActiveTree(treeIns as any)
+function handleClickNode(node: Node) {
+  selectedNodeWithGoPage(node)
+}
+
+async function handleSort(target: any, origin: any) {
+  await definitionResponseStore.moveResponse(projectID.value!, { target, origin })
+}
 
 defineExpose({
-  updateTitle,
-  activeNode,
-  reactiveNode,
-  reload: initDefinitionResponseTree,
+  selectFirstNode,
+  expandOnStartup,
 })
 </script>
+
+<template>
+  <ToggleHeading ref="toggleHeadingRef" :title="$t('app.definitionResponse.title')">
+    <template v-if="isManager || isWriter" #extra>
+      <el-icon class="cursor-pointer text-zinc-500" @click="onPopoverIconClick">
+        <ac-icon-ep-plus />
+      </el-icon>
+    </template>
+
+    <AcTreeWrapper
+      ref="treeWrapper"
+      node-key="id"
+      :props="{ label: 'name' }"
+      :active-key="ctx?.activeResponseKey.value"
+      :datas="responses"
+      :draggable="isManager || isWriter"
+      :default-expanded-keys="defaultExpandedKeys"
+      @node-collapse="handleNodeCollapse"
+      @node-expand="handleNodeExpand"
+      @rename="handleRename"
+      @click="handleClickNode"
+      @sort="handleSort"
+    >
+      <template #leafIcon>
+        <Iconfont class="ac-doc-node__icon" icon="ac-response" />
+      </template>
+
+      <template v-if="isManager || isWriter" #moreMenu="{ node }">
+        <el-icon v-show="!node.isLeaf" @click="onPopoverIconClick($event, node, PopoverMoreMenuType.ADD)">
+          <ac-icon-ep-plus />
+        </el-icon>
+        <span class="mx-1" />
+        <el-icon @click="onPopoverIconClick($event, node, PopoverMoreMenuType.MORE)">
+          <ac-icon-ep-more-filled />
+        </el-icon>
+      </template>
+    </AcTreeWrapper>
+  </ToggleHeading>
+
+  <el-popover
+    width="auto"
+    transition="fade-fast"
+    trigger="click"
+    virtual-triggering
+    :virtual-ref="popoverRefEl"
+    :visible="isShowPopoverMenu"
+    :show-arrow="false"
+  >
+    <PopperMenu :menus="popoverMenus" class="normal-popover-space" size="thin" />
+  </el-popover>
+</template>

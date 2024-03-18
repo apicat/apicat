@@ -1,33 +1,58 @@
-import { ProjectGroupSelectKey, ProjectInfo } from '@/typings'
-import SelectProjectGroup from '../components/SelectProjectGroup.vue'
-import { getProjectDetailPath } from '@/router'
-import { getMyFollowedProjectList, getMyProjectList, getProjectList, getProjectListByGroupId, toggleFollowProject } from '@/api/project'
+import { storeToRefs } from 'pinia'
+import type SelectProjectGroup from '../components/SelectProjectGroup.vue'
+import {
+  apiFollowProject,
+  apiGetMyFollowedProjectList,
+  apiGetMyProjectList,
+  apiGetProjectList,
+  apiGetProjectListByGroupId,
+  apiUnfollowProject,
+} from '@/api/project/index'
+import useProjectGroupStore from '@/store/projectGroup'
+import { useTeamStore } from '@/store/team'
+import { PROJECT_DETAIL_PATH_NAME } from '@/router'
+import { useGlobalLoading } from '@/hooks/useGlobalLoading'
 
-export const useProjects = (selectedGroupRef: Ref<ProjectGroupSelectKey>) => {
-  const router = useRouter()
+export function useProjects() {
+  const teamStore = useTeamStore()
+  const groupStore = useProjectGroupStore()
+  const { selectedGroupRef } = storeToRefs(groupStore)
   const isLoading = ref(false)
-  const projects = ref<ProjectInfo[]>([])
+  const projects = ref<ProjectAPI.ResponseProject[]>([])
   const selectProjectGroupRef = ref<InstanceType<typeof SelectProjectGroup>>()
-
+  const router = useRouter()
+  const { showGlobalLoading, hideGlobalLoading } = useGlobalLoading()
   // 跳转到项目详情
-  const goProjectDetail = (project: ProjectInfo) => {
-    router.push(getProjectDetailPath(project.id))
+  const navigateToProjectDetail = async (project: ProjectAPI.ResponseProject) => {
+    showGlobalLoading()
+
+    await router.push({
+      name: PROJECT_DETAIL_PATH_NAME,
+      params: {
+        project_id: project.id,
+      },
+    })
+
+    hideGlobalLoading()
   }
 
   // 调整项目分组
-  const changeProjectGroup = (projectInfo: ProjectInfo) => {
+  const showProjectGroupModal = (projectInfo: ProjectAPI.ResponseProject) => {
     selectProjectGroupRef.value?.show(projectInfo)
   }
 
   // 处理是否关注项目
-  const handleFollowProject = async (project: ProjectInfo) => {
+  const handleFollowProject = async (project: ProjectAPI.ResponseProject) => {
     try {
-      await toggleFollowProject(project)
-      project.is_followed = !project.is_followed
-      if (selectedGroupRef.value === 'followed') {
-        projects.value = await getMyFollowedProjectList()
-      }
-    } catch (error) {
+      if (project.selfMember.isFollowed)
+        await apiUnfollowProject(project.id)
+      else await apiFollowProject(project.id as string)
+
+      project.selfMember.isFollowed = !project.selfMember.isFollowed
+      if (selectedGroupRef.value === 'followed')
+        projects.value = await apiGetMyFollowedProjectList(teamStore.currentID)
+    }
+    catch (error) {
       //
     }
   }
@@ -37,36 +62,38 @@ export const useProjects = (selectedGroupRef: Ref<ProjectGroupSelectKey>) => {
       const groupKey = unref(selectedGroupRef)
       isLoading.value = true
       switch (groupKey) {
+        case 'create':
+          break
         case 'all':
-          projects.value = await getProjectList()
+          projects.value = await apiGetProjectList(teamStore.currentID)
           break
         case 'followed':
-          projects.value = await getMyFollowedProjectList()
+          projects.value = await apiGetMyFollowedProjectList(teamStore.currentID)
           break
         case 'my':
-          projects.value = await getMyProjectList()
+          projects.value = await apiGetMyProjectList(teamStore.currentID)
           break
         default:
-          projects.value = await getProjectListByGroupId(groupKey as number)
+          projects.value = await apiGetProjectListByGroupId(teamStore.currentID, groupKey as number, false)
           break
       }
-    } catch (error) {
+    }
+    catch (error) {
       projects.value = []
-    } finally {
+    }
+    finally {
       isLoading.value = false
     }
   }
-
-  // 检测项目分组变化
-  watch(selectedGroupRef, async () => await loadPrjectListByGroupId(), { immediate: true })
 
   return {
     isLoading,
     projects,
     selectProjectGroupRef,
+    navigateToProjectDetail,
+    showProjectGroupModal,
     refreshProjectList: loadPrjectListByGroupId,
+    loadPrjectListByGroupId,
     handleFollowProject,
-    goProjectDetail,
-    changeProjectGroup,
   }
 }

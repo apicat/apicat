@@ -1,11 +1,11 @@
 import { onBeforeUnmount, onMounted, onUpdated, shallowRef, watch } from 'vue'
-import { off, on } from '../utils'
 import { EVENT_CODE } from '@apicat/shared'
-import { useNamespace } from '@/hooks/useNamespace'
-import type TreeStore from './tree-store'
 
 import type { Ref } from 'vue'
+import { off, on } from '../utils'
 import type { Nullable } from '../utils'
+import type TreeStore from './tree-store'
+import { useNamespace } from '@/hooks/useNamespace'
 
 interface UseKeydownOption {
   el$: Ref<HTMLElement>
@@ -39,7 +39,8 @@ export function useKeydown({ el$ }: UseKeydownOption, store: Ref<TreeStore>) {
 
   const handleKeydown = (ev: KeyboardEvent): void => {
     const currentItem = ev.target as HTMLElement
-    if (!currentItem.className.includes(ns.b('node'))) return
+    if (!currentItem.className.includes(ns.b('node')))
+      return
     const code = ev.code
     treeItems.value = Array.from(el$.value.querySelectorAll(`.${ns.is('focusable')}[role=treeitem]`))
     const currentIndex = treeItems.value.indexOf(currentItem)
@@ -50,29 +51,30 @@ export function useKeydown({ el$ }: UseKeydownOption, store: Ref<TreeStore>) {
         nextIndex = currentIndex === -1 ? 0 : currentIndex !== 0 ? currentIndex - 1 : treeItems.value.length - 1
         const startIndex = nextIndex
         while (true) {
-          if (store.value.getNode(treeItems.value[nextIndex].dataset.key).canFocus) break
+          if (store.value.getNode(treeItems.value[nextIndex].dataset.key).canFocus)
+            break
           nextIndex--
           if (nextIndex === startIndex) {
             nextIndex = -1
             break
           }
-          if (nextIndex < 0) {
+          if (nextIndex < 0)
             nextIndex = treeItems.value.length - 1
-          }
         }
-      } else {
+      }
+      else {
         nextIndex = currentIndex === -1 ? 0 : currentIndex < treeItems.value.length - 1 ? currentIndex + 1 : 0
         const startIndex = nextIndex
         while (true) {
-          if (store.value.getNode(treeItems.value[nextIndex].dataset.key).canFocus) break
+          if (store.value.getNode(treeItems.value[nextIndex].dataset.key).canFocus)
+            break
           nextIndex++
           if (nextIndex === startIndex) {
             nextIndex = -1
             break
           }
-          if (nextIndex >= treeItems.value.length) {
+          if (nextIndex >= treeItems.value.length)
             nextIndex = 0
-          }
         }
       }
       nextIndex !== -1 && treeItems.value[nextIndex].focus()

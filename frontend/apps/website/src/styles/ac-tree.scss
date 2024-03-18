@@ -1,20 +1,27 @@
 @use './mixins/mixins' as *;
 @use 'element-plus/theme-chalk/el-tree.css';
 
+@include b(tree) {
+  @apply pl-5px;
+  .el-tree {
+    background-color: transparent;
+  }
+}
+
 @include b(tree-node) {
   flex: 1;
   overflow: hidden;
+  display: flex;
+  justify-content: space-between;
+
+  @include when(active) {
+    color: var(--primary-color);
+  }
 
   @include e(main) {
     flex: 1;
     padding: 5px 2px;
     overflow: hidden;
-  }
-
-  @include when(editable) {
-    @include e(more) {
-      display: none;
-    }
   }
 
   @include e(more) {
@@ -24,7 +31,17 @@
     align-items: center;
     visibility: hidden;
 
-    &.active {
+    .el-icon {
+      width: unset;
+      height: 100%;
+      padding: 5px;
+    }
+
+    .el-icon:hover {
+      color: var(--el-color-primary);
+    }
+
+    @include when(active) {
       visibility: visible;
     }
   }
@@ -41,14 +58,13 @@
   }
 }
 
-@include b(doc-node) {
+@include b(tree-content) {
   display: flex;
   align-items: center;
   padding-left: 4px;
 
   @include e(icon) {
     width: 16px;
-    height: 16px;
     margin-left: -5px;
     margin-right: 4px;
     line-height: 1.1;
@@ -63,11 +79,7 @@
 
   @include e(input) {
     flex: 1;
-    height: auto;
-    line-height: 1.5;
-    border-radius: var(--el-border-radius-base);
-    padding: 2px 4px;
-    box-shadow: 0 0 0 1px var(--primary-color) inset;
+    line-height: 1;
   }
 
   @include when(active) {

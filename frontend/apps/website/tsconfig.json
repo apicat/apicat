@@ -1,28 +1,20 @@
 {
   "extends": "@apicat/tsconfig/base.json",
   "compilerOptions": {
-    "types": [
-      "element-plus/global",
-      "vite/client",
-      "unplugin-icons/types/vue",
-      "node"
-    ],
+    "jsx": "preserve",
+    "jsxImportSource": "vue",
     "baseUrl": "./",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
-    }
+      "@/*": ["./src/*"]
+    },
+    "types": ["element-plus/global", "vite/client", "unplugin-icons/types/vue", "node"],
+    "allowJs": true,
+    "plugins": [{ "name": "@vue/typescript-plugin" }]
   },
-  "include": [
-    "./src/**/*.vue",
-    "./src/**/*.ts",
-    "./src/**/*.d.ts",
-    "./src/**/*.tsx",
-  ],
   "references": [
     {
       "path": "./tsconfig.node.json"
     }
-  ]
+  ],
+  "include": ["./src/**/*.vue", "./src/**/*.ts", "./src/**/*.d.ts", "./src/**/*.tsx", "./src/**/*.js"]
 }
