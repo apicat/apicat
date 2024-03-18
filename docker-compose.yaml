@@ -5,7 +5,7 @@ services:
     depends_on:
       - apicat_db
       - apicat_redis
-    build: .
+    image: natuo/apicat:latest
     environment:
       - APICAT_DB_HOST=apicat_db
       - APICAT_DB_USERNAME=root
