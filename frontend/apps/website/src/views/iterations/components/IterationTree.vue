@@ -1,46 +1,32 @@
-<template>
-  <div :class="[ns.b(), ns.m('header')]">
-    <div :class="[ns.e('item'), activeClass('all')]" @click="handleItemClick('all')">
-      <Iconfont icon="ac-diedai" :size="18" />
-      <span>所有迭代</span>
-    </div>
-    <div :class="[ns.e('item'), activeClass('create')]" @click="handleItemClick('create')">
-      <el-icon :size="18"><ac-icon-fe:plus /></el-icon>
-      <span>创建迭代</span>
-    </div>
-  </div>
-
-  <p v-if="followedProjects.length" :class="ns.e('segment')">关注的项目</p>
-  <ul :class="[ns.b()]">
-    <li v-for="project in followedProjects" :class="[ns.e('item'), activeClass(project)]" @click="handleItemClick(project)">
-      <span :class="ns.e('dot')"></span>
-      <span :class="ns.e('title')">{{ project.title }}</span>
-    </li>
-  </ul>
-</template>
 <script setup lang="ts">
-import { useNamespace } from '@/hooks'
+import { useNamespace } from '@apicat/hooks'
 import { useFollowedProjectList } from '../logic/useFollowedProjectList'
-import { ProjectInfo, SelectedKey } from '@/typings'
-interface Events {
+
+export interface IterationTreeEmits {
   (event: 'create'): void
-  (event: 'click', project: ProjectInfo | null): void
+  (event: 'click', project: ProjectAPI.ResponseProject | null): void
 }
 
-const emits = defineEmits<Events>()
+const emits = defineEmits<IterationTreeEmits>()
 const ns = useNamespace('group-list')
+const {
+  followedProjects,
+  activeClass,
+  selectedRef,
+  setSelectedHistory,
+  goBackSelected,
+  goSelectedAll,
+  removeSelected,
+} = useFollowedProjectList(emits)
 
-const { followedProjects, activeClass, selectedRef, setSelectedHistory, goBackSelected, goSelectedAll, removeSelected } = useFollowedProjectList()
-
-const handleItemClick = (project: SelectedKey) => {
-  selectedRef.value = project
-
-  if (project === 'create') {
+function handleItemClick(projectID: IterationSelectedKey) {
+  selectedRef.value = projectID
+  setSelectedHistory(projectID)
+  if (projectID === 'create') {
     emits('create')
-  } else {
-    setSelectedHistory(project === 'all' ? 0 : (project as ProjectInfo))
-    emits('click', project === 'all' ? null : (project as ProjectInfo))
+    return
   }
+  emits('click', projectID === 'all' ? null : followedProjects.value.find(val => val.id === projectID)!)
 }
 
 defineExpose({
@@ -49,3 +35,36 @@ defineExpose({
   removeSelected,
 })
 </script>
+
+<template>
+  <div>
+    <div :class="[ns.b(), ns.m('header')]">
+      <div :class="[ns.e('item'), activeClass('all')]" @click="handleItemClick('all')">
+        <Iconfont icon="ac-diedai" :size="18" />
+        <span> {{ $t('app.iter.table.title') }}</span>
+      </div>
+      <div :class="[ns.e('item'), activeClass('create')]" @click="handleItemClick('create')">
+        <el-icon :size="18">
+          <ac-icon-fe:plus />
+        </el-icon>
+        <span> {{ $t('app.iter.create.title') }}</span>
+      </div>
+    </div>
+
+    <p v-if="followedProjects.length" :class="ns.e('segment')">
+      {{ $t('app.iter.star.title') }}
+    </p>
+    <ul :class="[ns.b()]">
+      <li
+        v-for="project in followedProjects"
+        :key="project.id"
+        :class="[ns.e('item'), activeClass(project.id)]"
+        :title="project.title"
+        @click="handleItemClick(project.id)"
+      >
+        <span :class="ns.e('dot')" />
+        <span :class="ns.e('title')">{{ project.title }}</span>
+      </li>
+    </ul>
+  </div>
+</template>

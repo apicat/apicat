@@ -1,22 +1,27 @@
-# Editor directories and files
+node_modules
+.DS_Store
 .idea
 
-# Package Manager
-node_modules
-
-# Log files
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# System
-.DS_Store
-
-# Bundle
-build
+lib
 dist
-.turbo
+dist-ssr
+docs
+coverage
+test-results
+.pnpm-store
+.npmrc
 
-# local env files
+sitemap.xml
+
+.env
+nx-cloud.env
 *.local
-tmp
+*.cache
+*error.log
+*debug.log
+.eslintcache
+
+apps/website/stats.html
+apps/website/src/types/components.d.ts
+apps/website/src/types/auto-imports.d.ts
+apps/website/src/typings/components.d.ts

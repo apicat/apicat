@@ -1,76 +1,33 @@
-<template>
-  <div class="flex flex-col h-full">
-    <div :class="[ns.b(), ns.m('header')]">
-      <div v-for="menu in menus" :key="menu.name" :class="[ns.e('item'), activeClass(menu.id)]" @click="handleItemClick(menu.id)">
-        <Iconfont v-if="menu.iconfont" :icon="menu.iconfont" :size="18" />
-        <el-icon v-if="menu.elIcon" :size="18"><component :is="menu.elIcon" /></el-icon>
-        <span>{{ menu.name }}</span>
-      </div>
-
-      <div :class="ns.e('segment')">
-        <p>项目分组</p>
-        <el-icon v-if="!isNormalUser" @click="onCreateProjectGroup" class="cursor-pointer"><ac-icon-ep-plus /></el-icon>
-      </div>
-    </div>
-
-    <div class="flex-1 overflow-scroll mb-10px scroll-content">
-      <Draggable tag="ul" :class="ns.b()" :list="groups" @end="onDragEnd">
-        <li v-for="item in groups" :key="item.id" :class="[ns.e('item'),ns.em('item','more'), activeClass(item.id!)]" @click="handleItemClick(item.id!)">
-          <div class="w-full flex-y-center">
-            <span :class="ns.e('dot')"></span>
-            <span :class="ns.e('title')">{{ item.name }}</span>
-          </div>
-          <el-icon @click.stop="onMoreMenuClick($event, item)"><ac-icon-ep-more-filled /></el-icon>
-        </li>
-      </Draggable>
-    </div>
-  </div>
-
-  <el-popover :virtual-ref="popoverRefEl" trigger="click" virtual-triggering :visible="isShowPopoverMenu" width="auto">
-    <PopperMenu :menus="popoverMenus" size="small" class="clear-popover-space" @menu-click="" />
-  </el-popover>
-</template>
-
-<script setup lang="ts">
-import { useNamespace } from '@/hooks'
-import { useUserStore } from '@/store/user'
-import { ProjectGroup, ProjectGroupSelectKey, SwitchProjectGroupInfo } from '@/typings'
+<script setup lang="tsx">
+import { useI18n } from 'vue-i18n'
+import { storeToRefs } from 'pinia'
+import { VueDraggableNext as Draggable } from 'vue-draggable-next'
+import { Icon } from '@iconify/vue'
+import { useNamespace } from '@apicat/hooks'
+import { useProjectListContext } from '../logic/useProjectListContext'
 import AcIconAdd from '~icons/fe/plus'
 import AcIconMyProject from '~icons/mdi/folder-outline'
 import AcIconMyFollowedProject from '~icons/clarity/star-line'
-import { useI18n } from 'vue-i18n'
-import { storeToRefs } from 'pinia'
 import { usePopover } from '@/hooks/usePopover'
-import { VueDraggableNext as Draggable } from 'vue-draggable-next'
+import useProjectGroupStore from '@/store/projectGroup'
+import { useTeamStore } from '@/store/team'
+import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 
 const emits = defineEmits<{
-  (event: 'create-project'): void
-  (event: 'create-group'): void
-  (event: 'switch-group', info: SwitchProjectGroupInfo): void
-  (event: 'update:selected', key: ProjectGroupSelectKey): void
-  (event: 'delete-group', group: ProjectGroup): void
-  (event: 'rename-group', group: ProjectGroup): void
-  (event: 'sort-group'): void
+  (event: 'createProject' | 'delete'): void
+  (event: 'switchGroup', info: SwitchProjectGroupInfo): void
 }>()
 
-const props = withDefaults(
-  defineProps<{
-    selected: ProjectGroupSelectKey
-    groups?: ProjectGroup[]
-  }>(),
-  {
-    selected: 'all',
-    groups: () => [],
-  }
-)
+let currentModifyProjectGroup: ProjectAPI.ResponseGroup | null = null
 
-const userStore = useUserStore()
-const { isNormalUser } = storeToRefs(userStore)
-const { groups, selected } = toRefs(props)
-const ns = useNamespace('group-list')
 const { t } = useI18n()
-
-let currentModifyProjectGroup: ProjectGroup | null = null
+const ns = useNamespace('group-list')
+const teamStore = useTeamStore()
+const groupStore = useProjectGroupStore()
+const { selectedGroupRef, projectGroups } = storeToRefs(groupStore)
+const { createOrUpdateProjectGroupRef } = useProjectListContext()
+// 仅用于UI显示,处理回退时，创建项目选项被选中问题
+const selectedGroupKeyForUI = ref<ProjectGroupSelectKey>(selectedGroupRef.value)
 
 const {
   isShow: isShowPopoverMenu,
@@ -83,21 +40,41 @@ const {
   },
 })
 
-const selectedRef = ref<ProjectGroupSelectKey>(props.selected)
-let selectedHistory: ProjectGroupSelectKey = props.selected
+const activeClass = (key: ProjectGroupSelectKey) => (selectedGroupKeyForUI.value === key ? 'active' : '')
+
+let selectedHistory: ProjectGroupSelectKey = selectedGroupRef.value
 
 // 导航菜单
 const menus = computed(() => {
-  let allMenus: Array<{ name: string; id: ProjectGroupSelectKey; iconfont?: string; elIcon?: any }> = [
-    { name: '所有项目', id: 'all', iconfont: 'ac-xiangmu' },
-    { name: '关注的项目', id: 'followed', elIcon: markRaw(AcIconMyFollowedProject) },
-    { name: '我的项目', id: 'my', elIcon: markRaw(AcIconMyProject) },
-    { name: t('app.project.createModal.title'), id: 'create', elIcon: markRaw(AcIconAdd) },
+  const allMenus: Array<{
+    name: string
+    id: ProjectGroupSelectKey
+    iconfont?: string
+    elIcon?: any
+  }> = [
+    {
+      name: t('app.project.projects.title'),
+      id: 'all',
+      iconfont: 'ac-xiangmu',
+    },
+    {
+      name: t('app.project.stars.title'),
+      id: 'followed',
+      elIcon: markRaw(AcIconMyFollowedProject),
+    },
+    {
+      name: t('app.project.mypro.title'),
+      id: 'my',
+      elIcon: markRaw(AcIconMyProject),
+    },
   ]
 
-  // 普通成员移除创建入口
-  if (isNormalUser.value) {
-    allMenus = allMenus.filter((menu) => menu.id !== 'create')
+  if (!teamStore.isMember) {
+    allMenus.push({
+      name: t('app.project.createModal.title'),
+      id: 'create',
+      elIcon: markRaw(AcIconAdd),
+    })
   }
 
   return allMenus
@@ -106,72 +83,138 @@ const menus = computed(() => {
 // popover菜单
 const popoverMenus = [
   {
-    text: '重命名',
-    onClick: () => {
-      currentModifyProjectGroup && emits('rename-group', currentModifyProjectGroup)
-      hidePopover()
-    },
+    content: (
+      <span style="display: flex">
+        <Icon icon={'mdi:rename-outline'} width={18} />
+        <span class="ml-1">{t('app.project.groups.rename')}</span>
+      </span>
+    ),
+    onClick: () => currentModifyProjectGroup && onClickRenameProjectGroup(currentModifyProjectGroup),
   },
   {
-    text: '删除',
-    onClick: () => {
-      currentModifyProjectGroup && emits('delete-group', currentModifyProjectGroup)
-      hidePopover()
-    },
+    content: (
+      <span style="display: flex; color: #ff5353">
+        <Icon icon={'material-symbols:delete-outline'} width={18} />
+        <span class="ml-1">{t('app.project.groups.delete')}</span>
+      </span>
+    ),
+    onClick: () => currentModifyProjectGroup && onClickDeleteProjectGroup(currentModifyProjectGroup),
   },
 ]
 
-// 点击项目分组
-const handleItemClick = (key: ProjectGroupSelectKey) => {
-  selectedRef.value = key
-}
+// 是否需要重新选中分组
 
-watch(selected, (val) => handleItemClick(val))
-
-watch(selectedRef, (key) => {
-  if (key !== 'create') {
-    selectedHistory = key
-    let title: string | undefined
-    if (typeof key === 'string') {
-      title = menus.value.find((menu) => menu.id === key)?.name
-    } else {
-      title = groups.value.find((menu) => menu.id === key)?.name
-    }
-    emits('switch-group', { key, title: title ?? '所有项目' })
-    emits('update:selected', key)
+function needReSelectGroup(group: ProjectAPI.ResponseGroup) {
+  if (selectedGroupRef.value === group?.id) {
+    selectedGroupRef.value = 'all'
+    selectedGroupKeyForUI.value = selectedGroupRef.value
     return
   }
 
-  emits('create-project')
-})
+  emits('delete')
+}
 
-const onDragEnd = () => emits('sort-group')
+// 重命名项目分组
+function onClickRenameProjectGroup(group: ProjectAPI.ResponseGroup) {
+  createOrUpdateProjectGroupRef?.value.show(group)
+  hidePopover()
+}
 
-const onCreateProjectGroup = () => emits('create-group')
+// 删除项目分组
+function onClickDeleteProjectGroup(group: ProjectAPI.ResponseGroup) {
+  AsyncMsgBox({
+    title: t('app.project.groups.pop.title'),
+    confirmButtonText: t('app.common.delete'),
+    content: t('app.project.groups.pop.content'),
+    onOk: async () => {
+      await groupStore.deleteProjectGroup(group)
+      hidePopover()
+      needReSelectGroup(group)
+    },
+  })
+}
 
-const activeClass = (key: ProjectGroupSelectKey) => (selectedRef.value === key ? 'active' : '')
+// 点击项目分组（切换分组）
+function handleItemClick(key: ProjectGroupSelectKey) {
+  selectedGroupKeyForUI.value = key
+}
+
+// 显示创建项目分组弹窗
+function showCreateProjectGroupModal() {
+  createOrUpdateProjectGroupRef?.value.show()
+}
+
+// 处理拖拽
+let currentGroupList: number[] = []
+function onDragStart() {
+  currentGroupList = projectGroups.value.map(group => group.id as number)
+}
+function handleDragEnd() {
+  let different = false
+  for (let i = 0; i < projectGroups.value.length; i++) {
+    if (projectGroups.value[i].id !== currentGroupList[i]) {
+      different = true
+      break
+    }
+  }
+  if (different)
+    groupStore.sortGroup()
+}
 
 // 点击更多菜单
-const onMoreMenuClick = (e: MouseEvent, group: ProjectGroup) => {
+function onMoreMenuClick(e: MouseEvent, group: ProjectAPI.ResponseGroup) {
   currentModifyProjectGroup = group
   showPopover(e.target as HTMLElement)
 }
 
-// 导航回退
-const goBackSelected = () => {
-  selectedRef.value = selectedHistory
+// 选中项回退
+function goBackSelected() {
+  selectedGroupKeyForUI.value = selectedHistory
 }
 
 // 移除选中导航（所有导航不选中）
-const removeSelected = () => {
-  selectedRef.value = null
+function removeSelected() {
+  selectedGroupKeyForUI.value = null
 }
 
 // 导航选中（默认选中所有）
-const goSelected = (key: ProjectGroupSelectKey = 'all') => {
+function goSelected(key: ProjectGroupSelectKey = 'all') {
   selectedHistory = key
   goBackSelected()
 }
+
+// 触发切换分组事件
+function triggerSwitchProjectGroupEvent() {
+  const key = selectedGroupRef.value
+  const title: string | undefined = (typeof key === 'string' ? menus.value : projectGroups.value).find(
+    (menu: any) => menu.id === key,
+  )?.name
+  emits('switchGroup', {
+    key,
+    title: title ?? t('app.project.projects.title'),
+  })
+}
+
+watch(selectedGroupKeyForUI, (key: ProjectGroupSelectKey) => {
+  if (key !== 'create') {
+    selectedHistory = key
+    selectedGroupRef.value = key
+    triggerSwitchProjectGroupEvent()
+    groupStore.saveGroupKeyToStorage(key)
+    return
+  }
+
+  emits('createProject')
+})
+
+// 获取分组，手动触发切换分组事件
+onBeforeMount(async () => {
+  const groups = await groupStore.getProjectGroups()
+  // 检测默认选中分组是否存在，不存在时切换分组
+  if (typeof selectedGroupRef.value === 'number' && !groups.find(item => item.id === selectedGroupRef.value))
+    selectedGroupRef.value = 'all'
+  else triggerSwitchProjectGroupEvent()
+})
 
 defineExpose({
   goSelected,
@@ -179,3 +222,65 @@ defineExpose({
   goBackSelected,
 })
 </script>
+
+<template>
+  <div class="flex flex-col h-full">
+    <div :class="[ns.b(), ns.m('header')]">
+      <div
+        v-for="menu in menus"
+        :key="menu.name"
+        :class="[ns.e('item'), activeClass(menu.id)]"
+        @click="handleItemClick(menu.id)"
+      >
+        <Iconfont v-if="menu.iconfont" :icon="menu.iconfont" :size="18" />
+        <el-icon v-if="menu.elIcon" :size="18">
+          <component :is="menu.elIcon" />
+        </el-icon>
+        <span>{{ menu.name }}</span>
+      </div>
+    </div>
+    <div>
+      <div :class="ns.e('segment')">
+        <p>{{ $t('app.project.groups.title') }}</p>
+        <el-icon class="cursor-pointer" @click="showCreateProjectGroupModal">
+          <ac-icon-ep-plus />
+        </el-icon>
+      </div>
+      <!-- <div class="flex-1 overflow-scroll mb-10px"> -->
+      <div class="flex-1 overflow-hidden mb-10px">
+        <Draggable tag="ul" :class="ns.b()" :list="projectGroups" @start="onDragStart" @end="handleDragEnd">
+          <li
+            v-for="item in projectGroups"
+            :key="item.id"
+            :class="[
+              ns.e('item'),
+              ns.em('item', 'more'),
+              activeClass(item.id as number),
+            ]"
+            :title="item.name"
+            @click="handleItemClick(item.id as number)"
+          >
+            <div class="w-full flex-y-center">
+              <span :class="ns.e('dot')" />
+              <span :class="ns.e('title')">{{ item.name }}</span>
+            </div>
+            <el-icon @click.stop="onMoreMenuClick($event, item)">
+              <ac-icon-ep-more-filled />
+            </el-icon>
+          </li>
+        </Draggable>
+      </div>
+    </div>
+  </div>
+
+  <el-popover
+    trigger="click"
+    width="auto"
+    virtual-triggering
+    :virtual-ref="popoverRefEl"
+    :visible="isShowPopoverMenu"
+    :show-arrow="false"
+  >
+    <PopperMenu :menus="popoverMenus" size="small" class="clear-popover-space" />
+  </el-popover>
+</template>

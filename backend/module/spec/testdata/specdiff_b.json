@@ -1,0 +1,169 @@
+{
+  "apicat": "apicat",
+  "info": {
+    "id": "dD7g2mD3cpdKLvDERdNnVL",
+    "title": "test",
+    "version": "1.0.0"
+  },
+  "servers": [],
+  "globals": {
+    "parameters": {
+      "query": [],
+      "path": [],
+      "cookie": [],
+      "header": []
+    }
+  },
+  "definitions": {
+    "schemas": [],
+    "parameters": {},
+    "responses": []
+  },
+  "collections": [
+    {
+      "type": "http",
+      "id": 3371,
+      "title": "t2",
+      "content": [
+        {
+          "type": "apicat-http-url",
+          "attrs": {
+            "path": "/test2",
+            "method": "get"
+          }
+        },
+        {
+          "type": "apicat-http-request",
+          "attrs": {
+            "globalExcepts": {
+              "cookie": [],
+              "header": [],
+              "path": [],
+              "query": []
+            },
+            "parameters": {
+              "query": [],
+              "path": [],
+              "cookie": [
+                {
+                  "name": "name",
+                  "schema": {
+                    "type": "interger",
+                    "x-apicat-mock": "name"
+                  }
+                },
+                {
+                  "name": "happy",
+                  "schema": {
+                    "type": "string",
+                    "x-apicat-mock": "string"
+                  }
+                }
+              ],
+              "header": []
+            },
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "x-apicat-orders": [
+                    "interest"
+                  ],
+                  "properties": {
+                    "interest": {
+                      "type": "array",
+                      "x-apicat-mock": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "type": "apicat-http-response",
+          "attrs": {
+            "list": [
+              {
+                "code": 200,
+                "name": "Response Name1",
+                "content": {
+                  "application/json": {
+                    "examples": {
+                      "0": {
+                        "summary": "test1",
+                        "value": "11111-22222"
+                      },
+                      "1": {
+                        "summary": "test3",
+                        "value": "22222222"
+                      }
+                    },
+                    "schema": {
+                      "type": "object",
+                      "x-apicat-orders": [
+                        "sex",
+                        "money",
+                        "test"
+                      ],
+                      "properties": {
+                        "money": {
+                          "type": "string",
+                          "x-apicat-mock": "string"
+                        },
+                        "name": {
+                          "type": "string",
+                          "x-apicat-mock": "string"
+                        },
+                        "test": {
+                          "type": "array"
+                        }
+                      },
+                      "example": ""
+                    }
+                  }
+                }
+              },
+              {
+                "code": 400,
+                "name": "Response Name",
+                "content": {
+                  "application/json": {
+                    "examples": {
+                      "0": {
+                        "summary": "test1",
+                        "value": "11111-22222"
+                      },
+                      "1": {
+                        "summary": "test3",
+                        "value": "22222222"
+                      }
+                    },
+                    "schema": {
+                      "type": "object",
+                      "x-apicat-orders": [
+                        "sex",
+                        "money",
+                        "test"
+                      ],
+                      "properties": {
+                        "money": {
+                          "type": "string",
+                          "x-apicat-mock": "string"
+                        },
+                        "test": {
+                          "type": "object"
+                        }
+                      },
+                      "example": ""
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}

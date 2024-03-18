@@ -1,5 +1,3 @@
-import { isString } from './types'
-
 class ElementPlusError extends Error {
   constructor(m: string) {
     super(m)

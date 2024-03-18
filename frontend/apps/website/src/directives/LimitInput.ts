@@ -13,7 +13,7 @@ const inputLimit = {
 
     const target = el instanceof HTMLInputElement ? el : el.querySelector('input')
 
-    el._handler = debounce(function (event: any) {
+    el._handler = debounce((event: any) => {
       if (!inputLock && event.inputType === 'insertText') {
         doRule(event)
         event.returnValue = false

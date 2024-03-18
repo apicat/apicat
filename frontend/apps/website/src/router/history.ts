@@ -1,29 +1,33 @@
 import type { RouteRecordRaw } from 'vue-router'
 import { compile } from 'path-to-regexp'
-import DocumentHistoryLayout from '@/layouts/DocumentHistoryLayout.vue'
+import CollectionHistoryLayout from '@/layouts/CollectionHistoryLayout.vue'
 import SchemaHistoryLayout from '@/layouts/SchemaHistoryLayout.vue'
-import { resetEmptyPathParams } from '@/commons'
 
-const docuemntHistoryPath = '/projects/:project_id/doc/:doc_id/history/:history_id?'
-const shcemaHistoryPath = '/projects/:project_id/schema/:schema_id/history/:history_id?'
+const collectionHistoryPath = '/projects/:projectID/collection/:collectionID/history/:historyID?'
+const shcemaHistoryPath = '/projects/:projectID/schema/:schemaID/history/:historyID?'
 
-export const getDocumentHistoryPath = (project_id: string, doc_id: string, history_id?: string) =>
-  compile(docuemntHistoryPath)(resetEmptyPathParams({ project_id, doc_id, history_id }))
+export function getCollectionHistoryPath(projectID: string, collectionID: number, historyID?: number) {
+  return compile(collectionHistoryPath)({ projectID, collectionID, historyID })
+}
 
-export const getSchemaHistoryPath = (project_id: string, schema_id: string, history_id?: string) =>
-  compile(shcemaHistoryPath)(resetEmptyPathParams({ project_id, schema_id, history_id }))
+export function getSchemaHistoryPath(projectID: string, schemaID: number, historyID?: number) {
+  return compile(shcemaHistoryPath)({ projectID, schemaID, historyID })
+}
 
 // 文档历史记录
-export const documentHistoryRoute: RouteRecordRaw = {
-  name: 'history.docuemnt',
-  path: docuemntHistoryPath,
-  component: DocumentHistoryLayout,
-
+export const collectionHistoryRoute: RouteRecordRaw = {
+  name: 'history.collection',
+  path: collectionHistoryPath,
+  component: CollectionHistoryLayout,
+  redirect: { name: 'history.collection.detail' },
+  props: true,
   children: [
     {
-      name: 'history.docuemnt.detail',
-      path: docuemntHistoryPath,
-      component: () => import('@/views/document/DocumentHistoryPage.vue'),
+      name: 'history.collection.detail',
+      path: collectionHistoryPath,
+      component: () => import('@/views/collection/CollectionHistoryPage.vue'),
+      props: true,
+      meta: { title: 'app.pageTitles.collectionHistory' },
     },
   ],
 }
@@ -33,11 +37,15 @@ export const schemaHistoryRoute: RouteRecordRaw = {
   name: 'history.schema',
   path: shcemaHistoryPath,
   component: SchemaHistoryLayout,
+  redirect: { name: 'history.schema.detail' },
+  props: true,
   children: [
     {
       name: 'history.schema.detail',
       path: shcemaHistoryPath,
-      component: () => import('@/views/definition/schema/SchemaHistoryPage.vue'),
+      component: () => import('@/views/schema/SchemaHistoryPage.vue'),
+      props: true,
+      meta: { title: 'app.pageTitles.schemaHistory' },
     },
   ],
 }

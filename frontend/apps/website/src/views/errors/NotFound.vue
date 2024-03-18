@@ -1,8 +1,10 @@
 <template>
   <div class="text-center">
-    <img class="not-found-image" src="@/assets/images/404@2x.png" alt="404" />
+    <img class="not-found-image" src="@/assets/images/404@2x.png" alt="404">
     <p class="not-found-tip">
-      {{ $t('app.tips.notFound') }}<router-link class="text-blue-600" to="/">{{ $t('app.common.goHome') }}</router-link>
+      {{ $t('app.tips.notFound') }}<router-link class="text-blue-600" to="/">
+        {{ $t('app.common.goHome') }}
+      </router-link>
     </p>
   </div>
 </template>

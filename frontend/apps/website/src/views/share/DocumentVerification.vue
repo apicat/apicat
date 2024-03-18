@@ -1,27 +1,29 @@
-<template>
-  <VerificationForm :handle-check-secret-key="handleCheckSecretKey" />
-</template>
-
 <script setup lang="ts">
-import useShareStore from '@/store/share'
 import VerificationForm from './components/VerificationForm.vue'
-import { checkCollectionSecret, setCollectionSharedToken } from '@/api/shareCollection'
+import { apiSendDocShareKey } from '@/api/project/share'
+import { useCollectionsStore } from '@/store/collections'
 
-const shareStore = useShareStore()
-const { params } = useRoute()
+const props = defineProps<{
+  publicID: string
+  projectID?: string
+  collectionID?: number
+}>()
+const emit = defineEmits(['update:visible'])
+const collectionStore = useCollectionsStore()
 
-const handleCheckSecretKey = async (secret_key: string) => {
-  if (!shareStore.sharedDocumentInfo) {
-    return
-  }
-
+// 通过密钥获取collection分享token
+async function sendCode(code: string) {
   try {
-    const { project_id, collection_id } = shareStore.sharedDocumentInfo
-    const { token, expiration } = await checkCollectionSecret({ project_id, collection_id, secret_key })
-    params.doc_public_id && setCollectionSharedToken(params.doc_public_id as string, token, { expires: expiration })
-    location.reload()
-  } catch (error) {
+    const res = await apiSendDocShareKey(props.projectID!, props.collectionID!, code)
+    collectionStore.setShareToken(props.publicID, res.shareCode)
+    emit('update:visible', true)
+  }
+  catch (e) {
     //
   }
 }
 </script>
+
+<template>
+  <VerificationForm :handle-check-secret-key="sendCode" />
+</template>

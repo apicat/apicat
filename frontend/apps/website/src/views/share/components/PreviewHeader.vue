@@ -1,13 +1,14 @@
+<script setup lang="ts">
+import { useNamespace } from '@apicat/hooks'
+
+const ns = useNamespace('header')
+</script>
+
 <template>
   <header :class="ns.b()">
     <AcLogo :size="80" href="/" />
   </header>
 </template>
-
-<script setup lang="ts">
-import { useNamespace } from '@/hooks'
-const ns = useNamespace('header')
-</script>
 
 <style lang="scss" scoped>
 @use '@/styles/mixins/mixins' as *;

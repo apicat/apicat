@@ -1,8 +1,8 @@
 @font-face {
   font-family: "ac-iconfont"; /* Project id 3982489 */
-  src: url('iconfont.woff2?t=1693364714550') format('woff2'),
-       url('iconfont.woff?t=1693364714550') format('woff'),
-       url('iconfont.ttf?t=1693364714550') format('truetype');
+  src: url('iconfont.woff2?t=1709779671820') format('woff2'),
+       url('iconfont.woff?t=1709779671820') format('woff'),
+       url('iconfont.ttf?t=1709779671820') format('truetype');
 }
 
 .ac-iconfont {
@@ -11,6 +11,166 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.ac-people-outline:before {
+  content: "\e606";
+}
+
+.ac-user-outline:before {
+  content: "\e7dc";
+}
+
+.ac-webpage:before {
+  content: "\e63a";
+}
+
+.ac-smart-optimization:before {
+  content: "\ecb3";
+}
+
+.ac-data:before {
+  content: "\e604";
+}
+
+.ac-qiniu:before {
+  content: "\e60b";
+}
+
+.ac-cloudflare:before {
+  content: "\e605";
+}
+
+.ac-redis:before {
+  content: "\e610";
+}
+
+.ac-SendCloud:before {
+  content: "\e72e";
+}
+
+.ac-mail:before {
+  content: "\e69f";
+}
+
+.ac-memory-one:before {
+  content: "\e753";
+}
+
+.ac-storage-card-one:before {
+  content: "\e699";
+}
+
+.ac-azure:before {
+  content: "\e6ff";
+}
+
+.ac-openai:before {
+  content: "\eac8";
+}
+
+.ac-user:before {
+  content: "\e603";
+}
+
+.ac-program:before {
+  content: "\e991";
+}
+
+.ac-empty1:before {
+  content: "\e621";
+}
+
+.ac-empty:before {
+  content: "\e618";
+}
+
+.ac-reload:before {
+  content: "\e689";
+}
+
+.ac-url:before {
+  content: "\e602";
+}
+
+.ac-members1:before {
+  content: "\e79e";
+}
+
+.ac-doc:before {
+  content: "\e60a";
+}
+
+.ac-document1:before {
+  content: "\e74c";
+}
+
+.ac-copy:before {
+  content: "\e634";
+}
+
+.ac-circle-small:before {
+  content: "\e80c";
+}
+
+.ac-folder:before {
+  content: "\e751";
+}
+
+.ac-loop-inner:before {
+  content: "\e785";
+}
+
+.ac-loop-outer:before {
+  content: "\e685";
+}
+
+.ac-back:before {
+  content: "\e626";
+}
+
+.ac-edit:before {
+  content: "\e601";
+}
+
+.ac-send:before {
+  content: "\e6c7";
+}
+
+.ac-circle-light:before {
+  content: "\e639";
+}
+
+.ac-circle:before {
+  content: "\e600";
+}
+
+.ac-cloud-check:before {
+  content: "\e644";
+}
+
+.ac-cloud-error:before {
+  content: "\e640";
+}
+
+.ac-cloud-error2:before {
+  content: "\e703";
+}
+
+.ac-cloud-check2:before {
+  content: "\e650";
+}
+
+.ac-download:before {
+  content: "\e7ef";
+}
+
+.ac-exit:before {
+  content: "\e7cb";
+}
+
+.ac-delete:before {
+  content: "\e6a4";
 }
 
 .ac-fenlei:before {
@@ -83,6 +243,10 @@
 
 .ac-export:before {
   content: "\e800";
+}
+
+.ac-model:before {
+  content: "\e867";
 }
 
 .ac-suffix-url:before {

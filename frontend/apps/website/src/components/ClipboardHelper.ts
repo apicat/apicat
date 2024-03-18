@@ -1,18 +1,20 @@
 import ClipboardJS from 'clipboard'
 import { ElMessage } from 'element-plus'
 import { trim } from 'lodash-es'
-import { i18n } from '@/i18n'
+import { useLocaleStoreWithOut } from '@/store/locale'
 
 const install = function (app: any) {
   app.mixin({
-    mounted: function () {
-      if (app.__clipboard__) {
+    mounted() {
+      const { i18n } = useLocaleStoreWithOut()
+      if (app.__clipboard__)
         app.__clipboard__.destroy()
-      }
 
       app.__clipboard__ = new ClipboardJS('.copy_text', {
-        text: function (trigger: HTMLElement) {
-          return trim(trigger.getAttribute('data-text') || trigger.innerText || '')
+        text(trigger: HTMLElement) {
+          return trim(
+            trigger.getAttribute('data-text') || trigger.innerText || '',
+          )
         },
       })
 

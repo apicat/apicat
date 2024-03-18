@@ -1,79 +1,105 @@
+<script setup lang="ts">
+import { useI18n } from 'vue-i18n'
+import { useNamespace } from '@apicat/hooks'
+
+const props = withDefaults(
+  defineProps<{
+    title: string
+    projects: ProjectAPI.ResponseProject[]
+  }>(),
+  {
+    projects: () => [],
+  },
+)
+
+const emits = defineEmits<{
+  (e: 'click' | 'follow' | 'change-group', project: ProjectAPI.ResponseProject): void
+}>()
+
+const { t } = useI18n()
+
+const ns = useNamespace('project-list')
+
+const titleRef = computed(() => props.title || t('app.project.projects.title'))
+
+function handleClick(project: ProjectAPI.ResponseProject) {
+  return emits('click', project)
+}
+function handleFollowProject(project: ProjectAPI.ResponseProject) {
+  return emits('follow', project)
+}
+function handleProjectGroup(project: ProjectAPI.ResponseProject) {
+  return emits('change-group', project)
+}
+</script>
+
 <template>
   <div class="flex flex-col justify-center mx-auto px-36px">
     <p class="border-b border-solid border-gray-lighter pb-30px text-18px text-gray-title">
       {{ titleRef }}
     </p>
 
-    <ul :class="ns.b()">
-      <li :class="ns.e('item')" v-for="project in projects" @click="handleClick(project)" :key="project.id">
-        <div :class="ns.e('cover')" :style="{ backgroundColor: (project.cover as ProjectCover).coverBgColor }">
-          <Iconfont class="text-white" :icon="(project.cover as ProjectCover).coverIcon" :size="55" />
-        </div>
-        <div :class="ns.e('title')">
-          <p class="flex-1 truncate">{{ project.title }}</p>
-          <div :class="ns.e('icons')">
-            <el-tooltip :content="project.is_followed ? '取消关注' : '关注项目'" placement="bottom">
-              <el-icon size="18" v-if="!project.is_followed" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star-outline /></el-icon>
-              <el-icon size="18" v-else color="#FF9966" @click.stop="handleFollowProject(project)"><ac-icon-mdi:star /></el-icon>
-            </el-tooltip>
+    <div :class="ns.b()">
+      <div v-for="project in projects" :key="project.id" :class="ns.e('item')" @click="handleClick(project)">
+        <div class="content">
+          <div
+            :class="ns.e('cover')"
+            :style="{
+              backgroundColor: (project.cover as ProjectAPI.ProjectCover).coverBgColor,
+            }">
+            <Iconfont class="text-white" :icon="(project.cover as ProjectAPI.ProjectCover).coverIcon" :size="55" />
+          </div>
+          <div :class="ns.e('title')">
+            <p class="flex-1 truncate">
+              {{ project.title }}
+            </p>
+            <div :class="ns.e('icons')">
+              <el-tooltip
+                :content="project.selfMember.isFollowed ? $t('app.project.stars.unstar') : $t('app.project.stars.star')"
+                :show-arrow="false"
+                placement="bottom">
+                <el-icon v-if="!project.selfMember.isFollowed" size="18" @click.stop="handleFollowProject(project)">
+                  <ac-icon-mdi:star-outline />
+                </el-icon>
+                <el-icon v-else size="18" color="#FF9966" @click.stop="handleFollowProject(project)">
+                  <ac-icon-mdi:star />
+                </el-icon>
+              </el-tooltip>
 
-            <el-tooltip content="项目分组" placement="bottom">
-              <Iconfont :size="18" class="ml-10px" icon="ac-fenlei" @click.stop="handleProjectGroup(project)" />
-            </el-tooltip>
+              <el-tooltip :content="$t('app.project.groups.grouping')" placement="bottom" :show-arrow="false">
+                <Iconfont :size="18" class="ml-10px" icon="ac-fenlei" @click.stop="handleProjectGroup(project)" />
+              </el-tooltip>
+            </div>
           </div>
         </div>
-      </li>
-    </ul>
-    <el-empty v-if="!projects.length" :image-size="200" :description="$t('app.project.tips.noData')" />
+      </div>
+    </div>
+    <el-empty v-if="!projects.length" :image-size="200" :description="$t('app.project.list.emptyDataTip')" />
   </div>
 </template>
-
-<script setup lang="ts">
-import { ProjectCover, ProjectInfo } from '@/typings'
-import { useNamespace } from '@/hooks'
-
-const emits = defineEmits<{
-  (e: 'click', project: ProjectInfo): void
-  (e: 'follow', project: ProjectInfo): void
-  (e: 'change-group', project: ProjectInfo): void
-}>()
-
-const props = withDefaults(
-  defineProps<{
-    title: string
-    projects: ProjectInfo[]
-  }>(),
-  {
-    projects: () => [],
-    title: '所有项目',
-  }
-)
-
-const ns = useNamespace('project-list')
-
-const titleRef = computed(() => props.title || '所有项目')
-
-const handleClick = (project: ProjectInfo) => emits('click', project)
-const handleFollowProject = (project: ProjectInfo) => emits('follow', project)
-const handleProjectGroup = (project: ProjectInfo) => emits('change-group', project)
-</script>
 
 <style scoped lang="scss">
 @use '@/styles/mixins/mixins' as *;
 
 @include b(project-list) {
+  // justify-content: space-between;
+  // grid-template-columns: repeat(auto-fill, 250px);
   display: grid;
-  justify-content: space-between;
-  grid-template-columns: repeat(auto-fill, 250px);
   grid-gap: 20px;
   @apply my-20px py-10px;
+  // grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 
   @include e(item) {
-    @apply flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px;
+    transition: 0.2s all;
+    @apply flex justify-center items-center;
+    .content {
+      @apply flex  flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px;
 
-    &:hover {
-      @include e(icons) {
-        visibility: visible;
+      &:hover {
+        @include e(icons) {
+          visibility: visible;
+        }
       }
     }
   }

@@ -1,7 +1,19 @@
+<script setup lang="ts">
+interface ResultProps {
+  title?: string
+  subTitle?: string
+}
+
+withDefaults(defineProps<ResultProps>(), {
+  title: '',
+  subTitle: '',
+})
+</script>
+
 <template>
   <div class="result">
     <div class="result-icon">
-      <slot name="icon"> </slot>
+      <slot name="icon" />
     </div>
     <slot name="title">
       <p class="result-title">
@@ -17,17 +29,6 @@
   </div>
 </template>
 
-<script setup lang="ts">
-interface ResultProps {
-  title?: string
-  subTitle?: string
-}
-
-withDefaults(defineProps<ResultProps>(), {
-  title: '',
-  subTitle: '',
-})
-</script>
 <style lang="scss" scoped>
 .result {
   padding: 48px 32px;

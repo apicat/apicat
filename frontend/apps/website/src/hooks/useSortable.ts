@@ -6,7 +6,8 @@ export function useSortable(el: HTMLElement | Ref<HTMLElement>, options?: Option
   function initSortable() {
     nextTick(async () => {
       el = unref(el)
-      if (!el) return
+      if (!el)
+        return
 
       const Sortable = (await import('sortablejs')).default
       Sortable.create(el, {

@@ -5,4 +5,4 @@ import (
 )
 
 //go:embed dist
-var FrontDist embed.FS
+var Dist embed.FS

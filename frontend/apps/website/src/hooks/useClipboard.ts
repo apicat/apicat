@@ -1,40 +1,65 @@
 import { useI18n } from 'vue-i18n'
 
-export const useClipboard = (
+export function useClipboard(
   copyText: Ref<string> | string,
-  elCopyText = '',
-  elCopiedText = '',
-  timeout = 1000
-): { handleCopy: () => Promise<void>; elCopyTextRef: Ref<string>; isCopied: Ref<boolean>; elCopiedText: string } => {
+  _elCopyText: ComputedRef<string> | string = '',
+  _elCopiedText: ComputedRef<string> | string = '',
+  timeout = 1000,
+): {
+    handleCopy: () => Promise<void>
+    elCopyTextRef: Ref<string>
+    isCopied: Ref<boolean>
+    elCopiedText: ComputedRef<string>
+  } {
   const { t } = useI18n()
   const isClipboardApiSupported = useSupported(() => navigator && 'clipboard' in navigator)
   const isCopied: Ref<boolean> = ref(false)
 
-  elCopyText = elCopyText || t('app.common.copy')
-  elCopiedText = elCopiedText || t('app.tips.copyed')
+  const elCopyText = computed(() => {
+    if (_elCopyText) {
+      if (typeof _elCopyText === 'string')
+        return _elCopyText
 
-  const elCopyTextRef = ref(elCopyText)
+      else
+        return _elCopyText.value
+    }
+
+    return t('app.common.copy')
+  })
+  const elCopiedText = computed(() => {
+    if (_elCopiedText) {
+      if (typeof _elCopiedText === 'string')
+        return _elCopiedText
+
+      else
+        return _elCopiedText.value
+    }
+    return t('app.common.copyed')
+  })
+
+  const elCopyTextRef = ref(elCopyText.value)
   let timer: ReturnType<typeof setTimeout> | null = null
 
   const handleCopy = async (): Promise<void> => {
-    if (isClipboardApiSupported.value) {
+    if (isClipboardApiSupported.value)
       await navigator.clipboard.writeText(unref(copyText))
-    } else {
-      legacyCopy(unref(copyText))
-    }
+    else legacyCopy(unref(copyText))
 
-    if (!timeout) {
+    if (!timeout)
       return
-    }
 
-    elCopyTextRef.value = elCopiedText
+    elCopyTextRef.value = elCopiedText.value
     isCopied.value = true
     timer && clearTimeout(timer)
     timer = setTimeout(() => {
       isCopied.value = false
-      elCopyTextRef.value = elCopyText
+      elCopyTextRef.value = elCopyText.value
     }, timeout)
   }
+
+  watch(elCopyText, () => {
+    elCopyTextRef.value = elCopyText.value
+  })
 
   return {
     elCopyTextRef,

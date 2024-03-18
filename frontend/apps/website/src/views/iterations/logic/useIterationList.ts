@@ -1,65 +1,70 @@
-import useTable from '@/hooks/useTable'
-import { getIterationList, deleteIteration } from '@/api/iteration'
-import { Iteration } from '@/typings'
-import { AsyncMsgBox } from '@/components/AsyncMessageBox'
 import { useI18n } from 'vue-i18n'
-import { getIterationDetailPath } from '@/router/iteration.detail'
-import { MemberAuthorityInProject } from '@/typings/member'
+import { storeToRefs } from 'pinia'
+import type { IterationTableProps } from '../components/IterationTable.vue'
+import { useTablev2 } from '@/hooks/useTable'
+import { AsyncMsgBox } from '@/components/AsyncMessageBox'
+import { useTeamStore } from '@/store/team'
+import { apiDeleteIterationInfo, apiGetIterations } from '@/api/iteration/index'
+import { ITERATION_DETAIL_PATH_NAME } from '@/router'
 
-export const useIterationList = (projectIdRef: Ref<number | string | null>) => {
+export function useIterationList(props: IterationTableProps) {
   const { t } = useI18n()
+  const teamStore = useTeamStore()
+  const { currentID } = storeToRefs(teamStore)
   const router = useRouter()
 
   const editableItreationIdRef = ref<number | string | null>(null)
 
   const queryParam: Record<string, any> = {
-    project_id: projectIdRef.value,
+    projectID: props.projectId,
+    teamID: currentID.value,
   }
 
-  const { currentPage, getTableData, ...rest } = useTable<Iteration>(getIterationList, {
-    searchParam: queryParam,
+  const { currentPage, getTableData, ...rest } = useTablev2(apiGetIterations, {
+    pageSize: 10,
     isLoaded: false,
-    dataKey: 'iterations',
-    transform: (data: Iteration) => {
-      data.authority
-      data.isShowOperation = [MemberAuthorityInProject.MANAGER, MemberAuthorityInProject.WRITE].indexOf(data.authority as any) !== -1
-      return data
-    },
+    addonArgs: [currentID.value],
   })
 
-  const handleRemoveIteration = (iteration: Iteration) => {
+  const handleRemoveIteration = (id: string) => {
     AsyncMsgBox({
-      title: t('app.common.deleteTip'),
-      content: '确定删除该迭代吗?',
+      title: t('app.iter.table.delete.title'),
+      content: t('app.iter.table.delete.tip'),
+      confirmButtonText: t('app.common.delete'),
       onOk: async () => {
-        await deleteIteration({ iteration_id: iteration.id })
-        await getTableData()
+        await apiDeleteIterationInfo(id)
+        await getTableData(queryParam)
       },
     })
   }
 
-  const handleRowClick = (iteration: Iteration) => {
-    router.push(getIterationDetailPath(iteration.id))
+  const handleRowClick = (iteration: IterationAPI.ResponseIteration) => {
+    router.push({
+      name: ITERATION_DETAIL_PATH_NAME,
+      params: {
+        iterationID: iteration.id,
+      },
+    })
   }
 
   // 项目切换时获取当前项目的迭代列表
   watch(
-    projectIdRef,
-    async () => {
-      queryParam.project_id = projectIdRef.value || ''
+    () => props.projectId,
+    async (projectID) => {
+      queryParam.projectID = projectID || ''
       currentPage.value = 1
-      await getTableData()
+      await getTableData(queryParam)
     },
     {
       immediate: true,
-    }
+    },
   )
 
   return {
     editableItreationIdRef,
     currentPage,
     ...rest,
-    fetchIterationList: getTableData,
+    fetchIterationList: () => getTableData(queryParam),
     handleRemoveIteration,
     handleRowClick,
   }

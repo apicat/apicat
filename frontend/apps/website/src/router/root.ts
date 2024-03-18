@@ -1,8 +1,9 @@
-import { RouteRecordRaw } from 'vue-router'
-import { ROOT_PATH, ROOT_PATH_NAME } from './constant'
+import type { RouteRecordRaw } from 'vue-router'
+import { MAIN_PATH, ROOT_PATH, ROOT_PATH_NAME } from './constant'
 
 export const rootRoute: RouteRecordRaw = {
   name: ROOT_PATH_NAME,
   path: ROOT_PATH,
-  component: () => import('@/layouts/EmptyLayout.vue'),
+  redirect: MAIN_PATH,
+  meta: { ignoreAuth: true },
 }

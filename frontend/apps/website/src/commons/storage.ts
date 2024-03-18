@@ -7,17 +7,21 @@ const Storage = {
     LOCALE: `${STORAGE_PREFIX}.locale`,
     CODE_GENERATE_CONFIG: `${STORAGE_PREFIX}.code.generate`,
     CODE_GENERATE_LANGUAGE: `${STORAGE_PREFIX}.code.gen.lang`,
+    PROJECT_SHARE_TOKEN: `${STORAGE_PREFIX}.share_token.project.`,
+    DOC_SHARE_TOKEN: `${STORAGE_PREFIX}.share_token.doc.`,
+    SELECTED_PROJECT_GROUP: `${STORAGE_PREFIX}.selected.group`,
   },
 
   get(key: string, isSession?: boolean) {
-    if (!this.isLocalStorage()) {
+    if (!this.isLocalStorage())
       return null
-    }
+
     const value = this.getStorage(isSession).getItem(key)
     if (value) {
       try {
         return JSON.parse(value)
-      } catch (error) {
+      }
+      catch (error) {
         return null
       }
     }
@@ -25,9 +29,9 @@ const Storage = {
   },
 
   set(key: string, value: unknown, isSession?: boolean) {
-    if (!this.isLocalStorage()) {
+    if (!this.isLocalStorage())
       return null
-    }
+
     value = JSON.stringify(value)
     this.getStorage(isSession).setItem(key, value as string)
 
@@ -35,13 +39,16 @@ const Storage = {
   },
 
   remove(key: string, isSession?: boolean) {
-    if (!this.isLocalStorage()) return null
+    if (!this.isLocalStorage())
+      return null
     this.getStorage(isSession).removeItem(key)
     return this
   },
 
   removeAll(keys: string[]) {
-    ;(keys.length ? keys : Object.keys(this.KEYS)).forEach((key: string) => this.remove(key))
+    ;(keys.length ? keys : Object.keys(this.KEYS)).forEach((key: string) =>
+      this.remove(key),
+    )
   },
 
   getStorage(isSession: boolean = false) {
@@ -50,11 +57,12 @@ const Storage = {
 
   isLocalStorage() {
     try {
-      if (!window.localStorage) {
+      if (!window.localStorage)
         return false
-      }
+
       return true
-    } catch (e) {
+    }
+    catch (e) {
       return false
     }
   },

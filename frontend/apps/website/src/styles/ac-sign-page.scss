@@ -1,0 +1,40 @@
+@use './mixins/mixins' as *;
+
+@include b(sign-page) {
+  @apply flex justify-center items-center w-full py-11;
+
+  @include e(box) {
+    width: 480px;
+    background: #ffffff;
+    border-radius: 16px;
+    opacity: 0.94;
+    padding: 50px;
+
+    .el-form-item {
+      margin-bottom: 20px;
+    }
+
+    .el-form-item__label {
+      margin-bottom: 8px !important;
+    }
+
+    .el-input__inner {
+      border-radius: 4px !important;
+    }
+  }
+
+  @include e(logo) {
+    margin-bottom: 42px;
+  }
+
+  @include e(label) {
+    font-size: 16px;
+    font-family:
+      PingFangSC-Regular,
+      PingFang SC;
+    font-weight: 400;
+    color: var(--title-color);
+    line-height: 22px;
+    margin-bottom: 8px;
+  }
+}

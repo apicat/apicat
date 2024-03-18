@@ -1,13 +1,10 @@
-import { Menu } from '@/components/typings'
-import { Language } from '@/typings/common'
-import { useI18n } from 'vue-i18n'
-import AcIconLogout from '~icons/mdi/logout'
+import type { Language } from '@/typings/common'
 
 // API请求前缀
 export const API_URL = '/api'
 
 // 403 二级响应code字典 权限变更状态码
-export const enum PERMISSION_CHANGE_CODE {
+export enum PERMISSION_CHANGE_CODE {
   // 用户权限变更
   USER_PREMISSION_ERROR = 101,
   // 项目中的成员权限变更
@@ -38,97 +35,64 @@ export const REQUEST_TIMEOUT = 1000 * 60
 // 默认值
 export const DEFAULT_VAL = '--'
 
-// DEFAULT LANGUAGE
-export const DEFAULT_LANGUAGE = 'zh_CN'
-
 // SUPPORTED LANGUAGES
 export const SUPPORTED_LANGUAGES: Language[] = [
-  { name: '中文', lang: 'zh_CN' },
-  { name: 'English', lang: 'en' },
+  { name: 'English', lang: 'en-US' },
+  { name: '中文', lang: 'zh-CN' },
 ]
+
+// DEFAULT LANGUAGE
+export const DEFAULT_LANGUAGE = SUPPORTED_LANGUAGES[0].lang
 
 // 本地存储前缀
 export const STORAGE_PREFIX = 'api.cat'
 
-// 文档类型
-export const enum DocumentTypeEnum {
-  DIR = 'category',
-  DOC = 'doc',
-  HTTP = 'http',
+// -------------------------------------------------------
+// collection
+export enum CollectionTypeEnum {
+  Dir = 'category',
+  Doc = 'doc',
+  Http = 'http',
 }
+// schema
+export enum SchemaTypeEnum {
+  Category = 'category',
+  Schema = 'schema',
+}
+// response
+export enum ResponseTypeEnum {
+  Category = 'category',
+  Response = 'response',
+}
+
+// -------------------------------------------------------
+
 // Collection visibility private-私有项目文档，public-公开项目文档
-export const enum CollectionVisibilityEnum {
+export enum CollectionVisibilityEnum {
   PRIVATE = 'private',
   PUBLIC = 'public',
 }
 
-export const enum ProjectVisibilityEnum {
-  PRIVATE = 'private',
-  PUBLIC = 'public',
+export enum Visibility {
+  Private = 'private',
+  Public = 'public',
 }
 
-export const enum DefinitionTypeEnum {
+export enum DefinitionTypeEnum {
   DIR = 'category',
   SCHEMA = 'schema',
   RESPONSE = 'response',
 }
 
 // 导出|导出状态
-export const enum ImportOrExportState {
+export enum ImportOrExportState {
   WAIT = 'wait',
   FINISH = 'finish',
   FAIL = 'fail',
 }
 
-/**
- * 项目布局中导航菜单
- */
-export enum ProjectNavigateListEnum {
-  BaseInfoSetting = 'BaseInfoSetting',
-  ProjectMemberList = 'ProjectMemberList',
-  ServerUrlSetting = 'ServerUrlSetting',
-  GlobalParamsSetting = 'GlobalParamsSetting',
-  ResponseParamsSetting = 'ResponseParamsSetting',
-  ProjectExport = 'ProjectExport',
-  ProjectShare = 'ProjectShare',
-  ProjectTrash = 'ProjectTrash',
-  QuitProject = 'QuitProject',
-}
-
-export type ProjectNavigateObject = { [key in ProjectNavigateListEnum]: Menu }
-
-/**
- *
- * @returns use function in setup
- * { [key in ProjectNavigateListEnum]: { [key: string]: any }
- */
-export const getProjectNavigateList = (overwrite?: any): { [key: string]: Menu } => {
-  const { t } = useI18n()
-
-  const navs = {
-    [ProjectNavigateListEnum.BaseInfoSetting]: { text: t('app.project.setting.baseInfo'), icon: 'ac-setting', sort: 100 },
-    [ProjectNavigateListEnum.ProjectMemberList]: { text: t('app.project.setting.member'), icon: 'ac-members', sort: 200 },
-    [ProjectNavigateListEnum.ServerUrlSetting]: { text: t('app.project.setting.serverUrl'), icon: 'ac-suffix-url', sort: 300 },
-    [ProjectNavigateListEnum.GlobalParamsSetting]: { text: t('app.project.setting.globalParam'), icon: 'ac-canshuweihu', sort: 400 },
-    [ProjectNavigateListEnum.ProjectShare]: { text: t('app.project.setting.shareProject'), icon: 'ac-share', sort: 500 },
-    [ProjectNavigateListEnum.ProjectExport]: { text: t('app.project.setting.export'), icon: 'ac-export', sort: 600 },
-    [ProjectNavigateListEnum.ProjectTrash]: { text: t('app.project.setting.trash'), icon: 'ac-trash', sort: 700 },
-    [ProjectNavigateListEnum.QuitProject]: { text: t('app.project.setting.quitProject'), elIcon: markRaw(AcIconLogout), sort: 800 },
-  } as any
-
-  if (overwrite) {
-    Object.keys(navs).forEach((key: any) => {
-      const item = navs[key]
-      const extendItem = overwrite[key]
-      navs[key] = { ...item, ...extendItem }
-    })
-  }
-
-  return navs
-}
-
 // 项目导出类型
-export const enum ExportProjectTypes {
+export enum ExportProjectTypes {
   Swagger = 'swagger',
   OpenAPI = 'openapi',
   HTML = 'HTML',
@@ -137,18 +101,72 @@ export const enum ExportProjectTypes {
 }
 
 // 项目导入类型
-export const enum ImportProjectTypes {
+export enum ImportProjectTypes {
   ApiCat = 'apicat',
   OpenAPI = 'openapi',
   Swagger = 'swagger',
   Postman = 'postman',
 }
 
-export const enum CommonParameterType {
+export enum CommonParameterType {
   String = 'string',
   Integer = 'integer',
   Number = 'number',
   Array = 'array',
+}
+
+export enum Authority {
+  Manage = 'manage',
+  None = 'none',
+  Read = 'read',
+  Write = 'write',
+}
+
+export enum EditableRole {
+  Admin = 'admin',
+  Member = 'member',
+}
+
+export enum Role {
+  // admin = 'Admin',
+  // member = 'Member',
+  // owner = 'Owner',
+  Admin = 'admin',
+  Member = 'member',
+  Owner = 'owner',
+}
+
+export enum Status {
+  Active = 'active',
+  Deactive = 'deactive',
+}
+
+export enum OAuthPlatform {
+  GITHUB = 'github',
+}
+
+export const OAuthPlatformConfig = {
+  GITHUB: {
+    OAUTH_URL: 'https://github.com/login/oauth/authorize',
+    params: {
+      scope: 'user:email',
+    },
+  },
+}
+/**
+ * 成员在项目中的权限
+ * 当前成员在此项目的权限:manage,write,read
+ */
+export enum MemberAuthorityInProject {
+  MANAGER = 'manage',
+  WRITE = 'write',
+  READ = 'read',
+  NONE = 'none',
+}
+export const MemberAuthorityMap = {
+  [MemberAuthorityInProject.MANAGER]: 'app.memberAuth.manage',
+  [MemberAuthorityInProject.WRITE]: 'app.memberAuth.write',
+  [MemberAuthorityInProject.READ]: 'app.memberAuth.read',
 }
 
 export const CommonParameterTypes = [
@@ -184,6 +202,14 @@ export const RequestContentTypesMap = {
   binary: 'application/octet-stream',
 }
 
+export const ResponseContentTypesMap = {
+  'application/json': 'json',
+  'application/xml': 'xml',
+  'text/html': 'html',
+  'text/plain': 'raw',
+  'application/octet-stream': 'binary',
+}
+
 export const HttpMethodTypeMap = {
   get: { value: 'get', color: '#66BE74' },
   post: { value: 'post', color: '#4894FF' },
@@ -210,5 +236,46 @@ export const RefPrefixKeys = {
   },
 }
 
-export const ProjectListCoverBgColors = ['#FF9966', '#6699CC', '#FFCC99', '#66CCCC', '#FFCCCC', '#CCCCFF', '#99CC99', '#CCCCCC', '#99CCFF']
-export const ProjectListCoverIcons = ['ac-danjumoxing', 'ac-fangkuai', 'ac-home', 'ac-jiekou', 'ac-doc-text', 'ac-bijibendiannao', 'ac-diannao', 'ac-shiyan', 'ac-xiangmu']
+export const ProjectListCoverBgColors = [
+  '#FF9966',
+  '#6699CC',
+  '#FFCC99',
+  '#66CCCC',
+  '#FFCCCC',
+  '#CCCCFF',
+  '#99CC99',
+  '#CCCCCC',
+  '#99CCFF',
+]
+export const ProjectListCoverIcons = [
+  'ac-danjumoxing',
+  'ac-fangkuai',
+  'ac-home',
+  'ac-jiekou',
+  'ac-doc-text',
+  'ac-bijibendiannao',
+  'ac-diannao',
+  'ac-shiyan',
+  'ac-xiangmu',
+]
+
+export enum SysStorage {
+  Disk = 'disk',
+  CF = 'cloudflare',
+  Qiniu = 'qiniu',
+}
+
+export enum SysCache {
+  Local = 'local',
+  Redis = 'redis',
+}
+
+export enum SysEmail {
+  SMTP = 'smtp',
+  SendCloud = 'sendcloud',
+}
+
+export enum SysModel {
+  Azure = 'azure-openai',
+  OpenAI = 'openai',
+}

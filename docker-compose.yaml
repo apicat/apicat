@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  apicat:
+    depends_on:
+      - apicat_db
+      - apicat_redis
+    build: .
+    environment:
+      - APICAT_DB_HOST=apicat_db
+      - APICAT_DB_USERNAME=root
+      - APICAT_DB_PASSWORD=apicat123456
+      - APICAT_DB_DATABASE=apicat
+    networks:
+      - apicat_network
+    volumes:
+      - apicat_uploads:/app/uploads
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+
+  apicat_db:
+    image: mysql:8.2
+    environment:
+      - MYSQL_ROOT_PASSWORD=apicat123456
+      - MYSQL_DATABASE=apicat
+    networks:
+      - apicat_network
+    volumes:
+      - apicat_db_data:/var/lib/mysql
+
+  apicat_redis:
+    image: redis:6-alpine
+    networks:
+      - apicat_network
+
+networks:
+  apicat_network:
+    driver: bridge
+
+volumes:
+  apicat_uploads:
+  apicat_db_data:

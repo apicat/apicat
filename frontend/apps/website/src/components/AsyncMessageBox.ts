@@ -1,37 +1,41 @@
 import { ElMessageBox } from 'element-plus'
+import type { AppContext } from 'vue'
 
-const createAsyncMsgBox =
-  ($msgbox = ElMessageBox) =>
-  ({ title, message, content, cb, onOk, ...rest }: any) => {
+function createAsyncMsgBox($msgbox = ElMessageBox) {
+  return async ({ title, message, content, cb, onOk, ...rest }: any, context?: AppContext) => {
     cb = cb || onOk
     message = message || content
-    return $msgbox({
-      showCancelButton: true,
-      ...rest,
-      title: title,
-      message,
-      beforeClose: function (action, instance, done) {
-        if (action === 'confirm') {
-          instance.confirmButtonLoading = true
-          Promise.resolve(cb(done))
-            .then(() => done())
-            .catch((e) => e)
-            .finally(() => {
-              instance.confirmButtonLoading = false
-            })
-        } else {
-          done()
-        }
-      },
-    }).catch(() => {
-      //
-    })
+    try {
+      return await $msgbox(
+        {
+          showCancelButton: true,
+          ...rest,
+          title,
+          message,
+          beforeClose(action, instance, done) {
+            if (action === 'confirm') {
+              instance.confirmButtonLoading = true
+              Promise.resolve(cb(done))
+                .then(() => done())
+                .catch((e) => e)
+                .finally(() => {
+                  instance.confirmButtonLoading = false
+                })
+            } else {
+              done()
+            }
+          },
+        },
+        context,
+      )
+    } catch {}
   }
+}
 
 export const AsyncMsgBox = createAsyncMsgBox()
 
 export default {
-  install: function (app: any) {
+  install(app: any) {
     const $msgbox = app.config.globalProperties.$msgbox || ElMessageBox
     app.config.globalProperties.$asyncMsgBox = createAsyncMsgBox($msgbox)
   },

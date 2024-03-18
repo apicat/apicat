@@ -1,20 +1,24 @@
 import { getProjectDefaultCover } from '@/api/project'
 import { ProjectListCoverBgColors, ProjectListCoverIcons } from '@/commons'
-import { ProjectCover } from '@/typings'
 
-export const useProjectCover = (form: Record<string, any>) => {
+export function useProjectCover(form: Record<string, any>) {
   const mapper = (value: string) => ({ value, label: value })
 
   const projectCoverBgColorsOptions = ProjectListCoverBgColors.map(mapper)
   const projectCoverIcons = ProjectListCoverIcons.map(mapper)
 
-  const projectCoverRef: ComputedRef<ProjectCover> = computed(() => {
-    const defaultCover: ProjectCover = getProjectDefaultCover()
+  const updateProjectCover = (cover: ProjectAPI.ProjectCover) => {
+    form.cover = JSON.stringify(cover)
+  }
+
+  const projectCoverRef: ComputedRef<ProjectAPI.ProjectCover> = computed(() => {
+    const defaultCover: ProjectAPI.ProjectCover = getProjectDefaultCover()
 
     if (form.cover) {
       try {
-        return JSON.parse(form.cover) as ProjectCover
-      } catch (error) {
+        return JSON.parse(form.cover) as ProjectAPI.ProjectCover
+      }
+      catch (error) {
         return defaultCover
       }
     }
@@ -24,15 +28,10 @@ export const useProjectCover = (form: Record<string, any>) => {
     return defaultCover
   })
 
-  const updateProjectCover = (cover: ProjectCover) => {
-    form.cover = JSON.stringify(cover)
-  }
-
   const bgColorRef = computed({
     get() {
-      if (projectCoverRef.value.type === 'icon') {
+      if (projectCoverRef.value.type === 'icon')
         return projectCoverRef.value.coverBgColor
-      }
 
       return null
     },
@@ -43,9 +42,8 @@ export const useProjectCover = (form: Record<string, any>) => {
 
   const iconRef = computed({
     get() {
-      if (projectCoverRef.value.type === 'icon') {
+      if (projectCoverRef.value.type === 'icon')
         return projectCoverRef.value.coverIcon
-      }
 
       return null
     },
