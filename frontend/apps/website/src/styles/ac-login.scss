@@ -32,8 +32,14 @@
   }
 
   @include e(label) {
+    width: 200px;
+    white-space: nowrap;
+    padding-left: 3px;
+    text-align: start;
     font-size: 16px;
-    font-family: PingFangSC-Regular, PingFang SC;
+    font-family:
+      PingFangSC-Regular,
+      PingFang SC;
     font-weight: 400;
     color: var(--title-color);
     line-height: 22px;

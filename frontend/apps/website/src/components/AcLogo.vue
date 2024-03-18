@@ -1,10 +1,5 @@
-<template>
-  <div :class="ns.b()">
-    <img :class="logoClass" :style="logoStyle" :src="logo" alt="ApiCat" @click="handleClick" />
-  </div>
-</template>
 <script setup>
-import { useNamespace } from '@/hooks'
+import { useNamespace } from '@apicat/hooks'
 import logoSquare from '@/assets/images/logo-square.svg'
 import logoText from '@/assets/images/logo-text.svg'
 
@@ -26,7 +21,9 @@ const porps = defineProps({
 })
 const ns = useNamespace('logo')
 const logo = computed(() => (porps.pure ? logoSquare : logoText))
-const logoStyle = computed(() => (porps.pure ? {} : { width: `${porps.size}px` }))
+const logoStyle = computed(() =>
+  porps.pure ? {} : { width: `${porps.size}px` },
+)
 const logoClass = computed(() => [
   ns.e('img'),
   {
@@ -34,19 +31,32 @@ const logoClass = computed(() => [
   },
 ])
 
-const handleClick = () => {
-  if (!porps.href) {
+function handleClick() {
+  if (!porps.href)
     return
-  }
 
   location.href = porps.href
 }
 </script>
+
+<template>
+  <div :class="ns.b()">
+    <img
+      :class="logoClass"
+      :style="logoStyle"
+      :src="logo"
+      alt="ApiCat"
+      @click="handleClick"
+    >
+  </div>
+</template>
+
 <style lang="scss" scoped>
 @use '@/styles/mixins/mixins.scss' as *;
 
 @include b(logo) {
   @apply inline-flex items-center;
+  // @apply items-center;
 
   @include e(img) {
     width: 40px;

@@ -1,29 +1,18 @@
-import { LOGIN_PATH, NO_PERMISSION_PATH, REGISTER_PATH } from './constant'
+import { NO_PERMISSION_PATH } from './constant'
+
+const NotFound = async () => import('@/views/errors/NotFound.vue')
+const NoPermission = async () => import('@/views/errors/NoPermission.vue')
 
 export const notFoundRoute = {
   path: '/:path(.*)*',
   name: 'error',
-  meta: { ignoreAuth: true, title: '404' },
-  component: () => import('@/views/errors/NotFound.vue'),
+  meta: { ignoreAuth: true, title: 'app.tips.notFound' },
+  component: NotFound,
 }
 
 export const noPermissionRoute = {
   path: NO_PERMISSION_PATH,
   name: 'no.permission',
-  meta: { ignoreAuth: true, title: '403' },
-  component: () => import('@/views/errors/NoPermission.vue'),
-}
-
-export const loginRoute = {
-  path: LOGIN_PATH,
-  name: 'login',
-  meta: { ignoreAuth: true, title: '登录' },
-  component: () => import('@/views/LoginPage.vue'),
-}
-
-export const registerRoute = {
-  path: REGISTER_PATH,
-  name: 'register',
-  meta: { ignoreAuth: true, title: '注册' },
-  component: () => import('@/views/RegisterPage.vue'),
+  meta: { ignoreAuth: true, title: 'app.tips.noPermission' },
+  component: NoPermission,
 }

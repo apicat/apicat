@@ -1,113 +1,130 @@
-import { getProjectDetail, getProjectServerUrlList, saveProjectServerUrlList, updateProjectBaseInfo } from '@/api/project'
-import { Cookies, ProjectVisibilityEnum } from '@/commons'
-import { MemberAuthorityInProject, MemberAuthorityMap } from '@/typings/member'
-import { ProjectInfo } from '@/typings/project'
 import { defineStore } from 'pinia'
+import useLocaleStore from './locale'
 import { pinia } from '@/plugins'
-import { getProjectAuthInfo } from '@/api/shareProject'
-import { getProjectDetailPath } from '@/router/project.detail'
 import { PROJECT_DETAIL_PATH_NAME } from '@/router/constant'
+import { Authority, MemberAuthorityMap, Visibility } from '@/commons/constant'
+import { apiDeleteProject, apiGetProject, apiSetProjectGeneral } from '@/api/project'
+import { apiTransferProject } from '@/api/project/index'
+import { setProjectSharedToken } from '@/api/shareToken'
+import { apiGetProjectShareStatus, apiSendProjectSharekey } from '@/api/project/share'
+import { BadRequestError } from '@/api/error'
 
-interface ProjectAuthInfo {
-  project_id: string
-  inThisProject: boolean
-  hasShared: boolean
-  isPrivate: boolean
-}
 interface ProjectState {
-  projectDetailInfo: ProjectInfo | null
-  projectAuthInfo: ProjectAuthInfo | null
-  urlServers: Array<any>
+  // i18n
+  t: any
+  project: ProjectAPI.ResponseProject | undefined
+  //  项目权限信息（项目分享状态）
+  projectAuthInfo: ShareAPI.ProjectAuthInfo | undefined
+  /* 分享项目密钥层 - 字符串为空则代表没有 */
   isShowProjectSecretLayer: boolean
 }
 
 export const useProjectStore = defineStore('project', {
-  state: (): ProjectState => ({
-    projectDetailInfo: null,
-    projectAuthInfo: null,
-    urlServers: [],
-    isShowProjectSecretLayer: false,
-  }),
+  state: (): ProjectState => {
+    const { t } = useLocaleStore()
+    return {
+      t,
+      projectAuthInfo: undefined,
+      isShowProjectSecretLayer: false,
+      project: undefined,
+    }
+  },
 
   getters: {
-    projectAuths: () => {
+    projectAuths: (state) => {
       return Object.keys(MemberAuthorityMap)
-        .filter((key: string) => key !== MemberAuthorityInProject.MANAGER)
+        .filter((key: string) => key !== Authority.Manage)
         .map((key: string) => {
           return {
-            text: (MemberAuthorityMap as any)[key],
+            text: state.t((MemberAuthorityMap as any)[key]),
             value: key,
           }
         })
     },
 
-    isManager: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.MANAGER,
-    isWriter: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.WRITE,
-    isReader: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.READ,
-    isGuest: (state) => state.projectDetailInfo?.authority === MemberAuthorityInProject.NONE,
-    isPrivate: (state) => state.projectDetailInfo?.visibility === ProjectVisibilityEnum.PRIVATE,
+    isManager: state => state.project?.selfMember.permission === Authority.Manage,
+    isWriter: state => state.project?.selfMember.permission === Authority.Write,
+    isReader: state => state.project?.selfMember.permission === Authority.Read,
+    isGuest: state => state.project?.selfMember.permission === Authority.None,
+    isPrivate: state => state.project?.visibility === Visibility.Private,
 
-    hasInputSecretKey: (state) => !!(Cookies.get(Cookies.KEYS.SHARE_PROJECT + state.projectAuthInfo?.project_id) || ''),
-
-    isProjectRoute: function (): boolean {
-      return !!this.$router.currentRoute.value.matched.find((item) => item.name === PROJECT_DETAIL_PATH_NAME)
+    isProjectRoute(): boolean {
+      return !!this.$router.currentRoute.value.matched.find(item => item.name === PROJECT_DETAIL_PATH_NAME)
     },
+    projectID: state => state.project?.id,
+    mockURL: state => state.project?.mockURL,
   },
   actions: {
-    async getProjectDetailInfo(project_id: string): Promise<ProjectInfo> {
-      const token = Cookies.get(Cookies.KEYS.SHARE_PROJECT + project_id)
-      const project = await getProjectDetail(project_id, token ? { token } : {})
-      this.updateCurrentProjectInfo(project)
-      return project
-    },
-
-    updateCurrentProjectInfo(info?: ProjectInfo) {
-      this.projectDetailInfo = info ? { ...this.projectDetailInfo, ...info } : null
-    },
-
-    clearCurrentProjectInfo() {
-      this.updateCurrentProjectInfo()
-    },
-
-    async updateProectInfo(info: ProjectInfo) {
-      await updateProjectBaseInfo(info)
-      this.updateCurrentProjectInfo(info)
-    },
-
-    async getUrlServers(project_id: string) {
-      const urls: any = await getProjectServerUrlList(project_id)
-      this.urlServers = urls
-      return urls
-    },
-
-    async saveProjectServerUrlListApi({ project_id, urls }: any) {
-      await saveProjectServerUrlList({ project_id, urls })
-      this.urlServers = urls
-    },
-
-    async getProjectAuthInfo(project_id: string): Promise<ProjectAuthInfo> {
-      const { authority, visibility, has_shared } = await getProjectAuthInfo(project_id)
-      this.projectAuthInfo = {
-        project_id,
-        inThisProject: authority !== MemberAuthorityInProject.NONE,
-        hasShared: has_shared,
-        isPrivate: visibility === ProjectVisibilityEnum.PRIVATE,
+    async getProjejctAuthInfo(projectID: string) {
+      try {
+        this.projectAuthInfo = await apiGetProjectShareStatus(projectID)
+        this.projectAuthInfo.projectID = projectID
+      }
+      catch (error) {
+        //
       }
       return this.projectAuthInfo
     },
-    switchProjectSecretLayer(isShow = true) {
-      this.isShowProjectSecretLayer = isShow
+
+    async getProjectInfoById(projectID: string) {
+      this.project = await apiGetProject(projectID)
     },
-    showProjectSecretLayer() {
-      this.switchProjectSecretLayer()
+
+    async clearProject() {
+      this.projectAuthInfo = undefined
+      this.project = undefined
     },
-    hideProjectSecretLayer() {
-      this.switchProjectSecretLayer(false)
+
+    async updateProjectGeneral({ id, title, visibility, cover, description }: ProjectAPI.ResponseProject) {
+      const data: ProjectAPI.RequestSetProjectGeneral = {
+        title,
+        visibility,
+        cover: cover as string,
+        description,
+      }
+      const res = await apiSetProjectGeneral(id, data)
+      this.$patch({ project: { ...this.project, ...data } })
+      return res
     },
-    removeProjectSecretKeyWithReload() {
-      const { project_id } = this.projectAuthInfo!
-      Cookies.remove(Cookies.KEYS.SHARE_PROJECT + project_id)
-      setTimeout(() => location.replace(getProjectDetailPath(project_id as string)), 500)
+
+    refreshProject(projectID: string) {
+      return this.getProjectInfoById(projectID)
+    },
+
+    async deleteProject(projectID: string) {
+      const a = await apiDeleteProject(projectID)
+      if (projectID === this.project?.id)
+        this.clearProject()
+      return a
+    },
+
+    async deleteCurrentProject() {
+      const a = await apiDeleteProject(this.project!.id)
+      this.clearProject()
+      return a
+    },
+
+    async transferProject(memberID: number) {
+      await apiTransferProject(this.project!.id, memberID)
+      await this.getProjectInfoById(this.project!.id)
+    },
+
+    // 通过密钥获取项目分享token
+    async getProjectShareTokenBySecretCode(code: string) {
+      if (!this.projectAuthInfo)
+        throw new Error(this.t('app.project.share.noAuthInfo'))
+
+      try {
+        const projectID = this.projectAuthInfo.projectID!
+        const res = await apiSendProjectSharekey(projectID, code)
+        setProjectSharedToken(projectID, res.shareCode)
+        await this.getProjectInfoById(projectID)
+        this.isShowProjectSecretLayer = false
+      }
+      catch (e) {
+        if (e instanceof BadRequestError)
+          this.isShowProjectSecretLayer = true
+      }
     },
   },
 })

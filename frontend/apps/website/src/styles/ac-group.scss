@@ -1,8 +1,6 @@
 @use '@/styles/mixins/mixins' as *;
 
 @include b(group-list) {
-  @apply text-#101010;
-
   @include m('header') {
     @apply mt-24px;
 
@@ -18,7 +16,8 @@
 
   @include e(item) {
     @apply rounded-5px cursor-pointer h-40px text-14px flex flex-y-center px-20px;
-
+    @apply text-gray-title font-500;
+    
     @include m(more) {
       @apply justify-between;
 
@@ -39,8 +38,6 @@
 
     &.active {
       background-color: #e5f0ff;
-      @apply text-#101010 font-500;
-
       .ac-iconfont,
       .el-icon {
         @apply font-600;

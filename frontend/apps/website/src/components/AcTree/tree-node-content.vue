@@ -1,9 +1,9 @@
 <script lang="ts">
 import { defineComponent, h, inject } from 'vue'
-import { useNamespace } from '@/hooks/useNamespace'
 
 import type { ComponentInternalInstance } from 'vue'
 import type { RootTreeType } from './tree.type'
+import { useNamespace } from '@/hooks/useNamespace'
 
 export default defineComponent({
   name: 'AcTreeNodeContent',
@@ -25,8 +25,8 @@ export default defineComponent({
       return props.renderContent
         ? props.renderContent(h, { _self: nodeInstance, node, data, store })
         : tree.ctx.slots.default
-        ? tree.ctx.slots.default({ node, data })
-        : h('span', { class: ns.be('node', 'label') }, [node.label])
+          ? tree.ctx.slots.default({ node, data })
+          : h('span', { class: ns.be('node', 'label') }, [node.label])
     }
   },
 })

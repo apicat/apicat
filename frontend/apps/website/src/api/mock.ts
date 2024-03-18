@@ -1,18 +1,17 @@
-import { queryStringify } from '@/commons'
 import { MockAjax } from './Ajax'
+import { queryStringify } from '@/commons'
 
 export interface MockRequestParams {
   mock_response_code?: string
 }
 
-export const mockApiPath = (project_id: string): string => `/mock/${project_id}`
-
-export const mockServerPath = location.origin
-
-export const getMockData = async (requestPath: string, method: string, params?: MockRequestParams) => {
+export async function getMockData(requestUrl: string, method: string, params?: MockRequestParams): Promise<{ headers: any;response: any }> {
   const requestFn = (MockAjax as any)[method.toLowerCase()]
-  if (!requestFn) {
-    throw Error(`Method ${method} not found`)
+  if (!requestFn)
+    throw new Error(`Method ${method} not found`)
+  const { data, headers } = await requestFn(requestUrl + queryStringify(params))
+  return {
+    response: data,
+    headers,
   }
-  return await requestFn(requestPath + queryStringify(params))
 }

@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
-import { router } from '@/router'
-import { MAIN_PATH, LOGIN_PATH } from '@/router'
+import useLocaleStore from './locale'
+import { LOGIN_PATH, MAIN_PATH, router } from '@/router'
 import Storage from '@/commons/storage'
-import { userEmailLogin, userRegister, modifyUserInfo, modifyPassword, getUserInfo } from '@/api/user'
-import { UserInfo, UserRoleInTeam, UserRoleInTeamMap } from '@/typings/user'
+import { apiLogin, apiRegister } from '@/api/sign/user'
 import { pinia } from '@/plugins'
+import { apiGetUserInfo } from '@/api/user'
 
 interface UserState {
-  userInfo: UserInfo | Record<string, any>
+  userInfo: UserAPI.ResponseUserInfo | Record<string, any>
   token: string | null
 }
 
@@ -21,80 +21,55 @@ export const useUserStore = defineStore({
 
   getters: {
     isLogin: (state) => !!state.token,
-    isSuperAdmin: (state) => state.userInfo?.role === UserRoleInTeam.SUPER_ADMIN,
-    isNormalUser: (state) => state.userInfo?.role === UserRoleInTeam.USER,
-    userRoles: () =>
-      Object.keys(UserRoleInTeamMap)
-        .filter((key: string) => key !== UserRoleInTeam.SUPER_ADMIN)
-        .map((key: string) => {
-          return {
-            text: (UserRoleInTeamMap as any)[key],
-            value: key,
-          }
-        }),
+    isAdmin: (state) => state.userInfo.role === 'admin',
   },
 
   actions: {
     // 登录
-    async login(form: any) {
+    async login(form: SignAPI.RequestLogin, url?: string) {
       try {
-        const data: any = await userEmailLogin(form)
-        this.updateToken(data.access_token)
-        this.updateUserInfo(data.user)
-        this.goHome()
+        const data = await apiLogin(form)
+        await this.afterSign(data, url)
         return data
       } catch (error) {
         //
       }
     },
 
-    async register(form: UserInfo) {
-      try {
-        const data: any = await userRegister(form)
-        this.updateToken(data.access_token)
-        this.updateUserInfo(data.user)
-        this.goHome()
-        return data
-      } catch (error) {
-        //
-      }
+    async afterSign(data: SignAPI.ResponseLogin | SignAPI.ResponseRegister, url?: string) {
+      this.updateToken(data.accessToken)
+      this.getUserInfo()
+      this.goHome(url)
     },
 
-    async getUserInfo(): Promise<UserInfo | void> {
-      try {
-        const user: any = await getUserInfo()
-        this.updateUserInfo(user)
-        return user
-      } catch (error) {
-        //
-      }
+    // 注册
+    async register(form: SignAPI.RequestRegister, url?: string) {
+      const data = await apiRegister(form)
+      await this.afterSign(data, url)
+      return data
     },
 
-    async modifyUserInfo(form: UserInfo) {
+    async getUserInfo(): Promise<UserAPI.ResponseUserInfo | any> {
       try {
-        const user: any = await modifyUserInfo(form)
+        const user = await apiGetUserInfo()
         this.updateUserInfo(user)
       } catch (error) {
         //
       }
+      return this.userInfo
     },
 
-    async modifyUserPassword(form: UserInfo) {
-      try {
-        await modifyPassword(form)
-      } catch (error) {
-        //
-      }
-    },
     // 退出
     logout() {
-      Storage.removeAll([Storage.KEYS.TOKEN, Storage.KEYS.USER])
+      Storage.removeAll([Storage.KEYS.TOKEN, Storage.KEYS.USER, Storage.KEYS.SELECTED_PROJECT_GROUP])
       this.token = null
       this.userInfo = {} as any
-      this.goHome(LOGIN_PATH)
+      location.href = LOGIN_PATH
     },
 
     updateToken(token: string) {
+      if (!token) return
+
       Storage.set(Storage.KEYS.TOKEN, token)
       this.token = token
     },
@@ -104,8 +79,10 @@ export const useUserStore = defineStore({
     },
 
     // 更新个人信息
-    updateUserInfo(user: UserInfo) {
-      this.$patch({ userInfo: { ...this.userInfo, ...user } })
+    async updateUserInfo(user: UserAPI.ResponseUserInfo) {
+      const { switchLanguage } = useLocaleStore()
+      Object.assign(this.userInfo, user)
+      await switchLanguage(user.language)
     },
   },
 })

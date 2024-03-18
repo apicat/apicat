@@ -1,0 +1,202 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+      "title": "t",
+      "version": "1.0.0"
+    },
+    "components": {
+      "responses": {
+        "resp2-384": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "x-apicat-orders": [
+                  "t2"
+                ],
+                "properties": {
+                  "t2": {
+                    "type": "string",
+                    "x-apicat-mock": "string"
+                  }
+                },
+                "example": ""
+              }
+            }
+          },
+          "description": ""
+        },
+        "response1-373": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "x-apicat-orders": [
+                  "definition_res_1"
+                ],
+                "properties": {
+                  "definition_res_1": {
+                    "type": "string",
+                    "x-apicat-mock": "string"
+                  }
+                },
+                "example": ""
+              }
+            }
+          },
+          "description": "",
+          "headers": {
+            "resp_header_1": {
+              "description": "",
+              "schema": {
+                "type": "string",
+                "x-apicat-mock": "string"
+              }
+            }
+          }
+        }
+      },
+      "schemas": {
+        "Model2-2340": {
+          "type": "object",
+          "x-apicat-orders": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-apicat-mock": "string"
+            }
+          },
+          "example": ""
+        },
+        "item1-2342": {
+          "type": "object",
+          "x-apicat-orders": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-apicat-mock": "string"
+            }
+          },
+          "example": ""
+        },
+        "item2-2343": {
+          "type": "object",
+          "x-apicat-orders": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "x-apicat-mock": "string"
+            }
+          },
+          "example": ""
+        }
+      },
+      "x-apicat-global-parameters": {
+        "cookie-global_cookie": {
+          "name": "global_cookie",
+          "in": "cookie",
+          "description": "这是说明",
+          "schema": {
+            "type": "string",
+            "description": "这是说明",
+            "default": "",
+            "example": "这是示例"
+          },
+          "example": "这是示例"
+        },
+        "header-global_header": {
+          "name": "global_header",
+          "in": "header",
+          "description": "这是说明",
+          "schema": {
+            "type": "string",
+            "description": "这是说明",
+            "default": "",
+            "example": "这是示例"
+          },
+          "example": "这是示例"
+        },
+        "path-global_path": {
+          "name": "global_path",
+          "in": "path",
+          "description": "这是说明",
+          "schema": {
+            "type": "string",
+            "description": "这是说明",
+            "default": "",
+            "example": "这是示例"
+          },
+          "example": "这是示例"
+        },
+        "query-global_query": {
+          "name": "global_query",
+          "in": "query",
+          "description": "这是说明",
+          "schema": {
+            "type": "string",
+            "description": "这是说明",
+            "default": "",
+            "example": "这是示例"
+          },
+          "example": "这是示例"
+        }
+      },
+      "parameters": {
+        "query-limit": {
+          "name": "limit",
+          "in": "query",
+          "required": true,
+          "description": "max records to return",
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "description": "max records to return"
+          }
+        },
+        "query-skip": {
+          "name": "skip",
+          "in": "query",
+          "required": true,
+          "description": "number of items to skip",
+          "schema": {
+            "type": "integer",
+            "format": "int32",
+            "description": "number of items to skip"
+          }
+        }
+      }
+    },
+    "paths": {
+      "/api/test1": {
+        "get": {
+          "summary": "test1",
+          "operationId": "4023",
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/query-limit"
+            },
+            {
+              "$ref": "#/components/parameters/query-skip"
+            },
+            {
+              "$ref": "#/components/x-apicat-global-parameters/header-global_header"
+            },
+            {
+              "$ref": "#/components/x-apicat-global-parameters/cookie-global_cookie"
+            }
+          ],
+          "responses": {
+            "200": {
+              "$ref": "#/components/responses/resp2-384"
+            }
+          }
+        }
+      }
+    }
+  }

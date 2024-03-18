@@ -1,9 +1,10 @@
-import { Compartment, Extension } from '@codemirror/state'
+import type { Extension } from '@codemirror/state'
+import { Compartment } from '@codemirror/state'
 import { languages } from '@codemirror/language-data'
-import { EditorView } from '@codemirror/view'
-import { LanguageDescription } from '@codemirror/language'
+import type { EditorView } from '@codemirror/view'
+import type { LanguageDescription } from '@codemirror/language'
 
-export const useCodeMirrorCompartment = (editorViewRef: Ref<EditorView | null>): [Extension, (extension: Extension) => void] => {
+export function useCodeMirrorCompartment(editorViewRef: Ref<EditorView | null>): [Extension, (extension: Extension) => void] {
   const compartment = new Compartment()
 
   const updateCompartment = (extension: Extension) => {
@@ -20,7 +21,7 @@ export const useCodeMirrorCompartment = (editorViewRef: Ref<EditorView | null>):
 
 const getCodeMirrorLanguageData = (language: string) => languages.find((lang: LanguageDescription) => lang.name.toLocaleLowerCase() === language.toLocaleLowerCase())
 
-export const useLanguageExtension = (languageRef: Ref<string>, editorViewRef: Ref<EditorView | null>): Extension => {
+export function useLanguageExtension(languageRef: Ref<string>, editorViewRef: Ref<EditorView | null>): Extension {
   const [languageCompartment, updateCompartment] = useCodeMirrorCompartment(editorViewRef)
 
   async function loadLanguage(language: string) {
@@ -34,14 +35,14 @@ export const useLanguageExtension = (languageRef: Ref<string>, editorViewRef: Re
   watch(
     languageRef,
     async (newLanguage: string) => {
-      if (!newLanguage) {
+      if (!newLanguage)
         return
-      }
+
       await loadLanguage(newLanguage)
     },
     {
       immediate: true,
-    }
+    },
   )
 
   return languageCompartment

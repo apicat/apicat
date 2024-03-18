@@ -1,116 +1,127 @@
+<script setup lang="ts">
+import { SimpleParamTable, ToggleHeading } from '@apicat/components'
+import { storeToRefs } from 'pinia'
+import { useI18n } from 'vue-i18n'
+import useApi from '@/hooks/useApi'
+import { useGlobalParameters } from '@/store/globalParameter'
+import { useParams } from '@/hooks/useParams'
+import useProjectStore from '@/store/project'
+import { usePopover } from '@/hooks/usePopover'
+
+const { t } = useI18n()
+const { projectID } = useParams()
+const { isReader } = storeToRefs(useProjectStore())
+const globalParametersStore = useGlobalParameters()
+const { headers, queries, cookies } = storeToRefs(globalParametersStore)
+const [isLoading, getGlobalParameterListApi] = useApi(globalParametersStore.getGlobalParameterList)
+let currentDeleteParam: any = null
+
+const isUnRef = ref(false)
+
+const { isShow, popoverRefEl, showPopover, hidePopover } = usePopover()
+
+async function handleCreateParameter(data: any, key: ProjectAPI.GlobalParameterType) {
+  data.in = key
+  const parameter = await globalParametersStore.addGlobalParameter(projectID, data)
+  data.id = parameter.id
+}
+
+async function handleUpdateParameter(data: any) {
+  await globalParametersStore.updateGlobalParameter(projectID, data)
+}
+
+function onClickDeleteIcon(e: PointerEvent, data: any) {
+  isUnRef.value = false
+  currentDeleteParam = data
+  showPopover(e.target as HTMLElement)
+}
+
+async function handleSortParameter(data: any, key: ProjectAPI.GlobalParameterType) {
+  data.in = key
+  await globalParametersStore.sortGlobalParameter(projectID, data)
+}
+
+async function handleConfirmDelete() {
+  if (currentDeleteParam) {
+    hidePopover()
+    await globalParametersStore.deleteGlobalParameter(projectID, currentDeleteParam, isUnRef.value)
+  }
+}
+
+onMounted(async () => await getGlobalParameterListApi(projectID))
+</script>
+
 <template>
   <div v-loading="isLoading">
     <ToggleHeading title="Header" type="card">
-      <SimpleParameterEditor
+      <SimpleParamTable
+        :datas="headers"
         :readonly="isReader"
-        v-model="parameters.header"
-        :draggable="false"
-        :on-create="(raw) => onCreateParams(raw, 'header')"
-        :on-change="(raw) => onUpdateParams(raw, 'header')"
+        @create="(data) => handleCreateParameter(data, 'header')"
+        @sort="(data) => handleSortParameter(data, 'header')"
+        @update="handleUpdateParameter"
       >
-        <template #operate="{ row, index, delHandler }">
-          <el-icon @click="(e) => onClickDeleteIcon(row, index, delHandler, e)" class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
+        <template #operate="{ data }">
+          <el-icon class="cursor-pointer" @click="onClickDeleteIcon($event, data)">
+            <ac-icon-ep-delete />
+          </el-icon>
         </template>
-      </SimpleParameterEditor>
+      </SimpleParamTable>
     </ToggleHeading>
 
     <ToggleHeading title="Cookie" type="card">
-      <SimpleParameterEditor
+      <SimpleParamTable
+        :datas="cookies"
         :readonly="isReader"
-        v-model="parameters.cookie"
-        :draggable="false"
-        :on-create="(raw) => onCreateParams(raw, 'cookie')"
-        :on-change="(raw) => onUpdateParams(raw, 'cookie')"
+        @create="(data) => handleCreateParameter(data, 'cookie')"
+        @sort="(data) => handleSortParameter(data, 'cookie')"
+        @update="handleUpdateParameter"
       >
-        <template #operate="{ row, index, delHandler }">
-          <el-icon @click="(e) => onClickDeleteIcon(row, index, delHandler, e)" class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
+        <template #operate="{ data }">
+          <el-icon class="cursor-pointer" @click="onClickDeleteIcon($event, data)">
+            <ac-icon-ep-delete />
+          </el-icon>
         </template>
-      </SimpleParameterEditor>
+      </SimpleParamTable>
     </ToggleHeading>
 
     <ToggleHeading title="Query" type="card">
-      <SimpleParameterEditor
+      <SimpleParamTable
+        :datas="queries"
         :readonly="isReader"
-        v-model="parameters.query"
-        :draggable="false"
-        :on-create="(raw) => onCreateParams(raw, 'query')"
-        :on-change="(raw) => onUpdateParams(raw, 'query')"
+        @create="(data) => handleCreateParameter(data, 'query')"
+        @sort="(data) => handleSortParameter(data, 'query')"
+        @update="handleUpdateParameter"
       >
-        <template #operate="{ row, index, delHandler }">
-          <el-icon @click="(e) => onClickDeleteIcon(row, index, delHandler, e)" class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
+        <template #operate="{ data }">
+          <el-icon class="cursor-pointer" @click="onClickDeleteIcon($event, data)">
+            <ac-icon-ep-delete />
+          </el-icon>
         </template>
-      </SimpleParameterEditor>
-    </ToggleHeading>
-
-    <ToggleHeading title="Path" type="card">
-      <SimpleParameterEditor
-        :readonly="isReader"
-        v-model="parameters.path"
-        :draggable="false"
-        :on-create="(raw) => onCreateParams(raw, 'path')"
-        :on-change="(raw) => onUpdateParams(raw, 'path')"
-      >
-        <template #operate="{ row, index, delHandler }">
-          <el-icon @click="(e) => onClickDeleteIcon(row, index, delHandler, e)" class="cursor-pointer"><ac-icon-ep-delete /></el-icon>
-        </template>
-      </SimpleParameterEditor>
+      </SimpleParamTable>
     </ToggleHeading>
   </div>
 
-  <el-popover :visible="isShow" width="auto" :virtual-ref="popoverRefEl" virtual-triggering>
+  <el-popover :visible="isShow" width="auto" :virtual-ref="popoverRefEl" virtual-triggering :show-arrow="false">
     <div class="ignore-popper">
       <p class="flex-y-center">
-        <el-icon class="mr-2px" :color="'rgb(255, 153, 0)'"><ac-icon-ep:question-filled /></el-icon>确认删除此全局参数吗？
+        <el-icon class="mr-5px" color="rgb(255, 153, 0)">
+          <ac-icon-ep:question-filled />
+        </el-icon>{{ t('app.project.setting.globalParam.tips.delete') }}
       </p>
-      <el-checkbox size="small" style="font-weight: normal" v-model="isUnRef" :true-label="1" :false-label="0">对引用此参数的内容解引用</el-checkbox>
+      <el-checkbox v-model="isUnRef" size="small" style="font-weight: normal">
+        <p class="break-words">
+          {{ t('app.project.setting.globalParam.tips.unref') }}
+        </p>
+      </el-checkbox>
       <div class="flex justify-end">
-        <el-button size="small" text @click="hidePopover">{{ $t('app.common.cancel') }}</el-button>
-        <el-button size="small" type="primary" @click="handleConfirmDelete">{{ $t('app.common.confirm') }}</el-button>
+        <el-button size="small" text @click="hidePopover">
+          {{ $t('app.common.cancel') }}
+        </el-button>
+        <el-button size="small" type="primary" @click="handleConfirmDelete">
+          {{ $t('app.common.delete') }}
+        </el-button>
       </div>
     </div>
   </el-popover>
 </template>
-<script setup lang="ts">
-import SimpleParameterEditor from '@/components/APIEditor/SimpleEditor.vue'
-import useApi from '@/hooks/useApi'
-import uesGlobalParametersStore from '@/store/globalParameters'
-import { storeToRefs } from 'pinia'
-import { usePopover } from '@/hooks/usePopover'
-import useProjectStore from '@/store/project'
-import { useParams } from '@/hooks/useParams'
-
-const { project_id } = useParams()
-const globalParametersStore = uesGlobalParametersStore()
-const { isReader } = storeToRefs(useProjectStore())
-const { parameters } = storeToRefs(globalParametersStore)
-const [isLoading, getCommonParamListApi] = useApi(globalParametersStore.getGlobalParameters)
-let currentDeleteParam: { param: any; index: number; delHandler: any } | null = null
-const isUnRef = shallowRef(1)
-
-const { isShow, popoverRefEl, showPopover, hidePopover } = usePopover({
-  onHide() {
-    currentDeleteParam = null
-  },
-})
-
-const onClickDeleteIcon = (param: any, index: number, delHandler: any, e: PointerEvent) => {
-  isUnRef.value = 1
-  currentDeleteParam = { param, index, delHandler }
-  showPopover(e.target as HTMLElement)
-}
-
-const handleConfirmDelete = async () => {
-  if (currentDeleteParam) {
-    const { param, index, delHandler } = currentDeleteParam
-    hidePopover()
-    await nextTick()
-    await globalParametersStore.deleteGlobalParameter(project_id, param, isUnRef.value)
-    delHandler(index)
-  }
-}
-
-const onCreateParams = async (raw: any, type: string) => await globalParametersStore.addGlobalParameter(project_id, type, raw)
-const onUpdateParams = async (raw: any, type: string) => await globalParametersStore.updateGlobalParameter(project_id, type, raw)
-
-onMounted(async () => await getCommonParamListApi(project_id as string))
-</script>

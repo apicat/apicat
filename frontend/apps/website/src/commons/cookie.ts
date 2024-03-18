@@ -1,4 +1,4 @@
-import { getCookie, setCookie, removeCookie } from 'tiny-cookie'
+import { getCookie, removeCookie, setCookie } from 'tiny-cookie'
 import { STORAGE_PREFIX } from './constant'
 
 export interface CookieOptions {
@@ -18,7 +18,8 @@ export const Cookies = {
   get: (key: string) => {
     try {
       return getCookie(key, JSON.parse)
-    } catch (error) {
+    }
+    catch (error) {
       return null
     }
   },

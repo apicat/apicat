@@ -9,6 +9,6 @@ export const pojectsRoute: RouteRecordRaw = {
   alias: MAIN_PATH_ALIAS,
   component: ProjectListPage,
   meta: {
-    title: '项目列表',
+    title: 'app.pageTitles.projectList',
   },
 }

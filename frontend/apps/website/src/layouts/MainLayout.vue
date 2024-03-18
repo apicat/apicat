@@ -1,3 +1,7 @@
+<script setup>
+import AsideNav from '@/views/component/AsideNav/index.vue'
+</script>
+
 <template>
   <div class="flex w-full h-screen">
     <div class="h-full">
@@ -8,6 +12,3 @@
     </div>
   </div>
 </template>
-<script setup>
-import AsideNav from '@/views/component/AsideNav.vue'
-</script>

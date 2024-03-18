@@ -1,66 +1,84 @@
-import { getDefinitionResponseList, updateDefinitionResponse, createDefinitionResponse, deleteDefinitionResponse } from '@/api/definitionResponse'
-import { DefinitionTypeEnum, removeJsonSchemaTempProperty } from '@/commons'
-import { DefinitionResponse } from '@/typings'
-import { traverseTree } from '@apicat/shared'
-import cloneDeep from 'lodash-es/cloneDeep'
 import { defineStore } from 'pinia'
+import { delay, traverseTree } from '@apicat/shared'
+import { apiCopyResponse, apiCreateResponse, apiDeleteResponse, apiEditResponse, apiGetResponseInfo, apiGetResponseTree, apiMoveResponse, apiRenameResponseCategory } from '@/api/project/definition/response'
+import { ResponseTypeEnum } from '@/commons'
 
-export const extendDocTreeFeild = (node = {} as any) => {
-  node = node || {}
-  node._extend = {
-    isLeaf: node.type !== DefinitionTypeEnum.DIR,
-    isEditable: false,
-    isCurrent: false,
-  }
-  return node
+interface ResponseState {
+  loading: boolean
+  responseDetail: Definition.ResponseDetail
+  responses: Definition.ResponseTreeNode[]
 }
 
-export const useDefinitionResponseStore = defineStore('definitionResponse', {
-  state: () => ({
-    responses: [] as DefinitionResponse[],
+function createDefaultResponse(): Definition.ResponseDetail {
+  return {
+    id: 0,
+    name: '',
+    parentID: 0,
+    type: ResponseTypeEnum.Response,
+  }
+}
+
+export const useDefinitionResponseStore = defineStore('project.definitionResponse', {
+  state: (): ResponseState => ({
+    loading: false,
+    responseDetail: createDefaultResponse(),
+    responses: [],
   }),
   actions: {
-    async getDefinitions(project_id: string) {
-      const tree = await getDefinitionResponseList(project_id)
-      this.responses = traverseTree((item: any) => extendDocTreeFeild(item), tree) as any
+    async getResponseDetail(projectID: string, id: number) {
+      try {
+        // reset response to avoid multiple watch
+        this.loading = true
+        this.responseDetail = createDefaultResponse()
+        this.responseDetail = await apiGetResponseInfo(projectID, id)
+      }
+      finally {
+        this.loading = false
+      }
+    },
+    async getResponses(projectID: string) {
+      this.responses = await apiGetResponseTree(projectID)
       return this.responses
     },
 
-    async updateDefinition(data: DefinitionResponse) {
-      const copy = cloneDeep(data)
-      const content = copy.content || {}
-
-      Object.keys(content).forEach((key) => {
-        removeJsonSchemaTempProperty(content[key].schema || {})
-      })
-
-      await updateDefinitionResponse(copy)
-      this.updateDefinitionStore(copy)
+    async renameResponseCategory(projectID: string, response: Definition.ResponseTreeNode) {
+      return await apiRenameResponseCategory(projectID, response)
     },
 
-    async createDefinition(data: any) {
-      try {
-        const definition: any = await createDefinitionResponse(data)
-        this.responses.push(extendDocTreeFeild(definition))
-        return definition
-      } catch (error) {
-        // error
-      }
+    async updateResponse(projectID: string, data: Definition.UpdateResponse) {
+      const newData = await apiEditResponse(projectID, data)
+      this.updateResponseToStore(data)
+      return newData
     },
 
-    updateDefinitionStore(definition: DefinitionResponse) {
-      const { id, name, description, content, header } = definition
-      const target = this.responses.find((item: DefinitionResponse) => item.id === id)
-      if (target) {
-        target.name = name
-        target.description = description
-        target.header = header
-        target.content = content
-      }
+    async createResponse(projectID: string, data: Definition.CreateResponseTreeNode) {
+      return await apiCreateResponse(projectID, data)
     },
 
-    async deleteDefinition(project_id: string, id: string | number, is_unref = 1) {
-      await deleteDefinitionResponse(project_id as string, id, is_unref)
+    async deleteResponse(projectID: string, id: number, deref: boolean = false) {
+      await apiDeleteResponse(projectID, id, deref)
+    },
+
+    async copyResponse(projectID: string, id: number) {
+      return await apiCopyResponse(projectID, id)
+    },
+
+    async moveResponse(projectID: string, data: Definition.RequestSortParams) {
+      await apiMoveResponse(projectID, data)
+    },
+
+    updateResponseToStore(newResponse: Partial<Definition.UpdateResponse>) {
+      traverseTree<Definition.ResponseTreeNode>(
+        (response) => {
+          if (response.id === newResponse.id) {
+            Object.assign(response, newResponse)
+            return false
+          }
+          return true
+        },
+        this.responses,
+        { subKey: 'items' },
+      )
     },
   },
 })

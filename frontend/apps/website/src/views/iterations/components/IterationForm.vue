@@ -1,127 +1,114 @@
+<script setup lang="ts">
+import { useNamespace } from '@apicat/hooks'
+import { useIterationPlan } from '../logic/useIterationPlan'
+import { useIterationForm } from '../logic/useIterationForm'
+import { CollectionTypeEnum } from '@/commons'
+
+export interface IterationFormProps {
+  iterationID: string | null
+  projects: ProjectAPI.ResponseProject[]
+}
+export interface IterationFormEmits {
+  (event: 'success' | 'cancel'): void
+}
+
+const props = defineProps<IterationFormProps>()
+const emits = defineEmits<IterationFormEmits>()
+
+const ns = useNamespace('iteration-detail')
+
+const {
+  isEditMode,
+  isLoadingForSubmit,
+  isLoadedIteration,
+  iterationFormRef,
+  iterationRules,
+  iterationInfo,
+  handleCancel,
+  handleSubmit,
+} = useIterationForm(props, emits)
+
+const { isLoadingForTree, defaultProps, collections, selectedCollectionKeys, onTreeChange } = useIterationPlan(
+  props,
+  iterationInfo,
+)
+</script>
+
 <template>
-  <div v-loading="isLoading" :class="ns.b()">
-    <h3 :class="ns.e('title')">{{ isEditMode ? '编辑迭代' : '创建迭代' }}</h3>
-    <el-form :model="iterationInfo" ref="iterationFormRef" :rules="iterationRules" label-position="top">
-      <el-form-item label="迭代名称" prop="title">
-        <el-input v-model="iterationInfo.title" placeholder="请输入迭代名称" />
+  <div v-loading="isLoadedIteration" :class="ns.b()">
+    <h3 :class="ns.e('title')">
+      {{ isEditMode ? $t('app.iter.create.edit_title') : $t('app.iter.create.title') }}
+    </h3>
+    <el-form ref="iterationFormRef" :model="iterationInfo" :rules="iterationRules" label-position="top">
+      <el-form-item :label="$t('app.iter.create.name')" prop="title">
+        <el-input v-model="iterationInfo.title" maxlength="255" :placeholder="$t('app.iter.create.name_hold')" />
       </el-form-item>
-      <el-form-item label="所属项目" prop="project_id">
-        <el-select :disabled="isEditMode" class="w-full" v-model="iterationInfo.project_id" placeholder="请选择所属项目">
-          <el-option v-for="item in projects" :key="item.id" :label="item.title" :value="item.id" />
+      <el-form-item :label="$t('app.iter.create.project')" prop="projectID">
+        <el-select
+          v-model="iterationInfo.projectID"
+          :disabled="isEditMode"
+          popper-class="ac-select-popper"
+          :teleported="false"
+          class="w-full"
+          :placeholder="$t('app.iter.create.project_hold')"
+        >
+          <el-option v-for="item in projects" :key="item.id" :label="item.title" :value="item.id">
+            <div class="truncate max-w-700px">
+              {{ item.title }}
+            </div>
+          </el-option>
         </el-select>
       </el-form-item>
-      <el-form-item label="迭代描述" prop="description">
-        <el-input type="textarea" :rows="4" v-model="iterationInfo.description" placeholder="请输入迭代描述" />
+      <el-form-item :label="$t('app.iter.create.desc')" prop="description">
+        <el-input v-model="iterationInfo.description" type="textarea" :rows="4" />
       </el-form-item>
 
-      <el-form-item label="规划迭代" prop="collection_ids">
-        <p class="text-gray-helper -mt-10px">规划本次迭代所涉及的 API</p>
+      <el-form-item :label="$t('app.iter.create.plan.title')" prop="collectionIDs">
+        <p class="text-gray-helper -mt-10px">
+          {{ $t('app.iter.create.plan.tip') }}
+        </p>
       </el-form-item>
 
-      <el-form-item>
+      <el-form-item v-loading="isLoadingForTree">
         <AcTransferTree
-          v-loading="isLoadingForTree"
           height="500px"
-          ref="transferTreeRef"
-          :defaultProps="defaultProps"
-          :from_data="fromData"
-          :to_data="toData"
-          pid="parent_id"
-          filter
-          :title="['所有API', '已规划API']"
-          @addBtn="onTransferTreeChange"
-          @removeBtn="onTransferTreeChange"
-        />
+          :data="collections"
+          :default-checked-keys="selectedCollectionKeys"
+          :placeholder="$t('app.iter.create.plan.table.hold')"
+          :title="$t('app.iter.create.plan.table.title')"
+          node-key="id"
+          :default-props="defaultProps"
+          @change="onTreeChange">
+          <template #default="{ node, data }">
+            <div class="flex items-center flex-1 overflow-hidden cursor-pointer">
+              <i v-if="data.type !== CollectionTypeEnum.Dir" alt="" class="ac-doc ac-iconfont mr-2px" />
+              <ac-icon-ic:outline-folder v-else class="mr-2px" />
+              <label :title="node.label" class="truncate">{{ node.label }}</label>
+            </div>
+          </template>
+        </AcTransferTree>
       </el-form-item>
 
       <el-form-item>
         <div class="flex-1 text-right">
-          <el-button @click="handleCancel">{{ $t('app.common.cancel') }}</el-button>
-          <el-button type="primary" :loading="isLoadingForSubmit" @click="handleSubmit(iterationFormRef)">{{ $t('app.common.confirm') }}</el-button>
+          <el-button @click="handleCancel">
+            {{ $t('app.common.cancel') }}
+          </el-button>
+          <el-button type="primary" :loading="isLoadingForSubmit" @click="handleSubmit(iterationFormRef)">
+            {{ isEditMode ? $t('app.common.edit') : $t('app.iteration.form.create') }}
+          </el-button>
         </div>
       </el-form-item>
     </el-form>
   </div>
 </template>
-<script setup lang="ts">
-import { createIteration, getIterationDetail, updateIteration } from '@/api/iteration'
-import { useNamespace } from '@/hooks'
-import useApi from '@/hooks/useApi'
-import { EmptyStruct, Iteration, ProjectInfo } from '@/typings'
-import { FormInstance } from 'element-plus'
-import { useIterationPlan } from '../logic/useIterationPlan'
 
-const props = withDefaults(defineProps<{ iterationId: string | number | null; projects: ProjectInfo[] }>(), { iterationId: null })
-const emits = defineEmits(['success', 'cancel'])
-
-const { iterationId: iterationIdRef } = toRefs(props)
-const ns = useNamespace('iteration-detail')
-const iterationFormRef = shallowRef()
-const iterationInfo = ref<EmptyStruct<Iteration>>({})
-const isLoadingForSubmit = ref(false)
-
-const [isLoading, getIterationDetailApi] = useApi(getIterationDetail)
-const { isLoadingForTree, defaultProps, fromData, toData, transferTreeRef, onTransferTreeChange } = useIterationPlan(iterationInfo)
-
-const iterationRules = {
-  title: [{ required: true, message: '请输入迭代名称' }],
-  project_id: [{ required: true, message: '请选择所属项目' }],
-  description: [{ message: '请输入迭代描述' }],
-}
-
-const isEditMode = computed(() => iterationIdRef.value !== null)
-
-const resetIterationInfo = () => {
-  iterationInfo.value = {}
-  iterationFormRef.value?.resetFields()
-}
-
-const handleSubmit = async (formIns: FormInstance) => {
-  try {
-    iterationInfo.value.collection_ids = transferTreeRef.value?.getFlattenValues().map((item: any) => item.id)
-    await formIns.validate()
-
-    const createOrUpdateIterationApi = isEditMode.value ? updateIteration : createIteration
-    isLoadingForSubmit.value = true
-    await createOrUpdateIterationApi(toRaw(unref(iterationInfo)) as any)
-    resetIterationInfo()
-    emits('success')
-  } catch (error) {
-    //
-  } finally {
-    isLoadingForSubmit.value = false
-  }
-}
-
-const handleCancel = () => emits('cancel')
-
-/**
- * get detail
- */
-watch(
-  iterationIdRef,
-  async () => {
-    if (!iterationIdRef.value) {
-      resetIterationInfo()
-      return
-    }
-
-    try {
-      iterationInfo.value = await getIterationDetailApi({ iteration_id: unref(iterationIdRef) })
-    } catch (error) {
-      resetIterationInfo()
-    }
-  },
-  {
-    immediate: true,
-  }
-)
-</script>
 <style lang="scss" scoped>
 @use '@/styles/mixins/mixins' as *;
+
 @include b(iteration-detail) {
   @include e(title) {
-    @apply text-18px  text-gray-title mb-30px;
+    @apply text-18px text-gray-title mb-30px;
   }
 }
 </style>

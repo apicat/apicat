@@ -1,95 +1,97 @@
-<template>
-  <LeftRightLayout main-width="auto">
-    <template #left>
-      <ProjectGroups
-        ref="groupListRef"
-        v-model:selected="selectedGroupRef"
-        :groups="projectGroups"
-        @switch-group="onSwitchProjectGroup"
-        @create-project="onCreateProject"
-        @create-group="handleRenameProjectGroup"
-        @delete-group="handleDeleteProjectGroup"
-        @rename-group="handleRenameProjectGroup"
-        @sort-group="handleSortProjectGroup"
-      />
-    </template>
-
-    <ProjectList
-      ref="iterationTableRef"
-      v-show="isListMode"
-      v-loading="isLoading"
-      :title="titleRef"
-      :projects="projects"
-      @click="goProjectDetail"
-      @follow="handleFollowProject"
-      @change-group="changeProjectGroup"
-    />
-
-    <CreateProjectForm
-      v-if="isFormMode"
-      ref="createProjectFormRef"
-      :groups="groupsForOptions"
-      :group_id="selectedGroupKeyForCreateForm"
-      @cancel="onCancel"
-      @create-group="onCreateProjectGroupByProjectForm"
-    />
-  </LeftRightLayout>
-
-  <CreateOrUpdateProjectGroup ref="createOrUpdateProjectGroupRef" @success="refreshProjectGroups" />
-
-  <SelectProjectGroup ref="selectProjectGroupRef" @success="refreshProjectList" />
-</template>
-
 <script lang="ts" setup>
-import LeftRightLayout from '@/layouts/LeftRightLayout.vue'
+import { storeToRefs } from 'pinia'
 import ProjectGroups from './components/ProjectGroups.vue'
 import ProjectList from './components/ProjectList.vue'
-import { usePageMode } from '@/views/composables/usePageMode'
-import { SwitchProjectGroupInfo } from '@/typings'
 import { useProjects } from './logic/useProjects'
-import { useProjectGroups } from './logic/useProjectGroups'
+
 import CreateOrUpdateProjectGroup from './components/CreateOrUpdateProjectGroup.vue'
 import CreateProjectForm from './components/CreateProjectForm.vue'
 import SelectProjectGroup from './components/SelectProjectGroup.vue'
 
-const titleRef = ref('')
-const groupListRef = ref<InstanceType<typeof ProjectGroups>>()
-const createProjectFormRef = ref<InstanceType<typeof CreateProjectForm>>()
+import { useProjectListProvider } from './logic/useProjectListContext'
+import { usePageMode } from '@/views/composables/usePageMode'
+import LeftRightLayout from '@/layouts/LeftRightLayout.vue'
+import { useTeamStore } from '@/store/team'
+import useProjectGroupStore from '@/store/projectGroup'
 
+const groupListRef = ref<InstanceType<typeof ProjectGroups>>()
+const teamStore = useTeamStore()
+const { createOrUpdateProjectGroupRef } = useProjectListProvider()
 const { isFormMode, isListMode, switchMode } = usePageMode()
+const { projectGroups } = storeToRefs(useProjectGroupStore())
 
 const {
-  selectedGroupRef,
-  createOrUpdateProjectGroupRef,
-  projectGroups,
-  groupsForOptions,
-  handleDeleteProjectGroup,
-  handleRenameProjectGroup,
-  handleSortProjectGroup,
-  refreshProjectGroups,
-} = useProjectGroups()
-
-const { isLoading, projects, selectProjectGroupRef, handleFollowProject, goProjectDetail, changeProjectGroup, refreshProjectList } = useProjects(selectedGroupRef)
-
-const selectedGroupKeyForCreateForm = computed<number>(() => (typeof selectedGroupRef.value !== 'number' ? 0 : selectedGroupRef.value))
+  isLoading,
+  projects,
+  selectProjectGroupRef,
+  handleFollowProject,
+  navigateToProjectDetail,
+  showProjectGroupModal,
+  refreshProjectList,
+  loadPrjectListByGroupId,
+} = useProjects()
 
 // 创建项目
-const onCreateProject = () => switchMode('form')
+const createProjectFormRef = ref<InstanceType<typeof CreateProjectForm>>()
+const currentRrojectGroupInfo = ref<SwitchProjectGroupInfo>()
 
-// 切换项目分组
-const onSwitchProjectGroup = ({ title }: SwitchProjectGroupInfo) => {
-  titleRef.value = title
-  switchMode('list')
+const titleRef = computed(() => {
+  if (!currentRrojectGroupInfo.value) return ''
+
+  const info = currentRrojectGroupInfo.value
+
+  if (typeof info.key === 'string') return info.title
+
+  if (typeof info.key === 'number') return projectGroups.value.find((group) => group.id === info.key)?.name || ''
+
+  return currentRrojectGroupInfo.value?.title || ''
+})
+
+function onCreateProjectMenuClick() {
+  createProjectFormRef.value?.reset()
+  switchMode('form')
 }
 
-const onCancel = () => {
+// 切换项目分组
+function handleSwitchProjectGroup(info: SwitchProjectGroupInfo) {
+  currentRrojectGroupInfo.value = info
+  switchMode('list')
+  loadPrjectListByGroupId()
+}
+
+function handleCancelCreateProject() {
   switchMode('list')
   groupListRef.value?.goBackSelected()
 }
-
-const onCreateProjectGroupByProjectForm = () => {
-  createOrUpdateProjectGroupRef.value?.showWithCallback((group_id: number) => {
-    nextTick().then(() => createProjectFormRef.value?.setSelectedGroup(group_id))
-  })
-}
 </script>
+
+<template>
+  <div>
+    <LeftRightLayout main-width="auto">
+      <template #left>
+        <ProjectGroups
+          ref="groupListRef"
+          @switch-group="handleSwitchProjectGroup"
+          @create-project="onCreateProjectMenuClick"
+          @delete="refreshProjectList" />
+      </template>
+
+      <ProjectList
+        v-show="isListMode"
+        v-loading="isLoading"
+        :title="titleRef"
+        :projects="projects"
+        @click="navigateToProjectDetail"
+        @follow="handleFollowProject"
+        @change-group="showProjectGroupModal" />
+
+      <CreateProjectForm
+        v-show="isFormMode && !teamStore.isMember"
+        ref="createProjectFormRef"
+        @cancel="handleCancelCreateProject" />
+    </LeftRightLayout>
+
+    <CreateOrUpdateProjectGroup ref="createOrUpdateProjectGroupRef" />
+    <SelectProjectGroup ref="selectProjectGroupRef" @success="refreshProjectList" />
+  </div>
+</template>

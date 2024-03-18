@@ -1,14 +1,18 @@
+<script setup>
+import { MAIN_PATH } from '@/router/constant'
+</script>
+
 <template>
   <div class="text-center">
     <iconfont icon="ac-lock" :size="300" class="not-found-image" />
     <p class="not-found-tip">
-      {{ $t('app.tips.noPermission') }}<router-link class="text-blue-600" :to="MAIN_PATH">{{ $t('app.common.goProjectList') }}</router-link>
+      {{ $t('app.tips.noPermission') }}<router-link class="text-blue-600" :to="MAIN_PATH">
+        {{ $t('app.common.goProjectList') }}
+      </router-link>
     </p>
   </div>
 </template>
-<script setup>
-import { MAIN_PATH } from '@/router/constant'
-</script>
+
 <style>
 .not-found-image {
   height: 282px;

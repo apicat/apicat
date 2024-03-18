@@ -1,8 +1,9 @@
 import { isClient } from '@vueuse/core'
 import { getStyle } from './style'
 
-export const isScroll = (el: HTMLElement, isVertical?: boolean): boolean => {
-  if (!isClient) return false
+export function isScroll(el: HTMLElement, isVertical?: boolean): boolean {
+  if (!isClient)
+    return false
 
   const key = (
     {
@@ -12,17 +13,20 @@ export const isScroll = (el: HTMLElement, isVertical?: boolean): boolean => {
     } as const
   )[String(isVertical)]!
   const overflow = getStyle(el, key)
-  return ['scroll', 'auto', 'overlay'].some((s) => overflow.includes(s))
+  return ['scroll', 'auto', 'overlay'].some(s => overflow.includes(s))
 }
 
-export const getScrollContainer = (el: HTMLElement, isVertical?: boolean): Window | HTMLElement | undefined => {
-  if (!isClient) return
+export function getScrollContainer(el: HTMLElement, isVertical?: boolean): Window | HTMLElement | undefined {
+  if (!isClient)
+    return
 
   let parent: HTMLElement = el
   while (parent) {
-    if ([window, document, document.documentElement].includes(parent)) return window
+    if ([window, document, document.documentElement].includes(parent))
+      return window
 
-    if (isScroll(parent, isVertical)) return parent
+    if (isScroll(parent, isVertical))
+      return parent
 
     parent = parent.parentNode as HTMLElement
   }
@@ -31,9 +35,11 @@ export const getScrollContainer = (el: HTMLElement, isVertical?: boolean): Windo
 }
 
 let scrollBarWidth: number
-export const getScrollBarWidth = (): number => {
-  if (!isClient) return 0
-  if (scrollBarWidth !== undefined) return scrollBarWidth
+export function getScrollBarWidth(): number {
+  if (!isClient)
+    return 0
+  if (scrollBarWidth !== undefined)
+    return scrollBarWidth
 
   const outer = document.createElement('div')
   // Cannot access 'propKey' before initialization
@@ -64,7 +70,8 @@ export const getScrollBarWidth = (): number => {
  * of the container
  */
 export function scrollIntoView(container: HTMLElement, selected: HTMLElement): void {
-  if (!isClient) return
+  if (!isClient)
+    return
 
   if (!selected) {
     container.scrollTop = 0
@@ -82,9 +89,8 @@ export function scrollIntoView(container: HTMLElement, selected: HTMLElement): v
   const viewRectTop = container.scrollTop
   const viewRectBottom = viewRectTop + container.clientHeight
 
-  if (top < viewRectTop) {
+  if (top < viewRectTop)
     container.scrollTop = top
-  } else if (bottom > viewRectBottom) {
+  else if (bottom > viewRectBottom)
     container.scrollTop = bottom - container.clientHeight
-  }
 }

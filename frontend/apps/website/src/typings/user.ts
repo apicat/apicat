@@ -2,12 +2,13 @@
  * 用户在团队中的权限
  * 权限：superadmin,admin,user
  */
-export const enum UserRoleInTeam {
+export enum UserRoleInTeam {
   SUPER_ADMIN = 'superadmin',
   ADMIN = 'admin',
   USER = 'user',
 }
 
+// 没有用到
 export const UserRoleInTeamMap = {
   [UserRoleInTeam.SUPER_ADMIN]: '超级管理员',
   [UserRoleInTeam.ADMIN]: '管理员',

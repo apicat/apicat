@@ -1,15 +1,17 @@
+import { storeToRefs } from 'pinia'
 import useApi from '@/hooks/useApi'
-import { ProjectInfo } from '@/typings'
-import { getProjectList } from '@/api/project'
+import { apiGetProjectList } from '@/api/project'
+import { useTeamStore } from '@/store/team'
 
-export const useProjectList = (searchParams?: Record<string, any>) => {
-  const projectList = ref<ProjectInfo[]>([])
-  const [isLoading, getProjectListApi] = useApi(getProjectList)
+export function useProjectList(searchParams?: ProjectAPI.RequestProject) {
+  const projectList = ref<ProjectAPI.ResponseProject[]>([])
+  const { currentID } = storeToRefs(useTeamStore())
+  const [isLoading, getProjectListApi] = useApi(apiGetProjectList)
 
   // 加载项目列表
   const loadProjectList = async () => {
     try {
-      projectList.value = await getProjectListApi(searchParams)
+      projectList.value = (await getProjectListApi(currentID.value, searchParams)) || []
     } catch (error) {
       projectList.value = []
     }

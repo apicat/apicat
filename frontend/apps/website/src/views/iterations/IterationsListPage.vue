@@ -1,56 +1,36 @@
-<template>
-  <LeftRightLayout>
-    <template #left>
-      <IterationTree ref="iterationTreeRef" @create="onCreateIteration" @click="onClickFollowedProject" />
-    </template>
-
-    <IterationTable
-      v-show="isListMode"
-      :title="currentSelectedProjectRef ? currentSelectedProjectRef.title : null"
-      :project-id="currentSelectedProjectRef ? currentSelectedProjectRef.id : null"
-      ref="iterationTableRef"
-      @edit="onEditIteration"
-    />
-    <IterationForm
-      v-if="isFormMode"
-      :iteration-id="currentEditableItreationIdRef"
-      :projects="projectList"
-      @success="onCreateOrUpdateIterationSuccess"
-      @cancel="onCancelCreateOrUpdateIteration"
-    />
-  </LeftRightLayout>
-</template>
 <script setup lang="ts">
-import LeftRightLayout from '@/layouts/LeftRightLayout.vue'
 import IterationTree from './components/IterationTree.vue'
 import IterationTable from './components/IterationTable.vue'
 import IterationForm from './components/IterationForm.vue'
+import LeftRightLayout from '@/layouts/LeftRightLayout.vue'
 import { usePageMode } from '@/views/composables/usePageMode'
 import { useProjectList } from '@/views/composables/useProjectList'
-import { Iteration, ProjectInfo } from '@/typings'
-import { MemberAuthorityInProject } from '@/typings/member'
+import { Authority } from '@/commons/constant'
 
 const iterationTableRef = ref<InstanceType<typeof IterationTable>>()
 const iterationTreeRef = ref<InstanceType<typeof IterationTree>>()
+
 const { isFormMode, isListMode, switchMode } = usePageMode()
-const { projectList } = useProjectList({ auth: [MemberAuthorityInProject.MANAGER, MemberAuthorityInProject.WRITE] })
+const { projectList } = useProjectList({
+  permissions: [Authority.Manage, Authority.Write],
+})
 
-const currentEditableItreationIdRef = ref<number | string | null>()
-const currentSelectedProjectRef = ref<ProjectInfo | null>()
+const currentEditableItreationIdRef = ref<string | null>(null)
+const currentSelectedProjectRef = ref<ProjectAPI.ResponseProject | null>()
 
-const onEditIteration = async (iteration: Iteration) => {
+async function onEditIteration(iteration: IterationAPI.ResponseIteration) {
   await onCreateIteration()
   currentEditableItreationIdRef.value = iteration.id
-  iterationTreeRef.value?.removeSelected()
+  // iterationTreeRef.value?.removeSelected()
 }
 
-const onCreateIteration = async () => {
+async function onCreateIteration() {
   currentEditableItreationIdRef.value = null
   await nextTick()
   switchMode('form')
 }
 
-const onCreateOrUpdateIterationSuccess = async () => {
+async function onCreateOrUpdateIterationSuccess() {
   await nextTick()
   switchMode('list')
 
@@ -64,13 +44,35 @@ const onCreateOrUpdateIterationSuccess = async () => {
   }
 }
 
-const onClickFollowedProject = (project: ProjectInfo | null) => {
+function onClickFollowedProject(project: ProjectAPI.ResponseProject | null) {
   switchMode('list')
   currentSelectedProjectRef.value = project
 }
 
-const onCancelCreateOrUpdateIteration = () => {
+function onCancelCreateOrUpdateIteration() {
   iterationTreeRef.value?.goBackSelected()
   switchMode('list')
 }
 </script>
+
+<template>
+  <LeftRightLayout>
+    <template #left>
+      <IterationTree ref="iterationTreeRef" @create="onCreateIteration" @click="onClickFollowedProject" />
+    </template>
+
+    <IterationTable
+      v-show="isListMode"
+      ref="iterationTableRef"
+      :title="currentSelectedProjectRef?.title ?? null"
+      :project-id="currentSelectedProjectRef?.id ?? null"
+      @edit="onEditIteration" />
+
+    <IterationForm
+      v-if="isFormMode"
+      :iteration-i-d="currentEditableItreationIdRef"
+      :projects="projectList"
+      @success="onCreateOrUpdateIterationSuccess"
+      @cancel="onCancelCreateOrUpdateIteration" />
+  </LeftRightLayout>
+</template>
