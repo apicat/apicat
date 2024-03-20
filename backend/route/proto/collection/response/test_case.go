@@ -1,7 +1,7 @@
 package response
 
 import (
-	protobase "apicat-cloud/backend/route/proto/base"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
 )
 
 type TestCase struct {

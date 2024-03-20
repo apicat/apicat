@@ -1,21 +1,22 @@
 package collectionrelations
 
 import (
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/model/collection"
-	"apicat-cloud/backend/model/definition"
-	"apicat-cloud/backend/model/global"
-	"apicat-cloud/backend/model/iteration"
-	referencerelationship "apicat-cloud/backend/model/reference_relationship"
-	"apicat-cloud/backend/model/share"
-	"apicat-cloud/backend/model/team"
-	"apicat-cloud/backend/module/array_operation"
-	"apicat-cloud/backend/module/spec"
-	definitionrelations "apicat-cloud/backend/service/definition_relations"
-	globalrelations "apicat-cloud/backend/service/global_relations"
 	"context"
 	"encoding/json"
 	"log/slog"
+
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/definition"
+	"github.com/apicat/apicat/backend/model/global"
+	"github.com/apicat/apicat/backend/model/iteration"
+	referencerelationship "github.com/apicat/apicat/backend/model/reference_relationship"
+	"github.com/apicat/apicat/backend/model/share"
+	"github.com/apicat/apicat/backend/model/team"
+	"github.com/apicat/apicat/backend/module/array_operation"
+	"github.com/apicat/apicat/backend/module/spec"
+	definitionrelations "github.com/apicat/apicat/backend/service/definition_relations"
+	globalrelations "github.com/apicat/apicat/backend/service/global_relations"
 )
 
 // TODO 移除表关系后将次方法移动到backend/model/collection/funcs.go中。方法引用了model.iteration，model.iteration中又引用model.collection导致现在移动不了

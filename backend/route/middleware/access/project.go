@@ -1,7 +1,7 @@
 package access
 
 import (
-	"apicat-cloud/backend/model/project"
+	"github.com/apicat/apicat/backend/model/project"
 
 	"github.com/gin-gonic/gin"
 )

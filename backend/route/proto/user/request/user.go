@@ -1,8 +1,9 @@
 package request
 
 import (
-	userbase "apicat-cloud/backend/route/proto/user/base"
 	"mime/multipart"
+
+	userbase "github.com/apicat/apicat/backend/route/proto/user/base"
 )
 
 type UserIDOption struct {

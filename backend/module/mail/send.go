@@ -1,12 +1,13 @@
 package mail
 
 import (
-	"apicat-cloud/backend/module/mail/common"
-	"apicat-cloud/backend/module/mail/sendcloud"
-	"apicat-cloud/backend/module/mail/smtp"
 	"errors"
 	"fmt"
 	"log/slog"
+
+	"github.com/apicat/apicat/backend/module/mail/common"
+	"github.com/apicat/apicat/backend/module/mail/sendcloud"
+	"github.com/apicat/apicat/backend/module/mail/smtp"
 )
 
 const (

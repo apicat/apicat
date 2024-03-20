@@ -1,10 +1,11 @@
 package response
 
 import (
-	protobase "apicat-cloud/backend/route/proto/base"
-	"apicat-cloud/backend/route/proto/collection/base"
-	projectbase "apicat-cloud/backend/route/proto/project/base"
 	"time"
+
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	"github.com/apicat/apicat/backend/route/proto/collection/base"
+	projectbase "github.com/apicat/apicat/backend/route/proto/project/base"
 )
 
 type Collection struct {

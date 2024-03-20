@@ -1,6 +1,6 @@
 package request
 
-import protobase "apicat-cloud/backend/route/proto/base"
+import protobase "github.com/apicat/apicat/backend/route/proto/base"
 
 type GetMockOption struct {
 	protobase.ProjectIdOption

@@ -1,13 +1,14 @@
 package access
 
 import (
-	"apicat-cloud/backend/i18n"
-	"apicat-cloud/backend/model/iteration"
-	"apicat-cloud/backend/model/project"
-	"apicat-cloud/backend/model/team"
-	"apicat-cloud/backend/route/middleware/jwt"
 	"net/http"
 	"strconv"
+
+	"github.com/apicat/apicat/backend/i18n"
+	"github.com/apicat/apicat/backend/model/iteration"
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/team"
+	"github.com/apicat/apicat/backend/route/middleware/jwt"
 
 	"github.com/gin-gonic/gin"
 )

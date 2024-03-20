@@ -1,11 +1,12 @@
 package project
 
 import (
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/model/team"
 	"context"
 	"errors"
 	"time"
+
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/team"
 )
 
 type ProjectGroup struct {

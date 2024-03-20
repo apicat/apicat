@@ -1,12 +1,13 @@
 package github
 
 import (
-	"apicat-cloud/backend/module/oauth2"
 	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
+
+	"github.com/apicat/apicat/backend/module/oauth2"
 )
 
 type Github struct{}

@@ -1,16 +1,17 @@
 package globalrelations
 
 import (
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/model/collection"
-	"apicat-cloud/backend/model/global"
-	"apicat-cloud/backend/model/project"
-	referencerelationship "apicat-cloud/backend/model/reference_relationship"
-	"apicat-cloud/backend/module/array_operation"
 	"context"
 	"encoding/json"
 
-	"apicat-cloud/backend/module/spec"
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/global"
+	"github.com/apicat/apicat/backend/model/project"
+	referencerelationship "github.com/apicat/apicat/backend/model/reference_relationship"
+	"github.com/apicat/apicat/backend/module/array_operation"
+
+	"github.com/apicat/apicat/backend/module/spec"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,8 +1,8 @@
 package sysconfig
 
 import (
-	sysconfigbase "apicat-cloud/backend/route/proto/sysconfig/base"
-	sysconfigrequest "apicat-cloud/backend/route/proto/sysconfig/request"
+	sysconfigbase "github.com/apicat/apicat/backend/route/proto/sysconfig/base"
+	sysconfigrequest "github.com/apicat/apicat/backend/route/proto/sysconfig/request"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

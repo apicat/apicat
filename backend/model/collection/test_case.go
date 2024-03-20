@@ -1,10 +1,11 @@
 package collection
 
 import (
-	"apicat-cloud/backend/model"
 	"context"
 	"errors"
 	"time"
+
+	"github.com/apicat/apicat/backend/model"
 )
 
 type TestCase struct {

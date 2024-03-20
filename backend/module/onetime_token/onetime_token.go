@@ -1,11 +1,12 @@
 package onetime_token
 
 import (
-	"apicat-cloud/backend/module/cache/common"
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
 	"time"
+
+	"github.com/apicat/apicat/backend/module/cache/common"
 )
 
 type Helper struct {

@@ -1,8 +1,8 @@
 package request
 
 import (
-	"apicat-cloud/backend/model/team"
-	protobase "apicat-cloud/backend/route/proto/base"
+	"github.com/apicat/apicat/backend/model/team"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
 )
 
 type RolesOption struct {

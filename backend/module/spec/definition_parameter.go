@@ -1,6 +1,6 @@
 package spec
 
-import "apicat-cloud/backend/module/spec/jsonschema"
+import "github.com/apicat/apicat/backend/module/spec/jsonschema"
 
 var HttpParameterType = []string{"query", "path", "cookie", "header"}
 

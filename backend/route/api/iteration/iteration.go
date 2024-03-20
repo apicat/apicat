@@ -1,20 +1,21 @@
 package iteration
 
 import (
-	"apicat-cloud/backend/i18n"
-	"apicat-cloud/backend/model/collection"
-	"apicat-cloud/backend/model/iteration"
-	"apicat-cloud/backend/model/project"
-	"apicat-cloud/backend/route/middleware/access"
-	protobase "apicat-cloud/backend/route/proto/base"
-	protoiteration "apicat-cloud/backend/route/proto/iteration"
-	iterationbase "apicat-cloud/backend/route/proto/iteration/base"
-	iterationrequest "apicat-cloud/backend/route/proto/iteration/request"
-	iterationresponse "apicat-cloud/backend/route/proto/iteration/response"
-	projectbase "apicat-cloud/backend/route/proto/project/base"
 	"log/slog"
 	"math"
 	"net/http"
+
+	"github.com/apicat/apicat/backend/i18n"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/iteration"
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/route/middleware/access"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	protoiteration "github.com/apicat/apicat/backend/route/proto/iteration"
+	iterationbase "github.com/apicat/apicat/backend/route/proto/iteration/base"
+	iterationrequest "github.com/apicat/apicat/backend/route/proto/iteration/request"
+	iterationresponse "github.com/apicat/apicat/backend/route/proto/iteration/response"
+	projectbase "github.com/apicat/apicat/backend/route/proto/project/base"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"apicat-cloud/backend/module/spec"
-	"apicat-cloud/backend/module/spec/jsonschema"
-	"apicat-cloud/backend/module/spec/markdown"
+	"github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec/jsonschema"
+	"github.com/apicat/apicat/backend/module/spec/markdown"
 
 	"github.com/pb33f/libopenapi"
 	"github.com/pb33f/libopenapi/utils"

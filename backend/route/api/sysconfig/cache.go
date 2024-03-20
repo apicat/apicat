@@ -1,18 +1,19 @@
 package sysconfig
 
 import (
-	"apicat-cloud/backend/config"
-	"apicat-cloud/backend/i18n"
-	"apicat-cloud/backend/model/sysconfig"
-	"apicat-cloud/backend/module/cache"
-	"apicat-cloud/backend/module/cache/redis"
-	protosysconfig "apicat-cloud/backend/route/proto/sysconfig"
-	sysconfigbase "apicat-cloud/backend/route/proto/sysconfig/base"
-	sysconfigrequest "apicat-cloud/backend/route/proto/sysconfig/request"
 	"encoding/json"
 	"log/slog"
 	"net/http"
 	"strings"
+
+	"github.com/apicat/apicat/backend/config"
+	"github.com/apicat/apicat/backend/i18n"
+	"github.com/apicat/apicat/backend/model/sysconfig"
+	"github.com/apicat/apicat/backend/module/cache"
+	"github.com/apicat/apicat/backend/module/cache/redis"
+	protosysconfig "github.com/apicat/apicat/backend/route/proto/sysconfig"
+	sysconfigbase "github.com/apicat/apicat/backend/route/proto/sysconfig/base"
+	sysconfigrequest "github.com/apicat/apicat/backend/route/proto/sysconfig/request"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

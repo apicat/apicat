@@ -1,12 +1,13 @@
 package global
 
 import (
-	"apicat-cloud/backend/model"
 	"context"
 	"encoding/json"
 
-	"apicat-cloud/backend/module/spec"
-	"apicat-cloud/backend/module/spec/jsonschema"
+	"github.com/apicat/apicat/backend/model"
+
+	"github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec/jsonschema"
 
 	"gorm.io/gorm"
 )

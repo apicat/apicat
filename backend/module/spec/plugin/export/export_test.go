@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"apicat-cloud/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec"
 )
 
 func TestMd(t *testing.T) {

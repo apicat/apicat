@@ -1,7 +1,6 @@
 package sendcloud
 
 import (
-	"apicat-cloud/backend/module/mail/common"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -9,6 +8,8 @@ import (
 	"net/url"
 	"strings"
 	"time"
+
+	"github.com/apicat/apicat/backend/module/mail/common"
 )
 
 type sendcloud struct {

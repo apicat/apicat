@@ -1,8 +1,9 @@
 package iteration
 
 import (
-	"apicat-cloud/backend/model"
 	"context"
+
+	"github.com/apicat/apicat/backend/model"
 )
 
 type IterationApi struct {

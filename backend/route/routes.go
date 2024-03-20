@@ -1,13 +1,13 @@
 package route
 
 import (
-	"apicat-cloud/backend/route/api/collection"
-	"apicat-cloud/backend/route/api/iteration"
-	"apicat-cloud/backend/route/api/project"
-	"apicat-cloud/backend/route/api/sysconfig"
-	"apicat-cloud/backend/route/api/team"
-	"apicat-cloud/backend/route/api/user"
-	"apicat-cloud/backend/route/middleware/access"
+	"github.com/apicat/apicat/backend/route/api/collection"
+	"github.com/apicat/apicat/backend/route/api/iteration"
+	"github.com/apicat/apicat/backend/route/api/project"
+	"github.com/apicat/apicat/backend/route/api/sysconfig"
+	"github.com/apicat/apicat/backend/route/api/team"
+	"github.com/apicat/apicat/backend/route/api/user"
+	"github.com/apicat/apicat/backend/route/middleware/access"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

@@ -1,12 +1,13 @@
 package openai
 
 import (
-	"apicat-cloud/backend/module/llm/common"
 	"context"
 	"errors"
 	"fmt"
 	"log/slog"
 	"time"
+
+	"github.com/apicat/apicat/backend/module/llm/common"
 
 	oai "github.com/sashabaranov/go-openai"
 )
