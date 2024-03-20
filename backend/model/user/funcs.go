@@ -1,8 +1,9 @@
 package user
 
 import (
-	"apicat-cloud/backend/model"
 	"context"
+
+	"github.com/apicat/apicat/backend/model"
 
 	"golang.org/x/crypto/bcrypt"
 )

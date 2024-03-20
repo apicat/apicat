@@ -1,10 +1,6 @@
 package collection
 
 import (
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/model/project"
-	"apicat-cloud/backend/model/team"
-	"apicat-cloud/backend/model/user"
 	"context"
 	"encoding/json"
 	"errors"
@@ -13,7 +9,12 @@ import (
 	"strings"
 	"time"
 
-	"apicat-cloud/backend/module/spec"
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/team"
+	"github.com/apicat/apicat/backend/model/user"
+
+	"github.com/apicat/apicat/backend/module/spec"
 
 	"gorm.io/gorm"
 )

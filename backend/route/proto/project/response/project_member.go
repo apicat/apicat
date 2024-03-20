@@ -1,9 +1,9 @@
 package response
 
 import (
-	protobase "apicat-cloud/backend/route/proto/base"
-	teambase "apicat-cloud/backend/route/proto/team/base"
-	userresponse "apicat-cloud/backend/route/proto/user/response"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	teambase "github.com/apicat/apicat/backend/route/proto/team/base"
+	userresponse "github.com/apicat/apicat/backend/route/proto/user/response"
 )
 
 type ProjectMember struct {

@@ -1,12 +1,13 @@
 package collection
 
 import (
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/model/team"
 	"context"
 	"errors"
 	"log/slog"
 	"time"
+
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/team"
 )
 
 type CollectionHistory struct {

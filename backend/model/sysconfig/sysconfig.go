@@ -1,8 +1,9 @@
 package sysconfig
 
 import (
-	"apicat-cloud/backend/model"
 	"context"
+
+	"github.com/apicat/apicat/backend/model"
 )
 
 type Sysconfig struct {

@@ -1,7 +1,7 @@
 package base
 
 import (
-	"apicat-cloud/backend/model/team"
+	"github.com/apicat/apicat/backend/model/team"
 )
 
 type TeamMemberStatusOption struct {

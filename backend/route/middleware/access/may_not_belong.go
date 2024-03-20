@@ -1,14 +1,15 @@
 package access
 
 import (
-	"apicat-cloud/backend/i18n"
-	"apicat-cloud/backend/model/project"
-	"apicat-cloud/backend/model/share"
-	"apicat-cloud/backend/model/team"
-	"apicat-cloud/backend/route/middleware/jwt"
 	"crypto/md5"
 	"fmt"
 	"net/http"
+
+	"github.com/apicat/apicat/backend/i18n"
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/share"
+	"github.com/apicat/apicat/backend/model/team"
+	"github.com/apicat/apicat/backend/route/middleware/jwt"
 
 	"github.com/gin-gonic/gin"
 )

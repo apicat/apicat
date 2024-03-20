@@ -1,18 +1,19 @@
 //go:generate catb --in_dir=backend/route/proto --out_dir=doc
-package apicatcloud
+package apicat
 
 import (
-	"apicat-cloud/backend/config"
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/model/sysconfig"
-	"apicat-cloud/backend/module/cache"
-	"apicat-cloud/backend/module/logger"
-	"apicat-cloud/backend/module/mock"
-	"apicat-cloud/backend/module/storage"
-	"apicat-cloud/backend/route"
 	"fmt"
 	"log"
 	"net/url"
+
+	"github.com/apicat/apicat/backend/config"
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/sysconfig"
+	"github.com/apicat/apicat/backend/module/cache"
+	"github.com/apicat/apicat/backend/module/logger"
+	"github.com/apicat/apicat/backend/module/mock"
+	"github.com/apicat/apicat/backend/module/storage"
+	"github.com/apicat/apicat/backend/route"
 )
 
 type App struct{}

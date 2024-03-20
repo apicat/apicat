@@ -1,10 +1,11 @@
 package user
 
 import (
-	"apicat-cloud/backend/model"
 	"context"
 	"errors"
 	"time"
+
+	"github.com/apicat/apicat/backend/model"
 
 	"gorm.io/gorm"
 )

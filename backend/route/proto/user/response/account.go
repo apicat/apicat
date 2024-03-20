@@ -1,7 +1,7 @@
 package response
 
 import (
-	userbase "apicat-cloud/backend/route/proto/user/base"
+	userbase "github.com/apicat/apicat/backend/route/proto/user/base"
 )
 
 type Oauth2User struct {

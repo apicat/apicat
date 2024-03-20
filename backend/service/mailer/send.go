@@ -1,9 +1,10 @@
 package mailer
 
 import (
-	"apicat-cloud/backend/config"
-	"apicat-cloud/backend/module/mail"
 	"fmt"
+
+	"github.com/apicat/apicat/backend/config"
+	"github.com/apicat/apicat/backend/module/mail"
 
 	"log/slog"
 )

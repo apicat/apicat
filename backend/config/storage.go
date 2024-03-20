@@ -1,8 +1,9 @@
 package config
 
 import (
-	"apicat-cloud/backend/module/storage"
 	"encoding/json"
+
+	"github.com/apicat/apicat/backend/module/storage"
 )
 
 type Storage struct {

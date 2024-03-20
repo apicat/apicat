@@ -1,11 +1,12 @@
 package global
 
 import (
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/module/spec"
 	"context"
 	"encoding/json"
 	"errors"
+
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/module/spec"
 )
 
 const (

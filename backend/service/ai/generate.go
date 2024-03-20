@@ -1,14 +1,6 @@
 package ai
 
 import (
-	"apicat-cloud/backend/config"
-	"apicat-cloud/backend/model/collection"
-	"apicat-cloud/backend/model/definition"
-	"apicat-cloud/backend/module/cache"
-	"apicat-cloud/backend/module/llm"
-	llmcommon "apicat-cloud/backend/module/llm/common"
-	"apicat-cloud/backend/module/spec"
-	"apicat-cloud/backend/route/middleware/jwt"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -17,8 +9,17 @@ import (
 	"strings"
 	"time"
 
-	"apicat-cloud/backend/module/spec/jsonschema"
-	"apicat-cloud/backend/module/spec/plugin/openapi"
+	"github.com/apicat/apicat/backend/config"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/definition"
+	"github.com/apicat/apicat/backend/module/cache"
+	"github.com/apicat/apicat/backend/module/llm"
+	llmcommon "github.com/apicat/apicat/backend/module/llm/common"
+	"github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/backend/route/middleware/jwt"
+
+	"github.com/apicat/apicat/backend/module/spec/jsonschema"
+	"github.com/apicat/apicat/backend/module/spec/plugin/openapi"
 
 	"github.com/gin-gonic/gin"
 )

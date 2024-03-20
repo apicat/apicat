@@ -1,15 +1,16 @@
 package route
 
 import (
-	"apicat-cloud/backend/config"
-	"apicat-cloud/backend/module/storage"
-	"apicat-cloud/backend/route/middleware/dump"
-	"apicat-cloud/backend/route/middleware/jwt"
-	"apicat-cloud/backend/route/middleware/log"
-	"apicat-cloud/frontend"
 	"html/template"
 	"log/slog"
 	"net/http"
+
+	"github.com/apicat/apicat/backend/config"
+	"github.com/apicat/apicat/backend/module/storage"
+	"github.com/apicat/apicat/backend/route/middleware/dump"
+	"github.com/apicat/apicat/backend/route/middleware/jwt"
+	"github.com/apicat/apicat/backend/route/middleware/log"
+	"github.com/apicat/apicat/frontend"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

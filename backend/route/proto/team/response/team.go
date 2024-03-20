@@ -1,9 +1,9 @@
 package response
 
 import (
-	"apicat-cloud/backend/model/team"
-	protobase "apicat-cloud/backend/route/proto/base"
-	teambase "apicat-cloud/backend/route/proto/team/base"
+	"github.com/apicat/apicat/backend/model/team"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	teambase "github.com/apicat/apicat/backend/route/proto/team/base"
 )
 
 type Team struct {

@@ -1,11 +1,12 @@
 package definition
 
 import (
-	"apicat-cloud/backend/model"
 	"context"
 	"errors"
 	"log/slog"
 	"time"
+
+	"github.com/apicat/apicat/backend/model"
 )
 
 type DefinitionSchemaHistory struct {

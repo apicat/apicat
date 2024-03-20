@@ -1,19 +1,20 @@
 package definitionrelations
 
 import (
-	"apicat-cloud/backend/model/collection"
-	"apicat-cloud/backend/model/definition"
-	"apicat-cloud/backend/model/project"
-	referencerelationship "apicat-cloud/backend/model/reference_relationship"
-	"apicat-cloud/backend/model/team"
 	"context"
 	"encoding/json"
 	"log/slog"
 	"regexp"
 	"strconv"
 
-	"apicat-cloud/backend/module/array_operation"
-	"apicat-cloud/backend/module/spec"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/definition"
+	"github.com/apicat/apicat/backend/model/project"
+	referencerelationship "github.com/apicat/apicat/backend/model/reference_relationship"
+	"github.com/apicat/apicat/backend/model/team"
+
+	"github.com/apicat/apicat/backend/module/array_operation"
+	"github.com/apicat/apicat/backend/module/spec"
 )
 
 // ReadDefinitionResponseReference 读取collection中引用的response

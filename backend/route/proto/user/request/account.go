@@ -1,8 +1,8 @@
 package request
 
 import (
-	protobase "apicat-cloud/backend/route/proto/base"
-	userbase "apicat-cloud/backend/route/proto/user/base"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	userbase "github.com/apicat/apicat/backend/route/proto/user/base"
 )
 
 type LoginOption struct {

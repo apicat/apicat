@@ -1,12 +1,13 @@
 package team
 
 import (
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/model/user"
 	"context"
 	"crypto/md5"
 	"fmt"
 	"time"
+
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/user"
 
 	"gorm.io/gorm"
 )

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"apicat-cloud/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec"
 )
 
 // ToMarkdown 将node文档转为markdown

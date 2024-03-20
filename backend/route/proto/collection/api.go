@@ -1,12 +1,12 @@
 package collection
 
 import (
-	protobase "apicat-cloud/backend/route/proto/base"
-	"apicat-cloud/backend/route/proto/collection/base"
-	"apicat-cloud/backend/route/proto/collection/request"
-	"apicat-cloud/backend/route/proto/collection/response"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	"github.com/apicat/apicat/backend/route/proto/collection/base"
+	"github.com/apicat/apicat/backend/route/proto/collection/request"
+	"github.com/apicat/apicat/backend/route/proto/collection/response"
 
-	"apicat-cloud/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

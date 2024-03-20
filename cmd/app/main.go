@@ -1,10 +1,10 @@
 package main
 
 import (
-	apicatcloud "apicat-cloud"
 	"log"
 	"os"
 
+	"github.com/apicat/apicat"
 	"github.com/urfave/cli/v2"
 )
 
@@ -21,7 +21,7 @@ func main() {
 			},
 		},
 		Action: func(ctx *cli.Context) error {
-			app := apicatcloud.NewApp(ctx.String("config"))
+			app := apicat.NewApp(ctx.String("config"))
 			return app.Run()
 		},
 	}

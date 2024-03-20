@@ -1,8 +1,9 @@
 package sysconfig
 
 import (
-	"apicat-cloud/backend/model/sysconfig"
 	"encoding/json"
+
+	"github.com/apicat/apicat/backend/model/sysconfig"
 )
 
 func cfgFormat(cfg *sysconfig.Sysconfig) map[string]interface{} {

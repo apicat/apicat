@@ -1,11 +1,12 @@
 package cache
 
 import (
-	"apicat-cloud/backend/module/cache/common"
-	"apicat-cloud/backend/module/cache/local"
-	"apicat-cloud/backend/module/cache/redis"
 	"errors"
 	"log/slog"
+
+	"github.com/apicat/apicat/backend/module/cache/common"
+	"github.com/apicat/apicat/backend/module/cache/local"
+	"github.com/apicat/apicat/backend/module/cache/redis"
 )
 
 const (

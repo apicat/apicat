@@ -1,9 +1,9 @@
 package request
 
 import (
-	protobase "apicat-cloud/backend/route/proto/base"
-	collectionbase "apicat-cloud/backend/route/proto/collection/base"
-	"apicat-cloud/backend/route/proto/iteration/base"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	collectionbase "github.com/apicat/apicat/backend/route/proto/collection/base"
+	"github.com/apicat/apicat/backend/route/proto/iteration/base"
 )
 
 type CreateIterationOption struct {

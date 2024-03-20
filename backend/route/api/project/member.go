@@ -1,19 +1,20 @@
 package project
 
 import (
-	"apicat-cloud/backend/i18n"
-	"apicat-cloud/backend/model/project"
-	"apicat-cloud/backend/model/team"
-	"apicat-cloud/backend/route/middleware/access"
-	protobase "apicat-cloud/backend/route/proto/base"
-	protoproject "apicat-cloud/backend/route/proto/project"
-	projectrequest "apicat-cloud/backend/route/proto/project/request"
-	projectresponse "apicat-cloud/backend/route/proto/project/response"
-	prototeamresponse "apicat-cloud/backend/route/proto/team/response"
-	"apicat-cloud/backend/service/team_relations"
 	"log/slog"
 	"math"
 	"net/http"
+
+	"github.com/apicat/apicat/backend/i18n"
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/model/team"
+	"github.com/apicat/apicat/backend/route/middleware/access"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	protoproject "github.com/apicat/apicat/backend/route/proto/project"
+	projectrequest "github.com/apicat/apicat/backend/route/proto/project/request"
+	projectresponse "github.com/apicat/apicat/backend/route/proto/project/response"
+	prototeamresponse "github.com/apicat/apicat/backend/route/proto/team/response"
+	"github.com/apicat/apicat/backend/service/team_relations"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

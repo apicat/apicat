@@ -1,9 +1,10 @@
 package log
 
 import (
-	"apicat-cloud/backend/module/logger"
 	"strings"
 	"time"
+
+	"github.com/apicat/apicat/backend/module/logger"
 
 	"log/slog"
 

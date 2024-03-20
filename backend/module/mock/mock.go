@@ -8,7 +8,7 @@ import (
 	"net/url"
 	"strings"
 
-	"apicat-cloud/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec"
 
 	"github.com/apicat/datagen"
 	"github.com/gin-gonic/gin"

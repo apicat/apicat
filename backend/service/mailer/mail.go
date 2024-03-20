@@ -1,14 +1,15 @@
 package mailer
 
 import (
-	"apicat-cloud/backend/config"
-	"apicat-cloud/backend/model/user"
-	"apicat-cloud/backend/module/cache"
-	"apicat-cloud/backend/module/onetime_token"
 	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/apicat/apicat/backend/config"
+	"github.com/apicat/apicat/backend/model/user"
+	"github.com/apicat/apicat/backend/module/cache"
+	"github.com/apicat/apicat/backend/module/onetime_token"
 
 	"github.com/gin-gonic/gin"
 )

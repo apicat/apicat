@@ -1,8 +1,8 @@
 package response
 
 import (
-	protobase "apicat-cloud/backend/route/proto/base"
-	projectbase "apicat-cloud/backend/route/proto/project/base"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	projectbase "github.com/apicat/apicat/backend/route/proto/project/base"
 )
 
 type ProjectGroup struct {
