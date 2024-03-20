@@ -29,7 +29,8 @@ apiGetModel().then((res) => {
   for (let i = 0; i < res.length; i++) {
     const v = res[i]
     data.value[v.driver as keyof A] = v.config as any
-    if (v.use) collapse.ctx.open(v.driver)
+    if (v.use)
+      collapse.ctx.open(v.driver)
   }
 })
 </script>
@@ -40,15 +41,17 @@ apiGetModel().then((res) => {
 
     <div class="mt-40px flex flex-col">
       <OpenAI
-        :name="SysModel.OpenAI"
         v-model:config="data[SysModel.OpenAI]"
+        :name="SysModel.OpenAI"
         class="collapse-box"
-        :collapse="collapse" />
+        :collapse="collapse"
+      />
       <Azure
+        v-model:config="data[SysModel.Azure]"
         class="collapse-box mt-30px"
         :name="SysModel.Azure"
-        v-model:config="data[SysModel.Azure]"
-        :collapse="collapse" />
+        :collapse="collapse"
+      />
     </div>
   </div>
 </template>

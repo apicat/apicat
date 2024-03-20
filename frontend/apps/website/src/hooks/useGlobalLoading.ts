@@ -4,11 +4,11 @@ export function useGlobalLoading(callback?: () => Promise<void> | void) {
   const appStore = useAppStoreWithOut()
 
   callback && onMounted(async () => {
-
     try {
       appStore.showGlobalLoading()
       await callback?.()
-    } finally {
+    }
+    finally {
       appStore.hideGlobalLoading()
     }
   })

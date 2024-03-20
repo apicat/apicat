@@ -1,4 +1,3 @@
-import { delay } from '@apicat/shared'
 import DefaultAjax from '../Ajax'
 import { OAuthPlatform, OAuthPlatformConfig } from '@/commons/constant'
 import { OAUTH_CONNECT_NAME, OAUTH_NAME } from '@/router/constant'
@@ -49,5 +48,5 @@ export async function apiOAuthLoginWithCode(platform: string, data: SignAPI.Requ
 
 // 获取GitHub OAuth配置
 export async function apiGetGithubOAuthConfig(): Promise<{ clientID: string }> {
-  return DefaultAjax.get('/sysconfigs/github')
+  return DefaultAjax.get('/sysconfigs/github',{},{ isShowErrorMsg: false })
 }

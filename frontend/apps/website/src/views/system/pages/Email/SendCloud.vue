@@ -21,7 +21,8 @@ const rules: FormRules<typeof props.config> = {
 const [submitting, update] = useApi(apiUpdateEmailSendCloud)
 function submit() {
   formRef.value!.validate((valid) => {
-    if (valid) update(props.config as SystemAPI.EmailSendCloud)
+    if (valid)
+      update(props.config as SystemAPI.EmailSendCloud)
   })
 }
 </script>

@@ -36,13 +36,16 @@ const createProjectFormRef = ref<InstanceType<typeof CreateProjectForm>>()
 const currentRrojectGroupInfo = ref<SwitchProjectGroupInfo>()
 
 const titleRef = computed(() => {
-  if (!currentRrojectGroupInfo.value) return ''
+  if (!currentRrojectGroupInfo.value)
+    return ''
 
   const info = currentRrojectGroupInfo.value
 
-  if (typeof info.key === 'string') return info.title
+  if (typeof info.key === 'string')
+    return info.title
 
-  if (typeof info.key === 'number') return projectGroups.value.find((group) => group.id === info.key)?.name || ''
+  if (typeof info.key === 'number')
+    return projectGroups.value.find(group => group.id === info.key)?.name || ''
 
   return currentRrojectGroupInfo.value?.title || ''
 })
@@ -73,7 +76,8 @@ function handleCancelCreateProject() {
           ref="groupListRef"
           @switch-group="handleSwitchProjectGroup"
           @create-project="onCreateProjectMenuClick"
-          @delete="refreshProjectList" />
+          @delete="refreshProjectList"
+        />
       </template>
 
       <ProjectList
@@ -83,12 +87,14 @@ function handleCancelCreateProject() {
         :projects="projects"
         @click="navigateToProjectDetail"
         @follow="handleFollowProject"
-        @change-group="showProjectGroupModal" />
+        @change-group="showProjectGroupModal"
+      />
 
       <CreateProjectForm
         v-show="isFormMode && !teamStore.isMember"
         ref="createProjectFormRef"
-        @cancel="handleCancelCreateProject" />
+        @cancel="handleCancelCreateProject"
+      />
     </LeftRightLayout>
 
     <CreateOrUpdateProjectGroup ref="createOrUpdateProjectGroupRef" />

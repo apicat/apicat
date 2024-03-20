@@ -1,14 +1,10 @@
-import { delay, parseJSONWithDefault } from '@apicat/shared'
+import { parseJSONWithDefault } from '@apicat/shared'
 import type { AxiosRequestConfig } from 'axios'
 import Ajax from '@/api/Ajax'
 import { gatherSharedTokenWithParams } from '@/api/shareToken'
-import { API_URL, queryStringify } from '@/commons'
 
 // 获取集合列表
-export function apiGetCollections(
-  projectID: string,
-  iterationID?: string,
-): Promise<CollectionAPI.ResponseCollection[]> {
+export function apiGetCollections(projectID: string, iterationID?: string): Promise<CollectionAPI.ResponseCollection[]> {
   const params: any = {}
 
   if (iterationID)
@@ -86,11 +82,6 @@ export function apiCopyCollection(
   data?: Record<string, any>,
 ): Promise<CollectionAPI.ResponseCollectionDetail> {
   return Ajax.post(`/projects/${projectID}/collections/${collectionID}/copy`, data)
-}
-
-// 导出集合
-export function exportCollection({ projectID, collectionID, ...params }: any) {
-  return `${API_URL}/project/${projectID}/collection/${collectionID}data${queryStringify(params)}`
 }
 
 export function apiExportCollection(

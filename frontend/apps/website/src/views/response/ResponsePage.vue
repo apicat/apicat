@@ -44,7 +44,8 @@ function handleBlurNameInput() {
 watchDebounced(
   response,
   async (n, o) => {
-    if (readonly.value) return
+    if (readonly.value)
+      return
 
     // 还原旧的title时，不需要请求接口
     if (!oldTitle) {
@@ -54,14 +55,16 @@ watchDebounced(
 
     if (n && o && n.id === o.id) {
       // title is empty
-      if (!n.name || !n.name.trim()) return ElMessage.error(t('app.definitionResponse.page.edit.titleNull'))
+      if (!n.name || !n.name.trim())
+        return ElMessage.error(t('app.definitionResponse.page.edit.titleNull'))
 
       // backup old title
       oldTitle = n.name
 
       try {
         await updateResponse(props.project_id, n)
-      } catch (error) {
+      }
+      catch (error) {
         //
       }
     }
@@ -72,13 +75,15 @@ watchDebounced(
 watch(
   responseIDRef,
   async (id, oID) => {
-    if (id === oID) return
+    if (id === oID)
+      return
     oldTitle = ''
     const responseID = Number.parseInt(id)
     if (!Number.isNaN(responseID)) {
       await definitionResponseStore.getResponseDetail(props.project_id, responseID)
       oldTitle = response.value.name || ''
-      if (!readonly.value) focus()
+      if (!readonly.value)
+        focus()
     }
   },
   {
@@ -134,13 +139,15 @@ watch(
           class="ac-document__title"
           type="text"
           maxlength="255"
-          :placeholder="$t('app.schema.form.title')" />
+          :placeholder="$t('app.schema.form.title')"
+        >
         <input
           v-model="response.description"
           class="w-full ac-document__desc"
           type="text"
           maxlength="255"
-          :placeholder="$t('app.schema.form.desc')" />
+          :placeholder="$t('app.schema.form.desc')"
+        >
       </div>
     </div>
     <div v-if="!loading">

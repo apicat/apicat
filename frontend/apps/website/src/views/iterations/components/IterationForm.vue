@@ -78,7 +78,8 @@ const { isLoadingForTree, defaultProps, collections, selectedCollectionKeys, onT
           :title="$t('app.iter.create.plan.table.title')"
           node-key="id"
           :default-props="defaultProps"
-          @change="onTreeChange">
+          @change="onTreeChange"
+        >
           <template #default="{ node, data }">
             <div class="flex items-center flex-1 overflow-hidden cursor-pointer">
               <i v-if="data.type !== CollectionTypeEnum.Dir" alt="" class="ac-doc ac-iconfont mr-2px" />

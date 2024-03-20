@@ -25,3 +25,4 @@ apps/website/stats.html
 apps/website/src/types/components.d.ts
 apps/website/src/types/auto-imports.d.ts
 apps/website/src/typings/components.d.ts
+.nx

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { delay } from '@apicat/shared'
 import useClipboard from '@/hooks/useClipboard'
 import { apiGetInviteToken, apiResetInviteToken } from '@/api/team'
 import { useTeamStore } from '@/store/team'

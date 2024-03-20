@@ -23,7 +23,8 @@ const rules = {
     { required: true, message: t('app.rules.email.required'), trigger: 'blur' },
     {
       validator(_: any, value: any, callback: any) {
-        if (!isEmail(value)) callback(new Error(t('app.rules.email.correct')))
+        if (!isEmail(value))
+          callback(new Error(t('app.rules.email.correct')))
         else callback()
       },
       trigger: 'blur',
@@ -52,7 +53,8 @@ async function onCompleteSubmit(formIns: FormInstance) {
         type: route.params.type as string,
       },
     })
-  } catch (err) {}
+  }
+  catch (err) {}
 }
 </script>
 
@@ -73,7 +75,8 @@ async function onCompleteSubmit(formIns: FormInstance) {
             :rules="rules"
             :model="form"
             @keyup.enter="onCompleteSubmit(authForm)"
-            @submit.prevent>
+            @submit.prevent
+          >
             <el-form-item label="" prop="email">
               <div class="ac-login__label">
                 <span>{{ $t('app.form.user.email') }}</span>

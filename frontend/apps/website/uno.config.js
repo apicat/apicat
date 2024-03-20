@@ -32,6 +32,6 @@ export default defineConfig({
     },
     height: {
       14: '48px',
-    }
+    },
   },
 })

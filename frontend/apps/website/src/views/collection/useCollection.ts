@@ -31,7 +31,8 @@ export function useCollection(props: { project_id: string; collectionID: string 
   }
 
   function handleContentUpdate(content: Array<any>) {
-    if (collection.value) collection.value.content = content
+    if (collection.value)
+      collection.value.content = content
   }
 
   function onShareCollectionBtnClick() {
@@ -54,7 +55,8 @@ export function useCollection(props: { project_id: string; collectionID: string 
     async ([nId], [oId]) => {
       const n = collection.value
 
-      if (readonly.value || !n) return
+      if (readonly.value || !n)
+        return
 
       // 还原旧的title时，不需要请求接口
       if (!oldTitle) {
@@ -74,7 +76,8 @@ export function useCollection(props: { project_id: string; collectionID: string 
 
         try {
           await updateCollection(props.project_id, n)
-        } catch (error) {
+        }
+        catch (error) {
           //
         }
       }
@@ -87,14 +90,16 @@ export function useCollection(props: { project_id: string; collectionID: string 
   watch(
     collectionIDRef,
     async (id, oID) => {
-      if (id === oID) return
+      if (id === oID)
+        return
 
       oldTitle = ''
       const collectionID = Number.parseInt(id)
       if (!Number.isNaN(collectionID)) {
         await collectionStore.getCollectionDetail(props.project_id, collectionID)
         oldTitle = collection.value?.title || ''
-        if (!readonly.value) focus()
+        if (!readonly.value)
+          focus()
       }
     },
     {

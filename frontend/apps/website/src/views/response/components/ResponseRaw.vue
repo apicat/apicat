@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { JSONSchemaEditor, SimpleParamTable, ToggleHeading } from '@apicat/components'
+import { JSONSchemaEditor, SimpleParamTable } from '@apicat/components'
 import ResponseExamples from './ResponseExamples.vue'
 import { useResponse } from './useResponse'
 import { ResponseContentTypesMap } from '@/commons/constant'

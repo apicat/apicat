@@ -40,12 +40,14 @@ export function useCollapse(props: Options, cbs?: Emits): UseCollapse {
       current: opendItems,
       open(key: string) {
         const c = cards[key]
-        if (!c) defaults.push(key)
+        if (!c)
+          defaults.push(key)
         else c.open()
       },
       close(key: string) {
         const c = cards[key]
-        if (c) c.close()
+        if (c)
+          c.close()
       },
       register(name: string, itemCtx: CollapseItemCtx): CollapseItemCtx {
         const open = itemCtx.open
@@ -56,22 +58,27 @@ export function useCollapse(props: Options, cbs?: Emits): UseCollapse {
           if (props.onlyOne) {
             Object.keys(cards).forEach((n) => {
               const itemCtx = cards[n]
-              if (n !== name) itemCtx.close(false)
+              if (n !== name)
+                itemCtx.close(false)
             })
           }
           cbs?.onChange?.(name, true)
         }
         itemCtx.close = (emit = true) => {
-          if (opendItems.value.size === 1 && props.atleastOne) return
+          if (opendItems.value.size === 1 && props.atleastOne) {
+            // eslint-disable-next-line
+          }
           else {
             close()
             opendItems.value.delete(name)
-            if (emit) cbs?.onChange?.(name, false)
+            if (emit)
+              cbs?.onChange?.(name, false)
           }
         }
         cards[name] = itemCtx
 
-        if (props.defaults && props.defaults.indexOf(name) !== -1) itemCtx.open()
+        if (props.defaults && props.defaults.includes(name))
+          itemCtx.open()
         return itemCtx
       },
     },

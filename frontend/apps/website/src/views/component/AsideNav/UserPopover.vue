@@ -50,7 +50,7 @@ async function onSwitchTeam(team: TeamAPI.Team) {
     <!-- user&team -->
     <div class="row p-5px">
       <div class="w-full left text-gray-title">
-        <img v-if="userInfo.avatar" width="20" :src="userInfo.avatar" style="border-radius: 50%" />
+        <img v-if="userInfo.avatar" width="20" :src="userInfo.avatar" style="border-radius: 50%">
         <EmptyAvatar v-else />
         <p class="ml-2 truncate">
           {{ userInfo.name }}
@@ -67,7 +67,8 @@ async function onSwitchTeam(team: TeamAPI.Team) {
       :active-menu-key="currentTeam?.id"
       size="small"
       class="clear-popover-space"
-      @menu-click="onSwitchTeam">
+      @menu-click="onSwitchTeam"
+    >
       <template #prefix>
         <i style="width: 18px">
           <Icon icon="ph:dot" :width="18" />
@@ -94,7 +95,8 @@ async function onSwitchTeam(team: TeamAPI.Team) {
       style="min-width: 200px; padding-bottom: 17px"
       :menus="userSettingMenus"
       size="small"
-      class="clear-popover-space" />
+      class="clear-popover-space"
+    />
   </el-popover>
 </template>
 

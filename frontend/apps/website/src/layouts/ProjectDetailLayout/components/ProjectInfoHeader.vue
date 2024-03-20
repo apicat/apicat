@@ -31,7 +31,8 @@ const allMenus = computed(() =>
 )
 
 async function onMenuItemClick(menu: Menu) {
-  if (menu.action) return await menu.action()
+  if (menu.action)
+    return await menu.action()
   unref(projectSettingModalRef)!.show(menu.key)
 }
 </script>
@@ -40,13 +41,13 @@ async function onMenuItemClick(menu: Menu) {
   <div :class="[ns.b(), { [ns.m('hover')]: !isGuest }]">
     <div v-if="isGuest" :class="ns.e('img')">
       <router-link to="/">
-        <img src="@/assets/images/logo-square.svg" :alt="project?.title" />
+        <img src="@/assets/images/logo-square.svg" :alt="project?.title">
       </router-link>
     </div>
 
     <template v-else>
       <div v-if="isIterationRoute" :class="ns.e('img')">
-        <img src="@/assets/images/logo-square.svg" :alt="project?.title" />
+        <img src="@/assets/images/logo-square.svg" :alt="project?.title">
         <router-link to="/iterations">
           <el-icon :class="ns.e('back')">
             <ac-icon-ep-arrow-left-bold />
@@ -57,7 +58,7 @@ async function onMenuItemClick(menu: Menu) {
       <el-popover v-else transition="fade" placement="bottom" width="250px" :show-arrow="false">
         <template #reference>
           <div :class="ns.e('img')">
-            <img src="@/assets/images/logo-square.svg" :alt="project?.title" />
+            <img src="@/assets/images/logo-square.svg" :alt="project?.title">
             <router-link to="/main">
               <el-icon :class="ns.e('back')">
                 <ac-icon-ep-arrow-left-bold />
@@ -81,7 +82,8 @@ async function onMenuItemClick(menu: Menu) {
             effect="dark"
             placement="bottom"
             :content="$t('app.project.infoHeader.private')"
-            :show-arrow="false">
+            :show-arrow="false"
+          >
             <el-icon class="ml-4px">
               <ac-icon-ep-lock />
             </el-icon>
@@ -101,7 +103,8 @@ async function onMenuItemClick(menu: Menu) {
           effect="dark"
           placement="bottom"
           :content="$t('app.project.infoHeader.private')"
-          :show-arrow="false">
+          :show-arrow="false"
+        >
           <el-icon :class="ns.e('icon')">
             <ac-icon-ep-lock />
           </el-icon>

@@ -4,7 +4,6 @@ import dayjs from 'dayjs'
 import { useIterationList } from '../logic/useIterationList'
 import { useNamespace } from '@/hooks/useNamespace'
 import { Authority } from '@/commons'
-import { useTeamStore } from '@/store/team'
 
 const props = withDefaults(defineProps<IterationTableProps>(), {
   projectId: null,

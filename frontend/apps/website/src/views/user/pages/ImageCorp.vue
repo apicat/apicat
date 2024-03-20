@@ -73,9 +73,8 @@ function loadImage(url: string) {
     state.corpImgContainerStyle.width = 'auto'
     state.corpImgContainerStyle.height = 'auto'
 
-    if (corpImgContainer.value?.innerHTML) {
+    if (corpImgContainer.value?.innerHTML)
       corpImgContainer.value.innerHTML = `<p class="text-center">${t('app.user.general.imgLoadFail')}</p>`
-    }
   }
 
   img.onload = function () {
@@ -101,7 +100,8 @@ function loadImage(url: string) {
   nextTick().then(() => {
     img.src = url
 
-    if (corpImgContainer.value?.innerHTML) corpImgContainer.value.innerHTML = ''
+    if (corpImgContainer.value?.innerHTML)
+      corpImgContainer.value.innerHTML = ''
 
     corpImgContainer.value.appendChild(img)
   })
@@ -113,9 +113,11 @@ function adjustImage(img: HTMLImageElement) {
   let height = img.height < IMG_CORP.MIX_HEIGHT ? IMG_CORP.MIX_HEIGHT : Math.min(img.height, IMG_CORP.MAX_HEIGHT)
 
   // 宽 > 高  横向图片
-  if (ratio > 1) height = width / ratio
+  if (ratio > 1)
+    height = width / ratio
   // 高 > 宽 竖向图片
-  else if (ratio < 1) width = height * ratio
+  else if (ratio < 1)
+    width = height * ratio
   // 高 = 宽 等比
   else height = width = IMG_CORP.MAX_WIDTH
 
@@ -153,7 +155,8 @@ async function handleSubmit() {
     state.isLoading = true
     try {
       await props.handleUpload(data)
-    } catch (error) {
+    }
+    catch (error) {
       console.error(error)
     }
     // state.isLoading = true
@@ -165,7 +168,8 @@ async function handleSubmit() {
 }
 
 function init(url: string | null) {
-  if (!url) return
+  if (!url)
+    return
   state.url = url
   state.visible = !!url
   state.imgLoading = true
@@ -194,13 +198,15 @@ defineExpose({
     :close-on-click-modal="false"
     :title="title || $t('app.user.general.imgcut')"
     class="show-footer-line"
-    destroy-on-close>
+    destroy-on-close
+  >
     <div
       v-show="!state.imgLoading"
       ref="corpImgContainer"
       v-loading
       class="img-corp"
-      :style="state.corpImgContainerStyle" />
+      :style="state.corpImgContainerStyle"
+    />
     <template #footer>
       <el-button @click="onCloseBtnClick()">
         {{ $t('app.common.cancel') }}

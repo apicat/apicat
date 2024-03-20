@@ -19,7 +19,8 @@ const rules = {
     { required: true, message: t('app.rules.email.required'), trigger: 'blur' },
     {
       validator(rule: any, value: any, callback: any) {
-        if (!isEmail(value)) callback(new Error(t('app.rules.email.correct')))
+        if (!isEmail(value))
+          callback(new Error(t('app.rules.email.correct')))
         else callback()
       },
       trigger: 'blur',
@@ -34,7 +35,8 @@ async function onForgotSubmit(formIns: FormInstance) {
     await formIns.validate()
     await sendEmail(form.email)
     ElMessage.success(t('app.user.password.success'))
-  } catch (err) {}
+  }
+  catch (err) {}
 }
 </script>
 
@@ -55,12 +57,13 @@ async function onForgotSubmit(formIns: FormInstance) {
             :rules="rules"
             :model="form"
             @keyup.enter="onForgotSubmit(authForm)"
-            @submit.prevent>
+            @submit.prevent
+          >
             <el-form-item label="" prop="email">
               <div class="ac-login__label">
                 <span>{{ $t('app.sign.forgotPassEmail') }}</span>
               </div>
-              <el-input maxlength="255" v-model="form.email" autocomplete="on" />
+              <el-input v-model="form.email" maxlength="255" autocomplete="on" />
             </el-form-item>
 
             <div class="mt-7">
