@@ -30,28 +30,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type userApiImpl struct {
-	oauth map[string]*oauth2.Object
-}
+type userApiImpl struct{}
 
 func NewUserApi() protouser.UserApi {
-	objs := make(map[string]*oauth2.Object)
-	if oauthCfg := config.Get().Oauth2; oauthCfg != nil {
-		for k, cfg := range oauthCfg {
-			var dr oauth2.Driver
-			switch k {
-			case "github":
-				dr = &github.Github{}
-			// case "google":
-			default:
-				continue
-			}
-			objs[k] = oauth2.NewObject(cfg, dr)
-		}
-	}
-	return &userApiImpl{
-		oauth: objs,
-	}
+	return &userApiImpl{}
 }
 
 func (*userApiImpl) GetList(ctx *gin.Context, opt *protouserrequest.UserListOption) (*protouserresponse.UserList, error) {
@@ -347,18 +329,23 @@ func (*userApiImpl) UploadAvatar(ctx *gin.Context, opt *protouserrequest.UploadA
 }
 
 func (ui *userApiImpl) OauthConnect(ctx *gin.Context, opt *protouserrequest.OauthOption) (*ginrpc.Empty, error) {
-	selfUser := jwt.GetUser(ctx)
+	var (
+		oauthUser *oauth2.AuthUser
+		err       error
+	)
 
-	o, ok := ui.oauth[opt.Type]
+	oauthMap := config.Get().Oauth2
+	cfg, ok := oauthMap[opt.Type]
 	if !ok {
-		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("user.NotSupportOauth", opt.Type))
-	}
-
-	// 根据code请求oauth平台获取用户信息
-	oauthUser, err := o.GetUserByState(ctx, opt.Code)
-	if err != nil {
-		slog.ErrorContext(ctx, "o.GetUserByState", "err", err)
-		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("user.OauthConnectFailed", opt.Type))
+		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("user.NotSupportOauth", opt.Type))
+	} else {
+		// Now there is only github
+		oauthObj := oauth2.NewObject(cfg, &github.Github{})
+		oauthUser, err = oauthObj.GetUserByState(ctx, opt.Code)
+		if err != nil {
+			slog.ErrorContext(ctx, "oauthObj.GetUserByState", "err", err)
+			return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("user.OauthConnectFailed", opt.Type))
+		}
 	}
 
 	usr, err := user.GetUserByOauth(ctx, oauthUser.ID, opt.Type)
@@ -370,6 +357,7 @@ func (ui *userApiImpl) OauthConnect(ctx *gin.Context, opt *protouserrequest.Oaut
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("user.OauthConnectRepeat", opt.Type))
 	}
 
+	selfUser := jwt.GetUser(ctx)
 	if err := selfUser.BindOrRecoverOauth(ctx, opt.Type, oauthUser.ID); err != nil {
 		slog.ErrorContext(ctx, "selfUser.BindOrRecoverOauth", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.OauthConnectFailed", opt.Type))
@@ -379,12 +367,13 @@ func (ui *userApiImpl) OauthConnect(ctx *gin.Context, opt *protouserrequest.Oaut
 }
 
 func (ui *userApiImpl) OauthDisconnect(ctx *gin.Context, opt *protouserbase.OauthTypeOption) (*ginrpc.Empty, error) {
-	u := jwt.GetUser(ctx)
-	_, ok := ui.oauth[opt.Type]
+	oauthMap := config.Get().Oauth2
+	_, ok := oauthMap[opt.Type]
 	if !ok {
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("user.OauthDisconnectFailed", opt.Type))
 	}
 
+	u := jwt.GetUser(ctx)
 	if err := u.UnBindOauth(ctx, opt.Type); err != nil {
 		slog.ErrorContext(ctx, "u.UnBindOauth", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.OauthDisconnectFailed", opt.Type))

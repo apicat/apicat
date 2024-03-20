@@ -26,28 +26,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type accountApiImpl struct {
-	oauths map[string]*oauth2.Object
-}
+type accountApiImpl struct{}
 
 func NewAccountApi() protouser.AccountApi {
-	objs := make(map[string]*oauth2.Object)
-	if oauthcfg := config.Get().Oauth2; oauthcfg != nil {
-		for k, cfg := range oauthcfg {
-			var dr oauth2.Driver
-			switch k {
-			case "github":
-				dr = &github.Github{}
-			// case "google":
-			default:
-				continue
-			}
-			objs[k] = oauth2.NewObject(cfg, dr)
-		}
-	}
-	return &accountApiImpl{
-		oauths: objs,
-	}
+	return &accountApiImpl{}
 }
 
 // buildToken 生成token
@@ -263,22 +245,26 @@ func (s *accountApiImpl) RegisterFire(ctx *gin.Context, opt *protouserrequest.Co
 
 // LoginWithOauthCode oauth2平台回调
 func (s *accountApiImpl) LoginWithOauthCode(ctx *gin.Context, opt *protouserrequest.Oauth2StateOption) (*protouserresponse.Oauth2User, error) {
-	o, ok := s.oauths[opt.Type]
+	var (
+		usr       *user.User
+		oauthUser *oauth2.AuthUser
+		err       error
+	)
+
+	oauthMap := config.Get().Oauth2
+	cfg, ok := oauthMap[opt.Type]
 	if !ok {
-		return nil, ginrpc.NewError(
-			http.StatusNotFound,
-			i18n.NewErr("user.NotSupportOauth", opt.Type),
-		)
+		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("user.NotSupportOauth", opt.Type))
+	} else {
+		// Now there is only github
+		oauthObj := oauth2.NewObject(cfg, &github.Github{})
+		oauthUser, err = oauthObj.GetUserByState(ctx, opt.Code)
+		if err != nil {
+			slog.ErrorContext(ctx, "oauthObj.GetUserByState", "err", err)
+			return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("user.OauthLoginFailed"))
+		}
 	}
 
-	// 根据code请求oauth平台获取用户信息
-	oauthUser, err := o.GetUserByState(ctx, opt.Code)
-	if err != nil {
-		slog.ErrorContext(ctx, "o.GetUserByState", "err", err)
-		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("user.OauthLoginFailed"))
-	}
-
-	var usr *user.User
 	defer func() {
 		if usr != nil && opt.InvitationToken != "" {
 			if err = team_relations.JoinTeam(ctx, opt.InvitationToken, usr); err != nil {
