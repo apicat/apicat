@@ -79,7 +79,8 @@ function activeClass(key: string) {
 }
 
 onBeforeMount(() => {
-  if (!Object.keys(menus).includes(route.params.page as string)) setCurrentPage(Object.keys(menus)[0])
+  if (!Object.keys(menus).includes(route.params.page as string))
+    setCurrentPage(Object.keys(menus)[0])
 
   // set default browser title
   browserTitle.value = menus[currentPage.value].title
@@ -98,9 +99,12 @@ onBeforeMount(() => {
             v-for="(menu, key) in menus"
             :key="key"
             :class="[ns.e('item'), activeClass(key)]"
-            @click="setCurrentPage(key)">
+            @click="setCurrentPage(key)"
+          >
             <Iconfont color="rgba(72,148,255)" class="mr-2" :icon="menu.icon" width="18" />
-            <p class="truncate" :title="t(`app.system.${key}.left_title`)">{{ t(`app.system.${key}.left_title`) }}</p>
+            <p class="truncate" :title="t(`app.system.${key}.left_title`)">
+              {{ t(`app.system.${key}.left_title`) }}
+            </p>
           </div>
         </div>
       </div>

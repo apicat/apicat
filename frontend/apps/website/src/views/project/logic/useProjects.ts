@@ -7,7 +7,7 @@ import {
   apiGetProjectList,
   apiGetProjectListByGroupId,
   apiUnfollowProject,
-} from '@/api/project/index'
+} from '@/api/project'
 import useProjectGroupStore from '@/store/projectGroup'
 import { useTeamStore } from '@/store/team'
 import { PROJECT_DETAIL_PATH_NAME } from '@/router'

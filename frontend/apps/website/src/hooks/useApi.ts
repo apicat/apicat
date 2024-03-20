@@ -1,7 +1,6 @@
 import { ref } from 'vue'
 import { ElMessage } from 'element-plus'
 import type { Ref } from 'vue'
-import { delay } from '@apicat/shared'
 
 interface UseApiOptions {
   defaultLoadingStatus?: boolean
@@ -21,7 +20,8 @@ export function useAsync<T extends any[], R>(
       const res = await method(...args)
       isLoading.value = false
       return res
-    } catch (e) {
+    }
+    catch (e) {
       isLoading.value = false
       throw e
     }
@@ -52,11 +52,14 @@ export function useApi<T extends any[], R>(
         }
       }
       return res
-    } catch (e) {
+    }
+    catch (e) {
       isError.value = e
-      if (!isCatch) throw e
+      if (!isCatch)
+        throw e
       else console.error(e)
-    } finally {
+    }
+    finally {
       setTimeout(() => (isLoading.value = false), 0)
     }
   }

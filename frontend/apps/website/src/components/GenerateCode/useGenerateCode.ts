@@ -1,4 +1,3 @@
-import { debounce } from 'lodash-es'
 import type { RendererOptions, TargetLanguage } from 'quicktype-core'
 import { FetchingJSONSchemaStore, InputData, JSONSchemaInput, quicktype } from 'quicktype-core'
 import { useI18n } from 'vue-i18n'
@@ -24,15 +23,15 @@ export function useGenerateCode() {
   const currentLanguageForCodeMirror: Ref<string> = ref('')
 
   const currentLanguageOptionRender = computed(() => {
-    const render = languages.value.find((item) => item.label === currentLanguage.value)
+    const render = languages.value.find(item => item.label === currentLanguage.value)
     const defaultValues: Record<string, string | boolean | undefined> = {}
     const { getDefaultOptions } = useConfig(currentLanguage, currentLanguageOptions)
     const localLangConfig = getDefaultOptions(currentLanguage.value)
 
     // set default values
     render?.options.forEach((item) => {
-      defaultValues[item.name] =
-        localLangConfig[item.name] !== undefined ? localLangConfig[item.name] : item.defaultValue
+      defaultValues[item.name]
+        = localLangConfig[item.name] !== undefined ? localLangConfig[item.name] : item.defaultValue
     })
 
     currentLanguageOptions.value = defaultValues
@@ -42,7 +41,7 @@ export function useGenerateCode() {
   })
 
   const currentTargetLanguage = computed(
-    () => languages.value.find((item) => item.label === currentLanguage.value)?.targetLanguage,
+    () => languages.value.find(item => item.label === currentLanguage.value)?.targetLanguage,
   )
 
   const getInputData = useMemoize(async (dataModelName: string, jsonSchemaString: string) => {
@@ -76,7 +75,8 @@ export function useGenerateCode() {
       })
       json = json.replaceAll(RefPrefixKeys.DefinitionSchema.key, RefPrefixKeys.DefinitionSchema.replaceForCodeGenerate)
       return json
-    } catch (error) {
+    }
+    catch (error) {
       return JSON.stringify({ type: 'object' })
     }
   }
@@ -115,7 +115,8 @@ export function useGenerateCode() {
         toRaw(currentLanguageOptions.value),
       )
       code.value = lines.join('\n')
-    } catch (error) {
+    }
+    catch (error) {
       code.value = JSON.stringify(error, null, 2)
     }
   }

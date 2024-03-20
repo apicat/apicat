@@ -49,7 +49,8 @@ export function useGoPage() {
       r.params = {
         collectionID,
       }
-    } else {
+    }
+    else {
       r.name = PROJECT_COLLECTION_PATH_NAME
       r.params = {
         project_id,
@@ -69,7 +70,8 @@ export function useGoPage() {
       r.params = {
         schemaID,
       }
-    } else {
+    }
+    else {
       r.name = PROJECT_SCHEMA_PATH_NAME
       r.params = {
         project_id,
@@ -88,7 +90,8 @@ export function useGoPage() {
       r.params = {
         responseID,
       }
-    } else {
+    }
+    else {
       r.name = PROJECT_RESPONSE_PATH_NAME
       r.params = {
         project_id,

@@ -43,7 +43,8 @@ const rules: FormRules<typeof userinfo.value> = {
     },
     {
       validator(_: any, value: string, callback: any) {
-        if (value.length < 2 || value.length > 64) callback(new Error(t('app.rules.username.wrongLength')))
+        if (value.length < 2 || value.length > 64)
+          callback(new Error(t('app.rules.username.wrongLength')))
         else callback()
       },
       trigger: 'blur',
@@ -76,17 +77,14 @@ function handleChange(file: File) {
   imgCorpRef.value!.show(src)
 }
 
-function handleClick() {
-  fileUploaderWrapperRef.value?.open()
-}
-
 async function submit() {
   try {
     await formRef.value?.validate()
     await apiUpdateGeneral(form.value as UserAPI.RequestGeneral)
     await store.updateUserInfo(userinfo.value as UserAPI.ResponseUserInfo)
     ElMessage.success(t('app.user.general.success'))
-  } catch (e) {
+  }
+  catch (e) {
     //
   }
 }
@@ -139,7 +137,8 @@ async function submitAvatar(data: UserAPI.RequestChangeAvatar) {
                   v-for="item in languagesForSelect"
                   :key="item.value"
                   :label="item.label"
-                  :value="item.value" />
+                  :value="item.value"
+                />
               </ElSelect>
             </ElFormItem>
           </div>

@@ -36,7 +36,8 @@ apiGetStorage().then((res) => {
   for (let i = 0; i < res.length; i++) {
     const v = res[i]
     data.value[v.driver as keyof A] = v.config as any
-    if (v.use) collapse.ctx.open(v.driver)
+    if (v.use)
+      collapse.ctx.open(v.driver)
   }
 })
 </script>
@@ -46,17 +47,19 @@ apiGetStorage().then((res) => {
     <h1>{{ $t(`${tBase}.title`) }}</h1>
 
     <div class="mt-40px flex flex-col">
-      <Local class="collapse-box" :name="SysStorage.Disk" v-model:config="data[SysStorage.Disk]" :collapse="collapse" />
+      <Local v-model:config="data[SysStorage.Disk]" class="collapse-box" :name="SysStorage.Disk" :collapse="collapse" />
       <Cloudflare
+        v-model:config="data[SysStorage.CF]"
         class="collapse-box mt-30px"
         :name="SysStorage.CF"
-        v-model:config="data[SysStorage.CF]"
-        :collapse="collapse" />
+        :collapse="collapse"
+      />
       <QiNiu
+        v-model:config="data[SysStorage.Qiniu]"
         class="collapse-box mt-30px"
         :name="SysStorage.Qiniu"
-        v-model:config="data[SysStorage.Qiniu]"
-        :collapse="collapse" />
+        :collapse="collapse"
+      />
     </div>
   </div>
 </template>

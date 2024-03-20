@@ -29,7 +29,8 @@ const rules: FormRules = {
     },
     {
       validator(_: any, value: string, callback: any) {
-        if (value.length < 2 || value.length > 64) callback(new Error(t('app.rules.username.wrongLength')))
+        if (value.length < 2 || value.length > 64)
+          callback(new Error(t('app.rules.username.wrongLength')))
         else callback()
       },
       trigger: 'blur',
@@ -39,7 +40,8 @@ const rules: FormRules = {
     { required: true, message: t('app.rules.email.required'), trigger: 'blur' },
     {
       validator(_: any, value: any, callback: any) {
-        if (!isEmail(value)) callback(new Error(t('app.rules.email.correct')))
+        if (!isEmail(value))
+          callback(new Error(t('app.rules.email.correct')))
         else callback()
       },
       trigger: 'blur',
@@ -61,7 +63,8 @@ async function onRegistBtnClick(formIns: FormInstance) {
   try {
     await formIns.validate()
     await userRegisterRequest(toRaw(form), popRedirect(route.fullPath))
-  } catch (error) {
+  }
+  catch (error) {
     //
   }
 }
@@ -84,7 +87,8 @@ async function onRegistBtnClick(formIns: FormInstance) {
           :rules="rules"
           :model="form"
           @keyup.enter="onRegistBtnClick(authForm)"
-          @submit.prevent>
+          @submit.prevent
+        >
           <el-form-item label="" prop="name">
             <div class="ac-login__label">
               <span>{{ $t('app.form.user.username') }}</span>
@@ -93,7 +97,8 @@ async function onRegistBtnClick(formIns: FormInstance) {
               v-model="form.name"
               maxlength="64"
               autocomplete="off"
-              :placeholder="$t('app.rules.username.required')" />
+              :placeholder="$t('app.rules.username.required')"
+            />
           </el-form-item>
 
           <el-form-item label="" prop="email">
@@ -104,7 +109,8 @@ async function onRegistBtnClick(formIns: FormInstance) {
               v-model="form.email"
               maxlength="255"
               autocomplete="off"
-              :placeholder="$t('app.rules.email.required')" />
+              :placeholder="$t('app.rules.email.required')"
+            />
           </el-form-item>
 
           <el-form-item label="" prop="password">
@@ -117,7 +123,8 @@ async function onRegistBtnClick(formIns: FormInstance) {
               show-password
               maxlength="255"
               autocomplete="off"
-              :placeholder="$t('app.rules.password.required')" />
+              :placeholder="$t('app.rules.password.required')"
+            />
           </el-form-item>
 
           <div class="mt-7">

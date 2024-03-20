@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { type FormInstance, type FormRules } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { apiGetService, apiUpdateService } from '@/api/system'
 import useApi from '@/hooks/useApi'
@@ -34,7 +34,8 @@ async function submit() {
   try {
     await formRef.value!.validate()
     await update(form.value)
-  } catch (e) {}
+  }
+  catch (e) {}
 }
 
 apiGetService().then((v) => {

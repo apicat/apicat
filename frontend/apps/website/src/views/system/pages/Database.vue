@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { apiGetDatabase } from '@/api/system'
 import { ElInput } from 'element-plus'
+import { apiGetDatabase } from '@/api/system'
+
 const tBase = 'app.system.db'
 const data = ref<SystemAPI.Database>({
   host: '',
@@ -17,16 +18,16 @@ apiGetDatabase().then((v) => {
 <template>
   <div class="bg-white w-85%">
     <h1>{{ $t(`${tBase}.title`) }}</h1>
-    <ElForm ref="formRef" class="content" label-position="top">
+    <ElForm class="content" label-position="top">
       <div style="margin-top: 40px">
         <!-- host -->
         <ElFormItem :label="$t(`${tBase}.host`)">
-          <ElInput maxlength="255" contenteditable="false" v-model="data.host" class="h-40px" readonly />
+          <ElInput v-model="data.host" maxlength="255" contenteditable="false" class="h-40px" readonly />
         </ElFormItem>
 
         <!-- username -->
         <ElFormItem :label="$t(`${tBase}.username`)">
-          <ElInput maxlength="255" contenteditable="false" v-model="data.username" class="h-40px" readonly />
+          <ElInput v-model="data.username" maxlength="255" contenteditable="false" class="h-40px" readonly />
         </ElFormItem>
 
         <!-- <ElFormItem :label="$t(`${tBase}.pw`)"> -->

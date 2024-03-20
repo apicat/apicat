@@ -1,5 +1,3 @@
-import { MAIN_PATH } from '@/router'
-
 const contextKey = Symbol('historyGoback')
 interface HistoryLayoutContext {
   goBack: () => Promise<void> | void

@@ -78,7 +78,8 @@ defineExpose({
     :close-on-click-modal="false"
     destroy-on-close
     class="ai-dialog"
-    width="800px">
+    width="800px"
+  >
     <template #header>
       <p class="flex items-center">
         <Iconfont class="text-blue" icon="ac-zhinengyouhua" />
@@ -92,7 +93,8 @@ defineExpose({
       v-model="prompt"
       :placeholder="placeholder"
       :loading="loading"
-      @submit="onEnter" />
+      @submit="onEnter"
+    />
   </el-dialog>
 </template>
 

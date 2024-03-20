@@ -27,7 +27,8 @@ export function useTextOverflowTooltip(textVNodeClass: string) {
         currentTask = undefined
         await nextTick()
       }
-      if (timer) clearTimeout(timer)
+      if (timer)
+        clearTimeout(timer)
       timer = setTimeout(() => {
         currentTask = (async (event: MouseEvent) => {
           const cellChild = (event.target as HTMLElement).querySelector(textVNodeClass) as HTMLElement
@@ -37,21 +38,20 @@ export function useTextOverflowTooltip(textVNodeClass: string) {
           let rangeWidth = range.getBoundingClientRect().width
           let rangeHeight = range.getBoundingClientRect().height
           const offsetWidth = rangeWidth - Math.floor(rangeWidth)
-          if (offsetWidth < 0.001) {
+          if (offsetWidth < 0.001)
             rangeWidth = Math.floor(rangeWidth)
-          }
+
           const offsetHeight = rangeHeight - Math.floor(rangeHeight)
-          if (offsetHeight < 0.001) {
+          if (offsetHeight < 0.001)
             rangeHeight = Math.floor(rangeHeight)
-          }
 
           const { top, left, right, bottom } = getPadding(cellChild)
           const horizontalPadding = left + right
           const verticalPadding = top + bottom
           if (
-            rangeWidth + horizontalPadding > cellChild.offsetWidth ||
-            rangeHeight + verticalPadding > cellChild.offsetHeight ||
-            cellChild.scrollWidth > cellChild.offsetWidth
+            rangeWidth + horizontalPadding > cellChild.offsetWidth
+            || rangeHeight + verticalPadding > cellChild.offsetHeight
+            || cellChild.scrollWidth > cellChild.offsetWidth
           ) {
             tooltipData.tooltipRef = event.target!
             tooltipData.tooltipContent = cellChild.innerText || cellChild.textContent || ''

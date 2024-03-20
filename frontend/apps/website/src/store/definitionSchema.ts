@@ -56,8 +56,8 @@ export const useDefinitionSchemaStore = defineStore('project.definitionSchema', 
         (item) => {
           if (item.type === SchemaTypeEnum.Schema) {
             ;(item.schema as Definition.SchemaNode & { title: string }).title = item.name
-            definitions[`${RefPrefixKeys.DefinitionSchema.refForCodeGeneratePrefix}${item.id}`] =
-              item.schema as Definition.SchemaNode
+            definitions[`${RefPrefixKeys.DefinitionSchema.refForCodeGeneratePrefix}${item.id}`]
+              = item.schema as Definition.SchemaNode
           }
           return true
         },
@@ -106,7 +106,8 @@ export const useDefinitionSchemaStore = defineStore('project.definitionSchema', 
         this.isLoading = true
         await nextTick()
         this.schemaDetail = await apiGetSchemaInfo(projectID, schemaID)
-      } finally {
+      }
+      finally {
         this.isLoading = false
       }
     },

@@ -40,17 +40,19 @@ apiGetCache().then((res) => {
 
     <div class="mt-40px flex flex-col">
       <Local
+        v-model:config="data[SysCache.Local]"
         class="collapse-box"
         :name="SysCache.Local"
-        v-model:config="data[SysCache.Local]"
         :collapse="collapse"
-        :currentUse="currentUse" />
+        :current-use="currentUse"
+      />
       <Redis
+        v-model:config="data[SysCache.Redis]"
         class="collapse-box mt-30px"
         :name="SysCache.Redis"
-        v-model:config="data[SysCache.Redis]"
         :collapse="collapse"
-        :currentUse="currentUse" />
+        :current-use="currentUse"
+      />
     </div>
   </div>
 </template>

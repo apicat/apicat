@@ -57,18 +57,22 @@ export function useServerUrlCompare() {
   function isSame(rowID: number, withPosition = false): boolean {
     const o = oldURL.value[rowID]
     const n = newURL.value[rowID]
-    if (!(o && n)) return false
+    if (!(o && n))
+      return false
     if (withPosition) {
       function positionSame() {
-        if (!(draglist.value.includes(rowID) && odraglist.value.includes(rowID))) return true
+        if (!(draglist.value.includes(rowID) && odraglist.value.includes(rowID)))
+          return true
         else return draglist.value.indexOf(rowID) === odraglist.value.indexOf(rowID)
       }
-      if (!positionSame()) return false
+      if (!positionSame())
+        return false
     }
     for (const key in o.data) {
       const ov = (o as any).data[key]
       const nv = (n as any).data[key]
-      if (ov !== nv) return false
+      if (ov !== nv)
+        return false
     }
     return true
   }
@@ -97,15 +101,16 @@ export function useServerUrlCompare() {
     const validID: string[] = []
     try {
       await navFormRef.value!.validate((_, validData) => {
-        for (const key in validData) {
+        for (const key in validData)
           validID.push(key.split('.')[0])
-        }
       })
-    } catch (e) {}
+    }
+    catch (e) {}
     let doSort = false
     const task: Promise<any>[] = [] // 存放所有新建和修改url的Promise
     for (const _rowID in newURL.value) {
-      if (validID.includes(_rowID)) continue
+      if (validID.includes(_rowID))
+        continue
       const rowID: number = Number.parseInt(_rowID)
       const val = newURL.value[rowID]
       // 如果id为负数就新建
@@ -117,12 +122,14 @@ export function useServerUrlCompare() {
               description: val.data.description,
             })
             .then((res) => {
-              if (!doSort) doSort = true
+              if (!doSort)
+                doSort = true
               newURL.value[rowID].data = res
               oldURL.value[rowID] = JSON.parse(JSON.stringify(newURL.value[rowID]))
             }),
         )
-      } else if (!isSame(rowID)) {
+      }
+      else if (!isSame(rowID)) {
         // 存在url或description不同就发送编辑请求
         task.push(
           serverUrlStore
@@ -146,7 +153,10 @@ export function useServerUrlCompare() {
       const ids: number[] = []
       draglist.value.forEach((val) => {
         const id = newURL.value[val].data.id
-        if (id >= 0) ids.push(id), rowIDs.push(val)
+        if (id >= 0) {
+          ids.push(id)
+          rowIDs.push(val)
+        }
       })
       await serverUrlStore
         .sortGlobalServerUrl(projectStore.project!.id, {
@@ -166,9 +176,11 @@ export function useServerUrlCompare() {
     let ii = 0
     for (let i = 0; i < draglist.value.length; i++) {
       const n = draglist.value[i]
-      if (newURL.value[n].data.id < 0) continue
+      if (newURL.value[n].data.id < 0)
+        continue
       const o = odraglist.value[ii]
-      if (o !== n) return true
+      if (o !== n)
+        return true
       ii++
     }
     return false
@@ -177,7 +189,8 @@ export function useServerUrlCompare() {
   // 删除
   async function deleteURL(rowID: number) {
     const id = newURL.value[rowID].data.id
-    if (id >= 0) await serverUrlStore.deleteGlobalServerUrl(projectStore.project!.id, id)
+    if (id >= 0)
+      await serverUrlStore.deleteGlobalServerUrl(projectStore.project!.id, id)
 
     delete oldURL.value[rowID]
     delete newURL.value[rowID]

@@ -17,18 +17,20 @@ function createAsyncMsgBox($msgbox = ElMessageBox) {
               instance.confirmButtonLoading = true
               Promise.resolve(cb(done))
                 .then(() => done())
-                .catch((e) => e)
+                .catch(e => e)
                 .finally(() => {
                   instance.confirmButtonLoading = false
                 })
-            } else {
+            }
+            else {
               done()
             }
           },
         },
         context,
       )
-    } catch {}
+    }
+    catch {}
   }
 }
 

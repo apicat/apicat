@@ -57,7 +57,8 @@ defineExpose({
         :config-extensions="{ isShowLineNumber: false }"
         :model-value="code"
         :lang="currentLanguageForCodeMirror"
-        :languages="langs" />
+        :languages="langs"
+      />
     </div>
     <div class="flex flex-col py-16px pl-16px w-240px">
       <div class="flex-1 overflow-y-auto">
@@ -90,7 +91,8 @@ defineExpose({
                 <el-checkbox v-if="item.isBooleanOption" v-model="currentLanguageOptions[item.name]" />
                 <div
                   class="flex-1 leading-none cursor-pointer ml-4px pt-2px"
-                  @click="currentLanguageOptions[item.name] = !currentLanguageOptions[item.name]">
+                  @click="currentLanguageOptions[item.name] = !currentLanguageOptions[item.name]"
+                >
                   {{ item.description }}
                 </div>
               </el-form-item>
@@ -112,7 +114,8 @@ defineExpose({
                   <el-checkbox v-if="item.isBooleanOption" v-model="currentLanguageOptions[item.name]" />
                   <div
                     class="flex-1 leading-none cursor-pointer ml-4px pt-2px"
-                    @click="currentLanguageOptions[item.name] = !currentLanguageOptions[item.name]">
+                    @click="currentLanguageOptions[item.name] = !currentLanguageOptions[item.name]"
+                  >
                     {{ item.description }}
                   </div>
                 </el-form-item>

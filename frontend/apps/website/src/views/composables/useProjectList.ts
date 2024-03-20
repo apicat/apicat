@@ -12,7 +12,8 @@ export function useProjectList(searchParams?: ProjectAPI.RequestProject) {
   const loadProjectList = async () => {
     try {
       projectList.value = (await getProjectListApi(currentID.value, searchParams)) || []
-    } catch (error) {
+    }
+    catch (error) {
       projectList.value = []
     }
   }

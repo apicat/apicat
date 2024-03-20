@@ -19,7 +19,8 @@ const rules = reactive<FormRules>({
           return /^[A-Z0-9._+-]+@[A-Z0-9][A-Z0-9.-]*\.[A-Z]{2,63}$/i.test(value)
         }
         // if (value && !isEmail(value))
-        if (value && !test()) return callback(new Error(t('app.rules.email.correct')))
+        if (value && !test())
+          return callback(new Error(t('app.rules.email.correct')))
 
         return callback()
       },
@@ -39,7 +40,8 @@ async function submit() {
     await formRef.value!.validate()
     await updateEmail(form.value.email)
     ElMessage.success(t('app.user.email.success'))
-  } catch (e) {}
+  }
+  catch (e) {}
 }
 </script>
 
@@ -54,11 +56,12 @@ async function submit() {
           label-position="top"
           :rules="rules"
           :model="form"
-          @submit.prevent="submit">
+          @submit.prevent="submit"
+        >
           <div style="margin-top: 40px">
             <!-- username -->
             <ElFormItem prop="email" :label="$t('app.user.email.email')">
-              <ElInput maxlength="255" v-model="form.email" class="h-40px" />
+              <ElInput v-model="form.email" maxlength="255" class="h-40px" />
             </ElFormItem>
           </div>
 

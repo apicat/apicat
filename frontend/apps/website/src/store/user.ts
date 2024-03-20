@@ -20,8 +20,8 @@ export const useUserStore = defineStore({
   }),
 
   getters: {
-    isLogin: (state) => !!state.token,
-    isAdmin: (state) => state.userInfo.role === 'admin',
+    isLogin: state => !!state.token,
+    isAdmin: state => state.userInfo.role === 'admin',
   },
 
   actions: {
@@ -31,7 +31,8 @@ export const useUserStore = defineStore({
         const data = await apiLogin(form)
         await this.afterSign(data, url)
         return data
-      } catch (error) {
+      }
+      catch (error) {
         //
       }
     },
@@ -53,7 +54,8 @@ export const useUserStore = defineStore({
       try {
         const user = await apiGetUserInfo()
         this.updateUserInfo(user)
-      } catch (error) {
+      }
+      catch (error) {
         //
       }
       return this.userInfo
@@ -68,7 +70,8 @@ export const useUserStore = defineStore({
     },
 
     updateToken(token: string) {
-      if (!token) return
+      if (!token)
+        return
 
       Storage.set(Storage.KEYS.TOKEN, token)
       this.token = token

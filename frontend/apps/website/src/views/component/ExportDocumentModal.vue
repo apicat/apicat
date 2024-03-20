@@ -25,11 +25,13 @@ defineExpose({
     align-center
     destroy-on-close
     :title="$t('app.project.collection.export.title')"
-    width="660px">
+    width="660px"
+  >
     <div class="mt-10px" />
     <ProjectExportPage
       :project_id="projectId"
       :doc_id="docId"
-      export-type="collection" />
+      export-type="collection"
+    />
   </el-dialog>
 </template>

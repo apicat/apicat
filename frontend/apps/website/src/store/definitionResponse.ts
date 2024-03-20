@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { delay, traverseTree } from '@apicat/shared'
+import { traverseTree } from '@apicat/shared'
 import { apiCopyResponse, apiCreateResponse, apiDeleteResponse, apiEditResponse, apiGetResponseInfo, apiGetResponseTree, apiMoveResponse, apiRenameResponseCategory } from '@/api/project/definition/response'
 import { ResponseTypeEnum } from '@/commons'
 

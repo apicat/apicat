@@ -1,7 +1,7 @@
 import type { Nullable } from '../typescript'
 
-const FOCUSABLE_ELEMENT_SELECTORS =
-  'a[href],button:not([disabled]),button:not([hidden]),:not([tabindex="-1"]),input:not([disabled]),input:not([type="hidden"]),select:not([disabled]),textarea:not([disabled])'
+const FOCUSABLE_ELEMENT_SELECTORS
+  = 'a[href],button:not([disabled]),button:not([hidden]),:not([tabindex="-1"]),input:not([disabled]),input:not([type="hidden"]),select:not([disabled]),textarea:not([disabled])'
 
 /**
  * Determine if the testing element is visible on screen no matter if its on the viewport or not
@@ -25,10 +25,12 @@ export function obtainAllFocusableElements(element: HTMLElement): HTMLElement[] 
  * @returns true if it is focusable
  */
 export function isFocusable(element: HTMLElement): boolean {
-  if (element.tabIndex > 0 || (element.tabIndex === 0 && element.getAttribute('tabIndex') !== null)) return true
+  if (element.tabIndex > 0 || (element.tabIndex === 0 && element.getAttribute('tabIndex') !== null))
+    return true
 
   // HTMLButtonElement has disabled
-  if ((element as HTMLButtonElement).disabled) return false
+  if ((element as HTMLButtonElement).disabled)
+    return false
 
   switch (element.nodeName) {
     case 'A': {
@@ -57,7 +59,8 @@ export function isFocusable(element: HTMLElement): boolean {
  *  true if element is focused.
  */
 export function attemptFocus(element: HTMLElement): boolean {
-  if (!isFocusable(element)) return false
+  if (!isFocusable(element))
+    return false
 
   // Remove the old try catch block since there will be no error to be thrown
   element.focus?.()
@@ -74,8 +77,10 @@ export function attemptFocus(element: HTMLElement): boolean {
 export const triggerEvent = function (elm: HTMLElement, name: string, ...opts: Array<boolean>): HTMLElement {
   let eventName: string
 
-  if (name.includes('mouse') || name.includes('click')) eventName = 'MouseEvents'
-  else if (name.includes('key')) eventName = 'KeyboardEvent'
+  if (name.includes('mouse') || name.includes('click'))
+    eventName = 'MouseEvents'
+  else if (name.includes('key'))
+    eventName = 'KeyboardEvent'
   else eventName = 'HTMLEvents'
 
   const evt = document.createEvent(eventName)
@@ -89,14 +94,16 @@ export const isLeaf = (el: HTMLElement) => !el.getAttribute('aria-owns')
 
 export function getSibling(el: HTMLElement, distance: number, elClass: string): Nullable<Element> {
   const { parentNode } = el
-  if (!parentNode) return null
+  if (!parentNode)
+    return null
   const siblings = parentNode.querySelectorAll(elClass)
   const index = Array.prototype.indexOf.call(siblings, el)
   return siblings[index + distance] || null
 }
 
 export function focusNode(el: any) {
-  if (!el) return
+  if (!el)
+    return
   el.focus()
   !isLeaf(el) && el.click()
 }

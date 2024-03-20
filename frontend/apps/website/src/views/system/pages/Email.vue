@@ -30,7 +30,8 @@ apiGetEmail().then((res) => {
   for (let i = 0; i < res.length; i++) {
     const v = res[i]
     data.value[v.driver as keyof A] = v.config as any
-    if (v.use) collapse.ctx.open(v.driver)
+    if (v.use)
+      collapse.ctx.open(v.driver)
   }
 })
 </script>
@@ -40,12 +41,13 @@ apiGetEmail().then((res) => {
     <h1>{{ $t(`${tBase}.title`) }}</h1>
 
     <div class="mt-40px flex flex-col">
-      <SMTP class="collapse-box" :name="SysEmail.SMTP" v-model:config="data[SysEmail.SMTP]" :collapse="collapse" />
+      <SMTP v-model:config="data[SysEmail.SMTP]" class="collapse-box" :name="SysEmail.SMTP" :collapse="collapse" />
       <SendCloud
+        v-model:config="data[SysEmail.SendCloud]"
         class="collapse-box mt-30px"
         :name="SysEmail.SendCloud"
-        v-model:config="data[SysEmail.SendCloud]"
-        :collapse="collapse" />
+        :collapse="collapse"
+      />
     </div>
   </div>
 </template>

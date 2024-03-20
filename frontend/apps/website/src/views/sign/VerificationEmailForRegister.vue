@@ -16,10 +16,12 @@ onMounted(
       const data = (await activeAccountByEmail(code)) as any
       userStore.updateToken(data.accessToken)
       location.href = MAIN_PATH
-    } catch (error) {
+    }
+    catch (error) {
       if (error instanceof BadRequestError) {
         const { response } = error as BadRequestError<CommonResponseMessageForMessageTemplate>
-        if (!response || (!response.emoji && !response.title && response.message)) router.push(NOT_FOUND_PATH)
+        if (!response || (!response.emoji && !response.title && response.message))
+          router.push(NOT_FOUND_PATH)
         result.value = response
       }
     }

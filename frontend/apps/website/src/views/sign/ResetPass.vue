@@ -31,8 +31,10 @@ const rules = {
     {
       required: true,
       validator(__: any, _: any, callback: any) {
-        if (form.password !== form.re_password) callback(new Error(t('app.rules.password.noMatch')))
-        else if (form.re_password.length === 0) callback(new Error(t('app.rules.password.minLength')))
+        if (form.password !== form.re_password)
+          callback(new Error(t('app.rules.password.noMatch')))
+        else if (form.re_password.length === 0)
+          callback(new Error(t('app.rules.password.minLength')))
         else callback()
       },
       trigger: 'blur',
@@ -47,7 +49,8 @@ async function onResetSubmit(formIns: FormInstance) {
     await formIns.validate()
     await resetPass(form, code)
     isShowSuccessTip.value = true
-  } catch (err) {
+  }
+  catch (err) {
     //
   }
 }
@@ -56,7 +59,8 @@ onBeforeMount(
     try {
       await checkResetPassCodeIsExpired(code)
       isExpriredCode.value = false
-    } catch (error) {
+    }
+    catch (error) {
       isExpriredCode.value = true
       if (error instanceof BadRequestError) {
         const { response } = error as BadRequestError<CommonResponseMessageForMessageTemplate>
@@ -84,12 +88,13 @@ onBeforeMount(
             :rules="rules"
             :model="form"
             @keyup.enter="onResetSubmit(authForm)"
-            @submit.prevent>
+            @submit.prevent
+          >
             <el-form-item label="" prop="password">
               <div class="ac-login__label">
                 <span>{{ $t('app.sign.resetPassNew') }}</span>
               </div>
-              <el-input maxlength="255" v-model="form.password" type="password" autocomplete="off" />
+              <el-input v-model="form.password" maxlength="255" type="password" autocomplete="off" />
             </el-form-item>
 
             <el-form-item label="" prop="re_password">
@@ -105,7 +110,8 @@ onBeforeMount(
                 class="w-full"
                 type="primary"
                 :loading="isLoading"
-                @click="onResetSubmit(authForm)">
+                @click="onResetSubmit(authForm)"
+              >
                 {{ $t('app.sign.resetPassSend') }}
               </el-button>
             </div>
@@ -119,7 +125,9 @@ onBeforeMount(
         <AcCountDown v-slot="{ seconds }" :time="5" :link="LOGIN_PATH" auto-jump>
           <p>
             The system will automatically jump to the login page after {{ seconds }} seconds. If not, please
-            <RouterLink class="text-primary" :replace="true" :to="LOGIN_PATH"> click here </RouterLink>.
+            <RouterLink class="text-primary" :replace="true" :to="LOGIN_PATH">
+              click here
+            </RouterLink>.
           </p>
         </AcCountDown>
       </template>

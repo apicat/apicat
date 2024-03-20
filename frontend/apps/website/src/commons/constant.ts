@@ -193,13 +193,13 @@ export const ContentTypesMap = {
 }
 
 export const RequestContentTypesMap = {
-  none: 'none',
+  'none': 'none',
   'form-data': 'multipart/form-data',
   'x-www-form-urlencoded': 'application/x-www-form-urlencoded',
-  json: 'application/json',
-  xml: 'application/xml',
-  raw: 'raw',
-  binary: 'application/octet-stream',
+  'json': 'application/json',
+  'xml': 'application/xml',
+  'raw': 'raw',
+  'binary': 'application/octet-stream',
 }
 
 export const ResponseContentTypesMap = {

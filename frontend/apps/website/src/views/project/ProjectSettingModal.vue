@@ -16,7 +16,8 @@ const activeTab = shallowRef<{ menu: any; type: string }>({
 const { dialogVisible, showModel } = useModal()
 const isLoading = ref(false)
 async function onMenuTabClick(menu: Menu, type: string) {
-  if (!menu) throw new Error('ProjectSettingModal active menu is null')
+  if (!menu)
+    throw new Error('ProjectSettingModal active menu is null')
 
   if (menu.action) {
     await menu.action()
@@ -47,7 +48,8 @@ defineExpose({
     append-to-body
     align-center
     destroy-on-close
-    width="1200px">
+    width="1200px"
+  >
     <ModalLayout v-loading="isLoading">
       <template #nav>
         <p class="text-16px text-gray-950 font-500">
@@ -61,7 +63,8 @@ defineExpose({
             <div
               class="cursor-pointer box pl-10px line-height-40px"
               :class="{ 'text-blue-primary': activeTab.type === type }"
-              @click="onMenuTabClick(menu, type as string)">
+              @click="onMenuTabClick(menu, type as string)"
+            >
               {{ menu.text }}
             </div>
           </template>

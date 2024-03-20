@@ -10,6 +10,7 @@ class TestCaseState {
   private startBtn() {
     this.btnLoading
   }
+
   private stopBtn() {
     this.btnLoading
   }
@@ -29,10 +30,12 @@ class TestCaseState {
     this.projectID = projectID
     getTestCases(projectID, collectionID)
       .then(async (res) => {
-        if (!this.running) return
-        console.log('update')
+        if (!this.running)
+          return
+
         this.testCases = res!.records
-        if (res!.generating) this.startLoop()
+        if (res!.generating)
+          this.startLoop()
         this.startBtn()
         await wait()
         this.stopBtn()
@@ -44,7 +47,8 @@ class TestCaseState {
   public running: boolean = false
   startLoop(immediate = false) {
     let loopRun = true
-    if (this.stopLoop) this.stopLoop()
+    if (this.stopLoop)
+      this.stopLoop()
     this.stopLoop = function () {
       loopRun = false
       this.stopBtn()
@@ -52,16 +56,19 @@ class TestCaseState {
     }
     const loop = async () => {
       this.startBtn()
-      if (!immediate) await wait()
+      if (!immediate)
+        await wait()
       try {
         while (loopRun && this.running) {
           const res = await this.getTestCasesWithoutLoading(this.projectID, this.collectionID)
           this.testCases = res!.records
-          if (!res!.generating) break
+          if (!res!.generating)
+            break
 
           await wait()
         }
-      } finally {
+      }
+      finally {
         this.stopBtn()
       }
     }
@@ -72,7 +79,8 @@ class TestCaseState {
     this.startBtn()
     apiCreateTestCase(this.projectID, this.collectionID, prompt)
       .then(() => {
-        if (!this.running) return
+        if (!this.running)
+          return
         this.startLoop()
       })
       .catch(this.stopBtn)
@@ -82,19 +90,21 @@ class TestCaseState {
     this.startBtn()
     apiRegenTestCaseList(this.projectID, this.collectionID, undefined)
       .then(() => {
-        if (!this.running) return
+        if (!this.running)
+          return
         this.startLoop(true)
       })
       .catch(this.stopBtn)
   }
 
   public onDel(id: number) {
-    this.testCases = this.testCases.filter((val) => val.id !== id)
+    this.testCases = this.testCases.filter(val => val.id !== id)
   }
 
   public dispose() {
     this.running = false
-    if (this.stopLoop) this.stopLoop()
+    if (this.stopLoop)
+      this.stopLoop()
   }
 }
 

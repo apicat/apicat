@@ -46,7 +46,8 @@ function handleProjectGroup(project: ProjectAPI.ResponseProject) {
             :class="ns.e('cover')"
             :style="{
               backgroundColor: (project.cover as ProjectAPI.ProjectCover).coverBgColor,
-            }">
+            }"
+          >
             <Iconfont class="text-white" :icon="(project.cover as ProjectAPI.ProjectCover).coverIcon" :size="55" />
           </div>
           <div :class="ns.e('title')">
@@ -57,7 +58,8 @@ function handleProjectGroup(project: ProjectAPI.ResponseProject) {
               <el-tooltip
                 :content="project.selfMember.isFollowed ? $t('app.project.stars.unstar') : $t('app.project.stars.star')"
                 :show-arrow="false"
-                placement="bottom">
+                placement="bottom"
+              >
                 <el-icon v-if="!project.selfMember.isFollowed" size="18" @click.stop="handleFollowProject(project)">
                   <ac-icon-mdi:star-outline />
                 </el-icon>

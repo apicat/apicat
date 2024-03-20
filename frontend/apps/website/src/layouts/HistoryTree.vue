@@ -52,11 +52,13 @@ defineExpose({
         node-key="id"
         empty-text=""
         :props="treeOptions"
-        :expand-on-click-node="false">
+        :expand-on-click-node="false"
+      >
         <template #default="{ node }: { node: Node; data: TreeData }">
           <div
             :class="[nodeClass.b(), nodeClass.is('active', activeHistoryID === node.key)]"
-            @click="onTreeNodeClick(node)">
+            @click="onTreeNodeClick(node)"
+          >
             <div :class="nodeClass.e('main')">
               <div :id="`history_tree_node_${node.key}`" :class="nodeContentClass.b()">
                 <i v-if="node.isLeaf" :class="nodeContentClass.e('icon')" class="ac-doc ac-iconfont" />

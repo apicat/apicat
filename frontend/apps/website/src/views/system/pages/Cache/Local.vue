@@ -1,15 +1,13 @@
 <script setup lang="ts">
 import type { FormInstance, FormRules } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import type { UseCollapse } from '@/components/collapse/useCollapse'
 import { apiUpdateCacheLocal } from '@/api/system'
 import CollapseCardItem from '@/components/collapse/CollapseCardItem.vue'
 import IconSvg from '@/components/IconSvg.vue'
 import useApi from '@/hooks/useApi'
-import { useI18n } from 'vue-i18n'
-import { SysCache } from '@/commons'
+import type { SysCache } from '@/commons'
 
-const { t } = useI18n()
-const tBase = 'app.system.cache.local'
 const props = defineProps<{
   collapse: UseCollapse
   name: SysCache
@@ -17,6 +15,8 @@ const props = defineProps<{
   currentUse?: SysCache
 }>()
 const emit = defineEmits(['update:currentUse'])
+const { t } = useI18n()
+const tBase = 'app.system.cache.local'
 const form = ref({
   checked: false,
 })
@@ -34,7 +34,8 @@ const rules: FormRules<typeof form.value> = {
   checked: [
     {
       validator: (_, __, c) => {
-        if (!form.value.checked) return c(t(`${tBase}.rules.checked`))
+        if (!form.value.checked)
+          return c(t(`${tBase}.rules.checked`))
         else return c()
       },
       trigger: 'blur',
@@ -58,7 +59,9 @@ function submit() {
         <div class="left mr-8px">
           <IconSvg name="ac-storage-card-one" width="24" />
         </div>
-        <div class="right font-bold">{{ $t(`${tBase}.title`) }}</div>
+        <div class="right font-bold">
+          {{ $t(`${tBase}.title`) }}
+        </div>
       </div>
     </template>
 

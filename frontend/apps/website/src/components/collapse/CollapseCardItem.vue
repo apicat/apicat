@@ -39,7 +39,8 @@ const transitions = {
 }
 
 onMounted(() => {
-  if (show.value) expand()
+  if (show.value)
+    expand()
 })
 </script>
 
