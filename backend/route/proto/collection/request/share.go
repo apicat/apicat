@@ -1,8 +1,8 @@
 package request
 
 import (
-	protobase "github.com/apicat/apicat/backend/route/proto/base"
-	"github.com/apicat/apicat/backend/route/proto/collection/base"
+	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
+	"github.com/apicat/apicat/v2/backend/route/proto/collection/base"
 )
 
 type SwitchCollectionShareOption struct {

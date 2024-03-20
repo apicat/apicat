@@ -9,17 +9,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/backend/config"
-	"github.com/apicat/apicat/backend/model/collection"
-	"github.com/apicat/apicat/backend/model/definition"
-	"github.com/apicat/apicat/backend/module/cache"
-	"github.com/apicat/apicat/backend/module/llm"
-	llmcommon "github.com/apicat/apicat/backend/module/llm/common"
-	"github.com/apicat/apicat/backend/module/spec"
-	"github.com/apicat/apicat/backend/route/middleware/jwt"
+	"github.com/apicat/apicat/v2/backend/config"
+	"github.com/apicat/apicat/v2/backend/model/collection"
+	"github.com/apicat/apicat/v2/backend/model/definition"
+	"github.com/apicat/apicat/v2/backend/module/cache"
+	"github.com/apicat/apicat/v2/backend/module/llm"
+	llmcommon "github.com/apicat/apicat/v2/backend/module/llm/common"
+	"github.com/apicat/apicat/v2/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 
-	"github.com/apicat/apicat/backend/module/spec/jsonschema"
-	"github.com/apicat/apicat/backend/module/spec/plugin/openapi"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
+	"github.com/apicat/apicat/v2/backend/module/spec/plugin/openapi"
 
 	"github.com/gin-gonic/gin"
 )

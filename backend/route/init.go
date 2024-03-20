@@ -5,12 +5,12 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/apicat/apicat/backend/config"
-	"github.com/apicat/apicat/backend/module/storage"
-	"github.com/apicat/apicat/backend/route/middleware/dump"
-	"github.com/apicat/apicat/backend/route/middleware/jwt"
-	"github.com/apicat/apicat/backend/route/middleware/log"
-	"github.com/apicat/apicat/frontend"
+	"github.com/apicat/apicat/v2/backend/config"
+	"github.com/apicat/apicat/v2/backend/module/storage"
+	"github.com/apicat/apicat/v2/backend/route/middleware/dump"
+	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
+	"github.com/apicat/apicat/v2/backend/route/middleware/log"
+	"github.com/apicat/apicat/v2/frontend"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/apicat/apicat/backend/config"
+	"github.com/apicat/apicat/v2/backend/config"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

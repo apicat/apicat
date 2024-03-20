@@ -3,8 +3,8 @@ package mailer
 import (
 	"fmt"
 
-	"github.com/apicat/apicat/backend/config"
-	"github.com/apicat/apicat/backend/module/mail"
+	"github.com/apicat/apicat/v2/backend/config"
+	"github.com/apicat/apicat/v2/backend/module/mail"
 
 	"log/slog"
 )

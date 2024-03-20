@@ -1,9 +1,9 @@
 package request
 
 import (
-	"github.com/apicat/apicat/backend/model/project"
-	protobase "github.com/apicat/apicat/backend/route/proto/base"
-	projectbase "github.com/apicat/apicat/backend/route/proto/project/base"
+	"github.com/apicat/apicat/v2/backend/model/project"
+	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
+	projectbase "github.com/apicat/apicat/v2/backend/route/proto/project/base"
 )
 
 type ProjectImportDataOption struct {

@@ -1,9 +1,8 @@
 package user_relations
 
 import (
-	protouserresponse "github.com/apicat/apicat/backend/route/proto/user/response"
-
-	"github.com/apicat/apicat/backend/model/user"
+	"github.com/apicat/apicat/v2/backend/model/user"
+	protouserresponse "github.com/apicat/apicat/v2/backend/route/proto/user/response"
 
 	"github.com/gin-gonic/gin"
 )

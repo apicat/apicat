@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"errors"
 
-	"github.com/apicat/apicat/backend/model"
-	"github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/model"
+	"github.com/apicat/apicat/v2/backend/module/spec"
 )
 
 const (

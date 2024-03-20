@@ -7,7 +7,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/apicat/apicat/backend/module/llm/common"
+	"github.com/apicat/apicat/v2/backend/module/llm/common"
 
 	oai "github.com/sashabaranov/go-openai"
 )

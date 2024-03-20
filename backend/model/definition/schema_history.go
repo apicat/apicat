@@ -6,7 +6,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/v2/backend/model"
 )
 
 type DefinitionSchemaHistory struct {

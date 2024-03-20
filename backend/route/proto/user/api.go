@@ -1,9 +1,9 @@
 package user
 
 import (
-	"github.com/apicat/apicat/backend/route/proto/user/base"
-	"github.com/apicat/apicat/backend/route/proto/user/request"
-	"github.com/apicat/apicat/backend/route/proto/user/response"
+	"github.com/apicat/apicat/v2/backend/route/proto/user/base"
+	"github.com/apicat/apicat/v2/backend/route/proto/user/request"
+	"github.com/apicat/apicat/v2/backend/route/proto/user/response"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

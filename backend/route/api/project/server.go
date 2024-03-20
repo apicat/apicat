@@ -3,13 +3,13 @@ package project
 import (
 	"log/slog"
 
-	"github.com/apicat/apicat/backend/i18n"
-	"github.com/apicat/apicat/backend/model/project"
-	"github.com/apicat/apicat/backend/route/middleware/access"
-	protobase "github.com/apicat/apicat/backend/route/proto/base"
-	protoproject "github.com/apicat/apicat/backend/route/proto/project"
-	projectrequest "github.com/apicat/apicat/backend/route/proto/project/request"
-	projectresponse "github.com/apicat/apicat/backend/route/proto/project/response"
+	"github.com/apicat/apicat/v2/backend/i18n"
+	"github.com/apicat/apicat/v2/backend/model/project"
+	"github.com/apicat/apicat/v2/backend/route/middleware/access"
+	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
+	protoproject "github.com/apicat/apicat/v2/backend/route/proto/project"
+	projectrequest "github.com/apicat/apicat/v2/backend/route/proto/project/request"
+	projectresponse "github.com/apicat/apicat/v2/backend/route/proto/project/response"
 
 	"net/http"
 

@@ -3,7 +3,7 @@ package user
 import (
 	"context"
 
-	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/v2/backend/model"
 
 	"golang.org/x/crypto/bcrypt"
 )

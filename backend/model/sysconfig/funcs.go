@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"net/mail"
 
-	"github.com/apicat/apicat/backend/config"
-	"github.com/apicat/apicat/backend/model"
-	"github.com/apicat/apicat/backend/module/cache"
-	"github.com/apicat/apicat/backend/module/llm"
-	mailmodule "github.com/apicat/apicat/backend/module/mail"
-	"github.com/apicat/apicat/backend/module/oauth2"
-	"github.com/apicat/apicat/backend/module/storage"
+	"github.com/apicat/apicat/v2/backend/config"
+	"github.com/apicat/apicat/v2/backend/model"
+	"github.com/apicat/apicat/v2/backend/module/cache"
+	"github.com/apicat/apicat/v2/backend/module/llm"
+	mailmodule "github.com/apicat/apicat/v2/backend/module/mail"
+	"github.com/apicat/apicat/v2/backend/module/oauth2"
+	"github.com/apicat/apicat/v2/backend/module/storage"
 
 	"gorm.io/gorm"
 )

@@ -5,8 +5,8 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/apicat/apicat/backend/i18n"
-	"github.com/apicat/apicat/backend/route/middleware/jwt"
+	"github.com/apicat/apicat/v2/backend/i18n"
+	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"

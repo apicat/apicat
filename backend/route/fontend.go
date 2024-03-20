@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/apicat/apicat/frontend"
+	"github.com/apicat/apicat/v2/frontend"
 
 	"github.com/gin-gonic/gin"
 )

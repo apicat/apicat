@@ -3,13 +3,13 @@ package team_relations
 import (
 	"log/slog"
 
-	"github.com/apicat/apicat/backend/i18n"
-	"github.com/apicat/apicat/backend/model/team"
-	"github.com/apicat/apicat/backend/model/user"
-	protobase "github.com/apicat/apicat/backend/route/proto/base"
-	prototeambase "github.com/apicat/apicat/backend/route/proto/team/base"
-	prototeamresponse "github.com/apicat/apicat/backend/route/proto/team/response"
-	"github.com/apicat/apicat/backend/service/user_relations"
+	"github.com/apicat/apicat/v2/backend/i18n"
+	"github.com/apicat/apicat/v2/backend/model/team"
+	"github.com/apicat/apicat/v2/backend/model/user"
+	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
+	prototeambase "github.com/apicat/apicat/v2/backend/route/proto/team/base"
+	prototeamresponse "github.com/apicat/apicat/v2/backend/route/proto/team/response"
+	"github.com/apicat/apicat/v2/backend/service/user_relations"
 
 	"github.com/gin-gonic/gin"
 )

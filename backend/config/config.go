@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/apicat/apicat/backend/module/oauth2"
+	"github.com/apicat/apicat/v2/backend/module/oauth2"
 
 	"gopkg.in/natefinch/lumberjack.v2"
 	"gopkg.in/yaml.v3"

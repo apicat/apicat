@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/backend/module/mail/common"
+	"github.com/apicat/apicat/v2/backend/module/mail/common"
 )
 
 type sendcloud struct {

@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/apicat/apicat/backend/config"
-	"github.com/apicat/apicat/backend/model/user"
-	"github.com/apicat/apicat/backend/module/cache"
-	"github.com/apicat/apicat/backend/module/onetime_token"
+	"github.com/apicat/apicat/v2/backend/config"
+	"github.com/apicat/apicat/v2/backend/model/user"
+	"github.com/apicat/apicat/v2/backend/module/cache"
+	"github.com/apicat/apicat/v2/backend/module/onetime_token"
 
 	"github.com/gin-gonic/gin"
 )

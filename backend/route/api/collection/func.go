@@ -1,12 +1,12 @@
 package collection
 
 import (
-	"github.com/apicat/apicat/backend/model/collection"
-	"github.com/apicat/apicat/backend/model/user"
-	protobase "github.com/apicat/apicat/backend/route/proto/base"
-	collectionbase "github.com/apicat/apicat/backend/route/proto/collection/base"
-	collectionresponse "github.com/apicat/apicat/backend/route/proto/collection/response"
-	projectbase "github.com/apicat/apicat/backend/route/proto/project/base"
+	"github.com/apicat/apicat/v2/backend/model/collection"
+	"github.com/apicat/apicat/v2/backend/model/user"
+	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
+	collectionbase "github.com/apicat/apicat/v2/backend/route/proto/collection/base"
+	collectionresponse "github.com/apicat/apicat/v2/backend/route/proto/collection/response"
+	projectbase "github.com/apicat/apicat/v2/backend/route/proto/project/base"
 
 	"github.com/gin-gonic/gin"
 )

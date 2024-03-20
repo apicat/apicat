@@ -4,7 +4,7 @@ import (
 	_ "embed"
 	"fmt"
 
-	"github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/module/spec"
 
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/html"

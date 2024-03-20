@@ -4,11 +4,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/apicat/apicat/backend/i18n"
-	"github.com/apicat/apicat/backend/model/iteration"
-	"github.com/apicat/apicat/backend/model/project"
-	"github.com/apicat/apicat/backend/model/team"
-	"github.com/apicat/apicat/backend/route/middleware/jwt"
+	"github.com/apicat/apicat/v2/backend/i18n"
+	"github.com/apicat/apicat/v2/backend/model/iteration"
+	"github.com/apicat/apicat/v2/backend/model/project"
+	"github.com/apicat/apicat/v2/backend/model/team"
+	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 
 	"github.com/gin-gonic/gin"
 )

@@ -4,9 +4,9 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/apicat/apicat/backend/module/cache/common"
-	"github.com/apicat/apicat/backend/module/cache/local"
-	"github.com/apicat/apicat/backend/module/cache/redis"
+	"github.com/apicat/apicat/v2/backend/module/cache/common"
+	"github.com/apicat/apicat/v2/backend/module/cache/local"
+	"github.com/apicat/apicat/v2/backend/module/cache/redis"
 )
 
 const (

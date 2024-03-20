@@ -5,9 +5,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/apicat/apicat/backend/model"
-	"github.com/apicat/apicat/backend/model/collection"
-	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/v2/backend/model"
+	"github.com/apicat/apicat/v2/backend/model/collection"
+	"github.com/apicat/apicat/v2/backend/model/project"
 )
 
 type ShareTmpToken struct {

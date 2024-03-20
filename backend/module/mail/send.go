@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/apicat/apicat/backend/module/mail/common"
-	"github.com/apicat/apicat/backend/module/mail/sendcloud"
-	"github.com/apicat/apicat/backend/module/mail/smtp"
+	"github.com/apicat/apicat/v2/backend/module/mail/common"
+	"github.com/apicat/apicat/v2/backend/module/mail/sendcloud"
+	"github.com/apicat/apicat/v2/backend/module/mail/smtp"
 )
 
 const (

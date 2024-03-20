@@ -1,9 +1,9 @@
 package response
 
 import (
-	protobase "github.com/apicat/apicat/backend/route/proto/base"
-	"github.com/apicat/apicat/backend/route/proto/iteration/base"
-	projectbase "github.com/apicat/apicat/backend/route/proto/project/base"
+	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
+	"github.com/apicat/apicat/v2/backend/route/proto/iteration/base"
+	projectbase "github.com/apicat/apicat/v2/backend/route/proto/project/base"
 )
 
 type Iteration struct {

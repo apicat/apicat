@@ -7,14 +7,13 @@ import (
 	"regexp"
 	"strconv"
 
-	"github.com/apicat/apicat/backend/model/collection"
-	"github.com/apicat/apicat/backend/model/definition"
-	"github.com/apicat/apicat/backend/model/project"
-	referencerelationship "github.com/apicat/apicat/backend/model/reference_relationship"
-	"github.com/apicat/apicat/backend/model/team"
-
-	"github.com/apicat/apicat/backend/module/array_operation"
-	"github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/model/collection"
+	"github.com/apicat/apicat/v2/backend/model/definition"
+	"github.com/apicat/apicat/v2/backend/model/project"
+	referencerelationship "github.com/apicat/apicat/v2/backend/model/reference_relationship"
+	"github.com/apicat/apicat/v2/backend/model/team"
+	"github.com/apicat/apicat/v2/backend/module/array_operation"
+	"github.com/apicat/apicat/v2/backend/module/spec"
 )
 
 // ReadDefinitionResponseReference 读取collection中引用的response

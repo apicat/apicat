@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/apicat/apicat/backend/module/spec/jsonschema"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 
 	"github.com/pb33f/libopenapi/datamodel/high/base"
 )

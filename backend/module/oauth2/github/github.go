@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/apicat/apicat/backend/module/oauth2"
+	"github.com/apicat/apicat/v2/backend/module/oauth2"
 )
 
 type Github struct{}

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/apicat/apicat/backend/module/llm/common"
-	"github.com/apicat/apicat/backend/module/llm/openai"
+	"github.com/apicat/apicat/v2/backend/module/llm/common"
+	"github.com/apicat/apicat/v2/backend/module/llm/openai"
 )
 
 const (

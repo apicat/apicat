@@ -4,7 +4,7 @@ import (
 	"context"
 	"time"
 
-	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/v2/backend/model"
 )
 
 type ResponseReference struct {

@@ -1,4 +1,4 @@
-module github.com/apicat/apicat
+module github.com/apicat/apicat/v2
 
 go 1.21.0
 

@@ -6,13 +6,12 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/apicat/apicat/backend/model"
-	"github.com/apicat/apicat/backend/model/project"
-	"github.com/apicat/apicat/backend/model/team"
-	"github.com/apicat/apicat/backend/model/user"
-
-	"github.com/apicat/apicat/backend/module/spec"
-	"github.com/apicat/apicat/backend/module/spec/jsonschema"
+	"github.com/apicat/apicat/v2/backend/model"
+	"github.com/apicat/apicat/v2/backend/model/project"
+	"github.com/apicat/apicat/v2/backend/model/team"
+	"github.com/apicat/apicat/v2/backend/model/user"
+	"github.com/apicat/apicat/v2/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 
 	"gorm.io/gorm"
 )

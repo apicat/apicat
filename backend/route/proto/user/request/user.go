@@ -3,7 +3,7 @@ package request
 import (
 	"mime/multipart"
 
-	userbase "github.com/apicat/apicat/backend/route/proto/user/base"
+	userbase "github.com/apicat/apicat/v2/backend/route/proto/user/base"
 )
 
 type UserIDOption struct {

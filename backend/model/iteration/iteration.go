@@ -3,10 +3,10 @@ package iteration
 import (
 	"context"
 
-	"github.com/apicat/apicat/backend/model"
-	"github.com/apicat/apicat/backend/model/collection"
-	"github.com/apicat/apicat/backend/model/project"
-	"github.com/apicat/apicat/backend/model/team"
+	"github.com/apicat/apicat/v2/backend/model"
+	"github.com/apicat/apicat/v2/backend/model/collection"
+	"github.com/apicat/apicat/v2/backend/model/project"
+	"github.com/apicat/apicat/v2/backend/model/team"
 
 	"github.com/pkg-id/objectid"
 

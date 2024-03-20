@@ -3,7 +3,7 @@ package iteration
 import (
 	"context"
 
-	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/v2/backend/model"
 
 	"gorm.io/gorm"
 )

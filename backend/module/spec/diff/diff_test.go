@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/module/spec"
 )
 
 func TestDiff(t *testing.T) {

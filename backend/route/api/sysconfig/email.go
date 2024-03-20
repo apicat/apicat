@@ -6,13 +6,13 @@ import (
 	"net/mail"
 	"strings"
 
-	"github.com/apicat/apicat/backend/config"
-	"github.com/apicat/apicat/backend/i18n"
-	"github.com/apicat/apicat/backend/model/sysconfig"
-	mailmodule "github.com/apicat/apicat/backend/module/mail"
-	protosysconfig "github.com/apicat/apicat/backend/route/proto/sysconfig"
-	sysconfigbase "github.com/apicat/apicat/backend/route/proto/sysconfig/base"
-	sysconfigrequest "github.com/apicat/apicat/backend/route/proto/sysconfig/request"
+	"github.com/apicat/apicat/v2/backend/config"
+	"github.com/apicat/apicat/v2/backend/i18n"
+	"github.com/apicat/apicat/v2/backend/model/sysconfig"
+	mailmodule "github.com/apicat/apicat/v2/backend/module/mail"
+	protosysconfig "github.com/apicat/apicat/v2/backend/route/proto/sysconfig"
+	sysconfigbase "github.com/apicat/apicat/v2/backend/route/proto/sysconfig/base"
+	sysconfigrequest "github.com/apicat/apicat/v2/backend/route/proto/sysconfig/request"
 
 	"net/http"
 

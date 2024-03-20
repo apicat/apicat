@@ -4,10 +4,10 @@ import (
 	"errors"
 	"log/slog"
 
-	"github.com/apicat/apicat/backend/module/storage/cloudflare"
-	"github.com/apicat/apicat/backend/module/storage/common"
-	"github.com/apicat/apicat/backend/module/storage/local"
-	"github.com/apicat/apicat/backend/module/storage/qiniu"
+	"github.com/apicat/apicat/v2/backend/module/storage/cloudflare"
+	"github.com/apicat/apicat/v2/backend/module/storage/common"
+	"github.com/apicat/apicat/v2/backend/module/storage/local"
+	"github.com/apicat/apicat/v2/backend/module/storage/qiniu"
 )
 
 const (

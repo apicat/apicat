@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/backend/model/user"
+	"github.com/apicat/apicat/v2/backend/model/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

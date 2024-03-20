@@ -1,10 +1,10 @@
 package team
 
 import (
-	protobase "github.com/apicat/apicat/backend/route/proto/base"
-	teambase "github.com/apicat/apicat/backend/route/proto/team/base"
-	teamrequest "github.com/apicat/apicat/backend/route/proto/team/request"
-	teamresponse "github.com/apicat/apicat/backend/route/proto/team/response"
+	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
+	teambase "github.com/apicat/apicat/v2/backend/route/proto/team/base"
+	teamrequest "github.com/apicat/apicat/v2/backend/route/proto/team/request"
+	teamresponse "github.com/apicat/apicat/v2/backend/route/proto/team/response"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

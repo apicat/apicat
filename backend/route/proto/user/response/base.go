@@ -1,6 +1,6 @@
 package response
 
-import userbase "github.com/apicat/apicat/backend/route/proto/user/base"
+import userbase "github.com/apicat/apicat/v2/backend/route/proto/user/base"
 
 type UserData struct {
 	userbase.EmailOption

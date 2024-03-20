@@ -6,7 +6,7 @@ import (
 	"net/smtp"
 	"strings"
 
-	"github.com/apicat/apicat/backend/module/mail/common"
+	"github.com/apicat/apicat/v2/backend/module/mail/common"
 )
 
 type smtpSender struct {

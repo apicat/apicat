@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/apicat/apicat/backend/module/spec"
-	"github.com/apicat/apicat/backend/module/spec/jsonschema"
+	"github.com/apicat/apicat/v2/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 )
 
 func Import(data []byte) (*spec.Spec, error) {

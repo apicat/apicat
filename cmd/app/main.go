@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/apicat/apicat"
+	"github.com/apicat/apicat/v2"
 	"github.com/urfave/cli/v2"
 )
 

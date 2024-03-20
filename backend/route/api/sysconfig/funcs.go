@@ -3,7 +3,7 @@ package sysconfig
 import (
 	"encoding/json"
 
-	"github.com/apicat/apicat/backend/model/sysconfig"
+	"github.com/apicat/apicat/v2/backend/model/sysconfig"
 )
 
 func cfgFormat(cfg *sysconfig.Sysconfig) map[string]interface{} {

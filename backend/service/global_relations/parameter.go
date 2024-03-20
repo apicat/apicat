@@ -4,14 +4,13 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/apicat/apicat/backend/model"
-	"github.com/apicat/apicat/backend/model/collection"
-	"github.com/apicat/apicat/backend/model/global"
-	"github.com/apicat/apicat/backend/model/project"
-	referencerelationship "github.com/apicat/apicat/backend/model/reference_relationship"
-	"github.com/apicat/apicat/backend/module/array_operation"
-
-	"github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/model"
+	"github.com/apicat/apicat/v2/backend/model/collection"
+	"github.com/apicat/apicat/v2/backend/model/global"
+	"github.com/apicat/apicat/v2/backend/model/project"
+	referencerelationship "github.com/apicat/apicat/v2/backend/model/reference_relationship"
+	"github.com/apicat/apicat/v2/backend/module/array_operation"
+	"github.com/apicat/apicat/v2/backend/module/spec"
 
 	"github.com/gin-gonic/gin"
 )

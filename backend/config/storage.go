@@ -3,7 +3,7 @@ package config
 import (
 	"encoding/json"
 
-	"github.com/apicat/apicat/backend/module/storage"
+	"github.com/apicat/apicat/v2/backend/module/storage"
 )
 
 type Storage struct {

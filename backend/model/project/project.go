@@ -3,8 +3,8 @@ package project
 import (
 	"context"
 
-	"github.com/apicat/apicat/backend/model"
-	"github.com/apicat/apicat/backend/model/team"
+	"github.com/apicat/apicat/v2/backend/model"
+	"github.com/apicat/apicat/v2/backend/model/team"
 
 	"github.com/pkg-id/objectid"
 	"gorm.io/gorm"

@@ -5,12 +5,12 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/apicat/apicat/backend/config"
-	"github.com/apicat/apicat/backend/i18n"
-	"github.com/apicat/apicat/backend/model/sysconfig"
-	"github.com/apicat/apicat/backend/module/oauth2"
-	protosysconfig "github.com/apicat/apicat/backend/route/proto/sysconfig"
-	sysconfigbase "github.com/apicat/apicat/backend/route/proto/sysconfig/base"
+	"github.com/apicat/apicat/v2/backend/config"
+	"github.com/apicat/apicat/v2/backend/i18n"
+	"github.com/apicat/apicat/v2/backend/model/sysconfig"
+	"github.com/apicat/apicat/v2/backend/module/oauth2"
+	protosysconfig "github.com/apicat/apicat/v2/backend/route/proto/sysconfig"
+	sysconfigbase "github.com/apicat/apicat/v2/backend/route/proto/sysconfig/base"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/apicat/apicat/backend/module/cache/common"
+	"github.com/apicat/apicat/v2/backend/module/cache/common"
 )
 
 type Helper struct {

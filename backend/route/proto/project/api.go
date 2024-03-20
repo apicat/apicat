@@ -1,11 +1,11 @@
 package project
 
 import (
-	protobase "github.com/apicat/apicat/backend/route/proto/base"
-	projectbase "github.com/apicat/apicat/backend/route/proto/project/base"
-	"github.com/apicat/apicat/backend/route/proto/project/request"
-	"github.com/apicat/apicat/backend/route/proto/project/response"
-	teamresponse "github.com/apicat/apicat/backend/route/proto/team/response"
+	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
+	projectbase "github.com/apicat/apicat/v2/backend/route/proto/project/base"
+	"github.com/apicat/apicat/v2/backend/route/proto/project/request"
+	"github.com/apicat/apicat/v2/backend/route/proto/project/response"
+	teamresponse "github.com/apicat/apicat/v2/backend/route/proto/team/response"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
