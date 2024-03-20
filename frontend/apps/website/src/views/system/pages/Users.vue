@@ -54,7 +54,8 @@ function isSelf(row: UserAPI.ResponseUserInfo) {
     :columns="columns"
     :table-data="data"
     :loading="isLoading"
-    :total="total">
+    :total="total"
+  >
     <template #search-form>
       <el-form>
         <div class="grid grid-cols-2 gap-3">
@@ -76,7 +77,7 @@ function isSelf(row: UserAPI.ResponseUserInfo) {
         <template #default="{ row }">
           <div class="row">
             <div class="w-full left">
-              <img v-if="row.avatar" class="avatar" :src="row.avatar" />
+              <img v-if="row.avatar" class="avatar" :src="row.avatar">
               <EmptyAvatar v-else />
               <span class="ml-2 truncate">
                 {{ isSelf(row) ? `${row.name}(${t('app.common.self')})` : row.name }}
@@ -100,7 +101,9 @@ function isSelf(row: UserAPI.ResponseUserInfo) {
         <template #default="{ row }">
           <div v-if="!isSelf(row)">
             <!-- password -->
-            <el-button link type="default" @click="showChangePasswordDialog(row)"> Password </el-button>
+            <el-button link type="default" @click="showChangePasswordDialog(row)">
+              Password
+            </el-button>
             <!-- remove -->
             <el-button link type="danger" @click="handlerRemove(row)">
               {{ $t('app.team.member.remove.btn') }}

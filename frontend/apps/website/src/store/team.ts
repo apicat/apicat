@@ -17,10 +17,10 @@ export const useTeamStore = defineStore({
     }
   },
   getters: {
-    isOwner: (state) => state.currentRole === Role.Owner,
-    isMember: (state) => state.currentRole === Role.Member,
-    isAdmin: (state) => state.currentRole === Role.Admin,
-    currentTeam: (state) => state.teamIDIndex[state.currentID],
+    isOwner: state => state.currentRole === Role.Owner,
+    isMember: state => state.currentRole === Role.Member,
+    isAdmin: state => state.currentRole === Role.Admin,
+    currentTeam: state => state.teamIDIndex[state.currentID],
   },
 
   actions: {
@@ -38,7 +38,8 @@ export const useTeamStore = defineStore({
               const res = await apiGetCurrentTeam()
               currentID = res.id
               currentRole = res.role
-            } catch (e) {
+            }
+            catch (e) {
               //
             }
           })(),
@@ -51,7 +52,8 @@ export const useTeamStore = defineStore({
             teams = res.items
           }),
         ])
-        if (!teams.length) throw err
+        if (!teams.length)
+          throw err
 
         this.$patch({
           teams,
@@ -60,19 +62,23 @@ export const useTeamStore = defineStore({
           teamIDIndex,
         })
         this.$state.inited = true
-      } catch (e) {
-        if (isAxiosError(e)) throw err
+      }
+      catch (e) {
+        if (isAxiosError(e))
+          throw err
         throw e
       }
     },
 
     async switchTeam(teamID: string) {
-      if (this.currentTeam?.id === teamID) return
+      if (this.currentTeam?.id === teamID)
+        return
       try {
         await apiChangeCurrentTeam(teamID)
         // this.currentID = teamID
         location.reload()
-      } catch (error) {
+      }
+      catch (error) {
         //
       }
     },

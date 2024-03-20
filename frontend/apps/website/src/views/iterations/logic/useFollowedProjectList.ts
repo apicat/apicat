@@ -11,7 +11,8 @@ export function useFollowedProjectList(emit: IterationTreeEmits) {
   const statusKey = 'selectedIterationProject'
   const getStatus = () => Storage.get(statusKey) || 'all'
   const setStatus = (key: IterationSelectedKey) => {
-    if (key === 'create') key = 'all'
+    if (key === 'create')
+      key = 'all'
     Storage.set(statusKey, key)
     return key
   }
@@ -41,7 +42,8 @@ export function useFollowedProjectList(emit: IterationTreeEmits) {
   onMounted(async () => {
     try {
       followedProjects.value = (await getFollowedProjectListApi(currentID.value)) || []
-      if (selectedRef.value === 'all' || selectedRef.value === 'create') return
+      if (selectedRef.value === 'all' || selectedRef.value === 'create')
+        return
       let selectedProject: ProjectAPI.ResponseProject | undefined
       for (let i = 0; i < followedProjects.value.length; i++) {
         if (followedProjects.value[i].id === selectedRef.value) {
@@ -49,9 +51,11 @@ export function useFollowedProjectList(emit: IterationTreeEmits) {
           break
         }
       }
-      if (!selectedProject) selectedRef.value = 'all'
+      if (!selectedProject)
+        selectedRef.value = 'all'
       else emit('click', selectedProject)
-    } catch (error) {
+    }
+    catch (error) {
       //
     }
   })

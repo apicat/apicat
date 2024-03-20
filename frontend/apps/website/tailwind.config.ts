@@ -1,1 +1,1 @@
-module.exports = {}
+// for vscode code tips

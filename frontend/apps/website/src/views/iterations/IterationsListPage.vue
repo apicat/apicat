@@ -38,7 +38,8 @@ async function onCreateOrUpdateIterationSuccess() {
     currentSelectedProjectRef.value = null
     iterationTableRef.value?.reload()
     iterationTreeRef.value?.goSelectedAll()
-  } else {
+  }
+  else {
     iterationTableRef.value?.refresh()
     iterationTreeRef.value?.goBackSelected()
   }
@@ -66,13 +67,15 @@ function onCancelCreateOrUpdateIteration() {
       ref="iterationTableRef"
       :title="currentSelectedProjectRef?.title ?? null"
       :project-id="currentSelectedProjectRef?.id ?? null"
-      @edit="onEditIteration" />
+      @edit="onEditIteration"
+    />
 
     <IterationForm
       v-if="isFormMode"
       :iteration-i-d="currentEditableItreationIdRef"
       :projects="projectList"
       @success="onCreateOrUpdateIterationSuccess"
-      @cancel="onCancelCreateOrUpdateIteration" />
+      @cancel="onCancelCreateOrUpdateIteration"
+    />
   </LeftRightLayout>
 </template>

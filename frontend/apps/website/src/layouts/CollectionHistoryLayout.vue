@@ -59,10 +59,12 @@ onMounted(async () => {
     loading.value = false
     await nextTick()
     // set default active
-    if (histories.length && activeKey.value === undefined) await onNodeClick({ key: histories[0].id } as Node)
+    if (histories.length && activeKey.value === undefined)
+      await onNodeClick({ key: histories[0].id } as Node)
     // set current for expand
     activeKey.value && historyTreeRef.value?.setCurrentKey(activeKey.value)
-  } catch (error) {
+  }
+  catch (error) {
     loading.value = false
   }
 })
@@ -72,7 +74,7 @@ onMounted(async () => {
   <HistoryLayout :go-back="goBack">
     <template #left>
       <HistoryTree v-if="!loading" ref="historyTreeRef" :history-record="historyRecord" @on-node-click="onNodeClick" />
-      <div v-else class="h-full" v-loading="loading"></div>
+      <div v-else v-loading="loading" class="h-full" />
     </template>
   </HistoryLayout>
 </template>

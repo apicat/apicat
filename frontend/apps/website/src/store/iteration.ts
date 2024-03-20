@@ -13,7 +13,7 @@ export const useIterationStore = defineStore('iterationStore', {
 
   getters: {
     isIterationRoute(): boolean {
-      return !!this.$router.currentRoute.value.matched.find((item) => item.name === ITERATION_DETAIL_PATH_NAME)
+      return !!this.$router.currentRoute.value.matched.find(item => item.name === ITERATION_DETAIL_PATH_NAME)
     },
   },
   actions: {
@@ -24,7 +24,8 @@ export const useIterationStore = defineStore('iterationStore', {
 
     gatherIterationInfo(params?: Record<string, any>) {
       params = params || {}
-      if (this.isIterationRoute) params.iteration_id = this.$router.currentRoute.value.params.iteration_id
+      if (this.isIterationRoute)
+        params.iteration_id = this.$router.currentRoute.value.params.iteration_id
 
       return params
     },

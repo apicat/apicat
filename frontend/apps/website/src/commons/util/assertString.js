@@ -3,8 +3,10 @@ export default function assertString(input) {
 
   if (!isString) {
     let invalidType = typeof input
-    if (input === null) invalidType = 'null'
-    else if (invalidType === 'object') invalidType = input.constructor.name
+    if (input === null)
+      invalidType = 'null'
+    else if (invalidType === 'object')
+      invalidType = input.constructor.name
 
     throw new TypeError(`Expected a string but received a ${invalidType}`)
   }

@@ -34,19 +34,20 @@ export const useLocaleStore = defineStore('locale', {
   },
 
   getters: {
-    languagesForSelect: (state) => state.supportedLocales.map((item) => ({ label: item.name, value: item.lang })),
-    elementPlusLocaleMessage: (state) => state.localeMessages.elementPlusLocale || elementPlusLocaleMessage,
-    acCompLocaleMessage: (state) => state.localeMessages.components,
-    acEditorLocaleMessage: (state) => state.localeMessages.editor,
-    dayjsLocale: (state) => state.localeMessages.dayjsLocale,
+    languagesForSelect: state => state.supportedLocales.map(item => ({ label: item.name, value: item.lang })),
+    elementPlusLocaleMessage: state => state.localeMessages.elementPlusLocale || elementPlusLocaleMessage,
+    acCompLocaleMessage: state => state.localeMessages.components,
+    acEditorLocaleMessage: state => state.localeMessages.editor,
+    dayjsLocale: state => state.localeMessages.dayjsLocale,
   },
 
   actions: {
     async switchLanguage(locale: Language['lang']) {
       // check if the language exists i18n
-      const isSupport = this.supportedLocales.map((item) => item.lang).includes(locale)
+      const isSupport = this.supportedLocales.map(item => item.lang).includes(locale)
 
-      if (!isSupport) return
+      if (!isSupport)
+        return
 
       const isExist = this.i18n.global.availableLocales.includes(locale)
 

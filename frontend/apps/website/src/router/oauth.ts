@@ -29,26 +29,21 @@ export const oauthRoute: RouteRecordRaw = {
     showGlobalLoading()
     try {
       const platform = to.params.type as OAuthPlatform
-      if (!platform || !OAUTH_PLATFORMS[platform]) return next(NOT_FOUND_PATH)
+      if (!platform || !OAUTH_PLATFORMS[platform])
+        return next(NOT_FOUND_PATH)
 
-      // const { userInfo } = storeToRefs(useUserStore())
-
-      console.info('logging in with github oauth code')
       const res = await apiOAuthLoginWithCode(platform, {
         code: to.query.code as string,
         invitationToken: to.query.invitationToken as string,
         language: DEFAULT_LANGUAGE,
       })
-      if (!res) return next(NOT_FOUND_PATH)
+      if (!res)
+        return next(NOT_FOUND_PATH)
 
-      // 完整信息时，直接登录
-      console.info('update token and go to main page')
       if (res.accessToken) {
         useUserStore().updateToken(res.accessToken)
         return next(MAIN_PATH)
       }
-      // 信息不完整时
-      console.info('complete info needed')
       return next({
         name: COMPLETE_INFO_NAME,
         params: {
@@ -59,12 +54,12 @@ export const oauthRoute: RouteRecordRaw = {
           ...flattenObject(res),
         },
       })
-    } catch (err) {
-      console.info('error occured, going to login page')
+    }
+    catch (err) {
       return next(LOGIN_PATH)
-    } finally {
+    }
+    finally {
       hideGlobalLoading()
     }
-    console.warn('this message should not be shown')
   },
 }

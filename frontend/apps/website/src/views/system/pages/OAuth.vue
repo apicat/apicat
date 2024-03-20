@@ -31,7 +31,8 @@ async function handleSubmit() {
     await formRef.value?.validate()
     await updateOAuth(form.value)
     appStore.updatGithuClienId(form.value.clientID)
-  } catch (error) {
+  }
+  catch (error) {
     //
   }
 }
@@ -53,7 +54,9 @@ apiGetOAuth().then((v) => {
             <div class="left mr-8px">
               <Icon icon="uil:github" width="24" />
             </div>
-            <div class="font-bold right">GitHub</div>
+            <div class="font-bold right">
+              GitHub
+            </div>
           </div>
         </template>
         <ElForm
@@ -62,7 +65,8 @@ apiGetOAuth().then((v) => {
           :rules="rules"
           :model="form"
           @submit.prevent="handleSubmit"
-          @keyup.enter="handleSubmit">
+          @keyup.enter="handleSubmit"
+        >
           <!-- id -->
           <ElFormItem prop="clientID" :label="$t('app.system.oauth.github.id')">
             <ElInput v-model="form.clientID" maxlength="255" />

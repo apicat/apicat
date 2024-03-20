@@ -35,8 +35,10 @@ const rules: FormRules<typeof form> = {
     {
       required: true,
       validator(__: any, _: any, callback: any) {
-        if (form.value.newPassword !== form.value.reNewPassword) callback(new Error(t('app.rules.password.noMatch')))
-        else if (form.value.reNewPassword.length === 0) callback(new Error(t('app.rules.password.minLength')))
+        if (form.value.newPassword !== form.value.reNewPassword)
+          callback(new Error(t('app.rules.password.noMatch')))
+        else if (form.value.reNewPassword.length === 0)
+          callback(new Error(t('app.rules.password.minLength')))
         else callback()
       },
       trigger: 'blur',
@@ -60,17 +62,17 @@ async function submit() {
           <div style="margin-top: 40px">
             <!-- old pass -->
             <ElFormItem prop="password" :label="$t('app.user.password.old')">
-              <ElInput maxlength="255" v-model="form.password" class="h-40px" type="password" />
+              <ElInput v-model="form.password" maxlength="255" class="h-40px" type="password" />
             </ElFormItem>
 
             <!-- new pass -->
             <ElFormItem prop="newPassword" :label="$t('app.user.password.new')">
-              <ElInput maxlength="255" v-model="form.newPassword" class="h-40px" type="password" />
+              <ElInput v-model="form.newPassword" maxlength="255" class="h-40px" type="password" />
             </ElFormItem>
 
             <!-- confirm pass -->
             <ElFormItem prop="reNewPassword" :label="$t('app.user.password.confirm')">
-              <ElInput maxlength="255" v-model="form.reNewPassword" class="h-40px" type="password" />
+              <ElInput v-model="form.reNewPassword" maxlength="255" class="h-40px" type="password" />
             </ElFormItem>
           </div>
 

@@ -1,10 +1,10 @@
 import { storeToRefs } from 'pinia'
 import type { FormInstance } from 'element-plus'
+import { useI18n } from 'vue-i18n'
 import type { IterationFormEmits, IterationFormProps } from '../components/IterationForm.vue'
 import { useTeamStore } from '@/store/team'
 import { apiCreateIteration, apiEditIterationInfo, apiGetIterationInfo } from '@/api/iteration/index'
 import useApi from '@/hooks/useApi'
-import { useI18n} from "vue-i18n"
 
 export type CreateOrEditIteration = GlobalAPI.Merge<
   IterationAPI.RequestCreateIteration,
@@ -12,7 +12,7 @@ export type CreateOrEditIteration = GlobalAPI.Merge<
 >
 
 export function useIterationForm(props: IterationFormProps, emits: IterationFormEmits) {
-  const {t} = useI18n()
+  const { t } = useI18n()
   const defaultCreateIteration: CreateOrEditIteration = {
     title: '',
     projectID: '',
@@ -26,9 +26,9 @@ export function useIterationForm(props: IterationFormProps, emits: IterationForm
     ...defaultCreateIteration,
   })
   const iterationRules = {
-    title: [{ required: true, message: t("app.iteration.form.inpIterNameTip") }],
-    projectID: [{ required: true, message: t("app.iteration.form.selectProjectTip") }],
-    description: [{ message: t("app.iteration.form.descTip") }],
+    title: [{ required: true, message: t('app.iteration.form.inpIterNameTip') }],
+    projectID: [{ required: true, message: t('app.iteration.form.selectProjectTip') }],
+    description: [{ message: t('app.iteration.form.descTip') }],
   }
 
   const { iterationID: iterationIDRef } = toRefs(props)

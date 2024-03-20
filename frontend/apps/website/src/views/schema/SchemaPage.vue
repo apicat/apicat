@@ -48,7 +48,8 @@ function goSchemahistory() {
 watchDebounced(
   schema,
   async (n, o) => {
-    if (readonly.value || !n) return
+    if (readonly.value || !n)
+      return
 
     // 还原旧的title时，不需要请求接口
     if (!oldTitle) {
@@ -58,14 +59,16 @@ watchDebounced(
 
     if (n && o && n.id === o.id) {
       // title is empty
-      if (!n.name || !n.name.trim()) return ElMessage.error(t('app.schema.page.edit.titleNull'))
+      if (!n.name || !n.name.trim())
+        return ElMessage.error(t('app.schema.page.edit.titleNull'))
 
       // backup old title
       oldTitle = n.name
 
       try {
         await updateSchema(props.project_id, n)
-      } catch (error) {
+      }
+      catch (error) {
         //
       }
     }
@@ -82,13 +85,15 @@ async function setDetail(id: string) {
   if (!Number.isNaN(schemaID)) {
     await definitionSchemaStore.getSchemaDetail(props.project_id, schemaID)
     oldTitle = schema.value?.name || ''
-    if (!readonly.value) focus()
+    if (!readonly.value)
+      focus()
   }
 }
 
 const generateCodeRef = ref<InstanceType<typeof GenerateCode>>()
 watch(schemaIDRef, async (id, oID) => {
-  if (id === oID) return
+  if (id === oID)
+    return
   generateCodeRef.value?.dispose()
   setDetail(id)
 })
@@ -135,7 +140,8 @@ onMounted(async () => {
           effect="dark"
           placement="bottom"
           :content="$t('app.schema.history.title')"
-          :show-arrow="false">
+          :show-arrow="false"
+        >
           <Iconfont class="cursor-pointer ac-history" :size="24" @click="goSchemahistory" />
         </el-tooltip>
       </div>
@@ -156,14 +162,16 @@ onMounted(async () => {
           class="ac-document__title"
           type="text"
           maxlength="255"
-          :placeholder="$t('app.schema.form.title')" />
+          :placeholder="$t('app.schema.form.title')"
+        >
 
         <input
           v-model="schema.description"
           class="w-full ac-document__desc"
           type="text"
           maxlength="255"
-          :placeholder="$t('app.schema.form.desc')" />
+          :placeholder="$t('app.schema.form.desc')"
+        >
       </div>
     </div>
 
@@ -173,8 +181,9 @@ onMounted(async () => {
       v-model:schema="schema.schema"
       :readonly="readonly"
       :root-schema-key="schema.id"
-      :definition-schemas="schemas" />
+      :definition-schemas="schemas"
+    />
 
-    <GenerateCode ref="generateCodeRef" v-if="readonly && schema" :schema="schema" />
+    <GenerateCode v-if="readonly && schema" ref="generateCodeRef" :schema="schema" />
   </div>
 </template>

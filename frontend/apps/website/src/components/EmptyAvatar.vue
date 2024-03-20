@@ -1,12 +1,12 @@
+<script setup lang="ts">
+import { Icon } from '@iconify/vue'
+</script>
+
 <template>
   <div>
     <Icon class="avatar-holder" icon="lucide:image" />
   </div>
 </template>
-
-<script setup lang="ts">
-import { Icon } from '@iconify/vue'
-</script>
 
 <style scoped>
 .avatar-holder {

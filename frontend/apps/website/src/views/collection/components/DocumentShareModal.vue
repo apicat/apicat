@@ -27,8 +27,8 @@ const link = computed(() => {
   // public collection
   if (shareInfo.value.visibility === Visibility.Public) {
     return (
-      location.origin +
-      router.resolve({
+      location.origin
+      + router.resolve({
         name: PROJECT_COLLECTION_PATH_NAME,
         params: {
           project_id: collectionShareBase.value.projectID,
@@ -40,8 +40,8 @@ const link = computed(() => {
 
   // private collection
   return (
-    location.origin +
-    router.resolve({
+    location.origin
+    + router.resolve({
       name: COLLECTION_SHARE_PATH_NAME,
       params: {
         collectionPublicID: shareInfo.value.collectionPublicID,
@@ -61,8 +61,8 @@ async function getInfo() {
 
 async function init() {
   if (
-    !collectionShareBase.value.projectID &&
-    (!collectionShareBase.value.collectionID || collectionShareBase.value.collectionID < 0)
+    !collectionShareBase.value.projectID
+    && (!collectionShareBase.value.collectionID || collectionShareBase.value.collectionID < 0)
   )
     return
   loading.value = true
@@ -70,8 +70,10 @@ async function init() {
   try {
     await getInfo()
     loading.value = false
-  } catch (e) {
-    if (e && (e as any).message) error.value = (e as any).message
+  }
+  catch (e) {
+    if (e && (e as any).message)
+      error.value = (e as any).message
     else error.value = 'UNKNOWN ERROR'
   }
 }
@@ -139,7 +141,8 @@ defineExpose({
     align-center
     destroy-on-close
     class="fullscree"
-    @closed="clear">
+    @closed="clear"
+  >
     <div v-loading="loading" style="padding: 10px" class="mb-3">
       <div v-if="shareInfo.visibility === Visibility.Public">
         <el-form label-position="top" class="px-6">
@@ -167,7 +170,8 @@ defineExpose({
             class="ml-20px"
             :loading="statusLoading"
             inline-prompt
-            @change="changeStatus" />
+            @change="changeStatus"
+          />
         </div>
 
         <ElCollapseTransition>

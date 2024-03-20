@@ -9,10 +9,9 @@ import { isUrlRule, notNullRule } from '@/commons'
 import useApi from '@/hooks/useApi'
 import { apiUpdateStroageQiniu } from '@/api/system'
 
+const props = defineProps<{ collapse: UseCollapse; name: string; config: Partial<SystemAPI.StorageQiniu> }>()
 const { t } = useI18n()
 const tBase = 'app.system.storage.qiniu'
-const props = defineProps<{ collapse: UseCollapse; name: string; config: Partial<SystemAPI.StorageQiniu> }>()
-
 const formRef = ref<FormInstance>()
 const rules: FormRules<typeof props.config> = {
   accessKey: notNullRule(t(`${tBase}.rules.accessKey`)),
@@ -24,7 +23,8 @@ const rules: FormRules<typeof props.config> = {
 const [submitting, update] = useApi(apiUpdateStroageQiniu)
 function submit() {
   formRef.value!.validate((valid) => {
-    if (valid) update(props.config as SystemAPI.StorageQiniu)
+    if (valid)
+      update(props.config as SystemAPI.StorageQiniu)
   })
 }
 </script>
@@ -36,21 +36,23 @@ function submit() {
         <div class="left mr-8px">
           <IconSvg name="ac-qiniu" width="60" height="24" />
         </div>
-        <div class="right font-bold">{{ $t(`${tBase}.title`) }}</div>
+        <div class="right font-bold">
+          {{ $t(`${tBase}.title`) }}
+        </div>
       </div>
     </template>
     <ElForm ref="formRef" label-position="top" :rules="rules" :model="props.config" @submit.prevent="submit">
       <ElFormItem prop="accessKey" :label="$t(`${tBase}.accessKey`)">
-        <ElInput maxlength="255" v-model="props.config.accessKey" />
+        <ElInput v-model="props.config.accessKey" maxlength="255" />
       </ElFormItem>
       <ElFormItem prop="secretKey" :label="$t(`${tBase}.secretKey`)">
-        <ElInput maxlength="255" v-model="props.config.secretKey" />
+        <ElInput v-model="props.config.secretKey" maxlength="255" />
       </ElFormItem>
       <ElFormItem prop="bucketName" :label="$t(`${tBase}.bucketName`)">
-        <ElInput maxlength="255" v-model="props.config.bucketName" />
+        <ElInput v-model="props.config.bucketName" maxlength="255" />
       </ElFormItem>
       <ElFormItem prop="bucketUrl" :label="$t(`${tBase}.bucketUrl`)">
-        <ElInput maxlength="255" v-model="props.config.bucketUrl" />
+        <ElInput v-model="props.config.bucketUrl" maxlength="255" />
       </ElFormItem>
     </ElForm>
 

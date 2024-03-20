@@ -15,11 +15,13 @@ onBeforeMount(
     try {
       result.value = (await changeUserEmail(code)) as any
       hasError.value = false
-    } catch (error) {
+    }
+    catch (error) {
       hasError.value = true
       if (error instanceof BadRequestError) {
         const { response } = error as BadRequestError<CommonResponseMessageForMessageTemplate>
-        if (!response || (!response.emoji && !response.title && response.message)) router.push(NOT_FOUND_PATH)
+        if (!response || (!response.emoji && !response.title && response.message))
+          router.push(NOT_FOUND_PATH)
         result.value = response
       }
     }
@@ -34,8 +36,8 @@ onBeforeMount(
         <p>
           {{ $t('app.verifyEmail.p1') + seconds + $t('app.verifyEmail.p2')
           }}<RouterLink class="text-primary" :replace="true" :to="MAIN_PATH">
-            {{ $t('app.verifyEmail.p3') }} </RouterLink
-          >.
+            {{ $t('app.verifyEmail.p3') }}
+          </RouterLink>.
         </p>
       </AcCountDown>
     </template>

@@ -157,9 +157,9 @@ export default defineComponent({
     const isEmpty = computed(() => {
       const { childNodes } = root.value
       return (
-        !childNodes ||
-        childNodes.length === 0 ||
-        childNodes.every(({ visible }) => !visible)
+        !childNodes
+        || childNodes.length === 0
+        || childNodes.every(({ visible }) => !visible)
       )
     })
 
@@ -206,7 +206,8 @@ export default defineComponent({
       if (!props.nodeKey)
         throw new Error('[Tree] nodeKey is required in getNodePath')
       const node = store.value.getNode(data)
-      if (!node) return []
+      if (!node)
+        return []
       const path = [node.data]
       let parent = node.parent
       while (parent && parent !== root.value) {
@@ -384,7 +385,8 @@ export default defineComponent({
       { [ns.m('highlight-current')]: highlightCurrent },
     ]"
     style="background-color: transparent"
-    role="tree">
+    role="tree"
+  >
     <AcTreeNode
       v-for="child in root.childNodes"
       :key="getNodeKey(child)"
@@ -394,13 +396,15 @@ export default defineComponent({
       :render-after-expand="renderAfterExpand"
       :show-checkbox="showCheckbox"
       :render-content="renderContent"
-      @node-expand="handleNodeExpand" />
+      @node-expand="handleNodeExpand"
+    />
     <div v-if="isEmpty" :class="ns.e('empty-block')">
       <span :class="ns.e('empty-text')">{{ emptyText ?? $t("acTree.tree.empty") }}</span>
     </div>
     <div
       v-show="dragState.showDropIndicator"
       ref="dropIndicator$"
-      :class="ns.e('drop-indicator')" />
+      :class="ns.e('drop-indicator')"
+    />
   </div>
 </template>

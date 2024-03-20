@@ -23,8 +23,8 @@ const shareInfo = ref<ShareAPI.ResponseProjectShareInfo>({
 })
 const link = computed(() => {
   return (
-    location.origin +
-    router.resolve({
+    location.origin
+    + router.resolve({
       name: PROJECT_DETAIL_PATH_NAME,
       params: {
         project_id: projectID.value,
@@ -47,15 +47,19 @@ async function getInfo() {
   shareInfo.value = res
 }
 async function init() {
-  if (!projectID.value) return
+  if (!projectID.value)
+    return
   loading.value = true
   visible.value = true
   try {
     await Promise.all([checkStatus(), getInfo()])
-  } catch (e) {
-    if (e && (e as any).message) error.value = (e as any).message
+  }
+  catch (e) {
+    if (e && (e as any).message)
+      error.value = (e as any).message
     else error.value = 'UNKNOWN ERROR'
-  } finally {
+  }
+  finally {
     loading.value = false
   }
 }
@@ -109,7 +113,8 @@ defineExpose({
     align-center
     destroy-on-close
     class="fullscree"
-    @closed="clear">
+    @closed="clear"
+  >
     <div v-loading="loading" style="padding: 10px" class="mb-3">
       <div v-if="shareInfo.visibility === Visibility.Public">
         <el-form label-position="top" class="px-6">
@@ -137,7 +142,8 @@ defineExpose({
             class="ml-20px"
             :loading="statusLoading"
             inline-prompt
-            @change="changeStatus" />
+            @change="changeStatus"
+          />
         </div>
 
         <ElCollapseTransition>

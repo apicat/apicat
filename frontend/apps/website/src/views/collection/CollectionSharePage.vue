@@ -40,7 +40,8 @@ const {
             :schemas="schemas"
             :responses="responses"
             :parameters="parameters"
-            :options="acEditorOptions" />
+            :options="acEditorOptions"
+          />
         </div>
       </main>
       <ac-backtop :bottom="100" :right="100" />
@@ -51,7 +52,8 @@ const {
       :project-i-d="collectionStatus?.projectID"
       :collection-i-d="collectionStatus?.collectionID"
       :public-i-d="publicID"
-      @update:visible="onVerifyCodeInputSuccess" />
+      @update:visible="onVerifyCodeInputSuccess"
+    />
   </div>
 </template>
 

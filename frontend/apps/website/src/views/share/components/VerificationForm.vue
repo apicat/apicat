@@ -29,7 +29,7 @@ async function onSubmitBtnClick() {
       <el-button :loading="isLoading" type="primary" @click="onSubmitBtnClick">
         {{ $t('app.verifyShare.btn') }}
       </el-button>
-      <img src="@/assets/images/img-join.png" class="w-full mt-9" />
+      <img src="@/assets/images/img-join.png" class="w-full mt-9">
     </div>
   </main>
 </template>
