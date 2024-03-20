@@ -1,12 +1,13 @@
 package storage
 
 import (
-	"apicat-cloud/backend/module/storage/cloudflare"
-	"apicat-cloud/backend/module/storage/common"
-	"apicat-cloud/backend/module/storage/local"
-	"apicat-cloud/backend/module/storage/qiniu"
 	"errors"
 	"log/slog"
+
+	"github.com/apicat/apicat/backend/module/storage/cloudflare"
+	"github.com/apicat/apicat/backend/module/storage/common"
+	"github.com/apicat/apicat/backend/module/storage/local"
+	"github.com/apicat/apicat/backend/module/storage/qiniu"
 )
 
 const (

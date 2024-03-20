@@ -1,12 +1,13 @@
 package share
 
 import (
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/model/collection"
-	"apicat-cloud/backend/model/project"
 	"context"
 	"errors"
 	"time"
+
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/project"
 )
 
 type ShareTmpToken struct {

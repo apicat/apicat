@@ -1,14 +1,15 @@
 package definition
 
 import (
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/model/team"
-	"apicat-cloud/backend/module/spec"
 	"context"
 	"encoding/json"
 	"errors"
 	"log/slog"
 	"time"
+
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/team"
+	"github.com/apicat/apicat/backend/module/spec"
 
 	"gorm.io/gorm"
 )

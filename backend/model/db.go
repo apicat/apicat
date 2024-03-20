@@ -1,11 +1,12 @@
 package model
 
 import (
-	"apicat-cloud/backend/config"
 	"context"
 	"fmt"
 	"log/slog"
 	"time"
+
+	"github.com/apicat/apicat/backend/config"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

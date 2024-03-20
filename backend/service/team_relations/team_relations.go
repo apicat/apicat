@@ -1,14 +1,15 @@
 package team_relations
 
 import (
-	"apicat-cloud/backend/i18n"
-	"apicat-cloud/backend/model/team"
-	"apicat-cloud/backend/model/user"
-	protobase "apicat-cloud/backend/route/proto/base"
-	prototeambase "apicat-cloud/backend/route/proto/team/base"
-	prototeamresponse "apicat-cloud/backend/route/proto/team/response"
-	"apicat-cloud/backend/service/user_relations"
 	"log/slog"
+
+	"github.com/apicat/apicat/backend/i18n"
+	"github.com/apicat/apicat/backend/model/team"
+	"github.com/apicat/apicat/backend/model/user"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	prototeambase "github.com/apicat/apicat/backend/route/proto/team/base"
+	prototeamresponse "github.com/apicat/apicat/backend/route/proto/team/response"
+	"github.com/apicat/apicat/backend/service/user_relations"
 
 	"github.com/gin-gonic/gin"
 )

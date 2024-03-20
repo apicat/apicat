@@ -1,10 +1,11 @@
 package llm
 
 import (
-	"apicat-cloud/backend/module/llm/common"
-	"apicat-cloud/backend/module/llm/openai"
 	"errors"
 	"log/slog"
+
+	"github.com/apicat/apicat/backend/module/llm/common"
+	"github.com/apicat/apicat/backend/module/llm/openai"
 )
 
 const (

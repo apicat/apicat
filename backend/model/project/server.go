@@ -1,10 +1,11 @@
 package project
 
 import (
-	"apicat-cloud/backend/model"
 	"context"
 	"errors"
 	"time"
+
+	"github.com/apicat/apicat/backend/model"
 )
 
 type Server struct {

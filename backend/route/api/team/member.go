@@ -1,17 +1,18 @@
 package team
 
 import (
-	"apicat-cloud/backend/i18n"
-	"apicat-cloud/backend/model/team"
-	"apicat-cloud/backend/route/middleware/access"
-	protobase "apicat-cloud/backend/route/proto/base"
-	prototeam "apicat-cloud/backend/route/proto/team"
-	prototeamrequest "apicat-cloud/backend/route/proto/team/request"
-	prototeamresponse "apicat-cloud/backend/route/proto/team/response"
-	"apicat-cloud/backend/service/team_relations"
 	"log/slog"
 	"math"
 	"net/http"
+
+	"github.com/apicat/apicat/backend/i18n"
+	"github.com/apicat/apicat/backend/model/team"
+	"github.com/apicat/apicat/backend/route/middleware/access"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	prototeam "github.com/apicat/apicat/backend/route/proto/team"
+	prototeamrequest "github.com/apicat/apicat/backend/route/proto/team/request"
+	prototeamresponse "github.com/apicat/apicat/backend/route/proto/team/response"
+	"github.com/apicat/apicat/backend/service/team_relations"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

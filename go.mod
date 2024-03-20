@@ -1,4 +1,4 @@
-module apicat-cloud
+module github.com/apicat/apicat
 
 go 1.21.0
 

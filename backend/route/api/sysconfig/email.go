@@ -1,17 +1,18 @@
 package sysconfig
 
 import (
-	"apicat-cloud/backend/config"
-	"apicat-cloud/backend/i18n"
-	"apicat-cloud/backend/model/sysconfig"
-	mailmodule "apicat-cloud/backend/module/mail"
-	protosysconfig "apicat-cloud/backend/route/proto/sysconfig"
-	sysconfigbase "apicat-cloud/backend/route/proto/sysconfig/base"
-	sysconfigrequest "apicat-cloud/backend/route/proto/sysconfig/request"
 	"encoding/json"
 	"log/slog"
 	"net/mail"
 	"strings"
+
+	"github.com/apicat/apicat/backend/config"
+	"github.com/apicat/apicat/backend/i18n"
+	"github.com/apicat/apicat/backend/model/sysconfig"
+	mailmodule "github.com/apicat/apicat/backend/module/mail"
+	protosysconfig "github.com/apicat/apicat/backend/route/proto/sysconfig"
+	sysconfigbase "github.com/apicat/apicat/backend/route/proto/sysconfig/base"
+	sysconfigrequest "github.com/apicat/apicat/backend/route/proto/sysconfig/request"
 
 	"net/http"
 

@@ -1,9 +1,9 @@
 package iteration
 
 import (
-	"apicat-cloud/backend/route/proto/iteration/base"
-	"apicat-cloud/backend/route/proto/iteration/request"
-	"apicat-cloud/backend/route/proto/iteration/response"
+	"github.com/apicat/apicat/backend/route/proto/iteration/base"
+	"github.com/apicat/apicat/backend/route/proto/iteration/request"
+	"github.com/apicat/apicat/backend/route/proto/iteration/response"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

@@ -1,9 +1,10 @@
 package project
 
 import (
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/model/team"
 	"context"
+
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/team"
 
 	"github.com/pkg-id/objectid"
 	"gorm.io/gorm"

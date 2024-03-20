@@ -1,10 +1,11 @@
 package jwt
 
 import (
-	"apicat-cloud/backend/model/user"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/apicat/apicat/backend/model/user"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"

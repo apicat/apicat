@@ -1,9 +1,10 @@
 package collection
 
 import (
-	"apicat-cloud/backend/model"
 	"context"
 	"time"
+
+	"github.com/apicat/apicat/backend/model"
 )
 
 type Tag struct {

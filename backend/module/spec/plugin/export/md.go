@@ -7,8 +7,8 @@ import (
 	"sort"
 	"strings"
 
-	"apicat-cloud/backend/module/spec"
-	"apicat-cloud/backend/module/spec/jsonschema"
+	"github.com/apicat/apicat/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec/jsonschema"
 
 	"github.com/apicat/datagen"
 	"golang.org/x/exp/slices"

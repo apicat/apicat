@@ -1,11 +1,12 @@
 package smtp
 
 import (
-	"apicat-cloud/backend/module/mail/common"
 	"fmt"
 	"net/mail"
 	"net/smtp"
 	"strings"
+
+	"github.com/apicat/apicat/backend/module/mail/common"
 )
 
 type smtpSender struct {

@@ -1,7 +1,7 @@
 package base
 
 import (
-	"apicat-cloud/backend/model/project"
+	"github.com/apicat/apicat/backend/model/project"
 )
 
 type ProjectIdOption struct {

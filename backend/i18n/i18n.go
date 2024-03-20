@@ -1,10 +1,11 @@
 package i18n
 
 import (
-	"apicat-cloud/backend/i18n/lang"
-	"apicat-cloud/backend/route/middleware/jwt"
 	"fmt"
 	"strings"
+
+	"github.com/apicat/apicat/backend/i18n/lang"
+	"github.com/apicat/apicat/backend/route/middleware/jwt"
 
 	"github.com/gin-gonic/gin"
 )

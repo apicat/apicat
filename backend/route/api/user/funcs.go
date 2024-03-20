@@ -1,12 +1,13 @@
 package user
 
 import (
-	"apicat-cloud/backend/i18n"
-	"apicat-cloud/backend/model/user"
-	protouserrequest "apicat-cloud/backend/route/proto/user/request"
 	"log/slog"
 	"net/http"
 	"time"
+
+	"github.com/apicat/apicat/backend/i18n"
+	"github.com/apicat/apicat/backend/model/user"
+	protouserrequest "github.com/apicat/apicat/backend/route/proto/user/request"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

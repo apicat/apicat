@@ -1,18 +1,18 @@
 package collection
 
 import (
-	"apicat-cloud/backend/i18n"
-	"apicat-cloud/backend/model/collection"
-	"apicat-cloud/backend/model/project"
-	collectionrequest "apicat-cloud/backend/route/proto/collection/request"
-	collectionrelations "apicat-cloud/backend/service/collection_relations"
+	"github.com/apicat/apicat/backend/i18n"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/project"
+	collectionrequest "github.com/apicat/apicat/backend/route/proto/collection/request"
+	collectionrelations "github.com/apicat/apicat/backend/service/collection_relations"
 
 	"fmt"
 	"log/slog"
 	"net/http"
 	"strings"
 
-	"apicat-cloud/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec"
 
 	"github.com/gin-gonic/gin"
 )

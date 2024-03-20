@@ -1,12 +1,12 @@
 package project_relations
 
 import (
-	"apicat-cloud/backend/model/collection"
-	"apicat-cloud/backend/model/definition"
-	"apicat-cloud/backend/model/global"
-	"apicat-cloud/backend/model/project"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/definition"
+	"github.com/apicat/apicat/backend/model/global"
+	"github.com/apicat/apicat/backend/model/project"
 
-	"apicat-cloud/backend/module/spec"
+	"github.com/apicat/apicat/backend/module/spec"
 
 	"github.com/gin-gonic/gin"
 )

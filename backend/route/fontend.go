@@ -1,12 +1,13 @@
 package route
 
 import (
-	"apicat-cloud/frontend"
 	"crypto/md5"
 	"encoding/hex"
 	"io/fs"
 	"net/http"
 	"strings"
+
+	"github.com/apicat/apicat/frontend"
 
 	"github.com/gin-gonic/gin"
 )

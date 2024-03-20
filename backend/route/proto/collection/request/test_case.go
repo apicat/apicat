@@ -1,7 +1,7 @@
 package request
 
 import (
-	"apicat-cloud/backend/route/proto/collection/base"
+	"github.com/apicat/apicat/backend/route/proto/collection/base"
 )
 
 type GenerateTestCaseOption struct {

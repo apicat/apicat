@@ -1,20 +1,21 @@
 package collection
 
 import (
-	"apicat-cloud/backend/i18n"
-	"apicat-cloud/backend/model/collection"
-	"apicat-cloud/backend/model/project"
-	"apicat-cloud/backend/route/middleware/access"
-	"apicat-cloud/backend/route/middleware/jwt"
-	protobase "apicat-cloud/backend/route/proto/base"
-	collection_proto "apicat-cloud/backend/route/proto/collection"
-	"apicat-cloud/backend/route/proto/collection/base"
-	"apicat-cloud/backend/route/proto/collection/request"
-	"apicat-cloud/backend/route/proto/collection/response"
-	"apicat-cloud/backend/service/ai"
-	collectionrelations "apicat-cloud/backend/service/collection_relations"
 	"log/slog"
 	"net/http"
+
+	"github.com/apicat/apicat/backend/i18n"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/project"
+	"github.com/apicat/apicat/backend/route/middleware/access"
+	"github.com/apicat/apicat/backend/route/middleware/jwt"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
+	collection_proto "github.com/apicat/apicat/backend/route/proto/collection"
+	"github.com/apicat/apicat/backend/route/proto/collection/base"
+	"github.com/apicat/apicat/backend/route/proto/collection/request"
+	"github.com/apicat/apicat/backend/route/proto/collection/response"
+	"github.com/apicat/apicat/backend/service/ai"
+	collectionrelations "github.com/apicat/apicat/backend/service/collection_relations"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

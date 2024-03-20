@@ -1,12 +1,13 @@
 package definitionrelations
 
 import (
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/model/collection"
-	"apicat-cloud/backend/model/definition"
-	"apicat-cloud/backend/module/spec"
 	"context"
 	"encoding/json"
+
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/model/collection"
+	"github.com/apicat/apicat/backend/model/definition"
+	"github.com/apicat/apicat/backend/module/spec"
 )
 
 func ImportDefinitionParameters(ctx context.Context, projectID string, parameters *spec.HTTPParameters) collection.VirtualIDToIDMap {

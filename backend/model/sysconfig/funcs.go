@@ -1,16 +1,17 @@
 package sysconfig
 
 import (
-	"apicat-cloud/backend/config"
-	"apicat-cloud/backend/model"
-	"apicat-cloud/backend/module/cache"
-	"apicat-cloud/backend/module/llm"
-	mailmodule "apicat-cloud/backend/module/mail"
-	"apicat-cloud/backend/module/oauth2"
-	"apicat-cloud/backend/module/storage"
 	"context"
 	"encoding/json"
 	"net/mail"
+
+	"github.com/apicat/apicat/backend/config"
+	"github.com/apicat/apicat/backend/model"
+	"github.com/apicat/apicat/backend/module/cache"
+	"github.com/apicat/apicat/backend/module/llm"
+	mailmodule "github.com/apicat/apicat/backend/module/mail"
+	"github.com/apicat/apicat/backend/module/oauth2"
+	"github.com/apicat/apicat/backend/module/storage"
 
 	"gorm.io/gorm"
 )

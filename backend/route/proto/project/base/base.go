@@ -1,7 +1,7 @@
 package base
 
 import (
-	protobase "apicat-cloud/backend/route/proto/base"
+	protobase "github.com/apicat/apicat/backend/route/proto/base"
 )
 
 type OperatorID struct {
