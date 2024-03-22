@@ -36,6 +36,7 @@ func init() {
 
 	if entran, found := uni.GetTranslator("en"); found {
 		trans["en"] = &entran
+		trans["en-US"] = &entran
 		if err := en_translations.RegisterDefaultTranslations(validater, entran); err != nil {
 			slog.Info("en translator register failed")
 		}
