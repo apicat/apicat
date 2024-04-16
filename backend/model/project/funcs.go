@@ -86,6 +86,7 @@ func GetProjectMembers(ctx context.Context, pID string, page, pageSize int, perm
 	if len(permission) > 0 {
 		tx.Where("permission in (?)", permission)
 	}
+	tx.Order("created_at desc")
 	if page > 0 && pageSize > 0 {
 		tx = tx.Limit(pageSize).Offset((page - 1) * pageSize)
 	}
