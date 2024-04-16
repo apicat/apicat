@@ -54,7 +54,7 @@ func DeleteShareTmpTokenByCollection(ctx context.Context, c *collection.Collecti
 
 // DeleteProjectShareTmpTokens 项目关闭分享清除分享token
 func DeleteProjectShareTmpTokens(ctx context.Context, p *project.Project) error {
-	return model.DB(ctx).Delete(&ShareTmpToken{}, "project_id = ? AND collection_id IS NULL", p.ID).Error
+	return model.DB(ctx).Delete(&ShareTmpToken{}, "project_id = ? AND collection_id = 0", p.ID).Error
 }
 
 // DeleteCollectionShareTmpTokens 集合关闭分享清除分享token
