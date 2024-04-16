@@ -37,6 +37,7 @@ var En = map[string]map[string]string{
 		"PublicProjectShare":          "This is a public project that anyone can access.",
 	},
 	"user": {
+		"LoginRequired":                    "Please log in to your account.",
 		"OriginalPasswordWrong":            "The original password is wrong.",
 		"PasswordUpdateFailed":             "Password modification failed, please try again later.",
 		"PasswordResetFailed":              "Password reset failed, please try again later.",

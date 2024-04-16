@@ -90,7 +90,7 @@ func registerProject(g *gin.RouterGroup) {
 	r.GET("", ginrpc.Handle(srv.List))
 
 	noAuth := g.Group("/projects/:projectID")
-	noAuth.GET("", access.AllowGuest(), ginrpc.Handle(srv.Get))
+	noAuth.GET("", access.AllowGuestByShareCode(), ginrpc.Handle(srv.Get))
 	// 导出项目内容，需返回不同的 Content-Type，单独处理
 	noAuth.GET("/export/:code", project.Export)
 
@@ -109,7 +109,7 @@ func registerProjectShare(g *gin.RouterGroup) {
 	srv := project.NewProjectShareApi()
 
 	noAuth := g.Group("/projects/:projectID/share")
-	noAuth.GET("/status", ginrpc.Handle(srv.Status))
+	noAuth.GET("/status", access.AllowGuestByShareStatus(), ginrpc.Handle(srv.Status))
 	noAuth.POST("/check", ginrpc.Handle(srv.Check))
 
 	r := g.Group("/projects/:projectID/share", access.BelongToTeam(), access.BelongToProject())
@@ -121,7 +121,7 @@ func registerProjectShare(g *gin.RouterGroup) {
 func registerProjectGlobalParameter(g *gin.RouterGroup) {
 	srv := project.NewGlobalParameterAPI()
 
-	noAuth := g.Group("/projects/:projectID/global/parameters", access.AllowGuest())
+	noAuth := g.Group("/projects/:projectID/global/parameters", access.AllowGuestByShareCode())
 	noAuth.GET("", ginrpc.Handle(srv.List))
 
 	r := g.Group("/projects/:projectID/global/parameters", access.BelongToTeam(), access.BelongToProject())
@@ -134,7 +134,7 @@ func registerProjectGlobalParameter(g *gin.RouterGroup) {
 func registerProjectServer(g *gin.RouterGroup) {
 	srv := project.NewProjectServerApi()
 
-	noAuth := g.Group("/projects/:projectID/servers", access.AllowGuest())
+	noAuth := g.Group("/projects/:projectID/servers", access.AllowGuestByShareCode())
 	noAuth.GET("", ginrpc.Handle(srv.List))
 
 	r := g.Group("/projects/:projectID/servers", access.BelongToTeam(), access.BelongToProject())
@@ -157,7 +157,7 @@ func registerProjectMember(g *gin.RouterGroup) {
 func registerProjectDefinitionSchema(g *gin.RouterGroup) {
 	srv := project.NewDefinitionSchemaApi()
 
-	noAuth := g.Group("/projects/:projectID/definition/schemas", access.AllowGuest())
+	noAuth := g.Group("/projects/:projectID/definition/schemas", access.AllowGuestByShareCode())
 	noAuth.GET("", ginrpc.Handle(srv.List))
 	noAuth.GET("/:schemaID", ginrpc.Handle(srv.Get))
 
@@ -183,7 +183,7 @@ func registerProjectDefinitionSchemaHistory(g *gin.RouterGroup) {
 func registerProjectDefinitionResponse(g *gin.RouterGroup) {
 	srv := project.NewDefinitionResponseApi()
 
-	noAuth := g.Group("/projects/:projectID/definition/responses", access.AllowGuest())
+	noAuth := g.Group("/projects/:projectID/definition/responses", access.AllowGuestByShareCode())
 	noAuth.GET("", ginrpc.Handle(srv.List))
 	noAuth.GET("/:responseID", ginrpc.Handle(srv.Get))
 
@@ -198,8 +198,8 @@ func registerProjectDefinitionResponse(g *gin.RouterGroup) {
 func registerCollection(g *gin.RouterGroup) {
 	srv := collection.NewCollectionApi()
 	noAuth := g.Group("/projects/:projectID/collections")
-	noAuth.GET("", access.AllowGuest(), ginrpc.Handle(srv.List))
-	noAuth.GET("/:collectionID", access.AllowGuest(), ginrpc.Handle(srv.Get))
+	noAuth.GET("", access.AllowGuestByShareCode(), ginrpc.Handle(srv.List))
+	noAuth.GET("/:collectionID", access.AllowGuestByShareCode(), ginrpc.Handle(srv.Get))
 	// 导出集合内容，需返回不同的 Content-Type，单独处理
 	noAuth.GET("/:collectionID/export/:code", collection.Export)
 

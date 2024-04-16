@@ -37,6 +37,7 @@ var Zh = map[string]map[string]string{
 		"PublicProjectShare":          "这是一个任何人都可以访问的公共项目。",
 	},
 	"user": {
+		"LoginRequired":                    "请登录您的账号。",
 		"OriginalPasswordWrong":            "原密码错误。",
 		"PasswordUpdateFailed":             "密码修改失败，请稍后重试。",
 		"PasswordResetFailed":              "密码重置失败，请稍后重试。",

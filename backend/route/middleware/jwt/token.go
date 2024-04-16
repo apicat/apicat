@@ -116,7 +116,7 @@ func JwtUser(notAbortPathList NotAbortPathList) func(*gin.Context) {
 		}
 
 		ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
-			"message": "Login status has expired, please log in again.",
+			"message": "Please log in to your account.",
 			"action":  "login",
 		})
 	}

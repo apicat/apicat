@@ -16,7 +16,6 @@ import (
 	"github.com/apicat/apicat/v2/backend/module/cache"
 	"github.com/apicat/apicat/v2/backend/module/password"
 	"github.com/apicat/apicat/v2/backend/route/middleware/access"
-	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
 	protoproject "github.com/apicat/apicat/v2/backend/route/proto/project"
 	projectbase "github.com/apicat/apicat/v2/backend/route/proto/project/base"
@@ -35,46 +34,15 @@ func NewProjectShareApi() protoproject.ProjectShareApi {
 
 // Status 获取项目分享状态
 func (psai *projectShareApiImpl) Status(ctx *gin.Context, opt *protobase.ProjectIdOption) (*projectresponse.ProjectShareStatus, error) {
-	p := &project.Project{ID: opt.ProjectID}
-	exist, err := p.Get(ctx)
-	if err != nil {
-		slog.ErrorContext(ctx, "p.Get", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("share.FailedToGetStatus"))
-	}
-	if !exist {
-		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("project.DoesNotExist"))
-	}
-
-	t := &team.Team{ID: p.TeamID}
-	exist, err = t.Get(ctx)
-	if err != nil {
-		slog.ErrorContext(ctx, "t.Get", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("share.FailedToGetStatus"))
-	}
-	if !exist {
-		// 团队都不存在了，项目也就不存在了
+	p := access.GetSelfProject(ctx)
+	if p == nil {
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("project.DoesNotExist"))
 	}
 
 	permission := project.ProjectMemberNone
-	if jwt.GetUser(ctx) != nil {
-		tm := &team.TeamMember{UserID: jwt.GetUser(ctx).ID}
-		// 查用户是否在这个项目的团队里
-		exist, err = t.HasMember(ctx, tm)
-		if err == nil && exist && tm.Status == team.MemberStatusActive {
-			// 查用户是否在这个项目里
-			pm := &project.ProjectMember{ProjectID: p.ID, MemberID: tm.ID}
-			exist, err = pm.Get(ctx)
-			// 项目成员存在
-			if err == nil && exist {
-				permission = pm.Permission
-			}
-		}
-	}
-
-	hasShared := p.ShareKey != ""
-	if !hasShared && permission == project.ProjectMemberNone && p.Visibility == project.VisibilityPrivate {
-		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("project.DoesNotExist"))
+	pm := access.GetSelfProjectMember(ctx)
+	if pm != nil {
+		permission = pm.Permission
 	}
 
 	return &projectresponse.ProjectShareStatus{
@@ -84,7 +52,7 @@ func (psai *projectShareApiImpl) Status(ctx *gin.Context, opt *protobase.Project
 		ProjectVisibilityOption: protobase.ProjectVisibilityOption{
 			Visibility: p.Visibility,
 		},
-		HasShare: hasShared,
+		HasShare: p.ShareKey != "",
 	}, nil
 }
 
