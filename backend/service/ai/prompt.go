@@ -3,7 +3,21 @@ package ai
 import (
 	"bytes"
 	"embed"
+	"errors"
+	"fmt"
+	"strings"
 	"text/template"
+
+	llmcommon "github.com/apicat/apicat/v2/backend/module/llm/common"
+)
+
+const (
+	SYSTEM_PROMPT   = "___system:"
+	USER_PROMPT     = "_____user:"
+	ASISTENT_PROMPT = "_asistent:"
+	// SYSTEM_PROMPT, USER_PROMPT, ASISTENT_PROMPT string lengths must be the same, and ROLE_PROMPT_LEN is the value of the length
+	ROLE_PROMPT_LEN = 10
+	PROMPT_END      = "----------------------------------------end"
 )
 
 //go:embed prompts
@@ -11,27 +25,114 @@ var tplfs embed.FS
 
 var templateFs = template.Must(template.New("").ParseFS(tplfs, "prompts/*.tmpl"))
 
-type contentData struct {
-	Lang string
-	Data any
+type prompt struct {
+	Lang            string
+	SysmtemRole     string
+	UserRole        string
+	AssistantRole   string
+	SystemPrompt    string
+	UserPrompt      string
+	AssistantPrompt string
+	PromptEnd       string
+	Context         any
 }
 
-type content struct {
+type tpl struct {
 	tplname string
-	tpldata contentData
+	tpldata prompt
 }
 
-func createContent(templateName string, data contentData) *content {
-	return &content{
+func NewTpl(templateName string, lang string, context any) *tpl {
+	p := prompt{
+		Lang:            lang,
+		SysmtemRole:     "system",
+		UserRole:        "user",
+		AssistantRole:   "assistant",
+		SystemPrompt:    SYSTEM_PROMPT,
+		UserPrompt:      USER_PROMPT,
+		AssistantPrompt: ASISTENT_PROMPT,
+		PromptEnd:       PROMPT_END,
+		Context:         context,
+	}
+
+	return &tpl{
 		tplname: templateName,
-		tpldata: data,
+		tpldata: p,
 	}
 }
 
-func (c *content) String() (string, error) {
+func (p *prompt) SetRole(role map[string]string) {
+	if _, ok := role["system"]; ok {
+		p.SysmtemRole = role["system"]
+	}
+	if _, ok := role["user"]; ok {
+		p.UserRole = role["user"]
+	}
+	if _, ok := role["assistant"]; ok {
+		p.AssistantRole = role["assistant"]
+	}
+}
+
+func (t *tpl) Prompt() ([]llmcommon.ChatCompletionMessage, error) {
+	content, err := t.split()
+	if err != nil {
+		return nil, err
+	}
+
+	if len(content) == 0 {
+		return nil, errors.New("prompt content is empty")
+	}
+
+	var message []llmcommon.ChatCompletionMessage
+	for _, p := range content {
+		p = strings.TrimSpace(p)
+		if len(p) < ROLE_PROMPT_LEN {
+			continue
+		}
+
+		if m, err := t.build(p); err != nil {
+			return nil, err
+		} else {
+			message = append(message, m)
+		}
+	}
+	return message, nil
+}
+
+func (t *tpl) string() (string, error) {
 	var buf bytes.Buffer
-	if err := templateFs.ExecuteTemplate(&buf, c.tplname, c.tpldata); err != nil {
+	if err := templateFs.ExecuteTemplate(&buf, t.tplname, t.tpldata); err != nil {
 		return "", err
 	}
 	return buf.String(), nil
+}
+
+func (t *tpl) split() ([]string, error) {
+	if content, err := t.string(); err != nil {
+		return nil, err
+	} else {
+		return strings.Split(content, PROMPT_END), nil
+	}
+}
+
+func (t *tpl) build(content string) (llmcommon.ChatCompletionMessage, error) {
+	role := content[:ROLE_PROMPT_LEN]
+	msg := content[ROLE_PROMPT_LEN:]
+	roleName := ""
+
+	switch role {
+	case SYSTEM_PROMPT:
+		roleName = t.tpldata.SysmtemRole
+	case USER_PROMPT:
+		roleName = t.tpldata.UserRole
+	case ASISTENT_PROMPT:
+		roleName = t.tpldata.AssistantRole
+	default:
+		return llmcommon.ChatCompletionMessage{}, fmt.Errorf("wrong role: %s", role)
+	}
+
+	return llmcommon.ChatCompletionMessage{
+		Role:    roleName,
+		Content: msg,
+	}, nil
 }

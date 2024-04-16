@@ -493,7 +493,7 @@ func (cai *collectionApiImpl) AIGenerate(ctx *gin.Context, opt *collectionreques
 		}
 	}
 
-	c, err := ai.APIGenerate(ctx, opt.Prompt)
+	c, err := ai.DocGenerate(ctx, opt.Prompt)
 	if err != nil {
 		slog.ErrorContext(ctx, "ai.CreateAPI", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.GenerationFailed"))
