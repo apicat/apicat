@@ -94,6 +94,7 @@ var En = map[string]map[string]string{
 		"JoinTeamRepeat":            "You are already a member of the team.",
 		"NotTeamMember":             "User is not a member of the team.",
 		"Deactivated":               "Team member has been deactivated.",
+		"NotInTheTeam":              "This user is not in the team.",
 	},
 	"project": {
 		"DoesNotExist":             "Project does not exist.",

@@ -94,6 +94,7 @@ var Zh = map[string]map[string]string{
 		"JoinTeamRepeat":            "您已经是团队成员了。",
 		"NotTeamMember":             "用户不是团队成员。",
 		"Deactivated":               "团队成员已被停用。",
+		"NotInTheTeam":              "用户不在团队中。",
 	},
 	"project": {
 		"DoesNotExist":             "项目不存在。",
