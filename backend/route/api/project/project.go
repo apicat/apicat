@@ -409,7 +409,7 @@ func (pai *projectApiImpl) Transfer(ctx *gin.Context, opt *projectrequest.Projec
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("project.TransferFailed"))
 	}
 	if !exist {
-		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("projectMember.DoesNotExist"))
+		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("projectMember.NotInTheProject"))
 	}
 	targetMemberInfo, err := targetMember.MemberInfo(ctx, false)
 	if err != nil {
@@ -418,7 +418,7 @@ func (pai *projectApiImpl) Transfer(ctx *gin.Context, opt *projectrequest.Projec
 	}
 
 	if targetMember.ProjectID != selfPM.ProjectID {
-		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("projectMember.DoesNotExist"))
+		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("projectMember.NotInTheProject"))
 	}
 	if targetMember.Permission != project.ProjectMemberWrite {
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("project.TransferToErrMember"))

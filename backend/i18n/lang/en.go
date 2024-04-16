@@ -127,6 +127,7 @@ var En = map[string]map[string]string{
 		"FailedToAddProjectMember": "Failed to add project members, please try again later.",
 		"FailedToGetList":          "Failed to get project member list, please try again later.",
 		"RemoveFailed":             "Project member remove failed, please try again later.",
+		"NotInTheProject":          "The member is not in the project.",
 	},
 	"projectServer": {
 		"CreationFailed":  "Project server URL creation failed, please try again later.",

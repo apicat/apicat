@@ -127,6 +127,7 @@ var Zh = map[string]map[string]string{
 		"FailedToAddProjectMember": "添加项目成员失败，请稍后重试。",
 		"FailedToGetList":          "获取项目成员列表失败，请稍后重试。",
 		"RemoveFailed":             "项目成员删除失败，请稍后重试。",
+		"NotInTheProject":          "成员不在项目中。",
 	},
 	"projectServer": {
 		"CreationFailed":  "服务器 URL 创建失败，请稍后重试。",

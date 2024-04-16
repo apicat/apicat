@@ -45,7 +45,7 @@ func (iai *iterationApiImpl) Create(ctx *gin.Context, opt *iterationrequest.Crea
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("iteration.CreationFailed"))
 	}
 	if !exist {
-		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("projectMember.DoesNotExist"))
+		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("projectMember.NotInTheProject"))
 	}
 	if pm.Permission.Lower(project.ProjectMemberWrite) {
 		return nil, ginrpc.NewError(http.StatusForbidden, i18n.NewErr("common.PermissionDenied"))
