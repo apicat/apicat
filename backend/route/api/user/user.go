@@ -13,7 +13,6 @@ import (
 	"github.com/apicat/apicat/v2/backend/i18n"
 	"github.com/apicat/apicat/v2/backend/model/user"
 	"github.com/apicat/apicat/v2/backend/module/cache"
-	"github.com/apicat/apicat/v2/backend/module/imageOpt"
 	"github.com/apicat/apicat/v2/backend/module/oauth2"
 	"github.com/apicat/apicat/v2/backend/module/oauth2/github"
 	"github.com/apicat/apicat/v2/backend/module/storage"
@@ -24,6 +23,7 @@ import (
 	protouserrequest "github.com/apicat/apicat/v2/backend/route/proto/user/request"
 	protouserresponse "github.com/apicat/apicat/v2/backend/route/proto/user/response"
 	"github.com/apicat/apicat/v2/backend/service/user_relations"
+	imgutil "github.com/apicat/apicat/v2/backend/utils/image"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -239,7 +239,7 @@ func (*userApiImpl) UploadAvatar(ctx *gin.Context, opt *protouserrequest.UploadA
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("common.ImageTooLarge"))
 	}
 
-	img, fileExt, err := imageOpt.FileHeaderToImage(opt.Avatar)
+	img, fileExt, err := imgutil.FileHeaderToImage(opt.Avatar)
 	if err != nil {
 		slog.ErrorContext(ctx, "imageOpt.FileHeaderToImage", "err", err)
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("common.ImageUploadFailed"))
@@ -248,7 +248,7 @@ func (*userApiImpl) UploadAvatar(ctx *gin.Context, opt *protouserrequest.UploadA
 	fileName := fmt.Sprintf("%s/%x%s", "avatars", md5.Sum([]byte(fmt.Sprintf("%d_%d", u.ID, time.Now().Unix()))), fileExt)
 
 	// 裁剪图片
-	croppedFileBytes, err := imageOpt.Cropping(img, opt.CroppedX, opt.CroppedY, opt.CroppedWidth, opt.CroppedHeight)
+	croppedFileBytes, err := imgutil.Cropping(img, opt.CroppedX, opt.CroppedY, opt.CroppedWidth, opt.CroppedHeight)
 	if err != nil {
 		slog.ErrorContext(ctx, "imageOpt.Cropping", "err", err)
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("common.ImageUploadFailed"))

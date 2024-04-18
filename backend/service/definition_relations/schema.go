@@ -13,7 +13,7 @@ import (
 	referencerelationship "github.com/apicat/apicat/v2/backend/model/reference_relationship"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/module/spec"
-	arr "github.com/apicat/apicat/v2/backend/utils/array"
+	arrutil "github.com/apicat/apicat/v2/backend/utils/array"
 )
 
 // ReadDefinitionSchemaReference 读取collection中引用的schema
@@ -56,7 +56,7 @@ func UpdateSchemaReference(ctx context.Context, s *definition.DefinitionSchema) 
 
 	// 删除老引用关系中存在但当前引用中不存在的引用
 	for key, value := range oldSchemaRefSchemaDict {
-		if !arr.InArray[uint](key, schemaRefIDs) {
+		if !arrutil.InArray[uint](key, schemaRefIDs) {
 			wantPop = append(wantPop, value.ID)
 		}
 	}

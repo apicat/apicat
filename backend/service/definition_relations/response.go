@@ -13,7 +13,7 @@ import (
 	referencerelationship "github.com/apicat/apicat/v2/backend/model/reference_relationship"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/module/spec"
-	arr "github.com/apicat/apicat/v2/backend/utils/array"
+	arrutil "github.com/apicat/apicat/v2/backend/utils/array"
 )
 
 // ReadDefinitionResponseReference 读取collection中引用的response
@@ -56,7 +56,7 @@ func UpdateResponseReference(ctx context.Context, r *definition.DefinitionRespon
 
 	// 删除老引用关系中存在但当前引用中不存在的引用
 	for key, value := range oldResponseRefSchemaDict {
-		if !arr.InArray[uint](key, responseRefIDs) {
+		if !arrutil.InArray[uint](key, responseRefIDs) {
 			wantPop = append(wantPop, value.ID)
 		}
 	}
