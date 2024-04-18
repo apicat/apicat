@@ -41,7 +41,7 @@ func SendActiveAccountMail(ctx *gin.Context, usr *user.User) {
 		time.Now().Unix(),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return
@@ -78,7 +78,7 @@ func SendResetPasswordMail(ctx *gin.Context, usr *user.User) {
 		time.Now().Unix(),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return
@@ -115,7 +115,7 @@ func SendModifyEmailMail(ctx *gin.Context, usr *user.User, newEmail string) {
 		time.Now().Unix(),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return

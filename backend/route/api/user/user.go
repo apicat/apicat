@@ -129,7 +129,7 @@ func (*userApiImpl) GetSelf(ctx *gin.Context, _ *ginrpc.Empty) (*protouserrespon
 func (ua *userApiImpl) ChangePassword(ctx *gin.Context, opt *protouserrequest.ChangePwdOption) (*ginrpc.Empty, error) {
 	u := jwt.GetUser(ctx)
 
-	ucache, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	ucache, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.PasswordUpdateFailed"))
@@ -191,7 +191,7 @@ func (ua *userApiImpl) SendChangeEmail(ctx *gin.Context, opt *protouserbase.Emai
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("user.EmailNotChanged"))
 	}
 
-	ucache, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	ucache, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.EmailSendFailed"))
@@ -239,7 +239,7 @@ func (ua *userApiImpl) ChangeEmailFire(ctx *gin.Context, opt *protouserrequest.C
 		i18n.NewErr("common.LinkExpired"),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, errResp

@@ -276,7 +276,6 @@ func registerServiceSysconfig(g *gin.RouterGroup) {
 	srv := sysconfig.NewServiceApi()
 	g.GET("/sysconfigs/service", access.SysAdmin(), ginrpc.Handle(srv.Get))
 	g.PUT("/sysconfigs/service", access.SysAdmin(), ginrpc.Handle(srv.Update))
-	g.GET("/sysconfigs/db", access.SysAdmin(), ginrpc.Handle(srv.GetDB))
 }
 
 func registerStorageSysconfig(g *gin.RouterGroup) {
@@ -285,13 +284,6 @@ func registerStorageSysconfig(g *gin.RouterGroup) {
 	g.PUT("/sysconfigs/storages/disk", access.SysAdmin(), ginrpc.Handle(srv.UpdateDisk))
 	g.PUT("/sysconfigs/storages/cloudflare", access.SysAdmin(), ginrpc.Handle(srv.UpdateCloudflare))
 	g.PUT("/sysconfigs/storages/qiniu", access.SysAdmin(), ginrpc.Handle(srv.UpdateQiniu))
-}
-
-func registerCacheSysconfig(g *gin.RouterGroup) {
-	srv := sysconfig.NewCacheApi()
-	g.GET("/sysconfigs/caches", access.SysAdmin(), ginrpc.Handle(srv.Get))
-	g.PUT("/sysconfigs/caches/memory", access.SysAdmin(), ginrpc.Handle(srv.UpdateMemory))
-	g.PUT("/sysconfigs/caches/redis", access.SysAdmin(), ginrpc.Handle(srv.UpdateRedis))
 }
 
 func registerEmailSysconfig(g *gin.RouterGroup) {

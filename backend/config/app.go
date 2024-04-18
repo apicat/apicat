@@ -24,7 +24,9 @@ func GetAppDefault() *App {
 }
 
 func SetApp(appConfig *App) {
-	globalConf.App = appConfig
+	globalConf.App.AppName = appConfig.AppName
+	globalConf.App.AppUrl = appConfig.AppUrl
+	globalConf.App.MockUrl = appConfig.MockUrl
 }
 
 func (a *App) ToMapInterface() map[string]interface{} {

@@ -7,7 +7,6 @@ import (
 
 	"github.com/apicat/apicat/v2/backend/config"
 	"github.com/apicat/apicat/v2/backend/model"
-	"github.com/apicat/apicat/v2/backend/module/cache"
 	"github.com/apicat/apicat/v2/backend/module/llm"
 	mailmodule "github.com/apicat/apicat/v2/backend/module/mail"
 	"github.com/apicat/apicat/v2/backend/module/oauth2"
@@ -55,7 +54,6 @@ func UpdateOrCreate(ctx context.Context, sc *Sysconfig) error {
 
 func Init() {
 	initAppConfig()
-	initCacheConfig()
 	initStorageConfig()
 	initEmailConfig()
 	initModelConfig()
@@ -63,61 +61,18 @@ func Init() {
 }
 
 func initAppConfig() {
-	var appConfig *config.App
 	r := &Sysconfig{
 		Type:   "service",
 		Driver: "default",
 	}
 	exist, _ := r.Get(context.Background())
 	if exist {
+		var appConfig *config.App
 		if err := json.Unmarshal([]byte(r.Config), &appConfig); err == nil {
 			config.SetApp(appConfig)
 			return
 		}
 	}
-	config.SetApp(config.GetAppDefault())
-}
-
-func initCacheConfig() {
-	var cfg map[string]interface{}
-	r := &Sysconfig{
-		Type: "cache",
-	}
-	exist, _ := r.GetByUse(context.Background())
-	if exist {
-		if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
-			switch r.Driver {
-			case cache.LOCAL:
-				config.SetCache(&config.Cache{
-					Driver: r.Driver,
-				})
-				return
-			case cache.REDIS:
-				config.SetCache(&config.Cache{
-					Driver: r.Driver,
-					Redis: &config.Redis{
-						Host:     cfg["host"].(string),
-						Password: cfg["password"].(string),
-						DB:       int(cfg["database"].(float64)),
-					},
-				})
-				return
-			}
-		}
-	}
-	defaultCfg := config.GetCacheDefault()
-	config.SetCache(defaultCfg)
-
-	configMap := map[string]interface{}{
-		"host":     defaultCfg.Redis.Host,
-		"password": defaultCfg.Redis.Password,
-		"database": defaultCfg.Redis.DB,
-	}
-	configJson, _ := json.Marshal(configMap)
-	r.Driver = defaultCfg.Driver
-	r.BeingUsed = true
-	r.Config = string(configJson)
-	UpdateOrCreate(context.Background(), r)
 }
 
 func initStorageConfig() {

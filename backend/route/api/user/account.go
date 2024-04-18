@@ -47,7 +47,7 @@ func (s *accountApiImpl) Login(ctx *gin.Context, opt *protouserrequest.LoginOpti
 	// 按照ip和email组合最大重试次数
 	var number int
 
-	ucache, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	ucache, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.LoginFailed"))
@@ -105,7 +105,7 @@ func (s *accountApiImpl) Login(ctx *gin.Context, opt *protouserrequest.LoginOpti
 
 // Register 注册
 func (s *accountApiImpl) Register(ctx *gin.Context, opt *protouserrequest.RegisterUserOption) (*protouserbase.TokenResponse, error) {
-	ucache, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	ucache, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.RegisterFailed"))
@@ -172,7 +172,7 @@ func (s *accountApiImpl) RegisterFire(ctx *gin.Context, opt *protouserrequest.Co
 		i18n.NewErr("user.EmailVerificationFailed"),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, errResp
@@ -349,7 +349,7 @@ func (s *accountApiImpl) LoginWithOauthCode(ctx *gin.Context, opt *protouserrequ
 
 // SendResetPasswordMail 发送重置密码邮件
 func (s *accountApiImpl) SendResetPasswordMail(ctx *gin.Context, opt *protouserbase.EmailOption) (*ginrpc.Empty, error) {
-	ucache, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	ucache, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.EmailSendFailed"))
@@ -396,7 +396,7 @@ func (s *accountApiImpl) ResetPasswordCheck(ctx *gin.Context, opt *protouserrequ
 		i18n.NewErr("common.LinkExpired"),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, errResp
@@ -422,7 +422,7 @@ func (s *accountApiImpl) ResetPassword(ctx *gin.Context, opt *protouserrequest.R
 	// 通过code获取连接内容
 	// 提取是要改的目标邮箱
 	// 邮箱不能暴露否则用户可以随意修改任意邮箱的密码
-	ucache, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	ucache, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.PasswordResetFailed"))

@@ -27,29 +27,34 @@ func NewApp(conf string) *App {
 }
 
 func (a *App) Run() error {
+	if err := config.Check(); err != nil {
+		return fmt.Errorf("check config err: %v", err)
+	}
+
+	if err := logger.Init(config.Get().App.Debug, config.Get().Log); err != nil {
+		return fmt.Errorf("init log err: %v", err)
+	}
+
 	if err := model.Init(); err != nil {
 		return fmt.Errorf("init %v", err)
 	}
+
+	if err := cache.Init(config.Get().Cache.ToCfg()); err != nil {
+		return fmt.Errorf("init cache err: %v", err)
+	}
+
 	sysconfig.Init()
+
+	if err := storage.Init(config.Get().Storage.ToMapInterface()); err != nil {
+		return fmt.Errorf("init storage err: %v", err)
+	}
 
 	if err := runMock(); err != nil {
 		return err
 	}
 
-	if err := logger.Init(config.Get().App.Debug, config.Get().Log); err != nil {
-		return fmt.Errorf("init %v", err)
-	}
-
-	if err := cache.Init(config.Get().Cache.ToMapInterface()); err != nil {
-		return fmt.Errorf("init %v", err)
-	}
-
-	if err := storage.Init(config.Get().Storage.ToMapInterface()); err != nil {
-		return fmt.Errorf("init %v", err)
-	}
-
 	if err := route.Init(); err != nil {
-		return fmt.Errorf("init %v", err)
+		return fmt.Errorf("init route err: %v", err)
 	}
 	return nil
 }

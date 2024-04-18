@@ -87,7 +87,7 @@ func TestCaseListGenerate(ctx *gin.Context, apiSummary string, testCases []strin
 }
 
 func TestCaseGenerate(language, projectID, apiSummary string, collectionID uint, testCaseTitleList []string) {
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		return
 	}
@@ -130,7 +130,7 @@ func TestCaseGenerate(language, projectID, apiSummary string, collectionID uint,
 }
 
 func TestCaseGeneratingStatus(projectID string, collectionID uint) bool {
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		return false
 	}
