@@ -11,33 +11,30 @@ import (
 	"github.com/qiniu/go-sdk/v7/storage"
 )
 
-type qiniu struct {
-	accessKeyId     string
-	accessKeySecret string
-	bucketName      string
-	url             string
-	qiniu           *auth.Credentials
-	qiniuCfg        *storage.Config
+type QiniuOpt struct {
+	AccessKeyID     string
+	AccessKeySecret string
+	BucketName      string
+	Url             string
 }
 
-func NewQiniu(cfg map[string]interface{}) (*qiniu, error) {
-	for _, v := range []string{"AccessKeyID", "AccessKeySecret", "BucketName", "Url"} {
-		if _, ok := cfg[v]; !ok {
-			return nil, fmt.Errorf("sendcloud config %s is required", v)
-		}
-	}
+type qiniu struct {
+	cfg      QiniuOpt
+	qiniu    *auth.Credentials
+	qiniuCfg *storage.Config
+}
+
+func NewQiniu(cfg QiniuOpt) *qiniu {
+	cfg.Url = strings.TrimRight(cfg.Url, "/")
 	return &qiniu{
-		accessKeyId:     cfg["AccessKeyID"].(string),
-		accessKeySecret: cfg["AccessKeySecret"].(string),
-		bucketName:      cfg["BucketName"].(string),
-		url:             strings.TrimRight(cfg["Url"].(string), "/"),
-	}, nil
+		cfg: cfg,
+	}
 }
 
 func (q *qiniu) init() {
-	q.qiniu = qbox.NewMac(q.accessKeyId, q.accessKeySecret)
+	q.qiniu = qbox.NewMac(q.cfg.AccessKeyID, q.cfg.AccessKeySecret)
 	q.qiniuCfg = &storage.Config{}
-	if i := strings.Index(q.url, "https"); i >= 0 {
+	if i := strings.Index(q.cfg.Url, "https"); i >= 0 {
 		q.qiniuCfg.UseHTTPS = true
 	} else {
 		q.qiniuCfg.UseHTTPS = false
@@ -47,7 +44,7 @@ func (q *qiniu) init() {
 func (q *qiniu) Check() error {
 	q.init()
 	bucketManager := storage.NewBucketManager(q.qiniu, q.qiniuCfg)
-	if _, err := bucketManager.GetBucketInfo(q.bucketName); err != nil {
+	if _, err := bucketManager.GetBucketInfo(q.cfg.BucketName); err != nil {
 		return err
 	}
 	return nil
@@ -57,7 +54,7 @@ func (q *qiniu) PutObject(key string, data []byte, contentType string) (string, 
 	q.init()
 
 	putPolicy := storage.PutPolicy{
-		Scope: q.bucketName,
+		Scope: q.cfg.BucketName,
 	}
 	upToken := putPolicy.UploadToken(q.qiniu)
 	formUploader := storage.NewFormUploader(q.qiniuCfg)
@@ -72,14 +69,14 @@ func (q *qiniu) PutObject(key string, data []byte, contentType string) (string, 
 		return "", err
 	}
 
-	return fmt.Sprintf("%s/%s", q.url, key), nil
+	return fmt.Sprintf("%s/%s", q.cfg.Url, key), nil
 }
 
 func (q *qiniu) GetObject(key string) (storage.FileInfo, error) {
 	q.init()
 	bucketManager := storage.NewBucketManager(q.qiniu, q.qiniuCfg)
 
-	fileInfo, err := bucketManager.Stat(q.bucketName, key)
+	fileInfo, err := bucketManager.Stat(q.cfg.BucketName, key)
 	if err != nil {
 		return storage.FileInfo{}, err
 	}
@@ -90,7 +87,7 @@ func (q *qiniu) DelObject(key string) error {
 	q.init()
 	bucketManager := storage.NewBucketManager(q.qiniu, q.qiniuCfg)
 
-	err := bucketManager.Delete(q.bucketName, key)
+	err := bucketManager.Delete(q.cfg.BucketName, key)
 	if err != nil {
 		return err
 	}

@@ -45,7 +45,7 @@ func (a *App) Run() error {
 
 	sysconfig.Init()
 
-	if err := storage.Init(config.Get().Storage.ToMapInterface()); err != nil {
+	if err := storage.Init(config.Get().Storage.ToCfg()); err != nil {
 		return fmt.Errorf("init storage err: %v", err)
 	}
 

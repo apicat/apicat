@@ -254,12 +254,7 @@ func (*userApiImpl) UploadAvatar(ctx *gin.Context, opt *protouserrequest.UploadA
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("common.ImageUploadFailed"))
 	}
 
-	helper, err := storage.NewStorage(config.Get().Storage.ToMapInterface())
-	if err != nil {
-		slog.ErrorContext(ctx, "storage.NewStorage", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ImageUploadFailed"))
-	}
-
+	helper := storage.NewStorage(config.Get().Storage.ToCfg())
 	contentType := http.DetectContentType(croppedFileBytes)
 	path, err := helper.PutObject(fileName, croppedFileBytes, contentType)
 	if err != nil {

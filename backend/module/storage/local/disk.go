@@ -6,9 +6,9 @@ import (
 	"strings"
 )
 
-type disk struct {
-	path string
-	url  string
+type Disk struct {
+	Path string
+	Url  string
 }
 
 var contentTypeMap = map[string]string{
@@ -20,27 +20,18 @@ var contentTypeMap = map[string]string{
 	"image/webp":    "webp",
 }
 
-func NewDisk(cfg map[string]interface{}) (*disk, error) {
-	for _, v := range []string{"Path", "Url"} {
-		if _, ok := cfg[v]; !ok {
-			return nil, fmt.Errorf("sendcloud config %s is required", v)
-		}
-	}
-
-	return &disk{
-		path: cfg["Path"].(string),
-		url:  strings.TrimRight(cfg["Url"].(string), "/"),
-	}, nil
+func NewDisk(cfg Disk) *Disk {
+	return &cfg
 }
 
-func (d *disk) Check() error {
-	return mkdir(d.path)
+func (d *Disk) Check() error {
+	return mkdir(d.Path)
 }
 
-func (d *disk) PutObject(key string, data []byte, contentType string) (string, error) {
+func (d *Disk) PutObject(key string, data []byte, contentType string) (string, error) {
 	if strings.Index(key, "/") > 0 {
 		dir := strings.Split(key, "/")
-		dirPath := d.path + "/" + strings.Join(dir[:len(dir)-1], "/")
+		dirPath := d.Path + "/" + strings.Join(dir[:len(dir)-1], "/")
 		if err := mkdir(dirPath); err != nil {
 			return "", err
 		}
@@ -50,12 +41,12 @@ func (d *disk) PutObject(key string, data []byte, contentType string) (string, e
 		return "", fmt.Errorf("not support content type: %s", contentType)
 	}
 
-	filePath := fmt.Sprintf("%s/%s", d.path, key)
+	filePath := fmt.Sprintf("%s/%s", d.Path, key)
 	err := os.WriteFile(filePath, data, 0644)
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s/%s", d.url, key), nil
+	return fmt.Sprintf("%s/%s", d.Url, key), nil
 }
 
 func mkdir(path string) error {

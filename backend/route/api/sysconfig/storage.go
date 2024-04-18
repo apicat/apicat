@@ -9,9 +9,6 @@ import (
 	"github.com/apicat/apicat/v2/backend/i18n"
 	"github.com/apicat/apicat/v2/backend/model/sysconfig"
 	"github.com/apicat/apicat/v2/backend/module/storage"
-	"github.com/apicat/apicat/v2/backend/module/storage/cloudflare"
-	"github.com/apicat/apicat/v2/backend/module/storage/local"
-	"github.com/apicat/apicat/v2/backend/module/storage/qiniu"
 	protosysconfig "github.com/apicat/apicat/v2/backend/route/proto/sysconfig"
 	sysconfigbase "github.com/apicat/apicat/v2/backend/route/proto/sysconfig/base"
 	sysconfigrequest "github.com/apicat/apicat/v2/backend/route/proto/sysconfig/request"
@@ -45,22 +42,18 @@ func (s *storageApiImpl) Get(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfigbase.
 
 func (s *storageApiImpl) UpdateDisk(ctx *gin.Context, opt *sysconfigrequest.DiskOption) (*ginrpc.Empty, error) {
 	storageConfig := &config.Storage{
-		Driver: "localdisk",
+		Driver: storage.LOCAL,
 		LocalDisk: &config.LocalDisk{
 			Path: opt.Path,
 			Url:  config.Get().App.AppUrl + "/uploads",
 		},
 	}
 
-	diskc := storageConfig.ToMapInterface()
-	if disk, err := local.NewDisk(diskc["LocalDisk"].(map[string]interface{})); err != nil {
-		slog.ErrorContext(ctx, "local.NewDisk", "err", err)
+	diskc := storageConfig.ToCfg()
+	disk := storage.NewStorage(diskc)
+	if err := disk.Check(); err != nil {
+		slog.ErrorContext(ctx, "disk.Check", "err", err)
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.LocalPathInvalid"))
-	} else {
-		if err := disk.Check(); err != nil {
-			slog.ErrorContext(ctx, "disk.Check", "err", err)
-			return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.LocalPathInvalid"))
-		}
 	}
 
 	jsonData, err := json.Marshal(opt)
@@ -96,15 +89,11 @@ func (s *storageApiImpl) UpdateCloudflare(ctx *gin.Context, opt *sysconfigreques
 		},
 	}
 
-	r2c := storageConfig.ToMapInterface()
-	if r2, err := cloudflare.NewR2(r2c["Cloudflare"].(map[string]interface{})); err != nil {
-		slog.ErrorContext(ctx, "cloudflare.NewR2", "err", err)
+	r2c := storageConfig.ToCfg()
+	r2 := storage.NewStorage(r2c)
+	if err := r2.Check(); err != nil {
+		slog.ErrorContext(ctx, "r2.Check", "err", err)
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.CloudflareConfigInvalid"))
-	} else {
-		if err := r2.Check(); err != nil {
-			slog.ErrorContext(ctx, "r2.Check", "err", err)
-			return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.CloudflareConfigInvalid"))
-		}
 	}
 
 	jsonData, err := json.Marshal(opt)
@@ -139,15 +128,11 @@ func (s *storageApiImpl) UpdateQiniu(ctx *gin.Context, opt *sysconfigrequest.Qin
 		},
 	}
 
-	qc := storageConfig.ToMapInterface()
-	if q, err := qiniu.NewQiniu(qc["Qiniu"].(map[string]interface{})); err != nil {
-		slog.ErrorContext(ctx, "qiniu.NewQiniu", "err", err)
+	qc := storageConfig.ToCfg()
+	q := storage.NewStorage(qc)
+	if err := q.Check(); err != nil {
+		slog.ErrorContext(ctx, "q.Check", "err", err)
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.QiniuConfigInvalid"))
-	} else {
-		if err := q.Check(); err != nil {
-			slog.ErrorContext(ctx, "q.Check", "err", err)
-			return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.QiniuConfigInvalid"))
-		}
 	}
 
 	jsonData, err := json.Marshal(opt)
