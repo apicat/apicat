@@ -13,10 +13,10 @@ import (
 	referencerelationship "github.com/apicat/apicat/v2/backend/model/reference_relationship"
 	"github.com/apicat/apicat/v2/backend/model/share"
 	"github.com/apicat/apicat/v2/backend/model/team"
-	"github.com/apicat/apicat/v2/backend/module/array_operation"
 	"github.com/apicat/apicat/v2/backend/module/spec"
 	definitionrelations "github.com/apicat/apicat/v2/backend/service/definition_relations"
 	globalrelations "github.com/apicat/apicat/v2/backend/service/global_relations"
+	arr "github.com/apicat/apicat/v2/backend/utils/array"
 )
 
 // TODO 移除表关系后将次方法移动到backend/model/collection/funcs.go中。方法引用了model.iteration，model.iteration中又引用model.collection导致现在移动不了
@@ -234,7 +234,7 @@ func UpdateCollectionReference(ctx context.Context, c *collection.Collection) er
 	// 解析集合引用的模型
 	schemaRefIDs := definitionrelations.ReadDefinitionSchemaReference(ctx, c.Content)
 	for key, value := range oldCollectionRefSchemaDict[referencerelationship.ReferenceSchema] {
-		if !array_operation.InArray[uint](key, schemaRefIDs) {
+		if !arr.InArray[uint](key, schemaRefIDs) {
 			wantPop = append(wantPop, value.ID)
 		}
 	}
@@ -252,7 +252,7 @@ func UpdateCollectionReference(ctx context.Context, c *collection.Collection) er
 	// 解析集合引用的响应
 	responseRefIDs := definitionrelations.ReadDefinitionResponseReference(ctx, c.Content)
 	for key, value := range oldCollectionRefSchemaDict[referencerelationship.ReferenceResponse] {
-		if !array_operation.InArray[uint](key, responseRefIDs) {
+		if !arr.InArray[uint](key, responseRefIDs) {
 			wantPop = append(wantPop, value.ID)
 		}
 	}
@@ -289,7 +289,7 @@ func UpdateCollectionReference(ctx context.Context, c *collection.Collection) er
 	globalWantPop := make([]uint, 0)
 	globalWantPush := make([]*referencerelationship.ParameterExcept, 0)
 	for key, value := range oldCollectionExceptParameterDict {
-		if !array_operation.InArray[uint](key, exceptParameterIDs) {
+		if !arr.InArray[uint](key, exceptParameterIDs) {
 			globalWantPop = append(globalWantPop, value.ID)
 		}
 	}

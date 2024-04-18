@@ -9,8 +9,8 @@ import (
 	"github.com/apicat/apicat/v2/backend/model/global"
 	"github.com/apicat/apicat/v2/backend/model/project"
 	referencerelationship "github.com/apicat/apicat/v2/backend/model/reference_relationship"
-	"github.com/apicat/apicat/v2/backend/module/array_operation"
 	"github.com/apicat/apicat/v2/backend/module/spec"
+	arr "github.com/apicat/apicat/v2/backend/utils/array"
 
 	"github.com/gin-gonic/gin"
 )
@@ -37,7 +37,7 @@ func ReadExceptParameterReference(ctx context.Context, content string) []uint {
 	}
 
 	for key, value := range request.Attrs.GlobalExcepts {
-		if !array_operation.InArray[string](key, []string{string(global.ParameterInHeader), string(global.ParameterInPath), string(global.ParameterInHeader), string(global.ParameterInCookie)}) {
+		if !arr.InArray[string](key, []string{string(global.ParameterInHeader), string(global.ParameterInPath), string(global.ParameterInHeader), string(global.ParameterInCookie)}) {
 			continue
 		}
 		for _, v := range value {
@@ -156,7 +156,7 @@ func UnpackExceptGlobalParameter(ctx *gin.Context, gp *global.GlobalParameter) e
 		return err
 	}
 	for _, c := range collections {
-		if !array_operation.InArray(c.ID, exceptCollectionIDs) {
+		if !arr.InArray(c.ID, exceptCollectionIDs) {
 			// 将没有被排除的全局参数展开后添加到request.parameters中
 			dereferenceGlobalParameterInCollection(ctx, c, gp)
 		} else {
