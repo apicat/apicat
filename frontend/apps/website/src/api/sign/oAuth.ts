@@ -48,5 +48,5 @@ export async function apiOAuthLoginWithCode(platform: string, data: SignAPI.Requ
 
 // 获取GitHub OAuth配置
 export async function apiGetGithubOAuthConfig(): Promise<{ clientID: string }> {
-  return DefaultAjax.get('/sysconfigs/github',{},{ isShowErrorMsg: false })
+  return DefaultAjax.get('/sysconfigs/github', {}, { isShowErrorMsg: false })
 }

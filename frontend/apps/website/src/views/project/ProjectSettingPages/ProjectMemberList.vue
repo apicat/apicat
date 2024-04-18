@@ -95,9 +95,15 @@ function handlerRemoveMember(member: ProjectAPI.Member) {
     confirmButtonClass: 'red',
     confirmButtonText: t('app.project.setting.member.table.rm'),
     onOk: async () => {
-      await apiRemoveProjectMember(projectStore.project!.id, member.id!)
-      await refreshData()
-      // addProjectMemberRef.value?.refreshMemberList()
+      try {
+        await apiRemoveProjectMember(projectStore.project!.id, member.id!)
+      }
+      catch (error) {
+        //
+      }
+      finally {
+        await refreshData()
+      }
     },
   })
 }
@@ -123,14 +129,11 @@ async function handlerTransferProject(member: ProjectAPI.Member) {
   })
 }
 
-// ADD MEMEBER =============================================
-// ADD MEMEBER =============================================
 const excludedMembers = ref<TeamAPI.TeamMember[]>([])
 const permissions = (() => {
   const map: Record<string, string> = {}
   for (const key in Authority) {
     const val = (Authority as any)[key as any]
-    // if (val === Authority.None) continue
     map[val] = t(`app.project.setting.member.auth.${val}`)
   }
   return map

@@ -1,6 +1,5 @@
 import type { CurrentNodeContext } from '../constants'
 import { CurrentNodeContextKey } from '../constants'
-import { useCollectionsStore } from '@/store/collections'
 import {
   ITERATION_COLLECTION_PATH_NAME,
   ITERATION_RESPONSE_PATH_NAME,
@@ -9,9 +8,6 @@ import {
   PROJECT_RESPONSE_PATH_NAME,
   PROJECT_SCHEMA_PATH_NAME,
 } from '@/router'
-import useDefinitionSchemaStore from '@/store/definitionSchema'
-import useDefinitionResponseStore from '@/store/definitionResponse'
-import { CollectionTypeEnum, ResponseTypeEnum, SchemaTypeEnum } from '@/commons'
 
 export const NODE_TYPE_COLLECTION = 'collection'
 export const NODE_TYPE_SCHEMA = 'schema'
@@ -72,7 +68,8 @@ export function useActiveTree() {
 
       if (id)
         currentNode.value = { id: Number.parseInt(id), type }
-      else currentNode.value = { id: undefined, type }
+      else
+        currentNode.value = { id: undefined, type }
     }
     catch (e) {
     //
@@ -105,65 +102,15 @@ export function useActiveTree() {
     activeResponseKey,
   })
 
-  function existNode<T>(
-    nodes: T[],
-    id: number | undefined,
-    isLeaf: (node: T) => boolean,
-    childKey: string = 'items',
-  ): boolean {
-    const getin = (items: any[]): boolean => {
-      for (let i = 0; i < (items || []).length; i++) {
-        const node = items[i]
-        if (node.id === id) {
-          return isLeaf(node)
-        }
-        else {
-          if (!isLeaf(node)) {
-            const exist = getin(node[childKey])
-            if (exist)
-              return exist
-          }
-        }
-      }
-      return false
-    }
-    return getin(nodes)
-  }
-
-  const collectionStore = useCollectionsStore()
-  const schemaStore = useDefinitionSchemaStore()
-  const responseStore = useDefinitionResponseStore()
-
   return {
     currentNode,
     activeCollectionKey,
     activeSchemaKey,
     activeResponseKey,
     currentNodeKey: computed(() => `${currentNode.value.id}-${currentNode.value.type}`),
-    nodeExist: computed(() => {
-      let data: any[]
-      let isLeaf: any
-      switch (currentNode.value.type) {
-        case NODE_TYPE_COLLECTION:
-          data = collectionStore.collections
-          isLeaf = (node: CollectionAPI.ResponseCollection) => node.type !== CollectionTypeEnum.Dir
-          break
-        case NODE_TYPE_SCHEMA:
-          data = schemaStore.schemas
-          isLeaf = (node: Definition.SchemaNode) => node.type !== SchemaTypeEnum.Category
-          break
-        case NODE_TYPE_RESPONSE:
-          data = responseStore.responses
-          isLeaf = (node: Definition.ResponseTreeNode) => node.type !== ResponseTypeEnum.Category
-          break
-        default:
-          return false
-      }
-      return existNode(data, currentNode.value.id, isLeaf)
-    }),
   }
 }
 
-export function useActiveTreeContext(): CurrentNodeContext | undefined {
-  return inject(CurrentNodeContextKey)
+export function useActiveTreeContext(): CurrentNodeContext {
+  return inject(CurrentNodeContextKey) || {} as any
 }

@@ -28,6 +28,7 @@ export function useCollectionShare() {
       return res
     }
     catch (e) {
+      collectionStore.clearShareToken(publicID)
       if (e instanceof NotFoundError)
         router.replace(NOT_FOUND_PATH)
     }

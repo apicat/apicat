@@ -40,7 +40,7 @@ function submit() {
         <div class="left mr-8px">
           <IconSvg name="ac-redis" width="24" />
         </div>
-        <div class="right font-bold">
+        <div class="font-bold right">
           {{ $t(`${tBase}.title`) }}
         </div>
       </div>

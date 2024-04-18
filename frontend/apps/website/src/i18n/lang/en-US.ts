@@ -6,6 +6,7 @@ import dayjsLocale from '../dayjs/en-US'
 const en: any = {
   name: 'English',
   app: {
+    description: 'An efficient API document management tool that fully complies with the OpenAPI specification and incorporates advanced LLM technology. Automatically generate API documents, data models and test cases, greatly improving development efficiency and quality.',
     pageTitles: {
       iterationList: 'Iteration List',
       projectList: 'Project List',
@@ -114,6 +115,7 @@ const en: any = {
       permissionChangeTitle: 'Permissions Change Hint',
       copyed: 'Successfully copied',
       opeartionSuceess: 'Operation Successfully',
+      autoSave: 'The system has been automatically saved.',
     },
     table: {
       name: 'Name',
@@ -189,7 +191,7 @@ const en: any = {
         title: 'Change email',
         email: 'Email',
         send: 'Send',
-        success: 'An email has been sent. Please check your mailbox and activate it.',
+        success: 'Change email success.',
       },
       github: {
         left_title: 'GitHub',
@@ -812,33 +814,6 @@ const en: any = {
       p1: 'Your email has been verified, redirect to main page in ',
       p2: ' seconds, if nothing happens, ',
       p3: 'click here',
-    },
-    root: {
-      start: 'Get started',
-      header: {
-        home: 'Home',
-        contact: 'Contact us',
-        sign: 'Sign in',
-        start: 'Get started for free',
-      },
-      banner: {
-        title: 'AI helps API development',
-      },
-      doc: {
-        title: 'API Documentation Generation',
-        desc: 'Efficiently and accurately generate the API documentation you want using AI.',
-      },
-      test: {
-        title: 'Test Case Generation',
-        desc: 'Generate accurate and comprehensive test cases with AI.',
-      },
-      api: {
-        desc: 'The perfect integration of OpenAPI with ApiCat results in an excellent user experience.',
-      },
-      final: {
-        title: 'Use ApiCat for your development work',
-        desc: 'Focus on the code itself',
-      },
     },
     system: {
       title: 'Setting',

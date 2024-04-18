@@ -3,8 +3,8 @@ import { pinia } from '@/plugins'
 import { apiGetGithubOAuthConfig, oAuthURLMap } from '@/api/sign/oAuth'
 
 interface AppState {
+  // 全局loading 计数器
   globalLoadingIndicator: number
-  isShowGlobalLoading: boolean
   oAuthPlatformConfig: {
     github: null | {
       client_id: string
@@ -18,13 +18,13 @@ interface OAuthURLConfig {
 
 export const useAppStore = defineStore('app', {
   state: (): AppState => ({
-    globalLoadingIndicator: 1,
-    isShowGlobalLoading: false,
+    globalLoadingIndicator: 0,
     oAuthPlatformConfig: {
       github: null,
     },
   }),
   getters: {
+    isShowGlobalLoading: state => state.globalLoadingIndicator > 0,
     isShowGithubOAuth: state => state.oAuthPlatformConfig.github !== null,
     oAuthURLConfig: (state): OAuthURLConfig => {
       return {
@@ -60,12 +60,9 @@ export const useAppStore = defineStore('app', {
 
     showGlobalLoading() {
       this.globalLoadingIndicator++
-      this.isShowGlobalLoading = true
     },
-
     hideGlobalLoading() {
-      this.globalLoadingIndicator--
-      this.isShowGlobalLoading = false
+      this.globalLoadingIndicator && this.globalLoadingIndicator--
     },
   },
 })

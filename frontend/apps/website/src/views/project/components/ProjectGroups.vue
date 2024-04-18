@@ -246,7 +246,6 @@ defineExpose({
           <ac-icon-ep-plus />
         </el-icon>
       </div>
-      <!-- <div class="flex-1 overflow-scroll mb-10px"> -->
       <div class="flex-1 overflow-hidden mb-10px">
         <Draggable tag="ul" :class="ns.b()" :list="projectGroups" @start="onDragStart" @end="handleDragEnd">
           <li

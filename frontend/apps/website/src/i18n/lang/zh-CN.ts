@@ -6,6 +6,7 @@ import dayjsLocale from '../dayjs/zh-CN'
 const zh: any = {
   name: 'zh-CN',
   app: {
+    description: '一款高效的API文档管理工具，完全符合OpenAPI规范，并融合了先进的LLM技术。 自动生成API文档、数据模型和测试用例，大大提高开发效率和质量。',
     pageTitles: {
       iterationList: '迭代列表',
       projectList: '项目列表',
@@ -114,6 +115,7 @@ const zh: any = {
       permissionChangeTitle: '更改权限提示',
       copyed: '复制成功',
       opeartionSuceess: '操作成功',
+      autoSave: '系统已自动保存，无需手动保存',
     },
     table: {
       name: '名称',
@@ -188,8 +190,8 @@ const zh: any = {
         left_title: '邮箱',
         title: '更改电子邮箱',
         email: '邮箱',
-        send: '发送',
-        success: '电子邮件已发送。请检查您的邮箱并激活。',
+        send: '获取验证码',
+        success: '邮箱修改成功',
       },
       github: {
         left_title: 'GitHub',
@@ -812,33 +814,6 @@ const zh: any = {
       p1: '您的电子邮件已被验证，即将重定向到主页 ',
       p2: ' 秒，如果未跳转， ',
       p3: '请点击这里。',
-    },
-    root: {
-      start: '立即体验',
-      header: {
-        home: '首页',
-        contact: '联系我们',
-        sign: '登录',
-        start: '免费使用',
-      },
-      banner: {
-        title: '用 AI 助力 API 开发',
-      },
-      doc: {
-        title: 'API 文档生成',
-        desc: '利用 AI 高效并准确地生成您想要的 API 文档。',
-      },
-      test: {
-        title: '测试用例生成',
-        desc: '利用 AI 生成准确、全面的测试用例。',
-      },
-      api: {
-        desc: 'OpenAPI 与 ApiCat 的完美集成带来了出色的用户体验。',
-      },
-      final: {
-        title: '使用 ApiCat 进行开发',
-        desc: '专注于代码本身',
-      },
     },
     system: {
       title: '设置',

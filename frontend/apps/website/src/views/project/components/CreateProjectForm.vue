@@ -155,13 +155,13 @@ defineExpose({
 
 <template>
   <div class="flex flex-col justify-center mx-auto px-36px">
-    <p class="border-b border-solid border-gray-lighter pb-30px text-18px text-gray-title">
+    <p class="border-b border-solid border-gray-lighter pb-15px text-24px text-gray-title mb-30px">
       {{ $t('app.project.createModal.title') }}
     </p>
 
     <el-form
       ref="projectFormRef"
-      class="m-auto w-776px mt-30px"
+      class="m-auto w-776px"
       label-position="top"
       label-width="100px"
       :model="form"
@@ -321,7 +321,7 @@ defineExpose({
   @apply grid grid-cols-5 gap-14px;
 
   @include e(items) {
-    @apply w-full h-full flex  border border-solid rounded cursor-pointer border-gray-lighter hover:border-gray-45;
+    @apply w-full h-full flex border border-solid rounded cursor-pointer border-gray-lighter hover:border-gray-45;
 
     img {
       width: 48px;

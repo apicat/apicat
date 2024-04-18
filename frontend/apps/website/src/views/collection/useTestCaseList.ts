@@ -1,3 +1,5 @@
+/* eslint-disable no-unmodified-loop-condition */
+/* eslint-disable no-unused-expressions */
 import { delay } from '@apicat/shared'
 import useApi from '@/hooks/useApi'
 import { apiCreateTestCase, apiGetTestCaseList, apiRegenTestCaseList } from '@/api/project/collection'

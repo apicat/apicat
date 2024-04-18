@@ -11,6 +11,7 @@ import useDefinitionSchemaStore from '@/store/definitionSchema'
 import { getSchemaHistoryPath } from '@/router/history'
 import { injectPagesMode } from '@/layouts/ProjectDetailLayout/composables/usePagesMode'
 import { useTitleInputFocus } from '@/hooks/useTitleInputFocus'
+import { injectAsyncInitTask } from '@/hooks/useWaitAsyncTask'
 
 defineOptions({ inheritAttrs: false })
 const props = defineProps<{ project_id: string; schemaID: string }>()
@@ -95,12 +96,10 @@ watch(schemaIDRef, async (id, oID) => {
   if (id === oID)
     return
   generateCodeRef.value?.dispose()
-  setDetail(id)
+  await setDetail(id)
 })
 
-onMounted(async () => {
-  setDetail(schemaIDRef.value)
-})
+injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
 </script>
 
 <template>
@@ -135,13 +134,7 @@ onMounted(async () => {
       </el-button>
 
       <div v-if="readonly">
-        <el-tooltip
-          v-if="isManager || isWriter"
-          effect="dark"
-          placement="bottom"
-          :content="$t('app.schema.history.title')"
-          :show-arrow="false"
-        >
+        <el-tooltip v-if="isManager || isWriter" effect="dark" placement="bottom" :content="$t('app.schema.history.title')" :show-arrow="false">
           <Iconfont class="cursor-pointer ac-history" :size="24" @click="goSchemahistory" />
         </el-tooltip>
       </div>
@@ -155,35 +148,12 @@ onMounted(async () => {
         {{ schema?.description }}
       </h4>
       <div v-if="!readonly && schema">
-        <input
-          ref="titleInputRef"
-          v-model="schema.name"
-          v-click-outside="handleBlurNameInput"
-          class="ac-document__title"
-          type="text"
-          maxlength="255"
-          :placeholder="$t('app.schema.form.title')"
-        >
-
-        <input
-          v-model="schema.description"
-          class="w-full ac-document__desc"
-          type="text"
-          maxlength="255"
-          :placeholder="$t('app.schema.form.desc')"
-        >
+        <input ref="titleInputRef" v-model="schema.name" v-click-outside="handleBlurNameInput" class="ac-document__title" type="text" maxlength="255" :placeholder="$t('app.schema.form.title')">
+        <input v-model="schema.description" class="w-full ac-document__desc" type="text" maxlength="255" :placeholder="$t('app.schema.form.desc')">
       </div>
     </div>
 
-    <JSONSchemaEditor
-      v-if="schema"
-      :key="schema.id"
-      v-model:schema="schema.schema"
-      :readonly="readonly"
-      :root-schema-key="schema.id"
-      :definition-schemas="schemas"
-    />
-
+    <JSONSchemaEditor v-if="!loading && schema" :key="schema.id" v-model:schema="schema.schema" :readonly="readonly" :root-schema-key="schema.id" :definition-schemas="schemas" />
     <GenerateCode v-if="readonly && schema" ref="generateCodeRef" :schema="schema" />
   </div>
 </template>

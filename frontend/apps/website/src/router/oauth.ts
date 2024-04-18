@@ -37,17 +37,21 @@ export const oauthRoute: RouteRecordRaw = {
         invitationToken: to.query.invitationToken as string,
         language: DEFAULT_LANGUAGE,
       })
+
       if (!res)
         return next(NOT_FOUND_PATH)
 
+      // 完整信息时，直接登录
       if (res.accessToken) {
         useUserStore().updateToken(res.accessToken)
         return next(MAIN_PATH)
       }
+
+      // 信息不完整时
       return next({
         name: COMPLETE_INFO_NAME,
         params: {
-          ...to.params,
+          ...(to.params || {}),
         },
         query: {
           ...to.query,

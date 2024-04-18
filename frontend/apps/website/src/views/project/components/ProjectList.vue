@@ -5,10 +5,12 @@ import { useNamespace } from '@apicat/hooks'
 const props = withDefaults(
   defineProps<{
     title: string
+    loading: boolean
     projects: ProjectAPI.ResponseProject[]
   }>(),
   {
     projects: () => [],
+    loading: true,
   },
 )
 
@@ -34,17 +36,16 @@ function handleProjectGroup(project: ProjectAPI.ResponseProject) {
 </script>
 
 <template>
-  <div class="flex flex-col justify-center mx-auto px-36px">
-    <p class="border-b border-solid border-gray-lighter pb-30px text-18px text-gray-title">
+  <div v-loading="loading" class="flex flex-col justify-center mx-auto px-36px">
+    <p class="border-b border-solid border-gray-lighter pb-15px text-24px text-gray-title mb-30px">
       {{ titleRef }}
     </p>
 
-    <div :class="ns.b()">
+    <div v-if="projects.length && !loading" :class="ns.b()">
       <div v-for="project in projects" :key="project.id" :class="ns.e('item')" @click="handleClick(project)">
         <div class="content">
           <div
-            :class="ns.e('cover')"
-            :style="{
+            :class="ns.e('cover')" :style="{
               backgroundColor: (project.cover as ProjectAPI.ProjectCover).coverBgColor,
             }"
           >
@@ -57,8 +58,7 @@ function handleProjectGroup(project: ProjectAPI.ResponseProject) {
             <div :class="ns.e('icons')">
               <el-tooltip
                 :content="project.selfMember.isFollowed ? $t('app.project.stars.unstar') : $t('app.project.stars.star')"
-                :show-arrow="false"
-                placement="bottom"
+                :show-arrow="false" placement="bottom"
               >
                 <el-icon v-if="!project.selfMember.isFollowed" size="18" @click.stop="handleFollowProject(project)">
                   <ac-icon-mdi:star-outline />
@@ -76,7 +76,11 @@ function handleProjectGroup(project: ProjectAPI.ResponseProject) {
         </div>
       </div>
     </div>
-    <el-empty v-if="!projects.length" :image-size="200" :description="$t('app.project.list.emptyDataTip')" />
+
+    <el-empty
+      v-if="!projects.length && !loading" :image-size="200"
+      :description="$t('app.project.list.emptyDataTip')"
+    />
   </div>
 </template>
 
@@ -84,19 +88,17 @@ function handleProjectGroup(project: ProjectAPI.ResponseProject) {
 @use '@/styles/mixins/mixins' as *;
 
 @include b(project-list) {
-  // justify-content: space-between;
-  // grid-template-columns: repeat(auto-fill, 250px);
   display: grid;
+  margin-bottom: 30px;
   grid-gap: 20px;
-  @apply my-20px py-10px;
-  // grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
 
   @include e(item) {
     transition: 0.2s all;
     @apply flex justify-center items-center;
+
     .content {
-      @apply flex  flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px;
+      @apply flex flex-col overflow-hidden rounded shadow-md cursor-pointer hover:shadow-lg w-250px h-156px;
 
       &:hover {
         @include e(icons) {

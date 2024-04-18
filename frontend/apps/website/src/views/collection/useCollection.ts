@@ -8,6 +8,7 @@ import { useProjectLayoutContext } from '@/layouts/ProjectDetailLayout'
 import { getCollectionHistoryPath } from '@/router/history'
 import { injectPagesMode } from '@/layouts/ProjectDetailLayout/composables/usePagesMode'
 import { useTitleInputFocus } from '@/hooks/useTitleInputFocus'
+import { injectAsyncInitTask } from '@/hooks/useWaitAsyncTask'
 
 let oldTitle = ''
 
@@ -87,6 +88,8 @@ export function useCollection(props: { project_id: string; collectionID: string 
     },
   )
 
+  const asyncTaskCtx = injectAsyncInitTask()
+  let isImmidiate = true
   watch(
     collectionIDRef,
     async (id, oID) => {
@@ -96,7 +99,12 @@ export function useCollection(props: { project_id: string; collectionID: string 
       oldTitle = ''
       const collectionID = Number.parseInt(id)
       if (!Number.isNaN(collectionID)) {
-        await collectionStore.getCollectionDetail(props.project_id, collectionID)
+        const task = collectionStore.getCollectionDetail(props.project_id, collectionID)
+        if (isImmidiate) {
+          isImmidiate = false
+          asyncTaskCtx!.addTask(task)
+        }
+        await task
         oldTitle = collection.value?.title || ''
         if (!readonly.value)
           focus()
@@ -109,6 +117,28 @@ export function useCollection(props: { project_id: string; collectionID: string 
 
   onBeforeUnmount(() => {
     collectionStore.collectionDetail = null
+  })
+
+  const keys = useMagicKeys({
+    passive: false,
+    onEventFired(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 's' && e.type === 'keydown')
+        e.preventDefault()
+    },
+  })
+
+  whenever(keys.cmd_s, () => {
+    if (readonly.value || localStorage.getItem('apicat.com.save.tip'))
+      return
+    ElMessage.closeAll()
+    ElMessage({
+      showClose: true,
+      duration: 0,
+      message: t('app.tips.autoSave'),
+      onClose() {
+        localStorage.setItem('apicat.com.save.tip', '1')
+      },
+    })
   })
 
   return {

@@ -1,25 +1,24 @@
 <script setup lang="ts">
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
-
 import { useI18n } from 'vue-i18n'
+import { isEmail } from '@apicat/shared'
 import { apiUpdateEmail } from '@/api/user'
 import useApi from '@/hooks/useApi'
+import { useUserStore } from '@/store/user'
 
 const { t } = useI18n()
 
+const userStore = useUserStore()
+
 const form = ref<{ email: string }>({
-  email: '',
+  email: userStore.userInfo.email,
 })
 const formRef = ref<FormInstance>()
 const rules = reactive<FormRules>({
   email: [
     {
       validator(rule: any, value: any, callback: any) {
-        function test() {
-          return /^[A-Z0-9._+-]+@[A-Z0-9][A-Z0-9.-]*\.[A-Z]{2,63}$/i.test(value)
-        }
-        // if (value && !isEmail(value))
-        if (value && !test())
+        if (value && !isEmail(value))
           return callback(new Error(t('app.rules.email.correct')))
 
         return callback()
@@ -39,6 +38,7 @@ async function submit() {
   try {
     await formRef.value!.validate()
     await updateEmail(form.value.email)
+    userStore.updateUserInfo({ email: form.value.email })
     ElMessage.success(t('app.user.email.success'))
   }
   catch (e) {}
@@ -67,7 +67,7 @@ async function submit() {
 
           <!-- submit -->
           <ElButton :loading="submitting" class="w-full" type="primary" @click="submit">
-            {{ $t('app.user.email.send') }}
+            {{ $t('app.common.update') }}
           </ElButton>
         </ElForm>
       </div>

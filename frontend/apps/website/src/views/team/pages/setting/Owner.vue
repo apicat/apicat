@@ -80,7 +80,7 @@ async function submitOwnership() {
       },
     })
   }
-  catch (e) {}
+  catch (e) { }
 }
 const memberOptions = ref<{ value: number; label: string }[]>([])
 
@@ -124,9 +124,9 @@ async function submitDeletion() {
 </script>
 
 <template>
-  <div class="max-w-600px">
+  <div>
     <!-- name -->
-    <div class="content">
+    <div>
       <h2 class="mb-3">
         {{ $t('app.team.setting.name.title') }}
       </h2>

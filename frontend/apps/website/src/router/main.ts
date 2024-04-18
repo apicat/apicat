@@ -4,7 +4,6 @@ import { pojectsRoute } from './projects'
 import { noTeamRoute, teamRoute } from './team'
 import { iterationsRoute } from './iterations'
 import { userRoute } from './userSetting'
-
 import MainLayout from '@/layouts/MainLayout.vue'
 
 export const mainRoute: RouteRecordRaw = {

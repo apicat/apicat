@@ -25,7 +25,7 @@ async function submitDeletion() {
 
 <template>
   <!-- quit -->
-  <div class="content">
+  <div>
     <h2 class="mb-3">
       {{ $t('app.team.setting.quit.title') }}
     </h2>
@@ -37,5 +37,3 @@ async function submitDeletion() {
     </ElButton>
   </div>
 </template>
-
-<style scoped></style>

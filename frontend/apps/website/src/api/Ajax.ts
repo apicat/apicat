@@ -2,11 +2,11 @@ import type { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axio
 import axios from 'axios'
 import { ElMessage } from 'element-plus'
 import AxiosWrapper from './request'
+import { clearShareToken } from './shareToken'
 import { useUserStoreWithOut } from '@/store/user'
 import { API_URL, REQUEST_TIMEOUT } from '@/commons/constant'
 import Storage from '@/commons/storage'
 
-// axios 超时时间
 axios.defaults.timeout = REQUEST_TIMEOUT
 
 const baseConfig = {
@@ -44,6 +44,7 @@ function onRequest(config: InternalAxiosRequestConfig): InternalAxiosRequestConf
 function onErrorResponse(error: AxiosError | Error): Promise<AxiosError> {
   if (axios.isAxiosError(error)) {
     const useUserStore = useUserStoreWithOut()
+
     const { response = { data: {} } } = error
     const { message } = response.data
     const { status } = (error.response as AxiosResponse) ?? {}
@@ -56,6 +57,11 @@ function onErrorResponse(error: AxiosError | Error): Promise<AxiosError> {
           case 'login':
             errorMsg = message || 'Token Expired'
             useUserStore.logout()
+            break
+
+          case 'verify':
+            errorMsg = message || 'Share Token Expired'
+            clearShareToken()
             break
         }
         break

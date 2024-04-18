@@ -11,29 +11,24 @@ import {
 import useProjectGroupStore from '@/store/projectGroup'
 import { useTeamStore } from '@/store/team'
 import { PROJECT_DETAIL_PATH_NAME } from '@/router'
-import { useGlobalLoading } from '@/hooks/useGlobalLoading'
 
 export function useProjects() {
   const teamStore = useTeamStore()
   const groupStore = useProjectGroupStore()
   const { selectedGroupRef } = storeToRefs(groupStore)
-  const isLoading = ref(false)
+  const isLoading = ref(true)
   const projects = ref<ProjectAPI.ResponseProject[]>([])
   const selectProjectGroupRef = ref<InstanceType<typeof SelectProjectGroup>>()
   const router = useRouter()
-  const { showGlobalLoading, hideGlobalLoading } = useGlobalLoading()
-  // 跳转到项目详情
-  const navigateToProjectDetail = async (project: ProjectAPI.ResponseProject) => {
-    showGlobalLoading()
 
-    await router.push({
+  // 跳转到项目详情
+  const navigateToProjectDetail = (project: ProjectAPI.ResponseProject) => {
+    router.push({
       name: PROJECT_DETAIL_PATH_NAME,
       params: {
         project_id: project.id,
       },
     })
-
-    hideGlobalLoading()
   }
 
   // 调整项目分组
