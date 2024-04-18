@@ -10,10 +10,10 @@ import (
 	"github.com/apicat/apicat/v2/backend/model"
 	"github.com/apicat/apicat/v2/backend/model/sysconfig"
 	"github.com/apicat/apicat/v2/backend/module/cache"
-	"github.com/apicat/apicat/v2/backend/module/logger"
 	"github.com/apicat/apicat/v2/backend/module/mock"
 	"github.com/apicat/apicat/v2/backend/module/storage"
 	"github.com/apicat/apicat/v2/backend/route"
+	"github.com/apicat/apicat/v2/backend/utils/logger"
 )
 
 type App struct{}
