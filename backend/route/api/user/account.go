@@ -13,7 +13,6 @@ import (
 	"github.com/apicat/apicat/v2/backend/module/cache"
 	"github.com/apicat/apicat/v2/backend/module/oauth2"
 	"github.com/apicat/apicat/v2/backend/module/oauth2/github"
-	"github.com/apicat/apicat/v2/backend/module/onetime_token"
 	"github.com/apicat/apicat/v2/backend/module/password"
 	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 	protouser "github.com/apicat/apicat/v2/backend/route/proto/user"
@@ -22,6 +21,7 @@ import (
 	protouserresponse "github.com/apicat/apicat/v2/backend/route/proto/user/response"
 	"github.com/apicat/apicat/v2/backend/service/mailer"
 	"github.com/apicat/apicat/v2/backend/service/team_relations"
+	"github.com/apicat/apicat/v2/backend/utils/onetime_token"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
