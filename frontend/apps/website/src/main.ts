@@ -2,6 +2,7 @@ import '@/styles/element/index.scss'
 import '@apicat/components/dist/style.css'
 import '@/styles/main.scss'
 import 'uno.css'
+import '@/assets/iconfont/iconfont'
 
 import { createApp } from 'vue'
 import App from './App.vue'
