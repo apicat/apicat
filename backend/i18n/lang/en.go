@@ -45,7 +45,6 @@ var En = map[string]map[string]string{
 		"EmailNotChanged":                  "This is the email you are currently using.",
 		"EmailHasBeenUsed":                 "This email has already been used.",
 		"EmailHasBeenVerified":             "This email has already been verified.",
-		"EmailUpdateFailedTitle":           "Email modification failed",
 		"EmailUpdateFailed":                "Email modification failed, please try again later.",
 		"EmailUpdateSuccessfulTitle":       "Email modified successfully",
 		"EmailUpdateSuccessfulDesc":        "You will use your new email to log in.",

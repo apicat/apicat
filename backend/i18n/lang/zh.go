@@ -45,7 +45,6 @@ var Zh = map[string]map[string]string{
 		"EmailNotChanged":                  "这是您当前使用的邮箱。",
 		"EmailHasBeenUsed":                 "该邮箱已被使用。",
 		"EmailHasBeenVerified":             "该邮箱已被验证。",
-		"EmailUpdateFailedTitle":           "邮箱修改失败",
 		"EmailUpdateFailed":                "邮箱修改失败，请稍后重试。",
 		"EmailUpdateSuccessfulTitle":       "邮箱修改成功",
 		"EmailUpdateSuccessfulDesc":        "您将会使用新的邮箱进行登录。",
