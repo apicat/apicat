@@ -244,11 +244,6 @@ export enum SysStorage {
   Qiniu = 'qiniu',
 }
 
-export enum SysCache {
-  Local = 'local',
-  Redis = 'redis',
-}
-
 export enum SysEmail {
   SMTP = 'smtp',
   SendCloud = 'sendcloud',

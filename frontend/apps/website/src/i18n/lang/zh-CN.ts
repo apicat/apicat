@@ -6,7 +6,8 @@ import dayjsLocale from '../dayjs/zh-CN'
 const zh: any = {
   name: 'zh-CN',
   app: {
-    description: '一款高效的API文档管理工具，完全符合OpenAPI规范，并融合了先进的LLM技术。 自动生成API文档、数据模型和测试用例，大大提高开发效率和质量。',
+    description:
+      '一款高效的API文档管理工具，完全符合OpenAPI规范，并融合了先进的LLM技术。 自动生成API文档、数据模型和测试用例，大大提高开发效率和质量。',
     pageTitles: {
       iterationList: '迭代列表',
       projectList: '项目列表',
@@ -184,7 +185,7 @@ const zh: any = {
         imgLoadFail: '图像加载失败，请重试',
         imgcut: '裁剪区域选择',
         imgTooLarge: '图像过大，应小于 1MB。',
-        imgTooSmall: '图像尺寸应大于\'{0}x{1}\'。',
+        imgTooSmall: "图像尺寸应大于'{0}x{1}'。",
       },
       email: {
         left_title: '邮箱',
@@ -688,8 +689,8 @@ const zh: any = {
         aiGenerateInterface: 'AI 创建 API',
         newInterface: '创建接口',
         newGroup: '新建分类',
-        confirmDeleteGroup: '您确定要删除类别 \'{0}\' 吗？',
-        confirmDeleteInterface: '您确定要删除接口 \'{0}\' 吗？',
+        confirmDeleteGroup: "您确定要删除类别 '{0}' 吗？",
+        confirmDeleteInterface: "您确定要删除接口 '{0}' 吗？",
       },
       unnamedInterface: '未命名接口',
       unnamedCategory: '未命名分类',
@@ -711,8 +712,8 @@ const zh: any = {
         aiGenerateSchema: 'AI 创建模型',
         newSchema: '创建模型',
         newGroup: '新建分类',
-        confirmDeleteGroup: '您确定要删除 \'{0}\' 分组吗？',
-        confirmDeleteSchema: '您确定要删除 \'{0}\' 模型吗？',
+        confirmDeleteGroup: "您确定要删除 '{0}' 分组吗？",
+        confirmDeleteSchema: "您确定要删除 '{0}' 模型吗？",
       },
       history: {
         title: '历史记录',
@@ -751,7 +752,7 @@ const zh: any = {
       popoverMenus: {
         newDefinitionResponse: '新建响应',
         newGroup: '新建分类',
-        confirmDeleteDefinitionResponse: '您确定要删除 \'{0}\' 响应吗？',
+        confirmDeleteDefinitionResponse: "您确定要删除 '{0}' 响应吗？",
         unnamedDefinitionResponse: '未命名响应',
       },
       page: {
@@ -822,16 +823,11 @@ const zh: any = {
         left_title: '服务',
         appname: '应用名称',
         appurl: 'App URL',
-        server: '应用服务器绑定',
         mockurl: 'Mock URL',
-        mockserver: 'Mock服务地址',
-        tip: '如果您更改了服务相关信息，需要重新启动服务后生效。',
         rules: {
           appname: '请输入应用名称',
           appurl: '请输入有效的URL地址',
-          appserver: '请输入有效的URL地址',
           mockurl: '请输入有效的URL地址',
-          mockserver: '请输入有效的服务地址',
         },
       },
       oauth: {
@@ -884,37 +880,6 @@ const zh: any = {
             bucketUrl: '请输入一个有效的URL',
           },
         },
-      },
-      cache: {
-        title: '缓存',
-        left_title: '缓存',
-        local: {
-          title: '本地内存',
-          smallTitle: '使用本地内存',
-          tip: '如果服务重新启动，前一个缓存将会被清除',
-          rules: {
-            checked: '请确认上方提示',
-          },
-        },
-        redis: {
-          title: 'Redis',
-          host: 'Host',
-          pw: '密码',
-          db: 'Database',
-          rules: {
-            host: '请输入有效的Host地址',
-            pw: '请输入密码',
-            db: '请输入数据库名称',
-          },
-        },
-      },
-      db: {
-        title: '数据库',
-        left_title: '数据库',
-        host: 'Host',
-        username: '用户名',
-        pw: '密码',
-        db: '数据库',
       },
       email: {
         title: '邮箱',

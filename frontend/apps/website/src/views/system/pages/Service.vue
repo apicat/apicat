@@ -10,23 +10,13 @@ const tBase = 'app.system.service'
 const form = ref<SystemAPI.ServiceData>({
   appName: '',
   appUrl: '',
-  appServerBind: '',
   mockUrl: '',
-  mockServerBind: '',
 })
 const formRef = ref<FormInstance>()
 const rules = reactive<FormRules<SystemAPI.ServiceData>>({
   appName: notNullRule(t(`${tBase}.rules.appname`)),
   appUrl: [...isUrlRule(t(`${tBase}.rules.appurl`), true, true), ...notNullRule(t(`${tBase}.rules.appurl`))],
-  appServerBind: [
-    ...isUrlRule(t(`${tBase}.rules.appserver`), true, false),
-    ...notNullRule(t(`${tBase}.rules.appserver`)),
-  ],
   mockUrl: [...isUrlRule(t(`${tBase}.rules.mockurl`), true, true), ...notNullRule(t(`${tBase}.rules.mockurl`))],
-  mockServerBind: [
-    ...isUrlRule(t(`${tBase}.rules.mockserver`), true, false),
-    ...notNullRule(t(`${tBase}.rules.mockserver`)),
-  ],
 })
 
 const [submitting, update] = useApi(apiUpdateService)
@@ -34,8 +24,7 @@ async function submit() {
   try {
     await formRef.value!.validate()
     await update(form.value)
-  }
-  catch (e) {}
+  } catch (e) {}
 }
 
 apiGetService().then((v) => {
@@ -58,30 +47,17 @@ apiGetService().then((v) => {
           <ElInput v-model="form.appUrl" maxlength="255" />
         </ElFormItem>
 
-        <!-- server -->
-        <ElFormItem prop="appServerBind" :label="$t('app.system.service.server')">
-          <ElInput v-model="form.appServerBind" maxlength="255" />
-        </ElFormItem>
-
         <!-- mockurl -->
         <ElFormItem prop="mockUrl" :label="$t('app.system.service.mockurl')">
           <ElInput v-model="form.mockUrl" maxlength="255" />
         </ElFormItem>
-
-        <!-- mockserver -->
-        <ElFormItem prop="mockServerBind" :label="$t('app.system.service.mockserver')">
-          <ElInput v-model="form.mockServerBind" maxlength="255" />
-        </ElFormItem>
       </div>
 
       <!-- submit -->
-      <ElButton :loading="submitting" class="w-full" type="primary" @click="submit">
+      <ElButton :loading="submitting" class="w-full mt-8px" type="primary" @click="submit">
         {{ $t('app.common.update') }}
       </ElButton>
     </ElForm>
-    <p class="text-gray-helper mt-10px">
-      {{ $t('app.system.service.tip') }}
-    </p>
   </div>
 </template>
 

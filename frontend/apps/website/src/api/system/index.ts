@@ -30,22 +30,6 @@ export async function apiUpdateStroageQiniu(data: SystemAPI.StorageQiniu): Promi
   return DefaultAjax.put('/sysconfigs/storages/qiniu', data, { isShowSuccessMsg: true })
 }
 
-// cache
-export async function apiGetCache(): Promise<SystemAPI.CacheItem[]> {
-  return DefaultAjax.get('/sysconfigs/caches')
-}
-export async function apiUpdateCacheLocal(): Promise<void> {
-  return DefaultAjax.put('/sysconfigs/caches/memory', { isShowSuccessMsg: true })
-}
-export async function apiUpdateCacheRedis(data: SystemAPI.CacheRedis): Promise<void> {
-  return DefaultAjax.put('/sysconfigs/caches/redis', data, { isShowSuccessMsg: true })
-}
-
-// database
-export async function apiGetDatabase(): Promise<SystemAPI.Database> {
-  return DefaultAjax.get('/sysconfigs/db')
-}
-
 // email
 export async function apiGetEmail(): Promise<SystemAPI.EmailItem[]> {
   return DefaultAjax.get('/sysconfigs/emails')
