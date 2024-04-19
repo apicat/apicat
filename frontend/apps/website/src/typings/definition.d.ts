@@ -8,6 +8,7 @@ declare module Definition {
     | 'text/html'
     | 'text/plain'
     | 'application/octet-stream'
+    | 'none'
 
   interface CreateResponseTreeNode {
     name: string
