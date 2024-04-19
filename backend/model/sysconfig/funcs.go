@@ -3,7 +3,6 @@ package sysconfig
 import (
 	"context"
 	"encoding/json"
-	"net/mail"
 
 	"github.com/apicat/apicat/v2/backend/config"
 	"github.com/apicat/apicat/v2/backend/model"
@@ -76,46 +75,15 @@ func initAppConfig() {
 }
 
 func initStorageConfig() {
-	var cfg map[string]interface{}
+	var cfg config.Storage
 	r := &Sysconfig{
 		Type: "storage",
 	}
 	exist, _ := r.GetByUse(context.Background())
 	if exist {
-		if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
-			switch r.Driver {
-			case storage.LOCAL:
-				config.SetStorage(&config.Storage{
-					Driver: r.Driver,
-					LocalDisk: &config.LocalDisk{
-						Path: cfg["path"].(string),
-						Url:  config.Get().App.AppUrl + "/uploads",
-					},
-				})
-				return
-			case storage.CLOUDFLARE:
-				config.SetStorage(&config.Storage{
-					Driver: r.Driver,
-					Cloudflare: &config.Cloudflare{
-						AccountID:       cfg["accountID"].(string),
-						AccessKeyID:     cfg["accessKeyID"].(string),
-						AccessKeySecret: cfg["accessKeySecret"].(string),
-						BucketName:      cfg["bucketName"].(string),
-						Url:             cfg["bucketUrl"].(string),
-					},
-				})
-				return
-			case storage.QINIU:
-				config.SetStorage(&config.Storage{
-					Driver: r.Driver,
-					Qiniu: &config.Qiniu{
-						AccessKeyID:     cfg["accessKey"].(string),
-						AccessKeySecret: cfg["secretKey"].(string),
-						BucketName:      cfg["bucketName"].(string),
-						Url:             cfg["bucketUrl"].(string),
-					},
-				})
-				return
+		if r.Driver == storage.LOCAL || r.Driver == storage.CLOUDFLARE || r.Driver == storage.QINIU {
+			if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
+				config.SetStorage(&cfg)
 			}
 		}
 	}
@@ -123,10 +91,7 @@ func initStorageConfig() {
 	defaultCfg.LocalDisk.Url = config.Get().App.AppUrl + "/uploads"
 	config.SetStorage(defaultCfg)
 
-	configMap := map[string]string{
-		"path": defaultCfg.LocalDisk.Path,
-	}
-	configJson, _ := json.Marshal(configMap)
+	configJson, _ := json.Marshal(defaultCfg)
 	r.Driver = defaultCfg.Driver
 	r.BeingUsed = true
 	r.Config = string(configJson)
@@ -134,72 +99,29 @@ func initStorageConfig() {
 }
 
 func initEmailConfig() {
-	var cfg map[string]interface{}
+	var cfg config.Email
 	r := &Sysconfig{
 		Type: "email",
 	}
 	exist, _ := r.GetByUse(context.Background())
 	if exist {
-		if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
-			switch r.Driver {
-			case mailmodule.SMTP:
-				config.SetEmail(&config.Email{
-					Driver: r.Driver,
-					Smtp: &config.EmailSmtp{
-						Host: cfg["host"].(string),
-						From: mail.Address{
-							Name:    cfg["user"].(string),
-							Address: cfg["address"].(string),
-						},
-						Password: cfg["password"].(string),
-					},
-				})
-			case mailmodule.SENDCLOUD:
-				config.SetEmail(&config.Email{
-					Driver: r.Driver,
-					SendCloud: &config.EmailSendCloud{
-						ApiUser:  cfg["apiUser"].(string),
-						ApiKey:   cfg["apiKey"].(string),
-						From:     cfg["fromEmail"].(string),
-						FromName: cfg["fromName"].(string),
-					},
-				})
+		if r.Driver == mailmodule.SMTP || r.Driver == mailmodule.SENDCLOUD {
+			if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
+				config.SetEmail(&cfg)
 			}
 		}
 	}
 }
 
 func initModelConfig() {
-	var cfg map[string]interface{}
+	var cfg config.LLM
 	r := &Sysconfig{
 		Type: "model",
 	}
 	exist, _ := r.GetByUse(context.Background())
 	if exist {
-		if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
-			switch r.Driver {
-			case llm.OPENAI:
-				config.SetLLM(&config.LLM{
-					Driver: r.Driver,
-					OpenAI: &config.OpenAI{
-						ApiKey:         cfg["apiKey"].(string),
-						OrganizationID: cfg["organizationID"].(string),
-						ApiBase:        cfg["apiBase"].(string),
-						LLMName:        cfg["llmName"].(string),
-						EmbeddingName:  cfg["embeddingName"].(string),
-					},
-				})
-			case llm.AZUREOPENAI:
-				config.SetLLM(&config.LLM{
-					Driver: r.Driver,
-					AzureOpenAI: &config.AzureOpenAI{
-						ApiKey:        cfg["apiKey"].(string),
-						Endpoint:      cfg["endpoint"].(string),
-						LLMName:       cfg["llmName"].(string),
-						EmbeddingName: cfg["embeddingName"].(string),
-					},
-				})
-			}
+		if r.Driver == llm.OPENAI || r.Driver == llm.AZUREOPENAI {
+			config.SetLLM(&cfg)
 		}
 	}
 }
