@@ -13,16 +13,27 @@ const (
 	AZUREOPENAI = "azure-openai"
 )
 
-func NewLLM(cfg map[string]interface{}) (common.Provider, error) {
-	slog.Debug("llm.NewLLM", "cfg", cfg)
-	if cfg == nil {
-		return nil, errors.New("llm config is nil")
-	}
+type LLM struct {
+	Driver      string
+	OpenAI      openai.OpenAI
+	AzureOpenAI openai.AzureOpenAI
+}
 
-	if cfg["Driver"] == OPENAI {
-		return openai.NewOpenAI(cfg["OpenAI"].(map[string]interface{}))
-	} else if cfg["Driver"] == AZUREOPENAI {
-		return openai.NewOpenAI(cfg["AzureOpenAI"].(map[string]interface{}))
+func NewLLM(cfg LLM) (common.Provider, error) {
+	slog.Debug("llm.NewLLM", "cfg", cfg)
+
+	if cfg.Driver == OPENAI {
+		if o := openai.NewOpenAI(cfg.OpenAI); o != nil {
+			return o, nil
+		} else {
+			return nil, errors.New("openai.NewOpenAI failed")
+		}
+	} else if cfg.Driver == AZUREOPENAI {
+		if o := openai.NewAzureOpenAI(cfg.AzureOpenAI); o != nil {
+			return o, nil
+		} else {
+			return nil, errors.New("openai.NewAzureOpenAI failed")
+		}
 	}
 	return nil, errors.New("llm driver not found")
 }

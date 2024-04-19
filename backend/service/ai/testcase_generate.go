@@ -60,7 +60,7 @@ func TestCaseListGenerate(ctx *gin.Context, apiSummary string, testCases []strin
 		return nil, err
 	}
 
-	a, err := llm.NewLLM(config.Get().LLM.ToMapInterface())
+	a, err := llm.NewLLM(config.Get().LLM.ToCfg())
 	if err != nil {
 		return nil, err
 	}
@@ -154,7 +154,7 @@ func TestCaseDetailGenerate(language, apiSummary, testCaseTitle string) (*TestCa
 		return nil, err
 	}
 
-	a, err := llm.NewLLM(config.Get().LLM.ToMapInterface())
+	a, err := llm.NewLLM(config.Get().LLM.ToCfg())
 	if err != nil {
 		return nil, err
 	}
@@ -206,7 +206,7 @@ func TestCaseDetailRegenerate(testCase *collection.TestCase, language, apiSummar
 		return nil, err
 	}
 
-	a, err := llm.NewLLM(config.Get().LLM.ToMapInterface())
+	a, err := llm.NewLLM(config.Get().LLM.ToCfg())
 	if err != nil {
 		return nil, err
 	}

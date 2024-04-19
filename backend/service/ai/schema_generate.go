@@ -23,7 +23,7 @@ func SchemaGenerate(ctx *gin.Context, prompt string) (*definition.DefinitionSche
 		return nil, err
 	}
 
-	a, err := llm.NewLLM(config.Get().LLM.ToMapInterface())
+	a, err := llm.NewLLM(config.Get().LLM.ToCfg())
 	if err != nil {
 		return nil, err
 	}

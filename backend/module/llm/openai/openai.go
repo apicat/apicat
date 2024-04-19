@@ -12,45 +12,62 @@ import (
 	oai "github.com/sashabaranov/go-openai"
 )
 
-type openAI struct {
-	client        *oai.Client
-	llmName       string
-	embeddingName string
+type OpenAI struct {
+	ApiKey         string
+	OrganizationID string
+	ApiBase        string
+	LLMName        string
+	EmbeddingName  string
+	Timeout        int
 }
 
-func NewOpenAI(cfg map[string]interface{}) (*openAI, error) {
-	var clientConfig oai.ClientConfig
+type AzureOpenAI struct {
+	ApiKey        string
+	Endpoint      string
+	LLMName       string
+	EmbeddingName string
+	Timeout       int
+}
 
-	if _, ok := cfg["ApiKey"]; !ok {
-		return nil, errors.New("openai config ApiKey is required")
-	}
+type openai struct {
+	llmName       string
+	embeddingName string
+	client        *oai.Client
+}
 
-	if _, ok := cfg["Endpoint"]; ok {
-		clientConfig = oai.DefaultAzureConfig(cfg["ApiKey"].(string), cfg["Endpoint"].(string))
-	} else {
-		clientConfig = oai.DefaultConfig(cfg["ApiKey"].(string))
-	}
+func NewOpenAI(cfg OpenAI) *openai {
+	clientConfig := oai.DefaultConfig(cfg.ApiKey)
 
-	if _, ok := cfg["Timeout"]; ok {
-		clientConfig.HTTPClient.Timeout = time.Second * time.Duration(cfg["Timeout"].(int))
+	if cfg.Timeout > 0 {
+		clientConfig.HTTPClient.Timeout = time.Second * time.Duration(cfg.Timeout)
 	} else {
 		clientConfig.HTTPClient.Timeout = time.Second * 30
 	}
 
-	o := &openAI{
-		client: oai.NewClientWithConfig(clientConfig),
+	return &openai{
+		llmName:       cfg.LLMName,
+		embeddingName: cfg.EmbeddingName,
+		client:        oai.NewClientWithConfig(clientConfig),
 	}
-	if _, ok := cfg["LLMName"]; ok {
-		o.llmName = cfg["LLMName"].(string)
-	}
-	if _, ok := cfg["EmbeddingName"]; ok {
-		o.embeddingName = cfg["EmbeddingName"].(string)
-	}
-
-	return o, nil
 }
 
-func (o *openAI) Check() error {
+func NewAzureOpenAI(cfg AzureOpenAI) *openai {
+	clientConfig := oai.DefaultAzureConfig(cfg.ApiKey, cfg.Endpoint)
+
+	if cfg.Timeout > 0 {
+		clientConfig.HTTPClient.Timeout = time.Second * time.Duration(cfg.Timeout)
+	} else {
+		clientConfig.HTTPClient.Timeout = time.Second * 30
+	}
+
+	return &openai{
+		llmName:       cfg.LLMName,
+		embeddingName: cfg.EmbeddingName,
+		client:        oai.NewClientWithConfig(clientConfig),
+	}
+}
+
+func (o *openai) Check() error {
 	if o.llmName == "" {
 		return errors.New("model name not set")
 	}
@@ -61,7 +78,7 @@ func (o *openAI) Check() error {
 	return nil
 }
 
-func (o *openAI) ChatCompletionRequest(r *common.ChatCompletionRequest) (string, error) {
+func (o *openai) ChatCompletionRequest(r *common.ChatCompletionRequest) (string, error) {
 	resp, err := o.client.CreateChatCompletion(
 		context.Background(),
 		oai.ChatCompletionRequest{
@@ -77,15 +94,15 @@ func (o *openAI) ChatCompletionRequest(r *common.ChatCompletionRequest) (string,
 	return resp.Choices[0].Message.Content, nil
 }
 
-func (o *openAI) ChatMessageRoleSystem() string {
+func (o *openai) ChatMessageRoleSystem() string {
 	return oai.ChatMessageRoleSystem
 }
 
-func (o *openAI) ChatMessageRoleAssistant() string {
+func (o *openai) ChatMessageRoleAssistant() string {
 	return oai.ChatMessageRoleAssistant
 }
 
-func (o *openAI) ChatMessageRoleUser() string {
+func (o *openai) ChatMessageRoleUser() string {
 	return oai.ChatMessageRoleUser
 }
 

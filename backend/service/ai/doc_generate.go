@@ -23,7 +23,7 @@ func DocGenerate(ctx *gin.Context, prompt string) (*collection.Collection, error
 		return nil, err
 	}
 
-	a, err := llm.NewLLM(config.Get().LLM.ToMapInterface())
+	a, err := llm.NewLLM(config.Get().LLM.ToCfg())
 	if err != nil {
 		return nil, err
 	}
