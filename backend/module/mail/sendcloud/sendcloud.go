@@ -12,36 +12,26 @@ import (
 	"github.com/apicat/apicat/v2/backend/module/mail/common"
 )
 
-type sendcloud struct {
-	apiUser  string
-	apiKey   string
-	from     string
-	fromName string
+type SendCloud struct {
+	ApiUser  string
+	ApiKey   string
+	From     string
+	FromName string
 }
 
-func NewSendCloud(cfg map[string]interface{}) (*sendcloud, error) {
-	for _, v := range []string{"ApiUser", "ApiKey", "From", "FromName"} {
-		if _, ok := cfg[v]; !ok {
-			return nil, fmt.Errorf("sendcloud config %s is required", v)
-		}
-	}
-	return &sendcloud{
-		apiUser:  cfg["ApiUser"].(string),
-		apiKey:   cfg["ApiKey"].(string),
-		from:     cfg["From"].(string),
-		fromName: cfg["FromName"].(string),
-	}, nil
+func NewSendCloud(cfg SendCloud) *SendCloud {
+	return &cfg
 }
 
-func (s *sendcloud) Send(msg *common.Message, to ...string) error {
+func (s *SendCloud) Send(msg *common.Message, to ...string) error {
 	param := url.Values{}
 	param.Add("to", strings.Join(to, ","))
 	param.Add("subject", msg.Subject)
 	param.Add("html", msg.Body)
-	param.Add("apiUser", s.apiUser)
-	param.Add("apiKey", s.apiKey)
-	param.Add("from", s.from)
-	param.Add("fromName", s.fromName)
+	param.Add("apiUser", s.ApiUser)
+	param.Add("apiKey", s.ApiKey)
+	param.Add("from", s.From)
+	param.Add("fromName", s.FromName)
 	ctx, cfn := context.WithTimeout(context.Background(), time.Second*10)
 	defer cfn()
 	req, err := http.NewRequestWithContext(
