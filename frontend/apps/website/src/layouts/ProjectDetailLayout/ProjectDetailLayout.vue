@@ -66,7 +66,6 @@ onMounted(async () => {
 
   try {
     await ctx.done()
-    console.log('layout mounted task done')
   }
   finally {
     hideGlobalLoading()
