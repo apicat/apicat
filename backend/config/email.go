@@ -17,17 +17,17 @@ type Email struct {
 // sendCloud
 // https://www.sendcloud.net
 type EmailSendCloud struct {
-	ApiUser  string `yaml:"ApiUser"`
-	ApiKey   string `yaml:"ApiKey"`
-	From     string `yaml:"From"`
-	FromName string `yaml:"FromName"`
+	ApiUser  string `yaml:"ApiUser" json:"apiUser"`
+	ApiKey   string `yaml:"ApiKey" json:"apiKey"`
+	From     string `yaml:"From" json:"fromEmail"`
+	FromName string `yaml:"FromName" json:"fromName"`
 }
 
 // Smtp
 type EmailSmtp struct {
-	Host     string       `yaml:"Host"`
-	From     mail.Address `yaml:"From"`
-	Password string       `yaml:"Password"`
+	Host     string       `yaml:"Host" json:"Host"`
+	From     mail.Address `yaml:"From" json:"From"`
+	Password string       `yaml:"Password" json:"Password"`
 }
 
 func SetEmail(emailConfig *Email) {

@@ -15,23 +15,23 @@ type Storage struct {
 }
 
 type LocalDisk struct {
-	Path string `yaml:"Path"`
-	Url  string `yaml:"Url"`
+	Path string `yaml:"Path" json:"path"`
+	Url  string `yaml:"Url" json:"url"`
 }
 
 type Cloudflare struct {
-	AccountID       string `yaml:"AccountID"`
-	AccessKeyID     string `yaml:"AccessKeyID"`
-	AccessKeySecret string `yaml:"AccessKeySecret"`
-	BucketName      string `yaml:"BucketName"`
-	Url             string `yaml:"Url"`
+	AccountID       string `yaml:"AccountID" json:"accountID"`
+	AccessKeyID     string `yaml:"AccessKeyID" json:"accessKeyID"`
+	AccessKeySecret string `yaml:"AccessKeySecret" json:"accessKeySecret"`
+	BucketName      string `yaml:"BucketName" json:"bucketName"`
+	Url             string `yaml:"Url" json:"bucketUrl"`
 }
 
 type Qiniu struct {
-	AccessKeyID     string `yaml:"AccessKeyID"`
-	AccessKeySecret string `yaml:"AccessKeySecret"`
-	BucketName      string `yaml:"BucketName"`
-	Url             string `yaml:"Url"`
+	AccessKeyID     string `yaml:"AccessKeyID" json:"accessKey"`
+	AccessKeySecret string `yaml:"AccessKeySecret" json:"secretKey"`
+	BucketName      string `yaml:"BucketName" json:"bucketName"`
+	Url             string `yaml:"Url" json:"bucketUrl"`
 }
 
 func GetStorageDefault() *Storage {

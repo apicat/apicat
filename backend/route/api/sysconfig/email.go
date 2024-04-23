@@ -34,11 +34,33 @@ func (e *emailApiImpl) Get(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfigbase.Co
 	}
 	slist := make(sysconfigbase.ConfigList, 0, len(list))
 	for _, v := range list {
-		slist = append(slist, &sysconfigbase.ConfigDetail{
-			Driver: v.Driver,
-			Use:    v.BeingUsed,
-			Config: cfgFormat(v),
-		})
+		if v.Driver == mailmodule.SMTP {
+			d := &sysconfigbase.ConfigDetail{
+				Driver: v.Driver,
+				Use:    v.BeingUsed,
+				Config: map[string]interface{}{
+					"host":     "",
+					"user":     "",
+					"address":  "",
+					"password": "",
+				},
+			}
+
+			var smtpCfg config.EmailSmtp
+			if err := json.Unmarshal([]byte(v.Config), &smtpCfg); err == nil {
+				d.Config["host"] = smtpCfg.Host
+				d.Config["user"] = smtpCfg.From.Name
+				d.Config["address"] = smtpCfg.From.Address
+				d.Config["password"] = smtpCfg.Password
+			}
+			slist = append(slist, d)
+		} else {
+			slist = append(slist, &sysconfigbase.ConfigDetail{
+				Driver: v.Driver,
+				Use:    v.BeingUsed,
+				Config: cfgFormat(v),
+			})
+		}
 	}
 	return &slist, nil
 }
@@ -57,7 +79,7 @@ func (e *emailApiImpl) UpdateSMTP(ctx *gin.Context, opt *sysconfigrequest.SMTPOp
 		},
 	}
 
-	jsonData, err := json.Marshal(opt)
+	jsonData, err := json.Marshal(emailConfig.Smtp)
 	if err != nil {
 		slog.ErrorContext(ctx, "json.Marshal", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.EmailUpdateFailed"))

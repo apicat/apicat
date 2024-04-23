@@ -12,20 +12,20 @@ type LLM struct {
 }
 
 type OpenAI struct {
-	ApiKey         string `yaml:"ApiKey"`
-	OrganizationID string `yaml:"OrganizationID"`
-	ApiBase        string `yaml:"ApiBase"`
-	LLMName        string `yaml:"LLMName"`
-	EmbeddingName  string `yaml:"EmbeddingName"`
-	Timeout        int    `yaml:"Timeout"`
+	ApiKey         string `yaml:"ApiKey" json:"apiKey"`
+	OrganizationID string `yaml:"OrganizationID" json:"organizationID"`
+	ApiBase        string `yaml:"ApiBase" json:"apiBase"`
+	LLMName        string `yaml:"LLMName" json:"llmName"`
+	EmbeddingName  string `yaml:"EmbeddingName" json:"embeddingName"`
+	Timeout        int    `yaml:"Timeout" json:"timeout"`
 }
 
 type AzureOpenAI struct {
-	ApiKey        string `yaml:"ApiKey"`
-	Endpoint      string `yaml:"Endpoint"`
-	LLMName       string `yaml:"LLMName"`
-	EmbeddingName string `yaml:"EmbeddingName"`
-	Timeout       int    `yaml:"Timeout"`
+	ApiKey        string `yaml:"ApiKey" json:"apiKey"`
+	Endpoint      string `yaml:"Endpoint" json:"endpoint"`
+	LLMName       string `yaml:"LLMName" json:"llmName"`
+	EmbeddingName string `yaml:"EmbeddingName" json:"embeddingName"`
+	Timeout       int    `yaml:"Timeout" json:"timeout"`
 }
 
 func SetLLM(c *LLM) {

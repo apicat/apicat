@@ -81,9 +81,23 @@ func initStorageConfig() {
 	}
 	exist, _ := r.GetByUse(context.Background())
 	if exist {
-		if r.Driver == storage.LOCAL || r.Driver == storage.CLOUDFLARE || r.Driver == storage.QINIU {
-			if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
+		cfg.Driver = r.Driver
+
+		switch r.Driver {
+		case storage.LOCAL:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.LocalDisk); err == nil {
 				config.SetStorage(&cfg)
+				return
+			}
+		case storage.CLOUDFLARE:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.Cloudflare); err == nil {
+				config.SetStorage(&cfg)
+				return
+			}
+		case storage.QINIU:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.Qiniu); err == nil {
+				config.SetStorage(&cfg)
+				return
 			}
 		}
 	}
@@ -91,7 +105,7 @@ func initStorageConfig() {
 	defaultCfg.LocalDisk.Url = config.Get().App.AppUrl + "/uploads"
 	config.SetStorage(defaultCfg)
 
-	configJson, _ := json.Marshal(defaultCfg)
+	configJson, _ := json.Marshal(defaultCfg.LocalDisk)
 	r.Driver = defaultCfg.Driver
 	r.BeingUsed = true
 	r.Config = string(configJson)
@@ -105,8 +119,15 @@ func initEmailConfig() {
 	}
 	exist, _ := r.GetByUse(context.Background())
 	if exist {
-		if r.Driver == mailmodule.SMTP || r.Driver == mailmodule.SENDCLOUD {
-			if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
+		switch r.Driver {
+		case mailmodule.SMTP:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.Smtp); err == nil {
+				cfg.Driver = mailmodule.SMTP
+				config.SetEmail(&cfg)
+			}
+		case mailmodule.SENDCLOUD:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.SendCloud); err == nil {
+				cfg.Driver = mailmodule.SENDCLOUD
 				config.SetEmail(&cfg)
 			}
 		}
@@ -120,8 +141,17 @@ func initModelConfig() {
 	}
 	exist, _ := r.GetByUse(context.Background())
 	if exist {
-		if r.Driver == llm.OPENAI || r.Driver == llm.AZUREOPENAI {
-			config.SetLLM(&cfg)
+		switch r.Driver {
+		case llm.OPENAI:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.OpenAI); err == nil {
+				cfg.Driver = llm.OPENAI
+				config.SetLLM(&cfg)
+			}
+		case llm.AZUREOPENAI:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.AzureOpenAI); err == nil {
+				cfg.Driver = llm.AZUREOPENAI
+				config.SetLLM(&cfg)
+			}
 		}
 	}
 }
