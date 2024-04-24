@@ -21,4 +21,4 @@ COPY ./wait-for-it.sh /app/wait-for-it.sh
 COPY --from=backend-builder /app/apicat-server /app/apicat-server
 RUN apk add bash \
     && chmod +x /app/wait-for-it.sh
-ENTRYPOINT ["/bin/bash", "/app/wait-for-it.sh", "apicat_db:3306", "-s", "-t", "60", "--", "/app/apicat-server"]
+ENTRYPOINT ["/app/apicat-server"]
