@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col items-center justify-center mx-auto px-36px">
-    <div style="align-items: start" class="text-start w-45vw">
+    <div class="text-start min-w-500px md:w-full lg:max-w-800px">
       <slot />
     </div>
   </div>
@@ -8,8 +8,7 @@
 
 <style scoped>
 :deep(h1) {
-  font-size: 24px;
-  @apply text-gray-title font-500;
+  @apply font-500 border-b border-solid border-gray-lighter pb-15px text-24px text-gray-title mb-20px;
 }
 
 :deep(h2) {
@@ -40,11 +39,9 @@
 
 :deep(.left) {
   justify-content: flex-start;
-  /* flex-grow: 1; */
 }
 
 :deep(.right) {
-  /* justify-content: flex-end; */
   flex-grow: 1;
 }
 
@@ -69,12 +66,14 @@
   box-sizing: border-box;
   vertical-align: top;
 }
+
 :deep(.content .demonstration) {
   display: block;
   color: var(--el-text-color-secondary);
   font-size: 14px;
   margin-bottom: 20px;
 }
+
 :deep(.content .el-image) {
   width: 200px;
   height: 200px;

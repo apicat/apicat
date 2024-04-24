@@ -7,9 +7,7 @@ declare namespace SystemAPI {
   // service
   interface ServiceData {
     appName: string
-    appServerBind: string
     appUrl: string
-    mockServerBind: string
     mockUrl: string
   }
 
@@ -40,27 +38,6 @@ declare namespace SystemAPI {
     driver: StorageDrivers
     use: boolean
     config: StorageDisk | StorageCF | StorageQiniu
-  }
-
-  // cache
-  interface CacheMemory {}
-  interface CacheRedis {
-    host: string
-    password?: string
-    database: number
-  }
-  interface CacheItem {
-    driver: CacheDrivers
-    use: boolean
-    config: CacheMemory | CacheRedis
-  }
-
-  // database
-  interface Database {
-    host: string
-    username: string
-    // password: string
-    database: string
   }
 
   // email

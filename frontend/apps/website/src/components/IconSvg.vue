@@ -10,19 +10,14 @@ const props = withDefaults(
   },
 )
 
-const style = computed(() => {
-  const a: any = {
-    fontSize: `${props.width}px`,
-  }
-  if (props.height)
-    a.height = `${props.height}px`
-
-  return a
-})
+const style = computed(() => ({
+  fontSize: `${props.width}px`,
+  height: `${props.height ?? props.width}px`,
+}))
 </script>
 
 <template>
-  <svg class="icon" :style="style" aria-hidden="true">
+  <svg class="icon" :style="style" aria-hidden="true" :width="width">
     <use :xlink:href="`#${name}`" />
   </svg>
 </template>

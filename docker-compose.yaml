@@ -11,6 +11,9 @@ services:
       - APICAT_DB_USERNAME=root
       - APICAT_DB_PASSWORD=apicat123456
       - APICAT_DB_DATABASE=apicat
+      - APICAT_CACHE_HOST=apicat_redis
+      - APICAT_CACHE_PASSWORD=
+      - APICAT_CACHE_DB=0
     networks:
       - apicat_network
     volumes:

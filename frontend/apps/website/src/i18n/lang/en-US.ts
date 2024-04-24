@@ -6,6 +6,8 @@ import dayjsLocale from '../dayjs/en-US'
 const en: any = {
   name: 'English',
   app: {
+    description:
+      'An efficient API document management tool that fully complies with the OpenAPI specification and incorporates advanced LLM technology. Automatically generate API documents, data models and test cases, greatly improving development efficiency and quality.',
     pageTitles: {
       iterationList: 'Iteration List',
       projectList: 'Project List',
@@ -34,8 +36,6 @@ const en: any = {
         service: 'Service',
         oauth: 'OAuth',
         storage: 'Storage',
-        cache: 'Cache',
-        database: 'Database',
         email: 'Email',
         model: 'Model',
         users: 'User List',
@@ -114,6 +114,7 @@ const en: any = {
       permissionChangeTitle: 'Permissions Change Hint',
       copyed: 'Successfully copied',
       opeartionSuceess: 'Operation Successfully',
+      autoSave: 'The system has been automatically saved.',
     },
     table: {
       name: 'Name',
@@ -182,14 +183,14 @@ const en: any = {
         imgLoadFail: 'Image fail to load, plase try again.',
         imgcut: 'Crop region selection',
         imgTooLarge: 'Image too large. It should be less than 1MB.',
-        imgTooSmall: 'The image dimensions should be greater than \'{0}x{1}\'.',
+        imgTooSmall: "The image dimensions should be greater than '{0}x{1}'.",
       },
       email: {
         left_title: 'Email',
         title: 'Change email',
         email: 'Email',
         send: 'Send',
-        success: 'An email has been sent. Please check your mailbox and activate it.',
+        success: 'Change email success.',
       },
       github: {
         left_title: 'GitHub',
@@ -214,7 +215,7 @@ const en: any = {
       title: 'Team',
       no_current: 'No team selected',
       create: {
-        title0: 'You don\'t have a team yet',
+        title0: "You don't have a team yet",
         title1: 'Create team',
         name: 'Team name',
         submit: 'Create a new team',
@@ -279,7 +280,7 @@ const en: any = {
         transfer: {
           title: 'Transfer ownership',
           holder: 'Select an admin for the team',
-          tip: 'You can transfer this team to another administrator, and once that\'s done, you\'ll no longer be the owner of the team, but become a team member.',
+          tip: "You can transfer this team to another administrator, and once that's done, you'll no longer be the owner of the team, but become a team member.",
           btn: 'Transfer',
           pop: {
             tip: 'After the transfer, you will no longer be the team owner. Please confirm.',
@@ -377,7 +378,7 @@ const en: any = {
         quitProjectTitle: 'Exit Project',
         quitProject: 'Are you sure you want to exit this project?',
         transferProjectToMember: 'Are you sure you want to transfer this project to that member?',
-        targetMemberPermissionError: 'The member\'s role has been changed. Please try again.',
+        targetMemberPermissionError: "The member's role has been changed. Please try again.",
         noData: 'No project information available',
       },
       list: {
@@ -686,8 +687,8 @@ const en: any = {
         aiGenerateInterface: 'Create an API with AI',
         newInterface: 'Create an API',
         newGroup: 'Create a category',
-        confirmDeleteGroup: 'Are you sure you want to delete the category \'{0}\'?',
-        confirmDeleteInterface: 'Are you sure you want to delete the API \'{0}\'?',
+        confirmDeleteGroup: "Are you sure you want to delete the category '{0}'?",
+        confirmDeleteInterface: "Are you sure you want to delete the API '{0}'?",
       },
       unnamedInterface: 'Unnamed',
       unnamedCategory: 'UnnamedCategory',
@@ -709,8 +710,8 @@ const en: any = {
         aiGenerateSchema: 'Create a schema with AI',
         newSchema: 'Create a schema',
         newGroup: 'Create a category',
-        confirmDeleteGroup: 'Are you sure you want to delete category \'{0}\'?',
-        confirmDeleteSchema: 'Are you sure you want to delete model \'{0}\'?',
+        confirmDeleteGroup: "Are you sure you want to delete category '{0}'?",
+        confirmDeleteSchema: "Are you sure you want to delete model '{0}'?",
       },
       history: {
         title: 'History',
@@ -749,7 +750,7 @@ const en: any = {
       popoverMenus: {
         newDefinitionResponse: 'Create a response',
         newGroup: 'Create a category',
-        confirmDeleteDefinitionResponse: 'Are you sure you want to delete the \'{0}\' response?',
+        confirmDeleteDefinitionResponse: "Are you sure you want to delete the '{0}' response?",
         unnamedDefinitionResponse: 'Unnamed Response',
       },
       page: {
@@ -813,33 +814,6 @@ const en: any = {
       p2: ' seconds, if nothing happens, ',
       p3: 'click here',
     },
-    root: {
-      start: 'Get started',
-      header: {
-        home: 'Home',
-        contact: 'Contact us',
-        sign: 'Sign in',
-        start: 'Get started for free',
-      },
-      banner: {
-        title: 'AI helps API development',
-      },
-      doc: {
-        title: 'API Documentation Generation',
-        desc: 'Efficiently and accurately generate the API documentation you want using AI.',
-      },
-      test: {
-        title: 'Test Case Generation',
-        desc: 'Generate accurate and comprehensive test cases with AI.',
-      },
-      api: {
-        desc: 'The perfect integration of OpenAPI with ApiCat results in an excellent user experience.',
-      },
-      final: {
-        title: 'Use ApiCat for your development work',
-        desc: 'Focus on the code itself',
-      },
-    },
     system: {
       title: 'Setting',
       service: {
@@ -847,16 +821,11 @@ const en: any = {
         left_title: 'Service',
         appname: 'App name',
         appurl: 'App url',
-        server: 'App server bind',
         mockurl: 'Mock url',
-        mockserver: 'Mock server bind',
-        tip: 'If you change the service binding, you will need to restart the service.',
         rules: {
           appname: 'App name is required',
           appurl: 'Please enter a valid url',
-          appserver: 'Please enter a valid server address',
           mockurl: 'Please enter a valid url',
-          mockserver: 'Please enter a valid server address',
         },
       },
       oauth: {
@@ -909,37 +878,6 @@ const en: any = {
             bucketUrl: 'Please enter a valid url',
           },
         },
-      },
-      cache: {
-        title: 'Cache',
-        left_title: 'Cache',
-        local: {
-          title: 'Local memory',
-          smallTitle: 'use local memory',
-          tip: 'If the service is restarted, the previous cache will be cleared',
-          rules: {
-            checked: 'Please check \'use local memory\'',
-          },
-        },
-        redis: {
-          title: 'Redis',
-          host: 'Host',
-          pw: 'Password',
-          db: 'Database',
-          rules: {
-            host: 'Please enter a valid host',
-            pw: 'Password is required',
-            db: 'Database is required',
-          },
-        },
-      },
-      db: {
-        title: 'Database',
-        left_title: 'Database',
-        host: 'Host',
-        username: 'Username',
-        pw: 'Password',
-        db: 'Database',
       },
       email: {
         title: 'Email',

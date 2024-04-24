@@ -66,13 +66,9 @@ type UserApi interface {
 	// @route PUT /user/password
 	ChangePassword(*gin.Context, *request.ChangePwdOption) (*ginrpc.Empty, error)
 
-	// SendChangeEmail 发送修改邮箱邮件
-	// @route POST /user/email
-	SendChangeEmail(*gin.Context, *base.EmailOption) (*ginrpc.Empty, error)
-
-	// ChangeEmailFire 修改邮箱
-	// @route PUT /user/email/{code}
-	ChangeEmailFire(*gin.Context, *request.CodeOption) (*base.MessageTemplate, error)
+	// ChangeEmail 修改邮箱
+	// @route PUT /user/email
+	ChangeEmail(*gin.Context, *base.EmailOption) (*ginrpc.Empty, error)
 
 	// UploadAvatar 上传头像
 	// @route POST /user/avatar

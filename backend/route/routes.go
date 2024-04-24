@@ -23,8 +23,7 @@ func registerUser(g *gin.RouterGroup) {
 	r.GET("", ginrpc.Handle(srv.GetSelf))
 	r.PUT("", ginrpc.Handle(srv.SetSelf))
 	r.PUT("/password", ginrpc.Handle(srv.ChangePassword))
-	r.POST("/email", ginrpc.Handle(srv.SendChangeEmail))
-	r.PUT("/email/:code", ginrpc.Handle(srv.ChangeEmailFire))
+	r.PUT("/email", ginrpc.Handle(srv.ChangeEmail))
 	r.POST("/avatar", ginrpc.Handle(srv.UploadAvatar))
 	r.POST("/oauth/:type/connect", ginrpc.Handle(srv.OauthConnect))
 	r.DELETE("/oauth/:type/disconnect", ginrpc.Handle(srv.OauthDisconnect))
@@ -90,7 +89,7 @@ func registerProject(g *gin.RouterGroup) {
 	r.GET("", ginrpc.Handle(srv.List))
 
 	noAuth := g.Group("/projects/:projectID")
-	noAuth.GET("", access.AllowGuest(), ginrpc.Handle(srv.Get))
+	noAuth.GET("", access.AllowGuestByShareCode(), ginrpc.Handle(srv.Get))
 	// 导出项目内容，需返回不同的 Content-Type，单独处理
 	noAuth.GET("/export/:code", project.Export)
 
@@ -109,7 +108,7 @@ func registerProjectShare(g *gin.RouterGroup) {
 	srv := project.NewProjectShareApi()
 
 	noAuth := g.Group("/projects/:projectID/share")
-	noAuth.GET("/status", ginrpc.Handle(srv.Status))
+	noAuth.GET("/status", access.AllowGuestByShareStatus(), ginrpc.Handle(srv.Status))
 	noAuth.POST("/check", ginrpc.Handle(srv.Check))
 
 	r := g.Group("/projects/:projectID/share", access.BelongToTeam(), access.BelongToProject())
@@ -121,7 +120,7 @@ func registerProjectShare(g *gin.RouterGroup) {
 func registerProjectGlobalParameter(g *gin.RouterGroup) {
 	srv := project.NewGlobalParameterAPI()
 
-	noAuth := g.Group("/projects/:projectID/global/parameters", access.AllowGuest())
+	noAuth := g.Group("/projects/:projectID/global/parameters", access.AllowGuestByShareCode())
 	noAuth.GET("", ginrpc.Handle(srv.List))
 
 	r := g.Group("/projects/:projectID/global/parameters", access.BelongToTeam(), access.BelongToProject())
@@ -134,7 +133,7 @@ func registerProjectGlobalParameter(g *gin.RouterGroup) {
 func registerProjectServer(g *gin.RouterGroup) {
 	srv := project.NewProjectServerApi()
 
-	noAuth := g.Group("/projects/:projectID/servers", access.AllowGuest())
+	noAuth := g.Group("/projects/:projectID/servers", access.AllowGuestByShareCode())
 	noAuth.GET("", ginrpc.Handle(srv.List))
 
 	r := g.Group("/projects/:projectID/servers", access.BelongToTeam(), access.BelongToProject())
@@ -157,7 +156,7 @@ func registerProjectMember(g *gin.RouterGroup) {
 func registerProjectDefinitionSchema(g *gin.RouterGroup) {
 	srv := project.NewDefinitionSchemaApi()
 
-	noAuth := g.Group("/projects/:projectID/definition/schemas", access.AllowGuest())
+	noAuth := g.Group("/projects/:projectID/definition/schemas", access.AllowGuestByShareCode())
 	noAuth.GET("", ginrpc.Handle(srv.List))
 	noAuth.GET("/:schemaID", ginrpc.Handle(srv.Get))
 
@@ -183,7 +182,7 @@ func registerProjectDefinitionSchemaHistory(g *gin.RouterGroup) {
 func registerProjectDefinitionResponse(g *gin.RouterGroup) {
 	srv := project.NewDefinitionResponseApi()
 
-	noAuth := g.Group("/projects/:projectID/definition/responses", access.AllowGuest())
+	noAuth := g.Group("/projects/:projectID/definition/responses", access.AllowGuestByShareCode())
 	noAuth.GET("", ginrpc.Handle(srv.List))
 	noAuth.GET("/:responseID", ginrpc.Handle(srv.Get))
 
@@ -198,8 +197,8 @@ func registerProjectDefinitionResponse(g *gin.RouterGroup) {
 func registerCollection(g *gin.RouterGroup) {
 	srv := collection.NewCollectionApi()
 	noAuth := g.Group("/projects/:projectID/collections")
-	noAuth.GET("", access.AllowGuest(), ginrpc.Handle(srv.List))
-	noAuth.GET("/:collectionID", access.AllowGuest(), ginrpc.Handle(srv.Get))
+	noAuth.GET("", access.AllowGuestByShareCode(), ginrpc.Handle(srv.List))
+	noAuth.GET("/:collectionID", access.AllowGuestByShareCode(), ginrpc.Handle(srv.Get))
 	// 导出集合内容，需返回不同的 Content-Type，单独处理
 	noAuth.GET("/:collectionID/export/:code", collection.Export)
 
@@ -276,7 +275,6 @@ func registerServiceSysconfig(g *gin.RouterGroup) {
 	srv := sysconfig.NewServiceApi()
 	g.GET("/sysconfigs/service", access.SysAdmin(), ginrpc.Handle(srv.Get))
 	g.PUT("/sysconfigs/service", access.SysAdmin(), ginrpc.Handle(srv.Update))
-	g.GET("/sysconfigs/db", access.SysAdmin(), ginrpc.Handle(srv.GetDB))
 }
 
 func registerStorageSysconfig(g *gin.RouterGroup) {
@@ -285,13 +283,6 @@ func registerStorageSysconfig(g *gin.RouterGroup) {
 	g.PUT("/sysconfigs/storages/disk", access.SysAdmin(), ginrpc.Handle(srv.UpdateDisk))
 	g.PUT("/sysconfigs/storages/cloudflare", access.SysAdmin(), ginrpc.Handle(srv.UpdateCloudflare))
 	g.PUT("/sysconfigs/storages/qiniu", access.SysAdmin(), ginrpc.Handle(srv.UpdateQiniu))
-}
-
-func registerCacheSysconfig(g *gin.RouterGroup) {
-	srv := sysconfig.NewCacheApi()
-	g.GET("/sysconfigs/caches", access.SysAdmin(), ginrpc.Handle(srv.Get))
-	g.PUT("/sysconfigs/caches/memory", access.SysAdmin(), ginrpc.Handle(srv.UpdateMemory))
-	g.PUT("/sysconfigs/caches/redis", access.SysAdmin(), ginrpc.Handle(srv.UpdateRedis))
 }
 
 func registerEmailSysconfig(g *gin.RouterGroup) {

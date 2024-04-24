@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/apicat/apicat/v2/backend/module/logger"
+	"github.com/apicat/apicat/v2/backend/utils/logger"
 
 	"log/slog"
 

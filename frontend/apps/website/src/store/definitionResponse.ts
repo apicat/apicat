@@ -2,9 +2,9 @@ import { defineStore } from 'pinia'
 import { traverseTree } from '@apicat/shared'
 import { apiCopyResponse, apiCreateResponse, apiDeleteResponse, apiEditResponse, apiGetResponseInfo, apiGetResponseTree, apiMoveResponse, apiRenameResponseCategory } from '@/api/project/definition/response'
 import { ResponseTypeEnum } from '@/commons'
+import { useLoading } from '@/hooks/useLoading'
 
 interface ResponseState {
-  loading: boolean
   responseDetail: Definition.ResponseDetail
   responses: Definition.ResponseTreeNode[]
 }
@@ -18,22 +18,25 @@ function createDefaultResponse(): Definition.ResponseDetail {
   }
 }
 
+const { loadingForGetter, startLoading, endLoading } = useLoading()
+
 export const useDefinitionResponseStore = defineStore('project.definitionResponse', {
   state: (): ResponseState => ({
-    loading: false,
     responseDetail: createDefaultResponse(),
     responses: [],
   }),
+  getters: {
+    loading: loadingForGetter,
+  },
   actions: {
     async getResponseDetail(projectID: string, id: number) {
       try {
-        // reset response to avoid multiple watch
-        this.loading = true
+        startLoading()
         this.responseDetail = createDefaultResponse()
         this.responseDetail = await apiGetResponseInfo(projectID, id)
       }
       finally {
-        this.loading = false
+        endLoading()
       }
     },
     async getResponses(projectID: string) {

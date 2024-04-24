@@ -82,10 +82,10 @@ export const useUserStore = defineStore({
     },
 
     // 更新个人信息
-    async updateUserInfo(user: UserAPI.ResponseUserInfo) {
-      const { switchLanguage } = useLocaleStore()
+    async updateUserInfo(user: Partial<UserAPI.ResponseUserInfo>) {
       Object.assign(this.userInfo, user)
-      await switchLanguage(user.language)
+      const { switchLanguage } = useLocaleStore()
+      user.language && await switchLanguage(user.language)
     },
   },
 })

@@ -103,6 +103,7 @@ func GetMembers(ctx context.Context, tID string, page, pageSize int, status stri
 	if len(roles) > 0 {
 		tx.Where("role in (?)", roles)
 	}
+	tx.Order("created_at desc")
 	if page > 0 && pageSize > 0 {
 		tx = tx.Limit(pageSize).Offset((page - 1) * pageSize)
 	}

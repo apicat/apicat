@@ -12,6 +12,7 @@ import useDefinitionResponseStore from '@/store/definitionResponse'
 import useDefinitionSchemaStore from '@/store/definitionSchema'
 import { injectPagesMode } from '@/layouts/ProjectDetailLayout/composables/usePagesMode'
 import { useTitleInputFocus } from '@/hooks/useTitleInputFocus'
+import { injectAsyncInitTask } from '@/hooks/useWaitAsyncTask'
 
 defineOptions({ inheritAttrs: false })
 
@@ -72,24 +73,24 @@ watchDebounced(
   { deep: true, debounce: 200 },
 )
 
-watch(
-  responseIDRef,
-  async (id, oID) => {
-    if (id === oID)
-      return
-    oldTitle = ''
-    const responseID = Number.parseInt(id)
-    if (!Number.isNaN(responseID)) {
-      await definitionResponseStore.getResponseDetail(props.project_id, responseID)
-      oldTitle = response.value.name || ''
-      if (!readonly.value)
-        focus()
-    }
-  },
-  {
-    immediate: true,
-  },
-)
+async function setDetail(id: string) {
+  oldTitle = ''
+  const responseID = Number.parseInt(id)
+  if (!Number.isNaN(responseID)) {
+    await definitionResponseStore.getResponseDetail(props.project_id, responseID)
+    oldTitle = response.value.name || ''
+    if (!readonly.value)
+      focus()
+  }
+}
+
+watch(responseIDRef, async (id, oID) => {
+  if (id === oID)
+    return
+  setDetail(id)
+})
+
+injectAsyncInitTask()!.addTask(setDetail(responseIDRef.value))
 </script>
 
 <template>
@@ -133,26 +134,18 @@ watch(
       </h4>
       <div v-if="!readonly">
         <input
-          ref="titleInputRef"
-          v-model="response.name"
-          v-click-outside="handleBlurNameInput"
-          class="ac-document__title"
-          type="text"
-          maxlength="255"
-          :placeholder="$t('app.schema.form.title')"
+          ref="titleInputRef" v-model="response.name" v-click-outside="handleBlurNameInput"
+          class="ac-document__title" type="text" maxlength="255" :placeholder="$t('app.schema.form.title')"
         >
+
         <input
-          v-model="response.description"
-          class="w-full ac-document__desc"
-          type="text"
-          maxlength="255"
+          v-model="response.description" class="w-full ac-document__desc" type="text" maxlength="255"
           :placeholder="$t('app.schema.form.desc')"
         >
       </div>
     </div>
-    <div v-if="!loading">
-      <ResponseForm v-if="!readonly" v-model:response="response" :definition-schemas="schemas" up />
-      <ResponseRaw v-else :response="response" :definition-schemas="schemas" />
-    </div>
+
+    <ResponseForm v-if="!loading && !readonly" v-model:response="response" :definition-schemas="schemas" />
+    <ResponseRaw v-if="!loading && readonly" :response="response" :definition-schemas="schemas" />
   </div>
 </template>

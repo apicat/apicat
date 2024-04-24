@@ -1,5 +1,5 @@
 import { Storage } from '@/commons'
-import router, { COLLECTION_SHARE_PATH_NAME } from '@/router'
+import router, { COLLECTION_SHARE_PATH_NAME, PROJECT_DETAIL_PATH_NAME } from '@/router'
 
 // DOC ------------------------------------------------
 export function setCollectionSharedToken(id: string, token: string) {
@@ -46,4 +46,21 @@ export function gatherSharedTokenWithParams(params?: Record<string, any>, projec
   }
 
   return params
+}
+
+// clear share token
+export function clearShareToken() {
+  const currentRouteMatched = router.currentRoute.value.matched
+  const routerParams = router.currentRoute.value.params
+  const { collectionPublicID, project_id } = routerParams as Record<string, string>
+
+  // 预览分享的文档
+  if (currentRouteMatched.find(route => route.name === COLLECTION_SHARE_PATH_NAME))
+    clearCollectionSharedToken(collectionPublicID)
+
+  // 项目分享
+  if (currentRouteMatched.find(route => route.name === PROJECT_DETAIL_PATH_NAME)) {
+    project_id && clearProjectSharedToken(project_id)
+    setTimeout(() => location.reload(), 1000)
+  }
 }

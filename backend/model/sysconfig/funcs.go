@@ -3,11 +3,9 @@ package sysconfig
 import (
 	"context"
 	"encoding/json"
-	"net/mail"
 
 	"github.com/apicat/apicat/v2/backend/config"
 	"github.com/apicat/apicat/v2/backend/model"
-	"github.com/apicat/apicat/v2/backend/module/cache"
 	"github.com/apicat/apicat/v2/backend/module/llm"
 	mailmodule "github.com/apicat/apicat/v2/backend/module/mail"
 	"github.com/apicat/apicat/v2/backend/module/oauth2"
@@ -55,7 +53,6 @@ func UpdateOrCreate(ctx context.Context, sc *Sysconfig) error {
 
 func Init() {
 	initAppConfig()
-	initCacheConfig()
 	initStorageConfig()
 	initEmailConfig()
 	initModelConfig()
@@ -63,103 +60,43 @@ func Init() {
 }
 
 func initAppConfig() {
-	var appConfig *config.App
 	r := &Sysconfig{
 		Type:   "service",
 		Driver: "default",
 	}
 	exist, _ := r.Get(context.Background())
 	if exist {
+		var appConfig *config.App
 		if err := json.Unmarshal([]byte(r.Config), &appConfig); err == nil {
 			config.SetApp(appConfig)
 			return
 		}
 	}
-	config.SetApp(config.GetAppDefault())
-}
-
-func initCacheConfig() {
-	var cfg map[string]interface{}
-	r := &Sysconfig{
-		Type: "cache",
-	}
-	exist, _ := r.GetByUse(context.Background())
-	if exist {
-		if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
-			switch r.Driver {
-			case cache.LOCAL:
-				config.SetCache(&config.Cache{
-					Driver: r.Driver,
-				})
-				return
-			case cache.REDIS:
-				config.SetCache(&config.Cache{
-					Driver: r.Driver,
-					Redis: &config.Redis{
-						Host:     cfg["host"].(string),
-						Password: cfg["password"].(string),
-						DB:       int(cfg["database"].(float64)),
-					},
-				})
-				return
-			}
-		}
-	}
-	defaultCfg := config.GetCacheDefault()
-	config.SetCache(defaultCfg)
-
-	configMap := map[string]interface{}{
-		"host":     defaultCfg.Redis.Host,
-		"password": defaultCfg.Redis.Password,
-		"database": defaultCfg.Redis.DB,
-	}
-	configJson, _ := json.Marshal(configMap)
-	r.Driver = defaultCfg.Driver
-	r.BeingUsed = true
-	r.Config = string(configJson)
-	UpdateOrCreate(context.Background(), r)
 }
 
 func initStorageConfig() {
-	var cfg map[string]interface{}
+	var cfg config.Storage
 	r := &Sysconfig{
 		Type: "storage",
 	}
 	exist, _ := r.GetByUse(context.Background())
 	if exist {
-		if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
-			switch r.Driver {
-			case storage.LOCAL:
-				config.SetStorage(&config.Storage{
-					Driver: r.Driver,
-					LocalDisk: &config.LocalDisk{
-						Path: cfg["path"].(string),
-						Url:  config.Get().App.AppUrl + "/uploads",
-					},
-				})
+		cfg.Driver = r.Driver
+
+		switch r.Driver {
+		case storage.LOCAL:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.LocalDisk); err == nil {
+				config.SetStorage(&cfg)
 				return
-			case storage.CLOUDFLARE:
-				config.SetStorage(&config.Storage{
-					Driver: r.Driver,
-					Cloudflare: &config.Cloudflare{
-						AccountID:       cfg["accountID"].(string),
-						AccessKeyID:     cfg["accessKeyID"].(string),
-						AccessKeySecret: cfg["accessKeySecret"].(string),
-						BucketName:      cfg["bucketName"].(string),
-						Url:             cfg["bucketUrl"].(string),
-					},
-				})
+			}
+		case storage.CLOUDFLARE:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.Cloudflare); err == nil {
+				config.SetStorage(&cfg)
 				return
-			case storage.QINIU:
-				config.SetStorage(&config.Storage{
-					Driver: r.Driver,
-					Qiniu: &config.Qiniu{
-						AccessKeyID:     cfg["accessKey"].(string),
-						AccessKeySecret: cfg["secretKey"].(string),
-						BucketName:      cfg["bucketName"].(string),
-						Url:             cfg["bucketUrl"].(string),
-					},
-				})
+			}
+		case storage.QINIU:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.Qiniu); err == nil {
+				config.SetStorage(&cfg)
 				return
 			}
 		}
@@ -168,10 +105,7 @@ func initStorageConfig() {
 	defaultCfg.LocalDisk.Url = config.Get().App.AppUrl + "/uploads"
 	config.SetStorage(defaultCfg)
 
-	configMap := map[string]string{
-		"path": defaultCfg.LocalDisk.Path,
-	}
-	configJson, _ := json.Marshal(configMap)
+	configJson, _ := json.Marshal(defaultCfg.LocalDisk)
 	r.Driver = defaultCfg.Driver
 	r.BeingUsed = true
 	r.Config = string(configJson)
@@ -179,71 +113,44 @@ func initStorageConfig() {
 }
 
 func initEmailConfig() {
-	var cfg map[string]interface{}
+	var cfg config.Email
 	r := &Sysconfig{
 		Type: "email",
 	}
 	exist, _ := r.GetByUse(context.Background())
 	if exist {
-		if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
-			switch r.Driver {
-			case mailmodule.SMTP:
-				config.SetEmail(&config.Email{
-					Driver: r.Driver,
-					Smtp: &config.EmailSmtp{
-						Host: cfg["host"].(string),
-						From: mail.Address{
-							Name:    cfg["user"].(string),
-							Address: cfg["address"].(string),
-						},
-						Password: cfg["password"].(string),
-					},
-				})
-			case mailmodule.SENDCLOUD:
-				config.SetEmail(&config.Email{
-					Driver: r.Driver,
-					SendCloud: &config.EmailSendCloud{
-						ApiUser:  cfg["apiUser"].(string),
-						ApiKey:   cfg["apiKey"].(string),
-						From:     cfg["fromEmail"].(string),
-						FromName: cfg["fromName"].(string),
-					},
-				})
+		switch r.Driver {
+		case mailmodule.SMTP:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.Smtp); err == nil {
+				cfg.Driver = mailmodule.SMTP
+				config.SetEmail(&cfg)
+			}
+		case mailmodule.SENDCLOUD:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.SendCloud); err == nil {
+				cfg.Driver = mailmodule.SENDCLOUD
+				config.SetEmail(&cfg)
 			}
 		}
 	}
 }
 
 func initModelConfig() {
-	var cfg map[string]interface{}
+	var cfg config.LLM
 	r := &Sysconfig{
 		Type: "model",
 	}
 	exist, _ := r.GetByUse(context.Background())
 	if exist {
-		if err := json.Unmarshal([]byte(r.Config), &cfg); err == nil {
-			switch r.Driver {
-			case llm.OPENAI:
-				config.SetLLM(&config.LLM{
-					Driver: r.Driver,
-					OpenAI: &config.OpenAI{
-						ApiKey:         cfg["apiKey"].(string),
-						OrganizationID: cfg["organizationID"].(string),
-						ApiBase:        cfg["apiBase"].(string),
-						LLMName:        cfg["llmName"].(string),
-						EmbeddingName:  cfg["embeddingName"].(string),
-					},
-				})
-			case llm.AZUREOPENAI:
-				config.SetLLM(&config.LLM{
-					Driver: r.Driver,
-					AzureOpenAI: &config.AzureOpenAI{
-						ApiKey:        cfg["apiKey"].(string),
-						Endpoint:      cfg["endpoint"].(string),
-						LLMName:       cfg["llmName"].(string),
-						EmbeddingName: cfg["embeddingName"].(string),
-					},
-				})
+		switch r.Driver {
+		case llm.OPENAI:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.OpenAI); err == nil {
+				cfg.Driver = llm.OPENAI
+				config.SetLLM(&cfg)
+			}
+		case llm.AZUREOPENAI:
+			if err := json.Unmarshal([]byte(r.Config), &cfg.AzureOpenAI); err == nil {
+				cfg.Driver = llm.AZUREOPENAI
+				config.SetLLM(&cfg)
 			}
 		}
 	}

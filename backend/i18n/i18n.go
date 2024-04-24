@@ -1,11 +1,11 @@
 package i18n
 
 import (
-	"fmt"
-	"strings"
-
 	"github.com/apicat/apicat/v2/backend/i18n/lang"
 	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
+
+	"fmt"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -57,6 +57,13 @@ func (t *Translation) Translate(ctx *gin.Context) string {
 		}
 	}
 	return translate(userLang, t.s, t.params...)
+}
+
+func (t *Translation) TranslateIn(lang string) string {
+	if t.s == "" {
+		return ""
+	}
+	return translate(lang, t.s, t.params...)
 }
 
 func translate(lang string, key string, params ...string) string {

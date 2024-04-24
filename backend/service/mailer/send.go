@@ -10,10 +10,7 @@ import (
 )
 
 func Send(subject string, content fmt.Stringer, to ...string) error {
-	sender, err := mail.NewSender(config.Get().Email.ToMapInterface())
-	if err != nil {
-		return err
-	}
+	sender := mail.NewSender(config.Get().Email.ToCfg())
 	if sender == nil {
 		return nil
 	}

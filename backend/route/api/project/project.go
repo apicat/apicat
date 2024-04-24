@@ -9,7 +9,6 @@ import (
 	"github.com/apicat/apicat/v2/backend/model/project"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/module/cache"
-	"github.com/apicat/apicat/v2/backend/module/onetime_token"
 	"github.com/apicat/apicat/v2/backend/route/middleware/access"
 	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
@@ -21,6 +20,7 @@ import (
 	definitionrelations "github.com/apicat/apicat/v2/backend/service/definition_relations"
 	globalrelations "github.com/apicat/apicat/v2/backend/service/global_relations"
 	projectrelations "github.com/apicat/apicat/v2/backend/service/project_relations"
+	"github.com/apicat/apicat/v2/backend/utils/onetime_token"
 
 	"encoding/json"
 	"fmt"
@@ -409,7 +409,7 @@ func (pai *projectApiImpl) Transfer(ctx *gin.Context, opt *projectrequest.Projec
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("project.TransferFailed"))
 	}
 	if !exist {
-		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("projectMember.DoesNotExist"))
+		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("projectMember.NotInTheProject"))
 	}
 	targetMemberInfo, err := targetMember.MemberInfo(ctx, false)
 	if err != nil {
@@ -418,7 +418,7 @@ func (pai *projectApiImpl) Transfer(ctx *gin.Context, opt *projectrequest.Projec
 	}
 
 	if targetMember.ProjectID != selfPM.ProjectID {
-		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("projectMember.DoesNotExist"))
+		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("projectMember.NotInTheProject"))
 	}
 	if targetMember.Permission != project.ProjectMemberWrite {
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("project.TransferToErrMember"))
@@ -465,7 +465,7 @@ func (pai *projectApiImpl) GetExportPath(ctx *gin.Context, opt *projectrequest.G
 		selfTM.ID,
 		time.Now().Unix(),
 	)
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("project.ExportFailed"))
@@ -492,7 +492,7 @@ func Export(ctx *gin.Context) {
 		return
 	}
 
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{

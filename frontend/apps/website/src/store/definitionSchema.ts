@@ -14,21 +14,22 @@ import {
   apiMoveSchema,
 } from '@/api/project/definition/schema'
 import { RefPrefixKeys, SchemaTypeEnum } from '@/commons'
+import { useLoading } from '@/hooks/useLoading'
 
 interface SchemaState {
   t: any
   schemaDetail: Definition.SchemaNode | null
   schemas: Definition.SchemaNode[]
   histories: HistoryRecord.SchemaHistory[]
-  isLoading: boolean
 }
+
+const { loadingForGetter, startLoading, endLoading } = useLoading()
 
 export const useDefinitionSchemaStore = defineStore('project.definitionSchema', {
   state: (): SchemaState => {
     const { t } = useI18n()
     return {
       t,
-      isLoading: false,
       schemaDetail: null,
       schemas: [] as Definition.SchemaNode[],
       histories: [] as HistoryRecord.SchemaHistory[],
@@ -99,16 +100,17 @@ export const useDefinitionSchemaStore = defineStore('project.definitionSchema', 
         )
       return [{ id: 0, title: state.t('app.historyLayout.current') }].concat(options)
     },
+    isLoading: loadingForGetter,
   },
   actions: {
     async getSchemaDetail(projectID: string, schemaID: number) {
       try {
-        this.isLoading = true
+        startLoading()
         await nextTick()
         this.schemaDetail = await apiGetSchemaInfo(projectID, schemaID)
       }
       finally {
-        this.isLoading = false
+        endLoading()
       }
     },
     async getSchemas(projectID: string) {
@@ -141,7 +143,6 @@ export const useDefinitionSchemaStore = defineStore('project.definitionSchema', 
     // delete schema
     async deleteSchema(projectID: string, schema: Definition.SchemaNode, deref: boolean = false) {
       await apiDeleteSchema(projectID, schema.id, deref)
-      // this.schemas = this.schemas.filter((item) => item.id !== schema.id)
     },
 
     // move schema

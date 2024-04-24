@@ -26,20 +26,27 @@ export function useSelectedNode(
   const { collections } = storeToRefs(useCollectionsStore())
   const { expandedKeysSet, ...rest } = useExpanded()
 
-  function selectedNodeWithGoPage(data: Node | TreeNodeData, isReplace = false) {
+  async function selectedNodeWithGoPage(data: Node | TreeNodeData | undefined, isReplace = false) {
+    // 跳转至默认页面
+    if (!data) {
+      await goCollectionPage(projectID.value!, '')
+      return
+    }
+
     const node = treeIns.value?.getNode(data)
     getParentNodeKeys(node).forEach(key => expandedKeysSet.value.add(key))
     if (node) {
       toggleHeadingRef.value?.expand()
       switchToReadMode()
-      goCollectionPage(projectID.value!, node.key, isReplace).then(() => {
-        ctx?.activeCollectionNode(node.key)
-        treeIns.value?.setCurrentKey(node.key)
-      })
+      await goCollectionPage(projectID.value!, node.key, isReplace)
+      ctx?.activeCollectionNode(node.key)
+      treeIns.value?.setCurrentKey(node.key)
     }
   }
 
   function selectFirstNode() {
+    let firstNode: CollectionAPI.ResponseCollection | undefined
+
     traverseTree<CollectionAPI.ResponseCollection>(
       (node) => {
         if (node.type !== CollectionTypeEnum.Dir) {
@@ -47,7 +54,7 @@ export function useSelectedNode(
             return true
           }
           else {
-            selectedNodeWithGoPage(node, true)
+            firstNode = node
             return false
           }
         }
@@ -56,6 +63,8 @@ export function useSelectedNode(
       collections.value,
       { subKey: 'items' },
     )
+
+    return selectedNodeWithGoPage(firstNode, true)
   }
 
   function expandOnStartup() {

@@ -109,7 +109,6 @@ func Init() error {
 	registerOauthSysconfig(g)
 	registerServiceSysconfig(g)
 	registerStorageSysconfig(g)
-	registerCacheSysconfig(g)
 	registerEmailSysconfig(g)
 	registerModelSysconfig(g)
 

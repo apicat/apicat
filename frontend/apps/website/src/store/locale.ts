@@ -7,7 +7,7 @@ import dayjs from 'dayjs'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 import { DEFAULT_LANGUAGE, SUPPORTED_LANGUAGES } from '@/commons/constant'
 import { pinia } from '@/plugins'
-import { guessDefaultLocale, loadLocaleMessages, setPersistedLocale } from '@/i18n/helper'
+import { guessDefaultLocale, loadLocaleMessages, setHtmlPageLang, setPersistedLocale } from '@/i18n/helper'
 import type { Language } from '@/typings/common'
 import enUS from '@/i18n/lang/en-US'
 
@@ -43,11 +43,10 @@ export const useLocaleStore = defineStore('locale', {
 
   actions: {
     async switchLanguage(locale: Language['lang']) {
-      // check if the language exists i18n
-      const isSupport = this.supportedLocales.map(item => item.lang).includes(locale)
-
-      if (!isSupport)
+      if (this.locale === locale || !this.supportedLocales.map(item => item.lang).includes(locale))
         return
+
+      setHtmlPageLang(locale)
 
       const isExist = this.i18n.global.availableLocales.includes(locale)
 
@@ -62,6 +61,9 @@ export const useLocaleStore = defineStore('locale', {
         this.locale = locale
 
         dayjs.locale(this.dayjsLocale.name, this.dayjsLocale)
+
+        const descriptionEl = document.querySelector('meta[name="description"]')
+        descriptionEl && descriptionEl.setAttribute('content', this.t('app.description'))
       }
     },
 

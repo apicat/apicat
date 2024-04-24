@@ -16,10 +16,6 @@ type ServiceApi interface {
 	// Update Update service config
 	// @route PUT /sysconfigs/service
 	Update(*gin.Context, *sysconfigbase.ServiceOption) (*ginrpc.Empty, error)
-
-	// GetDB Get MySQL config
-	// @route GET /sysconfigs/db
-	GetDB(*gin.Context, *ginrpc.Empty) (*sysconfigbase.MySQLDetail, error)
 }
 
 type OauthApi interface {
@@ -52,20 +48,6 @@ type StorageApi interface {
 	// Update Update qiniu storage config
 	// @route PUT /sysconfigs/storages/qiniu
 	UpdateQiniu(*gin.Context, *sysconfigrequest.QiniuOption) (*ginrpc.Empty, error)
-}
-
-type CacheApi interface {
-	// Get Get cache config list
-	// @route GET /sysconfigs/caches
-	Get(*gin.Context, *ginrpc.Empty) (*sysconfigbase.ConfigList, error)
-
-	// Update Update memory cache config
-	// @route PUT /sysconfigs/caches/memory
-	UpdateMemory(*gin.Context, *ginrpc.Empty) (*ginrpc.Empty, error)
-
-	// Update Update redis cache config
-	// @route PUT /sysconfigs/caches/redis
-	UpdateRedis(*gin.Context, *sysconfigrequest.RedisOption) (*ginrpc.Empty, error)
 }
 
 type EmailApi interface {

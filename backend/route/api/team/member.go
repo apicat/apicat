@@ -125,7 +125,7 @@ func (t *teamMemberApiImpl) DeleteMember(ctx *gin.Context, opt *prototeamrequest
 	target, err := team.GetMember(ctx, opt.MemberID)
 	if err != nil {
 		slog.ErrorContext(ctx, "team.GetMember", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("teamMember.DoesNotExist"))
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("teamMember.NotInTheTeam"))
 	}
 
 	if target.TeamID != opt.TeamID || selfMember.TeamID != target.TeamID {

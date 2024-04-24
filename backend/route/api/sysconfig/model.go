@@ -9,7 +9,6 @@ import (
 	"github.com/apicat/apicat/v2/backend/i18n"
 	"github.com/apicat/apicat/v2/backend/model/sysconfig"
 	"github.com/apicat/apicat/v2/backend/module/llm"
-	"github.com/apicat/apicat/v2/backend/module/llm/openai"
 	protosysconfig "github.com/apicat/apicat/v2/backend/route/proto/sysconfig"
 	sysconfigbase "github.com/apicat/apicat/v2/backend/route/proto/sysconfig/base"
 	sysconfigrequest "github.com/apicat/apicat/v2/backend/route/proto/sysconfig/request"
@@ -52,8 +51,7 @@ func (s *modelApiImpl) UpdateOpenAI(ctx *gin.Context, opt *sysconfigrequest.Open
 		},
 	}
 
-	mc := modelConfig.ToMapInterface()
-	if ai, err := openai.NewOpenAI(mc["OpenAI"].(map[string]interface{})); err != nil {
+	if ai, err := llm.NewLLM(modelConfig.ToCfg()); err != nil {
 		slog.ErrorContext(ctx, "openai.NewOpenAI", "err", err)
 		return nil, ginrpc.NewError(http.StatusBadRequest, err)
 	} else {
@@ -94,8 +92,7 @@ func (s *modelApiImpl) UpdateAzureOpenAI(ctx *gin.Context, opt *sysconfigrequest
 		},
 	}
 
-	mc := modelConfig.ToMapInterface()
-	if ai, err := openai.NewOpenAI(mc["AzureOpenAI"].(map[string]interface{})); err != nil {
+	if ai, err := llm.NewLLM(modelConfig.ToCfg()); err != nil {
 		slog.ErrorContext(ctx, "openai.NewOpenAI", "err", err)
 		return nil, ginrpc.NewError(http.StatusBadRequest, err)
 	} else {

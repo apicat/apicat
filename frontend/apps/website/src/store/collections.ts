@@ -15,25 +15,26 @@ import {
 } from '@/api/project/collection'
 import { getCollectionHistoryRecords } from '@/api/project/collectionHistoryRecord'
 import { useParams } from '@/hooks/useParams'
-import { getCollectionSharedToken, setCollectionSharedToken } from '@/api/shareToken'
+import { clearCollectionSharedToken, getCollectionSharedToken, setCollectionSharedToken } from '@/api/shareToken'
+import { useLoading } from '@/hooks/useLoading'
+import { CollectionTypeEnum } from '@/commons'
 
 interface CollectionsStore {
   // i18n
   t: any
-  // loading: boolean
-  loadingCounter: number
   collectionDetail: CollectionAPI.ResponseCollectionDetail | null
   collections: CollectionAPI.ResponseCollection[]
   histories: HistoryRecord.ResponseCollectionRecordList
   shareToken: string
 }
 
+const { loadingForGetter, startLoading, endLoading } = useLoading()
+
 export const useCollectionsStore = defineStore('project.collections', {
   state: (): CollectionsStore => {
     const { t } = useI18n()
     return {
       t,
-      loadingCounter: 0,
       collectionDetail: null,
       collections: [],
       histories: [],
@@ -75,26 +76,39 @@ export const useCollectionsStore = defineStore('project.collections', {
         )
       return [{ id: 0, title: state.t('app.historyLayout.current') }].concat(options)
     },
-    loading: state => state.loadingCounter > 0,
+    loading: loadingForGetter,
+    hasDocuemnt: (state) => {
+      let hasDocument = false
+      traverseTree<CollectionAPI.ResponseCollection>(
+        (node) => {
+          if (node.type !== CollectionTypeEnum.Dir) {
+            hasDocument = true
+            return false
+          }
+          return true
+        },
+        state.collections,
+        { subKey: 'items' },
+      )
+      return hasDocument
+    },
   },
   actions: {
     // get collection detail
     async getCollectionDetail(projectID: string, collectionID: number) {
       try {
-        this.loadingCounter++
+        startLoading()
         this.collectionDetail = await apiGetCollectDetail(projectID, collectionID)
       }
-      catch (error) {
-        //
-      }
       finally {
-        this.loadingCounter--
+        endLoading()
       }
       // NOTE: 鼠标点击频繁切换时，会导致loading状态不正确，渲染的数据不正确，因此改为计数方式来作为loading状态
       // this.loading = true
       // this.collectionDetail = await apiGetCollectDetail(projectID, collectionID)
       // this.loading = false
     },
+
     // get collection list
     async getCollections(projectID: string) {
       const { iterationID } = useParams()
@@ -121,6 +135,8 @@ export const useCollectionsStore = defineStore('project.collections', {
       data.iterationID = iterationID.value
       return await apiCreateCollection(projectID, data)
     },
+
+    // create collection with AI
     async createCollectionWithAI(projectID: string, data: ProjectAPI.RequestCreateCollectionWithAI) {
       const { iterationID } = useParams()
       data.iterationID = iterationID.value
@@ -169,6 +185,11 @@ export const useCollectionsStore = defineStore('project.collections', {
 
     initShareToken(publicID: string) {
       this.shareToken = getCollectionSharedToken(publicID)
+    },
+
+    clearShareToken(publicID: string) {
+      this.shareToken = ''
+      clearCollectionSharedToken(publicID)
     },
 
     setShareToken(publicID: string, token: string) {

@@ -26,6 +26,7 @@ export const iterationDetailRoute: RouteRecordRaw = {
     const iterationStore = useIterationStore()
     const iterationID = to.params.iterationID as string
     showGlobalLoading()
+
     try {
       const iterationInfo = await iterationStore.getIterationInfo(iterationID)
       const projectID = iterationInfo.project!.id!
@@ -36,15 +37,13 @@ export const iterationDetailRoute: RouteRecordRaw = {
       return next()
     }
     catch (error) {
+      hideGlobalLoading()
       // 404 - NotFoundError
       if (error instanceof NotFoundError)
         return next(NOT_FOUND_PATH)
 
       // default - show error page
       return next(NOT_FOUND_PATH)
-    }
-    finally {
-      hideGlobalLoading()
     }
   },
   component: async () => import('@/layouts/ProjectDetailLayout/ProjectDetailLayout.vue'),

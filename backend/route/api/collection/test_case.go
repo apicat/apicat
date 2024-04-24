@@ -1,6 +1,7 @@
 package collection
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -155,26 +156,25 @@ func (ts *testCaseApiImpl) Regenerate(ctx *gin.Context, opt *request.RegenerateT
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("testCase.RegenerationFailed"))
 	}
 
-	var result string
-	if opt.Prompt != "" {
-		result, err = ai.TestCaseDetailRegenerate(t, jwt.GetUser(ctx).Language, apiSummary, opt.Prompt)
-		if err != nil {
-			slog.ErrorContext(ctx, "ai.TestCaseDetailRegenerate", "err", err)
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("testCase.RegenerationFailed"))
-		}
-	} else {
-		result, err = ai.TestCaseDetailGenerate(jwt.GetUser(ctx).Language, apiSummary, t.Title)
-		if err != nil {
-			slog.ErrorContext(ctx, "ai.TestCaseDetailGenerate", "err", err)
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("testCase.RegenerationFailed"))
-		}
-	}
-
-	if result == "" {
+	result, err := ai.TestCaseDetailRegenerate(t, jwt.GetUser(ctx).Language, apiSummary, opt.Prompt)
+	if err != nil {
+		slog.ErrorContext(ctx, "ai.TestCaseDetailRegenerate", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("testCase.RegenerationFailed"))
 	}
 
-	if err := t.Update(ctx, t.Title, result); err != nil {
+	content := fmt.Sprintf(
+		"`%s`<br>\n>%s\n### %s\n%s\n### %s\n%s\n### %s\n%s",
+		result.Type,
+		result.Description,
+		i18n.NewTran("testCase.Steps").Translate(ctx),
+		result.Steps,
+		i18n.NewTran("testCase.Input").Translate(ctx),
+		result.Input,
+		i18n.NewTran("testCase.Output").Translate(ctx),
+		result.Output,
+	)
+
+	if err := t.Update(ctx, result.Purpose, content); err != nil {
 		slog.ErrorContext(ctx, "t.Update", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("testCase.RegenerationFailed"))
 	}

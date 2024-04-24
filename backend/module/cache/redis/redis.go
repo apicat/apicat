@@ -8,34 +8,31 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type redisCache struct {
-	addr     string
-	password string
-	db       int
-	client   *redis.Client
-	ctx      context.Context
+type RedisOpt struct {
+	Host     string
+	Password string
+	DB       int
 }
 
-func NewRedis(cfg map[string]interface{}) (*redisCache, error) {
-	for _, v := range []string{"Host", "Password", "DB"} {
-		if _, ok := cfg[v]; !ok {
-			return nil, fmt.Errorf("redis config %s is required", v)
-		}
-	}
+type redisCache struct {
+	cfg    RedisOpt
+	client *redis.Client
+	ctx    context.Context
+}
+
+func NewRedis(cfg RedisOpt) (*redisCache, error) {
 	return &redisCache{
-		addr:     cfg["Host"].(string),
-		password: cfg["Password"].(string),
-		db:       int(cfg["DB"].(float64)),
-		ctx:      context.Background(),
+		cfg: cfg,
+		ctx: context.Background(),
 	}, nil
 }
 
 func (r *redisCache) init() {
 	r.ctx = context.Background()
 	r.client = redis.NewClient(&redis.Options{
-		Addr:     r.addr,
-		Password: r.password,
-		DB:       r.db,
+		Addr:     r.cfg.Host,
+		Password: r.cfg.Password,
+		DB:       r.cfg.DB,
 	})
 }
 

@@ -13,13 +13,3 @@ type Database struct {
 	MaxIdleConns    int           `yaml:"MaxIdleConns"`
 	ConnMaxIdleTime time.Duration `yaml:"ConnMaxIdleTime"`
 }
-
-func GetDatabaseDefault() *Database {
-	return &Database{
-		Host:            "apicat_db:3306",
-		Username:        "root",
-		Password:        "apicat123456",
-		ConnMaxIdleTime: time.Hour,
-		Database:        "apicat",
-	}
-}

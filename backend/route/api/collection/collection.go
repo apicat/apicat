@@ -13,7 +13,6 @@ import (
 	"github.com/apicat/apicat/v2/backend/model/iteration"
 	"github.com/apicat/apicat/v2/backend/model/project"
 	"github.com/apicat/apicat/v2/backend/module/cache"
-	"github.com/apicat/apicat/v2/backend/module/onetime_token"
 	"github.com/apicat/apicat/v2/backend/route/middleware/access"
 	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
@@ -24,6 +23,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/service/ai"
 	collectionrelations "github.com/apicat/apicat/v2/backend/service/collection_relations"
 	projectrelations "github.com/apicat/apicat/v2/backend/service/project_relations"
+	"github.com/apicat/apicat/v2/backend/utils/onetime_token"
 
 	"github.com/apicat/apicat/v2/backend/module/spec"
 	"github.com/apicat/apicat/v2/backend/module/spec/plugin/export"
@@ -459,7 +459,7 @@ func (cai *collectionApiImpl) GetExportPath(ctx *gin.Context, opt *collectionreq
 		selfTM.ID,
 		time.Now().Unix(),
 	)
-	ca, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	ca, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.ExportFailed"))
@@ -493,7 +493,7 @@ func (cai *collectionApiImpl) AIGenerate(ctx *gin.Context, opt *collectionreques
 		}
 	}
 
-	c, err := ai.APIGenerate(ctx, opt.Prompt)
+	c, err := ai.DocGenerate(ctx, opt.Prompt)
 	if err != nil {
 		slog.ErrorContext(ctx, "ai.CreateAPI", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.GenerationFailed"))
@@ -543,7 +543,7 @@ func Export(ctx *gin.Context) {
 		return
 	}
 
-	ca, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	ca, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{

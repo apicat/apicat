@@ -9,7 +9,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/config"
 	"github.com/apicat/apicat/v2/backend/model/user"
 	"github.com/apicat/apicat/v2/backend/module/cache"
-	"github.com/apicat/apicat/v2/backend/module/onetime_token"
+	"github.com/apicat/apicat/v2/backend/utils/onetime_token"
 
 	"github.com/gin-gonic/gin"
 )
@@ -41,7 +41,7 @@ func SendActiveAccountMail(ctx *gin.Context, usr *user.User) {
 		time.Now().Unix(),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return
@@ -78,7 +78,7 @@ func SendResetPasswordMail(ctx *gin.Context, usr *user.User) {
 		time.Now().Unix(),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return
@@ -115,7 +115,7 @@ func SendModifyEmailMail(ctx *gin.Context, usr *user.User, newEmail string) {
 		time.Now().Unix(),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	c, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return

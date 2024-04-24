@@ -66,7 +66,7 @@ export function useCollapse(props: Options, cbs?: Emits): UseCollapse {
         }
         itemCtx.close = (emit = true) => {
           if (opendItems.value.size === 1 && props.atleastOne) {
-            // eslint-disable-next-line
+            //
           }
           else {
             close()

@@ -155,14 +155,14 @@ func (pgai *projectMemberApiImpl) Update(ctx *gin.Context, opt *projectrequest.U
 	if !exist {
 		return nil, ginrpc.NewError(
 			http.StatusNotFound,
-			i18n.NewErr("projectMember.DoesNotExist"),
+			i18n.NewErr("projectMember.NotInTheProject"),
 		)
 	}
 
 	if targetPm.ProjectID != pm.ProjectID {
 		return nil, ginrpc.NewError(
 			http.StatusNotFound,
-			i18n.NewErr("projectMember.DoesNotExist"),
+			i18n.NewErr("projectMember.NotInTheProject"),
 		)
 	}
 
@@ -201,14 +201,14 @@ func (pgai *projectMemberApiImpl) Delete(ctx *gin.Context, opt *projectrequest.P
 	if !exist {
 		return nil, ginrpc.NewError(
 			http.StatusNotFound,
-			i18n.NewErr("projectMember.DoesNotExist"),
+			i18n.NewErr("projectMember.NotInTheProject"),
 		)
 	}
 
 	if targetPm.ProjectID != pm.ProjectID {
 		return nil, ginrpc.NewError(
 			http.StatusNotFound,
-			i18n.NewErr("projectMember.DoesNotExist"),
+			i18n.NewErr("projectMember.NotInTheProject"),
 		)
 	}
 

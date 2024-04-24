@@ -43,66 +43,68 @@ export const projectDetailRoute: RouteRecordRaw = {
     const haveShareToken = getProjectSharedToken(projectID)
 
     showGlobalLoading()
-    try {
-      // before
-      const isLogin = useUserStore().isLogin
+    const gotoPath: string | undefined = await (async () => {
+      try {
+        // before
+        const isLogin = useUserStore().isLogin
 
-      const shareStatus = await projectStore.getProjejctAuthInfo(projectID)
-      let GetProjectInfoNeeded = false
+        const shareStatus = await projectStore.getProjejctAuthInfo(projectID)
+        let GetProjectInfoNeeded = false
 
-      // jump
-      //   项目不存在 -> x
-      if (!shareStatus) {
-        return next(NOT_FOUND_PATH)
-      }
-      //   项目公开 -> o
-      else if (isProjectPublic(shareStatus)) {
-        GetProjectInfoNeeded = true
-      }
-      //   是项目成员且已登陆 -> o
-      else if (isLogin && isInProject(shareStatus)) {
-        GetProjectInfoNeeded = true
-      }
-      //   项目未被分享 -> x
-      else if (!isProjectShared(shareStatus)) {
-        return next(NO_PERMISSION_PATH)
-      }
-      //   项目被分享 -> o
-      else if (isProjectShared(shareStatus)) {
-        if (haveShareToken)
+        // jump
+        //   项目不存在 -> x
+        if (!shareStatus) {
+          return NOT_FOUND_PATH
+        }
+        //   项目公开 -> o
+        else if (isProjectPublic(shareStatus)) {
           GetProjectInfoNeeded = true
-      }
-      else {
-        return next(NOT_FOUND_PATH)
-      }
+        }
+        //   是项目成员且已登陆 -> o
+        else if (isLogin && isInProject(shareStatus)) {
+          GetProjectInfoNeeded = true
+        }
+        //   项目未被分享 -> x
+        else if (!isProjectShared(shareStatus)) {
+          return NO_PERMISSION_PATH
+        }
+        //   项目被分享 -> o
+        else if (isProjectShared(shareStatus)) {
+          if (haveShareToken)
+            GetProjectInfoNeeded = true
+        }
+        else {
+          return NOT_FOUND_PATH
+        }
 
-      // 是否显示密钥输入层
-      projectStore.isShowProjectSecretLayer = !GetProjectInfoNeeded
+        // 是否显示密钥输入层
+        projectStore.isShowProjectSecretLayer = !GetProjectInfoNeeded
 
-      // get info
-      if (GetProjectInfoNeeded) {
-        await projectStore.getProjectInfoById(projectID)
-        title.value = projectStore.project!.title!
+        // get info
+        if (GetProjectInfoNeeded) {
+          await projectStore.getProjectInfoById(projectID)
+          title.value = projectStore.project!.title!
+        }
       }
-    }
-    catch (error) {
-      // 401 - 清除share token
-      if (error instanceof UnauthorizedError) {
-        clearProjectSharedToken(projectID)
-        projectStore.isShowProjectSecretLayer = true
+      catch (error) {
+        // 401 - 清除share token
+        if (error instanceof UnauthorizedError) {
+          clearProjectSharedToken(projectID)
+          projectStore.isShowProjectSecretLayer = true
+        }
+        // 404 - NotFoundError
+        else if (error instanceof NotFoundError) {
+          clearProjectSharedToken(projectID)
+          return NOT_FOUND_PATH
+        }
+        // default - show error page
+        else {
+          return NOT_FOUND_PATH
+        }
       }
-      // 404 - NotFoundError
-      else if (error instanceof NotFoundError) {
-        return next(NOT_FOUND_PATH)
-      }
-      // default - show error page
-      else { return next(NOT_FOUND_PATH) }
-    }
-    finally {
-      hideGlobalLoading()
-    }
-
-    next()
+    })()
+    gotoPath && hideGlobalLoading()
+    next(gotoPath as string)
   },
 
   component: async () => import('@/layouts/ProjectDetailLayout/ProjectDetailLayout.vue'),

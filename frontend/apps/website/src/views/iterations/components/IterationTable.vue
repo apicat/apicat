@@ -42,12 +42,12 @@ defineExpose({
 </script>
 
 <template>
-  <div v-loading="isLoading">
-    <h3 class="truncate text-18px text-gray-title mb-30px">
+  <div>
+    <h3 class="truncate text-24px text-gray-title mb-15px">
       {{ titleRef }}
     </h3>
 
-    <div v-if="data.length" :class="ns.b()">
+    <div v-loading="isLoading" :class="[ns.b(), { 'min-h-90px': isLoading }]">
       <div v-for="item in data" :key="item.id" :class="ns.e('item')" @click="handleRowClick(item)">
         <div class="flex-1 overflow-hidden">
           <p :class="ns.e('title')" class="m-0 overflow-hidden truncate" :title="item.title">
@@ -81,13 +81,11 @@ defineExpose({
       </div>
     </div>
 
-    <el-empty v-else :description="$t('app.iteration.list.emptyDataTip')" />
+    <el-empty v-if="!data.length && !isLoading" :description="$t('app.iteration.list.emptyDataTip')" />
 
     <div v-if="total" class="flex justify-end mt-4">
       <el-pagination
-        v-model:current-page="currentPage"
-        :page-size="pageSize"
-        layout="prev, pager, next"
+        v-model:current-page="currentPage" :page-size="pageSize" layout="prev, pager, next"
         :total="total"
       />
     </div>
@@ -125,9 +123,6 @@ defineExpose({
         visibility: visible;
       }
     }
-  }
-
-  @include e(operation) {
   }
 }
 </style>
