@@ -33,6 +33,10 @@ func SetLLM(c *LLM) {
 }
 
 func (l *LLM) ToCfg() llm.LLM {
+	if l == nil {
+		return llm.LLM{}
+	}
+
 	switch l.Driver {
 	case llm.OPENAI:
 		return llm.LLM{
@@ -55,6 +59,7 @@ func (l *LLM) ToCfg() llm.LLM {
 				EmbeddingName: l.AzureOpenAI.EmbeddingName,
 			},
 		}
+	default:
+		return llm.LLM{}
 	}
-	return llm.LLM{}
 }
