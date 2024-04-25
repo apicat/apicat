@@ -83,8 +83,6 @@ func (s *Storage) ToCfg() storage.Storage {
 			},
 		}
 	default:
-		return storage.Storage{
-			Driver: "",
-		}
+		return storage.Storage{}
 	}
 }

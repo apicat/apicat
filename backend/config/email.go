@@ -35,6 +35,10 @@ func SetEmail(emailConfig *Email) {
 }
 
 func (e *Email) ToCfg() mailsender.Sender {
+	if e == nil {
+		return mailsender.Sender{}
+	}
+
 	switch e.Driver {
 	case mailsender.SMTP:
 		return mailsender.Sender{
@@ -56,8 +60,6 @@ func (e *Email) ToCfg() mailsender.Sender {
 			},
 		}
 	default:
-		return mailsender.Sender{
-			Driver: "",
-		}
+		return mailsender.Sender{}
 	}
 }
