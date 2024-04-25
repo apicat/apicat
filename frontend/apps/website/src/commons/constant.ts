@@ -128,9 +128,6 @@ export enum EditableRole {
 }
 
 export enum Role {
-  // admin = 'Admin',
-  // member = 'Member',
-  // owner = 'Owner',
   Admin = 'admin',
   Member = 'member',
   Owner = 'owner',
@@ -183,24 +180,6 @@ export const ContentTypes = [
   { key: 'text', value: 'text/plain' },
   { key: 'stream', value: 'application/octet-stream' },
 ]
-
-export const ContentTypesMap = {
-  json: 'application/json',
-  xhtml: 'application/xhtml+xml',
-  xml: 'application/xml',
-  text: 'text/plain',
-  stream: 'application/octet-stream',
-}
-
-export const RequestContentTypesMap = {
-  'none': 'none',
-  'form-data': 'multipart/form-data',
-  'x-www-form-urlencoded': 'application/x-www-form-urlencoded',
-  'json': 'application/json',
-  'xml': 'application/xml',
-  'raw': 'raw',
-  'binary': 'application/octet-stream',
-}
 
 export const ResponseContentTypesMap = {
   'application/json': 'json',
@@ -263,11 +242,6 @@ export enum SysStorage {
   Disk = 'disk',
   CF = 'cloudflare',
   Qiniu = 'qiniu',
-}
-
-export enum SysCache {
-  Local = 'local',
-  Redis = 'redis',
 }
 
 export enum SysEmail {

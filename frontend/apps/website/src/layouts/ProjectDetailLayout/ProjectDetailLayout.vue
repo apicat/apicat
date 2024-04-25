@@ -18,15 +18,17 @@ import { useCollectionContextWithoutMounted } from '@/hooks/useCollectionContext
 import useApi from '@/hooks/useApi'
 import AICreateDialog from '@/layouts/ProjectDetailLayout/components/AICreateDialog.vue'
 import { providePagesMode } from '@/layouts/ProjectDetailLayout/composables/usePagesMode'
+import { useGlobalLoading } from '@/hooks/useGlobalLoading'
+import { provideAsyncInitTask } from '@/hooks/useWaitAsyncTask'
 
 const ns = useNamespace('doc-layout')
 const { exportDocModalRef, shareDocModalRef, shareProjectModalRef, AIDialogRef } = useProjectLayoutProvider()
-const { currentNode, nodeExist, activeCollectionKey, activeResponseKey, activeSchemaKey } = useActiveTree()
+const { currentNode, activeCollectionKey, activeResponseKey, activeSchemaKey } = useActiveTree()
 
 const projectStore = useProjectStore()
 const collectionStore = useCollectionsStore()
 const { isShowProjectSecretLayer, projectID } = storeToRefs(projectStore)
-
+const { hideGlobalLoading } = useGlobalLoading()
 const collectionTreeRef = ref<InstanceType<typeof CollectionTree>>()
 const schemaTreeRef = ref<InstanceType<typeof DefinitionSchemaTree>>()
 const responseTreeRef = ref<InstanceType<typeof DefinitionResponseTree>>()
@@ -37,7 +39,8 @@ async function initialize() {
   await collectionStore.getCollections(projectID.value!)
 
   if (currentNode.value.id === undefined) {
-    collectionTreeRef.value?.selectFirstNode()
+    const selectTask = collectionTreeRef.value?.selectFirstNode()
+    selectTask && ctx.addTask(selectTask)
     return
   }
 
@@ -48,12 +51,27 @@ async function initialize() {
 
 const [isLoading, init] = useApi(initialize, { defaultLoadingStatus: true })
 
-watch(isShowProjectSecretLayer, async () => {
-  if (!isShowProjectSecretLayer.value)
-    await init()
+watch(
+  isShowProjectSecretLayer,
+  async () => {
+    if (!isShowProjectSecretLayer.value)
+      await init()
+  },
+)
+
+const ctx = provideAsyncInitTask()
+
+onMounted(async () => {
+  !isShowProjectSecretLayer.value && ctx.addTask(init)
+
+  try {
+    await ctx.done()
+  }
+  finally {
+    hideGlobalLoading()
+  }
 })
 
-onBeforeMount(async () => !isShowProjectSecretLayer.value && await init())
 onUnmounted(() => collectionStore.$reset())
 
 // 解引用后同步相关数据
@@ -77,8 +95,7 @@ providePagesMode()
       </div>
 
       <div class="scroll-content" :class="ns.e('right')">
-        <RouterView v-if="nodeExist" :project_id="projectID" />
-        <ElEmpty v-else />
+        <RouterView :project_id="projectID" />
       </div>
     </main>
     <ExportDocumentModal ref="exportDocModalRef" />

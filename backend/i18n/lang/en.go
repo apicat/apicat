@@ -37,6 +37,7 @@ var En = map[string]map[string]string{
 		"PublicProjectShare":          "This is a public project that anyone can access.",
 	},
 	"user": {
+		"LoginRequired":                    "Please log in to your account.",
 		"OriginalPasswordWrong":            "The original password is wrong.",
 		"PasswordUpdateFailed":             "Password modification failed, please try again later.",
 		"PasswordResetFailed":              "Password reset failed, please try again later.",
@@ -44,7 +45,6 @@ var En = map[string]map[string]string{
 		"EmailNotChanged":                  "This is the email you are currently using.",
 		"EmailHasBeenUsed":                 "This email has already been used.",
 		"EmailHasBeenVerified":             "This email has already been verified.",
-		"EmailUpdateFailedTitle":           "Email modification failed",
 		"EmailUpdateFailed":                "Email modification failed, please try again later.",
 		"EmailUpdateSuccessfulTitle":       "Email modified successfully",
 		"EmailUpdateSuccessfulDesc":        "You will use your new email to log in.",
@@ -94,6 +94,7 @@ var En = map[string]map[string]string{
 		"JoinTeamRepeat":            "You are already a member of the team.",
 		"NotTeamMember":             "User is not a member of the team.",
 		"Deactivated":               "Team member has been deactivated.",
+		"NotInTheTeam":              "This user is not in the team.",
 	},
 	"project": {
 		"DoesNotExist":             "Project does not exist.",
@@ -127,6 +128,7 @@ var En = map[string]map[string]string{
 		"FailedToAddProjectMember": "Failed to add project members, please try again later.",
 		"FailedToGetList":          "Failed to get project member list, please try again later.",
 		"RemoveFailed":             "Project member remove failed, please try again later.",
+		"NotInTheProject":          "The member is not in the project.",
 	},
 	"projectServer": {
 		"CreationFailed":  "Project server URL creation failed, please try again later.",

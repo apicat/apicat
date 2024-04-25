@@ -79,6 +79,9 @@ export function useDragNodeHandler({ props, ctx, el$, dropIndicator$, store }: a
       ctx.emit('node-drag-enter', draggingNode.node, dropNode.node, event)
     }
 
+    if (draggingNode.node === dropNode.node)
+      return
+
     if (dropPrev || dropInner || dropNext)
       dragState.value.dropNode = dropNode
 
@@ -91,7 +94,7 @@ export function useDragNodeHandler({ props, ctx, el$, dropIndicator$, store }: a
     if (dropNode.node.contains(draggingNode.node, false))
       dropInner = false
 
-    if (draggingNode.node === dropNode.node || draggingNode.node.contains(dropNode.node)) {
+    if (draggingNode.node.contains(dropNode.node)) {
       dropPrev = false
       dropInner = false
       dropNext = false
@@ -148,7 +151,8 @@ export function useDragNodeHandler({ props, ctx, el$, dropIndicator$, store }: a
     event.preventDefault()
     event.dataTransfer!.dropEffect = 'move'
 
-    if (draggingNode && dropNode) {
+    if (draggingNode && dropNode && draggingNode.node !== dropNode.node) {
+      // if (draggingNode && dropNode) {
       const draggingNodeCopy = { data: draggingNode.node.data }
       if (dropType !== 'none')
         draggingNode.node.remove()

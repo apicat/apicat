@@ -76,7 +76,7 @@ export const useProjectGroupStore = defineStore('projectGroup', {
 
     async sortGroup() {
       const teamStore = useTeamStore()
-      await apiSortProjectGroup(teamStore.currentTeam.id, {
+      teamStore.currentID && await apiSortProjectGroup(teamStore.currentID, {
         groupIDs: this.projectGroups.map((val: any) => val.id),
       })
     },

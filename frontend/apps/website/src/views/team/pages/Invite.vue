@@ -42,16 +42,12 @@ onMounted(async () => {
 
 <template>
   <Page30pLayout>
-    <div class="w-full max-w-600px" style="background-color: white">
+    <div class="w-full bg-white">
       <h1>{{ $t('app.team.invite.title') }}</h1>
-      <div v-loading="loading" element-loading-background="rgba(122, 122, 122, 0)" class="mt-40px">
+      <div v-loading="loading" element-loading-background="rgba(122, 122, 122, 0)">
         <ElInput v-model="link" class="h-40px " readonly>
           <template #append>
-            <ElButton
-              style="height: 40px;"
-              type="primary"
-              @click="handleCopy"
-            >
+            <ElButton style="height: 40px;" type="primary" @click="handleCopy">
               {{ elCopyTextRef }}
             </ElButton>
           </template>

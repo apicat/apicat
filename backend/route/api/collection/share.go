@@ -14,13 +14,13 @@ import (
 	"github.com/apicat/apicat/v2/backend/model/project"
 	"github.com/apicat/apicat/v2/backend/model/share"
 	"github.com/apicat/apicat/v2/backend/module/cache"
-	"github.com/apicat/apicat/v2/backend/module/password"
 	"github.com/apicat/apicat/v2/backend/route/middleware/access"
 	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
 	protocollection "github.com/apicat/apicat/v2/backend/route/proto/collection"
 	collectionbase "github.com/apicat/apicat/v2/backend/route/proto/collection/base"
 	collectionrequest "github.com/apicat/apicat/v2/backend/route/proto/collection/request"
 	collectionresponse "github.com/apicat/apicat/v2/backend/route/proto/collection/response"
+	"github.com/apicat/apicat/v2/backend/utils/password"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -189,7 +189,7 @@ func (csai *collectionShareApiImpl) Reset(ctx *gin.Context, opt *collectionbase.
 }
 
 func (csai *collectionShareApiImpl) Check(ctx *gin.Context, opt *collectionrequest.CheckCollectionShareSecretKeyOpt) (*collectionbase.ShareCode, error) {
-	pcache, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	pcache, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("share.SharedKeyVerificationFailed"))

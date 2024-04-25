@@ -27,7 +27,7 @@ export async function apiUploadAvatar(data: UserAPI.RequestChangeAvatar): Promis
 
 // Email Page
 export async function apiUpdateEmail(email: string): Promise<void> {
-  return DefaultAjax.post('/user/email', { email }, { isShowSuccessMsg: false })
+  return DefaultAjax.put('/user/email', { email })
 }
 
 // OAuth Page: Connect

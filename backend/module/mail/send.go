@@ -1,7 +1,6 @@
 package mail
 
 import (
-	"errors"
 	"fmt"
 	"log/slog"
 
@@ -15,18 +14,21 @@ const (
 	SENDCLOUD = "sendcloud"
 )
 
-func NewSender(cfg map[string]interface{}) (common.Provider, error) {
-	slog.Debug("mail.NewSender", "cfg", cfg)
-	if cfg == nil {
-		return nil, errors.New("mail config is nil")
-	}
+type Sender struct {
+	Driver    string
+	Smtp      smtp.SmtpSender
+	SendCloud sendcloud.SendCloud
+}
 
-	if cfg["Driver"] == SMTP {
-		return smtp.NewSMTP(cfg["Smtp"].(map[string]interface{}))
-	} else if cfg["Driver"] == SENDCLOUD {
-		return sendcloud.NewSendCloud(cfg["SendCloud"].(map[string]interface{}))
+func NewSender(cfg Sender) common.Provider {
+	slog.Debug("mail.NewSender", "cfg", cfg)
+
+	if cfg.Driver == SMTP {
+		return smtp.NewSMTP(cfg.Smtp)
+	} else if cfg.Driver == SENDCLOUD {
+		return sendcloud.NewSendCloud(cfg.SendCloud)
 	}
-	return nil, errors.New("mail driver not found")
+	return nil
 }
 
 func NewMessage(subject string, body fmt.Stringer) *common.Message {

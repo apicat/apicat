@@ -10,38 +10,37 @@ import (
 )
 
 const (
-	LOCAL = "memory"
-	REDIS = "redis"
+	MEMORY = "memory"
+	REDIS  = "redis"
 )
 
-func NewCache(cfg map[string]interface{}) (common.Cache, error) {
-	slog.Debug("cache.NewCache", "cfg", cfg)
-	if cfg == nil {
-		return nil, errors.New("cache config is nil")
-	}
+type Cache struct {
+	Driver string
+	Redis  redis.RedisOpt
+}
 
-	switch cfg["Driver"].(string) {
+func NewCache(cfg Cache) (common.Cache, error) {
+	slog.Debug("cache.NewCache", "cfg", cfg)
+
+	switch cfg.Driver {
 	case REDIS:
-		return redis.NewRedis(cfg["Redis"].(map[string]interface{}))
-	case LOCAL:
+		return redis.NewRedis(cfg.Redis)
+	case MEMORY:
 		return local.NewLocal()
 	default:
 		return nil, errors.New("cache driver not found")
 	}
 }
 
-func Init(cfg map[string]interface{}) error {
-	if cfg == nil {
-		return errors.New("cache config is nil")
-	}
-	switch cfg["Driver"].(string) {
+func Init(cfg Cache) error {
+	switch cfg.Driver {
 	case REDIS:
-		if c, err := redis.NewRedis(cfg["Redis"].(map[string]interface{})); err != nil {
+		if c, err := redis.NewRedis(cfg.Redis); err != nil {
 			return err
 		} else {
 			return c.Check()
 		}
-	case LOCAL:
+	case MEMORY:
 		if c, err := local.NewLocal(); err != nil {
 			return err
 		} else {

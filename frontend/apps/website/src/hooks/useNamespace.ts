@@ -37,6 +37,7 @@ export function useNamespace(block: string, namespaceOverrides?: Ref<string | un
   const bm = (blockSuffix?: string, modifier?: string) => (blockSuffix && modifier ? _bem(namespace.value, block, blockSuffix, '', modifier) : '')
   const bem = (blockSuffix?: string, element?: string, modifier?: string) => blockSuffix && element && modifier ? _bem(namespace.value, block, blockSuffix, element, modifier) : ''
   const is: {
+    // eslint-disable-next-line ts/unified-signatures
     (name: string, state: boolean | undefined): string
     (name: string): string
   } = (name: string, ...args: [boolean | undefined] | []) => {

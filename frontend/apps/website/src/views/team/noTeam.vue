@@ -33,7 +33,9 @@ async function submit() {
       name: TEAM_NAME,
     })
   }
-  catch (e) {}
+  catch (e) {
+    //
+  }
 }
 </script>
 
@@ -44,7 +46,7 @@ async function submit() {
     </p>
 
     <h1 class="text-gray-title font-500">
-      {{ $t(`app.team.create.${store.inited ? 'title1' : 'title0'}`) }}
+      {{ $t(`app.team.create.${store.hasTeam ? 'title1' : 'title0'}`) }}
     </h1>
 
     <ElForm ref="formRef" :rules="rules" :model="form" class="content w-400px" label-position="top">

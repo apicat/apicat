@@ -251,7 +251,7 @@ func (t *teamApiImpl) Transfer(ctx *gin.Context, opt *prototeamrequest.GetTeamMe
 	targetMember, err := team.GetMember(ctx, opt.MemberID)
 	if err != nil {
 		slog.ErrorContext(ctx, "team.GetMember", "err", err)
-		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("teamMember.DoesNotExist"))
+		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("teamMember.NotInTheTeam"))
 	}
 
 	if targetMember.TeamID != opt.TeamID || selfMember.TeamID != targetMember.TeamID {

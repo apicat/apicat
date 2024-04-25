@@ -17,4 +17,5 @@ type Provider interface {
 	ChatMessageRoleAssistant() string
 	ChatMessageRoleUser() string
 	ChatCompletionRequest(r *ChatCompletionRequest) (string, error)
+	Check() error
 }

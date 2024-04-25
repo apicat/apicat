@@ -69,35 +69,33 @@ function handleCancelCreateProject() {
 </script>
 
 <template>
-  <div>
-    <LeftRightLayout main-width="auto">
-      <template #left>
-        <ProjectGroups
-          ref="groupListRef"
-          @switch-group="handleSwitchProjectGroup"
-          @create-project="onCreateProjectMenuClick"
-          @delete="refreshProjectList"
-        />
-      </template>
-
-      <ProjectList
-        v-show="isListMode"
-        v-loading="isLoading"
-        :title="titleRef"
-        :projects="projects"
-        @click="navigateToProjectDetail"
-        @follow="handleFollowProject"
-        @change-group="showProjectGroupModal"
+  <LeftRightLayout main-width="auto">
+    <template #left>
+      <ProjectGroups
+        ref="groupListRef"
+        @switch-group="handleSwitchProjectGroup"
+        @create-project="onCreateProjectMenuClick"
+        @delete="refreshProjectList"
       />
+    </template>
 
-      <CreateProjectForm
-        v-show="isFormMode && !teamStore.isMember"
-        ref="createProjectFormRef"
-        @cancel="handleCancelCreateProject"
-      />
-    </LeftRightLayout>
+    <ProjectList
+      v-show="isListMode"
+      :loading="isLoading"
+      :title="titleRef"
+      :projects="projects"
+      @click="navigateToProjectDetail"
+      @follow="handleFollowProject"
+      @change-group="showProjectGroupModal"
+    />
 
-    <CreateOrUpdateProjectGroup ref="createOrUpdateProjectGroupRef" />
-    <SelectProjectGroup ref="selectProjectGroupRef" @success="refreshProjectList" />
-  </div>
+    <CreateProjectForm
+      v-show="isFormMode && !teamStore.isMember"
+      ref="createProjectFormRef"
+      @cancel="handleCancelCreateProject"
+    />
+  </LeftRightLayout>
+
+  <CreateOrUpdateProjectGroup ref="createOrUpdateProjectGroupRef" />
+  <SelectProjectGroup ref="selectProjectGroupRef" @success="refreshProjectList" />
 </template>

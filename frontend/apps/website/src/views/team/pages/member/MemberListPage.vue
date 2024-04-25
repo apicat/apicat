@@ -103,7 +103,7 @@ async function handleDisableOrEnable(row: TeamAPI.TeamMember) {
   const base = `app.team.member.${row.status === Status.Active ? 'disable' : 'enable'}`
   AsyncMsgBox({
     confirmButtonText: t(`${base}.btn`),
-    cancelButtonText: t(`${base}.cancel`),
+    cancelButtonText: t('app.common.cancel'),
     title: t(`${base}.poptitle`),
     content: t(`${base}.poptip`),
     onOk: async () => {
@@ -135,10 +135,11 @@ function operationAvailable(row: TeamAPI.TeamMember): boolean {
 
 <template>
   <Page30pLayout>
-    <h1>{{ $t('app.member.form.title') }}</h1>
+    <p class="pb-15px text-24px text-gray-title">
+      {{ $t('app.member.form.title') }}
+    </p>
     <AcSimpleTable
       v-model:page="currentPage"
-      class="mt-40px"
       is-show-pager
       round-border
       row-class-name="memberRow"
@@ -267,14 +268,17 @@ function operationAvailable(row: TeamAPI.TeamMember): boolean {
   justify-content: space-between;
   width: 100%;
 }
+
 .left,
 .right {
   display: flex;
   align-items: center;
 }
+
 .left {
   flex-grow: 1;
 }
+
 .right {
   justify-content: flex-end;
 }
@@ -284,6 +288,7 @@ function operationAvailable(row: TeamAPI.TeamMember): boolean {
   transition: all 0.03s;
   transform: translateY(2px);
 }
+
 .memberRow:hover .role-item .arrow-icon {
   opacity: 1;
 }
@@ -292,6 +297,7 @@ function operationAvailable(row: TeamAPI.TeamMember): boolean {
   transition: all 0.03s;
   opacity: 0;
 }
+
 .memberRow:hover .opr-item {
   opacity: 1;
 }

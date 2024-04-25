@@ -4,7 +4,10 @@ import Ajax from '@/api/Ajax'
 import { gatherSharedTokenWithParams } from '@/api/shareToken'
 
 // 获取集合列表
-export function apiGetCollections(projectID: string, iterationID?: string): Promise<CollectionAPI.ResponseCollection[]> {
+export function apiGetCollections(
+  projectID: string,
+  iterationID?: string,
+): Promise<CollectionAPI.ResponseCollection[]> {
   const params: any = {}
 
   if (iterationID)
@@ -35,7 +38,6 @@ export async function apiGetCollectDetail(
   const collection: CollectionAPI.ResponseCollectionDetail = await Ajax.get(
     `/projects/${projectID}/collections/${collectionID}`,
     { params: gatherSharedTokenWithParams({}, projectID) },
-    { isShowErrorMsg: false },
   )
   collection.content = parseJSONWithDefault(collection.content, [])
   return collection
@@ -108,7 +110,11 @@ export function apiRegenTestCaseList(projectID: string, collectionID: number | s
   return apiCreateTestCase(projectID, collectionID, undefined, true, config)
 }
 
-export function apiGetTestCaseList(projectID: string, collectionID: number | string, config?: AxiosRequestConfig): Promise<ProjectAPI.ResponseTestCase> {
+export function apiGetTestCaseList(
+  projectID: string,
+  collectionID: number | string,
+  config?: AxiosRequestConfig,
+): Promise<ProjectAPI.ResponseTestCase> {
   return Ajax.get(`/projects/${projectID}/collections/${collectionID}/testcases`, config)
 }
 export async function apiGetTestCaseDetail(

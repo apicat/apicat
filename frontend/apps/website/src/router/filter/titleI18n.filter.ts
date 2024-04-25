@@ -6,9 +6,7 @@ export function setupTitleI18n(router: Router) {
   const title = useTitle()
   router.beforeEach((to, from, next) => {
     const { t } = useLocaleStore()
-    if (to.meta.title)
-      title.value = t(to.meta.title as string || '')
-
+    title.value = to.meta.title ? t(to.meta.title as string) : 'ApiCat'
     next()
   })
 }

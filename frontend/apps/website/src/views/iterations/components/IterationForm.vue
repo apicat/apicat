@@ -35,22 +35,18 @@ const { isLoadingForTree, defaultProps, collections, selectedCollectionKeys, onT
 </script>
 
 <template>
-  <div v-loading="isLoadedIteration" :class="ns.b()">
-    <h3 :class="ns.e('title')">
+  <div v-loading="isLoadedIteration" :class="ns.b()" class="min-w-500px md:w-full lg:max-w-800px">
+    <p class="border-b border-solid border-gray-lighter pb-15px text-24px text-gray-title mb-30px">
       {{ isEditMode ? $t('app.iter.create.edit_title') : $t('app.iter.create.title') }}
-    </h3>
+    </p>
     <el-form ref="iterationFormRef" :model="iterationInfo" :rules="iterationRules" label-position="top">
       <el-form-item :label="$t('app.iter.create.name')" prop="title">
         <el-input v-model="iterationInfo.title" maxlength="255" :placeholder="$t('app.iter.create.name_hold')" />
       </el-form-item>
       <el-form-item :label="$t('app.iter.create.project')" prop="projectID">
         <el-select
-          v-model="iterationInfo.projectID"
-          :disabled="isEditMode"
-          popper-class="ac-select-popper"
-          :teleported="false"
-          class="w-full"
-          :placeholder="$t('app.iter.create.project_hold')"
+          v-model="iterationInfo.projectID" :disabled="isEditMode" popper-class="ac-select-popper"
+          :teleported="false" class="w-full" :placeholder="$t('app.iter.create.project_hold')"
         >
           <el-option v-for="item in projects" :key="item.id" :label="item.title" :value="item.id">
             <div class="truncate max-w-700px">
@@ -71,14 +67,9 @@ const { isLoadingForTree, defaultProps, collections, selectedCollectionKeys, onT
 
       <el-form-item v-loading="isLoadingForTree">
         <AcTransferTree
-          height="500px"
-          :data="collections"
-          :default-checked-keys="selectedCollectionKeys"
-          :placeholder="$t('app.iter.create.plan.table.hold')"
-          :title="$t('app.iter.create.plan.table.title')"
-          node-key="id"
-          :default-props="defaultProps"
-          @change="onTreeChange"
+          height="500px" :data="collections" :default-checked-keys="selectedCollectionKeys"
+          :placeholder="$t('app.iter.create.plan.table.hold')" :title="$t('app.iter.create.plan.table.title')"
+          node-key="id" :default-props="defaultProps" @change="onTreeChange"
         >
           <template #default="{ node, data }">
             <div class="flex items-center flex-1 overflow-hidden cursor-pointer">
@@ -103,13 +94,3 @@ const { isLoadingForTree, defaultProps, collections, selectedCollectionKeys, onT
     </el-form>
   </div>
 </template>
-
-<style lang="scss" scoped>
-@use '@/styles/mixins/mixins' as *;
-
-@include b(iteration-detail) {
-  @include e(title) {
-    @apply text-18px text-gray-title mb-30px;
-  }
-}
-</style>

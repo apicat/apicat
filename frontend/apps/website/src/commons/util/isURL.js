@@ -1,3 +1,4 @@
+/* eslint-disable prefer-const */
 import assertString from './assertString'
 
 import isFQDN from './isFQDN'

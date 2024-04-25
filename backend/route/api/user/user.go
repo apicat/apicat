@@ -13,10 +13,8 @@ import (
 	"github.com/apicat/apicat/v2/backend/i18n"
 	"github.com/apicat/apicat/v2/backend/model/user"
 	"github.com/apicat/apicat/v2/backend/module/cache"
-	"github.com/apicat/apicat/v2/backend/module/imageOpt"
 	"github.com/apicat/apicat/v2/backend/module/oauth2"
 	"github.com/apicat/apicat/v2/backend/module/oauth2/github"
-	"github.com/apicat/apicat/v2/backend/module/onetime_token"
 	"github.com/apicat/apicat/v2/backend/module/storage"
 	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
@@ -24,8 +22,8 @@ import (
 	protouserbase "github.com/apicat/apicat/v2/backend/route/proto/user/base"
 	protouserrequest "github.com/apicat/apicat/v2/backend/route/proto/user/request"
 	protouserresponse "github.com/apicat/apicat/v2/backend/route/proto/user/response"
-	"github.com/apicat/apicat/v2/backend/service/mailer"
 	"github.com/apicat/apicat/v2/backend/service/user_relations"
+	imgutil "github.com/apicat/apicat/v2/backend/utils/image"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -129,7 +127,7 @@ func (*userApiImpl) GetSelf(ctx *gin.Context, _ *ginrpc.Empty) (*protouserrespon
 func (ua *userApiImpl) ChangePassword(ctx *gin.Context, opt *protouserrequest.ChangePwdOption) (*ginrpc.Empty, error) {
 	u := jwt.GetUser(ctx)
 
-	ucache, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	ucache, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.PasswordUpdateFailed"))
@@ -143,7 +141,7 @@ func (ua *userApiImpl) ChangePassword(ctx *gin.Context, opt *protouserrequest.Ch
 		var err error
 		number, err = strconv.Atoi(ts)
 		if err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.EmailSendFailed"))
+			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.PasswordUpdateFailed"))
 		}
 		if number > 10 {
 			return nil, ginrpc.NewError(http.StatusTooManyRequests, i18n.NewErr("common.TooManyOperations"))
@@ -184,17 +182,16 @@ func (*userApiImpl) SetSelf(ctx *gin.Context, opt *protouserrequest.SetUserSelfO
 	return &ginrpc.Empty{}, nil
 }
 
-// SendChangeEmail 发送修改邮箱邮件
-func (ua *userApiImpl) SendChangeEmail(ctx *gin.Context, opt *protouserbase.EmailOption) (*ginrpc.Empty, error) {
+func (ua *userApiImpl) ChangeEmail(ctx *gin.Context, opt *protouserbase.EmailOption) (*ginrpc.Empty, error) {
 	u := jwt.GetUser(ctx)
 	if u.Email == opt.Email {
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("user.EmailNotChanged"))
 	}
 
-	ucache, err := cache.NewCache(config.Get().Cache.ToMapInterface())
+	ucache, err := cache.NewCache(config.Get().Cache.ToCfg())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.EmailSendFailed"))
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.EmailUpdateFailed"))
 	}
 
 	// 按照用户id设置最大重试次数
@@ -205,7 +202,7 @@ func (ua *userApiImpl) SendChangeEmail(ctx *gin.Context, opt *protouserbase.Emai
 		var err error
 		number, err = strconv.Atoi(ts)
 		if err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.EmailSendFailed"))
+			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.EmailUpdateFailed"))
 		}
 		if number > 10 {
 			return nil, ginrpc.NewError(http.StatusTooManyRequests, i18n.NewErr("common.TooManyOperations"))
@@ -220,66 +217,18 @@ func (ua *userApiImpl) SendChangeEmail(ctx *gin.Context, opt *protouserbase.Emai
 	exist, err := usr.Get(ctx)
 	if err != nil {
 		slog.ErrorContext(ctx, "usr.Get", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.EmailUpdateFailed"))
 	}
 	if exist {
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("user.EmailHasBeenUsed"))
 	}
 
-	mailer.SendModifyEmailMail(ctx, u, opt.Email)
+	u.Email = opt.Email
+	if err := u.UpdateEmail(ctx); err != nil {
+		slog.ErrorContext(ctx, "u.UpdateEmail", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.EmailUpdateFailed"))
+	}
 	return &ginrpc.Empty{}, nil
-}
-
-// ChangeEmailFire 修改邮箱
-func (ua *userApiImpl) ChangeEmailFire(ctx *gin.Context, opt *protouserrequest.CodeOption) (*protouserbase.MessageTemplate, error) {
-	var t mailer.UserToken
-
-	errResp := ginrpc.NewError(
-		http.StatusBadRequest,
-		i18n.NewErr("common.LinkExpired"),
-	)
-
-	c, err := cache.NewCache(config.Get().Cache.ToMapInterface())
-	if err != nil {
-		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
-		return nil, errResp
-	}
-	tokenHelper := onetime_token.NewTokenHelper(c)
-
-	if !tokenHelper.CheckToken(opt.Code, &t) {
-		errResp.Attrs = map[string]any{
-			"emoji":       "😳",
-			"title":       i18n.NewTran("common.LinkExpiredTitle").Translate(ctx),
-			"description": i18n.NewTran("user.ResendEmail").Translate(ctx),
-		}
-		return nil, errResp
-	}
-
-	usr := &user.User{
-		ID:    t.UserID,
-		Email: t.Email,
-	}
-
-	if err := usr.UpdateEmail(ctx); err != nil {
-		slog.ErrorContext(ctx, "usr.UpdateEmail", "err", err)
-		i18n.NewErr("user.EmailUpdateFailed")
-		errResp.Attrs = map[string]any{
-			"emoji":       "😳",
-			"title":       i18n.NewTran("user.EmailUpdateFailedTitle").Translate(ctx),
-			"description": i18n.NewTran("user.EmailUpdateFailed").Translate(ctx),
-		}
-		return nil, errResp
-	}
-
-	tokenHelper.DelToken(opt.Code)
-	changeEmailTimesKey := fmt.Sprintf("changeEmail-%d", t.UserID)
-	_ = c.Del(changeEmailTimesKey)
-
-	return &protouserbase.MessageTemplate{
-		Emoji:       "🎉",
-		Title:       i18n.NewTran("user.EmailUpdateSuccessfulTitle").Translate(ctx),
-		Description: i18n.NewTran("user.EmailUpdateSuccessfulDesc").Translate(ctx),
-	}, nil
 }
 
 // UploadAvatar 上传头像
@@ -290,7 +239,7 @@ func (*userApiImpl) UploadAvatar(ctx *gin.Context, opt *protouserrequest.UploadA
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("common.ImageTooLarge"))
 	}
 
-	img, fileExt, err := imageOpt.FileHeaderToImage(opt.Avatar)
+	img, fileExt, err := imgutil.FileHeaderToImage(opt.Avatar)
 	if err != nil {
 		slog.ErrorContext(ctx, "imageOpt.FileHeaderToImage", "err", err)
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("common.ImageUploadFailed"))
@@ -299,18 +248,13 @@ func (*userApiImpl) UploadAvatar(ctx *gin.Context, opt *protouserrequest.UploadA
 	fileName := fmt.Sprintf("%s/%x%s", "avatars", md5.Sum([]byte(fmt.Sprintf("%d_%d", u.ID, time.Now().Unix()))), fileExt)
 
 	// 裁剪图片
-	croppedFileBytes, err := imageOpt.Cropping(img, opt.CroppedX, opt.CroppedY, opt.CroppedWidth, opt.CroppedHeight)
+	croppedFileBytes, err := imgutil.Cropping(img, opt.CroppedX, opt.CroppedY, opt.CroppedWidth, opt.CroppedHeight)
 	if err != nil {
 		slog.ErrorContext(ctx, "imageOpt.Cropping", "err", err)
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("common.ImageUploadFailed"))
 	}
 
-	helper, err := storage.NewStorage(config.Get().Storage.ToMapInterface())
-	if err != nil {
-		slog.ErrorContext(ctx, "storage.NewStorage", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ImageUploadFailed"))
-	}
-
+	helper := storage.NewStorage(config.Get().Storage.ToCfg())
 	contentType := http.DetectContentType(croppedFileBytes)
 	path, err := helper.PutObject(fileName, croppedFileBytes, contentType)
 	if err != nil {

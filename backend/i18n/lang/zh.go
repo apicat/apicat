@@ -37,6 +37,7 @@ var Zh = map[string]map[string]string{
 		"PublicProjectShare":          "这是一个任何人都可以访问的公共项目。",
 	},
 	"user": {
+		"LoginRequired":                    "请登录您的账号。",
 		"OriginalPasswordWrong":            "原密码错误。",
 		"PasswordUpdateFailed":             "密码修改失败，请稍后重试。",
 		"PasswordResetFailed":              "密码重置失败，请稍后重试。",
@@ -44,7 +45,6 @@ var Zh = map[string]map[string]string{
 		"EmailNotChanged":                  "这是您当前使用的邮箱。",
 		"EmailHasBeenUsed":                 "该邮箱已被使用。",
 		"EmailHasBeenVerified":             "该邮箱已被验证。",
-		"EmailUpdateFailedTitle":           "邮箱修改失败",
 		"EmailUpdateFailed":                "邮箱修改失败，请稍后重试。",
 		"EmailUpdateSuccessfulTitle":       "邮箱修改成功",
 		"EmailUpdateSuccessfulDesc":        "您将会使用新的邮箱进行登录。",
@@ -94,6 +94,7 @@ var Zh = map[string]map[string]string{
 		"JoinTeamRepeat":            "您已经是团队成员了。",
 		"NotTeamMember":             "用户不是团队成员。",
 		"Deactivated":               "团队成员已被停用。",
+		"NotInTheTeam":              "用户不在团队中。",
 	},
 	"project": {
 		"DoesNotExist":             "项目不存在。",
@@ -127,6 +128,7 @@ var Zh = map[string]map[string]string{
 		"FailedToAddProjectMember": "添加项目成员失败，请稍后重试。",
 		"FailedToGetList":          "获取项目成员列表失败，请稍后重试。",
 		"RemoveFailed":             "项目成员删除失败，请稍后重试。",
+		"NotInTheProject":          "成员不在项目中。",
 	},
 	"projectServer": {
 		"CreationFailed":  "服务器 URL 创建失败，请稍后重试。",
