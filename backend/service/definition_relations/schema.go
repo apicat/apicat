@@ -64,7 +64,6 @@ func UpdateSchemaReference(ctx context.Context, s *definition.DefinitionSchema) 
 	for _, v := range schemaRefIDs {
 		if _, ok := oldSchemaRefSchemaDict[v]; !ok {
 			wantPush = append(wantPush, &referencerelationship.SchemaReference{
-				ProjectID:   s.ProjectID,
 				SchemaID:    s.ID,
 				RefSchemaID: v,
 			})
@@ -217,7 +216,7 @@ func dereferenceDefinitionSchemaInSchemas(ctx context.Context, ds *definition.De
 	}
 
 	// 处理schemas.content
-	schemas, err := definition.GetDefinitionSchemas(ctx, &project.Project{ID: ds.ProjectID}, schemasIDs...)
+	schemas, err := definition.GetDefinitionSchemas(ctx, ds.ProjectID, schemasIDs...)
 	if err != nil {
 		return nil, err
 	}
@@ -402,7 +401,6 @@ func UnpackDefinitionSchemaReferences(ctx context.Context, ds *definition.Defini
 		}
 		for _, s := range schemaRefs {
 			schemaWantPush = append(schemaWantPush, &referencerelationship.SchemaReference{
-				ProjectID:   s.ProjectID,
 				SchemaID:    s.SchemaID,
 				RefSchemaID: v.RefSchemaID,
 			})
@@ -457,7 +455,7 @@ func ImportDefinitionSchemas(ctx context.Context, projectID string, schemas spec
 		}
 	}
 
-	list, err := definition.GetDefinitionSchemas(ctx, &project.Project{ID: projectID})
+	list, err := definition.GetDefinitionSchemas(ctx, projectID)
 	if err != nil {
 		slog.ErrorContext(ctx, "GetDefinitionSchemas", "err", err)
 		return res

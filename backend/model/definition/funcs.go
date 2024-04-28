@@ -91,13 +91,13 @@ func exportBuildDefinitionResponseTree(ctx context.Context, responses []*Definit
 	return result
 }
 
-func GetDefinitionSchemas(ctx context.Context, p *project.Project, dsIDs ...uint) ([]*DefinitionSchema, error) {
+func GetDefinitionSchemas(ctx context.Context, projectID string, dsIDs ...uint) ([]*DefinitionSchema, error) {
 	var list []*DefinitionSchema
 	tx := model.DB(ctx)
 	if len(dsIDs) > 0 {
 		tx = tx.Where("id IN ?", dsIDs)
 	}
-	err := tx.Where("project_id = ?", p.ID).Order("display_order asc").Find(&list).Error
+	err := tx.Where("project_id = ?", projectID).Order("display_order asc").Find(&list).Error
 	return list, err
 }
 
@@ -130,7 +130,7 @@ func GetDefinitionParameters(ctx context.Context, pID string) ([]*DefinitionPara
 func ExportDefinitionSchemas(ctx context.Context, p *project.Project) spec.Schemas {
 	result := make(spec.Schemas, 0)
 
-	schemas, err := GetDefinitionSchemas(ctx, p)
+	schemas, err := GetDefinitionSchemas(ctx, p.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "GetDefinitionSchemas", "err", err)
 		return result

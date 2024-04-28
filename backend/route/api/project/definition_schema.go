@@ -72,7 +72,7 @@ func (dsai *definitionSchemaApiImpl) Create(ctx *gin.Context, opt *projectreques
 
 func (dsai *definitionSchemaApiImpl) List(ctx *gin.Context, opt *protobase.ProjectIdOption) (*projectresponse.DefinitionSchemaTree, error) {
 	selfP := access.GetSelfProject(ctx)
-	list, err := definition.GetDefinitionSchemas(ctx, selfP)
+	list, err := definition.GetDefinitionSchemas(ctx, selfP.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "project.GetDefinitionSchemas", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchema.FailedToGetList"))
