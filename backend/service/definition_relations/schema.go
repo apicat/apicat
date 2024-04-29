@@ -9,7 +9,6 @@ import (
 
 	"github.com/apicat/apicat/v2/backend/model/collection"
 	"github.com/apicat/apicat/v2/backend/model/definition"
-	"github.com/apicat/apicat/v2/backend/model/project"
 	referencerelationship "github.com/apicat/apicat/v2/backend/model/reference_relationship"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/module/spec"
@@ -139,7 +138,7 @@ func dereferenceDefinitionSchemaInCollections(ctx context.Context, ds *definitio
 	}
 
 	// 处理collections.content
-	collections, err := collection.GetCollections(ctx, &project.Project{ID: ds.ProjectID}, collectionIDs...)
+	collections, err := collection.GetCollections(ctx, ds.ProjectID, collectionIDs...)
 	if err != nil {
 		return nil, err
 	}

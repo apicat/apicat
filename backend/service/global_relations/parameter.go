@@ -122,7 +122,7 @@ func RemoveExceptGlobalParameter(ctx *gin.Context, gp *global.GlobalParameter) e
 		collectionIDs = append(collectionIDs, ref.ExceptCollectionID)
 	}
 
-	collections, err := collection.GetCollections(ctx, &project.Project{ID: gp.ProjectID}, collectionIDs...)
+	collections, err := collection.GetCollections(ctx, gp.ProjectID, collectionIDs...)
 	if err != nil {
 		return err
 	}

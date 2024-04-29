@@ -62,7 +62,7 @@ func (iai *iterationApiImpl) Create(ctx *gin.Context, opt *iterationrequest.Crea
 	}
 
 	if len(opt.CollectionIDs) > 0 {
-		collections, err := collection.GetCollections(ctx, p, opt.CollectionIDs...)
+		collections, err := collection.GetCollections(ctx, p.ID, opt.CollectionIDs...)
 		if err != nil {
 			slog.ErrorContext(ctx, "collection.GetCollections", "err", err)
 			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("iteration.CreationFailed"))
@@ -237,7 +237,7 @@ func (iai *iterationApiImpl) Update(ctx *gin.Context, opt *iterationrequest.Upda
 
 	collections := make([]*collection.Collection, 0)
 	if len(opt.CollectionIDs) > 0 {
-		collections, err = collection.GetCollections(ctx, p, opt.CollectionIDs...)
+		collections, err = collection.GetCollections(ctx, p.ID, opt.CollectionIDs...)
 		if err != nil {
 			slog.ErrorContext(ctx, "collection.GetCollections", "err", err)
 			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))

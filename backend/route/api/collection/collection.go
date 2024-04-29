@@ -105,7 +105,7 @@ func (cai *collectionApiImpl) Create(ctx *gin.Context, opt *collectionrequest.Cr
 
 func (cai *collectionApiImpl) List(ctx *gin.Context, opt *collectionrequest.GetCollectionListOption) (*collectionresponse.CollectionTree, error) {
 	selfP := access.GetSelfProject(ctx)
-	collections, err := collection.GetCollections(ctx, selfP)
+	collections, err := collection.GetCollections(ctx, selfP.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "collection.GetCollections", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.FailedToGetList"))

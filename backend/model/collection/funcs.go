@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/apicat/apicat/v2/backend/model"
-	"github.com/apicat/apicat/v2/backend/model/project"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/model/user"
 
@@ -45,13 +44,13 @@ func (m VirtualIDToIDMap) Merge(m2 VirtualIDToIDMap) {
 	}
 }
 
-func GetCollections(ctx context.Context, p *project.Project, cIDs ...uint) ([]*Collection, error) {
+func GetCollections(ctx context.Context, projectID string, cIDs ...uint) ([]*Collection, error) {
 	var collections []*Collection
 	tx := model.DB(ctx)
 	if len(cIDs) > 0 {
 		tx = tx.Where("id in (?)", cIDs)
 	}
-	tx = tx.Where("project_id = ?", p.ID).Order("display_order asc")
+	tx = tx.Where("project_id = ?", projectID).Order("display_order asc")
 	return collections, tx.Find(&collections).Error
 }
 
@@ -65,7 +64,7 @@ func BatchDeleteCollections(ctx context.Context, DeletedBy uint, cIDs ...uint) e
 func ExportCollections(ctx context.Context, pID string) spec.Collections {
 	result := make(spec.Collections, 0)
 
-	collections, err := GetCollections(ctx, &project.Project{ID: pID})
+	collections, err := GetCollections(ctx, pID)
 	if err != nil {
 		slog.ErrorContext(ctx, "GetDefinitionResponses", "err", err)
 		return result
