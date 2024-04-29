@@ -309,7 +309,7 @@ func dereferenceDefinitionSchemaInResponses(ctx context.Context, ds *definition.
 	}
 
 	// 处理responses.content
-	responses, err := definition.GetDefinitionResponses(ctx, &project.Project{ID: ds.ProjectID}, responseIDs...)
+	responses, err := definition.GetDefinitionResponses(ctx, ds.ProjectID, responseIDs...)
 	if err != nil {
 		return nil, err
 	}

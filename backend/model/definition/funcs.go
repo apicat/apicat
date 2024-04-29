@@ -16,13 +16,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func GetDefinitionResponses(ctx context.Context, p *project.Project, drIDs ...uint) ([]*DefinitionResponse, error) {
+func GetDefinitionResponses(ctx context.Context, projectID string, drIDs ...uint) ([]*DefinitionResponse, error) {
 	var list []*DefinitionResponse
 	tx := model.DB(ctx)
 	if len(drIDs) > 0 {
 		tx = tx.Where("id IN ?", drIDs)
 	}
-	err := tx.Where("project_id = ?", p.ID).Order("display_order asc").Find(&list).Error
+	err := tx.Where("project_id = ?", projectID).Order("display_order asc").Find(&list).Error
 	return list, err
 }
 
@@ -49,7 +49,7 @@ func GetDefinitionResponsesWithSpec(ctx context.Context, projectID string) (spec
 func ExportDefinitionResponses(ctx context.Context, p *project.Project) spec.HTTPResponseDefines {
 	result := make(spec.HTTPResponseDefines, 0)
 
-	response, err := GetDefinitionResponses(ctx, p)
+	response, err := GetDefinitionResponses(ctx, p.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "GetDefinitionResponses", "err", err)
 		return result

@@ -72,7 +72,7 @@ func (drai *definitionResponseApiImpl) Create(ctx *gin.Context, opt *projectrequ
 
 func (drai *definitionResponseApiImpl) List(ctx *gin.Context, opt *protobase.ProjectIdOption) (*projectresponse.DefinitionResponseTree, error) {
 	selfP := access.GetSelfProject(ctx)
-	list, err := definition.GetDefinitionResponses(ctx, selfP)
+	list, err := definition.GetDefinitionResponses(ctx, selfP.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "project.GetDefinitionResponses", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionResponse.FailedToGetList"))

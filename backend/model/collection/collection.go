@@ -7,6 +7,7 @@ import (
 	"log/slog"
 
 	"github.com/apicat/apicat/v2/backend/model"
+	"github.com/apicat/apicat/v2/backend/model/definition"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/module/spec"
 
@@ -150,4 +151,50 @@ func (c *Collection) ToSpec() (*spec.Collection, error) {
 	}
 
 	return sc, nil
+}
+
+func (c *Collection) DelRef(ctx context.Context, refNode any, deref bool) error {
+	collectionSpec, err := c.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	switch refNode.(type) {
+	case *definition.DefinitionSchema:
+		refNodeSpec, err := refNode.(*definition.DefinitionSchema).ToSpec()
+		if err != nil {
+			return err
+		}
+
+		if deref {
+			if err := collectionSpec.DerefSchema(refNodeSpec); err != nil {
+				return err
+			}
+		} else {
+			if err := collectionSpec.DelRefSchema(refNodeSpec); err != nil {
+				return err
+			}
+		}
+
+	case *definition.DefinitionResponse:
+		refNodeSpec, err := refNode.(*definition.DefinitionResponse).ToSpec()
+		if err != nil {
+			return err
+		}
+
+		if deref {
+			if err := collectionSpec.DerefResponse(refNodeSpec); err != nil {
+				return err
+			}
+		} else {
+			if err := collectionSpec.DelResponseByRefId(int64(refNodeSpec.ID)); err != nil {
+				return err
+			}
+		}
+
+	default:
+		return errors.New("refType error")
+	}
+
+	return nil
 }

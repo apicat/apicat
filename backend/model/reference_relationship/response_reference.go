@@ -2,6 +2,7 @@ package referencerelationship
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/apicat/apicat/v2/backend/model"
@@ -40,4 +41,27 @@ func GetResponseReferencesByRefSchema(ctx context.Context, projectID string, ref
 	var list []*ResponseReference
 	tx := model.DB(ctx).Where("project_id = ? AND ref_schema_id = ?", projectID, refSchemaID).Find(&list)
 	return list, tx.Error
+}
+
+func (rr *ResponseReference) GetResponseRefs(ctx context.Context) ([]*ResponseReference, error) {
+	var list []*ResponseReference
+
+	tx := model.DB(ctx)
+	if rr.ResponseID != 0 {
+		tx = tx.Where("response_id = ?", rr.ResponseID)
+	} else if rr.RefSchemaID != 0 {
+		tx = tx.Where("ref_schema_id = ?", rr.RefSchemaID)
+	} else {
+		return nil, errors.New("query condition error")
+	}
+
+	return list, tx.Find(&list).Error
+}
+
+func (rr *ResponseReference) DelByResponseID(ctx context.Context) error {
+	return model.DB(ctx).Where("response_id = ?", rr.ResponseID).Delete(&ResponseReference{}).Error
+}
+
+func (rr *ResponseReference) DelByRefSchemaID(ctx context.Context) error {
+	return model.DB(ctx).Where("ref_schema_id = ?", rr.RefSchemaID).Delete(&ResponseReference{}).Error
 }
