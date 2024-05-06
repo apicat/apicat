@@ -9,10 +9,9 @@ import (
 )
 
 type ResponseReference struct {
-	ID          uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	ProjectID   string `gorm:"type:varchar(24);index;not null;comment:项目id"`
-	ResponseID  uint   `gorm:"type:bigint;index;not null;comment:公共响应id"`
-	RefSchemaID uint   `gorm:"type:bigint;index;not null;comment:引用的公共模型id"`
+	ID          uint `gorm:"type:bigint;primaryKey;autoIncrement"`
+	ResponseID  uint `gorm:"type:bigint;index;not null;comment:公共响应id"`
+	RefSchemaID uint `gorm:"type:bigint;index;not null;comment:引用的公共模型id"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 }
@@ -56,6 +55,12 @@ func (rr *ResponseReference) GetResponseRefs(ctx context.Context) ([]*ResponseRe
 	}
 
 	return list, tx.Find(&list).Error
+}
+
+func (rr *ResponseReference) GetResponseIDsByRef(ctx context.Context) ([]uint, error) {
+	var list []uint
+	tx := model.DB(ctx).Where("ref_schema_id = ?", rr.RefSchemaID).Select("response_id").Find(&list)
+	return list, tx.Error
 }
 
 func (rr *ResponseReference) DelByResponseID(ctx context.Context) error {

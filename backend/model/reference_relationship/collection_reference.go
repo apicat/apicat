@@ -78,6 +78,12 @@ func (cr *CollectionReference) GetCollectionRefs(ctx context.Context) ([]*Collec
 	return list, tx.Find(&list).Error
 }
 
+func (cr *CollectionReference) GetCollectionIDsByRef(ctx context.Context) ([]uint, error) {
+	var list []uint
+	tx := model.DB(ctx).Model(cr).Where("ref_id = ? AND ref_type = ?", cr.RefID, cr.RefType).Select("collection_id").Find(&list)
+	return list, tx.Error
+}
+
 func (cr *CollectionReference) DelByCollectionID(ctx context.Context) error {
 	return model.DB(ctx).Where("collection_id = ?", cr.CollectionID).Delete(&CollectionReference{}).Error
 }
