@@ -127,3 +127,30 @@ func (dr *DefinitionResponse) ToSpec() (*spec.HTTPResponseDefine, error) {
 
 	return r, nil
 }
+
+func (dr *DefinitionResponse) DelRef(ctx context.Context, refSchema *DefinitionSchema, deref bool) error {
+	responseSpec, err := dr.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	refSchemaSpec, err := refSchema.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	if deref {
+		responseSpec.DerefSchema(refSchemaSpec)
+	} else {
+		if err := responseSpec.DelRefSchema(refSchemaSpec); err != nil {
+			return err
+		}
+	}
+
+	content, err := json.Marshal(responseSpec.Content)
+	if err != nil {
+		return err
+	}
+
+	return model.DB(ctx).Model(dr).Select("content").UpdateColumn("content", string(content)).Error
+}

@@ -8,6 +8,7 @@ import (
 
 	"github.com/apicat/apicat/v2/backend/model"
 	"github.com/apicat/apicat/v2/backend/model/definition"
+	"github.com/apicat/apicat/v2/backend/model/global"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/module/spec"
 
@@ -153,48 +154,89 @@ func (c *Collection) ToSpec() (*spec.Collection, error) {
 	return sc, nil
 }
 
-func (c *Collection) DelRef(ctx context.Context, refNode any, deref bool) error {
+func (c *Collection) DelRefSchema(ctx context.Context, refSchema *definition.DefinitionSchema, deref bool) error {
 	collectionSpec, err := c.ToSpec()
 	if err != nil {
 		return err
 	}
 
-	switch refNode.(type) {
-	case *definition.DefinitionSchema:
-		refNodeSpec, err := refNode.(*definition.DefinitionSchema).ToSpec()
-		if err != nil {
-			return err
-		}
-
-		if deref {
-			if err := collectionSpec.DerefSchema(refNodeSpec); err != nil {
-				return err
-			}
-		} else {
-			if err := collectionSpec.DelRefSchema(refNodeSpec); err != nil {
-				return err
-			}
-		}
-
-	case *definition.DefinitionResponse:
-		refNodeSpec, err := refNode.(*definition.DefinitionResponse).ToSpec()
-		if err != nil {
-			return err
-		}
-
-		if deref {
-			if err := collectionSpec.DerefResponse(refNodeSpec); err != nil {
-				return err
-			}
-		} else {
-			if err := collectionSpec.DelResponseByRefId(int64(refNodeSpec.ID)); err != nil {
-				return err
-			}
-		}
-
-	default:
-		return errors.New("refType error")
+	refSchemaSpec, err := refSchema.ToSpec()
+	if err != nil {
+		return err
 	}
 
-	return nil
+	if deref {
+		if err := collectionSpec.DerefSchema(refSchemaSpec); err != nil {
+			return err
+		}
+	} else {
+		if err := collectionSpec.DelRefSchema(refSchemaSpec); err != nil {
+			return err
+		}
+	}
+
+	content, err := json.Marshal(collectionSpec.Content)
+	if err != nil {
+		return err
+	}
+
+	return model.DB(ctx).Model(c).Select("content").UpdateColumn("content", string(content)).Error
+}
+
+func (c *Collection) DelRefResponse(ctx context.Context, refResponse *definition.DefinitionResponse, deref bool) error {
+	collectionSpec, err := c.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	refResponseSpec, err := refResponse.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	if deref {
+		if err := collectionSpec.DerefResponse(refResponseSpec); err != nil {
+			return err
+		}
+	} else {
+		if err := collectionSpec.DelResponseByRefId(int64(refResponseSpec.ID)); err != nil {
+			return err
+		}
+	}
+
+	content, err := json.Marshal(collectionSpec.Content)
+	if err != nil {
+		return err
+	}
+
+	return model.DB(ctx).Model(c).Select("content").UpdateColumn("content", string(content)).Error
+}
+
+func (c *Collection) DelExceptParam(ctx context.Context, exceptParam *global.GlobalParameter, unpack bool) error {
+	collectionSpec, err := c.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	exceptParamSpec, err := exceptParam.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	if unpack {
+		if err := collectionSpec.AddParameter(exceptParam.In, exceptParamSpec); err != nil {
+			return err
+		}
+	} else {
+		if err := collectionSpec.DelGlobalExceptID(exceptParam.In, int64(exceptParam.ID)); err != nil {
+			return err
+		}
+	}
+
+	content, err := json.Marshal(collectionSpec.Content)
+	if err != nil {
+		return err
+	}
+
+	return model.DB(ctx).Model(c).Select("content").UpdateColumn("content", string(content)).Error
 }

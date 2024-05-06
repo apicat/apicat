@@ -130,3 +130,30 @@ func (ds *DefinitionSchema) ToSpec() (*spec.Schema, error) {
 
 	return s, nil
 }
+
+func (ds *DefinitionSchema) DelRef(ctx context.Context, refSchema *DefinitionSchema, deref bool) error {
+	schemaSpec, err := ds.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	refSchemaSpec, err := refSchema.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	if deref {
+		schemaSpec.Deref(refSchemaSpec)
+	} else {
+		if err := schemaSpec.DelRef(refSchemaSpec); err != nil {
+			return err
+		}
+	}
+
+	content, err := json.Marshal(schemaSpec.Schema)
+	if err != nil {
+		return err
+	}
+
+	return model.DB(ctx).Model(ds).Select("schema").UpdateColumn("schema", string(content)).Error
+}
