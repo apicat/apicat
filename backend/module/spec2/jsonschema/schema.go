@@ -2,6 +2,7 @@ package jsonschema
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"golang.org/x/exp/slices"
@@ -30,27 +31,28 @@ type Schema struct {
 	Items                *ValueOrBoolean[*Schema] `json:"items,omitempty" yaml:"items,omitempty"` // 3.1 schema or bool
 
 	// Validation
-	Type             *SliceOrOneValue[string] `json:"type,omitempty" yaml:"type,omitempty"` // 3.1 []string 2,3.0 string
-	Enum             []any                    `json:"enum,omitempty" yaml:"enum,omitempty"`
-	Pattern          string                   `json:"pattern,omitempty" yaml:"pattern,omitempty"`
-	MinLength        int64                    `json:"minLength,omitempty" yaml:"minLength,omitempty"`
-	MaxLength        int64                    `json:"maxLength,omitempty" yaml:"maxLength,omitempty"`
-	ExclusiveMaximum *ValueOrBoolean[int64]   `json:"exclusiveMaximum,omitempty" yaml:"exclusiveMaximum,omitempty"` // 3.0 bool 3.1 int
-	MultipleOf       int64                    `json:"multipleOf,omitempty" yaml:"multipleOf,omitempty"`
-	ExclusiveMinimum *ValueOrBoolean[int64]   `json:"exclusiveMinimum,omitempty" yaml:"exclusiveMinimum,omitempty"` // 3.0 bool 3.1 int
-	Maximum          int64                    `json:"maximum,omitempty" yaml:"maximum,omitempty"`
-	Minimum          int64                    `json:"minimum,omitempty" yaml:"minimum,omitempty"`
-	MaxProperties    int64                    `json:"maxProperties,omitempty" yaml:"maxProperties,omitempty"`
-	MinProperties    int64                    `json:"minProperties,omitempty" yaml:"minProperties,omitempty"`
-	Required         []string                 `json:"required,omitempty" yaml:"required,omitempty"`
-	MaxItems         int64                    `json:"maxItems,omitempty" yaml:"maxItems,omitempty"`
-	MinItems         int64                    `json:"minItems,omitempty" yaml:"minItems,omitempty"`
-	UniqueItems      int64                    `json:"uniqueItems,omitempty" yaml:"uniqueItems,omitempty"`
+	Type             *SchemaType            `json:"type,omitempty" yaml:"type,omitempty"` // 3.1 []string 2,3.0 string
+	Enum             []any                  `json:"enum,omitempty" yaml:"enum,omitempty"`
+	Pattern          string                 `json:"pattern,omitempty" yaml:"pattern,omitempty"`
+	MinLength        int64                  `json:"minLength,omitempty" yaml:"minLength,omitempty"`
+	MaxLength        int64                  `json:"maxLength,omitempty" yaml:"maxLength,omitempty"`
+	ExclusiveMaximum *ValueOrBoolean[int64] `json:"exclusiveMaximum,omitempty" yaml:"exclusiveMaximum,omitempty"` // 3.0 bool 3.1 int
+	MultipleOf       int64                  `json:"multipleOf,omitempty" yaml:"multipleOf,omitempty"`
+	ExclusiveMinimum *ValueOrBoolean[int64] `json:"exclusiveMinimum,omitempty" yaml:"exclusiveMinimum,omitempty"` // 3.0 bool 3.1 int
+	Maximum          int64                  `json:"maximum,omitempty" yaml:"maximum,omitempty"`
+	Minimum          int64                  `json:"minimum,omitempty" yaml:"minimum,omitempty"`
+	MaxProperties    int64                  `json:"maxProperties,omitempty" yaml:"maxProperties,omitempty"`
+	MinProperties    int64                  `json:"minProperties,omitempty" yaml:"minProperties,omitempty"`
+	Required         []string               `json:"required,omitempty" yaml:"required,omitempty"`
+	MaxItems         int64                  `json:"maxItems,omitempty" yaml:"maxItems,omitempty"`
+	MinItems         int64                  `json:"minItems,omitempty" yaml:"minItems,omitempty"`
+	UniqueItems      int64                  `json:"uniqueItems,omitempty" yaml:"uniqueItems,omitempty"`
 
 	// Format Annotation
 	Format string `json:"format,omitempty" yaml:"format,omitempty"`
 
 	// Extension
+	ID       int64    `json:"id,omitempty" yaml:"id,omitempty"`
 	XOrder   []string `json:"x-apicat-orders,omitempty" yaml:"x-apicat-orders,omitempty"`
 	XMock    string   `json:"x-apicat-mock,omitempty" yaml:"x-apicat-mock,omitempty"`
 	XDiff    string   `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
@@ -68,37 +70,21 @@ var coreTypes = []string{
 }
 
 func NewSchema(typ string) *Schema {
-	return &Schema{
-		Type: NewSliceOrOne(typ),
+	if typ == "" {
+		return &Schema{
+			Type: NewSchemaType(T_OBJ),
+		}
+	} else {
+		return &Schema{
+			Type: NewSchemaType(typ),
+		}
 	}
 }
 
 func (s *Schema) Ref() bool { return s != nil && s.Reference != "" }
 
-func (s *Schema) FindRefById(id string) (refs []*Schema) {
-	if s == nil {
-		return nil
-	}
-
-	if s.IsRefId(id) {
-		refs = append(refs, s)
-		return refs
-	}
-
-	if s.Properties != nil {
-		for k := range s.Properties {
-			refs = append(refs, s.Properties[k].FindRefById(id)...)
-		}
-	}
-
-	if s.Items != nil && !s.Items.IsBool() {
-		refs = append(refs, s.Items.Value().FindRefById(id)...)
-	}
-	return refs
-}
-
-// check this schema reference this id
-func (s *Schema) IsRefId(id string) bool {
+// Check if the schema refers to this id
+func (s *Schema) IsRefID(id string) bool {
 	if s == nil || s.Reference == "" {
 		return false
 	}
@@ -112,29 +98,113 @@ func (s *Schema) IsRefId(id string) bool {
 	return false
 }
 
-func (s *Schema) DelPropertyByRefId(id string, stype string) {
+func (s *Schema) DeepFindRefById(id string) (refs []*Schema) {
+	if s == nil {
+		return nil
+	}
+
+	if s.IsRefID(id) {
+		refs = append(refs, s)
+		return
+	}
+
+	if s.Properties != nil {
+		for k := range s.Properties {
+			refs = append(refs, s.Properties[k].DeepFindRefById(id)...)
+		}
+	}
+
+	if s.Items != nil && !s.Items.IsBool() {
+		refs = append(refs, s.Items.Value().DeepFindRefById(id)...)
+	}
+	return
+}
+
+func (s *Schema) GetRefID() int64 {
+	if !s.Ref() {
+		return 0
+	}
+
+	i := strings.LastIndex(s.Reference, "/")
+	if i != -1 {
+		id, _ := strconv.ParseInt(s.Reference[i+1:], 10, 64)
+		return id
+	}
+	return 0
+}
+
+func (s *Schema) DeepGetRefID() (ids []int64) {
+	if s == nil {
+		return nil
+	}
+
+	if id := s.GetRefID(); id > 0 {
+		ids = append(ids, id)
+		return
+	}
+
+	if s.Properties != nil {
+		for _, v := range s.Properties {
+			ids = append(ids, v.DeepGetRefID()...)
+		}
+	}
+
+	if s.Items != nil && !s.Items.IsBool() {
+		ids = append(ids, s.Items.Value().DeepGetRefID()...)
+	}
+	return
+}
+
+func (s *Schema) ReplaceRef(ref *Schema) {
+	if !s.Ref() || ref == nil {
+		return
+	}
+
+	refID := s.GetRefID()
+	if refID != ref.ID {
+		return
+	}
+
+	*s = *ref
+}
+
+func (s *Schema) DelRootRef(ref *Schema) {
+	if !s.Ref() || ref == nil {
+		return
+	}
+
+	refID := s.GetRefID()
+	if refID != ref.ID {
+		return
+	}
+
+	s.Reference = ""
+	s.Type = NewSchemaType(T_OBJ)
+}
+
+func (s *Schema) DelChildrenRef(ref *Schema) {
 	if s == nil {
 		return
 	}
 
-	ks := []string{}
+	propertyKeys := []string{}
 	if s.Properties != nil {
 		for k, v := range s.Properties {
-			if v.IsRefId(id) {
-				ks = append(ks, k)
+			if v.IsRefID(strconv.FormatInt(ref.ID, 10)) {
+				propertyKeys = append(propertyKeys, k)
 			}
-			v.DelPropertyByRefId(id, stype)
+			v.DelChildrenRef(ref)
 		}
 
-		for _, v := range ks {
-			delete(s.Properties, v)
-			s.DelXOrderByName(v)
+		for _, k := range propertyKeys {
+			delete(s.Properties, k)
+			s.DelXOrderByName(k)
 		}
 	}
 
-	if s.Items != nil && s.Items.Value() != nil {
-		if s.Items.value.IsRefId(id) {
-			s.Items.value = NewSchema(stype)
+	if s.Items != nil && !s.Items.IsBool() && s.Items.Value() != nil {
+		if s.Items.Value().IsRefID(strconv.FormatInt(ref.ID, 10)) {
+			s.Items.SetValue(NewSchema(ref.Type.First()))
 		}
 	}
 }
@@ -164,7 +234,7 @@ func (s *Schema) Valid() error {
 		return nil
 	}
 
-	for _, v := range s.Type.Value() {
+	for _, v := range s.Type.List() {
 		if !slices.Contains(coreTypes, v) {
 			return fmt.Errorf("unkowan type %s", v)
 		}
