@@ -12,7 +12,7 @@ import (
 	prototeam "github.com/apicat/apicat/v2/backend/route/proto/team"
 	prototeamrequest "github.com/apicat/apicat/v2/backend/route/proto/team/request"
 	prototeamresponse "github.com/apicat/apicat/v2/backend/route/proto/team/response"
-	"github.com/apicat/apicat/v2/backend/service/team_relations"
+	"github.com/apicat/apicat/v2/backend/service/relations"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -55,7 +55,7 @@ func (t *teamMemberApiImpl) MemberList(ctx *gin.Context, opt *prototeamrequest.M
 	}
 	for k, v := range items {
 		if userInfo, err := v.UserInfo(ctx, false); err == nil {
-			list.Items[k] = team_relations.ConvertModelTeamMember(ctx, v, userInfo)
+			list.Items[k] = relations.ConvertModelTeamMember(ctx, v, userInfo)
 		}
 	}
 	return list, nil
@@ -109,7 +109,7 @@ func (t *teamMemberApiImpl) UpdateMember(ctx *gin.Context, opt *prototeamrequest
 		}
 	}
 
-	return team_relations.ConvertModelTeamMember(ctx, targetMember, userInfo), nil
+	return relations.ConvertModelTeamMember(ctx, targetMember, userInfo), nil
 }
 
 // DeleteMember 删除团队成员

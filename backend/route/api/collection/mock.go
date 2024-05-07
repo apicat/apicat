@@ -5,7 +5,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/model/collection"
 	"github.com/apicat/apicat/v2/backend/model/project"
 	collectionrequest "github.com/apicat/apicat/v2/backend/route/proto/collection/request"
-	collectionrelations "github.com/apicat/apicat/v2/backend/service/collection_relations"
+	"github.com/apicat/apicat/v2/backend/service/relations"
 
 	"fmt"
 	"log/slog"
@@ -63,7 +63,7 @@ func Mock(ctx *gin.Context) {
 		return
 	}
 
-	collectionSpec, err := collectionrelations.CollectionDerefWithSpec(ctx, c)
+	collectionSpec, err := relations.CollectionDerefWithSpec(ctx, c)
 	if err != nil {
 		slog.ErrorContext(ctx, "collectionDerefWithSpec", "err", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": i18n.NewErr("mock.FailedToMock").Error()})

@@ -12,7 +12,6 @@ import (
 	protoproject "github.com/apicat/apicat/v2/backend/route/proto/project"
 	projectrequest "github.com/apicat/apicat/v2/backend/route/proto/project/request"
 	projectresponse "github.com/apicat/apicat/v2/backend/route/proto/project/response"
-	globalrelations "github.com/apicat/apicat/v2/backend/service/global_relations"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"

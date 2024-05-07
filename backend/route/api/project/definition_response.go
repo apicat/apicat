@@ -14,7 +14,7 @@ import (
 	protoproject "github.com/apicat/apicat/v2/backend/route/proto/project"
 	projectrequest "github.com/apicat/apicat/v2/backend/route/proto/project/request"
 	projectresponse "github.com/apicat/apicat/v2/backend/route/proto/project/response"
-	definitionrelations "github.com/apicat/apicat/v2/backend/service/definition_relations"
+	"github.com/apicat/apicat/v2/backend/service/reference"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -148,8 +148,8 @@ func (drai *definitionResponseApiImpl) Update(ctx *gin.Context, opt *projectrequ
 
 	// 编辑响应时更新响应引用的模型
 	if dr.Type != definition.ResponseCategory {
-		if err := definitionrelations.UpdateResponseReference(ctx, dr); err != nil {
-			slog.ErrorContext(ctx, "definitionrelations.UpdateResponseReference", "err", err)
+		if err := reference.UpdateResponseRef(ctx, dr); err != nil {
+			slog.ErrorContext(ctx, "reference.UpdateResponseRef", "err", err)
 		}
 	}
 

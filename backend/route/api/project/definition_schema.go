@@ -15,7 +15,7 @@ import (
 	projectrequest "github.com/apicat/apicat/v2/backend/route/proto/project/request"
 	projectresponse "github.com/apicat/apicat/v2/backend/route/proto/project/response"
 	"github.com/apicat/apicat/v2/backend/service/ai"
-	definitionrelations "github.com/apicat/apicat/v2/backend/service/definition_relations"
+	"github.com/apicat/apicat/v2/backend/service/reference"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -145,8 +145,8 @@ func (dsai *definitionSchemaApiImpl) Update(ctx *gin.Context, opt *projectreques
 	// 编辑模型后更新模型的引用关系
 	if ds.Type != definition.SchemaCategory {
 		// 更新模型引用关系
-		if err := definitionrelations.UpdateSchemaReference(ctx, ds); err != nil {
-			slog.ErrorContext(ctx, "definitionrelations.UpdateSchemaReference", "err", err)
+		if err := reference.UpdateSchemaRef(ctx, ds); err != nil {
+			slog.ErrorContext(ctx, "reference.UpdateSchemaRef", "err", err)
 		}
 	}
 

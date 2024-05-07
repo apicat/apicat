@@ -11,7 +11,7 @@ import (
 	prototeambase "github.com/apicat/apicat/v2/backend/route/proto/team/base"
 	prototeamrequest "github.com/apicat/apicat/v2/backend/route/proto/team/request"
 	prototeamresponse "github.com/apicat/apicat/v2/backend/route/proto/team/response"
-	"github.com/apicat/apicat/v2/backend/service/team_relations"
+	"github.com/apicat/apicat/v2/backend/service/relations"
 
 	"net/http"
 
@@ -37,7 +37,7 @@ func (t *teamApiImpl) Create(ctx *gin.Context, opt *prototeambase.TeamDataOption
 	if err := switchTeam(ctx, tm.ID); err != nil {
 		slog.ErrorContext(ctx, "switchTeam", "err", err)
 	}
-	return team_relations.ConvertModelTeam(ctx, tm), nil
+	return relations.ConvertModelTeam(ctx, tm), nil
 }
 
 // TeamList 团队列表
@@ -50,7 +50,7 @@ func (t *teamApiImpl) TeamList(ctx *gin.Context, opt *prototeamrequest.RolesOpti
 	var resp prototeamresponse.TeamList
 	resp.Items = make([]*prototeamresponse.Team, len(list))
 	for k, v := range list {
-		resp.Items[k] = team_relations.ConvertModelTeam(ctx, v)
+		resp.Items[k] = relations.ConvertModelTeam(ctx, v)
 	}
 	return &resp, nil
 }
@@ -91,7 +91,7 @@ func (t *teamApiImpl) Current(ctx *gin.Context, opt *ginrpc.Empty) (*prototeamre
 	}
 
 	return &prototeamresponse.CurrentTeamRes{
-		Team: *team_relations.ConvertModelTeam(ctx, teamInstance),
+		Team: *relations.ConvertModelTeam(ctx, teamInstance),
 		Role: tm.Role,
 	}, nil
 }
@@ -106,7 +106,7 @@ func (t *teamApiImpl) Get(ctx *gin.Context, opt *protobase.TeamIdOption) (*proto
 			i18n.NewErr("team.DoesNotExist"),
 		)
 	}
-	return team_relations.ConvertModelTeam(ctx, teamRecord), nil
+	return relations.ConvertModelTeam(ctx, teamRecord), nil
 }
 
 // Switch 切换当前团队
@@ -211,7 +211,7 @@ func (t *teamApiImpl) CheckInvitationToken(ctx *gin.Context, opt *protobase.Invi
 // Join 加入团队 需要邀请码
 func (t *teamApiImpl) Join(ctx *gin.Context, opt *protobase.InvitationTokenOption) (*ginrpc.Empty, error) {
 	self := jwt.GetUser(ctx)
-	if err := team_relations.JoinTeam(ctx, opt.InvitationToken, self); err != nil {
+	if err := relations.JoinTeam(ctx, opt.InvitationToken, self); err != nil {
 		return nil, ginrpc.NewError(http.StatusBadRequest, err)
 	}
 	return &ginrpc.Empty{}, nil

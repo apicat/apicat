@@ -21,8 +21,8 @@ import (
 	collectionrequest "github.com/apicat/apicat/v2/backend/route/proto/collection/request"
 	collectionresponse "github.com/apicat/apicat/v2/backend/route/proto/collection/response"
 	"github.com/apicat/apicat/v2/backend/service/ai"
-	collectionrelations "github.com/apicat/apicat/v2/backend/service/collection_relations"
-	projectrelations "github.com/apicat/apicat/v2/backend/service/project_relations"
+	"github.com/apicat/apicat/v2/backend/service/reference"
+	"github.com/apicat/apicat/v2/backend/service/relations"
 	"github.com/apicat/apicat/v2/backend/utils/onetime_token"
 
 	"github.com/apicat/apicat/v2/backend/module/spec"
@@ -200,8 +200,8 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 
 	// 编辑文档时更新文档引用关系
 	if c.Type != collection.CategoryType {
-		if err := collectionrelations.UpdateCollectionReference(ctx, c); err != nil {
-			slog.ErrorContext(ctx, "collectionrelations.UpdateCollectionReference", "err", err)
+		if err := reference.UpdateCollectionRef(ctx, c); err != nil {
+			slog.ErrorContext(ctx, "collectionrelations.UpdateCollectionRef", "err", err)
 		}
 	}
 
@@ -228,8 +228,8 @@ func (cai *collectionApiImpl) Delete(ctx *gin.Context, opt *collectionrequest.De
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("collection.DoesNotExist"))
 	}
 
-	if err := collectionrelations.DeleteCollections(ctx, selfPM.ProjectID, c, selfTM); err != nil {
-		slog.ErrorContext(ctx, "collectionrelations.DeleteCollections", "err", err)
+	if err := relations.DeleteCollections(ctx, selfPM.ProjectID, c, selfTM); err != nil {
+		slog.ErrorContext(ctx, "relations.DeleteCollections", "err", err)
 		if c.Type == collection.CategoryType {
 			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("category.FailedToDelete"))
 		}
@@ -601,7 +601,7 @@ func Export(ctx *gin.Context) {
 		return
 	}
 
-	apicatData, err := collectionrelations.CollectionDerefWithApiCatSpec(ctx, c)
+	apicatData, err := relations.CollectionDerefWithApiCatSpec(ctx, c)
 	if err != nil {
 		slog.ErrorContext(ctx, "collectionDerefWithApiCatSpec", "err", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -609,8 +609,8 @@ func Export(ctx *gin.Context) {
 		})
 		return
 	}
-	projectrelations.SpecFillInfo(ctx, apicatData, p)
-	projectrelations.SpecFillServers(ctx, apicatData, p.ID)
+	relations.SpecFillInfo(ctx, apicatData, p)
+	relations.SpecFillServers(ctx, apicatData, p.ID)
 
 	if apicatDataJson, err := json.Marshal(apicatData); err != nil {
 		slog.ErrorContext(ctx, "export", "marshalErr", err)
