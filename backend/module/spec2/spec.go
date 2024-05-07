@@ -1,5 +1,7 @@
 package spec2
 
+const TYPE_CATEGORY = "category"
+
 type Spec struct {
 	ApiCat  string   `json:"apicat" yaml:"apicat"`
 	Info    Info     `json:"info" yaml:"info"`

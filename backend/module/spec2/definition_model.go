@@ -7,10 +7,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
 )
 
-const (
-	ModelTypeDir    = "category"
-	ModelTypeSchema = "schema"
-)
+const TYPE_MODEL = "schema"
 
 type Model struct {
 	ID          int64              `json:"id,omitempty" yaml:"id,omitempty"`
@@ -80,12 +77,11 @@ func (s *Models) FindByName(name string) *Model {
 	}
 
 	for _, v := range *s {
-		if v.Type == ModelTypeDir {
+		if v.Type == TYPE_CATEGORY {
 			return v.Items.FindByName(name)
-		} else {
-			if v.Name == name {
-				return v
-			}
+		}
+		if v.Name == name {
+			return v
 		}
 	}
 	return nil
@@ -97,12 +93,11 @@ func (s *Models) FindByID(id int64) *Model {
 	}
 
 	for _, v := range *s {
-		if v.Type == ModelTypeDir {
+		if v.Type == TYPE_CATEGORY {
 			return v.Items.FindByID(id)
-		} else {
-			if id == v.ID {
-				return v
-			}
+		}
+		if id == v.ID {
+			return v
 		}
 	}
 	return nil
@@ -113,7 +108,7 @@ func (s *Models) DelByID(id int64) {
 		return
 	}
 	for i, v := range *s {
-		if v.Type == ModelTypeDir {
+		if v.Type == TYPE_CATEGORY {
 			v.Items.DelByID(id)
 		} else {
 			if v.ID == id {

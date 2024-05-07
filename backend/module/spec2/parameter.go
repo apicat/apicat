@@ -62,6 +62,15 @@ func (pl *ParameterList) DelByID(id int64) {
 	}
 }
 
+func NewHTTPParameters() *HTTPParameters {
+	return &HTTPParameters{
+		Query:  make(ParameterList, 0),
+		Path:   make(ParameterList, 0),
+		Cookie: make(ParameterList, 0),
+		Header: make(ParameterList, 0),
+	}
+}
+
 func (hp *HTTPParameters) FindByID(id int64) (p *Parameter) {
 	p = hp.Query.FindByID(id)
 	if p != nil {
