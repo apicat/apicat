@@ -1,4 +1,4 @@
-package user_relations
+package relations
 
 import (
 	"github.com/apicat/apicat/v2/backend/model/user"
@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// ConvertModelUser 将model.user转换为proto.user
 func ConvertModelUser(ctx *gin.Context, src *user.User) protouserresponse.User {
 	var dest protouserresponse.User
 	dest.ID = src.ID

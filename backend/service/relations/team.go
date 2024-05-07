@@ -1,4 +1,4 @@
-package team_relations
+package relations
 
 import (
 	"log/slog"
@@ -9,11 +9,11 @@ import (
 	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
 	prototeambase "github.com/apicat/apicat/v2/backend/route/proto/team/base"
 	prototeamresponse "github.com/apicat/apicat/v2/backend/route/proto/team/response"
-	"github.com/apicat/apicat/v2/backend/service/user_relations"
 
 	"github.com/gin-gonic/gin"
 )
 
+// JoinTeam 加入团队
 func JoinTeam(ctx *gin.Context, token string, u *user.User) error {
 	tm, err := team.GetMemberByToken(ctx, token)
 	if err != nil {
@@ -49,6 +49,7 @@ func JoinTeam(ctx *gin.Context, token string, u *user.User) error {
 	return nil
 }
 
+// ConvertModelTeam 将model.team转换为proto.team
 func ConvertModelTeam(ctx *gin.Context, t *team.Team) *prototeamresponse.Team {
 	memberCount, _ := team.GetMembersCount(ctx, t.ID)
 	return &prototeamresponse.Team{
@@ -63,6 +64,7 @@ func ConvertModelTeam(ctx *gin.Context, t *team.Team) *prototeamresponse.Team {
 	}
 }
 
+// ConvertModelTeamMember 将model.teamMember转换为proto.teamMember
 func ConvertModelTeamMember(ctx *gin.Context, tm *team.TeamMember, userInfo *user.User) *prototeamresponse.TeamMember {
 	return &prototeamresponse.TeamMember{
 		IdCreateTimeInfo: protobase.IdCreateTimeInfo{
@@ -78,6 +80,6 @@ func ConvertModelTeamMember(ctx *gin.Context, tm *team.TeamMember, userInfo *use
 		TeamIdOption: protobase.TeamIdOption{
 			TeamID: tm.TeamID,
 		},
-		User: user_relations.ConvertModelUser(ctx, userInfo).UserData,
+		User: ConvertModelUser(ctx, userInfo).UserData,
 	}
 }

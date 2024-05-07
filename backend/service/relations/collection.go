@@ -1,4 +1,4 @@
-package collectionrelations
+package relations
 
 import (
 	"context"
@@ -14,12 +14,10 @@ import (
 	"github.com/apicat/apicat/v2/backend/model/share"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/module/spec"
-	definitionrelations "github.com/apicat/apicat/v2/backend/service/definition_relations"
-	globalrelations "github.com/apicat/apicat/v2/backend/service/global_relations"
-	arrutil "github.com/apicat/apicat/v2/backend/utils/array"
+	"github.com/apicat/apicat/v2/backend/service/reference"
 )
 
-// TODO 移除表关系后将次方法移动到backend/model/collection/funcs.go中。方法引用了model.iteration，model.iteration中又引用model.collection导致现在移动不了
+// DeleteCollections 删除集合并清理关联数据
 func DeleteCollections(ctx context.Context, pID string, c *collection.Collection, tm *team.TeamMember) error {
 	var collections []*collection.Collection
 	if err := model.DB(ctx).Where("parent_id = ?", c.ID).Find(&collections).Error; err != nil {
@@ -85,7 +83,7 @@ func DeleteCollections(ctx context.Context, pID string, c *collection.Collection
 	return collection.BatchDeleteCollections(ctx, tm.ID, ids...)
 }
 
-// TODO 移除表关系后将次方法移动到backend/model/collection/funcs.go中
+// CollectionDerefWithSpec 将集合解引用并转为spec.collection结构
 func CollectionDerefWithSpec(ctx context.Context, c *collection.Collection) (*spec.Collection, error) {
 	collectionSpec, err := c.ToSpec()
 	if err != nil {
@@ -115,7 +113,7 @@ func CollectionDerefWithSpec(ctx context.Context, c *collection.Collection) (*sp
 	}
 }
 
-// TODO 移除表关系后将次方法移动到backend/model/collection/funcs.go中
+// CollectionDerefWithApiCatSpec 将集合解引用并转为spec结构
 func CollectionDerefWithApiCatSpec(ctx context.Context, c *collection.Collection) (*spec.Spec, error) {
 	collectionSpec, err := CollectionDerefWithSpec(ctx, c)
 	if err != nil {
@@ -127,6 +125,7 @@ func CollectionDerefWithApiCatSpec(ctx context.Context, c *collection.Collection
 	return apicatStruct, nil
 }
 
+// CollectionImport 导入集合
 func CollectionImport(ctx context.Context, member *team.TeamMember, projectID string, parentID uint, collections []*spec.Collection, refContentNameToId *collection.RefContentVirtualIDToId) []*collection.Collection {
 	collectionList := make([]*collection.Collection, 0)
 
@@ -164,8 +163,8 @@ func CollectionImport(ctx context.Context, member *team.TeamMember, projectID st
 					collection.TagImport(ctx, projectID, record.ID, c.Tags)
 				}
 
-				if err := UpdateCollectionReference(ctx, record); err != nil {
-					slog.ErrorContext(ctx, "CollectionImport.UpdateCollectionReference", "err", err)
+				if err := reference.UpdateCollectionRef(ctx, record); err != nil {
+					slog.ErrorContext(ctx, "CollectionImport.UpdateCollectionRef", "err", err)
 				}
 			}
 		}
@@ -174,6 +173,7 @@ func CollectionImport(ctx context.Context, member *team.TeamMember, projectID st
 	return collectionList
 }
 
+// replaceGlobalParametersVirtualIDToID 将集合中的全局参数的虚拟ID替换为真实ID
 func replaceGlobalParametersVirtualIDToID(ctx context.Context, content string, virtualIDToIDMap collection.VirtualIDToIDMap) string {
 	specContent, err := collection.GetCollectionContentSpec(ctx, content)
 	if err != nil {
@@ -213,99 +213,4 @@ func replaceGlobalParametersVirtualIDToID(ctx context.Context, content string, v
 	}
 
 	return string(newContent)
-}
-
-func UpdateCollectionReference(ctx context.Context, c *collection.Collection) error {
-	oldCollectionRef, err := referencerelationship.GetCollectionReferencesByCollection(ctx, c.ProjectID, c.ID)
-	if err != nil {
-		return err
-	}
-
-	oldCollectionRefSchemaDict := make(map[string]map[uint]*referencerelationship.CollectionReference, 0)
-	oldCollectionRefSchemaDict[referencerelationship.ReferenceSchema] = make(map[uint]*referencerelationship.CollectionReference, 0)
-	oldCollectionRefSchemaDict[referencerelationship.ReferenceResponse] = make(map[uint]*referencerelationship.CollectionReference, 0)
-	for _, v := range oldCollectionRef {
-		oldCollectionRefSchemaDict[v.RefType][v.RefID] = v
-	}
-
-	wantPop := make([]uint, 0)
-	wantPush := make([]*referencerelationship.CollectionReference, 0)
-
-	// 解析集合引用的模型
-	schemaRefIDs := definitionrelations.ReadDefinitionSchemaReference(ctx, c.Content)
-	for key, value := range oldCollectionRefSchemaDict[referencerelationship.ReferenceSchema] {
-		if !arrutil.InArray[uint](key, schemaRefIDs) {
-			wantPop = append(wantPop, value.ID)
-		}
-	}
-	for _, v := range schemaRefIDs {
-		if _, ok := oldCollectionRefSchemaDict[referencerelationship.ReferenceSchema][v]; !ok {
-			wantPush = append(wantPush, &referencerelationship.CollectionReference{
-				ProjectID:    c.ProjectID,
-				CollectionID: c.ID,
-				RefID:        v,
-				RefType:      referencerelationship.ReferenceSchema,
-			})
-		}
-	}
-
-	// 解析集合引用的响应
-	responseRefIDs := definitionrelations.ReadDefinitionResponseReference(ctx, c.Content)
-	for key, value := range oldCollectionRefSchemaDict[referencerelationship.ReferenceResponse] {
-		if !arrutil.InArray[uint](key, responseRefIDs) {
-			wantPop = append(wantPop, value.ID)
-		}
-	}
-	for _, v := range responseRefIDs {
-		if _, ok := oldCollectionRefSchemaDict[referencerelationship.ReferenceResponse][v]; !ok {
-			wantPush = append(wantPush, &referencerelationship.CollectionReference{
-				ProjectID:    c.ProjectID,
-				CollectionID: c.ID,
-				RefID:        v,
-				RefType:      referencerelationship.ReferenceResponse,
-			})
-		}
-	}
-
-	// 修改definition引用关系
-	if err := referencerelationship.BatchCreateCollectionReference(ctx, wantPush); err != nil {
-		return err
-	}
-	if err := referencerelationship.BatchDeleteCollectionReference(ctx, wantPop...); err != nil {
-		return err
-	}
-
-	// 解析排除的公共参数
-	oldCollectionExcept, err := referencerelationship.GetParameterExceptsByCollection(ctx, c.ProjectID, c.ID)
-	if err != nil {
-		return err
-	}
-	oldCollectionExceptParameterDict := make(map[uint]*referencerelationship.ParameterExcept, 0)
-	for _, v := range oldCollectionExcept {
-		oldCollectionExceptParameterDict[v.ParameterID] = v
-	}
-	exceptParameterIDs := globalrelations.ReadExceptParameterReference(ctx, c.Content)
-
-	globalWantPop := make([]uint, 0)
-	globalWantPush := make([]*referencerelationship.ParameterExcept, 0)
-	for key, value := range oldCollectionExceptParameterDict {
-		if !arrutil.InArray[uint](key, exceptParameterIDs) {
-			globalWantPop = append(globalWantPop, value.ID)
-		}
-	}
-	for _, v := range exceptParameterIDs {
-		if _, ok := oldCollectionExceptParameterDict[v]; !ok {
-			globalWantPush = append(globalWantPush, &referencerelationship.ParameterExcept{
-				ProjectID:          c.ProjectID,
-				ParameterID:        v,
-				ExceptCollectionID: c.ID,
-			})
-		}
-	}
-
-	// 修改golbal排除关系
-	if err := referencerelationship.BatchCreateParameterExcept(ctx, globalWantPush); err != nil {
-		return err
-	}
-	return referencerelationship.BatchDeleteParameterExcept(ctx, globalWantPop...)
 }
