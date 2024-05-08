@@ -8,6 +8,7 @@ import (
 	arrutil "github.com/apicat/apicat/v2/backend/utils/array"
 )
 
+// UpdateCollectionRef 更新集合引用关系（包含集合引用、集合被排除）
 func UpdateCollectionRef(ctx context.Context, c *collection.Collection) error {
 	if err := updateParamExcept(ctx, c); err != nil {
 		return err
@@ -16,6 +17,7 @@ func UpdateCollectionRef(ctx context.Context, c *collection.Collection) error {
 	return updateReference(ctx, c)
 }
 
+// updateReference 更新集合引用关系
 func updateReference(ctx context.Context, c *collection.Collection) error {
 	cr := &referencerelationship.CollectionReference{CollectionID: c.ID}
 	lastRefs, err := cr.GetCollectionRefs(ctx)
@@ -47,6 +49,7 @@ func updateReference(ctx context.Context, c *collection.Collection) error {
 	return referencerelationship.BatchDeleteCollectionReference(ctx, wantPop...)
 }
 
+// updateParamExcept 更新集合被全局参数排除关系
 func updateParamExcept(ctx context.Context, c *collection.Collection) error {
 	pe := referencerelationship.ParameterExcept{ExceptCollectionID: c.ID}
 
@@ -87,6 +90,7 @@ func updateParamExcept(ctx context.Context, c *collection.Collection) error {
 	return referencerelationship.BatchDeleteParameterExcept(ctx, wantPop...)
 }
 
+// updateSchemaRef 更新集合中引用公共模型关系
 func updateSchemaRef(c *collection.Collection, lastRefsMap map[uint]*referencerelationship.CollectionReference) (wantPop []uint, wantPush []*referencerelationship.CollectionReference) {
 	latestSchemaRefs := ParseRefSchemas(c.Content)
 
@@ -109,6 +113,7 @@ func updateSchemaRef(c *collection.Collection, lastRefsMap map[uint]*referencere
 	return wantPop, wantPush
 }
 
+// updateResponseRef 更新集合中引用公共响应关系
 func updateResponseRef(c *collection.Collection, lastRefsMap map[uint]*referencerelationship.CollectionReference) (wantPop []uint, wantPush []*referencerelationship.CollectionReference) {
 	lastResponseRefs := ParseRefResponses(c.Content)
 

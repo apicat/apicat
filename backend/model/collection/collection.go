@@ -154,6 +154,8 @@ func (c *Collection) ToSpec() (*spec.Collection, error) {
 	return sc, nil
 }
 
+// DelRefSchema 删除公共模型引用
+// deref: 是否解引用，true: 展开引用自身(collectiuon.$ref to schema detail)，false: 清除引用自身(delete $ref)
 func (c *Collection) DelRefSchema(ctx context.Context, refSchema *definition.DefinitionSchema, deref bool) error {
 	collectionSpec, err := c.ToSpec()
 	if err != nil {
@@ -183,6 +185,8 @@ func (c *Collection) DelRefSchema(ctx context.Context, refSchema *definition.Def
 	return model.DB(ctx).Model(c).Select("content").UpdateColumn("content", string(content)).Error
 }
 
+// DelRefResponse 删除公共响应引用
+// deref: 是否解引用，true: 展开引用自身(collectiuon.$ref to response detail)，false: 清除引用自身(delete $ref)
 func (c *Collection) DelRefResponse(ctx context.Context, refResponse *definition.DefinitionResponse, deref bool) error {
 	collectionSpec, err := c.ToSpec()
 	if err != nil {
@@ -212,6 +216,8 @@ func (c *Collection) DelRefResponse(ctx context.Context, refResponse *definition
 	return model.DB(ctx).Model(c).Select("content").UpdateColumn("content", string(content)).Error
 }
 
+// DelExceptParam 删除全局参数排除关系
+// unpack: 是否展开，true: 将globalParam详情添加到parameters中，false: 在glabalExcept中删除globalParamID
 func (c *Collection) DelExceptParam(ctx context.Context, exceptParam *global.GlobalParameter, unpack bool) error {
 	collectionSpec, err := c.ToSpec()
 	if err != nil {

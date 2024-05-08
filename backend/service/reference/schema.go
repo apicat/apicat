@@ -9,6 +9,7 @@ import (
 	arrutil "github.com/apicat/apicat/v2/backend/utils/array"
 )
 
+// UpdateSchemaRef 更新公共模型引用关系
 func UpdateSchemaRef(ctx context.Context, s *definition.DefinitionSchema) error {
 	sr := &referencerelationship.SchemaReference{SchemaID: s.ID}
 	lastRefs, err := sr.GetSchemaRefs(ctx)
@@ -49,129 +50,90 @@ func UpdateSchemaRef(ctx context.Context, s *definition.DefinitionSchema) error 
 	return referencerelationship.BatchDeleteSchemaReference(ctx, wantPop...)
 }
 
-func DeleteSchemaReference(ctx context.Context, s *definition.DefinitionSchema) error {
-	sr := &referencerelationship.SchemaReference{SchemaID: s.ID}
-	refs, err := sr.GetSchemaRefs(ctx)
-	if err != nil {
-		return err
+// DerefSchema 公共模型解引用
+func DerefSchema(ctx context.Context, s *definition.DefinitionSchema, deref bool) error {
+	if deref {
+		return unpackSchemaRef(ctx, s)
+	} else {
+		return clearSchemaRef(ctx, s)
 	}
-
-	var ids []uint
-	for _, item := range refs {
-		ids = append(ids, item.ID)
-	}
-
-	return referencerelationship.BatchDeleteSchemaReference(ctx, ids...)
 }
 
-func DerefSchemaFromSchemas(ctx context.Context, s *definition.DefinitionSchema, schemaIDs []uint, deref bool) error {
-	schemas, err := definition.GetDefinitionSchemas(ctx, s.ProjectID, schemaIDs...)
-	if err != nil {
-		return err
-	}
-
-	for _, schema := range schemas {
-		schema.DelRef(ctx, s, deref)
-	}
-
-	sr := &referencerelationship.SchemaReference{RefSchemaID: s.ID}
-	return sr.DelByRefSchemaID(ctx)
-}
-
-func DerefSchemaFromResponses(ctx context.Context, s *definition.DefinitionSchema, responseIDs []uint, deref bool) error {
-	responses, err := definition.GetDefinitionResponses(ctx, s.ProjectID, responseIDs...)
-	if err != nil {
-		return err
-	}
-
-	for _, response := range responses {
-		response.DelRef(ctx, s, deref)
-	}
-
-	rr := &referencerelationship.ResponseReference{RefSchemaID: s.ID}
-	return rr.DelByRefSchemaID(ctx)
-}
-
-func DerefSchemaFromCollections(ctx context.Context, s *definition.DefinitionSchema, collectionIDs []uint, deref bool) error {
-	collections, err := collection.GetCollections(ctx, s.ProjectID, collectionIDs...)
-	if err != nil {
-		return err
-	}
-
-	for _, c := range collections {
-		c.DelRefSchema(ctx, s, deref)
-	}
-
-	cr := &referencerelationship.CollectionReference{RefID: s.ID, RefType: referencerelationship.ReferenceSchema}
-	return cr.DelByRef(ctx)
-}
-
-func ClearSchemaRef(ctx context.Context, s *definition.DefinitionSchema) error {
+// clearSchemaRef 清除公共模型
+func clearSchemaRef(ctx context.Context, s *definition.DefinitionSchema) error {
+	// 清除被引用关系(schemas -> self)
 	sr := &referencerelationship.SchemaReference{RefSchemaID: s.ID}
 	schemaIDs, err := sr.GetSchemaIDsByRef(ctx)
 	if err != nil {
 		return err
 	}
-	if err := DerefSchemaFromSchemas(ctx, s, schemaIDs, false); err != nil {
+	if err := derefSchemaFromSchemas(ctx, s, schemaIDs, false); err != nil {
 		return err
 	}
 
+	// 清除被引用关系(responses -> self)
 	rr := &referencerelationship.ResponseReference{RefSchemaID: s.ID}
 	responseIDs, err := rr.GetResponseIDsByRef(ctx)
 	if err != nil {
 		return err
 	}
-	if err := DerefSchemaFromResponses(ctx, s, responseIDs, false); err != nil {
+	if err := derefSchemaFromResponses(ctx, s, responseIDs, false); err != nil {
 		return err
 	}
 
+	// 清除被引用关系(collections -> self)
 	cr := &referencerelationship.CollectionReference{RefID: s.ID, RefType: referencerelationship.ReferenceSchema}
 	collectionIDs, err := cr.GetCollectionIDsByRef(ctx)
 	if err != nil {
 		return err
 	}
-	if err := DerefSchemaFromCollections(ctx, s, collectionIDs, false); err != nil {
+	if err := derefSchemaFromCollections(ctx, s, collectionIDs, false); err != nil {
 		return err
 	}
 
-	return DeleteSchemaReference(ctx, s)
+	// 清除引用关系(self -> scheams)
+	return deleteSchemaReference(ctx, s)
 }
 
-func UnpackSchemaRef(ctx context.Context, s *definition.DefinitionSchema) error {
+// unpackSchemaRef 展开公共模型
+func unpackSchemaRef(ctx context.Context, s *definition.DefinitionSchema) error {
+	// 清除被引用关系(schemas -> self)
 	sr := &referencerelationship.SchemaReference{RefSchemaID: s.ID}
 	schemaIDs, err := sr.GetSchemaIDsByRef(ctx)
 	if err != nil {
 		return err
 	}
-	if err := DerefSchemaFromSchemas(ctx, s, schemaIDs, true); err != nil {
+	if err := derefSchemaFromSchemas(ctx, s, schemaIDs, true); err != nil {
 		return err
 	}
 
+	// 清除被引用关系(responses -> self)
 	rr := &referencerelationship.ResponseReference{RefSchemaID: s.ID}
 	responseIDs, err := rr.GetResponseIDsByRef(ctx)
 	if err != nil {
 		return err
 	}
-	if err := DerefSchemaFromResponses(ctx, s, responseIDs, true); err != nil {
+	if err := derefSchemaFromResponses(ctx, s, responseIDs, true); err != nil {
 		return err
 	}
 
+	// 清除被引用关系(collections -> self)
 	cr := &referencerelationship.CollectionReference{RefID: s.ID, RefType: referencerelationship.ReferenceSchema}
 	collectionIDs, err := cr.GetCollectionIDsByRef(ctx)
 	if err != nil {
 		return err
 	}
-	if err := DerefSchemaFromCollections(ctx, s, collectionIDs, true); err != nil {
+	if err := derefSchemaFromCollections(ctx, s, collectionIDs, true); err != nil {
 		return err
 	}
 
+	// 建立自身引用的(self -> schemas 中的schemas)与引用自身的(collections responsers schemas -> self 中的collections responsers schemas)之间的引用关系
 	sr = &referencerelationship.SchemaReference{SchemaID: s.ID}
 	schemaRefRecords, err := sr.GetSchemaRefs(ctx)
 	if err != nil {
 		return err
 	}
 
-	// 引用目标schema的schemas、responses、collections 与 目标schema的所引用的schema 建立引用关系
 	collectionWantPush := make([]*referencerelationship.CollectionReference, 0)
 	schemaWantPush := make([]*referencerelationship.SchemaReference, 0)
 	responseWantPush := make([]*referencerelationship.ResponseReference, 0)
@@ -206,5 +168,66 @@ func UnpackSchemaRef(ctx context.Context, s *definition.DefinitionSchema) error 
 	if err := referencerelationship.BatchCreateCollectionReference(ctx, collectionWantPush); err != nil {
 		return err
 	}
-	return DeleteSchemaReference(ctx, s)
+	return deleteSchemaReference(ctx, s)
+}
+
+// derefSchemaFromSchemas 从公共模型中解引用公共模型
+func derefSchemaFromSchemas(ctx context.Context, s *definition.DefinitionSchema, schemaIDs []uint, deref bool) error {
+	schemas, err := definition.GetDefinitionSchemas(ctx, s.ProjectID, schemaIDs...)
+	if err != nil {
+		return err
+	}
+
+	for _, schema := range schemas {
+		schema.DelRef(ctx, s, deref)
+	}
+
+	sr := &referencerelationship.SchemaReference{RefSchemaID: s.ID}
+	return sr.DelByRefSchemaID(ctx)
+}
+
+// derefSchemaFromResponses 从公共响应中解引用公共模型
+func derefSchemaFromResponses(ctx context.Context, s *definition.DefinitionSchema, responseIDs []uint, deref bool) error {
+	responses, err := definition.GetDefinitionResponses(ctx, s.ProjectID, responseIDs...)
+	if err != nil {
+		return err
+	}
+
+	for _, response := range responses {
+		response.DelRef(ctx, s, deref)
+	}
+
+	rr := &referencerelationship.ResponseReference{RefSchemaID: s.ID}
+	return rr.DelByRefSchemaID(ctx)
+}
+
+// derefSchemaFromCollections 从集合中解引用公共模型
+func derefSchemaFromCollections(ctx context.Context, s *definition.DefinitionSchema, collectionIDs []uint, deref bool) error {
+	collections, err := collection.GetCollections(ctx, s.ProjectID, collectionIDs...)
+	if err != nil {
+		return err
+	}
+
+	for _, c := range collections {
+		c.DelRefSchema(ctx, s, deref)
+	}
+
+	cr := &referencerelationship.CollectionReference{RefID: s.ID, RefType: referencerelationship.ReferenceSchema}
+	return cr.DelByRef(ctx)
+}
+
+// deleteSchemaReference 删除公共模型引用关系
+func deleteSchemaReference(ctx context.Context, s *definition.DefinitionSchema) error {
+	sr := &referencerelationship.SchemaReference{SchemaID: s.ID}
+	refs, err := sr.GetSchemaRefs(ctx)
+	if err != nil {
+		return err
+	}
+
+	var ids []uint
+	for _, item := range refs {
+		ids = append(ids, item.ID)
+	}
+
+	return referencerelationship.BatchDeleteSchemaReference(ctx, ids...)
 }

@@ -9,6 +9,7 @@ import (
 	arrutil "github.com/apicat/apicat/v2/backend/utils/array"
 )
 
+// UpdateResponseRef 更新公共响应引用关系
 func UpdateResponseRef(ctx context.Context, r *definition.DefinitionResponse) error {
 	rr := &referencerelationship.ResponseReference{ResponseID: r.ID}
 	lastRefs, err := rr.GetResponseRefs(ctx)
@@ -49,65 +50,52 @@ func UpdateResponseRef(ctx context.Context, r *definition.DefinitionResponse) er
 	return referencerelationship.BatchDeleteResponseReference(ctx, wantPop...)
 }
 
-func DeleteResponseReference(ctx context.Context, r *definition.DefinitionResponse) error {
-	rr := referencerelationship.ResponseReference{ResponseID: r.ID}
-	refs, err := rr.GetResponseRefs(ctx)
-	if err != nil {
-		return err
+// DerefResponse 公共响应解引用
+func DerefResponse(ctx context.Context, r *definition.DefinitionResponse, deref bool) error {
+	if deref {
+		return unpackResponseRef(ctx, r)
+	} else {
+		return clearResponseRef(ctx, r)
 	}
-
-	var ids []uint
-	for _, item := range refs {
-		ids = append(ids, item.ID)
-	}
-
-	return referencerelationship.BatchDeleteResponseReference(ctx, ids...)
 }
 
-func DerefResponseFromCollections(ctx context.Context, r *definition.DefinitionResponse, collectionIDs []uint, deref bool) error {
-	collections, err := collection.GetCollections(ctx, r.ProjectID, collectionIDs...)
-	if err != nil {
-		return err
-	}
-
-	for _, c := range collections {
-		c.DelRefResponse(ctx, r, deref)
-	}
-
-	cr := &referencerelationship.CollectionReference{RefID: r.ID, RefType: referencerelationship.ReferenceResponse}
-	return cr.DelByRef(ctx)
-}
-
-func ClearResponseRef(ctx context.Context, r *definition.DefinitionResponse) error {
+// clearResponseRef 清除公共响应
+func clearResponseRef(ctx context.Context, r *definition.DefinitionResponse) error {
+	// 清除被引用关系(collections -> self)
 	cr := &referencerelationship.CollectionReference{RefID: r.ID, RefType: referencerelationship.ReferenceResponse}
 	collectionIDs, err := cr.GetCollectionIDsByRef(ctx)
 	if err != nil {
 		return err
 	}
-	if err := DerefResponseFromCollections(ctx, r, collectionIDs, false); err != nil {
+
+	if err := derefResponseFromCollections(ctx, r, collectionIDs, false); err != nil {
 		return err
 	}
 
-	return DeleteResponseReference(ctx, r)
+	// 清除引用关系(self -> scheams)
+	return deleteResponseReference(ctx, r)
 }
 
-func UnpackResponseRef(ctx context.Context, r *definition.DefinitionResponse) error {
+// unpackResponseRef 展开公共响应
+func unpackResponseRef(ctx context.Context, r *definition.DefinitionResponse) error {
+	// 清除被引用关系(collections -> self)
 	cr := &referencerelationship.CollectionReference{RefID: r.ID, RefType: referencerelationship.ReferenceResponse}
 	collectionIDs, err := cr.GetCollectionIDsByRef(ctx)
 	if err != nil {
 		return err
 	}
-	if err := DerefResponseFromCollections(ctx, r, collectionIDs, false); err != nil {
+
+	if err := derefResponseFromCollections(ctx, r, collectionIDs, true); err != nil {
 		return err
 	}
 
+	// 建立自身引用的(self -> schemas 中的schemas)与引用自身的(collections -> self 中的collections)之间的引用关系
 	rr := referencerelationship.ResponseReference{ResponseID: r.ID}
 	responseRefRecords, err := rr.GetResponseRefs(ctx)
 	if err != nil {
 		return err
 	}
 
-	// 引用目标schema的schemas、responses、collections 与 目标schema的所引用的schema 建立引用关系
 	collectionWantPush := make([]*referencerelationship.CollectionReference, 0)
 	for _, v := range responseRefRecords {
 		for _, c := range collectionIDs {
@@ -122,5 +110,37 @@ func UnpackResponseRef(ctx context.Context, r *definition.DefinitionResponse) er
 		return err
 	}
 
-	return DeleteResponseReference(ctx, r)
+	// 清除引用关系(self -> scheams)
+	return deleteResponseReference(ctx, r)
+}
+
+// derefResponseFromCollections 从集合中解引用公共响应
+func derefResponseFromCollections(ctx context.Context, r *definition.DefinitionResponse, collectionIDs []uint, deref bool) error {
+	collections, err := collection.GetCollections(ctx, r.ProjectID, collectionIDs...)
+	if err != nil {
+		return err
+	}
+
+	for _, c := range collections {
+		c.DelRefResponse(ctx, r, deref)
+	}
+
+	cr := &referencerelationship.CollectionReference{RefID: r.ID, RefType: referencerelationship.ReferenceResponse}
+	return cr.DelByRef(ctx)
+}
+
+// deleteResponseReference 删除公共响应引用关系
+func deleteResponseReference(ctx context.Context, r *definition.DefinitionResponse) error {
+	rr := referencerelationship.ResponseReference{ResponseID: r.ID}
+	refs, err := rr.GetResponseRefs(ctx)
+	if err != nil {
+		return err
+	}
+
+	var ids []uint
+	for _, item := range refs {
+		ids = append(ids, item.ID)
+	}
+
+	return referencerelationship.BatchDeleteResponseReference(ctx, ids...)
 }
