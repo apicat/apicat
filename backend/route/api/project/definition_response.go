@@ -196,14 +196,8 @@ func (drai *definitionResponseApiImpl) Delete(ctx *gin.Context, opt *projectrequ
 	}
 
 	if dr.Type != definition.ResponseCategory {
-		if opt.Deref {
-			if err := definitionrelations.UnpackResponseReferences(ctx, dr); err != nil {
-				slog.ErrorContext(ctx, "definitionrelations.UnpackResponseReferences", "err", err)
-			}
-		} else {
-			if err := definitionrelations.RemoveResponseReferences(ctx, dr); err != nil {
-				slog.ErrorContext(ctx, "definitionrelations.RemoveResponseReferences", "err", err)
-			}
+		if err := reference.DerefResponse(ctx, dr, opt.Deref); err != nil {
+			slog.ErrorContext(ctx, "reference.DerefResponse", "err", err)
 		}
 	}
 

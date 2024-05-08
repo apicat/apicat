@@ -193,14 +193,8 @@ func (dsai *definitionSchemaApiImpl) Delete(ctx *gin.Context, opt *projectreques
 	}
 
 	if ds.Type != definition.SchemaCategory {
-		if opt.Deref {
-			if err := definitionrelations.UnpackDefinitionSchemaReferences(ctx, ds); err != nil {
-				slog.ErrorContext(ctx, "definitionrelations.UnpackDefinitionSchemaReferences", "err", err)
-			}
-		} else {
-			if err := definitionrelations.RemoveDefinitionSchemaReferences(ctx, ds); err != nil {
-				slog.ErrorContext(ctx, "definitionrelations.RemoveDefinitionSchemaReferences", "err", err)
-			}
+		if err := reference.DerefSchema(ctx, ds, opt.Deref); err != nil {
+			slog.ErrorContext(ctx, "reference.DerefSchema", "err", err)
 		}
 	}
 

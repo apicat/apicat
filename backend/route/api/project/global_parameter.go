@@ -12,6 +12,7 @@ import (
 	protoproject "github.com/apicat/apicat/v2/backend/route/proto/project"
 	projectrequest "github.com/apicat/apicat/v2/backend/route/proto/project/request"
 	projectresponse "github.com/apicat/apicat/v2/backend/route/proto/project/response"
+	"github.com/apicat/apicat/v2/backend/service/except"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -152,15 +153,9 @@ func (gpai *globalParameterApiImpl) Delete(ctx *gin.Context, opt *projectrequest
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("globalParameter.FailedToDelete"))
 	}
 
-	if opt.Deref {
-		if err := globalrelations.UnpackExceptGlobalParameter(ctx, gp); err != nil {
-			slog.ErrorContext(ctx, "globalrelations.UnpackGlobalParametersInCollection", "err", err)
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("globalParameter.FailedToDelete"))
-		}
-	} else {
-		if err := globalrelations.RemoveExceptGlobalParameter(ctx, gp); err != nil {
-			slog.ErrorContext(ctx, "globalrelations.RemoveExceptGlobalParameter", "err", err)
-		}
+	if err := except.DerefParamExcept(ctx, gp, opt.Deref); err != nil {
+		slog.ErrorContext(ctx, "except.DerefParamExcept", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("globalParameter.FailedToDelete"))
 	}
 
 	return &ginrpc.Empty{}, nil
