@@ -71,6 +71,12 @@ func (s *Model) DelRef(ref *Model) {
 	s.Schema.DelChildrenRef(ref.Schema)
 }
 
+func (s *Model) SetXDiff(x string) {
+	if s.Schema != nil {
+		s.Schema.SetXDiff(x)
+	}
+}
+
 func (s *Models) FindByName(name string) *Model {
 	if s == nil {
 		return nil

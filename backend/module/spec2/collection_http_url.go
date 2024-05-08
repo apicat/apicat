@@ -10,6 +10,7 @@ type CollectionHttpUrl struct {
 type HttpUrlAttrs struct {
 	Path   string `json:"path" yaml:"path"`
 	Method string `json:"method" yaml:"method"`
+	XDiff  string `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
 }
 
 func NewCollectionHttpUrl(p, m string) *CollectionHttpUrl {
@@ -24,4 +25,8 @@ func NewCollectionHttpUrl(p, m string) *CollectionHttpUrl {
 
 func (u *CollectionHttpUrl) NodeType() string {
 	return u.Type
+}
+
+func (u *CollectionHttpUrl) SetXDiff(x string) {
+	u.Attrs.XDiff = x
 }

@@ -13,3 +13,9 @@ type Example struct {
 }
 
 type HTTPBody map[string]*Body
+
+func (b *HTTPBody) SetXDiff(x string) {
+	for _, v := range *b {
+		v.Schema.SetXDiff(x)
+	}
+}

@@ -13,6 +13,8 @@ type Parameter struct {
 
 type ParameterList []*Parameter
 
+var HttpParameterType = []string{"query", "path", "cookie", "header"}
+
 type HTTPParameters struct {
 	Query  ParameterList `json:"query" yaml:"query"`
 	Path   ParameterList `json:"path" yaml:"path"`
@@ -25,6 +27,21 @@ func (p *Parameter) SetXDiff(x string) {
 		p.Schema.SetXDiff(x)
 	}
 	p.XDiff = x
+}
+
+func (p *Parameter) EqualNomal(o *Parameter, OnlyCore bool) (b bool) {
+	b = true
+	if OnlyCore {
+		if p.Required != o.Required {
+			b = false
+		}
+		return b
+	} else {
+		if p.Description != o.Description || p.Required != o.Required {
+			b = false
+		}
+	}
+	return b
 }
 
 func (pl *ParameterList) FindByID(id int64) *Parameter {
@@ -59,6 +76,12 @@ func (pl *ParameterList) DelByID(id int64) {
 		if v.ID == id {
 			*pl = append((*pl)[:i], (*pl)[i+1:]...)
 		}
+	}
+}
+
+func (pl *ParameterList) SetXDiff(x string) {
+	for _, v := range *pl {
+		v.SetXDiff(x)
 	}
 }
 

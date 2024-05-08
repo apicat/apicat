@@ -13,6 +13,7 @@ type Response struct {
 	Header      ParameterList `json:"header,omitempty" yaml:"header,omitempty"`
 	Content     HTTPBody      `json:"content" yaml:"content"`
 	Reference   string        `json:"$ref,omitempty" yaml:"$ref,omitempty"`
+	XDiff       string        `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
 }
 
 type Responses []*Response
@@ -59,6 +60,11 @@ func (r *Response) ReplaceRef(ref *Response) {
 	*r = *ref
 }
 
+func (r *Response) SetXDiff(x string) {
+	r.Header.SetXDiff(x)
+	r.Content.SetXDiff(x)
+}
+
 func (r *Responses) FindByCode(code int) *Response {
 	for _, v := range *r {
 		if v.Code == code {
@@ -74,4 +80,14 @@ func (r *Responses) ToMap() map[int]*Response {
 		m[v.Code] = v
 	}
 	return m
+}
+
+func (r *Responses) AddOrUpdate(res *Response) {
+	for _, v := range *r {
+		if v.Code == res.Code {
+			*v = *res
+			return
+		}
+	}
+	*r = append(*r, res)
 }
