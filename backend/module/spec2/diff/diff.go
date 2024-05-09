@@ -70,11 +70,11 @@ func Diff(original, target *spec2.Collection) error {
 	return nil
 }
 
-func DiffModel(original, target *spec2.Model) error {
+func DiffModel(original, target *spec2.DefinitionModel) error {
 	if original == nil || target == nil {
 		return errors.New("model is nil")
 	}
-	copy_original := &spec2.Model{}
+	copy_original := &spec2.DefinitionModel{}
 	bb, err := json.Marshal(original)
 	if err != nil {
 		return err

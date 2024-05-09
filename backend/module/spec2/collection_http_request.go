@@ -153,7 +153,41 @@ func (r *CollectionHttpRequest) DelGlobalExcept(in string, id int64) {
 	}
 }
 
-func (r *CollectionHttpRequest) Deref(ref *Model) {
+func (r *CollectionHttpRequest) DerefGlobalParameters(params *GlobalParameters) {
+	if r == nil || r.Attrs == nil || params == nil {
+		return
+	}
+
+	if len(params.Query) > 0 {
+		for _, p := range params.Query {
+			if r.Attrs.GlobalExcepts.Exist("query", p.ID) {
+				continue
+			}
+			r.Attrs.Parameters.Add("query", p)
+		}
+		r.Attrs.GlobalExcepts.Clear("query")
+	}
+	if len(params.Cookie) > 0 {
+		for _, p := range params.Cookie {
+			if r.Attrs.GlobalExcepts.Exist("cookie", p.ID) {
+				continue
+			}
+			r.Attrs.Parameters.Add("cookie", p)
+		}
+		r.Attrs.GlobalExcepts.Clear("cookie")
+	}
+	if len(params.Header) > 0 {
+		for _, p := range params.Header {
+			if r.Attrs.GlobalExcepts.Exist("header", p.ID) {
+				continue
+			}
+			r.Attrs.Parameters.Add("header", p)
+		}
+		r.Attrs.GlobalExcepts.Clear("header")
+	}
+}
+
+func (r *CollectionHttpRequest) DerefModel(ref *DefinitionModel) {
 	if r == nil || r.Attrs == nil || r.Attrs.Content == nil || ref == nil {
 		return
 	}
@@ -171,7 +205,7 @@ func (r *CollectionHttpRequest) Deref(ref *Model) {
 	}
 }
 
-func (r *CollectionHttpRequest) DelRef(ref *Model) {
+func (r *CollectionHttpRequest) DelRefModel(ref *DefinitionModel) {
 	if r == nil || r.Attrs == nil || r.Attrs.Content == nil || ref == nil {
 		return
 	}
@@ -184,5 +218,48 @@ func (r *CollectionHttpRequest) DelRef(ref *Model) {
 			}
 			v.Schema.DelChildrenRef(ref.Schema)
 		}
+	}
+}
+
+func (g *HttpRequestGlobalExcepts) Exist(in string, id int64) bool {
+	if g == nil || id == 0 {
+		return false
+	}
+
+	switch in {
+	case "header":
+		for _, v := range g.Header {
+			if v == id {
+				return true
+			}
+		}
+	case "cookie":
+		for _, v := range g.Cookie {
+			if v == id {
+				return true
+			}
+		}
+	case "query":
+		for _, v := range g.Query {
+			if v == id {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (g *HttpRequestGlobalExcepts) Clear(in string) {
+	if g == nil {
+		return
+	}
+
+	switch in {
+	case "header":
+		g.Header = []int64{}
+	case "cookie":
+		g.Cookie = []int64{}
+	case "query":
+		g.Query = []int64{}
 	}
 }

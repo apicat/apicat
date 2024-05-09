@@ -38,7 +38,7 @@ func (r *CollectionHttpResponse) DerefResponse(ref *DefinitionResponse) {
 	}
 }
 
-func (r *CollectionHttpResponse) DerefModel(ref *Model) {
+func (r *CollectionHttpResponse) DerefModel(ref *DefinitionModel) {
 	if r == nil || r.Attrs == nil || ref == nil {
 		return
 	}
@@ -74,7 +74,7 @@ func (r *CollectionHttpResponse) DelRefResponse(ref *DefinitionResponse) {
 	}
 }
 
-func (r *CollectionHttpResponse) DelRefModel(ref *Model) {
+func (r *CollectionHttpResponse) DelRefModel(ref *DefinitionModel) {
 	if r == nil || r.Attrs == nil || ref == nil {
 		return
 	}

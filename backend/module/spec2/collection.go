@@ -24,7 +24,7 @@ func NewCollection(title, typ string) *Collection {
 	}
 }
 
-func (c *Collection) DerefModel(ref *Model) {
+func (c *Collection) DerefModel(ref *DefinitionModel) {
 	if c == nil {
 		return
 	}
@@ -32,7 +32,7 @@ func (c *Collection) DerefModel(ref *Model) {
 	for _, node := range c.Content {
 		switch node.NodeType() {
 		case NODE_HTTP_REQUEST:
-			node.ToHttpRequest().Deref(ref)
+			node.ToHttpRequest().DerefModel(ref)
 		case NODE_HTTP_RESPONSE:
 			node.ToHttpResponse().DerefModel(ref)
 		}
@@ -52,7 +52,7 @@ func (c *Collection) DerefResponse(ref *DefinitionResponse) {
 	}
 }
 
-func (c *Collection) DelRefModel(ref *Model) {
+func (c *Collection) DelRefModel(ref *DefinitionModel) {
 	if c == nil {
 		return
 	}
@@ -60,7 +60,7 @@ func (c *Collection) DelRefModel(ref *Model) {
 	for _, node := range c.Content {
 		switch node.NodeType() {
 		case NODE_HTTP_REQUEST:
-			node.ToHttpRequest().DelRef(ref)
+			node.ToHttpRequest().DelRefModel(ref)
 		case NODE_HTTP_RESPONSE:
 			node.ToHttpResponse().DelRefModel(ref)
 		}
@@ -76,6 +76,19 @@ func (c *Collection) DelRefResponse(ref *DefinitionResponse) {
 		switch node.NodeType() {
 		case NODE_HTTP_RESPONSE:
 			node.ToHttpResponse().DelRefResponse(ref)
+		}
+	}
+}
+
+func (c *Collection) DerefGlobalParameters(params *GlobalParameters) {
+	if c == nil || params == nil {
+		return
+	}
+
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case NODE_HTTP_REQUEST:
+			node.ToHttpRequest().DerefGlobalParameters(params)
 		}
 	}
 }
@@ -131,5 +144,30 @@ func (c *Collection) AddGlobalExcept(in string, id int64) {
 		case NODE_HTTP_REQUEST:
 			node.ToHttpRequest().AddGlobalExcept(in, id)
 		}
+	}
+}
+
+// Make sure the order of the content is: URL, Request, Response
+func (c *Collection) HttpFormat() {
+	if c == nil || c.Type != TYPE_HTTP || len(c.Content) < 3 {
+		return
+	}
+
+	for i, node := range c.Content {
+		if node.NodeType() == NODE_HTTP_URL {
+			c.Content[0], c.Content[i] = c.Content[i], c.Content[0]
+		}
+		if node.NodeType() == NODE_HTTP_REQUEST {
+			c.Content[1], c.Content[i] = c.Content[i], c.Content[1]
+		}
+		if node.NodeType() == NODE_HTTP_RESPONSE {
+			c.Content[2], c.Content[i] = c.Content[i], c.Content[2]
+		}
+	}
+}
+
+func (c *Collection) DeepDerefAllDefinitions(refModels DefinitionModels, refResponses DefinitionResponses) {
+	if c == nil {
+		return
 	}
 }

@@ -155,6 +155,27 @@ func (s *Schema) DeepGetRefID() (ids []int64) {
 	return
 }
 
+func (s *Schema) DeepGetRef() (refs []*Schema) {
+	if s == nil {
+		return nil
+	}
+
+	if s.Ref() {
+		refs = append(refs, s)
+	}
+
+	if s.Properties != nil {
+		for _, v := range s.Properties {
+			refs = append(refs, v.DeepGetRef()...)
+		}
+	}
+
+	if s.Items != nil && !s.Items.IsBool() {
+		refs = append(refs, s.Items.Value().DeepGetRef()...)
+	}
+	return
+}
+
 func (s *Schema) ReplaceRef(ref *Schema) {
 	if !s.Ref() || ref == nil {
 		return
@@ -166,6 +187,22 @@ func (s *Schema) ReplaceRef(ref *Schema) {
 	}
 
 	*s = *ref
+}
+
+func (s *Schema) DeepReplaceRef(schemaMap map[int64]*Schema) {
+	if s == nil || len(schemaMap) == 0 {
+		return
+	}
+
+	refs := s.DeepGetRef()
+	for len(refs) > 0 {
+		for _, ref := range refs {
+			if schema, ok := schemaMap[ref.GetRefID()]; ok {
+				ref.ReplaceRef(schema)
+			}
+		}
+		refs = s.DeepGetRef()
+	}
 }
 
 func (s *Schema) DelRootRef(ref *Schema) {

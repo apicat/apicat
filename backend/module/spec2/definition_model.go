@@ -9,20 +9,20 @@ import (
 
 const TYPE_MODEL = "schema"
 
-type Model struct {
+type DefinitionModel struct {
 	ID          int64              `json:"id,omitempty" yaml:"id,omitempty"`
 	ParentId    uint64             `json:"parentid,omitempty" yaml:"parentid,omitempty"`
 	Name        string             `json:"name,omitempty" yaml:"name,omitempty"`
 	Type        string             `json:"type,omitempty" yaml:"type,omitempty"`
 	Description string             `json:"description,omitempty" yaml:"description,omitempty"`
 	Schema      *jsonschema.Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
-	Items       Models             `json:"items,omitempty" yaml:"items,omitempty"`
+	Items       DefinitionModels   `json:"items,omitempty" yaml:"items,omitempty"`
 }
 
-type Models []*Model
+type DefinitionModels []*DefinitionModel
 
-func NewModelFromJson(str string) (*Model, error) {
-	s := &Model{}
+func NewModelFromJson(str string) (*DefinitionModel, error) {
+	s := &DefinitionModel{}
 	if err := json.Unmarshal([]byte(str), s); err != nil {
 		return nil, err
 	}
@@ -31,17 +31,17 @@ func NewModelFromJson(str string) (*Model, error) {
 }
 
 // The id referenced by this model itself
-func (s *Model) RefID() int64 {
+func (s *DefinitionModel) RefID() int64 {
 	return s.Schema.GetRefID()
 }
 
 // The id referenced by the model itself and its child elements
-func (s *Model) RefIDs() []int64 {
+func (s *DefinitionModel) RefIDs() []int64 {
 	return s.Schema.DeepGetRefID()
 }
 
 // Model(s) refers to Model(ref), removes the reference relationship between s and ref, and replaces the content of ref into s.
-func (s *Model) Deref(ref *Model) {
+func (s *DefinitionModel) Deref(ref *DefinitionModel) {
 	if s == nil || ref == nil {
 		return
 	}
@@ -57,7 +57,14 @@ func (s *Model) Deref(ref *Model) {
 	}
 }
 
-func (s *Model) DelRef(ref *Model) {
+func (s *DefinitionModel) DeepDeref(refs DefinitionModels) {
+	if s == nil || refs == nil {
+		return
+	}
+	s.Schema.DeepReplaceRef(refs.ToJsonSchemaMap())
+}
+
+func (s *DefinitionModel) DelRef(ref *DefinitionModel) {
 	if s == nil || ref == nil {
 		return
 	}
@@ -71,13 +78,13 @@ func (s *Model) DelRef(ref *Model) {
 	s.Schema.DelChildrenRef(ref.Schema)
 }
 
-func (s *Model) SetXDiff(x string) {
+func (s *DefinitionModel) SetXDiff(x string) {
 	if s.Schema != nil {
 		s.Schema.SetXDiff(x)
 	}
 }
 
-func (s *Models) FindByName(name string) *Model {
+func (s *DefinitionModels) FindByName(name string) *DefinitionModel {
 	if s == nil {
 		return nil
 	}
@@ -93,7 +100,7 @@ func (s *Models) FindByName(name string) *Model {
 	return nil
 }
 
-func (s *Models) FindByID(id int64) *Model {
+func (s *DefinitionModels) FindByID(id int64) *DefinitionModel {
 	if s == nil {
 		return nil
 	}
@@ -109,7 +116,7 @@ func (s *Models) FindByID(id int64) *Model {
 	return nil
 }
 
-func (s *Models) DelByID(id int64) {
+func (s *DefinitionModels) DelByID(id int64) {
 	if s == nil {
 		return
 	}
@@ -122,4 +129,13 @@ func (s *Models) DelByID(id int64) {
 			}
 		}
 	}
+}
+
+func (s *DefinitionModels) ToJsonSchemaMap() map[int64]*jsonschema.Schema {
+	result := make(map[int64]*jsonschema.Schema)
+	for _, v := range *s {
+		v.Schema.ID = v.ID
+		result[v.ID] = v.Schema
+	}
+	return result
 }

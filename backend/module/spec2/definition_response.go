@@ -37,7 +37,7 @@ func (r *DefinitionResponse) RefIDs() (ids []int64) {
 	return
 }
 
-func (r *DefinitionResponse) Deref(ref *Model) {
+func (r *DefinitionResponse) Deref(ref *DefinitionModel) {
 	if r == nil || r.Content == nil || ref == nil {
 		return
 	}
@@ -55,7 +55,19 @@ func (r *DefinitionResponse) Deref(ref *Model) {
 	}
 }
 
-func (r *DefinitionResponse) DelRef(ref *Model) {
+func (r *DefinitionResponse) DeepDeref(refs DefinitionModels) {
+	if r == nil || r.Content == nil || refs == nil {
+		return
+	}
+
+	for _, v := range r.Content {
+		if v.Schema != nil {
+			v.Schema.DeepReplaceRef(refs.ToJsonSchemaMap())
+		}
+	}
+}
+
+func (r *DefinitionResponse) DelRef(ref *DefinitionModel) {
 	if r == nil || r.Content == nil || ref == nil {
 		return
 	}
