@@ -1,6 +1,7 @@
 package jsonschema
 
 import (
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -83,6 +84,30 @@ func NewSchema(typ string) *Schema {
 
 func (s *Schema) Ref() bool { return s != nil && s.Reference != "" }
 
+func (s *Schema) DeepRef() bool {
+	if s == nil {
+		return false
+	}
+
+	if s.Ref() {
+		return true
+	}
+
+	if s.Properties != nil {
+		for _, v := range s.Properties {
+			if v.DeepRef() {
+				return true
+			}
+		}
+	}
+
+	if s.Items != nil && !s.Items.IsBool() {
+		return s.Items.Value().DeepRef()
+	}
+	return false
+
+}
+
 // Check if the schema refers to this id
 func (s *Schema) IsRefID(id string) bool {
 	if s == nil || s.Reference == "" {
@@ -155,54 +180,18 @@ func (s *Schema) DeepGetRefID() (ids []int64) {
 	return
 }
 
-func (s *Schema) DeepGetRef() (refs []*Schema) {
-	if s == nil {
-		return nil
-	}
-
-	if s.Ref() {
-		refs = append(refs, s)
-	}
-
-	if s.Properties != nil {
-		for _, v := range s.Properties {
-			refs = append(refs, v.DeepGetRef()...)
-		}
-	}
-
-	if s.Items != nil && !s.Items.IsBool() {
-		refs = append(refs, s.Items.Value().DeepGetRef()...)
-	}
-	return
-}
-
-func (s *Schema) ReplaceRef(ref *Schema) {
+func (s *Schema) ReplaceRef(ref *Schema) error {
 	if !s.Ref() || ref == nil {
-		return
+		return errors.New("schema is not a reference or ref is nil")
 	}
 
 	refID := s.GetRefID()
 	if refID != ref.ID {
-		return
+		return errors.New("ref id does not match")
 	}
 
 	*s = *ref
-}
-
-func (s *Schema) DeepReplaceRef(schemaMap map[int64]*Schema) {
-	if s == nil || len(schemaMap) == 0 {
-		return
-	}
-
-	refs := s.DeepGetRef()
-	for len(refs) > 0 {
-		for _, ref := range refs {
-			if schema, ok := schemaMap[ref.GetRefID()]; ok {
-				ref.ReplaceRef(schema)
-			}
-		}
-		refs = s.DeepGetRef()
-	}
+	return nil
 }
 
 func (s *Schema) DelRootRef(ref *Schema) {

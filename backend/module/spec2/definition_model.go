@@ -2,6 +2,7 @@ package spec2
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
 
 	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
@@ -41,9 +42,9 @@ func (s *DefinitionModel) RefIDs() []int64 {
 }
 
 // Model(s) refers to Model(ref), removes the reference relationship between s and ref, and replaces the content of ref into s.
-func (s *DefinitionModel) Deref(ref *DefinitionModel) {
+func (s *DefinitionModel) Deref(ref *DefinitionModel) error {
 	if s == nil || ref == nil {
-		return
+		return errors.New("model is nil")
 	}
 
 	s.Schema.ID = s.ID
@@ -52,16 +53,26 @@ func (s *DefinitionModel) Deref(ref *DefinitionModel) {
 	refSchemas := s.Schema.DeepFindRefById(strconv.FormatInt(ref.ID, 10))
 	if len(refSchemas) > 0 {
 		for _, schema := range refSchemas {
-			schema.ReplaceRef(ref.Schema)
+			if err := schema.ReplaceRef(ref.Schema); err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
-func (s *DefinitionModel) DeepDeref(refs DefinitionModels) {
+func (s *DefinitionModel) DeepDeref(refs DefinitionModels) error {
 	if s == nil || refs == nil {
-		return
+		return errors.New("model is nil")
 	}
-	s.Schema.DeepReplaceRef(refs.ToJsonSchemaMap())
+
+	helper := jsonschema.NewDerefHelper(refs.ToJsonSchemaMap())
+	new, err := helper.DeepDeref(s.Schema)
+	if err != nil {
+		return err
+	}
+	s.Schema = &new
+	return nil
 }
 
 func (s *DefinitionModel) DelRef(ref *DefinitionModel) {
@@ -129,6 +140,22 @@ func (s *DefinitionModels) DelByID(id int64) {
 			}
 		}
 	}
+}
+
+func (s *DefinitionModels) RemoveDir() DefinitionModels {
+	if s == nil {
+		return nil
+	}
+
+	result := DefinitionModels{}
+	for _, v := range *s {
+		if v.Type == TYPE_CATEGORY {
+			result = append(result, v.Items.RemoveDir()...)
+		}
+		result = append(result, v)
+	}
+	return result
+
 }
 
 func (s *DefinitionModels) ToJsonSchemaMap() map[int64]*jsonschema.Schema {

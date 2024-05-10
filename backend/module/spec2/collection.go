@@ -167,7 +167,7 @@ func (c *Collection) HttpFormat() {
 }
 
 func (c *Collection) DeepDerefAllDefinitions(refModels DefinitionModels, refResponses DefinitionResponses) {
-	if c == nil {
+	if c == nil || c.Type != TYPE_HTTP {
 		return
 	}
 }

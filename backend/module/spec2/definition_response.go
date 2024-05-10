@@ -2,7 +2,10 @@ package spec2
 
 import (
 	"encoding/json"
+	"errors"
 	"strconv"
+
+	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
 )
 
 const TYPE_RESPONSE = "response"
@@ -55,16 +58,23 @@ func (r *DefinitionResponse) Deref(ref *DefinitionModel) {
 	}
 }
 
-func (r *DefinitionResponse) DeepDeref(refs DefinitionModels) {
+func (r *DefinitionResponse) DeepDeref(refs DefinitionModels) error {
 	if r == nil || r.Content == nil || refs == nil {
-		return
+		return errors.New("model is nil")
 	}
+
+	helper := jsonschema.NewDerefHelper(refs.ToJsonSchemaMap())
 
 	for _, v := range r.Content {
 		if v.Schema != nil {
-			v.Schema.DeepReplaceRef(refs.ToJsonSchemaMap())
+			s, err := helper.DeepDeref(v.Schema)
+			if err != nil {
+				return err
+			}
+			v.Schema = &s
 		}
 	}
+	return nil
 }
 
 func (r *DefinitionResponse) DelRef(ref *DefinitionModel) {
