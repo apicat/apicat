@@ -1,5 +1,7 @@
 package spec2
 
+import "errors"
+
 const (
 	TYPE_HTTP = "http"
 	TYPE_DOC  = "doc"
@@ -166,8 +168,24 @@ func (c *Collection) HttpFormat() {
 	}
 }
 
-func (c *Collection) DeepDerefAllDefinitions(refModels DefinitionModels, refResponses DefinitionResponses) {
+func (c *Collection) DeepDerefAllDefinitions(refModels DefinitionModels, refResponses DefinitionResponses) error {
 	if c == nil || c.Type != TYPE_HTTP {
-		return
+		return errors.New("collection is nil")
 	}
+
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case NODE_HTTP_REQUEST:
+			if err := node.ToHttpRequest().DeepDerefModel(refModels); err != nil {
+				return err
+			}
+		case NODE_HTTP_RESPONSE:
+			res := node.ToHttpResponse()
+			res.DerefAllResponses(refResponses)
+			if err := res.DeepDerefModel(refModels); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }

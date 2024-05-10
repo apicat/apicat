@@ -161,8 +161,10 @@ func (s *DefinitionModels) RemoveDir() DefinitionModels {
 func (s *DefinitionModels) ToJsonSchemaMap() map[int64]*jsonschema.Schema {
 	result := make(map[int64]*jsonschema.Schema)
 	for _, v := range *s {
-		v.Schema.ID = v.ID
-		result[v.ID] = v.Schema
+		if v.Type == TYPE_MODEL {
+			v.Schema.ID = v.ID
+			result[v.ID] = v.Schema
+		}
 	}
 	return result
 }

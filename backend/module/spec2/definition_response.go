@@ -140,3 +140,17 @@ func (r *DefinitionResponses) DelByID(id int64) {
 		}
 	}
 }
+
+func (r *DefinitionResponses) ToMap() map[int64]*DefinitionResponse {
+	if r == nil {
+		return nil
+	}
+
+	m := make(map[int64]*DefinitionResponse)
+	for _, v := range *r {
+		if v.Type == TYPE_RESPONSE {
+			m[v.ID] = v
+		}
+	}
+	return m
+}

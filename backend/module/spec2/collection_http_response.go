@@ -1,6 +1,11 @@
 package spec2
 
-import "strconv"
+import (
+	"errors"
+	"strconv"
+
+	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
+)
 
 const NODE_HTTP_RESPONSE = "apicat-http-response"
 
@@ -38,9 +43,25 @@ func (r *CollectionHttpResponse) DerefResponse(ref *DefinitionResponse) {
 	}
 }
 
-func (r *CollectionHttpResponse) DerefModel(ref *DefinitionModel) {
-	if r == nil || r.Attrs == nil || ref == nil {
+func (r *CollectionHttpResponse) DerefAllResponses(refs DefinitionResponses) {
+	if r == nil || r.Attrs == nil || refs == nil {
 		return
+	}
+
+	refsMap := refs.ToMap()
+
+	for _, res := range r.Attrs.List {
+		if res.Ref() {
+			if ref, ok := refsMap[res.GetRefID()]; ok {
+				res.ReplaceRef(&ref.Response)
+			}
+		}
+	}
+}
+
+func (r *CollectionHttpResponse) DerefModel(ref *DefinitionModel) error {
+	if r == nil || r.Attrs == nil || ref == nil {
+		return errors.New("model is nil")
 	}
 
 	for _, res := range r.Attrs.List {
@@ -53,12 +74,40 @@ func (r *CollectionHttpResponse) DerefModel(ref *DefinitionModel) {
 				refSchemas := v.Schema.DeepFindRefById(strconv.FormatInt(ref.ID, 10))
 				if len(refSchemas) > 0 {
 					for _, schema := range refSchemas {
-						schema.ReplaceRef(ref.Schema)
+						if err := schema.ReplaceRef(ref.Schema); err != nil {
+							return err
+						}
 					}
 				}
 			}
 		}
 	}
+	return nil
+}
+
+func (r *CollectionHttpResponse) DeepDerefModel(refs DefinitionModels) error {
+	if r == nil || r.Attrs == nil || refs == nil {
+		return errors.New("model is nil")
+	}
+
+	helper := jsonschema.NewDerefHelper(refs.ToJsonSchemaMap())
+
+	for _, res := range r.Attrs.List {
+		if res.Content == nil {
+			continue
+		}
+
+		for _, v := range res.Content {
+			if v.Schema != nil {
+				new, err := helper.DeepDeref(v.Schema)
+				if err != nil {
+					return err
+				}
+				v.Schema = &new
+			}
+		}
+	}
+	return nil
 }
 
 func (r *CollectionHttpResponse) DelRefResponse(ref *DefinitionResponse) {

@@ -19,7 +19,7 @@ func NewDerefHelper(refs map[int64]*Schema) *DerefHelper {
 
 func (h *DerefHelper) DeepDeref(s *Schema) (Schema, error) {
 	copySchema := &Schema{}
-	if h == nil || s.ID == 0 {
+	if h == nil {
 		return *copySchema, errors.New("schema id is 0")
 	}
 

@@ -1,6 +1,11 @@
 package spec2
 
-import "strconv"
+import (
+	"errors"
+	"strconv"
+
+	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
+)
 
 const NODE_HTTP_REQUEST = "apicat-http-request"
 
@@ -187,9 +192,9 @@ func (r *CollectionHttpRequest) DerefGlobalParameters(params *GlobalParameters) 
 	}
 }
 
-func (r *CollectionHttpRequest) DerefModel(ref *DefinitionModel) {
+func (r *CollectionHttpRequest) DerefModel(ref *DefinitionModel) error {
 	if r == nil || r.Attrs == nil || r.Attrs.Content == nil || ref == nil {
-		return
+		return errors.New("model is nil")
 	}
 	ref.Schema.ID = ref.ID
 
@@ -198,11 +203,33 @@ func (r *CollectionHttpRequest) DerefModel(ref *DefinitionModel) {
 			refSchemas := v.Schema.DeepFindRefById(strconv.FormatInt(ref.ID, 10))
 			if len(refSchemas) > 0 {
 				for _, schema := range refSchemas {
-					schema.ReplaceRef(ref.Schema)
+					if err := schema.ReplaceRef(ref.Schema); err != nil {
+						return err
+					}
 				}
 			}
 		}
 	}
+	return nil
+}
+
+func (r *CollectionHttpRequest) DeepDerefModel(refs DefinitionModels) error {
+	if r == nil || r.Attrs == nil || r.Attrs.Content == nil || refs == nil {
+		return errors.New("model is nil")
+	}
+
+	helper := jsonschema.NewDerefHelper(refs.ToJsonSchemaMap())
+
+	for _, v := range r.Attrs.Content {
+		if v.Schema != nil {
+			new, err := helper.DeepDeref(v.Schema)
+			if err != nil {
+				return err
+			}
+			v.Schema = &new
+		}
+	}
+	return nil
 }
 
 func (r *CollectionHttpRequest) DelRefModel(ref *DefinitionModel) {
