@@ -9,6 +9,6 @@ type GlobalParameters struct {
 type GlobalResponses []*Response
 
 type Globals struct {
-	Parameters GlobalParameters `json:"parameters" yaml:"parameters"`
-	Responses  GlobalResponses  `json:"responses" yaml:"responses"`
+	Parameters *GlobalParameters `json:"parameters" yaml:"parameters"`
+	Responses  GlobalResponses   `json:"responses" yaml:"responses"`
 }

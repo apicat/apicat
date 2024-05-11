@@ -1,6 +1,10 @@
 package spec2
 
-import "errors"
+import (
+	"errors"
+
+	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
+)
 
 const (
 	TYPE_HTTP = "http"
@@ -184,6 +188,52 @@ func (c *Collection) DeepDerefAllDefinitions(refModels DefinitionModels, refResp
 			res.DerefAllResponses(refResponses)
 			if err := res.DeepDerefModel(refModels); err != nil {
 				return err
+			}
+		}
+	}
+	return nil
+}
+
+func (c *Collection) ItemsTreeToList() Collections {
+	list := make(Collections, 0)
+	if c.Type != TYPE_CATEGORY {
+		return append(list, c)
+	}
+
+	if c.Items != nil && len(c.Items) > 0 {
+		for _, item := range c.Items {
+			list = append(list, item.ItemsTreeToList()...)
+		}
+	}
+	return list
+}
+
+func (cs *Collections) DeepDerefAll(params *GlobalParameters, refModels DefinitionModels, refResponses DefinitionResponses) error {
+	if cs == nil || params == nil || refModels == nil || refResponses == nil {
+		return errors.New("collections is nil")
+	}
+
+	helper := jsonschema.NewDerefHelper(refModels.ToJsonSchemaMap())
+
+	for _, c := range *cs {
+		if c.Type == TYPE_CATEGORY {
+			continue
+		}
+
+		c.DerefGlobalParameters(params)
+
+		for _, node := range c.Content {
+			switch node.NodeType() {
+			case NODE_HTTP_REQUEST:
+				if err := node.ToHttpRequest().DeepDerefModelByHelper(helper); err != nil {
+					return err
+				}
+			case NODE_HTTP_RESPONSE:
+				res := node.ToHttpResponse()
+				res.DerefAllResponses(refResponses)
+				if err := res.DeepDerefModelByHelper(helper); err != nil {
+					return err
+				}
 			}
 		}
 	}

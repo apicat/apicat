@@ -95,6 +95,21 @@ func (s *DefinitionModel) SetXDiff(x string) {
 	}
 }
 
+func (s *DefinitionModel) ItemsTreeToList() DefinitionModels {
+	list := make(DefinitionModels, 0)
+
+	if s.Type == TYPE_MODEL {
+		list = append(list, s)
+	}
+
+	if s.Items != nil && len(s.Items) > 0 {
+		for _, v := range s.Items {
+			list = append(list, v.ItemsTreeToList()...)
+		}
+	}
+	return list
+}
+
 func (s *DefinitionModels) FindByName(name string) *DefinitionModel {
 	if s == nil {
 		return nil

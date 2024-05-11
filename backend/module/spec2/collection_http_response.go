@@ -91,6 +91,13 @@ func (r *CollectionHttpResponse) DeepDerefModel(refs DefinitionModels) error {
 	}
 
 	helper := jsonschema.NewDerefHelper(refs.ToJsonSchemaMap())
+	return r.DeepDerefModelByHelper(helper)
+}
+
+func (r *CollectionHttpResponse) DeepDerefModelByHelper(helper *jsonschema.DerefHelper) error {
+	if r == nil || r.Attrs == nil || helper == nil {
+		return errors.New("model is nil")
+	}
 
 	for _, res := range r.Attrs.List {
 		if res.Content == nil {
