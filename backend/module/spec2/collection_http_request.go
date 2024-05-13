@@ -289,6 +289,18 @@ func (g *HttpRequestGlobalExcepts) Exist(in string, id int64) bool {
 	return false
 }
 
+func (g *HttpRequestGlobalExcepts) ToMap() map[string][]int64 {
+	if g == nil {
+		return nil
+	}
+
+	return map[string][]int64{
+		"header": g.Header,
+		"cookie": g.Cookie,
+		"query":  g.Query,
+	}
+}
+
 func (g *HttpRequestGlobalExcepts) Clear(in string) {
 	if g == nil {
 		return

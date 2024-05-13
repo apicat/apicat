@@ -3,9 +3,11 @@ package openapi
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 
+	"github.com/apicat/apicat/v2/backend/module/spec"
 	"github.com/apicat/apicat/v2/backend/module/spec2"
 	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
@@ -16,6 +18,35 @@ type swaggerParser struct {
 	modelMapping           map[string]int64
 	parametersMapping      map[string]*spec2.Parameter
 	globalParamtersMapping map[string]struct{}
+}
+
+type swaggerGenerator struct {
+	modelNames map[int64]string
+}
+
+type swaggerSpec struct {
+	Swagger          string                                `json:"swagger"`
+	Info             *spec2.Info                           `json:"info"`
+	Tags             []tagObject                           `json:"tags,omitempty"`
+	Host             string                                `json:"host,omitempty"`
+	BasePath         string                                `json:"basePath"`
+	Schemas          []string                              `json:"schemes,omitempty"`
+	Definitions      map[string]jsonschema.Schema          `json:"definitions"`
+	Parameters       map[string]openAPIParamter            `json:"parameters,omitempty"`
+	Responses        map[string]any                        `json:"responses,omitempty"`
+	Paths            map[string]map[string]swaggerPathItem `json:"paths"`
+	GlobalParameters map[string]openAPIParamter            `json:"x-apicat-global-parameters,omitempty"`
+}
+
+type swaggerPathItem struct {
+	Summary     string            `json:"summary"`
+	Tags        []string          `json:"tags,omitempty"`
+	Description string            `json:"description,omitempty"`
+	OperationId string            `json:"operationId"`
+	Consumes    []string          `json:"consumes,omitempty"`
+	Produces    []string          `json:"produces,omitempty"`
+	Parameters  []openAPIParamter `json:"parameters,omitempty"`
+	Responses   map[string]any    `json:"responses,omitempty"`
 }
 
 func (s *swaggerParser) parseInfo(info *base.Info) spec2.Info {
@@ -374,4 +405,296 @@ func (s *swaggerParser) parseCollections(in *v2.Swagger, paths *v2.Paths) spec2.
 		}
 	}
 	return collections
+}
+
+func (s *swaggerGenerator) convertJsonSchema(v *jsonschema.Schema) *jsonschema.Schema {
+	if v == nil {
+		return v
+	}
+	return convertJsonSchemaRef(v, "2.0", s.modelNames)
+}
+
+func (s *swaggerGenerator) generateBase(in *spec2.Spec) *swaggerSpec {
+	s.modelNames = map[int64]string{}
+	out := &swaggerSpec{
+		Swagger: "2.0",
+		Info: &spec2.Info{
+			Title:       in.Info.Title,
+			Description: in.Info.Description,
+			Version:     in.Info.Version,
+		},
+		Definitions: make(map[string]jsonschema.Schema),
+	}
+
+	for _, v := range in.Servers {
+		u, err := url.Parse(v.URL)
+		if err != nil {
+			continue
+		}
+
+		if out.Host == "" {
+			out.Host = u.Host
+			out.BasePath = u.Path
+		}
+		out.Schemas = append(out.Schemas, u.Scheme)
+		// just need fist one
+		break
+	}
+
+	definitionModels := spec2.DefinitionModels{}
+	for _, v := range in.Definitions.Schemas {
+		if v.Type == string(spec2.TYPE_CATEGORY) {
+			items := v.ItemsTreeToList()
+			for _, item := range items {
+				s.modelNames[item.ID] = item.Name
+			}
+			definitionModels = append(definitionModels, items...)
+		} else {
+			s.modelNames[v.ID] = v.Name
+			definitionModels = append(definitionModels, v)
+		}
+	}
+
+	for _, v := range definitionModels {
+		name_id := fmt.Sprintf("%s-%d", strings.ReplaceAll(v.Name, " ", ""), v.ID)
+		out.Definitions[name_id] = *s.convertJsonSchema(v.Schema)
+	}
+
+	globalParams := in.Globals.Parameters.ToMap()
+	out.GlobalParameters = make(map[string]openAPIParamter)
+	for in, paramList := range globalParams {
+		for _, p := range paramList {
+			name_id := fmt.Sprintf("%s-%d", p.Name, p.ID)
+			out.GlobalParameters[name_id] = toParameter(p, in, "2.0")
+		}
+	}
+
+	if out.BasePath == "" {
+		out.BasePath = "/"
+	}
+	if len(in.Definitions.Responses) > 0 {
+		out.Responses = make(map[string]any)
+		for _, v := range in.Definitions.Responses {
+			if v.Type == string(spec2.TYPE_CATEGORY) {
+				items := v.ItemsTreeToList()
+				for _, item := range items {
+					name_id := fmt.Sprintf("%s-%d", item.Name, item.ID)
+					out.Responses[name_id] = s.generateResponseWithoutRef(in, &item.BasicResponse)
+				}
+			} else {
+				name_id := fmt.Sprintf("%s-%d", strings.ReplaceAll(v.Name, " ", ""), v.ID)
+				out.Responses[name_id] = s.generateResponseWithoutRef(in, &v.BasicResponse)
+			}
+		}
+	}
+
+	return out
+}
+
+func (s *swaggerGenerator) generateReqParams(collectionReq spec2.CollectionHttpRequest, spe *spec2.Spec) []openAPIParamter {
+	// 添加启用的全局参数
+	out := globalToLocalParameters(spe.Globals.Parameters, true, collectionReq.Attrs.GlobalExcepts.ToMap())
+
+	for in, params := range collectionReq.Attrs.Parameters.ToMap() {
+		switch in {
+		case "header", "query", "path", "cookie":
+			for _, v := range params {
+				// if v.Reference != nil {
+				// 	// 解开公共参数
+				// 	if id := toInt64(getRefName(*v.Reference)); id != 0 {
+				// 		v = spe.Definitions.Parameters.LookupID(id)
+				// 	}
+				// }
+				newv := *v
+				newv.Schema = s.convertJsonSchema(v.Schema)
+				out = append(out, toParameter(&newv, in, "2.0"))
+			}
+		}
+	}
+
+	if collectionReq.Attrs.Content == nil {
+		return out
+	}
+
+	var hasBody bool
+	for contentType, body := range collectionReq.Attrs.Content {
+		// contentType incloud form use parameters in
+		if strings.Contains(contentType, "form") {
+			if body.Schema == nil {
+				continue
+			}
+
+			if num := len(body.Schema.Type.List()); num == 0 {
+				continue
+			}
+
+			typ := body.Schema.Type.First()
+			if typ != jsonschema.T_OBJ || body.Schema.Properties == nil {
+				continue
+			}
+
+			for k, v := range body.Schema.Properties {
+				content := openAPIParamter{
+					Name:        k,
+					In:          "formData",
+					Type:        v.Type.First(),
+					Description: v.Description,
+					Schema:      s.convertJsonSchema(v),
+					Required: func() bool {
+						for _, r := range v.Required {
+							if r == k {
+								return true
+							}
+						}
+						return false
+					}(),
+				}
+				if v != nil {
+					t := v.Type.List()
+					if len(t) > 0 && t[0] == "file" {
+						content.Type = t[0]
+					}
+				}
+				out = append(out, content)
+			}
+		} else {
+			if hasBody {
+				continue
+			}
+
+			out = append(out, openAPIParamter{
+				Name:     "body",
+				Schema:   s.convertJsonSchema(body.Schema),
+				In:       "body",
+				Required: true,
+			})
+			hasBody = true
+		}
+	}
+	return out
+}
+
+func (s *swaggerGenerator) generateResponseWithoutRef(in *spec2.Spec, resp *spec2.BasicResponse) map[string]any {
+	response := map[string]any{
+		"x-apicat-response-name": resp.Name,
+		"description":            resp.Description,
+	}
+
+	if len(resp.Header) > 0 {
+		header := make(map[string]any)
+		for _, v := range resp.Header {
+			if v.Schema.Description == "" {
+				v.Schema.Description = v.Description
+			}
+			v.Schema.Default = v.Schema.Examples
+			v.Schema.Examples = nil
+			header[v.Name] = v.Schema
+		}
+		response["headers"] = header
+	}
+
+	if resp.Content != nil {
+		for k, v := range resp.Content {
+			response["schema"] = s.convertJsonSchema(v.Schema)
+			if v.Examples != nil {
+				for _, v := range v.Examples {
+					response["examples"] = map[string]any{
+						k: v,
+					}
+					break
+				}
+			}
+			break
+		}
+	}
+	return response
+}
+
+func (s *swaggerGenerator) generateResponse(in *spec2.Spec, resp *spec2.Response) map[string]any {
+	if resp.Reference != "" {
+		if strings.HasPrefix(resp.Reference, "#/definitions/responses/") {
+			x := in.Definitions.Responses.FindByID(
+				toInt64(getRefName(resp.Reference)),
+			)
+			if x != nil {
+				name := fmt.Sprintf("%s-%d", x.Name, x.ID)
+				return map[string]any{
+					"$ref": "#/responses/" + name,
+				}
+			}
+		}
+		return nil
+	}
+	return s.generateResponseWithoutRef(in, &resp.BasicResponse)
+}
+
+func (s *swaggerGenerator) generatePathResponse(in *spec2.Spec, resp spec2.CollectionHttpResponse) (map[string]any, []string) {
+	product := map[string]struct{}{}
+	result := make(map[string]any)
+
+	for _, r := range resp.Attrs.List {
+		result[strconv.Itoa(r.Code)] = s.generateResponse(in, r)
+		for k := range r.Content {
+			if _, ok := product[k]; !ok {
+				product[k] = struct{}{}
+				continue
+			}
+		}
+	}
+	if len(result) == 0 {
+		result["default"] = map[string]string{
+			"description": "success",
+		}
+	}
+	return result, func() (ret []string) {
+		if len(product) == 0 {
+			return []string{"application/json"}
+		}
+		for k := range product {
+			ret = append(ret, k)
+		}
+		return
+	}()
+}
+
+func (s *swaggerGenerator) generatePaths(in *spec2.Spec) (map[string]map[string]swaggerPathItem, []tagObject) {
+	out := make(map[string]map[string]swaggerPathItem)
+	tags := make(map[string]struct{})
+
+	for path, methods := range deepGetHttpCollection(&in.Collections) {
+		if path == "" {
+			continue
+		}
+		for method, op := range methods {
+			reslist, product := s.generatePathResponse(in, op.Res)
+			if len(reslist) == 0 {
+				reslist["default"] = &spec.Schema{Description: "success"}
+			}
+			item := swaggerPathItem{
+				Summary:     op.Title,
+				Description: op.Description,
+				OperationId: op.OperatorID,
+				Parameters:  s.generateReqParams(op.Req, in),
+				Produces:    product,
+				Responses:   reslist,
+				Tags:        op.Tags,
+			}
+			for k := range op.Req.Attrs.Content {
+				item.Consumes = append(item.Consumes, k)
+			}
+			if _, ok := out[path]; !ok {
+				out[path] = make(map[string]swaggerPathItem)
+			}
+			for _, v := range op.Tags {
+				tags[v] = struct{}{}
+			}
+			out[path][method] = item
+		}
+	}
+	return out, func() (list []tagObject) {
+		for k := range tags {
+			list = append(list, tagObject{Name: k})
+		}
+		return
+	}()
 }

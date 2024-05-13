@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/apicat/apicat/v2/backend/module/spec2"
 	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
 )
@@ -159,4 +160,162 @@ func stringToUnid(s string) int64 {
 
 func isGlobalParameter(ref string) bool {
 	return strings.Contains(ref, "/x-apicat-global-parameters/")
+}
+
+func globalToLocalParameters(globalsParmaters *spec2.GlobalParameters, isSwagger bool, skip map[string][]int64) []openAPIParamter {
+	var outs []openAPIParamter
+	skips := make(map[string]bool)
+	for k, v := range skip {
+		for _, x := range v {
+			skips[fmt.Sprintf("%s|_%d", k, x)] = true
+		}
+	}
+
+	for in, paramList := range globalsParmaters.ToMap() {
+		for _, p := range paramList {
+			if skips[fmt.Sprintf("%s|_%d", in, p.ID)] {
+				continue
+			}
+
+			ref := fmt.Sprintf("%s-%s", in, p.Name)
+			if isSwagger {
+				ref = "#/x-apicat-global-parameters/" + ref
+			} else {
+				ref = "#/components/x-apicat-global-parameters/" + ref
+			}
+			outs = append(outs, openAPIParamter{
+				Reference: ref,
+			})
+		}
+	}
+	return outs
+}
+
+func toParameter(p *spec2.Parameter, in string, version string) openAPIParamter {
+	if version[0] == '3' {
+		return toParameter3(p, in)
+	}
+	return toParameter2(p, in)
+}
+
+func toParameter3(p *spec2.Parameter, in string) openAPIParamter {
+	return openAPIParamter{
+		In:          in,
+		Name:        p.Name,
+		Required:    p.Required,
+		Format:      p.Schema.Format,
+		Example:     p.Schema.Examples,
+		Description: p.Schema.Description,
+		Schema:      p.Schema,
+	}
+}
+
+func toParameter2(p *spec2.Parameter, in string) openAPIParamter {
+	typ := jsonschema.T_NULL
+	if num := len(p.Schema.Type.List()); num > 0 {
+		typ = p.Schema.Type.First()
+	}
+
+	if in == "cookie" {
+		in = "header"
+	}
+	return openAPIParamter{
+		In:          in,
+		Type:        typ,
+		Name:        p.Name,
+		Required:    p.Required,
+		Format:      p.Schema.Format,
+		Default:     p.Schema.Default,
+		Description: p.Schema.Description,
+		Schema:      p.Schema,
+	}
+}
+
+func convertJsonSchemaRef(v *jsonschema.Schema, version string, mapping map[int64]string) *jsonschema.Schema {
+	sh := *v
+	if s, ok := sh.Examples.(string); ok && s == "" {
+		sh.Examples = nil
+	}
+
+	if sh.Reference != "" {
+		if id := toInt64(getRefName(sh.Reference)); id > 0 {
+			var ref string
+			name_id := fmt.Sprintf("%s-%d", mapping[id], id)
+			if version[0] == '2' {
+				ref = fmt.Sprintf("#/definitions/%s", name_id)
+			} else {
+				ref = fmt.Sprintf("#/components/schemas/%s", name_id)
+			}
+			return &jsonschema.Schema{Reference: ref}
+		}
+	}
+
+	if sh.Properties != nil {
+		for k, v := range sh.Properties {
+			sh.Properties[k] = convertJsonSchemaRef(v, version, mapping)
+		}
+	}
+	if sh.Items != nil {
+		if !sh.Items.IsBool() {
+			sh.Items.SetValue(convertJsonSchemaRef(sh.Items.Value(), version, mapping))
+		}
+	}
+	if sh.AdditionalProperties != nil {
+		if !sh.AdditionalProperties.IsBool() {
+			sh.AdditionalProperties.SetValue(convertJsonSchemaRef(sh.AdditionalProperties.Value(), version, mapping))
+		}
+	}
+	return &sh
+}
+
+func deepGetHttpCollection(in *spec2.Collections) map[string]map[string]specPathItem {
+	paths := make(map[string]map[string]specPathItem)
+
+	for _, collection := range *in {
+		if collection.Type == spec2.TYPE_CATEGORY && len(collection.Items) > 0 {
+			childrenPaths := deepGetHttpCollection(&collection.Items)
+			for path, methods := range childrenPaths {
+				for method, item := range methods {
+					if _, ok := paths[path]; !ok {
+						paths[path] = map[string]specPathItem{
+							method: item,
+						}
+					} else {
+						paths[path][method] = item
+					}
+				}
+			}
+		}
+
+		if collection.Type != spec2.TYPE_HTTP {
+			continue
+		}
+
+		item := specPathItem{
+			Title:      collection.Title,
+			OperatorID: fmt.Sprintf("%d", collection.ID),
+			Tags:       collection.Tags,
+		}
+
+		var info spec2.CollectionHttpUrl
+		for _, node := range collection.Content {
+			switch node.NodeType() {
+			case spec2.NODE_HTTP_URL:
+				info = *node.ToHttpUrl()
+			case spec2.NODE_HTTP_REQUEST:
+				item.Req = *node.ToHttpRequest()
+			case spec2.NODE_HTTP_RESPONSE:
+				item.Res = *node.ToHttpResponse()
+			}
+		}
+
+		if _, ok := paths[info.Attrs.Path]; !ok {
+			paths[info.Attrs.Path] = map[string]specPathItem{
+				info.Attrs.Method: item,
+			}
+		} else {
+			paths[info.Attrs.Path][info.Attrs.Method] = item
+		}
+	}
+	return paths
 }

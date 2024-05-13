@@ -31,3 +31,11 @@ func (p *GlobalParameters) Add(in string, v *Parameter) {
 		p.Header = append(p.Header, v)
 	}
 }
+
+func (p *GlobalParameters) ToMap() map[string]ParameterList {
+	return map[string]ParameterList{
+		"query":  p.Query,
+		"cookie": p.Cookie,
+		"header": p.Header,
+	}
+}
