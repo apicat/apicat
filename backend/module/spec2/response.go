@@ -5,15 +5,19 @@ import (
 	"strings"
 )
 
-type Response struct {
+type BasicResponse struct {
 	ID          int64         `json:"id,omitempty" yaml:"id,omitempty"`
 	Name        string        `json:"name,omitempty" yaml:"name,omitempty"`
-	Code        int           `json:"code" yaml:"code"`
 	Description string        `json:"description,omitempty" yaml:"description,omitempty"`
 	Header      ParameterList `json:"header,omitempty" yaml:"header,omitempty"`
 	Content     HTTPBody      `json:"content" yaml:"content"`
-	Reference   string        `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 	XDiff       string        `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
+}
+
+type Response struct {
+	BasicResponse
+	Code      int    `json:"code" yaml:"code"`
+	Reference string `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 }
 
 type Responses []*Response
@@ -47,7 +51,7 @@ func (r *Response) GetRefID() int64 {
 	return 0
 }
 
-func (r *Response) ReplaceRef(ref *Response) {
+func (r *Response) ReplaceRef(ref *BasicResponse) {
 	if !r.Ref() || ref == nil {
 		return
 	}
@@ -57,7 +61,7 @@ func (r *Response) ReplaceRef(ref *Response) {
 		return
 	}
 
-	*r = *ref
+	r.BasicResponse = *ref
 }
 
 func (r *Response) SetXDiff(x string) {

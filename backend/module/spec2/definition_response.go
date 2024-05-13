@@ -11,7 +11,7 @@ import (
 const TYPE_RESPONSE = "response"
 
 type DefinitionResponse struct {
-	Response
+	BasicResponse
 	ParentId uint64              `json:"parentid,omitempty" yaml:"parentid,omitempty"`
 	Type     string              `json:"type,omitempty" yaml:"type,omitempty"`
 	Items    DefinitionResponses `json:"items,omitempty" yaml:"items,omitempty"`

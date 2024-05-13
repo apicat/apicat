@@ -38,7 +38,7 @@ func (r *CollectionHttpResponse) DerefResponse(ref *DefinitionResponse) {
 
 	for _, v := range r.Attrs.List {
 		if v.Ref() {
-			v.ReplaceRef(&ref.Response)
+			v.ReplaceRef(&ref.BasicResponse)
 		}
 	}
 }
@@ -53,7 +53,7 @@ func (r *CollectionHttpResponse) DerefAllResponses(refs DefinitionResponses) {
 	for _, res := range r.Attrs.List {
 		if res.Ref() {
 			if ref, ok := refsMap[res.GetRefID()]; ok {
-				res.ReplaceRef(&ref.Response)
+				res.ReplaceRef(&ref.BasicResponse)
 			}
 		}
 	}
