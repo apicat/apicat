@@ -150,3 +150,9 @@ func (r *CollectionHttpResponse) DelRefModel(ref *DefinitionModel) {
 		}
 	}
 }
+
+func (r *CollectionHttpResponse) ToCollectionNode() *CollectionNode {
+	return &CollectionNode{
+		Node: r,
+	}
+}

@@ -239,6 +239,12 @@ func (r *CollectionHttpRequest) DeepDerefModelByHelper(helper *jsonschema.DerefH
 	return nil
 }
 
+func (r *CollectionHttpRequest) ToCollectionNode() *CollectionNode {
+	return &CollectionNode{
+		Node: r,
+	}
+}
+
 func (r *CollectionHttpRequest) DelRefModel(ref *DefinitionModel) {
 	if r == nil || r.Attrs == nil || r.Attrs.Content == nil || ref == nil {
 		return

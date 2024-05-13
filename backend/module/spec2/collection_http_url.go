@@ -30,3 +30,9 @@ func (u *CollectionHttpUrl) NodeType() string {
 func (u *CollectionHttpUrl) SetXDiff(x string) {
 	u.Attrs.XDiff = x
 }
+
+func (u *CollectionHttpUrl) ToCollectionNode() *CollectionNode {
+	return &CollectionNode{
+		Node: u,
+	}
+}
