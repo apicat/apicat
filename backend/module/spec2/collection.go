@@ -86,6 +86,19 @@ func (c *Collection) DelRefResponse(ref *DefinitionResponse) {
 	}
 }
 
+func (c *Collection) DerefGlobalParameter(in string, param *Parameter) {
+	if c == nil || param == nil {
+		return
+	}
+
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case NODE_HTTP_REQUEST:
+			node.ToHttpRequest().Attrs.Parameters.Add(in, param)
+		}
+	}
+}
+
 func (c *Collection) DerefGlobalParameters(params *GlobalParameters) {
 	if c == nil || params == nil {
 		return
