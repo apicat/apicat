@@ -479,11 +479,11 @@ func (s *swaggerGenerator) generateBase(in *spec2.Spec) *swaggerSpec {
 				items := v.ItemsTreeToList()
 				for _, item := range items {
 					name_id := fmt.Sprintf("%s-%d", item.Name, item.ID)
-					out.Responses[name_id] = s.generateResponseWithoutRef(in, &item.BasicResponse)
+					out.Responses[name_id] = s.generateResponseWithoutRef(&item.BasicResponse)
 				}
 			} else {
 				name_id := fmt.Sprintf("%s-%d", strings.ReplaceAll(v.Name, " ", ""), v.ID)
-				out.Responses[name_id] = s.generateResponseWithoutRef(in, &v.BasicResponse)
+				out.Responses[name_id] = s.generateResponseWithoutRef(&v.BasicResponse)
 			}
 		}
 	}
@@ -491,20 +491,14 @@ func (s *swaggerGenerator) generateBase(in *spec2.Spec) *swaggerSpec {
 	return out
 }
 
-func (s *swaggerGenerator) generateReqParams(collectionReq spec2.CollectionHttpRequest, spe *spec2.Spec) []openAPIParamter {
+func (s *swaggerGenerator) generateReqParams(collectionReq spec2.CollectionHttpRequest, globalsParmaters *spec2.GlobalParameters) []openAPIParamter {
 	// 添加启用的全局参数
-	out := globalToLocalParameters(spe.Globals.Parameters, true, collectionReq.Attrs.GlobalExcepts.ToMap())
+	out := globalToLocalParameters(globalsParmaters, true, collectionReq.Attrs.GlobalExcepts.ToMap())
 
 	for in, params := range collectionReq.Attrs.Parameters.ToMap() {
 		switch in {
 		case "header", "query", "path", "cookie":
 			for _, v := range params {
-				// if v.Reference != nil {
-				// 	// 解开公共参数
-				// 	if id := toInt64(getRefName(*v.Reference)); id != 0 {
-				// 		v = spe.Definitions.Parameters.LookupID(id)
-				// 	}
-				// }
 				newv := *v
 				newv.Schema = s.convertJsonSchema(v.Schema)
 				out = append(out, toParameter(&newv, in, "2.0"))
@@ -574,7 +568,7 @@ func (s *swaggerGenerator) generateReqParams(collectionReq spec2.CollectionHttpR
 	return out
 }
 
-func (s *swaggerGenerator) generateResponseWithoutRef(in *spec2.Spec, resp *spec2.BasicResponse) map[string]any {
+func (s *swaggerGenerator) generateResponseWithoutRef(resp *spec2.BasicResponse) map[string]any {
 	response := map[string]any{
 		"x-apicat-response-name": resp.Name,
 		"description":            resp.Description,
@@ -610,10 +604,10 @@ func (s *swaggerGenerator) generateResponseWithoutRef(in *spec2.Spec, resp *spec
 	return response
 }
 
-func (s *swaggerGenerator) generateResponse(in *spec2.Spec, resp *spec2.Response) map[string]any {
+func (s *swaggerGenerator) generateResponse(resp *spec2.Response, definitionsResps spec2.DefinitionResponses) map[string]any {
 	if resp.Reference != "" {
 		if strings.HasPrefix(resp.Reference, "#/definitions/responses/") {
-			x := in.Definitions.Responses.FindByID(
+			x := definitionsResps.FindByID(
 				toInt64(getRefName(resp.Reference)),
 			)
 			if x != nil {
@@ -625,15 +619,15 @@ func (s *swaggerGenerator) generateResponse(in *spec2.Spec, resp *spec2.Response
 		}
 		return nil
 	}
-	return s.generateResponseWithoutRef(in, &resp.BasicResponse)
+	return s.generateResponseWithoutRef(&resp.BasicResponse)
 }
 
-func (s *swaggerGenerator) generatePathResponse(in *spec2.Spec, resp spec2.CollectionHttpResponse) (map[string]any, []string) {
+func (s *swaggerGenerator) generatePathResponse(resp spec2.CollectionHttpResponse, definitionsResps spec2.DefinitionResponses) (map[string]any, []string) {
 	product := map[string]struct{}{}
 	result := make(map[string]any)
 
 	for _, r := range resp.Attrs.List {
-		result[strconv.Itoa(r.Code)] = s.generateResponse(in, r)
+		result[strconv.Itoa(r.Code)] = s.generateResponse(r, definitionsResps)
 		for k := range r.Content {
 			if _, ok := product[k]; !ok {
 				product[k] = struct{}{}
@@ -666,7 +660,7 @@ func (s *swaggerGenerator) generatePaths(in *spec2.Spec) (map[string]map[string]
 			continue
 		}
 		for method, op := range methods {
-			reslist, product := s.generatePathResponse(in, op.Res)
+			reslist, product := s.generatePathResponse(op.Res, in.Definitions.Responses)
 			if len(reslist) == 0 {
 				reslist["default"] = &spec.Schema{Description: "success"}
 			}
@@ -674,7 +668,7 @@ func (s *swaggerGenerator) generatePaths(in *spec2.Spec) (map[string]map[string]
 				Summary:     op.Title,
 				Description: op.Description,
 				OperationId: op.OperatorID,
-				Parameters:  s.generateReqParams(op.Req, in),
+				Parameters:  s.generateReqParams(op.Req, in.Globals.Parameters),
 				Produces:    product,
 				Responses:   reslist,
 				Tags:        op.Tags,
