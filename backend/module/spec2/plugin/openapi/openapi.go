@@ -56,7 +56,7 @@ func Parse(data []byte) (out *spec2.Spec, err error) {
 	case utils.OpenApi2:
 		out, err = parseSwagger(docment)
 	case utils.OpenApi3:
-		// out, err = decodeOpenAPI3(docment)
+		out, err = parseOpenAPI3(docment)
 	default:
 		err = fmt.Errorf("not support %s", t)
 	}
@@ -120,14 +120,36 @@ func parseSwagger(document libopenapi.Document) (*spec2.Spec, error) {
 		return nil, err
 	}
 
-	globalParameters := sw.parseGlobalParameters(model.Model.Extensions)
-
 	return &spec2.Spec{
 		ApiCat:      "2.0.1",
 		Info:        sw.parseInfo(model.Model.Info),
 		Servers:     sw.parseServers(&model.Model),
 		Definitions: &spec2.Definitions{Schemas: definitionModels, Responses: definitionResponses},
-		Globals:     &spec2.Globals{Parameters: globalParameters},
+		Globals:     &spec2.Globals{Parameters: sw.parseGlobalParameters(model.Model.Extensions)},
 		Collections: sw.parseCollections(&model.Model, model.Model.Paths),
+	}, nil
+}
+
+func parseOpenAPI3(document libopenapi.Document) (*spec2.Spec, error) {
+	model, errors := document.BuildV3Model()
+	if len(errors) > 0 {
+		return nil, fmt.Errorf("openapi version:%s parse faild", document.GetVersion())
+	}
+	o := &openapiParser{
+		parametersMapping: make(map[string]*spec2.Parameter),
+	}
+
+	definitions, err := o.parseDefinetions(model.Model.Components)
+	if err != nil {
+		return nil, err
+	}
+
+	return &spec2.Spec{
+		ApiCat:      "2.0.1",
+		Info:        o.parseInfo(model.Model.Info),
+		Servers:     o.parseServers(model.Model.Servers),
+		Globals:     &spec2.Globals{Parameters: o.parseGlobalParameters(model.Model.Components)},
+		Definitions: definitions,
+		Collections: o.parseCollections(model.Model.Paths),
 	}, nil
 }
