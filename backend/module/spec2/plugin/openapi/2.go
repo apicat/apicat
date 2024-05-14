@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/apicat/apicat/v2/backend/module/spec"
 	"github.com/apicat/apicat/v2/backend/module/spec2"
 	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
@@ -662,7 +661,7 @@ func (s *swaggerGenerator) generatePaths(in *spec2.Spec) (map[string]map[string]
 		for method, op := range methods {
 			reslist, product := s.generatePathResponse(op.Res, in.Definitions.Responses)
 			if len(reslist) == 0 {
-				reslist["default"] = &spec.Schema{Description: "success"}
+				reslist["default"] = &jsonschema.Schema{Description: "success"}
 			}
 			item := swaggerPathItem{
 				Summary:     op.Title,

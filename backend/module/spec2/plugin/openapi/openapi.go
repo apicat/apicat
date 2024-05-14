@@ -3,6 +3,7 @@ package openapi
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/apicat/apicat/v2/backend/module/spec2"
 	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
@@ -87,19 +88,19 @@ func Generator(in *spec2.Spec, version, typ string) ([]byte, error) {
 			return json.MarshalIndent(sp, "", "  ")
 		}
 	default:
-		// if strings.HasPrefix(version, "3.") && len(strings.Split(version, ".")) == 3 {
-		// 	op := &toOpenapi{}
-		// 	sp := op.toBase(in, version)
-		// 	paths, tag := op.toPaths(version, in)
-		// 	sp.Paths = paths
-		// 	sp.Tags = tag
+		if strings.HasPrefix(version, "3.") && len(strings.Split(version, ".")) == 3 {
+			op := &openapiGenerator{}
+			sp := op.generateBase(in, version)
+			paths, tag := op.generatePaths(version, in)
+			sp.Paths = paths
+			sp.Tags = tag
 
-		// 	if typ == "yaml" {
-		// 		return yaml.Marshal(sp)
-		// 	} else {
-		// 		return json.MarshalIndent(sp, "", "  ")
-		// 	}
-		// }
+			if typ == "yaml" {
+				return yaml.Marshal(sp)
+			} else {
+				return json.MarshalIndent(sp, "", "  ")
+			}
+		}
 	}
 	return nil, fmt.Errorf("openapi %s not support", version)
 }
