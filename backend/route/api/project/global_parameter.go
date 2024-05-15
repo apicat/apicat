@@ -153,8 +153,8 @@ func (gpai *globalParameterApiImpl) Delete(ctx *gin.Context, opt *projectrequest
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("globalParameter.FailedToDelete"))
 	}
 
-	if err := except.DerefParamExcept(ctx, gp, opt.Deref); err != nil {
-		slog.ErrorContext(ctx, "except.DerefParamExcept", "err", err)
+	if err := except.DerefExceptParam(ctx, gp, opt.Deref); err != nil {
+		slog.ErrorContext(ctx, "except.DerefExceptParam", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("globalParameter.FailedToDelete"))
 	}
 

@@ -137,6 +137,8 @@ func (dsai *definitionSchemaApiImpl) Update(ctx *gin.Context, opt *projectreques
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("definitionSchema.DoesNotExist"))
 	}
 
+	oldRefSchemaIDs := reference.ParseRefSchemas(ds.Schema)
+
 	if err := ds.Update(ctx, opt.Name, opt.Description, opt.Schema, selfTM.ID); err != nil {
 		slog.ErrorContext(ctx, "ds.Update", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
@@ -145,7 +147,7 @@ func (dsai *definitionSchemaApiImpl) Update(ctx *gin.Context, opt *projectreques
 	// 编辑模型后更新模型的引用关系
 	if ds.Type != definition.SchemaCategory {
 		// 更新模型引用关系
-		if err := reference.UpdateSchemaRef(ctx, ds); err != nil {
+		if err := reference.UpdateSchemaRef(ctx, ds, oldRefSchemaIDs); err != nil {
 			slog.ErrorContext(ctx, "reference.UpdateSchemaRef", "err", err)
 		}
 	}

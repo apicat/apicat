@@ -193,6 +193,10 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("collection.DoesNotExist"))
 	}
 
+	oldRefSchemaIDs := reference.ParseRefSchemas(c.Content)
+	oldRefResponseIDs := reference.ParseRefResponses(c.Content)
+	oldExceptparamIDs := reference.ParseExceptParams(c)
+
 	if err := c.Update(ctx, opt.Title, opt.Content, selfTM.ID); err != nil {
 		slog.ErrorContext(ctx, "c.Update", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
@@ -200,7 +204,7 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 
 	// 编辑文档时更新文档引用关系
 	if c.Type != collection.CategoryType {
-		if err := reference.UpdateCollectionRef(ctx, c); err != nil {
+		if err := reference.UpdateCollectionRef(ctx, c, oldRefSchemaIDs, oldRefResponseIDs, oldExceptparamIDs); err != nil {
 			slog.ErrorContext(ctx, "collectionrelations.UpdateCollectionRef", "err", err)
 		}
 	}

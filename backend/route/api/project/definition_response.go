@@ -137,6 +137,8 @@ func (drai *definitionResponseApiImpl) Update(ctx *gin.Context, opt *projectrequ
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("definitionResponse.DoesNotExist"))
 	}
 
+	oldRefSchemaIDs := reference.ParseRefSchemas(dr.Content)
+
 	dr.Name = opt.Name
 	dr.Description = opt.Description
 	dr.Header = opt.Header
@@ -148,7 +150,7 @@ func (drai *definitionResponseApiImpl) Update(ctx *gin.Context, opt *projectrequ
 
 	// 编辑响应时更新响应引用的模型
 	if dr.Type != definition.ResponseCategory {
-		if err := reference.UpdateResponseRef(ctx, dr); err != nil {
+		if err := reference.UpdateResponseRef(ctx, dr, oldRefSchemaIDs); err != nil {
 			slog.ErrorContext(ctx, "reference.UpdateResponseRef", "err", err)
 		}
 	}

@@ -19,6 +19,7 @@ func ImportDefinitionSchemas(ctx context.Context, projectID string, schemas spec
 		return res
 	}
 
+	var emptySlice []uint
 	for i, schema := range schemas {
 		record := &definition.DefinitionSchema{
 			ProjectID:    projectID,
@@ -55,7 +56,7 @@ func ImportDefinitionSchemas(ctx context.Context, projectID string, schemas spec
 		schema := collection.ReplaceVirtualIDToID(v.Schema, res, "#/definitions/schemas/")
 		v.Update(ctx, v.Name, v.Description, schema, tm.ID)
 
-		if err := reference.UpdateSchemaRef(ctx, v); err != nil {
+		if err := reference.UpdateSchemaRef(ctx, v, emptySlice); err != nil {
 			slog.ErrorContext(ctx, "ImportDefinitionSchemas.UpdateSchemaRef", "err", err)
 		}
 	}

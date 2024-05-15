@@ -19,6 +19,7 @@ func ImportDefinitionResponses(ctx context.Context, projectID string, responses 
 		return res
 	}
 
+	var emptySlice []uint
 	for i, response := range responses {
 		record := &definition.DefinitionResponse{
 			ProjectID:    projectID,
@@ -53,7 +54,7 @@ func ImportDefinitionResponses(ctx context.Context, projectID string, responses 
 				res[response.ID] = record.ID
 			}
 
-			if err := reference.UpdateResponseRef(ctx, record); err != nil {
+			if err := reference.UpdateResponseRef(ctx, record, emptySlice); err != nil {
 				slog.ErrorContext(ctx, "ImportDefinitionResponses.UpdateResponseRef", "err", err)
 			}
 		}

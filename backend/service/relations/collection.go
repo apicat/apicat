@@ -10,7 +10,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/model/definition"
 	"github.com/apicat/apicat/v2/backend/model/global"
 	"github.com/apicat/apicat/v2/backend/model/iteration"
-	referencerelationship "github.com/apicat/apicat/v2/backend/model/reference_relationship"
+	referencerelation "github.com/apicat/apicat/v2/backend/model/reference_relation"
 	"github.com/apicat/apicat/v2/backend/model/share"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/module/spec"
@@ -68,16 +68,18 @@ func DeleteCollections(ctx context.Context, pID string, c *collection.Collection
 		slog.ErrorContext(ctx, "collection.Deletes.DeleteCollectionShareTmpTokens", "err", err)
 	}
 	// 删除该集合的引用关系
-	refs, err := referencerelationship.GetCollectionRefByCIDs(ctx, pID, ids)
-	if err != nil {
-		slog.ErrorContext(ctx, "collection.Deletes.GetCollectionRefByCIDs", "err", err)
+	responseIDs := reference.ParseRefResponses(c.Content)
+	if err := referencerelation.DelRefResponseCollection(ctx, c.ID, responseIDs...); err != nil {
+		slog.ErrorContext(ctx, "collection.Deletes.DelRefResponseCollection", "err", err)
 	}
-	refIDs := make([]uint, 0)
-	for _, ref := range refs {
-		refIDs = append(refIDs, ref.ID)
+	schemaIDs := reference.ParseRefSchemas(c.Content)
+	if err := referencerelation.DelRefSchemaCollection(ctx, c.ID, schemaIDs...); err != nil {
+		slog.ErrorContext(ctx, "collection.Deletes.DelRefSchemaCollection", "err", err)
 	}
-	if err := referencerelationship.BatchDeleteCollectionReference(ctx, refIDs...); err != nil {
-		slog.ErrorContext(ctx, "collection.Deletes.BatchDeleteCollectionReference", "err", err)
+	// 删除该集合的被排除关系
+	paramIDs := reference.ParseExceptParams(c)
+	if err := referencerelation.DelExceptParamCollection(ctx, c.ID, paramIDs...); err != nil {
+		slog.ErrorContext(ctx, "collection.Deletes.DelExceptParamCollection", "err", err)
 	}
 
 	return collection.BatchDeleteCollections(ctx, tm.ID, ids...)
@@ -129,6 +131,7 @@ func CollectionDerefWithApiCatSpec(ctx context.Context, c *collection.Collection
 func CollectionImport(ctx context.Context, member *team.TeamMember, projectID string, parentID uint, collections []*spec.Collection, refContentNameToId *collection.RefContentVirtualIDToId) []*collection.Collection {
 	collectionList := make([]*collection.Collection, 0)
 
+	var emptySlice []uint
 	for i, c := range collections {
 		if len(c.Items) > 0 || c.Type == "category" {
 			category := &collection.Collection{
@@ -163,7 +166,7 @@ func CollectionImport(ctx context.Context, member *team.TeamMember, projectID st
 					collection.TagImport(ctx, projectID, record.ID, c.Tags)
 				}
 
-				if err := reference.UpdateCollectionRef(ctx, record); err != nil {
+				if err := reference.UpdateCollectionRef(ctx, record, emptySlice, emptySlice, emptySlice); err != nil {
 					slog.ErrorContext(ctx, "CollectionImport.UpdateCollectionRef", "err", err)
 				}
 			}
