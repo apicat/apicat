@@ -14,6 +14,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/model/share"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/service/except"
 	"github.com/apicat/apicat/v2/backend/service/reference"
 )
 
@@ -62,24 +63,33 @@ func DeleteCollections(ctx context.Context, pID string, c *collection.Collection
 	// 删除集合在迭代中的该集合
 	if err := iteration.BatchDeleteIterationApi(ctx, ids...); err != nil {
 		slog.ErrorContext(ctx, "collection.Deletes.BatchDeleteIterationApi", "err", err)
+		return err
 	}
 	// 删除该集合的分享令牌
 	if err := share.DeleteCollectionShareTmpTokens(ctx, ids...); err != nil {
 		slog.ErrorContext(ctx, "collection.Deletes.DeleteCollectionShareTmpTokens", "err", err)
+		return err
 	}
 	// 删除该集合的引用关系
 	responseIDs := reference.ParseRefResponses(c.Content)
 	if err := referencerelation.DelRefResponseCollection(ctx, c.ID, responseIDs...); err != nil {
 		slog.ErrorContext(ctx, "collection.Deletes.DelRefResponseCollection", "err", err)
+		return err
 	}
 	schemaIDs := reference.ParseRefSchemas(c.Content)
 	if err := referencerelation.DelRefSchemaCollection(ctx, c.ID, schemaIDs...); err != nil {
 		slog.ErrorContext(ctx, "collection.Deletes.DelRefSchemaCollection", "err", err)
+		return err
 	}
 	// 删除该集合的被排除关系
-	paramIDs := reference.ParseExceptParams(c)
+	paramIDs, err := except.ParseExceptParamsFromCollection(c)
+	if err != nil {
+		slog.ErrorContext(ctx, "collection.Deletes.ParseExceptParamsFromCollection", "err", err)
+		return err
+	}
 	if err := referencerelation.DelExceptParamCollection(ctx, c.ID, paramIDs...); err != nil {
 		slog.ErrorContext(ctx, "collection.Deletes.DelExceptParamCollection", "err", err)
+		return err
 	}
 
 	return collection.BatchDeleteCollections(ctx, tm.ID, ids...)

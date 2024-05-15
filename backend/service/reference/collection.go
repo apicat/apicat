@@ -5,6 +5,7 @@ import (
 
 	"github.com/apicat/apicat/v2/backend/model/collection"
 	referencerelation "github.com/apicat/apicat/v2/backend/model/reference_relation"
+	"github.com/apicat/apicat/v2/backend/service/except"
 	arrutil "github.com/apicat/apicat/v2/backend/utils/array"
 )
 
@@ -20,7 +21,10 @@ func UpdateCollectionRef(ctx context.Context, c *collection.Collection, oldSchem
 		return err
 	}
 
-	newParamIDs := ParseExceptParams(c)
+	newParamIDs, err := except.ParseExceptParamsFromCollection(c)
+	if err != nil {
+		return err
+	}
 	if err := updateExceptParamsToCollection(ctx, c.ID, oldExceptParamIDs, newParamIDs); err != nil {
 		return err
 	}

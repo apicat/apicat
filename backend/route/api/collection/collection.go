@@ -21,6 +21,7 @@ import (
 	collectionrequest "github.com/apicat/apicat/v2/backend/route/proto/collection/request"
 	collectionresponse "github.com/apicat/apicat/v2/backend/route/proto/collection/response"
 	"github.com/apicat/apicat/v2/backend/service/ai"
+	"github.com/apicat/apicat/v2/backend/service/except"
 	"github.com/apicat/apicat/v2/backend/service/reference"
 	"github.com/apicat/apicat/v2/backend/service/relations"
 	"github.com/apicat/apicat/v2/backend/utils/onetime_token"
@@ -195,7 +196,11 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 
 	oldRefSchemaIDs := reference.ParseRefSchemas(c.Content)
 	oldRefResponseIDs := reference.ParseRefResponses(c.Content)
-	oldExceptparamIDs := reference.ParseExceptParams(c)
+	oldExceptparamIDs, err := except.ParseExceptParamsFromCollection(c)
+	if err != nil {
+		slog.ErrorContext(ctx, "reference.ParseExceptParamsFromCollection", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+	}
 
 	if err := c.Update(ctx, opt.Title, opt.Content, selfTM.ID); err != nil {
 		slog.ErrorContext(ctx, "c.Update", "err", err)

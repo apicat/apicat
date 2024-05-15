@@ -1,14 +1,11 @@
 package reference
 
 import (
-	"encoding/json"
+	"context"
 	"regexp"
 	"strconv"
 
-	"github.com/apicat/apicat/v2/backend/model/collection"
-	"github.com/apicat/apicat/v2/backend/model/global"
-	"github.com/apicat/apicat/v2/backend/module/spec"
-	arrutil "github.com/apicat/apicat/v2/backend/utils/array"
+	"github.com/apicat/apicat/v2/backend/model/definition"
 )
 
 func ParseRefSchemas(text string) []uint {
@@ -32,6 +29,53 @@ func ParseRefSchemas(text string) []uint {
 	return list
 }
 
+// func ParseRefSchemasFromCollection(ctx context.Context, c *collection.Collection) ([]uint, error) {
+// 	specC, err := c.ToSpec()
+// 	if err != nil {
+// 		return nil, err
+// 	}
+
+// 	var list []uint
+
+// 	// specC.
+// }
+
+// func ParseRefResponsesFromCollection(ctx context.Context, c *collection.Collection) ([]uint, error) {
+
+// }
+
+func ParseRefSchemasFromResponse(ctx context.Context, r *definition.DefinitionResponse) ([]uint, error) {
+	specR, err := r.ToSpec()
+	if err != nil {
+		return nil, err
+	}
+
+	refSchemaIDs := specR.RefIDs()
+
+	var list []uint
+	for _, v := range refSchemaIDs {
+		list = append(list, uint(v))
+	}
+
+	return list, nil
+}
+
+func ParseRefSchemasFromSchema(ctx context.Context, s *definition.DefinitionSchema) ([]uint, error) {
+	specS, err := s.ToSpec()
+	if err != nil {
+		return nil, err
+	}
+
+	refSchemaIDs := specS.RefIDs()
+
+	var list []uint
+	for _, v := range refSchemaIDs {
+		list = append(list, uint(v))
+	}
+
+	return list, nil
+}
+
 func ParseRefResponses(text string) []uint {
 	// 定义正则表达式
 	re := regexp.MustCompile(`"\$ref":"#/definitions/responses/(\d+)"`)
@@ -50,44 +94,5 @@ func ParseRefResponses(text string) []uint {
 			}
 		}
 	}
-	return list
-}
-
-// ParseExceptParams 读取collection中排除的全局参数
-func ParseExceptParams(c *collection.Collection) []uint {
-	list := make([]uint, 0)
-
-	var specContent spec.CollectionNodes
-	if err := json.Unmarshal([]byte(c.Content), &specContent); err != nil {
-		return list
-	}
-
-	var request *spec.CollectionHttpRequest
-	for _, i := range specContent {
-		switch i.NodeType() {
-		case spec.NODE_HTTP_REQUEST:
-			request = i.ToHttpRequest()
-		}
-	}
-
-	if request == nil {
-		return list
-	}
-
-	globalExceptKey := []string{
-		string(global.ParameterInHeader),
-		string(global.ParameterInPath),
-		string(global.ParameterInHeader),
-		string(global.ParameterInCookie),
-	}
-	for key, value := range request.Attrs.GlobalExcepts.ToMap() {
-		if !arrutil.InArray(key, globalExceptKey) {
-			continue
-		}
-		for _, v := range value {
-			list = append(list, uint(v))
-		}
-	}
-
 	return list
 }
