@@ -13,8 +13,7 @@ import (
 // UpdateResponseRef 更新公共响应引用关系
 func UpdateResponseRef(ctx context.Context, r *definition.DefinitionResponse, oldScheamIDs []uint) error {
 	newSchemaIDs := ParseRefSchemas(r.Content)
-
-	if err := updateRefResponseToScheam(ctx, r.ID, oldScheamIDs, newSchemaIDs); err != nil {
+	if err := updateRefResponseToScheams(ctx, r.ID, oldScheamIDs, newSchemaIDs); err != nil {
 		return err
 	}
 
@@ -23,7 +22,7 @@ func UpdateResponseRef(ctx context.Context, r *definition.DefinitionResponse, ol
 }
 
 // updateRefResponseToScheam 更新公共响应引用公共模型的引用关系
-func updateRefResponseToScheam(ctx context.Context, rID uint, oldScheamIDs, newSchemaIDs []uint) error {
+func updateRefResponseToScheams(ctx context.Context, rID uint, oldScheamIDs, newSchemaIDs []uint) error {
 	oldRefs, err := referencerelation.GetRefSchemaResponses(ctx, oldScheamIDs...)
 	if err != nil {
 		return err
@@ -109,12 +108,12 @@ func derefResponseFromCollections(ctx context.Context, r *definition.DefinitionR
 
 // clearRefCollectionsToResponse 清除collections引用response的引用关系
 func clearRefCollectionsToResponse(ctx context.Context, rID uint) error {
-	return referencerelation.DelRefResponseCollections(ctx, []uint{rID})
+	return referencerelation.DelRefResponseCollections(ctx, rID)
 }
 
 // clearRefResponseToSchemas 清除response引用schemas的引用关系
 func clearRefResponseToSchemas(ctx context.Context, rID uint, schemaIDs []uint) error {
-	return referencerelation.DelRefSchemaResponse(ctx, schemaIDs, rID)
+	return referencerelation.DelRefSchemaResponse(ctx, rID, schemaIDs...)
 }
 
 // linkResponseRefContextParentCWithChildS 建立respnose引用父级collections与引用子集的schemas之间的引用关系

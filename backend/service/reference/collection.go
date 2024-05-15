@@ -4,134 +4,134 @@ import (
 	"context"
 
 	"github.com/apicat/apicat/v2/backend/model/collection"
-	referencerelationship "github.com/apicat/apicat/v2/backend/model/reference_relationship"
+	referencerelation "github.com/apicat/apicat/v2/backend/model/reference_relation"
 	arrutil "github.com/apicat/apicat/v2/backend/utils/array"
 )
 
-// UpdateCollectionRef 更新集合引用关系（包含集合引用、集合被排除）
-func UpdateCollectionRef(ctx context.Context, c *collection.Collection) error {
-	if err := updateParamExcept(ctx, c); err != nil {
+// UpdateCollectionRef 更新集合引用关系（包含集合引用、排除集合）
+func UpdateCollectionRef(ctx context.Context, c *collection.Collection, oldSchemaIDs, oldResponseIDs, oldExceptParamIDs []uint) error {
+	newResponseIDs := ParseRefResponses(c.Content)
+	if err := updateRefCollectionToResponses(ctx, c.ID, oldResponseIDs, newResponseIDs); err != nil {
 		return err
 	}
 
-	return updateReference(ctx, c)
+	newSchemaIDs := ParseRefSchemas(c.Content)
+	if err := updateRefCollectionToSchemas(ctx, c.ID, oldSchemaIDs, newSchemaIDs); err != nil {
+		return err
+	}
+
+	newParamIDs := ParseExceptParams(c)
+	if err := updateExceptParamsToCollection(ctx, c.ID, oldExceptParamIDs, newParamIDs); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-// updateReference 更新集合引用关系
-func updateReference(ctx context.Context, c *collection.Collection) error {
-	cr := &referencerelationship.CollectionReference{CollectionID: c.ID}
-	lastRefs, err := cr.GetCollectionRefs(ctx)
+// updateRefCollectionToResponses 更新集合引用响应的引用关系
+func updateRefCollectionToResponses(ctx context.Context, cID uint, oldResponseIDs, newResponseIDs []uint) error {
+	oldRefs, err := referencerelation.GetRefResponseCollections(ctx, oldResponseIDs...)
 	if err != nil {
 		return err
 	}
 
-	lastSchemaRefsMap := make(map[uint]*referencerelationship.CollectionReference, 0)
-	lastResponseRefsMap := make(map[uint]*referencerelationship.CollectionReference, 0)
-	for _, v := range lastRefs {
-		switch v.RefType {
-		case referencerelationship.ReferenceSchema:
-			lastSchemaRefsMap[v.RefID] = v
-		case referencerelationship.ReferenceResponse:
-			lastResponseRefsMap[v.RefID] = v
-		}
+	oldRefsMap := make(map[uint]*referencerelation.RefResponseCollections, 0)
+	for _, v := range oldRefs {
+		oldRefsMap[v.RefResponserID] = v
 	}
-
-	schemaWantPop, schemaWantPush := updateSchemaRef(c, lastSchemaRefsMap)
-	responseWantPop, responseWantPush := updateResponseRef(c, lastResponseRefsMap)
-
-	wantPop := append(schemaWantPop, responseWantPop...)
-	wantPush := append(schemaWantPush, responseWantPush...)
-
-	if err := referencerelationship.BatchCreateCollectionReference(ctx, wantPush); err != nil {
-		return err
-	}
-
-	return referencerelationship.BatchDeleteCollectionReference(ctx, wantPop...)
-}
-
-// updateParamExcept 更新集合被全局参数排除关系
-func updateParamExcept(ctx context.Context, c *collection.Collection) error {
-	pe := referencerelationship.ParameterExcept{ExceptCollectionID: c.ID}
-
-	lastExcepts, err := pe.GetParameterExcepts(ctx)
-	if err != nil {
-		return err
-	}
-
-	lastExceptsMap := make(map[uint]*referencerelationship.ParameterExcept, 0)
-	for _, v := range lastExcepts {
-		lastExceptsMap[v.ParameterID] = v
-	}
-
-	latestExcepts := ParseExceptParameterFromCollection(c)
 
 	wantPop := make([]uint, 0)
-	wantPush := make([]*referencerelationship.ParameterExcept, 0)
+	wantPush := make([]*referencerelation.RefResponseCollections, 0)
 
-	for key, value := range lastExceptsMap {
-		if !arrutil.InArray[uint](key, latestExcepts) {
+	for key, value := range oldRefsMap {
+		if !arrutil.InArray(key, newResponseIDs) {
 			wantPop = append(wantPop, value.ID)
 		}
 	}
 
-	for _, v := range latestExcepts {
-		if _, ok := lastExceptsMap[v]; !ok {
-			wantPush = append(wantPush, &referencerelationship.ParameterExcept{
-				ParameterID:        v,
-				ExceptCollectionID: c.ID,
+	for _, v := range newResponseIDs {
+		if _, ok := oldRefsMap[v]; !ok {
+			wantPush = append(wantPush, &referencerelation.RefResponseCollections{
+				CollectionID:   cID,
+				RefResponserID: v,
 			})
 		}
 	}
 
-	if err := referencerelationship.BatchCreateParameterExcept(ctx, wantPush); err != nil {
+	if err := referencerelation.BatchCreateRefResponseCollections(ctx, wantPush); err != nil {
+		return err
+	}
+	return referencerelation.BatchDelRefResponseCollections(ctx, wantPop...)
+}
+
+// updateRefCollectionToSchemas 更新集合引用公共模型的引用关系
+func updateRefCollectionToSchemas(ctx context.Context, cID uint, oldScheamIDs, newSchemaIDs []uint) error {
+	oldRefs, err := referencerelation.GetRefSchemaCollections(ctx, oldScheamIDs...)
+	if err != nil {
 		return err
 	}
 
-	return referencerelationship.BatchDeleteParameterExcept(ctx, wantPop...)
-}
+	oldRefsMap := make(map[uint]*referencerelation.RefSchemaCollections, 0)
+	for _, v := range oldRefs {
+		oldRefsMap[v.RefSchemaID] = v
+	}
 
-// updateSchemaRef 更新集合中引用公共模型关系
-func updateSchemaRef(c *collection.Collection, lastRefsMap map[uint]*referencerelationship.CollectionReference) (wantPop []uint, wantPush []*referencerelationship.CollectionReference) {
-	latestSchemaRefs := ParseRefSchemas(c.Content)
+	wantPop := make([]uint, 0)
+	wantPush := make([]*referencerelation.RefSchemaCollections, 0)
 
-	for key, value := range lastRefsMap {
-		if !arrutil.InArray[uint](key, latestSchemaRefs) {
+	for key, value := range oldRefsMap {
+		if !arrutil.InArray(key, newSchemaIDs) {
 			wantPop = append(wantPop, value.ID)
 		}
 	}
 
-	for _, v := range latestSchemaRefs {
-		if _, ok := lastRefsMap[v]; !ok {
-			wantPush = append(wantPush, &referencerelationship.CollectionReference{
-				CollectionID: c.ID,
-				RefID:        v,
-				RefType:      referencerelationship.ReferenceSchema,
+	for _, v := range newSchemaIDs {
+		if _, ok := oldRefsMap[v]; !ok {
+			wantPush = append(wantPush, &referencerelation.RefSchemaCollections{
+				CollectionID: cID,
+				RefSchemaID:  v,
 			})
 		}
 	}
 
-	return wantPop, wantPush
+	if err := referencerelation.BatchCreateRefSchemaCollections(ctx, wantPush); err != nil {
+		return err
+	}
+	return referencerelation.BatchDelRefSchemaCollections(ctx, wantPop...)
 }
 
-// updateResponseRef 更新集合中引用公共响应关系
-func updateResponseRef(c *collection.Collection, lastRefsMap map[uint]*referencerelationship.CollectionReference) (wantPop []uint, wantPush []*referencerelationship.CollectionReference) {
-	lastResponseRefs := ParseRefResponses(c.Content)
+// updateExceptParamsToCollection 更新集合被全局参数排除关系
+func updateExceptParamsToCollection(ctx context.Context, cID uint, oldParamIDs, newParamIDs []uint) error {
+	oldRefs, err := referencerelation.GetExceptParamCollections(ctx, oldParamIDs...)
+	if err != nil {
+		return err
+	}
 
-	for key, value := range lastRefsMap {
-		if !arrutil.InArray[uint](key, lastResponseRefs) {
+	oldRefsMap := make(map[uint]*referencerelation.ExceptParamCollection, 0)
+	for _, v := range oldRefs {
+		oldRefsMap[v.CollectionID] = v
+	}
+
+	wantPop := make([]uint, 0)
+	wantPush := make([]*referencerelation.ExceptParamCollection, 0)
+
+	for key, value := range oldRefsMap {
+		if !arrutil.InArray(key, newParamIDs) {
 			wantPop = append(wantPop, value.ID)
 		}
 	}
 
-	for _, v := range lastResponseRefs {
-		if _, ok := lastRefsMap[v]; !ok {
-			wantPush = append(wantPush, &referencerelationship.CollectionReference{
-				CollectionID: c.ID,
-				RefID:        v,
-				RefType:      referencerelationship.ReferenceResponse,
+	for _, v := range newParamIDs {
+		if _, ok := oldRefsMap[v]; !ok {
+			wantPush = append(wantPush, &referencerelation.ExceptParamCollection{
+				CollectionID:  cID,
+				ExceptParamID: v,
 			})
 		}
 	}
 
-	return wantPop, wantPush
+	if err := referencerelation.BatchCreateExceptParamCollections(ctx, wantPush); err != nil {
+		return err
+	}
+	return referencerelation.BatchDelExceptParamCollections(ctx, wantPop...)
 }

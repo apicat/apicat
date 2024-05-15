@@ -5,170 +5,130 @@ import (
 
 	"github.com/apicat/apicat/v2/backend/model/collection"
 	"github.com/apicat/apicat/v2/backend/model/definition"
+	referencerelation "github.com/apicat/apicat/v2/backend/model/reference_relation"
 	referencerelationship "github.com/apicat/apicat/v2/backend/model/reference_relationship"
 	arrutil "github.com/apicat/apicat/v2/backend/utils/array"
 )
 
 // UpdateSchemaRef 更新公共模型引用关系
-func UpdateSchemaRef(ctx context.Context, s *definition.DefinitionSchema) error {
-	sr := &referencerelationship.SchemaReference{SchemaID: s.ID}
-	lastRefs, err := sr.GetSchemaRefs(ctx)
+// oldScheamIDs 需要更新的shcema之前引用的公共模型id
+func UpdateSchemaRef(ctx context.Context, s *definition.DefinitionSchema, oldScheamIDs []uint) error {
+	newSchemaIDs := ParseRefSchemas(s.Schema)
+
+	if err := updateRefSchemaToschemas(ctx, s.ID, oldScheamIDs, newSchemaIDs); err != nil {
+		return err
+	}
+
+	// 预留schema还会引用其他公共组建的情况
+	return nil
+}
+
+// updateRefSchemaToschema 更新schema引用schemas的引用关系
+func updateRefSchemaToschemas(ctx context.Context, sID uint, oldSchemaIDs, newSchemaIDs []uint) error {
+	oldRefs, err := referencerelation.GetRefSchemaSchemas(ctx, oldSchemaIDs...)
 	if err != nil {
 		return err
 	}
 
-	lastRefsMap := make(map[uint]*referencerelationship.SchemaReference, 0)
-	for _, v := range lastRefs {
-		lastRefsMap[v.RefSchemaID] = v
+	oldRefsMap := make(map[uint]*referencerelation.RefSchemaSchemas, 0)
+	for _, v := range oldRefs {
+		oldRefsMap[v.SchemaID] = v
 	}
 
-	latestRefs := ParseRefSchemas(s.Schema)
-
 	wantPop := make([]uint, 0)
-	wantPush := make([]*referencerelationship.SchemaReference, 0)
+	wantPush := make([]*referencerelation.RefSchemaSchemas, 0)
 
 	// 删除老引用关系中存在但当前引用中不存在的引用
-	for key, value := range lastRefsMap {
-		if !arrutil.InArray[uint](key, latestRefs) {
+	for key, value := range oldRefsMap {
+		if !arrutil.InArray(key, newSchemaIDs) {
 			wantPop = append(wantPop, value.ID)
 		}
 	}
 
 	// 添加老引用关系中不存在但当前引用中存在的引用
-	for _, v := range latestRefs {
-		if _, ok := lastRefsMap[v]; !ok {
-			wantPush = append(wantPush, &referencerelationship.SchemaReference{
-				SchemaID:    s.ID,
+	for _, v := range newSchemaIDs {
+		if _, ok := oldRefsMap[v]; !ok {
+			wantPush = append(wantPush, &referencerelation.RefSchemaSchemas{
+				SchemaID:    sID,
 				RefSchemaID: v,
 			})
 		}
 	}
 
-	if err := referencerelationship.BatchCreateSchemaReference(ctx, wantPush); err != nil {
+	if err := referencerelation.BatchCreateRefSchemaSchemas(ctx, wantPush); err != nil {
 		return err
 	}
-	return referencerelationship.BatchDeleteSchemaReference(ctx, wantPop...)
+	return referencerelation.BatchDelRefSchemaSchemas(ctx, wantPop...)
 }
 
-// DerefSchema 公共模型解引用
 func DerefSchema(ctx context.Context, s *definition.DefinitionSchema, deref bool) error {
+	rc := referencerelation.RefSchemaCollections{RefSchemaID: s.ID}
+	cIDs, err := rc.GetCollectionIDs(ctx)
+	if err != nil {
+		return err
+	}
+
+	// 在collection中解引用schema
+	if err := derefSchemaFromCollections(ctx, s, cIDs, deref); err != nil {
+		return err
+	}
+
+	rr := referencerelation.RefSchemaResponses{RefSchemaID: s.ID}
+	rIDs, err := rr.GetResponseIDs(ctx)
+	if err != nil {
+		return err
+	}
+
+	// 在response中解引用schema
+	if err := derefSchemaFromResponses(ctx, s, rIDs, deref); err != nil {
+		return err
+	}
+
+	rs := referencerelation.RefSchemaSchemas{RefSchemaID: s.ID}
+	schemaIDs, err := rs.GetSchemaIDs(ctx)
+	if err != nil {
+		return err
+	}
+
+	// 在schema中解引用schema
+	if err := derefSchemaFromSchemas(ctx, s, schemaIDs, deref); err != nil {
+		return err
+	}
+
 	if deref {
-		return unpackSchemaRef(ctx, s)
-	} else {
-		return clearSchemaRef(ctx, s)
-	}
-}
+		// 建立引用自身的(collections -> self 中的collections)与自身引用的(self -> schemas 中的schemas)之间的引用关系
+		if err := linkSchemaRefContextParentCWithChildS(ctx, cIDs, schemaIDs); err != nil {
+			return err
+		}
 
-// clearSchemaRef 清除公共模型
-func clearSchemaRef(ctx context.Context, s *definition.DefinitionSchema) error {
-	// 清除被引用关系(schemas -> self)
-	sr := &referencerelationship.SchemaReference{RefSchemaID: s.ID}
-	schemaIDs, err := sr.GetSchemaIDsByRef(ctx)
-	if err != nil {
-		return err
-	}
-	if err := derefSchemaFromSchemas(ctx, s, schemaIDs, false); err != nil {
-		return err
+		// 建立引用自身的(responses -> self 中的responses)与自身引用的(self -> schemas 中的schemas)之间的引用关系
+		if err := linkSchemaRefContextParentRWithChildS(ctx, rIDs, schemaIDs); err != nil {
+			return err
+		}
+
+		// 建立引用自身的(schemas -> self 中的schemas)与自身引用的(self -> schemas 中的schemas)之间的引用关系
+		if err := linkSchemaRefContextParentSWithChildS(ctx, schemaIDs, schemaIDs); err != nil {
+			return err
+		}
 	}
 
-	// 清除被引用关系(responses -> self)
-	rr := &referencerelationship.ResponseReference{RefSchemaID: s.ID}
-	responseIDs, err := rr.GetResponseIDsByRef(ctx)
-	if err != nil {
-		return err
-	}
-	if err := derefSchemaFromResponses(ctx, s, responseIDs, false); err != nil {
+	// 清除引用关系(collections -> self)
+	if err := clearRefCollectionsToSchema(ctx, s.ID); err != nil {
 		return err
 	}
 
-	// 清除被引用关系(collections -> self)
-	cr := &referencerelationship.CollectionReference{RefID: s.ID, RefType: referencerelationship.ReferenceSchema}
-	collectionIDs, err := cr.GetCollectionIDsByRef(ctx)
-	if err != nil {
+	// 清除引用关系(responses -> self)
+	if err := clearRefResponsesToSchema(ctx, s.ID); err != nil {
 		return err
 	}
-	if err := derefSchemaFromCollections(ctx, s, collectionIDs, false); err != nil {
+
+	// 清除引用关系(schemas -> self)
+	if err := clearRefSchemasToSchema(ctx, s.ID); err != nil {
 		return err
 	}
 
 	// 清除引用关系(self -> scheams)
-	return deleteSchemaReference(ctx, s)
-}
-
-// unpackSchemaRef 展开公共模型
-func unpackSchemaRef(ctx context.Context, s *definition.DefinitionSchema) error {
-	// 清除被引用关系(schemas -> self)
-	sr := &referencerelationship.SchemaReference{RefSchemaID: s.ID}
-	schemaIDs, err := sr.GetSchemaIDsByRef(ctx)
-	if err != nil {
-		return err
-	}
-	if err := derefSchemaFromSchemas(ctx, s, schemaIDs, true); err != nil {
-		return err
-	}
-
-	// 清除被引用关系(responses -> self)
-	rr := &referencerelationship.ResponseReference{RefSchemaID: s.ID}
-	responseIDs, err := rr.GetResponseIDsByRef(ctx)
-	if err != nil {
-		return err
-	}
-	if err := derefSchemaFromResponses(ctx, s, responseIDs, true); err != nil {
-		return err
-	}
-
-	// 清除被引用关系(collections -> self)
-	cr := &referencerelationship.CollectionReference{RefID: s.ID, RefType: referencerelationship.ReferenceSchema}
-	collectionIDs, err := cr.GetCollectionIDsByRef(ctx)
-	if err != nil {
-		return err
-	}
-	if err := derefSchemaFromCollections(ctx, s, collectionIDs, true); err != nil {
-		return err
-	}
-
-	// 建立自身引用的(self -> schemas 中的schemas)与引用自身的(collections responsers schemas -> self 中的collections responsers schemas)之间的引用关系
-	sr = &referencerelationship.SchemaReference{SchemaID: s.ID}
-	schemaRefRecords, err := sr.GetSchemaRefs(ctx)
-	if err != nil {
-		return err
-	}
-
-	collectionWantPush := make([]*referencerelationship.CollectionReference, 0)
-	schemaWantPush := make([]*referencerelationship.SchemaReference, 0)
-	responseWantPush := make([]*referencerelationship.ResponseReference, 0)
-	for _, v := range schemaRefRecords {
-		for _, s := range schemaIDs {
-			schemaWantPush = append(schemaWantPush, &referencerelationship.SchemaReference{
-				SchemaID:    s,
-				RefSchemaID: v.RefSchemaID,
-			})
-		}
-		for _, r := range responseIDs {
-			responseWantPush = append(responseWantPush, &referencerelationship.ResponseReference{
-				ResponseID:  r,
-				RefSchemaID: v.RefSchemaID,
-			})
-		}
-		for _, c := range collectionIDs {
-			collectionWantPush = append(collectionWantPush, &referencerelationship.CollectionReference{
-				CollectionID: c,
-				RefID:        v.RefSchemaID,
-				RefType:      referencerelationship.ReferenceSchema,
-			})
-		}
-	}
-	if err := referencerelationship.BatchCreateSchemaReference(ctx, schemaWantPush); err != nil {
-		return err
-	}
-	if err := referencerelationship.BatchCreateResponseReference(ctx, responseWantPush); err != nil {
-		return err
-	}
-
-	if err := referencerelationship.BatchCreateCollectionReference(ctx, collectionWantPush); err != nil {
-		return err
-	}
-	return deleteSchemaReference(ctx, s)
+	return clearRefSchemaToSchemas(ctx, schemaIDs, s.ID)
 }
 
 // derefSchemaFromSchemas 从公共模型中解引用公共模型
@@ -230,4 +190,66 @@ func deleteSchemaReference(ctx context.Context, s *definition.DefinitionSchema) 
 	}
 
 	return referencerelationship.BatchDeleteSchemaReference(ctx, ids...)
+}
+
+// clearRefCollectionsToSchema 清除collections引用schema的引用关系
+func clearRefCollectionsToSchema(ctx context.Context, sID uint) error {
+	return referencerelation.DelRefSchemaCollections(ctx, sID)
+}
+
+// clearRefResponsesToSchema 清除responses引用schema的引用关系
+func clearRefResponsesToSchema(ctx context.Context, sID uint) error {
+	return referencerelation.DelRefSchemaResponses(ctx, sID)
+}
+
+// clearRefSchemasToSchema 清除schemas引用schema的引用关系
+func clearRefSchemasToSchema(ctx context.Context, sID uint) error {
+	return referencerelation.DelRefSchemaSchemas(ctx, sID)
+}
+
+// clearRefSchemaToSchemas 清除schema引用schemas的引用关系
+func clearRefSchemaToSchemas(ctx context.Context, schemaIDs []uint, sID uint) error {
+	return referencerelation.DelRefSchemaSchema(ctx, sID, schemaIDs...)
+}
+
+// linkSchemaRefContextParentCWithChildS 建立schema引用父级collections与引用子集的schemas之间的引用关系
+func linkSchemaRefContextParentCWithChildS(ctx context.Context, collectionIDs, schemaIDs []uint) error {
+	wantPush := make([]*referencerelation.RefSchemaCollections, 0)
+	for _, v := range schemaIDs {
+		for _, c := range collectionIDs {
+			wantPush = append(wantPush, &referencerelation.RefSchemaCollections{
+				RefSchemaID:  v,
+				CollectionID: c,
+			})
+		}
+	}
+	return referencerelation.BatchCreateRefSchemaCollections(ctx, wantPush)
+}
+
+// linkSchemaRefContextParentRWithChildS 建立schema引用父级responses与引用子集的schemas之间的引用关系
+func linkSchemaRefContextParentRWithChildS(ctx context.Context, responseIDs, schemaIDs []uint) error {
+	wantPush := make([]*referencerelation.RefSchemaResponses, 0)
+	for _, v := range schemaIDs {
+		for _, r := range responseIDs {
+			wantPush = append(wantPush, &referencerelation.RefSchemaResponses{
+				RefSchemaID: v,
+				ResponseID:  r,
+			})
+		}
+	}
+	return referencerelation.BatchCreateRefSchemaResponses(ctx, wantPush)
+}
+
+// linkSchemaRefContextParentSWithChildS 建立schema引用父级schemas与引用子集的schemas之间的引用关系
+func linkSchemaRefContextParentSWithChildS(ctx context.Context, schemaIDs, childSchemaIDs []uint) error {
+	wantPush := make([]*referencerelation.RefSchemaSchemas, 0)
+	for _, v := range childSchemaIDs {
+		for _, s := range schemaIDs {
+			wantPush = append(wantPush, &referencerelation.RefSchemaSchemas{
+				RefSchemaID: v,
+				SchemaID:    s,
+			})
+		}
+	}
+	return referencerelation.BatchCreateRefSchemaSchemas(ctx, wantPush)
 }

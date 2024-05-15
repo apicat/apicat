@@ -53,8 +53,8 @@ func ParseRefResponses(text string) []uint {
 	return list
 }
 
-// ParseExceptParameterFromCollection 读取collection中排除的全局参数
-func ParseExceptParameterFromCollection(c *collection.Collection) []uint {
+// ParseExceptParams 读取collection中排除的全局参数
+func ParseExceptParams(c *collection.Collection) []uint {
 	list := make([]uint, 0)
 
 	var specContent []*spec.NodeProxy
