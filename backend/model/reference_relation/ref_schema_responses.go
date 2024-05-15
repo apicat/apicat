@@ -38,21 +38,30 @@ func BatchDelRefSchemaResponses(ctx context.Context, ids ...uint) error {
 	return model.DB(ctx).Where("id in ?", ids).Delete(&RefSchemaResponses{}).Error
 }
 
-// GetRefSchemaResponses 获取引用指定公共模型的所有公共响应的引用关系
+// GetRefSchemaResponse 获取指定response引用指定schemas的引用关系
+func GetRefSchemaResponse(ctx context.Context, responseID uint, schemaID ...uint) ([]*RefSchemaResponses, error) {
+	var list []*RefSchemaResponses
+	tx := model.DB(ctx).Where("ref_schema_id in ?", schemaID).Where("response_id = ?", responseID).Find(&list)
+	return list, tx.Error
+}
+
+// GetRefSchemaResponses 获取所有responses引用指定schemas的引用关系
 func GetRefSchemaResponses(ctx context.Context, schemaIDs ...uint) ([]*RefSchemaResponses, error) {
 	var list []*RefSchemaResponses
 	tx := model.DB(ctx).Where("ref_schema_id in ?", schemaIDs).Find(&list)
 	return list, tx.Error
 }
 
-// DelRefSchemaResponse 删除引用指定公共模型s的指定公共响应的引用关系
+// DelRefSchemaResponse 删除指定response引用指定schemas的引用关系
+// responseID 引用公共模型的公共响应ID
+// schemaIDs 被引用的所有公共模型ID，因为ref_schema_id是索引字段，导致删除时需要传入所有被引用的公共模型ID
 // 用于删除公共响应时，删除该公共响应引用的公共模型
-func DelRefSchemaResponse(ctx context.Context, schemaIDs []uint, responseID uint) error {
+func DelRefSchemaResponse(ctx context.Context, responseID uint, schemaIDs ...uint) error {
 	return model.DB(ctx).Where("ref_schema_id in ?", schemaIDs).Where("response_id = ?", responseID).Delete(&RefSchemaResponses{}).Error
 }
 
-// DelRefSchemaResponses 删除引用指定公共模型的所有公共响应的引用关系
+// DelRefSchemaResponses 删除所有responses引用指定schema的引用关系
 // 用于删除公共模型时，删除所有引用了该公共模型的公共响应
-func DelRefSchemaResponses(ctx context.Context, schemaIDs uint) error {
-	return model.DB(ctx).Where("ref_schema_id = ?", schemaIDs).Delete(&RefSchemaResponses{}).Error
+func DelRefSchemaResponses(ctx context.Context, schemaID uint) error {
+	return model.DB(ctx).Where("ref_schema_id = ?", schemaID).Delete(&RefSchemaResponses{}).Error
 }

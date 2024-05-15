@@ -38,21 +38,30 @@ func BatchDelRefSchemaSchemas(ctx context.Context, ids ...uint) error {
 	return model.DB(ctx).Where("id in ?", ids).Delete(&RefSchemaSchemas{}).Error
 }
 
-// GetRefSchemaSchemas 获取引用指定公共模型的所有公共模型的引用关系
-func GetRefSchemaSchemas(ctx context.Context, schemaIDs ...uint) ([]*RefSchemaSchemas, error) {
+// GetRefSchemaSchema 获取指定schema引用指定schemas的引用关系
+func GetRefSchemaSchema(ctx context.Context, schemaID uint, refSchemaIDs ...uint) ([]*RefSchemaSchemas, error) {
 	var list []*RefSchemaSchemas
-	tx := model.DB(ctx).Where("ref_schema_id in ?", schemaIDs).Find(&list)
+	tx := model.DB(ctx).Where("ref_schema_id in ?", refSchemaIDs).Where("schema_id = ?", schemaID).Find(&list)
 	return list, tx.Error
 }
 
-// DelRefSchemaSchema 删除引用指定公共模型的指定公共模型的引用关系
-// 用于删除文档时，删除该文档引用的公共模型
-func DelRefSchemaSchema(ctx context.Context, schemaIDs []uint, responseID uint) error {
-	return model.DB(ctx).Where("ref_schema_id in ?", schemaIDs).Where("schema_id = ?", responseID).Delete(&RefSchemaSchemas{}).Error
+// GetRefSchemaSchemas 获取所有schemas引用指定schemas的引用关系
+func GetRefSchemaSchemas(ctx context.Context, refSchemaIDs ...uint) ([]*RefSchemaSchemas, error) {
+	var list []*RefSchemaSchemas
+	tx := model.DB(ctx).Where("ref_schema_id in ?", refSchemaIDs).Find(&list)
+	return list, tx.Error
 }
 
-// DelRefSchemaSchemas 删除引用指定公共模型的所有公共模型的引用关系
+// DelRefSchemaSchema 删除指定schema引用指定schemas的引用关系
+// schemaID 引用公共模型的公共模型ID
+// refSchemaIDs 被引用的所有公共模型ID，因为ref_schema_id是索引字段，导致删除时需要传入所有被引用的公共模型ID
+// 用于删除公共模型时，删除该公共模型引用的公共模型
+func DelRefSchemaSchema(ctx context.Context, schemaID uint, refSchemaIDs ...uint) error {
+	return model.DB(ctx).Where("ref_schema_id in ?", refSchemaIDs).Where("schema_id = ?", schemaID).Delete(&RefSchemaSchemas{}).Error
+}
+
+// DelRefSchemaSchemas 删除所有schemas引用指定schema的引用关系
 // 用于删除公共模型时，删除所有引用了该公共模型的公共模型
-func DelRefSchemaSchemas(ctx context.Context, schemaIDs uint) error {
-	return model.DB(ctx).Where("ref_schema_id = ?", schemaIDs).Delete(&RefSchemaSchemas{}).Error
+func DelRefSchemaSchemas(ctx context.Context, refSchemaIDs uint) error {
+	return model.DB(ctx).Where("ref_schema_id = ?", refSchemaIDs).Delete(&RefSchemaSchemas{}).Error
 }
