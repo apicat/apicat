@@ -130,7 +130,7 @@ func (pai *projectApiImpl) Create(ctx *gin.Context, opt *projectrequest.CreatePr
 
 		refContentVirtualIDToID := &collection.RefContentVirtualIDToId{}
 		refContentVirtualIDToID.GlobalParameters = relations.ImportGlobalParameters(ctx, p.ID, content.Globals.Parameters)
-		refContentVirtualIDToID.DefinitionParameters = relations.ImportDefinitionParameters(ctx, p.ID, content.Definitions.Parameters)
+		// refContentVirtualIDToID.DefinitionParameters = relations.ImportDefinitionParameters(ctx, p.ID, content.Definitions.Parameters)
 		refContentVirtualIDToID.DefinitionSchemas = relations.ImportDefinitionSchemas(ctx, p.ID, content.Definitions.Schemas, selfMember, 0)
 		refContentVirtualIDToID.DefinitionResponses = relations.ImportDefinitionResponses(ctx, p.ID, content.Definitions.Responses, selfMember, refContentVirtualIDToID.DefinitionSchemas, 0)
 
@@ -546,15 +546,15 @@ func Export(ctx *gin.Context) {
 	var content []byte
 	switch t.Type {
 	case "swagger":
-		content, err = openapi.Encode(apicatData, "2.0", "json")
+		content, err = openapi.Generate(apicatData, "2.0", "json")
 	case "openapi3.0.0":
-		content, err = openapi.Encode(apicatData, "3.0.0", "json")
+		content, err = openapi.Generate(apicatData, "3.0.0", "json")
 	case "openapi3.0.1":
-		content, err = openapi.Encode(apicatData, "3.0.1", "json")
+		content, err = openapi.Generate(apicatData, "3.0.1", "json")
 	case "openapi3.0.2":
-		content, err = openapi.Encode(apicatData, "3.0.2", "json")
+		content, err = openapi.Generate(apicatData, "3.0.2", "json")
 	case "openapi3.1.0":
-		content, err = openapi.Encode(apicatData, "3.1.0", "json")
+		content, err = openapi.Generate(apicatData, "3.1.0", "json")
 	case "HTML":
 		content, err = export.HTML(apicatData)
 	case "md":

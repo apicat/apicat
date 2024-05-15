@@ -57,16 +57,16 @@ func ParseRefResponses(text string) []uint {
 func ParseExceptParams(c *collection.Collection) []uint {
 	list := make([]uint, 0)
 
-	var specContent []*spec.NodeProxy
+	var specContent spec.CollectionNodes
 	if err := json.Unmarshal([]byte(c.Content), &specContent); err != nil {
 		return list
 	}
 
-	var request *spec.HTTPNode[spec.HTTPRequestNode]
+	var request *spec.CollectionHttpRequest
 	for _, i := range specContent {
-		switch nx := i.Node.(type) {
-		case *spec.HTTPNode[spec.HTTPRequestNode]:
-			request = nx
+		switch i.NodeType() {
+		case spec.NODE_HTTP_REQUEST:
+			request = i.ToHttpRequest()
 		}
 	}
 
@@ -80,7 +80,7 @@ func ParseExceptParams(c *collection.Collection) []uint {
 		string(global.ParameterInHeader),
 		string(global.ParameterInCookie),
 	}
-	for key, value := range request.Attrs.GlobalExcepts {
+	for key, value := range request.Attrs.GlobalExcepts.ToMap() {
 		if !arrutil.InArray(key, globalExceptKey) {
 			continue
 		}

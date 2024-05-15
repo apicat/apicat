@@ -1,6 +1,11 @@
-package spec2
+package spec
 
-import "strconv"
+import (
+	"errors"
+	"strconv"
+
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
+)
 
 const NODE_HTTP_REQUEST = "apicat-http-request"
 
@@ -45,10 +50,6 @@ func (r *CollectionHttpRequest) NodeType() string {
 }
 
 func (r *CollectionHttpRequest) GetGlobalExcept(in string) []int64 {
-	if r == nil || r.Attrs == nil || r.Attrs.GlobalExcepts == nil {
-		return nil
-	}
-
 	switch in {
 	case "header":
 		return r.Attrs.GlobalExcepts.Header
@@ -61,10 +62,6 @@ func (r *CollectionHttpRequest) GetGlobalExcept(in string) []int64 {
 }
 
 func (r *CollectionHttpRequest) GetGlobalExceptAll() map[string][]int64 {
-	if r == nil || r.Attrs == nil || r.Attrs.GlobalExcepts == nil {
-		return nil
-	}
-
 	return map[string][]int64{
 		"header": r.Attrs.GlobalExcepts.Header,
 		"cookie": r.Attrs.GlobalExcepts.Cookie,
@@ -73,10 +70,6 @@ func (r *CollectionHttpRequest) GetGlobalExceptAll() map[string][]int64 {
 }
 
 func (r *CollectionHttpRequest) AddGlobalExcept(in string, id int64) {
-	if r == nil || r.Attrs == nil || r.Attrs.GlobalExcepts == nil {
-		return
-	}
-
 	switch in {
 	case "header":
 		if len(r.Attrs.GlobalExcepts.Header) == 0 {
@@ -115,10 +108,6 @@ func (r *CollectionHttpRequest) AddGlobalExcept(in string, id int64) {
 }
 
 func (r *CollectionHttpRequest) DelGlobalExcept(in string, id int64) {
-	if r == nil || r.Attrs == nil || r.Attrs.GlobalExcepts == nil {
-		return
-	}
-
 	switch in {
 	case "header":
 		if len(r.Attrs.GlobalExcepts.Header) == 0 {
@@ -153,9 +142,43 @@ func (r *CollectionHttpRequest) DelGlobalExcept(in string, id int64) {
 	}
 }
 
-func (r *CollectionHttpRequest) Deref(ref *Model) {
-	if r == nil || r.Attrs == nil || r.Attrs.Content == nil || ref == nil {
+func (r *CollectionHttpRequest) DerefGlobalParameters(params *GlobalParameters) {
+	if params == nil {
 		return
+	}
+
+	if len(params.Query) > 0 {
+		for _, p := range params.Query {
+			if r.Attrs.GlobalExcepts.Exist("query", p.ID) {
+				continue
+			}
+			r.Attrs.Parameters.Add("query", p)
+		}
+		r.Attrs.GlobalExcepts.Clear("query")
+	}
+	if len(params.Cookie) > 0 {
+		for _, p := range params.Cookie {
+			if r.Attrs.GlobalExcepts.Exist("cookie", p.ID) {
+				continue
+			}
+			r.Attrs.Parameters.Add("cookie", p)
+		}
+		r.Attrs.GlobalExcepts.Clear("cookie")
+	}
+	if len(params.Header) > 0 {
+		for _, p := range params.Header {
+			if r.Attrs.GlobalExcepts.Exist("header", p.ID) {
+				continue
+			}
+			r.Attrs.Parameters.Add("header", p)
+		}
+		r.Attrs.GlobalExcepts.Clear("header")
+	}
+}
+
+func (r *CollectionHttpRequest) DerefModel(ref *DefinitionModel) error {
+	if ref == nil {
+		return errors.New("model is nil")
 	}
 	ref.Schema.ID = ref.ID
 
@@ -164,15 +187,50 @@ func (r *CollectionHttpRequest) Deref(ref *Model) {
 			refSchemas := v.Schema.DeepFindRefById(strconv.FormatInt(ref.ID, 10))
 			if len(refSchemas) > 0 {
 				for _, schema := range refSchemas {
-					schema.ReplaceRef(ref.Schema)
+					if err := schema.ReplaceRef(ref.Schema); err != nil {
+						return err
+					}
 				}
 			}
 		}
 	}
+	return nil
 }
 
-func (r *CollectionHttpRequest) DelRef(ref *Model) {
-	if r == nil || r.Attrs == nil || r.Attrs.Content == nil || ref == nil {
+func (r *CollectionHttpRequest) DeepDerefModel(refs DefinitionModels) error {
+	if len(refs) == 0 {
+		return nil
+	}
+
+	helper := jsonschema.NewDerefHelper(refs.ToJsonSchemaMap())
+	return r.DeepDerefModelByHelper(helper)
+}
+
+func (r *CollectionHttpRequest) DeepDerefModelByHelper(helper *jsonschema.DerefHelper) error {
+	if helper == nil {
+		return errors.New("helper is nil")
+	}
+
+	for _, v := range r.Attrs.Content {
+		if v.Schema != nil {
+			new, err := helper.DeepDeref(v.Schema)
+			if err != nil {
+				return err
+			}
+			v.Schema = &new
+		}
+	}
+	return nil
+}
+
+func (r *CollectionHttpRequest) ToCollectionNode() *CollectionNode {
+	return &CollectionNode{
+		Node: r,
+	}
+}
+
+func (r *CollectionHttpRequest) DelRefModel(ref *DefinitionModel) {
+	if ref == nil {
 		return
 	}
 	ref.Schema.ID = ref.ID
@@ -184,5 +242,52 @@ func (r *CollectionHttpRequest) DelRef(ref *Model) {
 			}
 			v.Schema.DelChildrenRef(ref.Schema)
 		}
+	}
+}
+
+func (g *HttpRequestGlobalExcepts) Exist(in string, id int64) bool {
+	if id == 0 {
+		return false
+	}
+
+	switch in {
+	case "header":
+		for _, v := range g.Header {
+			if v == id {
+				return true
+			}
+		}
+	case "cookie":
+		for _, v := range g.Cookie {
+			if v == id {
+				return true
+			}
+		}
+	case "query":
+		for _, v := range g.Query {
+			if v == id {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (g *HttpRequestGlobalExcepts) ToMap() map[string][]int64 {
+	return map[string][]int64{
+		"header": g.Header,
+		"cookie": g.Cookie,
+		"query":  g.Query,
+	}
+}
+
+func (g *HttpRequestGlobalExcepts) Clear(in string) {
+	switch in {
+	case "header":
+		g.Header = []int64{}
+	case "cookie":
+		g.Cookie = []int64{}
+	case "query":
+		g.Query = []int64{}
 	}
 }

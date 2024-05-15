@@ -41,7 +41,7 @@ func DocGenerate(ctx *gin.Context, prompt string) (*collection.Collection, error
 	}
 
 	result = strings.TrimSuffix(result, "```")
-	apiSpec, err := openapi.Decode([]byte(result))
+	apiSpec, err := openapi.Parse([]byte(result))
 	if err != nil {
 		return nil, fmt.Errorf("openapi.Decode failed: %s content:\n%s", err.Error(), result)
 	}
@@ -50,11 +50,8 @@ func DocGenerate(ctx *gin.Context, prompt string) (*collection.Collection, error
 		return nil, fmt.Errorf("collection not found, original openapi content:\n%s", result)
 	}
 
-	if err := apiSpec.Collections[0].DerefSchema(apiSpec.Definitions.Schemas...); err != nil {
+	if err := apiSpec.Collections[0].DeepDerefAll(apiSpec.Globals.Parameters, apiSpec.Definitions); err != nil {
 		return nil, fmt.Errorf("DerefSchema failed: %s", err.Error())
-	}
-	if err := apiSpec.Collections[0].DerefResponse(apiSpec.Definitions.Responses...); err != nil {
-		return nil, fmt.Errorf("DerefResponse failed: %s", err.Error())
 	}
 
 	r, err := json.Marshal(apiSpec.Collections[0].Content)

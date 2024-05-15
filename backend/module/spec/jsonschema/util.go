@@ -2,107 +2,85 @@ package jsonschema
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
+	"strings"
 )
 
-type ValueOrBoolean[T any] struct {
-	boolValue *bool
-	value     T
+type DerefHelper struct {
+	RefMap map[int64]*Schema
 }
 
-func (v *ValueOrBoolean[T]) UnmarshalJSON(raw []byte) error {
-	var b bool
-	if err := json.Unmarshal(raw, &b); err == nil {
-		v.boolValue = &b
-		return nil
-	}
-	return json.Unmarshal(raw, &v.value)
-}
-
-func (v ValueOrBoolean[T]) MarshalJSON() ([]byte, error) {
-	var o any
-	if v.boolValue != nil {
-		o = *v.boolValue
-	} else {
-		o = v.value
-	}
-	return json.Marshal(o)
-}
-
-func (v *ValueOrBoolean[T]) SetValue(value T) {
-	v.boolValue = nil
-	v.value = value
-}
-
-func (v *ValueOrBoolean[T]) SetBoolean(b bool) {
-	v.boolValue = &b
-}
-
-func (v *ValueOrBoolean[T]) Value() T {
-	return v.value
-}
-
-func (v *ValueOrBoolean[T]) Bool() bool {
-	if v.boolValue != nil {
-		return *v.boolValue
-	}
-	return false
-}
-
-func (v *ValueOrBoolean[T]) IsBool() bool {
-	return v.boolValue != nil
-}
-
-func CreateSliceOrOne[T any](v ...T) *SliceOrOneValue[T] {
-	return &SliceOrOneValue[T]{
-		value:   v,
-		isSlice: len(v) > 1,
+func NewDerefHelper(refs map[int64]*Schema) *DerefHelper {
+	return &DerefHelper{
+		RefMap: refs,
 	}
 }
 
-type SliceOrOneValue[T any] struct {
-	value   []T
-	isSlice bool
+func (h *DerefHelper) DeepDeref(s *Schema) (Schema, error) {
+	copySchema := &Schema{}
+	if h == nil {
+		return *copySchema, errors.New("schema id is 0")
+	}
+
+	tmp, err := json.Marshal(s)
+	if err != nil {
+		return *copySchema, errors.New("failed to marshal schema")
+	}
+	err = json.Unmarshal(tmp, copySchema)
+	if err != nil {
+		return *copySchema, errors.New("failed to unmarshal schema")
+	}
+
+	for copySchema.DeepRef() {
+		h.deref(copySchema, fmt.Sprintf("[%d]", copySchema.ID))
+	}
+	return *copySchema, nil
 }
 
-func (s *SliceOrOneValue[T]) Value() []T {
-	if s == nil {
-		return []T{}
+func (h *DerefHelper) deref(s *Schema, path string) error {
+	if h == nil {
+		return errors.New("helper is nil")
 	}
-	return s.value
-}
 
-func (s *SliceOrOneValue[T]) SetValue(v ...T) {
-	if len(v) > 1 {
-		s.isSlice = true
-	}
-	s.value = v
-}
+	if s.Ref() {
+		refID := s.GetRefID()
+		ref, ok := h.RefMap[refID]
+		if !ok {
+			return fmt.Errorf("referenced schema id %d not found", refID)
+		}
 
-func (s *SliceOrOneValue[T]) UnmarshalJSON(raw []byte) error {
-	if len(raw) == 0 {
-		return nil
+		// Check if the parent has a reference to this schema, avoid circular references
+		if strings.Contains(path, fmt.Sprintf("[%d]", refID)) {
+			*s = *NewSchema(T_OBJ)
+			return nil
+		}
+
+		path = fmt.Sprintf("%s-[%d]", path, refID)
+		// Dereference its reference schema
+		if err := h.deref(ref, path); err != nil {
+			return err
+		}
+
+		// Dereference itself
+		if err := s.ReplaceRef(ref); err != nil {
+			return err
+		}
 	}
-	if p := raw[0]; p == '[' {
-		s.isSlice = true
-		return json.Unmarshal(raw, &s.value)
+
+	if s.Properties != nil {
+		for _, v := range s.Properties {
+			if err := h.deref(v, path); err != nil {
+				return err
+			}
+		}
 	}
-	var o T
-	if err := json.Unmarshal(raw, &o); err != nil {
-		return err
+
+	if s.Items != nil && !s.Items.IsBool() {
+		if err := h.deref(s.Items.Value(), path); err != nil {
+			return err
+		}
 	}
-	s.value = []T{o}
+
 	return nil
-}
-
-func (s SliceOrOneValue[T]) MarshalJSON() ([]byte, error) {
-	if len(s.value) == 0 {
-		return []byte("null"), nil
-	}
-	var v any
-	if s.isSlice {
-		v = s.value
-	} else {
-		v = s.value[0]
-	}
-	return json.Marshal(v)
 }

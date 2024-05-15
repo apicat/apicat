@@ -105,13 +105,15 @@ func (dr *DefinitionResponse) Sort(ctx context.Context, parentID, displayOrder u
 	}).Error
 }
 
-func (dr *DefinitionResponse) ToSpec() (*spec.HTTPResponseDefine, error) {
-	r := &spec.HTTPResponseDefine{
-		ID:          int64(dr.ID),
-		ParentId:    uint64(dr.ParentID),
-		Name:        dr.Name,
-		Type:        dr.Type,
-		Description: dr.Description,
+func (dr *DefinitionResponse) ToSpec() (*spec.DefinitionResponse, error) {
+	r := &spec.DefinitionResponse{
+		BasicResponse: spec.BasicResponse{
+			ID:          int64(dr.ID),
+			Name:        dr.Name,
+			Description: dr.Description,
+		},
+		ParentId: int64(dr.ParentID),
+		Type:     dr.Type,
 	}
 
 	if dr.Header != "" {
@@ -140,11 +142,11 @@ func (dr *DefinitionResponse) DelRef(ctx context.Context, refSchema *DefinitionS
 	}
 
 	if deref {
-		responseSpec.DerefSchema(refSchemaSpec)
-	} else {
-		if err := responseSpec.DelRefSchema(refSchemaSpec); err != nil {
+		if err := responseSpec.Deref(refSchemaSpec); err != nil {
 			return err
 		}
+	} else {
+		responseSpec.DelRef(refSchemaSpec)
 	}
 
 	content, err := json.Marshal(responseSpec.Content)

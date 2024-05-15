@@ -81,7 +81,7 @@ func (m *MockServer) Handler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Read data error"})
 		return
 	}
-	resps := spec.HTTPResponses{}
+	resps := spec.Responses{}
 	err = json.Unmarshal(body, &resps)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, string(body))
@@ -91,17 +91,10 @@ func (m *MockServer) Handler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Not have this interface"})
 		return
 	}
-	resp := resps[0]
-	rs := resp.ItemsTreeToList()
-	if len(rs) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"message": "This interface is empty category"})
-		return
-	}
-	resp.HTTPResponseDefine = *rs[0]
-	m.renderMockResponse(c, *resp)
+	m.renderMockResponse(c, *resps[0])
 }
 
-func (m *MockServer) renderMockResponse(c *gin.Context, res spec.HTTPResponse) {
+func (m *MockServer) renderMockResponse(c *gin.Context, res spec.Response) {
 	// find first contentType
 	for k, v := range res.Content {
 		b, _ := json.Marshal(v.Schema)

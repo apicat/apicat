@@ -92,7 +92,7 @@ func CollectionDerefWithSpec(ctx context.Context, c *collection.Collection) (*sp
 		return nil, err
 	}
 
-	specDefinitions := spec.NewDefinitions()
+	specDefinitions := &spec.Definitions{}
 	specDefinitions.Schemas, err = definition.GetDefinitionSchemasWithSpec(ctx, c.ProjectID)
 	if err != nil {
 		return nil, err
@@ -102,13 +102,12 @@ func CollectionDerefWithSpec(ctx context.Context, c *collection.Collection) (*sp
 		return nil, err
 	}
 
-	specGlobals := spec.NewGlobal()
-	specGlobals.Parameters, err = global.GetGlobalParametersWithSpec(ctx, c.ProjectID)
+	specGlobalParameters, err := global.GetGlobalParametersWithSpec(ctx, c.ProjectID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := collectionSpec.WithoutRef(specGlobals, specDefinitions); err != nil {
+	if err := collectionSpec.DeepDerefAll(specGlobalParameters, specDefinitions); err != nil {
 		return nil, err
 	} else {
 		return collectionSpec, nil
@@ -185,26 +184,22 @@ func replaceGlobalParametersVirtualIDToID(ctx context.Context, content string, v
 
 	var newContent []byte
 	for _, i := range specContent {
-		switch nx := i.Node.(type) {
-		case *spec.HTTPNode[spec.HTTPRequestNode]:
-			for k, v := range nx.Attrs.GlobalExcepts["header"] {
+		switch i.NodeType() {
+		case spec.NODE_HTTP_REQUEST:
+			req := i.ToHttpRequest()
+			for k, v := range req.Attrs.GlobalExcepts.Header {
 				if id, ok := virtualIDToIDMap[int64(v)]; ok {
-					nx.Attrs.GlobalExcepts["header"][k] = int64(id)
+					req.Attrs.GlobalExcepts.Header[k] = int64(id)
 				}
 			}
-			for k, v := range nx.Attrs.GlobalExcepts["query"] {
+			for k, v := range req.Attrs.GlobalExcepts.Query {
 				if id, ok := virtualIDToIDMap[int64(v)]; ok {
-					nx.Attrs.GlobalExcepts["query"][k] = int64(id)
+					req.Attrs.GlobalExcepts.Query[k] = int64(id)
 				}
 			}
-			for k, v := range nx.Attrs.GlobalExcepts["cookie"] {
+			for k, v := range req.Attrs.GlobalExcepts.Cookie {
 				if id, ok := virtualIDToIDMap[int64(v)]; ok {
-					nx.Attrs.GlobalExcepts["cookie"][k] = int64(id)
-				}
-			}
-			for k, v := range nx.Attrs.GlobalExcepts["path"] {
-				if id, ok := virtualIDToIDMap[int64(v)]; ok {
-					nx.Attrs.GlobalExcepts["path"][k] = int64(id)
+					req.Attrs.GlobalExcepts.Cookie[k] = int64(id)
 				}
 			}
 		}

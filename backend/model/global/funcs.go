@@ -18,19 +18,14 @@ func GetGlobalParameters(ctx context.Context, pID string) ([]*GlobalParameter, e
 	return list, err
 }
 
-func GetGlobalParametersWithSpec(ctx context.Context, pID string) (*spec.HTTPParameters, error) {
+func GetGlobalParametersWithSpec(ctx context.Context, pID string) (*spec.GlobalParameters, error) {
 	var list []*GlobalParameter
 	err := model.DB(ctx).Where("project_id = ?", pID).Order("display_order asc").Find(&list).Error
 	if err != nil {
 		return nil, err
 	}
 
-	specParameters := &spec.HTTPParameters{
-		Query:  make(spec.ParameterList, 0),
-		Header: make(spec.ParameterList, 0),
-		Cookie: make(spec.ParameterList, 0),
-		Path:   make(spec.ParameterList, 0),
-	}
+	specParameters := spec.NewGlobalParameters()
 	if len(list) > 0 {
 		for _, gp := range list {
 			if specParameter, err := gp.ToSpec(); err == nil {
@@ -49,9 +44,8 @@ func GetGlobalParametersWithSpec(ctx context.Context, pID string) (*spec.HTTPPar
 	return specParameters, nil
 }
 
-func ExportGlobalParameters(ctx context.Context, projectID string) *spec.HTTPParameters {
-	res := &spec.HTTPParameters{}
-	res.Fill()
+func ExportGlobalParameters(ctx context.Context, projectID string) *spec.GlobalParameters {
+	res := spec.NewGlobalParameters()
 
 	parameters, err := GetGlobalParameters(ctx, projectID)
 	if err != nil {

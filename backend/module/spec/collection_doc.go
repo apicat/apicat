@@ -1,4 +1,4 @@
-package spec2
+package spec
 
 import "fmt"
 

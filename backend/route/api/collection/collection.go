@@ -627,15 +627,15 @@ func Export(ctx *gin.Context) {
 	)
 	switch t.Type {
 	case "swagger":
-		content, err = openapi.Encode(apicatData, "2.0", "json")
+		content, err = openapi.Generate(apicatData, "2.0", "json")
 	case "openapi3.0.0":
-		content, err = openapi.Encode(apicatData, "3.0.0", "json")
+		content, err = openapi.Generate(apicatData, "3.0.0", "json")
 	case "openapi3.0.1":
-		content, err = openapi.Encode(apicatData, "3.0.1", "json")
+		content, err = openapi.Generate(apicatData, "3.0.1", "json")
 	case "openapi3.0.2":
-		content, err = openapi.Encode(apicatData, "3.0.2", "json")
+		content, err = openapi.Generate(apicatData, "3.0.2", "json")
 	case "openapi3.1.0":
-		content, err = openapi.Encode(apicatData, "3.1.0", "json")
+		content, err = openapi.Generate(apicatData, "3.1.0", "json")
 	case "HTML":
 		content, err = export.HTML(apicatData)
 	case "md":

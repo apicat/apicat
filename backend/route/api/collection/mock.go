@@ -70,11 +70,11 @@ func Mock(ctx *gin.Context) {
 		return
 	}
 
-	var resp *spec.HTTPNode[spec.HTTPResponsesNode]
+	var resp *spec.CollectionHttpResponse
 	for _, i := range collectionSpec.Content {
-		switch nx := i.Node.(type) {
-		case *spec.HTTPNode[spec.HTTPResponsesNode]:
-			resp = nx
+		switch i.NodeType() {
+		case spec.NODE_HTTP_RESPONSE:
+			resp = i.ToHttpResponse()
 		}
 	}
 	if resp == nil {

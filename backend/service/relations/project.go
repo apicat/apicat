@@ -13,7 +13,7 @@ import (
 // NewApiCatPopulatePublicData 构造apicat协议结构，填充公共部分数据
 func NewApiCatPopulatePublicData(ctx *gin.Context, p *project.Project) *spec.Spec {
 	apicatData := spec.NewSpec()
-	apicatData.Info = &spec.Info{
+	apicatData.Info = spec.Info{
 		ID:          p.ID,
 		Title:       p.Title,
 		Description: p.Description,
@@ -28,7 +28,7 @@ func NewApiCatPopulatePublicData(ctx *gin.Context, p *project.Project) *spec.Spe
 	// 填充DefinitionSchema数据
 	apicatData.Definitions.Schemas = definition.ExportDefinitionSchemas(ctx, p)
 	// 填充DefinitionParameter数据
-	apicatData.Definitions.Parameters = definition.ExportDefinitionParameters(ctx, p.ID)
+	// apicatData.Definitions.Parameters = definition.ExportDefinitionParameters(ctx, p.ID)
 	// 填充DefinitionResponse数据
 	apicatData.Definitions.Responses = definition.ExportDefinitionResponses(ctx, p)
 
@@ -37,7 +37,7 @@ func NewApiCatPopulatePublicData(ctx *gin.Context, p *project.Project) *spec.Spe
 
 // SpecFillInfo 填充Info数据到spec
 func SpecFillInfo(ctx *gin.Context, s *spec.Spec, p *project.Project) {
-	s.Info = &spec.Info{
+	s.Info = spec.Info{
 		ID:          p.ID,
 		Title:       p.Title,
 		Description: p.Description,
@@ -57,7 +57,7 @@ func SpecFillGlobals(ctx *gin.Context, s *spec.Spec, pID string) {
 // SpecFillDefinitions 填充Definitions数据到spec
 func SpecFillDefinitions(ctx *gin.Context, s *spec.Spec, pID string) {
 	SpecFillDefinitionSchemas(ctx, s, pID)
-	SpecFillDefinitionParameters(ctx, s, pID)
+	// SpecFillDefinitionParameters(ctx, s, pID)
 	SpecFillDefinitionResponses(ctx, s, pID)
 }
 
@@ -72,9 +72,9 @@ func SpecFillDefinitionSchemas(ctx *gin.Context, s *spec.Spec, pID string) {
 }
 
 // SpecFillDefinitionParameters 填充Definitions.parameters数据到spec
-func SpecFillDefinitionParameters(ctx *gin.Context, s *spec.Spec, pID string) {
-	s.Definitions.Parameters = definition.ExportDefinitionParameters(ctx, pID)
-}
+// func SpecFillDefinitionParameters(ctx *gin.Context, s *spec.Spec, pID string) {
+// 	s.Definitions.Parameters = definition.ExportDefinitionParameters(ctx, pID)
+// }
 
 // SpecFillDefinitionResponses 填充Definitions.responses数据到spec
 func SpecFillDefinitionResponses(ctx *gin.Context, s *spec.Spec, pID string) {

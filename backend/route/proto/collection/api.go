@@ -100,7 +100,7 @@ type CollectionHistoryApi interface {
 type CollectionMockApi interface {
 	// Mock 集合mock
 	// @route POST /mock/{projectID}/{path}
-	Mock(*gin.Context, *request.GetMockOption) (*spec.HTTPResponses, error)
+	Mock(*gin.Context, *request.GetMockOption) (*spec.Responses, error)
 }
 
 type TestCaseApi interface {

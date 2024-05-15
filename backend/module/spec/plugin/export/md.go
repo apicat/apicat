@@ -15,7 +15,7 @@ import (
 )
 
 func Markdown(in *spec.Spec) ([]byte, error) {
-	paths := in.GetPaths()
+	paths := NewHttpApis(in)
 	var buf bytes.Buffer
 	fmt.Fprintf(&buf, "# %s\n", in.Info.Title)
 	fmt.Fprintf(&buf, "%s\n\napicat version: `%s`\n\n", in.Info.Description, in.ApiCat)
@@ -57,7 +57,7 @@ func Markdown(in *spec.Spec) ([]byte, error) {
 
 	for k, v := range list {
 		item := paths[v[0]][v[1]]
-		rednerHttpPart(&buf, k+1, v[0], v[1], item, in.Globals.Parameters)
+		rednerHttpPart(&buf, k+1, v[0], v[1], item)
 	}
 
 	return buf.Bytes(), nil
@@ -66,20 +66,26 @@ func Markdown(in *spec.Spec) ([]byte, error) {
 var jsonschemaHeaderCols = []string{"name", "type", "required", "comment"}
 var paramsHeaderCols = []string{"name", "in", "type", "required", "comment"}
 
-func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTTPPart, globls *spec.HTTPParameters) {
-	fmt.Fprintf(buf, "## <span id=\"api-%d\">%d. %s</span>\n", i, i, part.Title)
+func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, api HttpApi) {
+	fmt.Fprintf(buf, "## <span id=\"api-%d\">%d. %s</span>\n", i, i, api.Title)
 	fmt.Fprintf(buf, "### Path\n [%s](%s)\n", path, path)
 	fmt.Fprintf(buf, "### Method\n %s\n", strings.ToUpper(method))
 
 	skips := make(map[string]bool)
-	for k, v := range part.GlobalExcepts {
-		for _, x := range v {
-			skips[fmt.Sprintf("%s|_%d", k, x)] = true
+	if api.GlobalExcepts != nil {
+		for _, v := range api.GlobalExcepts.Header {
+			skips[fmt.Sprintf("header|_%d", v)] = true
+		}
+		for _, v := range api.GlobalExcepts.Cookie {
+			skips[fmt.Sprintf("cookie|_%d", v)] = true
+		}
+		for _, v := range api.GlobalExcepts.Query {
+			skips[fmt.Sprintf("query|_%d", v)] = true
 		}
 	}
 
 	// globls
-	params := part.Parameters.Map()
+	params := api.Parameters.ToMap()
 
 	// this c is dereferenced, not need to reference globals
 	// for in, ps := range globls.Map() {
@@ -107,7 +113,7 @@ func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTT
 				buf.WriteString("|**")
 				buf.WriteString(k)
 				buf.WriteString("**|`")
-				buf.WriteString(item.Schema.Type.Value()[0])
+				buf.WriteString(item.Schema.Type.First())
 				buf.WriteString("` | ")
 				if item.Required {
 					buf.WriteString("*")
@@ -119,9 +125,9 @@ func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTT
 		}
 	}
 
-	if len(part.Content) > 0 {
+	if len(api.HttpRequestAttrs.Content) > 0 {
 		fmt.Fprintf(buf, "### Request Body\n")
-		for k, v := range part.Content {
+		for k, v := range api.HttpRequestAttrs.Content {
 			fmt.Fprintf(buf, "ContentType `%s`\n", k)
 			renderTableHeader(buf, jsonschemaHeaderCols)
 			if v.Schema == nil {
@@ -142,7 +148,7 @@ func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, part spec.HTT
 	}
 
 	fmt.Fprintf(buf, "### Responses\n")
-	for _, res := range part.Responses {
+	for _, res := range api.Responses {
 		fmt.Fprintf(buf, "StatusCode `%d` \n> %s\n\n", res.Code, res.Description)
 		for k, v := range res.Content {
 			fmt.Fprintf(buf, " ContentType `%s`\n\n", k)
@@ -172,7 +178,7 @@ func renderSchema(buf *bytes.Buffer, name string, lvl int, required bool, s *jso
 	if s.Type == nil {
 		return
 	}
-	typ := s.Type.Value()
+	typ := s.Type.List()
 	if len(typ) > 1 {
 		renderSchemaItem(buf, name, "any", s.Description, lvl, required)
 		return

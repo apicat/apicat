@@ -13,7 +13,7 @@ import (
 )
 
 // ImportDefinitionResponses 导入公共响应
-func ImportDefinitionResponses(ctx context.Context, projectID string, responses spec.HTTPResponseDefines, tm *team.TeamMember, schemaVirtualIDToID collection.VirtualIDToIDMap, parentID uint) collection.VirtualIDToIDMap {
+func ImportDefinitionResponses(ctx context.Context, projectID string, responses spec.DefinitionResponses, tm *team.TeamMember, schemaVirtualIDToID collection.VirtualIDToIDMap, parentID uint) collection.VirtualIDToIDMap {
 	res := collection.VirtualIDToIDMap{}
 	if len(responses) == 0 {
 		return res

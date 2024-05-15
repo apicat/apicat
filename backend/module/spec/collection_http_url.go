@@ -1,4 +1,4 @@
-package spec2
+package spec
 
 const NODE_HTTP_URL = "apicat-http-url"
 
@@ -29,4 +29,10 @@ func (u *CollectionHttpUrl) NodeType() string {
 
 func (u *CollectionHttpUrl) SetXDiff(x string) {
 	u.Attrs.XDiff = x
+}
+
+func (u *CollectionHttpUrl) ToCollectionNode() *CollectionNode {
+	return &CollectionNode{
+		Node: u,
+	}
 }

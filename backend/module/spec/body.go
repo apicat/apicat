@@ -1,6 +1,6 @@
-package spec2
+package spec
 
-import "github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
+import "github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 
 type Body struct {
 	Schema   *jsonschema.Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
