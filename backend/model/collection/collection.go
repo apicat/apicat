@@ -139,10 +139,10 @@ func (c *Collection) Sort(ctx context.Context, parentID uint, displayOrder int) 
 
 func (c *Collection) ToSpec() (*spec.Collection, error) {
 	sc := &spec.Collection{
-		ID:       c.ID,
-		ParentID: c.ParentID,
+		ID:       int64(c.ID),
+		ParentID: int64(c.ParentID),
 		Title:    c.Title,
-		Type:     spec.CollectionType(c.Type),
+		Type:     c.Type,
 	}
 
 	if c.Content != "" {
@@ -168,13 +168,11 @@ func (c *Collection) DelRefSchema(ctx context.Context, refSchema *definition.Def
 	}
 
 	if deref {
-		if err := collectionSpec.DerefSchema(refSchemaSpec); err != nil {
+		if err := collectionSpec.DerefModel(refSchemaSpec); err != nil {
 			return err
 		}
 	} else {
-		if err := collectionSpec.DelRefSchema(refSchemaSpec); err != nil {
-			return err
-		}
+		collectionSpec.DelRefModel(refSchemaSpec)
 	}
 
 	content, err := json.Marshal(collectionSpec.Content)
@@ -203,9 +201,7 @@ func (c *Collection) DelRefResponse(ctx context.Context, refResponse *definition
 			return err
 		}
 	} else {
-		if err := collectionSpec.DelResponseByRefId(int64(refResponseSpec.ID)); err != nil {
-			return err
-		}
+		collectionSpec.DelRefResponse(refResponseSpec)
 	}
 
 	content, err := json.Marshal(collectionSpec.Content)
@@ -230,13 +226,9 @@ func (c *Collection) DelExceptParam(ctx context.Context, exceptParam *global.Glo
 	}
 
 	if unpack {
-		if err := collectionSpec.AddParameter(exceptParam.In, exceptParamSpec); err != nil {
-			return err
-		}
+		collectionSpec.AddReqParameter(exceptParam.In, exceptParamSpec)
 	} else {
-		if err := collectionSpec.DelGlobalExceptID(exceptParam.In, int64(exceptParam.ID)); err != nil {
-			return err
-		}
+		collectionSpec.DelGlobalExcept(exceptParam.In, int64(exceptParam.ID))
 	}
 
 	content, err := json.Marshal(collectionSpec.Content)

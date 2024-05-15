@@ -62,7 +62,7 @@ func TestRenderData(t *testing.T) {
 		  }
 		}
 	  }`)
-	res := spec.HTTPResponse{}
+	res := spec.Response{}
 
 	err := json.Unmarshal(body, &res)
 	if err != nil {

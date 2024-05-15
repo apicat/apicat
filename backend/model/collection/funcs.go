@@ -79,10 +79,10 @@ func exportBuildcollectionsTree(ctx context.Context, collections []*Collection, 
 	for _, collection := range collections {
 		if collection.ParentID == parentCollection.ID {
 			collectItem := &spec.Collection{
-				ID:       collection.ID,
-				ParentID: collection.ParentID,
+				ID:       int64(collection.ID),
+				ParentID: int64(collection.ParentID),
 				Title:    collection.Title,
-				Type:     spec.CollectionType(collection.Type),
+				Type:     collection.Type,
 			}
 
 			// 将父级的分类名称也加入Tags中
@@ -97,7 +97,7 @@ func exportBuildcollectionsTree(ctx context.Context, collections []*Collection, 
 			}
 
 			if collection.Type != CategoryType {
-				content := []*spec.NodeProxy{}
+				content := spec.CollectionNodes{}
 				if json.Unmarshal([]byte(collection.Content), &content) == nil {
 					collectItem.Content = content
 				}
@@ -239,8 +239,8 @@ func CollectionToTagID(ctx context.Context, collectionID uint) []uint {
 }
 
 // TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionContentSpec(ctx context.Context, content string) ([]*spec.NodeProxy, error) {
-	specContent := []*spec.NodeProxy{}
+func GetCollectionContentSpec(ctx context.Context, content string) (spec.CollectionNodes, error) {
+	specContent := spec.CollectionNodes{}
 	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
 		return nil, errors.New("GetCollectionContentSpec unmarshal error")
 	}
@@ -249,21 +249,21 @@ func GetCollectionContentSpec(ctx context.Context, content string) ([]*spec.Node
 }
 
 // TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionURLNode(ctx context.Context, content string) (*spec.HTTPNode[spec.HTTPURLNode], error) {
-	url := &spec.HTTPNode[spec.HTTPURLNode]{}
+func GetCollectionURLNode(ctx context.Context, content string) (*spec.CollectionHttpUrl, error) {
+	url := &spec.CollectionHttpUrl{}
 	if content == "" {
 		return url, nil
 	}
 
-	var specContent []*spec.NodeProxy
+	var specContent spec.CollectionNodes
 	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
 		return url, errors.New("unmarshal error")
 	}
 
 	for _, i := range specContent {
-		switch nx := i.Node.(type) {
-		case *spec.HTTPNode[spec.HTTPURLNode]:
-			url = nx
+		switch i.NodeType() {
+		case spec.NODE_HTTP_URL:
+			url = i.ToHttpUrl()
 		}
 	}
 	if url == nil {
@@ -274,21 +274,21 @@ func GetCollectionURLNode(ctx context.Context, content string) (*spec.HTTPNode[s
 }
 
 // TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionRequestNode(ctx context.Context, content string) (*spec.HTTPNode[spec.HTTPRequestNode], error) {
-	request := &spec.HTTPNode[spec.HTTPRequestNode]{}
+func GetCollectionRequestNode(ctx context.Context, content string) (*spec.CollectionHttpRequest, error) {
+	request := &spec.CollectionHttpRequest{}
 	if content == "" {
 		return request, nil
 	}
 
-	var specContent []*spec.NodeProxy
+	var specContent spec.CollectionNodes
 	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
 		return request, errors.New("unmarshal error")
 	}
 
 	for _, i := range specContent {
-		switch nx := i.Node.(type) {
-		case *spec.HTTPNode[spec.HTTPRequestNode]:
-			request = nx
+		switch i.NodeType() {
+		case spec.NODE_HTTP_REQUEST:
+			request = i.ToHttpRequest()
 		}
 	}
 	if request == nil {
@@ -299,21 +299,21 @@ func GetCollectionRequestNode(ctx context.Context, content string) (*spec.HTTPNo
 }
 
 // TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionResponseNode(ctx context.Context, content string) (*spec.HTTPNode[spec.HTTPResponsesNode], error) {
-	response := &spec.HTTPNode[spec.HTTPResponsesNode]{}
+func GetCollectionResponseNode(ctx context.Context, content string) (*spec.CollectionHttpResponse, error) {
+	response := &spec.CollectionHttpResponse{}
 	if content == "" {
 		return response, nil
 	}
 
-	var specContent []*spec.NodeProxy
+	var specContent spec.CollectionNodes
 	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
 		return response, errors.New("unmarshal error")
 	}
 
 	for _, i := range specContent {
-		switch nx := i.Node.(type) {
-		case *spec.HTTPNode[spec.HTTPResponsesNode]:
-			response = nx
+		switch i.NodeType() {
+		case spec.NODE_HTTP_RESPONSE:
+			response = i.ToHttpResponse()
 		}
 	}
 	if response == nil {

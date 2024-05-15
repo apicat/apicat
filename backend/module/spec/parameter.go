@@ -1,6 +1,6 @@
-package spec2
+package spec
 
-import "github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
+import "github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 
 type Parameter struct {
 	ID          int64              `json:"id,omitempty" yaml:"id,omitempty"`
@@ -45,9 +45,6 @@ func (p *Parameter) EqualNomal(o *Parameter, OnlyCore bool) (b bool) {
 }
 
 func (pl *ParameterList) FindByID(id int64) *Parameter {
-	if pl == nil {
-		return nil
-	}
 	for _, v := range *pl {
 		if id == v.ID {
 			return v
@@ -57,9 +54,6 @@ func (pl *ParameterList) FindByID(id int64) *Parameter {
 }
 
 func (pl *ParameterList) FindByName(name string) *Parameter {
-	if pl == nil {
-		return nil
-	}
 	for _, v := range *pl {
 		if name == v.Name {
 			return v
@@ -69,9 +63,6 @@ func (pl *ParameterList) FindByName(name string) *Parameter {
 }
 
 func (pl *ParameterList) DelByID(id int64) {
-	if pl == nil {
-		return
-	}
 	for i, v := range *pl {
 		if v.ID == id {
 			*pl = append((*pl)[:i], (*pl)[i+1:]...)

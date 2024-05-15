@@ -1,200 +1,152 @@
 package spec
 
 import (
+	"encoding/json"
 	"errors"
-	"fmt"
 	"strconv"
-	"strings"
+
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 )
 
-type HTTPBody map[string]*Schema
+const TYPE_RESPONSE = "response"
 
-type HTTPResponseDefine struct {
-	ID          int64               `json:"id,omitempty" yaml:"id,omitempty"`
-	ParentId    uint64              `json:"parentid,omitempty" yaml:"parentid,omitempty"`
-	Name        string              `json:"name,omitempty" yaml:"name,omitempty"`
-	Type        string              `json:"type,omitempty" yaml:"type,omitempty"`
-	Description string              `json:"description,omitempty" yaml:"description,omitempty"`
-	Header      ParameterList       `json:"header,omitempty" yaml:"header,omitempty"`
-	Content     HTTPBody            `json:"content" yaml:"content"`
-	Items       HTTPResponseDefines `json:"items,omitempty" yaml:"items,omitempty"`
-	Reference   *string             `json:"$ref,omitempty" yaml:"$ref,omitempty"`
-	XDiff       *string             `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
-	Category    string              `json:"x-apicat-category,omitempty" yaml:"x-apicat-category,omitempty"`
+type DefinitionResponse struct {
+	BasicResponse
+	ParentId int64               `json:"parentid,omitempty" yaml:"parentid,omitempty"`
+	Type     string              `json:"type,omitempty" yaml:"type,omitempty"`
+	Items    DefinitionResponses `json:"items,omitempty" yaml:"items,omitempty"`
 }
 
-func (h *HTTPResponseDefine) Ref() bool { return h.Reference != nil }
+type DefinitionResponses []*DefinitionResponse
 
-func (h *HTTPResponseDefine) IsRefID(id string) bool {
-	if h == nil {
-		return false
+func NewDefinitionResponseFromJson(str string) (*DefinitionResponse, error) {
+	s := &DefinitionResponse{}
+	if err := json.Unmarshal([]byte(str), s); err != nil {
+		return nil, err
 	}
+	return s, nil
+}
 
-	if h.Reference != nil {
-		i := strings.LastIndex(*h.Reference, "/")
-		if i != -1 {
-			if id == (*h.Reference)[i+1:] {
-				return true
+func (r *DefinitionResponse) RefIDs() (ids []int64) {
+	for _, v := range r.Content {
+		if v.Schema != nil {
+			ids = append(ids, v.Schema.DeepGetRefID()...)
+		}
+	}
+	return
+}
+
+func (r *DefinitionResponse) Deref(ref *DefinitionModel) error {
+	if ref == nil {
+		return errors.New("model is nil")
+	}
+	ref.Schema.ID = ref.ID
+
+	for _, v := range r.Content {
+		if v.Schema != nil {
+			refSchemas := v.Schema.DeepFindRefById(strconv.FormatInt(ref.ID, 10))
+			if len(refSchemas) > 0 {
+				for _, schema := range refSchemas {
+					if err := schema.ReplaceRef(ref.Schema); err != nil {
+						return err
+					}
+				}
 			}
 		}
 	}
-	return false
+	return nil
 }
 
-// @title Deref
-// @description 删除 API 中的响应，如果引用了此 ID 对应的响应，将响应从 API 中删除
-// @param sub *HTTPResponseDefine 不再引用的 Definition Response
-// @return error
-func (h *HTTPResponseDefine) Deref(refResponse *HTTPResponseDefine) error {
-	if h == nil {
-		return errors.New("sub response is nil")
-	}
-	id := strconv.Itoa(int(refResponse.ID))
-
-	if !h.IsRefID(id) {
+func (r *DefinitionResponse) DeepDeref(refs DefinitionModels) error {
+	if len(refs) == 0 {
 		return nil
 	}
 
-	*h = *refResponse
-	return nil
-}
+	helper := jsonschema.NewDerefHelper(refs.ToJsonSchemaMap())
 
-// @title DerefSchema
-// @description 解开响应中引用的 Definition Schema
-// @param wantToDeref ...*Schema 不再引用的 Definition Response
-// @return nil
-func (h *HTTPResponseDefine) DerefSchema(wantToDeref ...*Schema) {
-	for _, body := range h.Content {
-		body.Deref(wantToDeref...)
-	}
-}
-
-// @title DelRefSchema
-// @description 删除响应中引用的 Definition Schema
-// @param schema *Schema 要删除的 Definition Schema
-// @return error
-func (h *HTTPResponseDefine) DelRefSchema(schema *Schema) (err error) {
-	for _, body := range h.Content {
-		err = body.DelRef(schema)
-		if err != nil {
-			return err
+	for _, v := range r.Content {
+		if v.Schema != nil {
+			s, err := helper.DeepDeref(v.Schema)
+			if err != nil {
+				return err
+			}
+			v.Schema = &s
 		}
 	}
 	return nil
 }
 
-// 将 Response 树形结构转为一维的列表结构
-// 此方法主要用于将 apicat 的 Response 结构转为 openapi 支持的 Response 列表结构
-func (h *HTTPResponseDefine) ItemsTreeToList() (res HTTPResponseDefines) {
-	if h.Type != string(CollectionItemTypeDir) {
-		return append(res, h)
+func (r *DefinitionResponse) DelRef(ref *DefinitionModel) {
+	if ref == nil {
+		return
 	}
-	return h.itemsTreeToList(h.Name)
-}
+	ref.Schema.ID = ref.ID
 
-func (h *HTTPResponseDefine) itemsTreeToList(path string) (res HTTPResponseDefines) {
-	if h.Items == nil || len(h.Items) == 0 {
-		return res
-	}
-
-	for _, item := range h.Items {
-		if item.Type == string(CollectionItemTypeDir) {
-			res = append(res, item.itemsTreeToList(fmt.Sprintf("%s/%s", path, item.Name))...)
-		} else {
-			item.Category = path
-			res = append(res, item)
+	for _, v := range r.Content {
+		if v.Schema != nil {
+			if v.Schema.Ref() {
+				v.Schema.DelRootRef(ref.Schema)
+			}
+			v.Schema.DelChildrenRef(ref.Schema)
 		}
 	}
-	return res
 }
 
-func (h *HTTPResponseDefine) makeSelfTree(path string, category map[string]*HTTPResponseDefine) *HTTPResponseDefine {
-	if path == "" {
-		return h
+func (r *DefinitionResponse) ItemsTreeToList() DefinitionResponses {
+	list := make(DefinitionResponses, 0)
+	if r.Type == TYPE_MODEL {
+		list = append(list, r)
 	}
-	i := strings.Index(path, "/")
-	if i == -1 {
-		parent := &HTTPResponseDefine{
-			Name:  path,
-			Items: HTTPResponseDefines{h},
-			Type:  string(CollectionItemTypeDir),
+	if r.Items != nil && len(r.Items) > 0 {
+		for _, v := range r.Items {
+			list = append(list, v.ItemsTreeToList()...)
 		}
-		category[path] = parent
-		return parent
 	}
-	parent := &HTTPResponseDefine{
-		Name:  path[:i],
-		Items: HTTPResponseDefines{h.makeSelfTree(path[i+1:], category)},
-		Type:  string(CollectionItemTypeDir),
-	}
-	category[path] = parent
-	return parent
+	return list
 }
 
-func (h *HTTPResponseDefine) SetXDiff(x *string) {
-	h.Header.SetXDiff(x)
-	h.Content.SetXDiff(x)
-	h.XDiff = x
-}
-
-type HTTPResponseDefines []*HTTPResponseDefine
-
-func (h HTTPResponseDefines) LookupByName(name string) *HTTPResponseDefine {
-	for _, v := range h {
-		if v.Type == string(CollectionItemTypeDir) {
-			if res := v.Items.LookupByName(name); res != nil {
-				return res
-			}
-		} else {
-			if v.Name == name {
-				return v
-			}
+func (r *DefinitionResponses) FindByName(name string) *DefinitionResponse {
+	for _, v := range *r {
+		if v.Type == TYPE_CATEGORY {
+			return v.Items.FindByName(name)
+		}
+		if v.Name == name {
+			return v
 		}
 	}
 	return nil
 }
 
-func (h HTTPResponseDefines) LookupByID(id int64) *HTTPResponseDefine {
-	for _, v := range h {
-		if v.Type == string(CollectionItemTypeDir) {
-			if res := v.Items.LookupByID(id); res != nil {
-				return res
-			}
-		} else {
-			if v.ID == id {
-				return v
-			}
+func (r *DefinitionResponses) FindByID(id int64) *DefinitionResponse {
+	for _, v := range *r {
+		if v.Type == TYPE_CATEGORY {
+			return v.Items.FindByID(id)
+		}
+		if id == v.ID {
+			return v
 		}
 	}
 	return nil
 }
 
-func (h *HTTPResponseDefines) SetXDiff(x *string) {
-	for _, v := range *h {
-		v.SetXDiff(x)
+func (r *DefinitionResponses) DelByID(id int64) {
+	for i, v := range *r {
+		if v.Type == TYPE_CATEGORY {
+			v.Items.DelByID(id)
+		} else {
+			if id == v.ID {
+				*r = append((*r)[:i], (*r)[i+1:]...)
+			}
+		}
 	}
 }
 
-func (h *HTTPResponseDefines) ItemsListToTree() HTTPResponseDefines {
-	root := &HTTPResponseDefine{
-		Items: HTTPResponseDefines{},
-	}
-
-	if h == nil || len(*h) == 0 {
-		return root.Items
-	}
-
-	category := map[string]*HTTPResponseDefine{
-		"": root,
-	}
-
-	for _, v := range *h {
-		if parent, ok := category[v.Category]; ok {
-			parent.Items = append(parent.Items, v)
-		} else {
-			root.Items = append(root.Items, v.makeSelfTree(v.Category, category))
+func (r *DefinitionResponses) ToMap() map[int64]*DefinitionResponse {
+	m := make(map[int64]*DefinitionResponse)
+	for _, v := range *r {
+		if v.Type == TYPE_RESPONSE {
+			m[v.ID] = v
 		}
 	}
-
-	return root.Items
+	return m
 }

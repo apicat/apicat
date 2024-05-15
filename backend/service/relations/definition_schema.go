@@ -13,7 +13,7 @@ import (
 )
 
 // ImportDefinitionSchemas 导入公共模型
-func ImportDefinitionSchemas(ctx context.Context, projectID string, schemas spec.Schemas, tm *team.TeamMember, parentID uint) collection.VirtualIDToIDMap {
+func ImportDefinitionSchemas(ctx context.Context, projectID string, schemas spec.DefinitionModels, tm *team.TeamMember, parentID uint) collection.VirtualIDToIDMap {
 	res := collection.VirtualIDToIDMap{}
 	if len(schemas) == 0 {
 		return res

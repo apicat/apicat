@@ -1,11 +1,11 @@
-package spec2
+package spec
 
 import (
 	"encoding/json"
 	"errors"
 	"strconv"
 
-	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 )
 
 const TYPE_MODEL = "schema"
@@ -43,7 +43,7 @@ func (s *DefinitionModel) RefIDs() []int64 {
 
 // Model(s) refers to Model(ref), removes the reference relationship between s and ref, and replaces the content of ref into s.
 func (s *DefinitionModel) Deref(ref *DefinitionModel) error {
-	if s == nil || ref == nil {
+	if ref == nil {
 		return errors.New("model is nil")
 	}
 
@@ -62,8 +62,8 @@ func (s *DefinitionModel) Deref(ref *DefinitionModel) error {
 }
 
 func (s *DefinitionModel) DeepDeref(refs DefinitionModels) error {
-	if s == nil || refs == nil {
-		return errors.New("model is nil")
+	if len(refs) == 0 {
+		return nil
 	}
 
 	helper := jsonschema.NewDerefHelper(refs.ToJsonSchemaMap())
@@ -76,7 +76,7 @@ func (s *DefinitionModel) DeepDeref(refs DefinitionModels) error {
 }
 
 func (s *DefinitionModel) DelRef(ref *DefinitionModel) {
-	if s == nil || ref == nil {
+	if ref == nil {
 		return
 	}
 
@@ -111,10 +111,6 @@ func (s *DefinitionModel) ItemsTreeToList() DefinitionModels {
 }
 
 func (s *DefinitionModels) FindByName(name string) *DefinitionModel {
-	if s == nil {
-		return nil
-	}
-
 	for _, v := range *s {
 		if v.Type == TYPE_CATEGORY {
 			return v.Items.FindByName(name)
@@ -127,10 +123,6 @@ func (s *DefinitionModels) FindByName(name string) *DefinitionModel {
 }
 
 func (s *DefinitionModels) FindByID(id int64) *DefinitionModel {
-	if s == nil {
-		return nil
-	}
-
 	for _, v := range *s {
 		if v.Type == TYPE_CATEGORY {
 			return v.Items.FindByID(id)
@@ -143,9 +135,6 @@ func (s *DefinitionModels) FindByID(id int64) *DefinitionModel {
 }
 
 func (s *DefinitionModels) DelByID(id int64) {
-	if s == nil {
-		return
-	}
 	for i, v := range *s {
 		if v.Type == TYPE_CATEGORY {
 			v.Items.DelByID(id)
@@ -158,10 +147,6 @@ func (s *DefinitionModels) DelByID(id int64) {
 }
 
 func (s *DefinitionModels) RemoveDir() DefinitionModels {
-	if s == nil {
-		return nil
-	}
-
 	result := DefinitionModels{}
 	for _, v := range *s {
 		if v.Type == TYPE_CATEGORY {

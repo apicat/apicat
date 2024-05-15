@@ -17,14 +17,14 @@ func Import(data []byte) (*spec.Spec, error) {
 
 	p := &spec.Spec{
 		ApiCat: "2.0.1",
-		Info: &spec.Info{
+		Info: spec.Info{
 			Title:       pm.Info.Name,
 			Description: pm.Info.Description,
 		},
-		Servers: func() []*spec.Server {
+		Servers: func() []spec.Server {
 			for _, v := range pm.Items {
 				if v.Request != nil {
-					return []*spec.Server{{
+					return []spec.Server{{
 						URL: fmt.Sprintf("%s://%s",
 							v.Request.Url.Protocol,
 							strings.Join(v.Request.Url.Host, "."),
@@ -33,35 +33,36 @@ func Import(data []byte) (*spec.Spec, error) {
 					}}
 				}
 			}
-			return []*spec.Server{}
+			return []spec.Server{}
 		}(),
-		Globals: func() *spec.Global {
-			parmts := &spec.HTTPParameters{}
-			parmts.Fill()
-			return &spec.Global{
+		Globals: func() *spec.Globals {
+			parmts := &spec.GlobalParameters{}
+			parmts.Header = make(spec.ParameterList, 0)
+			parmts.Query = make(spec.ParameterList, 0)
+			parmts.Cookie = make(spec.ParameterList, 0)
+			return &spec.Globals{
 				Parameters: parmts,
 			}
 		}(),
 		Definitions: &spec.Definitions{
-			Schemas:    make(spec.Schemas, 0),
-			Parameters: &spec.HTTPParameters{},
-			Responses:  make(spec.HTTPResponseDefines, 0),
+			Schemas:   make(spec.DefinitionModels, 0),
+			Responses: make(spec.DefinitionResponses, 0),
 		},
-		Collections: walkCpllection(pm.Items, 1000),
+		Collections: walkCollection(pm.Items, 1000),
 	}
 	return p, nil
 }
 
-func walkCpllection(items []Item, parentid uint) []*spec.Collection {
+func walkCollection(items []Item, parentid int64) []*spec.Collection {
 	cs := make([]*spec.Collection, 0)
 	for i, v := range items {
 		// http request
-		id := parentid*1024 + uint(i) + 1
+		id := parentid*1024 + int64(i) + 1
 		if v.Request != nil {
 			specItem := &spec.Collection{
 				ID:       id,
 				ParentID: parentid,
-				Type:     spec.CollectionItemTypeHttp,
+				Type:     spec.TYPE_HTTP,
 				Title:    v.Name,
 				Content:  convertContent(v),
 			}
@@ -72,9 +73,9 @@ func walkCpllection(items []Item, parentid uint) []*spec.Collection {
 			specItem := &spec.Collection{
 				ID:       id,
 				ParentID: parentid,
-				Type:     spec.CollectionItemTypeDir,
+				Type:     spec.TYPE_CATEGORY,
 				Title:    v.Name,
-				Items:    walkCpllection(v.Items, id),
+				Items:    walkCollection(v.Items, id),
 			}
 			cs = append(cs, specItem)
 		}
@@ -82,10 +83,9 @@ func walkCpllection(items []Item, parentid uint) []*spec.Collection {
 	return cs
 }
 
-func convertContent(item Item) []*spec.NodeProxy {
-	req := spec.HTTPRequestNode{}
-	req.Parameters.Fill()
-	req.FillGlobalExcepts()
+func convertContent(item Item) []*spec.CollectionNode {
+	req := spec.CollectionHttpRequest{}
+	req.Attrs.Parameters.Fill()
 	for k, v := range item.Request.Url.Path {
 		if !strings.HasPrefix(v, ":") {
 			continue
@@ -93,38 +93,39 @@ func convertContent(item Item) []*spec.NodeProxy {
 		for _, x := range item.Request.Url.Variables {
 			if x.Key == v[1:] {
 				item.Request.Url.Path[k] = "{" + x.Key + "}"
-				req.Parameters.Path = append(req.Parameters.Path, x.toParameter())
+				req.Attrs.Parameters.Path = append(req.Attrs.Parameters.Path, x.toParameter())
 				break
 			}
 		}
 	}
 
-	nodes := []*spec.NodeProxy{
-		spec.MuseCreateNodeProxy(spec.WarpHTTPNode(spec.HTTPURLNode{
-			Path:   "/" + strings.Join(item.Request.Url.Path, "/"),
-			Method: item.Request.Method,
-		})),
+	url := *spec.NewCollectionHttpUrl("/"+strings.Join(item.Request.Url.Path, "/"), item.Request.Method)
+	nodes := []*spec.CollectionNode{
+		url.ToCollectionNode(),
 	}
 
 	for _, v := range item.Request.Url.Queries {
 		if v.Disabled {
 			continue
 		}
-		req.Parameters.Query = append(req.Parameters.Query, v.toParameter())
+		req.Attrs.Parameters.Query = append(req.Attrs.Parameters.Query, v.toParameter())
 	}
 	for _, v := range item.Request.Headers {
-		req.Parameters.Header = append(req.Parameters.Header, v.toParameter())
+		req.Attrs.Parameters.Header = append(req.Attrs.Parameters.Header, v.toParameter())
 	}
 
 	if body := encodeRequestBody(item.Request.Body); body != nil {
-		req.Content = body
+		req.Attrs.Content = body
 	} else {
-		req.Content = spec.HTTPBody{
-			"application/json": {Schema: jsonschema.Create("object")},
+		req.Attrs.Content = spec.HTTPBody{
+			"application/json": {Schema: jsonschema.NewSchema("object")},
 		}
 	}
-	nodes = append(nodes, spec.MuseCreateNodeProxy(spec.WarpHTTPNode(req)))
-	nodes = append(nodes, spec.MuseCreateNodeProxy(spec.WarpHTTPNode(encodeResponseBody(item.Response))))
+	nodes = append(nodes, req.ToCollectionNode())
+
+	res := spec.NewCollectionHttpResponse()
+	res.Attrs = encodeResponseBody(item.Response)
+	nodes = append(nodes, res.ToCollectionNode())
 	return nodes
 }
 
@@ -135,7 +136,7 @@ var contenttypemapp = map[string]string{
 	"plain":     "text/plain",
 }
 
-func encodeRequestBody(body *Body) map[string]*spec.Schema {
+func encodeRequestBody(body *Body) spec.HTTPBody {
 	if body == nil || body.Disabled {
 		return nil
 	}
@@ -143,14 +144,14 @@ func encodeRequestBody(body *Body) map[string]*spec.Schema {
 	case "raw":
 		if body.Options.Raw.Language == "json" {
 			b := jsonToSchema(body.Raw)
-			return map[string]*spec.Schema{
+			return map[string]*spec.Body{
 				contenttypemapp["json"]: {
 					Schema: b,
 				},
 			}
 		}
 	case "formdata", "urlencode":
-		b := jsonschema.Create("object")
+		b := jsonschema.NewSchema("object")
 		b.Properties = make(map[string]*jsonschema.Schema)
 		for _, v := range body.Formdata {
 			if v.Disabled {
@@ -158,7 +159,7 @@ func encodeRequestBody(body *Body) map[string]*spec.Schema {
 			}
 			b.Properties[v.Key] = v.toJSONSchema()
 		}
-		return map[string]*spec.Schema{
+		return map[string]*spec.Body{
 			contenttypemapp[body.Mode]: {
 				Schema: b,
 			},
@@ -171,37 +172,37 @@ func encodeRequestBody(body *Body) map[string]*spec.Schema {
 	return nil
 }
 
-func encodeResponseBody(res []Response) *spec.HTTPResponsesNode {
-	response := &spec.HTTPResponsesNode{
-		List: make(spec.HTTPResponses, 0),
+func encodeResponseBody(res []Response) *spec.HttpResponseAttrs {
+	response := &spec.HttpResponseAttrs{
+		List: make(spec.Responses, 0),
 	}
 	for _, v := range res {
-		r := spec.HTTPResponse{Code: v.Code}
+		r := spec.Response{Code: v.Code}
 		r.Description = v.Name
 		switch v.PostmanePreviewLanguage {
 		case "json":
 
 			// fmt.Println("json.........")
 			b := jsonToSchema(v.Body)
-			b.Example = v.Body
-			r.Content = map[string]*spec.Schema{
+			b.Examples = v.Body
+			r.Content = map[string]*spec.Body{
 				contenttypemapp["json"]: {
 					Schema: b,
 				},
 			}
 
 		case "plain":
-			b := jsonschema.Create("string")
-			b.Example = v.Body
-			r.Content = map[string]*spec.Schema{
+			b := jsonschema.NewSchema("string")
+			b.Examples = v.Body
+			r.Content = map[string]*spec.Body{
 				contenttypemapp["plain"]: {
 					Schema: b,
 				},
 			}
 		default:
-			r.Content = map[string]*spec.Schema{
+			r.Content = map[string]*spec.Body{
 				contenttypemapp["plain"]: {
-					Schema: jsonschema.Create("object"),
+					Schema: jsonschema.NewSchema("object"),
 				},
 			}
 		}
@@ -210,8 +211,8 @@ func encodeResponseBody(res []Response) *spec.HTTPResponsesNode {
 			if v.Disabled {
 				continue
 			}
-			b := jsonschema.Create("string")
-			b.Example = v.Value
+			b := jsonschema.NewSchema("string")
+			b.Examples = v.Value
 			r.Header = append(r.Header, &spec.Parameter{
 				Name:        v.Key,
 				Description: v.Description,
@@ -223,10 +224,10 @@ func encodeResponseBody(res []Response) *spec.HTTPResponsesNode {
 	}
 
 	if len(response.List) == 0 {
-		defaultres := spec.HTTPResponse{Code: 200}
+		defaultres := spec.Response{Code: 200}
 		defaultres.Name = "success"
 		defaultres.Content = spec.HTTPBody{
-			"application/json": {Schema: jsonschema.Create("object")},
+			"application/json": {Schema: jsonschema.NewSchema("object")},
 		}
 		response.List = append(response.List, &defaultres)
 	}

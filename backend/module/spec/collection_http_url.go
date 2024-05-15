@@ -1,4 +1,4 @@
-package spec2
+package spec
 
 const NODE_HTTP_URL = "apicat-http-url"
 

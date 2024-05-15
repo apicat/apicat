@@ -191,7 +191,7 @@ func ServerSort(ctx context.Context, pID string, ids []uint) error {
 	)
 }
 
-func ServersImport(ctx context.Context, projectID string, servers []*spec.Server) {
+func ServersImport(ctx context.Context, projectID string, servers []spec.Server) {
 	if len(servers) > 0 {
 		for i, server := range servers {
 			model.DB(ctx).Create(&Server{
@@ -204,8 +204,8 @@ func ServersImport(ctx context.Context, projectID string, servers []*spec.Server
 	}
 }
 
-func ExportServers(ctx context.Context, projectID string) []*spec.Server {
-	specServers := make([]*spec.Server, 0)
+func ExportServers(ctx context.Context, projectID string) []spec.Server {
+	specServers := make([]spec.Server, 0)
 
 	servers, err := GetServers(ctx, projectID)
 	if err != nil {
@@ -213,7 +213,7 @@ func ExportServers(ctx context.Context, projectID string) []*spec.Server {
 	}
 
 	for _, server := range servers {
-		specServers = append(specServers, &spec.Server{
+		specServers = append(specServers, spec.Server{
 			Description: server.Description,
 			URL:         server.URL,
 		})

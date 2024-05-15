@@ -1,4 +1,4 @@
-package spec2
+package spec
 
 type GlobalParameters struct {
 	Query  ParameterList `json:"query" yaml:"query"`

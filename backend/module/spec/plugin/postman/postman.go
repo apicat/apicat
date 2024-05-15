@@ -50,9 +50,9 @@ func (v *Variable) toJSONSchema() *jsonschema.Schema {
 	if v.Type != nil && slices.Contains(typelist, *v.Type) {
 		t = *v.Type
 	}
-	sh := jsonschema.Create(t)
+	sh := jsonschema.NewSchema(t)
 	sh.Description = v.Description
-	sh.Example = v.Value
+	sh.Examples = v.Value
 	return sh
 }
 
@@ -122,7 +122,7 @@ func jsonToSchema(b string) *jsonschema.Schema {
 		m = make(map[string]any)
 	}
 	ret := tojsonschema(m)
-	ret.Example = b
+	ret.Examples = b
 	return ret
 }
 
@@ -130,7 +130,7 @@ func tojsonschema(a any) *jsonschema.Schema {
 	var ret *jsonschema.Schema
 	switch x := a.(type) {
 	case []any:
-		ret = jsonschema.Create("array")
+		ret = jsonschema.NewSchema("array")
 		for _, v := range x {
 			var items jsonschema.ValueOrBoolean[*jsonschema.Schema]
 			items.SetValue(tojsonschema(v))
@@ -138,18 +138,18 @@ func tojsonschema(a any) *jsonschema.Schema {
 			break
 		}
 	case map[string]any:
-		ret = jsonschema.Create("object")
+		ret = jsonschema.NewSchema("object")
 		ret.Properties = make(map[string]*jsonschema.Schema)
 		for k, v := range x {
 			ret.Properties[k] = tojsonschema(v)
 		}
 	case float64:
-		ret = jsonschema.Create("number")
-		ret.Example = x
+		ret = jsonschema.NewSchema("number")
+		ret.Examples = x
 	case bool:
-		ret = jsonschema.Create("boolean")
+		ret = jsonschema.NewSchema("boolean")
 	default:
-		ret = jsonschema.Create("string")
+		ret = jsonschema.NewSchema("string")
 	}
 	return ret
 }

@@ -113,8 +113,8 @@ func (ds *DefinitionSchema) Sort(ctx context.Context, parentID, displayOrder uin
 	}).Error
 }
 
-func (ds *DefinitionSchema) ToSpec() (*spec.Schema, error) {
-	s := &spec.Schema{
+func (ds *DefinitionSchema) ToSpec() (*spec.DefinitionModel, error) {
+	s := &spec.DefinitionModel{
 		ID:          int64(ds.ID),
 		ParentId:    uint64(ds.ParentID),
 		Name:        ds.Name,
@@ -143,11 +143,11 @@ func (ds *DefinitionSchema) DelRef(ctx context.Context, refSchema *DefinitionSch
 	}
 
 	if deref {
-		schemaSpec.Deref(refSchemaSpec)
-	} else {
-		if err := schemaSpec.DelRef(refSchemaSpec); err != nil {
+		if err := schemaSpec.Deref(refSchemaSpec); err != nil {
 			return err
 		}
+	} else {
+		schemaSpec.DelRef(refSchemaSpec)
 	}
 
 	content, err := json.Marshal(schemaSpec.Schema)

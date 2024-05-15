@@ -11,10 +11,10 @@ import (
 )
 
 // ImportGlobalParameters 导入全局参数
-func ImportGlobalParameters(ctx context.Context, projectID string, parameters *spec.HTTPParameters) map[int64]uint {
+func ImportGlobalParameters(ctx context.Context, projectID string, parameters *spec.GlobalParameters) map[int64]uint {
 	res := collection.VirtualIDToIDMap{}
 
-	if parameters.Header == nil && parameters.Cookie == nil && parameters.Query == nil && parameters.Path == nil {
+	if parameters.Header == nil && parameters.Cookie == nil && parameters.Query == nil {
 		return res
 	}
 
@@ -28,8 +28,6 @@ func ImportGlobalParameters(ctx context.Context, projectID string, parameters *s
 			params = parameters.Cookie
 		case global.ParameterInQuery:
 			params = parameters.Query
-		case global.ParameterInPath:
-			params = parameters.Path
 		}
 
 		for _, parameter := range params {

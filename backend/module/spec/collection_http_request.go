@@ -1,10 +1,10 @@
-package spec2
+package spec
 
 import (
 	"errors"
 	"strconv"
 
-	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 )
 
 const NODE_HTTP_REQUEST = "apicat-http-request"
@@ -50,10 +50,6 @@ func (r *CollectionHttpRequest) NodeType() string {
 }
 
 func (r *CollectionHttpRequest) GetGlobalExcept(in string) []int64 {
-	if r == nil || r.Attrs == nil || r.Attrs.GlobalExcepts == nil {
-		return nil
-	}
-
 	switch in {
 	case "header":
 		return r.Attrs.GlobalExcepts.Header
@@ -66,10 +62,6 @@ func (r *CollectionHttpRequest) GetGlobalExcept(in string) []int64 {
 }
 
 func (r *CollectionHttpRequest) GetGlobalExceptAll() map[string][]int64 {
-	if r == nil || r.Attrs == nil || r.Attrs.GlobalExcepts == nil {
-		return nil
-	}
-
 	return map[string][]int64{
 		"header": r.Attrs.GlobalExcepts.Header,
 		"cookie": r.Attrs.GlobalExcepts.Cookie,
@@ -78,10 +70,6 @@ func (r *CollectionHttpRequest) GetGlobalExceptAll() map[string][]int64 {
 }
 
 func (r *CollectionHttpRequest) AddGlobalExcept(in string, id int64) {
-	if r == nil || r.Attrs == nil || r.Attrs.GlobalExcepts == nil {
-		return
-	}
-
 	switch in {
 	case "header":
 		if len(r.Attrs.GlobalExcepts.Header) == 0 {
@@ -120,10 +108,6 @@ func (r *CollectionHttpRequest) AddGlobalExcept(in string, id int64) {
 }
 
 func (r *CollectionHttpRequest) DelGlobalExcept(in string, id int64) {
-	if r == nil || r.Attrs == nil || r.Attrs.GlobalExcepts == nil {
-		return
-	}
-
 	switch in {
 	case "header":
 		if len(r.Attrs.GlobalExcepts.Header) == 0 {
@@ -159,7 +143,7 @@ func (r *CollectionHttpRequest) DelGlobalExcept(in string, id int64) {
 }
 
 func (r *CollectionHttpRequest) DerefGlobalParameters(params *GlobalParameters) {
-	if r == nil || r.Attrs == nil || params == nil {
+	if params == nil {
 		return
 	}
 
@@ -193,7 +177,7 @@ func (r *CollectionHttpRequest) DerefGlobalParameters(params *GlobalParameters) 
 }
 
 func (r *CollectionHttpRequest) DerefModel(ref *DefinitionModel) error {
-	if r == nil || r.Attrs == nil || r.Attrs.Content == nil || ref == nil {
+	if ref == nil {
 		return errors.New("model is nil")
 	}
 	ref.Schema.ID = ref.ID
@@ -214,8 +198,8 @@ func (r *CollectionHttpRequest) DerefModel(ref *DefinitionModel) error {
 }
 
 func (r *CollectionHttpRequest) DeepDerefModel(refs DefinitionModels) error {
-	if r == nil || r.Attrs == nil || r.Attrs.Content == nil || refs == nil {
-		return errors.New("model is nil")
+	if len(refs) == 0 {
+		return nil
 	}
 
 	helper := jsonschema.NewDerefHelper(refs.ToJsonSchemaMap())
@@ -223,8 +207,8 @@ func (r *CollectionHttpRequest) DeepDerefModel(refs DefinitionModels) error {
 }
 
 func (r *CollectionHttpRequest) DeepDerefModelByHelper(helper *jsonschema.DerefHelper) error {
-	if r == nil || r.Attrs == nil || r.Attrs.Content == nil || helper == nil {
-		return errors.New("model is nil")
+	if helper == nil {
+		return errors.New("helper is nil")
 	}
 
 	for _, v := range r.Attrs.Content {
@@ -246,7 +230,7 @@ func (r *CollectionHttpRequest) ToCollectionNode() *CollectionNode {
 }
 
 func (r *CollectionHttpRequest) DelRefModel(ref *DefinitionModel) {
-	if r == nil || r.Attrs == nil || r.Attrs.Content == nil || ref == nil {
+	if ref == nil {
 		return
 	}
 	ref.Schema.ID = ref.ID
@@ -262,7 +246,7 @@ func (r *CollectionHttpRequest) DelRefModel(ref *DefinitionModel) {
 }
 
 func (g *HttpRequestGlobalExcepts) Exist(in string, id int64) bool {
-	if g == nil || id == 0 {
+	if id == 0 {
 		return false
 	}
 
@@ -290,10 +274,6 @@ func (g *HttpRequestGlobalExcepts) Exist(in string, id int64) bool {
 }
 
 func (g *HttpRequestGlobalExcepts) ToMap() map[string][]int64 {
-	if g == nil {
-		return nil
-	}
-
 	return map[string][]int64{
 		"header": g.Header,
 		"cookie": g.Cookie,
@@ -302,10 +282,6 @@ func (g *HttpRequestGlobalExcepts) ToMap() map[string][]int64 {
 }
 
 func (g *HttpRequestGlobalExcepts) Clear(in string) {
-	if g == nil {
-		return
-	}
-
 	switch in {
 	case "header":
 		g.Header = []int64{}

@@ -1,10 +1,10 @@
-package spec2
+package spec
 
 import (
 	"errors"
 	"strconv"
 
-	"github.com/apicat/apicat/v2/backend/module/spec2/jsonschema"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 )
 
 const NODE_HTTP_RESPONSE = "apicat-http-response"
@@ -31,21 +31,24 @@ func (r *CollectionHttpResponse) NodeType() string {
 	return r.Type
 }
 
-func (r *CollectionHttpResponse) DerefResponse(ref *DefinitionResponse) {
-	if r == nil || r.Attrs == nil || ref == nil {
-		return
+func (r *CollectionHttpResponse) DerefResponse(ref *DefinitionResponse) error {
+	if ref == nil {
+		return errors.New("response is nil")
 	}
 
 	for _, v := range r.Attrs.List {
 		if v.Ref() {
-			v.ReplaceRef(&ref.BasicResponse)
+			if err := v.ReplaceRef(&ref.BasicResponse); err != nil {
+				return err
+			}
 		}
 	}
+	return nil
 }
 
-func (r *CollectionHttpResponse) DerefAllResponses(refs DefinitionResponses) {
-	if r == nil || r.Attrs == nil || refs == nil {
-		return
+func (r *CollectionHttpResponse) DerefAllResponses(refs DefinitionResponses) error {
+	if len(refs) == 0 {
+		return nil
 	}
 
 	refsMap := refs.ToMap()
@@ -53,14 +56,17 @@ func (r *CollectionHttpResponse) DerefAllResponses(refs DefinitionResponses) {
 	for _, res := range r.Attrs.List {
 		if res.Ref() {
 			if ref, ok := refsMap[res.GetRefID()]; ok {
-				res.ReplaceRef(&ref.BasicResponse)
+				if err := res.ReplaceRef(&ref.BasicResponse); err != nil {
+					return err
+				}
 			}
 		}
 	}
+	return nil
 }
 
 func (r *CollectionHttpResponse) DerefModel(ref *DefinitionModel) error {
-	if r == nil || r.Attrs == nil || ref == nil {
+	if ref == nil {
 		return errors.New("model is nil")
 	}
 
@@ -86,8 +92,8 @@ func (r *CollectionHttpResponse) DerefModel(ref *DefinitionModel) error {
 }
 
 func (r *CollectionHttpResponse) DeepDerefModel(refs DefinitionModels) error {
-	if r == nil || r.Attrs == nil || refs == nil {
-		return errors.New("model is nil")
+	if len(refs) == 0 {
+		return nil
 	}
 
 	helper := jsonschema.NewDerefHelper(refs.ToJsonSchemaMap())
@@ -95,8 +101,8 @@ func (r *CollectionHttpResponse) DeepDerefModel(refs DefinitionModels) error {
 }
 
 func (r *CollectionHttpResponse) DeepDerefModelByHelper(helper *jsonschema.DerefHelper) error {
-	if r == nil || r.Attrs == nil || helper == nil {
-		return errors.New("model is nil")
+	if helper == nil {
+		return errors.New("helper is nil")
 	}
 
 	for _, res := range r.Attrs.List {
@@ -118,7 +124,7 @@ func (r *CollectionHttpResponse) DeepDerefModelByHelper(helper *jsonschema.Deref
 }
 
 func (r *CollectionHttpResponse) DelRefResponse(ref *DefinitionResponse) {
-	if r == nil || r.Attrs == nil || ref == nil {
+	if ref == nil {
 		return
 	}
 
@@ -131,7 +137,7 @@ func (r *CollectionHttpResponse) DelRefResponse(ref *DefinitionResponse) {
 }
 
 func (r *CollectionHttpResponse) DelRefModel(ref *DefinitionModel) {
-	if r == nil || r.Attrs == nil || ref == nil {
+	if ref == nil {
 		return
 	}
 

@@ -1,50 +1,50 @@
 package export
 
 import (
-	"github.com/apicat/apicat/v2/backend/module/spec2"
+	"github.com/apicat/apicat/v2/backend/module/spec"
 )
 
 type HttpApi struct {
 	ID    int64
 	Dir   string
 	Title string
-	spec2.HttpRequestAttrs
-	Responses spec2.Responses
+	spec.HttpRequestAttrs
+	Responses spec.Responses
 }
 
 type HttpApis map[string]map[string]HttpApi
 
-func NewHttpApis(s *spec2.Spec) HttpApis {
+func NewHttpApis(s *spec.Spec) HttpApis {
 	apis := HttpApis{}
 
-	collections := spec2.Collections{}
+	collections := spec.Collections{}
 	for _, v := range s.Collections {
-		if v.Type == spec2.TYPE_CATEGORY {
+		if v.Type == spec.TYPE_CATEGORY {
 			collections = append(collections, v.ItemsTreeToList()...)
-		} else if v.Type == spec2.TYPE_HTTP {
+		} else if v.Type == spec.TYPE_HTTP {
 			collections = append(collections, v)
 		}
 	}
 
-	models := spec2.DefinitionModels{}
+	definitions := &spec.Definitions{}
+
 	for _, v := range s.Definitions.Schemas {
-		if v.Type == spec2.TYPE_CATEGORY {
-			models = append(models, v.ItemsTreeToList()...)
+		if v.Type == spec.TYPE_CATEGORY {
+			definitions.Schemas = append(definitions.Schemas, v.ItemsTreeToList()...)
 		} else {
-			models = append(models, v)
+			definitions.Schemas = append(definitions.Schemas, v)
 		}
 	}
 
-	responses := spec2.DefinitionResponses{}
 	for _, v := range s.Definitions.Responses {
-		if v.Type == spec2.TYPE_CATEGORY {
-			responses = append(responses, v.ItemsTreeToList()...)
+		if v.Type == spec.TYPE_CATEGORY {
+			definitions.Responses = append(definitions.Responses, v.ItemsTreeToList()...)
 		} else {
-			responses = append(responses, v)
+			definitions.Responses = append(definitions.Responses, v)
 		}
 	}
 
-	collections.DeepDerefAll(s.Globals.Parameters, models, responses)
+	collections.DeepDerefAll(s.Globals.Parameters, definitions)
 	for _, c := range collections {
 		path, method := "", ""
 		http := HttpApi{
@@ -53,7 +53,7 @@ func NewHttpApis(s *spec2.Spec) HttpApis {
 		}
 		for _, node := range c.Content {
 			switch node.NodeType() {
-			case spec2.NODE_HTTP_URL:
+			case spec.NODE_HTTP_URL:
 				url := node.ToHttpUrl()
 				if url.Attrs.Path == "" && url.Attrs.Method == "" {
 					continue
@@ -61,9 +61,9 @@ func NewHttpApis(s *spec2.Spec) HttpApis {
 
 				path = url.Attrs.Path
 				method = url.Attrs.Method
-			case spec2.NODE_HTTP_REQUEST:
+			case spec.NODE_HTTP_REQUEST:
 				http.HttpRequestAttrs = *node.ToHttpRequest().Attrs
-			case spec2.NODE_HTTP_RESPONSE:
+			case spec.NODE_HTTP_RESPONSE:
 				http.Responses = node.ToHttpResponse().Attrs.List
 			}
 		}

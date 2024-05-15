@@ -1,6 +1,7 @@
-package spec2
+package spec
 
 import (
+	"errors"
 	"strconv"
 	"strings"
 )
@@ -51,17 +52,18 @@ func (r *Response) GetRefID() int64 {
 	return 0
 }
 
-func (r *Response) ReplaceRef(ref *BasicResponse) {
+func (r *Response) ReplaceRef(ref *BasicResponse) error {
 	if !r.Ref() || ref == nil {
-		return
+		return errors.New("response is not a reference or ref is nil")
 	}
 
 	refID := r.GetRefID()
 	if refID != ref.ID {
-		return
+		return errors.New("ref id does not match")
 	}
 
 	r.BasicResponse = *ref
+	return nil
 }
 
 func (r *Response) SetXDiff(x string) {

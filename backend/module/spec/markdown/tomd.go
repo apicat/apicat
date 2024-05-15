@@ -25,7 +25,7 @@ type docRenderMarkdown struct {
 	newline    bool
 }
 
-func (r *docRenderMarkdown) blockList(node *spec.DocNode) {
+func (r *docRenderMarkdown) blockList(node *spec.CollectionDoc) {
 	r.listDepth++
 	ordered := node.Type == "ordered_list"
 	indent := strings.Repeat(" ", (r.listDepth-1)*3)
@@ -103,7 +103,7 @@ func needsEscaping(text string, lastNormalText string) bool {
 	}
 }
 
-func (r *docRenderMarkdown) content(prefix string, node *spec.DocNode) {
+func (r *docRenderMarkdown) content(prefix string, node *spec.CollectionDoc) {
 	r.startLine()
 	r.buf.WriteString(prefix)
 	for _, v := range node.Content {
@@ -112,7 +112,7 @@ func (r *docRenderMarkdown) content(prefix string, node *spec.DocNode) {
 	r.endLine()
 }
 
-func (r *docRenderMarkdown) inline(s string, marks []*spec.DocNode) {
+func (r *docRenderMarkdown) inline(s string, marks []*spec.CollectionDoc) {
 	if len(marks) == 0 {
 		r.buf.WriteString(s)
 		return
@@ -125,18 +125,18 @@ func (r *docRenderMarkdown) inline(s string, marks []*spec.DocNode) {
 	}
 }
 
-func (r *docRenderMarkdown) renderMark(mark *spec.DocNode) (prefix, suffix string) {
+func (r *docRenderMarkdown) renderMark(mark *spec.CollectionDoc) (prefix, suffix string) {
 	switch mark.Type {
 	case "strong":
 		return "**", "**"
 	case "em":
 		return "--", "--"
 	case "link":
-		title := mark.LookupAttrString("title")
+		title := mark.GetAttrString("title")
 		if title != "" {
 			title = ` "` + title + `"`
 		}
-		return "[", "](" + escape(mark.LookupAttrString("href")) + title + ")"
+		return "[", "](" + escape(mark.GetAttrString("href")) + title + ")"
 	case "code":
 		return "`", "`"
 	default:
@@ -144,7 +144,7 @@ func (r *docRenderMarkdown) renderMark(mark *spec.DocNode) (prefix, suffix strin
 	}
 }
 
-func (r *docRenderMarkdown) renderNode(node *spec.DocNode) {
+func (r *docRenderMarkdown) renderNode(node *spec.CollectionDoc) {
 	switch node.Type {
 	// inline
 	case "text":
@@ -156,11 +156,11 @@ func (r *docRenderMarkdown) renderNode(node *spec.DocNode) {
 		r.inline(s, node.Mark)
 	case "image":
 		r.inline(fmt.Sprintf("[%s](%s)",
-			escape(node.LookupAttrString("src")), escape(node.LookupAttrString("title"))),
+			escape(node.GetAttrString("src")), escape(node.GetAttrString("title"))),
 			node.Mark)
 		// block
 	case "heading":
-		i := int(node.LookupAttrNumber("level"))
+		i := int(node.GetAttrNumber("level"))
 		r.content(strings.Repeat("#", i)+" ", node)
 	case "paragraph":
 		r.content("", node)
