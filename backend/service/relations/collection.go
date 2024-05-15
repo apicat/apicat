@@ -65,22 +65,30 @@ func DeleteCollections(ctx context.Context, pID string, c *collection.Collection
 		slog.ErrorContext(ctx, "collection.Deletes.BatchDeleteIterationApi", "err", err)
 		return err
 	}
+
 	// 删除该集合的分享令牌
 	if err := share.DeleteCollectionShareTmpTokens(ctx, ids...); err != nil {
 		slog.ErrorContext(ctx, "collection.Deletes.DeleteCollectionShareTmpTokens", "err", err)
 		return err
 	}
+
 	// 删除该集合的引用关系
-	responseIDs := reference.ParseRefResponses(c.Content)
+	responseIDs, err := reference.ParseRefResponsesFromCollection(c)
+	if err != nil {
+		slog.ErrorContext(ctx, "collection.Deletes.ParseRefResponsesFromCollection", "err", err)
+		return err
+	}
 	if err := referencerelation.DelRefResponseCollection(ctx, c.ID, responseIDs...); err != nil {
 		slog.ErrorContext(ctx, "collection.Deletes.DelRefResponseCollection", "err", err)
 		return err
 	}
+
 	schemaIDs := reference.ParseRefSchemas(c.Content)
 	if err := referencerelation.DelRefSchemaCollection(ctx, c.ID, schemaIDs...); err != nil {
 		slog.ErrorContext(ctx, "collection.Deletes.DelRefSchemaCollection", "err", err)
 		return err
 	}
+
 	// 删除该集合的被排除关系
 	paramIDs, err := except.ParseExceptParamsFromCollection(c)
 	if err != nil {

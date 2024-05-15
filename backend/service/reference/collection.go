@@ -11,7 +11,10 @@ import (
 
 // UpdateCollectionRef 更新集合引用关系（包含集合引用、排除集合）
 func UpdateCollectionRef(ctx context.Context, c *collection.Collection, oldSchemaIDs, oldResponseIDs, oldExceptParamIDs []uint) error {
-	newResponseIDs := ParseRefResponses(c.Content)
+	newResponseIDs, err := ParseRefResponsesFromCollection(c)
+	if err != nil {
+		return err
+	}
 	if err := updateRefCollectionToResponses(ctx, c.ID, oldResponseIDs, newResponseIDs); err != nil {
 		return err
 	}
