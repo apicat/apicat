@@ -157,6 +157,32 @@ func (r *CollectionHttpResponse) DelRefModel(ref *DefinitionModel) {
 	}
 }
 
+func (r *CollectionHttpResponse) GetRefModelIDs() []int64 {
+	ids := make([]int64, 0)
+	for _, res := range r.Attrs.List {
+		if res.Content == nil {
+			continue
+		}
+
+		for _, v := range res.Content {
+			if v.Schema != nil {
+				ids = append(ids, v.Schema.DeepGetRefID()...)
+			}
+		}
+	}
+	return ids
+}
+
+func (r *CollectionHttpResponse) GetRefResponseIDs() []int64 {
+	ids := make([]int64, 0)
+	for _, res := range r.Attrs.List {
+		if res.Ref() {
+			ids = append(ids, res.GetRefID())
+		}
+	}
+	return ids
+}
+
 func (r *CollectionHttpResponse) ToCollectionNode() *CollectionNode {
 	return &CollectionNode{
 		Node: r,

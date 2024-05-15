@@ -142,6 +142,16 @@ func (r *CollectionHttpRequest) DelGlobalExcept(in string, id int64) {
 	}
 }
 
+func (r *CollectionHttpRequest) GetRefModelIDs() []int64 {
+	ids := make([]int64, 0)
+	for _, v := range r.Attrs.Content {
+		if v.Schema != nil {
+			ids = append(ids, v.Schema.DeepGetRefID()...)
+		}
+	}
+	return ids
+}
+
 func (r *CollectionHttpRequest) DerefGlobalParameters(params *GlobalParameters) {
 	if params == nil {
 		return

@@ -150,6 +150,29 @@ func (c *Collection) GetGlobalExceptAll() map[string][]int64 {
 	return nil
 }
 
+func (c *Collection) GetRefModelIDs() []int64 {
+	ids := make([]int64, 0)
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case NODE_HTTP_REQUEST:
+			ids = append(ids, node.ToHttpRequest().GetRefModelIDs()...)
+		case NODE_HTTP_RESPONSE:
+			ids = append(ids, node.ToHttpResponse().GetRefModelIDs()...)
+		}
+	}
+	return ids
+}
+
+func (c *Collection) GetRefResponseIDs() []int64 {
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case NODE_HTTP_RESPONSE:
+			return node.ToHttpResponse().GetRefResponseIDs()
+		}
+	}
+	return nil
+}
+
 func (c *Collection) AddGlobalExcept(in string, id int64) {
 	for _, node := range c.Content {
 		switch node.NodeType() {
