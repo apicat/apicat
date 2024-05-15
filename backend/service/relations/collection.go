@@ -83,7 +83,11 @@ func DeleteCollections(ctx context.Context, pID string, c *collection.Collection
 		return err
 	}
 
-	schemaIDs := reference.ParseRefSchemas(c.Content)
+	schemaIDs, err := reference.ParseRefSchemasFromCollection(c)
+	if err != nil {
+		slog.ErrorContext(ctx, "collection.Deletes.ParseRefSchemasFromCollection", "err", err)
+		return err
+	}
 	if err := referencerelation.DelRefSchemaCollection(ctx, c.ID, schemaIDs...); err != nil {
 		slog.ErrorContext(ctx, "collection.Deletes.DelRefSchemaCollection", "err", err)
 		return err

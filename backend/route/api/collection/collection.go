@@ -194,7 +194,11 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("collection.DoesNotExist"))
 	}
 
-	oldRefSchemaIDs := reference.ParseRefSchemas(c.Content)
+	oldRefSchemaIDs, err := reference.ParseRefSchemasFromCollection(c)
+	if err != nil {
+		slog.ErrorContext(ctx, "reference.ParseRefSchemasFromCollection", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+	}
 
 	oldRefResponseIDs, err := reference.ParseRefResponsesFromCollection(c)
 	if err != nil {
@@ -208,16 +212,16 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
 	}
 
-	if err := c.Update(ctx, opt.Title, opt.Content, selfTM.ID); err != nil {
-		slog.ErrorContext(ctx, "c.Update", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
-	}
-
 	// 编辑文档时更新文档引用关系
 	if c.Type != collection.CategoryType {
 		if err := reference.UpdateCollectionRef(ctx, c, oldRefSchemaIDs, oldRefResponseIDs, oldExceptparamIDs); err != nil {
 			slog.ErrorContext(ctx, "collectionrelations.UpdateCollectionRef", "err", err)
 		}
+	}
+
+	if err := c.Update(ctx, opt.Title, opt.Content, selfTM.ID); err != nil {
+		slog.ErrorContext(ctx, "c.Update", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
 	}
 
 	return &ginrpc.Empty{}, nil

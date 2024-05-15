@@ -13,8 +13,10 @@ import (
 // UpdateSchemaRef 更新公共模型引用关系
 // oldScheamIDs 需要更新的shcema之前引用的公共模型id
 func UpdateSchemaRef(ctx context.Context, s *definition.DefinitionSchema, oldScheamIDs []uint) error {
-	newSchemaIDs := ParseRefSchemas(s.Schema)
-
+	newSchemaIDs, err := ParseRefSchemasFromSchema(s)
+	if err != nil {
+		return err
+	}
 	if err := updateRefSchemaToschemas(ctx, s.ID, oldScheamIDs, newSchemaIDs); err != nil {
 		return err
 	}

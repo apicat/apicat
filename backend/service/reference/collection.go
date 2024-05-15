@@ -19,7 +19,10 @@ func UpdateCollectionRef(ctx context.Context, c *collection.Collection, oldSchem
 		return err
 	}
 
-	newSchemaIDs := ParseRefSchemas(c.Content)
+	newSchemaIDs, err := ParseRefSchemasFromCollection(c)
+	if err != nil {
+		return err
+	}
 	if err := updateRefCollectionToSchemas(ctx, c.ID, oldSchemaIDs, newSchemaIDs); err != nil {
 		return err
 	}

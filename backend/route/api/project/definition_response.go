@@ -137,22 +137,27 @@ func (drai *definitionResponseApiImpl) Update(ctx *gin.Context, opt *projectrequ
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("definitionResponse.DoesNotExist"))
 	}
 
-	oldRefSchemaIDs := reference.ParseRefSchemas(dr.Content)
+	oldRefSchemaIDs, err := reference.ParseRefSchemasFromResponse(dr)
+	if err != nil {
+		slog.ErrorContext(ctx, "reference.ParseRefSchemasFromResponse", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+	}
 
 	dr.Name = opt.Name
 	dr.Description = opt.Description
 	dr.Header = opt.Header
 	dr.Content = opt.Content
-	if err := dr.Update(ctx, selfTM.ID); err != nil {
-		slog.ErrorContext(ctx, "dr.Update", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
-	}
 
 	// 编辑响应时更新响应引用的模型
 	if dr.Type != definition.ResponseCategory {
 		if err := reference.UpdateResponseRef(ctx, dr, oldRefSchemaIDs); err != nil {
 			slog.ErrorContext(ctx, "reference.UpdateResponseRef", "err", err)
 		}
+	}
+
+	if err := dr.Update(ctx, selfTM.ID); err != nil {
+		slog.ErrorContext(ctx, "dr.Update", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
 	}
 
 	return &ginrpc.Empty{}, nil

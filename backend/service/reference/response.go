@@ -12,7 +12,10 @@ import (
 
 // UpdateResponseRef 更新公共响应引用关系
 func UpdateResponseRef(ctx context.Context, r *definition.DefinitionResponse, oldScheamIDs []uint) error {
-	newSchemaIDs := ParseRefSchemas(r.Content)
+	newSchemaIDs, err := ParseRefSchemasFromResponse(r)
+	if err != nil {
+		return err
+	}
 	if err := updateRefResponseToScheams(ctx, r.ID, oldScheamIDs, newSchemaIDs); err != nil {
 		return err
 	}
@@ -61,7 +64,10 @@ func updateRefResponseToScheams(ctx context.Context, rID uint, oldScheamIDs, new
 
 // DerefResponse 公共响应解引用
 func DerefResponse(ctx context.Context, r *definition.DefinitionResponse, deref bool) error {
-	nowSchemaIDs := ParseRefSchemas(r.Content)
+	nowSchemaIDs, err := ParseRefSchemasFromResponse(r)
+	if err != nil {
+		return err
+	}
 
 	rc := referencerelation.RefResponseCollections{RefResponserID: r.ID}
 	cIDs, err := rc.GetCollectionIDs(ctx)
