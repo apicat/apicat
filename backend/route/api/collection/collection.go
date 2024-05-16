@@ -219,6 +219,13 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 		}
 	}
 
+	if cs, err := spec.NewCollectionFromJson(opt.Content); err == nil {
+		cs.SortResponses()
+		if s, err := cs.ToJson(); err == nil {
+			opt.Content = s
+		}
+	}
+
 	if err := c.Update(ctx, opt.Title, opt.Content, selfTM.ID); err != nil {
 		slog.ErrorContext(ctx, "c.Update", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))

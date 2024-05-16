@@ -428,12 +428,14 @@ func (s *swaggerParser) parseCollections(in *v2.Swagger, paths *v2.Paths) spec.C
 				title = path
 			}
 
-			collections = append(collections, &spec.Collection{
+			c := &spec.Collection{
 				Type:    spec.TYPE_HTTP,
 				Title:   title,
 				Tags:    info.Tags,
 				Content: content,
-			})
+			}
+			c.SortResponses()
+			collections = append(collections, c)
 		}
 	}
 	return collections

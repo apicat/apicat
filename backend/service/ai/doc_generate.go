@@ -53,6 +53,7 @@ func DocGenerate(ctx *gin.Context, prompt string) (*collection.Collection, error
 	if err := apiSpec.Collections[0].DeepDerefAll(apiSpec.Globals.Parameters, apiSpec.Definitions); err != nil {
 		return nil, fmt.Errorf("DerefSchema failed: %s", err.Error())
 	}
+	apiSpec.Collections[0].SortResponses()
 
 	r, err := json.Marshal(apiSpec.Collections[0].Content)
 	if err != nil {

@@ -1,6 +1,8 @@
 package spec
 
 import (
+	"encoding/json"
+
 	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 )
 
@@ -26,6 +28,14 @@ func NewCollection(title, typ string) *Collection {
 		Title: title,
 		Type:  typ,
 	}
+}
+
+func NewCollectionFromJson(c string) (*Collection, error) {
+	var collection Collection
+	if err := json.Unmarshal([]byte(c), &collection); err != nil {
+		return nil, err
+	}
+	return &collection, nil
 }
 
 func (c *Collection) DerefModel(ref *DefinitionModel) error {
@@ -195,6 +205,15 @@ func (c *Collection) AddReqParameter(in string, p *Parameter) {
 	}
 }
 
+func (c *Collection) SortResponses() {
+	for _, node := range c.Content {
+		switch node.NodeType() {
+		case NODE_HTTP_RESPONSE:
+			node.ToHttpResponse().Sort()
+		}
+	}
+}
+
 func (v *Collection) HasTag(tag string) bool {
 	for _, t := range v.Tags {
 		if t == tag {
@@ -235,6 +254,14 @@ func (c *Collection) ItemsTreeToList() Collections {
 		}
 	}
 	return list
+}
+
+func (c *Collection) ToJson() (string, error) {
+	res, err := json.Marshal(c)
+	if err != nil {
+		return "", err
+	}
+	return string(res), nil
 }
 
 func (cs *Collections) DeepDerefAll(params *GlobalParameters, definitions *Definitions) error {
