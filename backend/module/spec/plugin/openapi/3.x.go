@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -11,6 +12,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
 	v3 "github.com/pb33f/libopenapi/datamodel/high/v3"
+	"github.com/pb33f/libopenapi/orderedmap"
 )
 
 type openapiParser struct {
@@ -63,13 +65,15 @@ func (o *openapiParser) parseServers(servs []*v3.Server) []spec.Server {
 	return srvs
 }
 
-func (o *openapiParser) parseContent(mts map[string]*v3.MediaType) (spec.HTTPBody, error) {
+func (o *openapiParser) parseContent(mts *orderedmap.Map[string, *v3.MediaType]) (spec.HTTPBody, error) {
 	if mts == nil {
 		return nil, errors.New("no content")
 	}
 
 	content := make(spec.HTTPBody)
-	for contentType, mediaType := range mts {
+	for pair := range orderedmap.Iterate(context.Background(), mts) {
+		contentType := pair.Key()
+		mediaType := pair.Value()
 		body := &spec.Body{}
 
 		js, err := jsonSchemaConverter(mediaType.Schema)
@@ -78,9 +82,10 @@ func (o *openapiParser) parseContent(mts map[string]*v3.MediaType) (spec.HTTPBod
 		}
 		js.Examples = mediaType.Example
 
-		if len(mediaType.Examples) > 0 {
+		if orderedmap.Len(mediaType.Examples) > 0 {
 			body.Examples = make([]spec.Example, 0)
-			for _, v := range mediaType.Examples {
+			for examplePair := range orderedmap.Iterate(context.Background(), mediaType.Examples) {
+				v := examplePair.Value()
 				if example, err := json.Marshal(v); err == nil {
 					body.Examples = append(body.Examples, spec.Example{
 						Summary: v.Summary,
@@ -106,11 +111,15 @@ func (o *openapiParser) parseDefinetions(comp *v3.Components) (*spec.Definitions
 	o.modelMapping = map[string]int64{}
 	models := make(spec.DefinitionModels, 0)
 
-	for k, v := range comp.Schemas {
+	for pair := range orderedmap.Iterate(context.Background(), comp.Schemas) {
+		k := pair.Key()
+		v := pair.Value()
+
 		js, err := jsonSchemaConverter(v)
 		if err != nil {
 			return nil, err
 		}
+
 		models = append(models, &spec.DefinitionModel{
 			ID:          stringToUnid(k),
 			Name:        k,
@@ -120,32 +129,37 @@ func (o *openapiParser) parseDefinetions(comp *v3.Components) (*spec.Definitions
 	}
 
 	responses := make(spec.DefinitionResponses, 0)
-	for k, v := range comp.Responses {
-		id := stringToUnid(k)
+	for pair := range orderedmap.Iterate(context.Background(), comp.Responses) {
+		responseName := pair.Key()
+		response := pair.Value()
+		id := stringToUnid(responseName)
+
 		def := &spec.DefinitionResponse{
 			BasicResponse: spec.BasicResponse{
 				Header:      make(spec.ParameterList, 0),
-				Name:        k,
+				Name:        responseName,
 				ID:          id,
-				Description: v.Description,
+				Description: response.Description,
 			},
 		}
 
-		if v.Headers != nil {
-			for k, v := range v.Headers {
+		if response.Headers != nil {
+			for headerPair := range orderedmap.Iterate(context.Background(), response.Headers) {
+				v := headerPair.Value()
 				js, err := jsonSchemaConverter(v.Schema)
 				if err != nil {
 					return nil, err
 				}
 				js.Description = v.Description
 				def.Header = append(def.Header, &spec.Parameter{
-					Name:   k,
+					Name:   headerPair.Key(),
 					Schema: js,
 				})
 			}
 		}
-		if v.Content != nil {
-			content, err := o.parseContent(v.Content)
+
+		if response.Content != nil {
+			content, err := o.parseContent(response.Content)
 			if err != nil {
 				return nil, err
 			}
@@ -170,12 +184,17 @@ func (o *openapiParser) parseGlobalParameters(com *v3.Components) *spec.GlobalPa
 		return res
 	}
 
-	global, ok := inp["x-apicat-global-parameters"]
+	global, ok := inp.Get("x-apicat-global-parameters")
 	if !ok {
 		return res
 	}
 
-	for k, v := range global.(map[string]any) {
+	var globals map[string]any
+	if err := global.Decode(&globals); err != nil {
+		return res
+	}
+
+	for k, v := range globals {
 		nb, err := json.Marshal(v)
 		if err != nil {
 			continue
@@ -197,7 +216,7 @@ func (o *openapiParser) parseParameters(inp []*v3.Parameter) (*spec.HTTPParamete
 	for _, v := range inp {
 		if g := v.GoLow(); g.IsReference() {
 			// if this parameter is a global parameter
-			if isGlobalParameter(g.Reference.Reference) {
+			if isGlobalParameter(g.Reference.GetReference()) {
 				continue
 			}
 
@@ -216,7 +235,7 @@ func (o *openapiParser) parseParameters(inp []*v3.Parameter) (*spec.HTTPParamete
 
 		sp := &spec.Parameter{
 			Name:     v.Name,
-			Required: v.Required,
+			Required: *v.Required,
 		}
 
 		sp.Schema = &jsonschema.Schema{}
@@ -235,16 +254,19 @@ func (o *openapiParser) parseParameters(inp []*v3.Parameter) (*spec.HTTPParamete
 	return rawparamter, nil
 }
 
-func (o *openapiParser) parseResponses(responses map[string]*v3.Response) (*spec.CollectionHttpResponse, error) {
+func (o *openapiParser) parseResponses(responses *orderedmap.Map[string, *v3.Response]) (*spec.CollectionHttpResponse, error) {
 	outresponses := spec.NewCollectionHttpResponse()
 
-	for code, res := range responses {
+	for pair := range orderedmap.Iterate(context.Background(), responses) {
+		code := pair.Key()
+		res := pair.Value()
+
 		c, _ := strconv.Atoi(code)
 		resp := spec.Response{
 			Code: c,
 		}
 
-		s := res.GoLow().Reference.Reference
+		s := res.GoLow().Reference.GetReference()
 		if s != "" {
 			refs := fmt.Sprintf("#/definitions/responses/%d", stringToUnid(s[strings.LastIndex(s, "/")+1:]))
 			resp.Reference = refs
@@ -252,14 +274,15 @@ func (o *openapiParser) parseResponses(responses map[string]*v3.Response) (*spec
 			continue
 		}
 
-		if _, ok := res.Extensions["x-apicat-response-name"]; ok {
-			resp.Name = res.Extensions["x-apicat-response-name"].(string)
+		if v, ok := res.Extensions.Get("x-apicat-response-name"); ok {
+			resp.Name = v.Value
 		}
 
 		resp.Description = res.Description
 		resp.Header = make(spec.ParameterList, 0)
 		if res.Headers != nil {
-			for k, v := range res.Headers {
+			for pair := range orderedmap.Iterate(context.Background(), res.Headers) {
+				v := pair.Value()
 				js, err := jsonSchemaConverter(v.Schema)
 				if err != nil {
 					return nil, err
@@ -267,7 +290,7 @@ func (o *openapiParser) parseResponses(responses map[string]*v3.Response) (*spec
 
 				js.Description = v.Description
 				resp.Header = append(resp.Header, &spec.Parameter{
-					Name:   k,
+					Name:   pair.Key(),
 					Schema: js,
 				})
 			}
@@ -290,9 +313,13 @@ func (o *openapiParser) parseCollections(paths *v3.Paths) spec.Collections {
 	}
 
 	var err error
-	for path, p := range paths.PathItems {
-		op := p.GetOperations()
-		for method, info := range op {
+	for pair := range orderedmap.Iterate(context.Background(), paths.PathItems) {
+		path := pair.Key()
+		operations := pair.Value().GetOperations()
+		for operation := range orderedmap.Iterate(context.Background(), operations) {
+			method := operation.Key()
+			info := operation.Value()
+
 			content := spec.CollectionNodes{
 				spec.NewCollectionHttpUrl(path, method).ToCollectionNode(),
 			}

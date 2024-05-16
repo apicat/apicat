@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"context"
 	"fmt"
 	"strconv"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/module/spec"
 	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
+	"github.com/pb33f/libopenapi/orderedmap"
 )
 
 func jsonschemaIsRef(b *base.SchemaProxy) string {
@@ -44,25 +46,25 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 
 	in := b.Schema()
 	out := jsonschema.Schema{
-		Type:          jsonschema.NewSchemaType(in.Type...),
-		Title:         in.Title,
-		Description:   in.Description,
-		MultipleOf:    *in.MultipleOf,
-		Maximum:       *in.Maximum,
-		Minimum:       *in.MinItems,
-		MaxLength:     *in.MaxLength,
-		MinLength:     *in.MinLength,
-		Format:        in.Format,
-		Pattern:       in.Pattern,
-		MaxItems:      *in.MaxItems,
-		MinItems:      *in.MinItems,
-		UniqueItems:   *in.UniqueItems,
+		Type:        jsonschema.NewSchemaType(in.Type...),
+		Title:       in.Title,
+		Description: in.Description,
+		MultipleOf:  int64(*in.MultipleOf),
+		Maximum:     int64(*in.Maximum),
+		Minimum:     *in.MinItems,
+		MaxLength:   *in.MaxLength,
+		MinLength:   *in.MinLength,
+		Format:      in.Format,
+		Pattern:     in.Pattern,
+		MaxItems:    *in.MaxItems,
+		MinItems:    *in.MinItems,
+		// UniqueItems:   *in.UniqueItems,
 		MaxProperties: *in.MaxProperties,
 		MinProperties: *in.MinProperties,
 		Default:       in.Default,
 		Nullable:      *in.Nullable,
-		ReadOnly:      in.ReadOnly,
-		WriteOnly:     in.WriteOnly,
+		ReadOnly:      *in.ReadOnly,
+		WriteOnly:     *in.WriteOnly,
 		Examples:      in.Example,
 	}
 
@@ -71,7 +73,7 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 		if in.ExclusiveMaximum.IsA() {
 			em.SetBoolean(in.ExclusiveMaximum.A)
 		} else {
-			em.SetValue(in.ExclusiveMaximum.B)
+			em.SetValue(int64(in.ExclusiveMaximum.B))
 		}
 		out.ExclusiveMaximum = em
 	}
@@ -81,7 +83,7 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 		if in.ExclusiveMinimum.IsA() {
 			em.SetBoolean(in.ExclusiveMinimum.A)
 		} else {
-			em.SetValue(in.ExclusiveMinimum.B)
+			em.SetValue(int64(in.ExclusiveMinimum.B))
 		}
 		out.ExclusiveMinimum = em
 	}
@@ -89,7 +91,10 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 	if in.Properties != nil {
 		props := make(map[string]*jsonschema.Schema)
 		names := make([]string, 0)
-		for name, v := range in.Properties {
+		for pair := range orderedmap.Iterate(context.Background(), in.Properties) {
+			name := pair.Key()
+			v := pair.Value()
+
 			js, err := jsonSchemaConverter(v)
 			if err != nil {
 				return nil, err
@@ -104,16 +109,15 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 
 	if in.AdditionalProperties != nil {
 		ap := &jsonschema.ValueOrBoolean[*jsonschema.Schema]{}
-		switch addprop := in.AdditionalProperties.(type) {
-		case *base.SchemaProxy:
-			v, err := jsonSchemaConverter(addprop)
+		if in.AdditionalProperties.IsA() {
+			v, err := jsonSchemaConverter(in.AdditionalProperties.A)
 			if err != nil {
 				return nil, err
 			}
 			ap.SetValue(v)
-		case bool:
-			ap.SetBoolean(addprop)
-		default:
+		} else if in.AdditionalProperties.IsB() {
+			ap.SetBoolean(in.AdditionalProperties.B)
+		} else {
 			return nil, fmt.Errorf("unsupport")
 		}
 		out.AdditionalProperties = ap

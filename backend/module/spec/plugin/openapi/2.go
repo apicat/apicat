@@ -1,6 +1,7 @@
 package openapi
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/url"
@@ -11,6 +12,8 @@ import (
 	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
 	v2 "github.com/pb33f/libopenapi/datamodel/high/v2"
+	"github.com/pb33f/libopenapi/orderedmap"
+	"gopkg.in/yaml.v3"
 )
 
 type swaggerParser struct {
@@ -77,7 +80,11 @@ func (s *swaggerParser) parseDefinitionModels(defs *v2.Definitions) (spec.Defini
 		return models, nil
 	}
 
-	for k, v := range defs.Definitions {
+	// orderedmap.Iterate(context.Context(), defs.Definitions)
+	for pair := range orderedmap.Iterate(context.Background(), defs.Definitions) {
+		k := pair.Key()
+		v := pair.Value()
+
 		js, err := jsonSchemaConverter(v)
 		if err != nil {
 			return nil, err
@@ -110,13 +117,18 @@ func (s *swaggerParser) parseDefinitionResponses(in *v2.Swagger) (spec.Definitio
 		return list, nil
 	}
 
-	for key, res := range in.Responses.Definitions {
+	for pair := range orderedmap.Iterate(context.Background(), in.Responses.Definitions) {
+		responseName := pair.Key()
+		response := pair.Value()
+
 		headers := make([]*spec.Parameter, 0)
 		content := make(spec.HTTPBody)
-		if res.Headers != nil {
-			for k, v := range res.Headers {
+
+		if response.Headers != nil {
+			for headerPair := range orderedmap.Iterate(context.Background(), response.Headers) {
+				v := headerPair.Value()
 				headers = append(headers, &spec.Parameter{
-					Name: k,
+					Name: headerPair.Key(),
 					Schema: &jsonschema.Schema{
 						Type:        jsonschema.NewSchemaType(v.Type),
 						Format:      v.Format,
@@ -126,8 +138,9 @@ func (s *swaggerParser) parseDefinitionResponses(in *v2.Swagger) (spec.Definitio
 				})
 			}
 		}
-		if res.Schema != nil {
-			js, err := s.parseJsonSchema(res.Schema)
+
+		if response.Schema != nil {
+			js, err := s.parseJsonSchema(response.Schema)
 			if err != nil {
 				return list, err
 			}
@@ -135,12 +148,12 @@ func (s *swaggerParser) parseDefinitionResponses(in *v2.Swagger) (spec.Definitio
 			body := &spec.Body{Schema: js}
 			if len(in.Produces) == 0 {
 				content["application/json"] = body
-				if res.Examples != nil {
+				if response.Examples != nil {
 					body.Examples = make([]spec.Example, 0)
-					for k, v := range res.Examples.Values {
-						if example, err := json.Marshal(v); err == nil {
+					for examplePair := range orderedmap.Iterate(context.Background(), response.Examples.Values) {
+						if example, err := json.Marshal(examplePair.Value()); err == nil {
 							body.Examples = append(body.Examples, spec.Example{
-								Summary: k,
+								Summary: examplePair.Key(),
 								Value:   string(example),
 							})
 						}
@@ -149,8 +162,8 @@ func (s *swaggerParser) parseDefinitionResponses(in *v2.Swagger) (spec.Definitio
 			} else {
 				for _, v := range in.Produces {
 					content[v] = body
-					if res.Examples != nil {
-						emp, ok := res.Examples.Values[v]
+					if response.Examples != nil {
+						emp, ok := response.Examples.Values.Get(v)
 						if ok {
 							if example, err := json.Marshal(emp); err == nil {
 								body.Examples = append(body.Examples, spec.Example{
@@ -165,30 +178,35 @@ func (s *swaggerParser) parseDefinitionResponses(in *v2.Swagger) (spec.Definitio
 		}
 		list = append(list, &spec.DefinitionResponse{
 			BasicResponse: spec.BasicResponse{
-				ID:          stringToUnid(key),
-				Name:        key,
+				ID:          stringToUnid(responseName),
+				Name:        responseName,
 				Header:      headers,
 				Content:     content,
-				Description: res.Description,
+				Description: response.Description,
 			},
 		})
 	}
 	return list, nil
 }
 
-func (s *swaggerParser) parseGlobalParameters(inp map[string]any) *spec.GlobalParameters {
+func (s *swaggerParser) parseGlobalParameters(inp *orderedmap.Map[string, *yaml.Node]) *spec.GlobalParameters {
 	params := spec.NewGlobalParameters()
 	if inp == nil {
 		return params
 	}
-	global, ok := inp["x-apicat-global-parameters"]
+	global, ok := inp.Get("x-apicat-global-parameters")
 	if !ok {
 		return params
 	}
 
 	s.globalParamtersMapping = make(map[string]struct{})
 
-	for k, v := range global.(map[string]any) {
+	var globals map[string]any
+	if err := global.Decode(&globals); err != nil {
+		return params
+	}
+
+	for k, v := range globals {
 		nb, err := json.Marshal(v)
 		if err != nil {
 			continue
@@ -290,7 +308,10 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 	// 	// 我们没有default
 	// 	// todo
 	// }
-	for code, res := range info.Responses.Codes {
+	for pair := range orderedmap.Iterate(context.Background(), info.Responses.Codes) {
+		code := pair.Key()
+		res := pair.Value()
+
 		// res github.com/pb33f/libopenapi 不支持response ref 所以无法获取
 		// 这里的common无法转换
 		c, err := strconv.Atoi(code)
@@ -300,8 +321,8 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 		resp := spec.Response{
 			Code: c,
 		}
-		if _, ok := res.Extensions["x-apicat-response-name"]; ok {
-			resp.Name = res.Extensions["x-apicat-response-name"].(string)
+		if v, ok := res.Extensions.Get("x-apicat-response-name"); ok {
+			resp.Name = v.Value
 		}
 		resp.Description = res.Description
 		resp.Content = make(spec.HTTPBody)
@@ -316,10 +337,12 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 			outresponses.Attrs.List = append(outresponses.Attrs.List, &resp)
 			continue
 		}
+
 		if res.Headers != nil {
-			for k, v := range res.Headers {
+			for headerPair := range orderedmap.Iterate(context.Background(), res.Headers) {
+				v := headerPair.Value()
 				resp.Header = append(resp.Header, &spec.Parameter{
-					Name: k,
+					Name: headerPair.Key(),
 					Schema: &jsonschema.Schema{
 						Type:        jsonschema.NewSchemaType(v.Type),
 						Format:      v.Format,
@@ -329,6 +352,7 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 				})
 			}
 		}
+
 		if res.Schema != nil {
 			js, err := s.parseJsonSchema(res.Schema)
 			if err != nil {
@@ -337,7 +361,7 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 			for _, v := range info.Produces {
 				body := &spec.Body{Schema: js}
 				if res.Examples != nil {
-					mp, ok := res.Examples.Values[v]
+					mp, ok := res.Examples.Values.Get(v)
 					if ok {
 						if example, err := json.Marshal(mp); err == nil {
 							body.Examples = append(body.Examples, spec.Example{
@@ -363,9 +387,14 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 
 func (s *swaggerParser) parseCollections(in *v2.Swagger, paths *v2.Paths) spec.Collections {
 	collections := make(spec.Collections, 0)
-	for path, p := range paths.PathItems {
-		op := p.GetOperations()
-		for method, info := range op {
+	for pair := range orderedmap.Iterate(context.Background(), paths.PathItems) {
+		path := pair.Key()
+		operations := pair.Value().GetOperations()
+
+		for operation := range orderedmap.Iterate(context.Background(), operations) {
+			method := operation.Key()
+			info := operation.Value()
+
 			content := spec.CollectionNodes{
 				spec.NewCollectionHttpUrl(path, method).ToCollectionNode(),
 			}
