@@ -2,6 +2,7 @@ package spec
 
 import (
 	"errors"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -96,4 +97,20 @@ func (r *Responses) AddOrUpdate(res *Response) {
 		}
 	}
 	*r = append(*r, res)
+}
+
+func (r *Responses) Sort() {
+	m := make(map[int]*Response)
+	l := make([]int, 0)
+	for _, v := range *r {
+		m[v.Code] = v
+		l = append(l, v.Code)
+	}
+
+	new := make(Responses, len(*r))
+	sort.Ints(l)
+	for _, v := range l {
+		new = append(new, m[v])
+	}
+	*r = new
 }

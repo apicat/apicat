@@ -188,3 +188,7 @@ func (r *CollectionHttpResponse) ToCollectionNode() *CollectionNode {
 		Node: r,
 	}
 }
+
+func (r *CollectionHttpResponse) Sort() {
+	r.Attrs.List.Sort()
+}
