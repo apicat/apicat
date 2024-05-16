@@ -261,8 +261,15 @@ func (o *openapiParser) parseResponses(responses *orderedmap.Map[string, *v3.Res
 		code := pair.Key()
 		res := pair.Value()
 
-		c, _ := strconv.Atoi(code)
+		c, err := strconv.Atoi(code)
+		if err != nil {
+			continue
+		}
+
 		resp := spec.Response{
+			BasicResponse: spec.BasicResponse{
+				Name: fmt.Sprintf("response%s", code),
+			},
 			Code: c,
 		}
 

@@ -318,7 +318,11 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 		if err != nil {
 			continue
 		}
+
 		resp := spec.Response{
+			BasicResponse: spec.BasicResponse{
+				Name: fmt.Sprintf("response%s", code),
+			},
 			Code: c,
 		}
 		if v, ok := res.Extensions.Get("x-apicat-response-name"); ok {
