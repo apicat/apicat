@@ -101,7 +101,7 @@ func (cai *collectionApiImpl) Create(ctx *gin.Context, opt *collectionrequest.Cr
 	}
 
 	userInfo := jwt.GetUser(ctx)
-	return convertModelCollection(ctx, c, userInfo, userInfo), nil
+	return convertModelCollection(c, userInfo, userInfo), nil
 }
 
 func (cai *collectionApiImpl) List(ctx *gin.Context, opt *collectionrequest.GetCollectionListOption) (*collectionresponse.CollectionTree, error) {
@@ -174,7 +174,7 @@ func (cai *collectionApiImpl) Get(ctx *gin.Context, opt *collectionbase.ProjectC
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.FailedToGet"))
 	}
 
-	return convertModelCollection(ctx, c, cUserInfo, uUserInfo), nil
+	return convertModelCollection(c, cUserInfo, uUserInfo), nil
 }
 
 func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.UpdateCollectionOption) (*ginrpc.Empty, error) {
@@ -386,7 +386,7 @@ func (cai *collectionApiImpl) Copy(ctx *gin.Context, opt *collectionrequest.Copy
 	}
 
 	userInfo := jwt.GetUser(ctx)
-	return convertModelCollection(ctx, newC, userInfo, userInfo), nil
+	return convertModelCollection(newC, userInfo, userInfo), nil
 }
 
 func (cai *collectionApiImpl) Trashes(ctx *gin.Context, opt *protobase.ProjectIdOption) (*collectionresponse.TrashList, error) {
@@ -556,7 +556,7 @@ func (cai *collectionApiImpl) AIGenerate(ctx *gin.Context, opt *collectionreques
 	}
 
 	userInfo := jwt.GetUser(ctx)
-	return convertModelCollection(ctx, c, userInfo, userInfo), nil
+	return convertModelCollection(c, userInfo, userInfo), nil
 }
 
 func Export(ctx *gin.Context) {

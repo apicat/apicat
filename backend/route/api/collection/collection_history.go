@@ -115,7 +115,7 @@ func (srv *collectionHistoryApiImpl) Get(ctx *gin.Context, opt *collectionreques
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collectionHistory.FailedToGet"))
 	}
 
-	return convertModelCollectionHistory(ctx, ch, userInfo), nil
+	return convertModelCollectionHistory(ch, userInfo), nil
 }
 
 func (srv *collectionHistoryApiImpl) Restore(ctx *gin.Context, opt *collectionrequest.CollectionHistoryIDOption) (*ginrpc.Empty, error) {
@@ -268,7 +268,7 @@ func (srv *collectionHistoryApiImpl) Diff(ctx *gin.Context, opt *collectionreque
 	targetCH.Content = string(targetContentStr)
 
 	return &collectionresponse.DiffCollectionHistories{
-		Doc1: convertModelCollectionHistory(ctx, originalCH, originalCHUserInfo),
-		Doc2: convertModelCollectionHistory(ctx, targetCH, targetCHUserInfo),
+		Doc1: convertModelCollectionHistory(originalCH, originalCHUserInfo),
+		Doc2: convertModelCollectionHistory(targetCH, targetCHUserInfo),
 	}, nil
 }
