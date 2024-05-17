@@ -243,8 +243,8 @@ func compareJsonSchema(a, b *jsonschema.Schema) bool {
 		return true
 	}
 
-	if a.Reference != "" || b.Reference != "" {
-		if a.Reference != "" && b.Reference != "" && a.Reference == b.Reference {
+	if a.Reference != nil || b.Reference != nil {
+		if a.Reference != nil && b.Reference != nil && a.Reference == b.Reference {
 			return false
 		}
 		b.SetXDiff(DIFF_UPDATE)

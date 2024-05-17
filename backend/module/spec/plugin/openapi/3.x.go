@@ -248,7 +248,7 @@ func (o *openapiParser) parseParameters(inp []*v3.Parameter) (*spec.HTTPParamete
 		}
 		sp.Schema.Description = v.Description
 		sp.Schema.Examples = v.Example
-		sp.Schema.Deprecated = v.Deprecated
+		sp.Schema.Deprecated = &v.Deprecated
 		rawparamter.Add(v.In, sp)
 	}
 	return rawparamter, nil

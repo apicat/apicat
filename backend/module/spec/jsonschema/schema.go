@@ -14,13 +14,13 @@ type Schema struct {
 	Title       string `json:"title,omitempty" yaml:"title,omitempty"`
 	Description string `json:"description,omitempty" yaml:"description,omitempty"`
 	Default     any    `json:"default,omitempty" yaml:"default,omitempty"`
-	WriteOnly   bool   `json:"writeOnly,omitempty" yaml:"writeOnly,omitempty"`
-	ReadOnly    bool   `json:"readOnly,omitempty" yaml:"readOnly,omitempty"`
+	WriteOnly   *bool  `json:"writeOnly,omitempty" yaml:"writeOnly,omitempty"`
+	ReadOnly    *bool  `json:"readOnly,omitempty" yaml:"readOnly,omitempty"`
 	Examples    any    `json:"examples,omitempty" yaml:"examples,omitempty"`
-	Deprecated  bool   `json:"deprecated,omitempty" yaml:"deprecated,omitempty"`
+	Deprecated  *bool  `json:"deprecated,omitempty" yaml:"deprecated,omitempty"`
 
 	// Core
-	Reference string `json:"$ref,omitempty" yaml:"$ref,omitempty"`
+	Reference *string `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 
 	// Applicator
 	AllOf                AllOf                    `json:"allOf,omitempty" yaml:"allOf,omitempty"`
@@ -32,22 +32,22 @@ type Schema struct {
 	Items                *ValueOrBoolean[*Schema] `json:"items,omitempty" yaml:"items,omitempty"` // 3.1 schema or bool
 
 	// Validation
-	Type             *SchemaType            `json:"type,omitempty" yaml:"type,omitempty"` // 3.1 []string 2,3.0 string
-	Enum             []any                  `json:"enum,omitempty" yaml:"enum,omitempty"`
-	Pattern          string                 `json:"pattern,omitempty" yaml:"pattern,omitempty"`
-	MinLength        int64                  `json:"minLength,omitempty" yaml:"minLength,omitempty"`
-	MaxLength        int64                  `json:"maxLength,omitempty" yaml:"maxLength,omitempty"`
-	ExclusiveMaximum *ValueOrBoolean[int64] `json:"exclusiveMaximum,omitempty" yaml:"exclusiveMaximum,omitempty"` // 3.0 bool 3.1 int
-	MultipleOf       int64                  `json:"multipleOf,omitempty" yaml:"multipleOf,omitempty"`
-	ExclusiveMinimum *ValueOrBoolean[int64] `json:"exclusiveMinimum,omitempty" yaml:"exclusiveMinimum,omitempty"` // 3.0 bool 3.1 int
-	Maximum          int64                  `json:"maximum,omitempty" yaml:"maximum,omitempty"`
-	Minimum          int64                  `json:"minimum,omitempty" yaml:"minimum,omitempty"`
-	MaxProperties    int64                  `json:"maxProperties,omitempty" yaml:"maxProperties,omitempty"`
-	MinProperties    int64                  `json:"minProperties,omitempty" yaml:"minProperties,omitempty"`
-	Required         []string               `json:"required,omitempty" yaml:"required,omitempty"`
-	MaxItems         int64                  `json:"maxItems,omitempty" yaml:"maxItems,omitempty"`
-	MinItems         int64                  `json:"minItems,omitempty" yaml:"minItems,omitempty"`
-	UniqueItems      int64                  `json:"uniqueItems,omitempty" yaml:"uniqueItems,omitempty"`
+	Type             *SchemaType              `json:"type,omitempty" yaml:"type,omitempty"` // 3.1 []string 2,3.0 string
+	Enum             []any                    `json:"enum,omitempty" yaml:"enum,omitempty"`
+	Pattern          string                   `json:"pattern,omitempty" yaml:"pattern,omitempty"`
+	MinLength        *int64                   `json:"minLength,omitempty" yaml:"minLength,omitempty"`
+	MaxLength        *int64                   `json:"maxLength,omitempty" yaml:"maxLength,omitempty"`
+	ExclusiveMaximum *ValueOrBoolean[float64] `json:"exclusiveMaximum,omitempty" yaml:"exclusiveMaximum,omitempty"` // 3.0 bool 3.1 int
+	MultipleOf       *float64                 `json:"multipleOf,omitempty" yaml:"multipleOf,omitempty"`
+	ExclusiveMinimum *ValueOrBoolean[float64] `json:"exclusiveMinimum,omitempty" yaml:"exclusiveMinimum,omitempty"` // 3.0 bool 3.1 int
+	Maximum          *float64                 `json:"maximum,omitempty" yaml:"maximum,omitempty"`
+	Minimum          *float64                 `json:"minimum,omitempty" yaml:"minimum,omitempty"`
+	MaxProperties    *int64                   `json:"maxProperties,omitempty" yaml:"maxProperties,omitempty"`
+	MinProperties    *int64                   `json:"minProperties,omitempty" yaml:"minProperties,omitempty"`
+	Required         []string                 `json:"required,omitempty" yaml:"required,omitempty"`
+	MaxItems         *int64                   `json:"maxItems,omitempty" yaml:"maxItems,omitempty"`
+	MinItems         *int64                   `json:"minItems,omitempty" yaml:"minItems,omitempty"`
+	UniqueItems      *bool                    `json:"uniqueItems,omitempty" yaml:"uniqueItems,omitempty"`
 
 	// Format Annotation
 	Format string `json:"format,omitempty" yaml:"format,omitempty"`
@@ -57,7 +57,7 @@ type Schema struct {
 	XOrder   []string `json:"x-apicat-orders,omitempty" yaml:"x-apicat-orders,omitempty"`
 	XMock    string   `json:"x-apicat-mock,omitempty" yaml:"x-apicat-mock,omitempty"`
 	XDiff    string   `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
-	Nullable bool     `json:"nullable,omitempty" yaml:"nullable,omitempty"`
+	Nullable *bool    `json:"nullable,omitempty" yaml:"nullable,omitempty"`
 }
 
 var coreTypes = []string{
@@ -82,7 +82,7 @@ func NewSchema(typ string) *Schema {
 	}
 }
 
-func (s *Schema) Ref() bool { return s != nil && s.Reference != "" }
+func (s *Schema) Ref() bool { return s != nil && s.Reference != nil }
 
 func (s *Schema) DeepRef() bool {
 	if s.Ref() {
@@ -101,18 +101,17 @@ func (s *Schema) DeepRef() bool {
 		return s.Items.Value().DeepRef()
 	}
 	return false
-
 }
 
 // Check if the schema refers to this id
 func (s *Schema) IsRefID(id string) bool {
-	if s.Reference == "" {
+	if s.Reference == nil {
 		return false
 	}
 
-	i := strings.LastIndex(s.Reference, "/")
+	i := strings.LastIndex(*s.Reference, "/")
 	if i != -1 {
-		if id == (s.Reference)[i+1:] {
+		if id == (*s.Reference)[i+1:] {
 			return true
 		}
 	}
@@ -142,9 +141,9 @@ func (s *Schema) GetRefID() int64 {
 		return 0
 	}
 
-	i := strings.LastIndex(s.Reference, "/")
+	i := strings.LastIndex(*s.Reference, "/")
 	if i != -1 {
-		id, _ := strconv.ParseInt(s.Reference[i+1:], 10, 64)
+		id, _ := strconv.ParseInt((*s.Reference)[i+1:], 10, 64)
 		return id
 	}
 	return 0
@@ -192,7 +191,7 @@ func (s *Schema) DelRootRef(ref *Schema) {
 		return
 	}
 
-	s.Reference = ""
+	s.Reference = nil
 	s.Type = NewSchemaType(T_OBJ)
 }
 
@@ -229,6 +228,42 @@ func (s *Schema) DelXOrderByName(name string) {
 			}
 			i++
 		}
+	}
+}
+
+func (s *Schema) CheckAllOf() bool { return len(s.AllOf) > 0 }
+
+func (s *Schema) DeepCheckAllOf() bool {
+	if s.CheckAllOf() {
+		return true
+	}
+
+	if s.Properties != nil {
+		for _, v := range s.Properties {
+			if v.DeepCheckAllOf() {
+				return true
+			}
+		}
+	}
+
+	if s.Items != nil && !s.Items.IsBool() {
+		return s.Items.Value().DeepCheckAllOf()
+	}
+	return false
+}
+
+func (s *Schema) MergeAllOf() {
+	if s.CheckAllOf() {
+		s.AllOf = s.AllOf.Merge()
+	}
+
+	if s.Properties != nil {
+		for _, v := range s.Properties {
+			v.MergeAllOf()
+		}
+	}
+	if s.Items != nil && !s.Items.IsBool() {
+		s.Items.Value().MergeAllOf()
 	}
 }
 

@@ -41,49 +41,49 @@ func jsonschemaIsRef(b *base.SchemaProxy) string {
 func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 	if refname := jsonschemaIsRef(b); refname != "" {
 		refid := fmt.Sprintf("#/definitions/schemas/%d", stringToUnid(refname))
-		return &jsonschema.Schema{Reference: refid}, nil
+		return &jsonschema.Schema{Reference: &refid}, nil
 	}
 
 	in := b.Schema()
 	out := jsonschema.Schema{
-		Type:        jsonschema.NewSchemaType(in.Type...),
-		Title:       in.Title,
-		Description: in.Description,
-		MultipleOf:  int64(*in.MultipleOf),
-		Maximum:     int64(*in.Maximum),
-		Minimum:     *in.MinItems,
-		MaxLength:   *in.MaxLength,
-		MinLength:   *in.MinLength,
-		Format:      in.Format,
-		Pattern:     in.Pattern,
-		MaxItems:    *in.MaxItems,
-		MinItems:    *in.MinItems,
-		// UniqueItems:   *in.UniqueItems,
-		MaxProperties: *in.MaxProperties,
-		MinProperties: *in.MinProperties,
+		Type:          jsonschema.NewSchemaType(in.Type...),
+		Title:         in.Title,
+		Description:   in.Description,
+		MultipleOf:    in.MultipleOf,
+		Maximum:       in.Maximum,
+		Minimum:       in.Minimum,
+		MaxLength:     in.MaxLength,
+		MinLength:     in.MinLength,
+		Format:        in.Format,
+		Pattern:       in.Pattern,
+		MaxItems:      in.MaxItems,
+		MinItems:      in.MinItems,
+		UniqueItems:   in.UniqueItems,
+		MaxProperties: in.MaxProperties,
+		MinProperties: in.MinProperties,
 		Default:       in.Default,
-		Nullable:      *in.Nullable,
-		ReadOnly:      *in.ReadOnly,
-		WriteOnly:     *in.WriteOnly,
+		Nullable:      in.Nullable,
+		ReadOnly:      in.ReadOnly,
+		WriteOnly:     in.WriteOnly,
 		Examples:      in.Example,
 	}
 
 	if in.ExclusiveMaximum != nil {
-		em := &jsonschema.ValueOrBoolean[int64]{}
+		em := &jsonschema.ValueOrBoolean[float64]{}
 		if in.ExclusiveMaximum.IsA() {
 			em.SetBoolean(in.ExclusiveMaximum.A)
 		} else {
-			em.SetValue(int64(in.ExclusiveMaximum.B))
+			em.SetValue(in.ExclusiveMaximum.B)
 		}
 		out.ExclusiveMaximum = em
 	}
 
 	if in.ExclusiveMinimum != nil {
-		em := &jsonschema.ValueOrBoolean[int64]{}
+		em := &jsonschema.ValueOrBoolean[float64]{}
 		if in.ExclusiveMinimum.IsA() {
 			em.SetBoolean(in.ExclusiveMinimum.A)
 		} else {
-			em.SetValue(int64(in.ExclusiveMinimum.B))
+			em.SetValue(in.ExclusiveMinimum.B)
 		}
 		out.ExclusiveMinimum = em
 	}
@@ -138,7 +138,48 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 	}
 
 	if in.Deprecated != nil && *in.Deprecated {
-		out.Deprecated = true
+		out.Deprecated = in.Deprecated
+	}
+
+	if in.AllOf != nil {
+		out.AllOf = make([]*jsonschema.Schema, 0)
+		for _, v := range in.AllOf {
+			js, err := jsonSchemaConverter(v)
+			if err != nil {
+				return nil, err
+			}
+			out.AllOf = append(out.AllOf, js)
+		}
+
+		out.MergeAllOf()
+		if out.Type.First() != jsonschema.T_OBJ {
+			// if the type is not object, we should take out the contents of allof, make the structure simple
+			helper := jsonschema.NewMergeHelper(&out)
+			helper.Merge(out.AllOf)
+			out.AllOf = nil
+		}
+	}
+
+	if in.AnyOf != nil {
+		out.AnyOf = make([]*jsonschema.Schema, 0)
+		for _, v := range in.AnyOf {
+			js, err := jsonSchemaConverter(v)
+			if err != nil {
+				return nil, err
+			}
+			out.AnyOf = append(out.AnyOf, js)
+		}
+	}
+
+	if in.OneOf != nil {
+		out.OneOf = make([]*jsonschema.Schema, 0)
+		for _, v := range in.OneOf {
+			js, err := jsonSchemaConverter(v)
+			if err != nil {
+				return nil, err
+			}
+			out.OneOf = append(out.OneOf, js)
+		}
 	}
 
 	return &out, nil
@@ -241,8 +282,8 @@ func convertJsonSchemaRef(v *jsonschema.Schema, version string, mapping map[int6
 		sh.Examples = nil
 	}
 
-	if sh.Reference != "" {
-		if id := toInt64(getRefName(sh.Reference)); id > 0 {
+	if sh.Reference != nil {
+		if id := toInt64(getRefName(*sh.Reference)); id > 0 {
 			var ref string
 			name_id := fmt.Sprintf("%s-%d", mapping[id], id)
 			if version[0] == '2' {
@@ -250,7 +291,7 @@ func convertJsonSchemaRef(v *jsonschema.Schema, version string, mapping map[int6
 			} else {
 				ref = fmt.Sprintf("#/components/schemas/%s", name_id)
 			}
-			return &jsonschema.Schema{Reference: ref}
+			return &jsonschema.Schema{Reference: &ref}
 		}
 	}
 
