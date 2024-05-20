@@ -107,6 +107,6 @@ export async function apiDiffSchemaHistory(projectID: string, schemaID: number, 
 }
 
 // parse jsonschema
-export async function apiParseSchema(jsonschema: Definition.Schema): Promise<JSONSchema> {
-  return await DefaultAjax.post('/jsonschema/parse', jsonschema)
+export async function apiParseSchema(jsonschema: JSONSchema): Promise<JSONSchema> {
+  return await DefaultAjax.post('/jsonschema/parse', { jsonschema })
 }

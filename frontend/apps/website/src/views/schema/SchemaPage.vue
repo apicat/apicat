@@ -12,6 +12,7 @@ import { getSchemaHistoryPath } from '@/router/history'
 import { injectPagesMode } from '@/layouts/ProjectDetailLayout/composables/usePagesMode'
 import { useTitleInputFocus } from '@/hooks/useTitleInputFocus'
 import { injectAsyncInitTask } from '@/hooks/useWaitAsyncTask'
+import { apiParseSchema } from '@/api/project/definition/schema'
 
 defineOptions({ inheritAttrs: false })
 const props = defineProps<{ project_id: string; schemaID: string }>()
@@ -153,7 +154,15 @@ injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
       </div>
     </div>
 
-    <JSONSchemaTable v-if="!loading && schema" :key="schema.id" v-model:schema="schema.schema" :readonly="readonly" :root-schema-key="schema.id" :definition-schemas="schemas" />
+    <JSONSchemaTable
+      v-if="!loading && schema"
+      :key="schema.id"
+      v-model:schema="schema.schema"
+      :readonly="readonly"
+      :root-schema-key="schema.id"
+      :definition-schemas="schemas"
+      :handle-parse-schema="apiParseSchema"
+    />
     <GenerateCode v-if="readonly && schema" ref="generateCodeRef" :schema="schema" />
   </div>
 </template>
