@@ -3,7 +3,6 @@ package collection
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"log/slog"
 	"strconv"
 	"strings"
@@ -236,91 +235,6 @@ func CollectionToTagID(ctx context.Context, collectionID uint) []uint {
 	}
 
 	return tagIDs
-}
-
-// TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionContentSpec(ctx context.Context, content string) (spec.CollectionNodes, error) {
-	specContent := spec.CollectionNodes{}
-	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
-		return nil, errors.New("GetCollectionContentSpec unmarshal error")
-	}
-
-	return specContent, nil
-}
-
-// TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionURLNode(ctx context.Context, content string) (*spec.CollectionHttpUrl, error) {
-	url := &spec.CollectionHttpUrl{}
-	if content == "" {
-		return url, nil
-	}
-
-	var specContent spec.CollectionNodes
-	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
-		return url, errors.New("unmarshal error")
-	}
-
-	for _, i := range specContent {
-		switch i.NodeType() {
-		case spec.NODE_HTTP_URL:
-			url = i.ToHttpUrl()
-		}
-	}
-	if url == nil {
-		return url, errors.New("parsing error")
-	}
-
-	return url, nil
-}
-
-// TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionRequestNode(ctx context.Context, content string) (*spec.CollectionHttpRequest, error) {
-	request := &spec.CollectionHttpRequest{}
-	if content == "" {
-		return request, nil
-	}
-
-	var specContent spec.CollectionNodes
-	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
-		return request, errors.New("unmarshal error")
-	}
-
-	for _, i := range specContent {
-		switch i.NodeType() {
-		case spec.NODE_HTTP_REQUEST:
-			request = i.ToHttpRequest()
-		}
-	}
-	if request == nil {
-		return request, errors.New("parsing error")
-	}
-
-	return request, nil
-}
-
-// TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionResponseNode(ctx context.Context, content string) (*spec.CollectionHttpResponse, error) {
-	response := &spec.CollectionHttpResponse{}
-	if content == "" {
-		return response, nil
-	}
-
-	var specContent spec.CollectionNodes
-	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
-		return response, errors.New("unmarshal error")
-	}
-
-	for _, i := range specContent {
-		switch i.NodeType() {
-		case spec.NODE_HTTP_RESPONSE:
-			response = i.ToHttpResponse()
-		}
-	}
-	if response == nil {
-		return response, errors.New("parsing error")
-	}
-
-	return response, nil
 }
 
 // GetTestCases 获取测试用例列表
