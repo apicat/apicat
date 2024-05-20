@@ -26,18 +26,12 @@ func init() {
 	m := &gormigrate.Migration{
 		ID: "240516184601",
 		Migrate: func(tx *gorm.DB) error {
-
-			if tx.Migrator().HasTable(&RefResponseCollections{}) {
-				return nil
+			if !tx.Migrator().HasTable(&RefResponseCollections{}) {
+				if err := tx.Migrator().CreateTable(&RefResponseCollections{}); err != nil {
+					return err
+				}
 			}
-			return tx.Migrator().CreateTable(&RefResponseCollections{})
-		},
-	}
-	MigrationHelper.Register(m)
 
-	md := &gormigrate.Migration{
-		ID: "240516184602",
-		Migrate: func(tx *gorm.DB) error {
 			var list []*CollectionReference
 			if err := tx.Where("ref_type = ?", "response").Find(&list).Error; err != nil {
 				return err
@@ -57,5 +51,5 @@ func init() {
 			return tx.Create(&newList).Error
 		},
 	}
-	MigrationHelper.Register(md)
+	MigrationHelper.Register(m)
 }
