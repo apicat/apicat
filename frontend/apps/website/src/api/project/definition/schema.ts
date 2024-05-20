@@ -1,5 +1,6 @@
 import { dayjs } from 'element-plus'
 import { parseJSONWithDefault } from '@apicat/shared'
+import type { JSONSchema } from '@apicat/editor'
 import DefaultAjax from '@/api/Ajax'
 import { gatherSharedTokenWithParams } from '@/api/shareToken'
 import { SchemaTypeEnum } from '@/commons'
@@ -103,4 +104,9 @@ export async function apiDiffSchemaHistory(projectID: string, schemaID: number, 
   res.schema2.schema = parseJSONWithDefault(res.schema2.schema, {})
 
   return res
+}
+
+// parse jsonschema
+export async function apiParseSchema(jsonschema: Definition.Schema): Promise<JSONSchema> {
+  return await DefaultAjax.post('/jsonschema/parse', jsonschema)
 }
