@@ -219,7 +219,7 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 		}
 	}
 
-	if cs, err := spec.NewCollectionFromJson(opt.Content); err == nil {
+	if cs, err := spec.NewCollectionNodesFromJson(opt.Content); err == nil {
 		cs.SortResponses()
 		if s, err := cs.ToJson(); err == nil {
 			opt.Content = s

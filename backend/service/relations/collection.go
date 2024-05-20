@@ -129,7 +129,7 @@ func CollectionDerefWithSpec(ctx context.Context, c *collection.Collection) (*sp
 		return nil, err
 	}
 
-	if err := collectionSpec.DeepDerefAll(specGlobalParameters, specDefinitions); err != nil {
+	if err := collectionSpec.Content.DeepDerefAll(specGlobalParameters, specDefinitions); err != nil {
 		return nil, err
 	} else {
 		return collectionSpec, nil

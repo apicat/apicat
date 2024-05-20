@@ -6,7 +6,7 @@ import (
 )
 
 func ParseRefSchemasFromCollection(c *collection.Collection) ([]uint, error) {
-	specC, err := c.ToSpec()
+	specC, err := c.ContentToSpec()
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func ParseRefSchemasFromSchema(s *definition.DefinitionSchema) ([]uint, error) {
 }
 
 func ParseRefResponsesFromCollection(c *collection.Collection) ([]uint, error) {
-	specC, err := c.ToSpec()
+	specC, err := c.ContentToSpec()
 	if err != nil {
 		return nil, err
 	}

@@ -38,182 +38,6 @@ func NewCollectionFromJson(c string) (*Collection, error) {
 	return &collection, nil
 }
 
-func (c *Collection) DerefModel(ref *DefinitionModel) error {
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_REQUEST:
-			return node.ToHttpRequest().DerefModel(ref)
-		case NODE_HTTP_RESPONSE:
-			return node.ToHttpResponse().DerefModel(ref)
-		}
-	}
-
-	return nil
-}
-
-func (c *Collection) DerefResponse(ref *DefinitionResponse) error {
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_RESPONSE:
-			return node.ToHttpResponse().DerefResponse(ref)
-		}
-	}
-	return nil
-}
-
-func (c *Collection) DeepDerefAll(params *GlobalParameters, definitions *Definitions) error {
-	helper := jsonschema.NewDerefHelper(definitions.Schemas.ToJsonSchemaMap())
-
-	c.DerefGlobalParameters(params)
-
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_REQUEST:
-			if err := node.ToHttpRequest().DeepDerefModelByHelper(helper); err != nil {
-				return err
-			}
-		case NODE_HTTP_RESPONSE:
-			res := node.ToHttpResponse()
-			if err := res.DerefAllResponses(definitions.Responses); err != nil {
-				return err
-			}
-			if err := res.DeepDerefModelByHelper(helper); err != nil {
-				return err
-			}
-		}
-	}
-	return nil
-}
-
-func (c *Collection) DelRefModel(ref *DefinitionModel) {
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_REQUEST:
-			node.ToHttpRequest().DelRefModel(ref)
-		case NODE_HTTP_RESPONSE:
-			node.ToHttpResponse().DelRefModel(ref)
-		}
-	}
-}
-
-func (c *Collection) DelRefResponse(ref *DefinitionResponse) {
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_RESPONSE:
-			node.ToHttpResponse().DelRefResponse(ref)
-		}
-	}
-}
-
-func (c *Collection) DerefGlobalParameter(in string, param *Parameter) {
-	if param == nil {
-		return
-	}
-
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_REQUEST:
-			node.ToHttpRequest().Attrs.Parameters.Add(in, param)
-		}
-	}
-}
-
-func (c *Collection) DerefGlobalParameters(params *GlobalParameters) {
-	if params == nil {
-		return
-	}
-
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_REQUEST:
-			node.ToHttpRequest().DerefGlobalParameters(params)
-		}
-	}
-}
-
-func (c *Collection) DelGlobalExcept(in string, id int64) {
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_REQUEST:
-			node.ToHttpRequest().DelGlobalExcept(in, id)
-		}
-	}
-}
-
-func (c *Collection) GetGlobalExcept(in string) []int64 {
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_REQUEST:
-			return node.ToHttpRequest().GetGlobalExcept(in)
-		}
-	}
-	return nil
-}
-
-func (c *Collection) GetGlobalExceptAll() map[string][]int64 {
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_REQUEST:
-			return node.ToHttpRequest().GetGlobalExceptAll()
-		}
-	}
-	return nil
-}
-
-func (c *Collection) GetRefModelIDs() []int64 {
-	ids := make([]int64, 0)
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_REQUEST:
-			ids = append(ids, node.ToHttpRequest().GetRefModelIDs()...)
-		case NODE_HTTP_RESPONSE:
-			ids = append(ids, node.ToHttpResponse().GetRefModelIDs()...)
-		}
-	}
-	return ids
-}
-
-func (c *Collection) GetRefResponseIDs() []int64 {
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_RESPONSE:
-			return node.ToHttpResponse().GetRefResponseIDs()
-		}
-	}
-	return nil
-}
-
-func (c *Collection) AddGlobalExcept(in string, id int64) {
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_REQUEST:
-			node.ToHttpRequest().AddGlobalExcept(in, id)
-		}
-	}
-}
-
-func (c *Collection) AddReqParameter(in string, p *Parameter) {
-	if p == nil {
-		return
-	}
-
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_REQUEST:
-			node.ToHttpRequest().Attrs.Parameters.Add(in, p)
-		}
-	}
-}
-
-func (c *Collection) SortResponses() {
-	for _, node := range c.Content {
-		switch node.NodeType() {
-		case NODE_HTTP_RESPONSE:
-			node.ToHttpResponse().Sort()
-		}
-	}
-}
-
 func (v *Collection) HasTag(tag string) bool {
 	for _, t := range v.Tags {
 		if t == tag {
@@ -221,25 +45,6 @@ func (v *Collection) HasTag(tag string) bool {
 		}
 	}
 	return false
-}
-
-// Make sure the order of the content is: URL, Request, Response
-func (c *Collection) HttpFormat() {
-	if c.Type != TYPE_HTTP || len(c.Content) < 3 {
-		return
-	}
-
-	for i, node := range c.Content {
-		if node.NodeType() == NODE_HTTP_URL {
-			c.Content[0], c.Content[i] = c.Content[i], c.Content[0]
-		}
-		if node.NodeType() == NODE_HTTP_REQUEST {
-			c.Content[1], c.Content[i] = c.Content[i], c.Content[1]
-		}
-		if node.NodeType() == NODE_HTTP_RESPONSE {
-			c.Content[2], c.Content[i] = c.Content[i], c.Content[2]
-		}
-	}
 }
 
 func (c *Collection) ItemsTreeToList() Collections {
@@ -272,11 +77,10 @@ func (cs *Collections) DeepDerefAll(params *GlobalParameters, definitions *Defin
 			continue
 		}
 
-		c.DerefGlobalParameters(params)
-
 		for _, node := range c.Content {
 			switch node.NodeType() {
 			case NODE_HTTP_REQUEST:
+				node.ToHttpRequest().DerefGlobalParameters(params)
 				if err := node.ToHttpRequest().DeepDerefModelByHelper(helper); err != nil {
 					return err
 				}

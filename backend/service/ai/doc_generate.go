@@ -50,10 +50,10 @@ func DocGenerate(ctx *gin.Context, prompt string) (*collection.Collection, error
 		return nil, fmt.Errorf("collection not found, original openapi content:\n%s", result)
 	}
 
-	if err := apiSpec.Collections[0].DeepDerefAll(apiSpec.Globals.Parameters, apiSpec.Definitions); err != nil {
+	if err := apiSpec.Collections[0].Content.DeepDerefAll(apiSpec.Globals.Parameters, apiSpec.Definitions); err != nil {
 		return nil, fmt.Errorf("DerefSchema failed: %s", err.Error())
 	}
-	apiSpec.Collections[0].SortResponses()
+	apiSpec.Collections[0].Content.SortResponses()
 
 	r, err := json.Marshal(apiSpec.Collections[0].Content)
 	if err != nil {

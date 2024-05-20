@@ -434,7 +434,7 @@ func (s *swaggerParser) parseCollections(in *v2.Swagger, paths *v2.Paths) spec.C
 				Tags:    info.Tags,
 				Content: content,
 			}
-			c.SortResponses()
+			c.Content.SortResponses()
 			collections = append(collections, c)
 		}
 	}

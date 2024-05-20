@@ -79,7 +79,7 @@ func (c *Collection) Create(ctx context.Context, member *team.TeamMember) error 
 		}
 
 		// 获取文档的path
-		if specContent, err := spec.NewCollectionNodesFromJson(c.Content); err != nil {
+		if specContent, err := c.ContentToSpec(); err != nil {
 			slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
 		} else {
 			c.Method, c.Path = specContent.GetUrlInfo()
@@ -103,7 +103,7 @@ func (c *Collection) Update(ctx context.Context, title, content string, memberID
 	}
 
 	// 获取文档的path
-	specContent, err := spec.NewCollectionNodesFromJson(c.Content)
+	specContent, err := c.ContentToSpec()
 	if err != nil {
 		slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
 	}
@@ -150,10 +150,14 @@ func (c *Collection) ToSpec() (*spec.Collection, error) {
 	return sc, nil
 }
 
+func (c *Collection) ContentToSpec() (spec.CollectionNodes, error) {
+	return spec.NewCollectionNodesFromJson(c.Content)
+}
+
 // DelRefSchema 删除公共模型引用
 // deref: 是否解引用，true: 展开引用自身(collectiuon.$ref to schema detail)，false: 清除引用自身(delete $ref)
 func (c *Collection) DelRefSchema(ctx context.Context, refSchema *definition.DefinitionSchema, deref bool) error {
-	collectionSpec, err := c.ToSpec()
+	specContent, err := c.ContentToSpec()
 	if err != nil {
 		return err
 	}
@@ -164,25 +168,25 @@ func (c *Collection) DelRefSchema(ctx context.Context, refSchema *definition.Def
 	}
 
 	if deref {
-		if err := collectionSpec.DerefModel(refSchemaSpec); err != nil {
+		if err := specContent.DerefModel(refSchemaSpec); err != nil {
 			return err
 		}
 	} else {
-		collectionSpec.DelRefModel(refSchemaSpec)
+		specContent.DelRefModel(refSchemaSpec)
 	}
 
-	content, err := json.Marshal(collectionSpec.Content)
+	content, err := specContent.ToJson()
 	if err != nil {
 		return err
 	}
 
-	return model.DB(ctx).Model(c).Select("content").UpdateColumn("content", string(content)).Error
+	return model.DB(ctx).Model(c).Select("content").UpdateColumn("content", content).Error
 }
 
 // DelRefResponse 删除公共响应引用
 // deref: 是否解引用，true: 展开引用自身(collectiuon.$ref to response detail)，false: 清除引用自身(delete $ref)
 func (c *Collection) DelRefResponse(ctx context.Context, refResponse *definition.DefinitionResponse, deref bool) error {
-	collectionSpec, err := c.ToSpec()
+	specContent, err := c.ContentToSpec()
 	if err != nil {
 		return err
 	}
@@ -193,25 +197,25 @@ func (c *Collection) DelRefResponse(ctx context.Context, refResponse *definition
 	}
 
 	if deref {
-		if err := collectionSpec.DerefResponse(refResponseSpec); err != nil {
+		if err := specContent.DerefResponse(refResponseSpec); err != nil {
 			return err
 		}
 	} else {
-		collectionSpec.DelRefResponse(refResponseSpec)
+		specContent.DelRefResponse(refResponseSpec)
 	}
 
-	content, err := json.Marshal(collectionSpec.Content)
+	content, err := specContent.ToJson()
 	if err != nil {
 		return err
 	}
 
-	return model.DB(ctx).Model(c).Select("content").UpdateColumn("content", string(content)).Error
+	return model.DB(ctx).Model(c).Select("content").UpdateColumn("content", content).Error
 }
 
 // DelExceptParam 删除全局参数排除关系
 // unpack: 是否展开，true: 将globalParam详情添加到parameters中，false: 在glabalExcept中删除globalParamID
 func (c *Collection) DelExceptParam(ctx context.Context, exceptParam *global.GlobalParameter, unpack bool) error {
-	collectionSpec, err := c.ToSpec()
+	specContent, err := c.ContentToSpec()
 	if err != nil {
 		return err
 	}
@@ -222,15 +226,15 @@ func (c *Collection) DelExceptParam(ctx context.Context, exceptParam *global.Glo
 	}
 
 	if unpack {
-		collectionSpec.AddReqParameter(exceptParam.In, exceptParamSpec)
+		specContent.AddReqParameter(exceptParam.In, exceptParamSpec)
 	} else {
-		collectionSpec.DelGlobalExcept(exceptParam.In, int64(exceptParam.ID))
+		specContent.DelGlobalExcept(exceptParam.In, int64(exceptParam.ID))
 	}
 
-	content, err := json.Marshal(collectionSpec.Content)
+	content, err := specContent.ToJson()
 	if err != nil {
 		return err
 	}
 
-	return model.DB(ctx).Model(c).Select("content").UpdateColumn("content", string(content)).Error
+	return model.DB(ctx).Model(c).Select("content").UpdateColumn("content", content).Error
 }

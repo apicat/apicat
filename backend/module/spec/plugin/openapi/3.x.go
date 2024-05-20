@@ -369,7 +369,7 @@ func (o *openapiParser) parseCollections(paths *v3.Paths) spec.Collections {
 				Tags:    info.Tags,
 				Content: content,
 			}
-			c.SortResponses()
+			c.Content.SortResponses()
 			collections = append(collections, c)
 		}
 	}

@@ -3,7 +3,7 @@ package except
 import "github.com/apicat/apicat/v2/backend/model/collection"
 
 func ParseExceptParamsFromCollection(c *collection.Collection) ([]uint, error) {
-	specC, err := c.ToSpec()
+	specC, err := c.ContentToSpec()
 	if err != nil {
 		return nil, err
 	}
