@@ -172,7 +172,7 @@ func CollectionImport(ctx context.Context, member *team.TeamMember, projectID st
 				collectionStr = collection.ReplaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionSchemas, "\"#/definitions/schemas/")
 				collectionStr = collection.ReplaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionResponses, "\"#/definitions/responses/")
 				collectionStr = collection.ReplaceVirtualIDToID(collectionStr, refContentNameToId.DefinitionParameters, "\"#/definitions/parameters/")
-				collectionStr = replaceGlobalParametersVirtualIDToID(ctx, collectionStr, refContentNameToId.GlobalParameters)
+				collectionStr = replaceGlobalParametersVirtualIDToID(collectionStr, refContentNameToId.GlobalParameters)
 
 				record := &collection.Collection{
 					ProjectID:    projectID,
@@ -198,39 +198,37 @@ func CollectionImport(ctx context.Context, member *team.TeamMember, projectID st
 }
 
 // replaceGlobalParametersVirtualIDToID 将集合中的全局参数的虚拟ID替换为真实ID
-func replaceGlobalParametersVirtualIDToID(ctx context.Context, content string, virtualIDToIDMap collection.VirtualIDToIDMap) string {
-	specContent, err := collection.GetCollectionContentSpec(ctx, content)
+func replaceGlobalParametersVirtualIDToID(content string, virtualIDToIDMap collection.VirtualIDToIDMap) string {
+	specContent, err := spec.NewCollectionFromJson(content)
 	if err != nil {
 		return content
 	}
 
-	var newContent []byte
-	for _, i := range specContent {
+	for _, i := range specContent.Content {
 		switch i.NodeType() {
 		case spec.NODE_HTTP_REQUEST:
 			req := i.ToHttpRequest()
 			for k, v := range req.Attrs.GlobalExcepts.Header {
-				if id, ok := virtualIDToIDMap[int64(v)]; ok {
+				if id, ok := virtualIDToIDMap[v]; ok {
 					req.Attrs.GlobalExcepts.Header[k] = int64(id)
 				}
 			}
 			for k, v := range req.Attrs.GlobalExcepts.Query {
-				if id, ok := virtualIDToIDMap[int64(v)]; ok {
+				if id, ok := virtualIDToIDMap[v]; ok {
 					req.Attrs.GlobalExcepts.Query[k] = int64(id)
 				}
 			}
 			for k, v := range req.Attrs.GlobalExcepts.Cookie {
-				if id, ok := virtualIDToIDMap[int64(v)]; ok {
+				if id, ok := virtualIDToIDMap[v]; ok {
 					req.Attrs.GlobalExcepts.Cookie[k] = int64(id)
 				}
 			}
 		}
 	}
 
-	newContent, err = json.Marshal(specContent)
+	newContent, err := specContent.ToJson()
 	if err != nil {
 		return content
 	}
-
-	return string(newContent)
+	return newContent
 }

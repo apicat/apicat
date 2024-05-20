@@ -79,12 +79,11 @@ func (c *Collection) Create(ctx context.Context, member *team.TeamMember) error 
 		}
 
 		// 获取文档的path
-		url, err := GetCollectionURLNode(ctx, c.Content)
-		if err != nil {
-			slog.ErrorContext(ctx, "collection.Create.GetCollectionURLNode", "err", err)
+		if specContent, err := spec.NewCollectionNodesFromJson(c.Content); err != nil {
+			slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
+		} else {
+			c.Method, c.Path = specContent.GetUrlInfo()
 		}
-		c.Path = url.Attrs.Path
-		c.Method = url.Attrs.Method
 	}
 
 	c.PublicID = shortuuid.New()
@@ -104,14 +103,15 @@ func (c *Collection) Update(ctx context.Context, title, content string, memberID
 	}
 
 	// 获取文档的path
-	url, err := GetCollectionURLNode(ctx, content)
+	specContent, err := spec.NewCollectionNodesFromJson(c.Content)
 	if err != nil {
-		slog.ErrorContext(ctx, "collection.Update.GetCollectionURLNode", "err", err)
+		slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
 	}
+	method, path := specContent.GetUrlInfo()
 
 	return model.DB(ctx).Model(c).Updates(map[string]interface{}{
-		"path":       url.Attrs.Path,
-		"method":     url.Attrs.Method,
+		"path":       path,
+		"method":     method,
 		"title":      title,
 		"content":    content,
 		"updated_by": memberID,
