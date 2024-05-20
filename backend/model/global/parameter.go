@@ -2,11 +2,11 @@ package global
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 
 	"github.com/apicat/apicat/v2/backend/model"
 	"github.com/apicat/apicat/v2/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 )
 
 const (
@@ -86,8 +86,9 @@ func (gp *GlobalParameter) ToSpec() (*spec.Parameter, error) {
 	}
 
 	if gp.Schema != "" {
-		if err := json.Unmarshal([]byte(gp.Schema), &p.Schema); err != nil {
-			return p, err
+		var err error
+		if p.Schema, err = jsonschema.NewSchemaFromJson(gp.Schema); err != nil {
+			return nil, err
 		}
 	}
 

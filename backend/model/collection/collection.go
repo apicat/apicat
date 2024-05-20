@@ -81,7 +81,10 @@ func (c *Collection) Create(ctx context.Context, member *team.TeamMember) error 
 		if specContent, err := c.ContentToSpec(); err != nil {
 			slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
 		} else {
-			c.Method, c.Path = specContent.GetUrlInfo()
+			if url := specContent.GetUrl(); url != nil {
+				c.Method = url.Attrs.Method
+				c.Path = url.Attrs.Path
+			}
 		}
 	}
 
@@ -106,7 +109,11 @@ func (c *Collection) Update(ctx context.Context, title, content string, memberID
 	if err != nil {
 		slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
 	}
-	method, path := specContent.GetUrlInfo()
+	method, path := "", ""
+	if url := specContent.GetUrl(); url != nil {
+		method = url.Attrs.Method
+		path = url.Attrs.Path
+	}
 
 	return model.DB(ctx).Model(c).Updates(map[string]interface{}{
 		"path":       path,

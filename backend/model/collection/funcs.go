@@ -2,7 +2,6 @@ package collection
 
 import (
 	"context"
-	"encoding/json"
 	"log/slog"
 	"strconv"
 	"strings"
@@ -96,8 +95,7 @@ func exportBuildcollectionsTree(ctx context.Context, collections []*Collection, 
 			}
 
 			if collection.Type != CategoryType {
-				content := spec.CollectionNodes{}
-				if json.Unmarshal([]byte(collection.Content), &content) == nil {
+				if content, err := spec.NewCollectionNodesFromJson(collection.Content); err == nil {
 					collectItem.Content = content
 				}
 			}

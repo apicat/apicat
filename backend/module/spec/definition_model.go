@@ -155,7 +155,6 @@ func (s *DefinitionModels) RemoveDir() DefinitionModels {
 		result = append(result, v)
 	}
 	return result
-
 }
 
 func (s *DefinitionModels) ToJsonSchemaMap() map[int64]*jsonschema.Schema {

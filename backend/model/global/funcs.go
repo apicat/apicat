@@ -2,7 +2,6 @@ package global
 
 import (
 	"context"
-	"encoding/json"
 
 	"github.com/apicat/apicat/v2/backend/model"
 	"github.com/apicat/apicat/v2/backend/module/spec"
@@ -29,13 +28,7 @@ func GetGlobalParametersWithSpec(ctx context.Context, pID string) (*spec.GlobalP
 	if len(list) > 0 {
 		for _, gp := range list {
 			if specParameter, err := gp.ToSpec(); err == nil {
-				if gp.In == "header" {
-					specParameters.Header = append(specParameters.Header, specParameter)
-				} else if gp.In == "query" {
-					specParameters.Query = append(specParameters.Query, specParameter)
-				} else if gp.In == "cookie" {
-					specParameters.Cookie = append(specParameters.Cookie, specParameter)
-				}
+				specParameters.Add(gp.In, specParameter)
 			} else {
 				return nil, err
 			}
@@ -53,9 +46,8 @@ func ExportGlobalParameters(ctx context.Context, projectID string) *spec.GlobalP
 	}
 
 	for _, parameter := range parameters {
-		schema := &jsonschema.Schema{}
-		if err := json.Unmarshal([]byte(parameter.Schema), schema); err == nil {
-			res.Add(string(parameter.In), &spec.Parameter{
+		if schema, err := jsonschema.NewSchemaFromJson(parameter.Schema); err == nil {
+			res.Add(parameter.In, &spec.Parameter{
 				ID:       int64(parameter.ID),
 				Name:     parameter.Name,
 				Required: parameter.Required,

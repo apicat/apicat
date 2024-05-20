@@ -64,28 +64,14 @@ func exportBuildDefinitionResponseTree(ctx context.Context, responses []*Definit
 		if r.ParentID == parentID {
 			children := exportBuildDefinitionResponseTree(ctx, responses, r.ID)
 
-			specresponse := &spec.DefinitionResponse{
-				BasicResponse: spec.BasicResponse{
-					ID:          int64(r.ID),
-					Name:        r.Name,
-					Description: r.Description,
-				},
-				Type:     string(r.Type),
-				ParentId: int64(r.ParentID),
-			}
-
-			if r.Type == ResponseCategory {
-				specresponse.Items = children
-			} else {
-				if err := json.Unmarshal([]byte(r.Header), &specresponse.Header); err != nil {
-					continue
-				}
-				if err := json.Unmarshal([]byte(r.Content), &specresponse.Content); err != nil {
-					continue
+			if respJson, err := json.Marshal(r); err == nil {
+				if specresponse, err := spec.NewDefinitionResponseFromJson(string(respJson)); err == nil {
+					if r.Type == ResponseCategory {
+						specresponse.Items = children
+					}
+					result = append(result, specresponse)
 				}
 			}
-
-			result = append(result, specresponse)
 		}
 	}
 
@@ -111,12 +97,12 @@ func GetDefinitionSchemasWithSpec(ctx context.Context, projectID string) (spec.D
 
 	specSchemas := make(spec.DefinitionModels, 0)
 	if len(list) > 0 {
-		for _, s := range list {
-			if specSchema, err := s.ToSpec(); err == nil {
-				specSchemas = append(specSchemas, specSchema)
-			} else {
-				return nil, err
-			}
+		listJson, err := json.Marshal(list)
+		if err != nil {
+			return nil, err
+		}
+		if err := json.Unmarshal(listJson, &specSchemas); err != nil {
+			return nil, err
 		}
 	}
 	return specSchemas, err

@@ -204,24 +204,21 @@ func replaceGlobalParametersVirtualIDToID(content string, virtualIDToIDMap colle
 		return content
 	}
 
-	for _, i := range specContent.Content {
-		switch i.NodeType() {
-		case spec.NODE_HTTP_REQUEST:
-			req := i.ToHttpRequest()
-			for k, v := range req.Attrs.GlobalExcepts.Header {
-				if id, ok := virtualIDToIDMap[v]; ok {
-					req.Attrs.GlobalExcepts.Header[k] = int64(id)
-				}
+	req := specContent.Content.GetRequest()
+	if req != nil {
+		for k, v := range req.Attrs.GlobalExcepts.Header {
+			if id, ok := virtualIDToIDMap[v]; ok {
+				req.Attrs.GlobalExcepts.Header[k] = int64(id)
 			}
-			for k, v := range req.Attrs.GlobalExcepts.Query {
-				if id, ok := virtualIDToIDMap[v]; ok {
-					req.Attrs.GlobalExcepts.Query[k] = int64(id)
-				}
+		}
+		for k, v := range req.Attrs.GlobalExcepts.Query {
+			if id, ok := virtualIDToIDMap[v]; ok {
+				req.Attrs.GlobalExcepts.Query[k] = int64(id)
 			}
-			for k, v := range req.Attrs.GlobalExcepts.Cookie {
-				if id, ok := virtualIDToIDMap[v]; ok {
-					req.Attrs.GlobalExcepts.Cookie[k] = int64(id)
-				}
+		}
+		for k, v := range req.Attrs.GlobalExcepts.Cookie {
+			if id, ok := virtualIDToIDMap[v]; ok {
+				req.Attrs.GlobalExcepts.Cookie[k] = int64(id)
 			}
 		}
 	}

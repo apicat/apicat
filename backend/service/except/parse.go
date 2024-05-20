@@ -8,7 +8,7 @@ func ParseExceptParamsFromCollection(c *collection.Collection) ([]uint, error) {
 		return nil, err
 	}
 
-	ExceptParamIDs := specC.GetGlobalExceptAll()
+	ExceptParamIDs := specC.GetGlobalExceptToMap()
 
 	var list []uint
 	for _, gp := range ExceptParamIDs {

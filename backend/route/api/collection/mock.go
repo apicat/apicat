@@ -12,8 +12,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/apicat/apicat/v2/backend/module/spec"
-
 	"github.com/gin-gonic/gin"
 )
 
@@ -70,13 +68,7 @@ func Mock(ctx *gin.Context) {
 		return
 	}
 
-	var resp *spec.CollectionHttpResponse
-	for _, i := range collectionSpec.Content {
-		switch i.NodeType() {
-		case spec.NODE_HTTP_RESPONSE:
-			resp = i.ToHttpResponse()
-		}
-	}
+	resp := collectionSpec.Content.GetResponse()
 	if resp == nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"message": i18n.NewErr("mock.FailedToMock").Error()})
 		return

@@ -29,21 +29,6 @@ func (p *Parameter) SetXDiff(x string) {
 	p.XDiff = x
 }
 
-func (p *Parameter) EqualNomal(o *Parameter, OnlyCore bool) (b bool) {
-	b = true
-	if OnlyCore {
-		if p.Required != o.Required {
-			b = false
-		}
-		return b
-	} else {
-		if p.Description != o.Description || p.Required != o.Required {
-			b = false
-		}
-	}
-	return b
-}
-
 func (pl *ParameterList) FindByID(id int64) *Parameter {
 	for _, v := range *pl {
 		if id == v.ID {

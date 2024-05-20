@@ -265,7 +265,7 @@ func apicatFileParse(fileContent string) (*spec.Spec, error) {
 		return nil, ginrpc.NewError(http.StatusBadRequest, err)
 	}
 
-	return spec.ParseJSON(rawContent)
+	return spec.NewSpecFromJson(rawContent)
 }
 
 // postman 文件解析

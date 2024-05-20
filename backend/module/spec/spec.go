@@ -83,15 +83,3 @@ func (s *Spec) ToJSON(opt JSONOption) ([]byte, error) {
 	}
 	return buf.Bytes(), nil
 }
-
-// ParseJSON 将json数据转为spec
-func ParseJSON(raw []byte) (*Spec, error) {
-	var spec Spec
-	if err := json.Unmarshal(raw, &spec); err != nil {
-		return nil, err
-	}
-	if spec.ApiCat == "" {
-		spec.ApiCat = "2.0"
-	}
-	return &spec, nil
-}

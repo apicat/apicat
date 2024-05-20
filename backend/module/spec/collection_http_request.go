@@ -61,7 +61,11 @@ func (r *CollectionHttpRequest) GetGlobalExcept(in string) []int64 {
 	return nil
 }
 
-func (r *CollectionHttpRequest) GetGlobalExceptAll() map[string][]int64 {
+func (r *CollectionHttpRequest) GetGlobalExcepts() *HttpRequestGlobalExcepts {
+	return r.Attrs.GlobalExcepts
+}
+
+func (r *CollectionHttpRequest) GetGlobalExceptToMap() map[string][]int64 {
 	return map[string][]int64{
 		"header": r.Attrs.GlobalExcepts.Header,
 		"cookie": r.Attrs.GlobalExcepts.Cookie,

@@ -136,11 +136,48 @@ func (ns *CollectionNodes) DelGlobalExcept(in string, id int64) {
 	}
 }
 
-func (ns *CollectionNodes) GetGlobalExceptAll() map[string][]int64 {
+func (ns *CollectionNodes) GetUrl() *CollectionHttpUrl {
+	for _, node := range *ns {
+		if node.NodeType() == NODE_HTTP_URL {
+			return node.ToHttpUrl()
+		}
+	}
+	return nil
+}
+
+func (ns *CollectionNodes) GetRequest() *CollectionHttpRequest {
+	for _, node := range *ns {
+		if node.NodeType() == NODE_HTTP_REQUEST {
+			return node.ToHttpRequest()
+		}
+	}
+	return nil
+}
+
+func (ns *CollectionNodes) GetResponse() *CollectionHttpResponse {
+	for _, node := range *ns {
+		if node.NodeType() == NODE_HTTP_RESPONSE {
+			return node.ToHttpResponse()
+		}
+	}
+	return nil
+}
+
+func (ns *CollectionNodes) GetGlobalExcepts() *HttpRequestGlobalExcepts {
 	for _, node := range *ns {
 		switch node.NodeType() {
 		case NODE_HTTP_REQUEST:
-			return node.ToHttpRequest().GetGlobalExceptAll()
+			return node.ToHttpRequest().GetGlobalExcepts()
+		}
+	}
+	return nil
+}
+
+func (ns *CollectionNodes) GetGlobalExceptToMap() map[string][]int64 {
+	for _, node := range *ns {
+		switch node.NodeType() {
+		case NODE_HTTP_REQUEST:
+			return node.ToHttpRequest().GetGlobalExceptToMap()
 		}
 	}
 	return nil
@@ -189,16 +226,6 @@ func (ns *CollectionNodes) SortResponses() {
 			node.ToHttpResponse().Sort()
 		}
 	}
-}
-
-func (ns *CollectionNodes) GetUrlInfo() (method string, path string) {
-	for _, node := range *ns {
-		if node.NodeType() == NODE_HTTP_URL {
-			url := node.ToHttpUrl()
-			return url.Attrs.Method, url.Attrs.Path
-		}
-	}
-	return method, path
 }
 
 func (ns *CollectionNodes) ToJson() (string, error) {

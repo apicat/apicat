@@ -35,7 +35,7 @@ func TestDecode(t *testing.T) {
 // 	if err != nil {
 // 		t.FailNow()
 // 	}
-// 	p, err := spec.ParseJSON(raw)
+// 	p, err := spec.NewSpecFromJson(raw)
 // 	if err != nil {
 // 		t.FailNow()
 // 	}
@@ -55,7 +55,7 @@ func TestDecode(t *testing.T) {
 func TestToOpenapi(t *testing.T) {
 	a, _ := os.ReadFile("../../testdata/items_tree_export_openapi.json")
 
-	ab, _ := spec.ParseJSON(a)
+	ab, _ := spec.NewSpecFromJson(a)
 
 	b, err := Generate(ab, "3.1.0", "json")
 	if err != nil {
