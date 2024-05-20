@@ -39,7 +39,7 @@ func init() {
 		ID: "240516184702",
 		Migrate: func(tx *gorm.DB) error {
 			var list []*CollectionReference
-			if err := tx.Where("ref_type = schema").Find(&list).Error; err != nil {
+			if err := tx.Where("ref_type = ?", "schema").Find(&list).Error; err != nil {
 				return err
 			}
 
