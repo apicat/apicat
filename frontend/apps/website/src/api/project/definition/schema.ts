@@ -108,5 +108,8 @@ export async function apiDiffSchemaHistory(projectID: string, schemaID: number, 
 
 // parse jsonschema
 export async function apiParseSchema(jsonschema: JSONSchema): Promise<JSONSchema> {
-  return await DefaultAjax.post('/jsonschema/parse', { jsonschema })
+  const { jsonschema: str } = await DefaultAjax.post<{ jsonschema: string }>('/jsonschema/parse', { jsonschema: typeof jsonschema === 'string' ? jsonschema : JSON.stringify(jsonschema) })
+  if (str)
+    return JSON.parse(str)
+  return getDefaultSchemaStructure()
 }
