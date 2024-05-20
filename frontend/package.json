@@ -21,7 +21,7 @@
     "watch:packs": "pnpm --filter './packages/*' start",
     "build:packs": "pnpm --filter './packages/*' build",
     "clean:packages": "rimraf -g './packages/*/{dist}'",
-    "clear": "rimraf -g './packages/*/{dist,node_modules}' && rimraf -g './apps/*/{dist,node_modules}' && rimraf node_modules",
+    "clear": "rimraf -g './packages/*/{dist,node_modules}' && rimraf -g './apps/*/{dist,node_modules}' && rimraf './node_modules'",
     "graph": "nx dep-graph",
     "lint": "eslint . --cache",
     "lint:fix": "eslint . --fix",
