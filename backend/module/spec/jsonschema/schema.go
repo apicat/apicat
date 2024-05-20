@@ -1,6 +1,7 @@
 package jsonschema
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"strconv"
@@ -80,6 +81,14 @@ func NewSchema(typ string) *Schema {
 			Type: NewSchemaType(typ),
 		}
 	}
+}
+
+func NewSchemaFromJson(str string) (*Schema, error) {
+	s := &Schema{}
+	if err := json.Unmarshal([]byte(str), s); err != nil {
+		return nil, err
+	}
+	return s, nil
 }
 
 func (s *Schema) Ref() bool { return s != nil && s.Reference != nil }
@@ -338,4 +347,9 @@ func (s *Schema) SetXDiff(x string) {
 		s.Items.value.SetXDiff(x)
 	}
 	s.XDiff = x
+}
+
+func (s *Schema) ToJson() string {
+	b, _ := json.Marshal(s)
+	return string(b)
 }
