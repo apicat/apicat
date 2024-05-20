@@ -22,6 +22,7 @@ func (j *jsonSchemaApiImpl) Parse(ctx *gin.Context, opt *base.JsonSchemaOption) 
 	if err != nil {
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("jsonschema.JsonSchemaIncorrect"))
 	}
+	js.MergeAllOf()
 	return &base.JsonSchemaOption{
 		JsonSchema: js.ToJson(),
 	}, nil
