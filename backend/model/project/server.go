@@ -18,10 +18,6 @@ type Server struct {
 	UpdatedAt    time.Time
 }
 
-func init() {
-	model.RegMigrate(&Server{})
-}
-
 // Get 获取项目URL
 func (s *Server) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)

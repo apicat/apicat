@@ -14,10 +14,6 @@ type Sysconfig struct {
 	Config    string `gorm:"type:varchar(512);"`
 }
 
-func init() {
-	model.RegMigrate(&Sysconfig{})
-}
-
 func (o *Sysconfig) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx).Take(o, "type = ? and driver = ?", o.Type, o.Driver)
 	err := model.NotRecord(tx)

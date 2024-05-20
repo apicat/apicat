@@ -34,10 +34,6 @@ type DefinitionSchema struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&DefinitionSchema{})
-}
-
 func (ds *DefinitionSchema) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)
 	if ds.ID != 0 && ds.ProjectID != "" {

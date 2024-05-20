@@ -19,10 +19,6 @@ type Team struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&Team{})
-}
-
 // Get 获取team
 func (t *Team) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx).Take(t, "id = ?", t.ID)

@@ -35,10 +35,6 @@ type DefinitionResponse struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&DefinitionResponse{})
-}
-
 func (dr *DefinitionResponse) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)
 	if dr.ID != 0 && dr.ProjectID != "" {

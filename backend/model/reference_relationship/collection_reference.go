@@ -23,10 +23,6 @@ type CollectionReference struct {
 	UpdatedAt    time.Time
 }
 
-func init() {
-	model.RegMigrate(&CollectionReference{}, &SchemaReference{}, &ResponseReference{}, &ParameterExcept{})
-}
-
 func BatchCreateCollectionReference(ctx context.Context, list []*CollectionReference) error {
 	if len(list) == 0 {
 		return nil

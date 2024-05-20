@@ -19,10 +19,6 @@ type CollectionHistory struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&CollectionHistory{})
-}
-
 func (ch *CollectionHistory) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)
 	if ch.ID != 0 && ch.CollectionID != 0 {

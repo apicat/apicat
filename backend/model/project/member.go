@@ -31,10 +31,6 @@ type ProjectMember struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&ProjectMember{})
-}
-
 var permissionRanking = map[Permission]int{
 	ProjectMemberManage: 3,
 	ProjectMemberWrite:  2,

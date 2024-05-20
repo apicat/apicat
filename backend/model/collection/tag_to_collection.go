@@ -16,10 +16,6 @@ type TagToCollection struct {
 	UpdatedAt    time.Time
 }
 
-func init() {
-	model.RegMigrate(&TagToCollection{})
-}
-
 func (ttc *TagToCollection) Create(ctx context.Context) error {
 	return model.DB(ctx).Create(ttc).Error
 }

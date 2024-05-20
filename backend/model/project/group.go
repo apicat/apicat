@@ -18,10 +18,6 @@ type ProjectGroup struct {
 	UpdatedAt    time.Time
 }
 
-func init() {
-	model.RegMigrate(&ProjectGroup{})
-}
-
 func (pg *ProjectGroup) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)
 	if pg.ID != 0 {

@@ -27,10 +27,6 @@ type GlobalParameter struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&GlobalParameter{})
-}
-
 // Get 获取全局参数
 func (gp *GlobalParameter) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)

@@ -40,10 +40,6 @@ type Collection struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&Collection{})
-}
-
 func (c *Collection) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)
 	if c.ID != 0 {
