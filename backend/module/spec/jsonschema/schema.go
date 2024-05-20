@@ -94,7 +94,7 @@ func NewSchemaFromJson(str string) (*Schema, error) {
 func (s *Schema) Ref() bool { return s != nil && s.Reference != nil }
 
 func (s *Schema) DeepRef() bool {
-	if s.Ref() {
+	if s != nil && s.Ref() {
 		return true
 	}
 
@@ -128,6 +128,10 @@ func (s *Schema) IsRefID(id string) bool {
 }
 
 func (s *Schema) DeepFindRefById(id string) (refs []*Schema) {
+	if s == nil {
+		return
+	}
+
 	if s.IsRefID(id) {
 		refs = append(refs, s)
 		return
@@ -159,6 +163,10 @@ func (s *Schema) GetRefID() int64 {
 }
 
 func (s *Schema) DeepGetRefID() (ids []int64) {
+	if s == nil {
+		return
+	}
+
 	if id := s.GetRefID(); id > 0 {
 		ids = append(ids, id)
 		return
@@ -251,6 +259,10 @@ func (s *Schema) DelXOrderByName(name string) {
 func (s *Schema) CheckAllOf() bool { return s != nil && len(s.AllOf) > 0 }
 
 func (s *Schema) DeepCheckAllOf() bool {
+	if s == nil {
+		return false
+	}
+
 	if s.CheckAllOf() {
 		return true
 	}
@@ -270,6 +282,10 @@ func (s *Schema) DeepCheckAllOf() bool {
 }
 
 func (s *Schema) MergeAllOf() {
+	if s == nil {
+		return
+	}
+
 	if s.CheckAllOf() {
 		s.AllOf = s.AllOf.Merge()
 	}
@@ -289,6 +305,10 @@ func (s *Schema) Validation(raw []byte) error {
 }
 
 func (s *Schema) Valid() error {
+	if s == nil {
+		return errors.New("schema is nil")
+	}
+
 	if s.Ref() {
 		return nil
 	}
@@ -308,6 +328,10 @@ func (s *Schema) Valid() error {
 }
 
 func (s *Schema) checkObject() error {
+	if s == nil {
+		return errors.New("schema is nil")
+	}
+
 	if s.Ref() || s.AdditionalProperties == nil {
 		return nil
 	}
