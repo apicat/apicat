@@ -51,11 +51,10 @@ func (ns *CollectionNodes) DerefModel(ref *DefinitionModel) error {
 func (ns *CollectionNodes) DeepDerefAll(params *GlobalParameters, definitions *Definitions) error {
 	helper := jsonschema.NewDerefHelper(definitions.Schemas.ToJsonSchemaMap())
 
-	ns.DerefGlobalParameters(params)
-
 	for _, node := range *ns {
 		switch node.NodeType() {
 		case NODE_HTTP_REQUEST:
+			node.ToHttpRequest().DerefGlobalParameters(params)
 			if err := node.ToHttpRequest().DeepDerefModelByHelper(helper); err != nil {
 				return err
 			}

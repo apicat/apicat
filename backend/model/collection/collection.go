@@ -2,7 +2,6 @@ package collection
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"log/slog"
 
@@ -141,8 +140,9 @@ func (c *Collection) ToSpec() (*spec.Collection, error) {
 		Type:     c.Type,
 	}
 
+	var err error
 	if c.Content != "" {
-		if err := json.Unmarshal([]byte(c.Content), &sc.Content); err != nil {
+		if sc.Content, err = c.ContentToSpec(); err != nil {
 			return nil, err
 		}
 	}
