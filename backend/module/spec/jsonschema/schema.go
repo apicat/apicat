@@ -114,7 +114,7 @@ func (s *Schema) DeepRef() bool {
 
 // Check if the schema refers to this id
 func (s *Schema) IsRefID(id string) bool {
-	if s.Reference == nil {
+	if s == nil || s.Reference == nil {
 		return false
 	}
 
@@ -205,6 +205,10 @@ func (s *Schema) DelRootRef(ref *Schema) {
 }
 
 func (s *Schema) DelChildrenRef(ref *Schema) {
+	if s == nil || ref == nil {
+		return
+	}
+
 	propertyKeys := []string{}
 	if s.Properties != nil {
 		for k, v := range s.Properties {
@@ -228,6 +232,10 @@ func (s *Schema) DelChildrenRef(ref *Schema) {
 }
 
 func (s *Schema) DelXOrderByName(name string) {
+	if s == nil || name == "" {
+		return
+	}
+
 	if s.XOrder != nil {
 		i := 0
 		for i < len(s.XOrder) {
@@ -240,7 +248,7 @@ func (s *Schema) DelXOrderByName(name string) {
 	}
 }
 
-func (s *Schema) CheckAllOf() bool { return len(s.AllOf) > 0 }
+func (s *Schema) CheckAllOf() bool { return s != nil && len(s.AllOf) > 0 }
 
 func (s *Schema) DeepCheckAllOf() bool {
 	if s.CheckAllOf() {
@@ -328,7 +336,7 @@ func (s *Schema) checkObject() error {
 }
 
 func (s *Schema) checkArray() error {
-	if s.Items == nil {
+	if s == nil || s.Items == nil {
 		return nil
 	}
 	if s.Items.IsBool() {
@@ -338,6 +346,10 @@ func (s *Schema) checkArray() error {
 }
 
 func (s *Schema) SetXDiff(x string) {
+	if s == nil || x == "" {
+		return
+	}
+
 	if s.Properties != nil {
 		for _, v := range s.Properties {
 			v.SetXDiff(x)
@@ -350,6 +362,10 @@ func (s *Schema) SetXDiff(x string) {
 }
 
 func (s *Schema) ToJson() string {
+	if s == nil {
+		return ""
+	}
+
 	b, _ := json.Marshal(s)
 	return string(b)
 }
