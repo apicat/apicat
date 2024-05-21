@@ -2,6 +2,9 @@ package spec
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
+	"reflect"
 
 	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 )
@@ -15,6 +18,20 @@ type Node interface {
 }
 
 type CollectionNodes []*CollectionNode
+
+var nodeTypes = make(map[string]reflect.Type)
+
+func RegisterNode(n Node) {
+	name := n.NodeType()
+	t := reflect.TypeOf(n)
+	if t.Kind() == reflect.Pointer {
+		t = t.Elem()
+	}
+	if _, ok := nodeTypes[name]; ok {
+		panic(fmt.Errorf("type is not registered:%s", name))
+	}
+	nodeTypes[name] = t
+}
 
 func NewCollectionNodesFromJson(c string) (CollectionNodes, error) {
 	var collectionNodes CollectionNodes
@@ -34,6 +51,27 @@ func (n *CollectionNode) ToHttpRequest() *CollectionHttpRequest {
 
 func (n *CollectionNode) ToHttpResponse() *CollectionHttpResponse {
 	return n.Node.(*CollectionHttpResponse)
+}
+
+func (n CollectionNode) MarshalJSON() ([]byte, error) {
+	return json.Marshal(n.Node)
+}
+
+func (n *CollectionNode) UnmarshalJSON(b []byte) error {
+	var _node struct{ Type string }
+	if err := json.Unmarshal(b, &_node); err != nil {
+		return err
+	}
+	t, ok := nodeTypes[_node.Type]
+	if !ok {
+		return errors.New("unknown node type")
+	}
+	v := reflect.New(t).Interface()
+	if err := json.Unmarshal(b, &v); err != nil {
+		return err
+	}
+	n.Node = v.(Node)
+	return nil
 }
 
 func (ns *CollectionNodes) DerefModel(ref *DefinitionModel) error {

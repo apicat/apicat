@@ -80,7 +80,10 @@ func (o *openapiParser) parseContent(mts *orderedmap.Map[string, *v3.MediaType])
 		if err != nil {
 			return nil, err
 		}
-		js.Examples = mediaType.Example
+
+		if mediaType.Example != nil {
+			js.Examples = mediaType.Example.Value
+		}
 
 		if orderedmap.Len(mediaType.Examples) > 0 {
 			body.Examples = make([]spec.Example, 0)
@@ -247,7 +250,9 @@ func (o *openapiParser) parseParameters(inp []*v3.Parameter) (*spec.HTTPParamete
 			sp.Schema = js
 		}
 		sp.Schema.Description = v.Description
-		sp.Schema.Examples = v.Example
+		if v.Example != nil {
+			sp.Schema.Examples = v.Example
+		}
 		sp.Schema.Deprecated = &v.Deprecated
 		rawparamter.Add(v.In, sp)
 	}

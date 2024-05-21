@@ -61,11 +61,17 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 		UniqueItems:   in.UniqueItems,
 		MaxProperties: in.MaxProperties,
 		MinProperties: in.MinProperties,
-		Default:       in.Default,
 		Nullable:      in.Nullable,
 		ReadOnly:      in.ReadOnly,
 		WriteOnly:     in.WriteOnly,
-		Examples:      in.Example,
+	}
+
+	if in.Default != nil && in.Default.Value != "" {
+		out.Default = in.Default.Value
+	}
+
+	if in.Example != nil && in.Example.Value != "" {
+		out.Examples = in.Example.Value
 	}
 
 	if in.ExclusiveMaximum != nil {

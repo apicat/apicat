@@ -12,7 +12,7 @@ type BasicResponse struct {
 	Name        string        `json:"name,omitempty" yaml:"name,omitempty"`
 	Description string        `json:"description,omitempty" yaml:"description,omitempty"`
 	Header      ParameterList `json:"header,omitempty" yaml:"header,omitempty"`
-	Content     HTTPBody      `json:"content" yaml:"content"`
+	Content     HTTPBody      `json:"content,omitempty" yaml:"content,omitempty"`
 	XDiff       string        `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
 }
 
@@ -107,7 +107,7 @@ func (r *Responses) Sort() {
 		l = append(l, v.Code)
 	}
 
-	new := make(Responses, len(*r))
+	new := make(Responses, 0)
 	sort.Ints(l)
 	for _, v := range l {
 		new = append(new, m[v])

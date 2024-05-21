@@ -11,7 +11,7 @@ const NODE_HTTP_REQUEST = "apicat-http-request"
 
 type CollectionHttpRequest struct {
 	Type  string            `json:"type" yaml:"type"`
-	Attrs *HttpRequestAttrs `json:"attr" yaml:"attrs"`
+	Attrs *HttpRequestAttrs `json:"attrs" yaml:"attrs"`
 }
 
 type HttpRequestAttrs struct {
@@ -24,6 +24,12 @@ type HttpRequestGlobalExcepts struct {
 	Header []int64 `json:"header" yaml:"header"`
 	Cookie []int64 `json:"cookie" yaml:"cookie"`
 	Query  []int64 `json:"query" yaml:"query"`
+}
+
+func init() {
+	RegisterNode(&CollectionHttpRequest{
+		Type: NODE_HTTP_REQUEST,
+	})
 }
 
 func NewCollectionHttpRequest() *CollectionHttpRequest {

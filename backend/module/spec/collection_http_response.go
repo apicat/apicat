@@ -11,11 +11,17 @@ const NODE_HTTP_RESPONSE = "apicat-http-response"
 
 type CollectionHttpResponse struct {
 	Type  string             `json:"type" yaml:"type"`
-	Attrs *HttpResponseAttrs `json:"attr" yaml:"attrs"`
+	Attrs *HttpResponseAttrs `json:"attrs" yaml:"attrs"`
 }
 
 type HttpResponseAttrs struct {
 	List Responses `json:"list" yaml:"list"`
+}
+
+func init() {
+	RegisterNode(&CollectionHttpResponse{
+		Type: NODE_HTTP_RESPONSE,
+	})
 }
 
 func NewCollectionHttpResponse() *CollectionHttpResponse {
