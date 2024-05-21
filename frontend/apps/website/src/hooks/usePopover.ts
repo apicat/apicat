@@ -7,7 +7,7 @@ export interface PopoverOptions {
 
 export function usePopover(options?: PopoverOptions) {
   let { onHide = noop, ignore = [] } = options || {}
-  const popoverRefEl = ref<Nullable<HTMLElement>>(null)
+  const popoverRefEl = ref<HTMLElement | null>()
   const isShow = ref(false)
   ignore = ['.ac-popper-menu', '.ignore-popper'].concat(ignore)
 
