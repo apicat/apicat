@@ -25,7 +25,7 @@ func init() {
 	m := &gormigrate.Migration{
 		ID: "240516184901",
 		Migrate: func(tx *gorm.DB) error {
-			if tx.Migrator().HasTable(&RefSchemaSchemas{}) {
+			if !tx.Migrator().HasTable(&RefSchemaSchemas{}) {
 				if err := tx.Migrator().CreateTable(&RefSchemaSchemas{}); err != nil {
 					return err
 				}

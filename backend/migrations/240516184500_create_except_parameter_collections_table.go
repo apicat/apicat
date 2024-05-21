@@ -25,18 +25,12 @@ func init() {
 	m := &gormigrate.Migration{
 		ID: "240516184501",
 		Migrate: func(tx *gorm.DB) error {
-
-			if tx.Migrator().HasTable(&ExceptParamCollection{}) {
-				return nil
+			if !tx.Migrator().HasTable(&ExceptParamCollection{}) {
+				if err := tx.Migrator().CreateTable(&ExceptParamCollection{}); err != nil {
+					return err
+				}
 			}
-			return tx.Migrator().CreateTable(&ExceptParamCollection{})
-		},
-	}
-	MigrationHelper.Register(m)
 
-	md := &gormigrate.Migration{
-		ID: "240516184502",
-		Migrate: func(tx *gorm.DB) error {
 			var list []*ParameterExcept
 			if err := tx.Find(&list).Error; err != nil {
 				return err
@@ -56,5 +50,5 @@ func init() {
 			return tx.Create(&newList).Error
 		},
 	}
-	MigrationHelper.Register(md)
+	MigrationHelper.Register(m)
 }
