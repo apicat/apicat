@@ -34,7 +34,7 @@ func updateRefSchemaToschemas(ctx context.Context, sID uint, oldSchemaIDs, newSc
 
 	oldRefsMap := make(map[uint]*referencerelation.RefSchemaSchemas, 0)
 	for _, v := range oldRefs {
-		oldRefsMap[v.SchemaID] = v
+		oldRefsMap[v.RefSchemaID] = v
 	}
 
 	wantPop := make([]uint, 0)
