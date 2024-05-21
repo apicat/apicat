@@ -20,7 +20,7 @@ func (r *RefResponseCollections) GetCollections(ctx context.Context) ([]*RefResp
 
 func (r *RefResponseCollections) GetCollectionIDs(ctx context.Context) ([]uint, error) {
 	var list []uint
-	tx := model.DB(ctx).Where("ref_responser_id = ?", r.RefResponserID).Select("collection_id").Find(&list)
+	tx := model.DB(ctx).Model(&RefResponseCollections{}).Where("ref_responser_id = ?", r.RefResponserID).Select("collection_id").Scan(&list)
 	return list, tx.Error
 }
 

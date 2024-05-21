@@ -20,7 +20,7 @@ func (e *ExceptParamCollection) GetCollections(ctx context.Context) ([]*ExceptPa
 
 func (e *ExceptParamCollection) GetCollectionIDs(ctx context.Context) ([]uint, error) {
 	var list []uint
-	tx := model.DB(ctx).Where("except_param_id = ?", e.ExceptParamID).Select("collection_id").Find(&list)
+	tx := model.DB(ctx).Model(&ExceptParamCollection{}).Where("except_param_id = ?", e.ExceptParamID).Select("collection_id").Scan(&list)
 	return list, tx.Error
 }
 

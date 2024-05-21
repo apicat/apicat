@@ -20,7 +20,7 @@ func (r *RefSchemaCollections) GetCollections(ctx context.Context) ([]*RefSchema
 
 func (r *RefSchemaCollections) GetCollectionIDs(ctx context.Context) ([]uint, error) {
 	var list []uint
-	tx := model.DB(ctx).Where("ref_schema_id = ?", r.RefSchemaID).Select("collection_id").Find(&list)
+	tx := model.DB(ctx).Model(&RefSchemaCollections{}).Where("ref_schema_id = ?", r.RefSchemaID).Select("collection_id").Scan(&list)
 	return list, tx.Error
 }
 
