@@ -47,6 +47,7 @@ func Parse(data []byte) (out *spec.Spec, err error) {
 			err = fmt.Errorf("%v", e)
 		}
 	}()
+
 	docment, docerr := libopenapi.NewDocument(data)
 	if docerr != nil {
 		err = docerr

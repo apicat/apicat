@@ -235,7 +235,7 @@ func (o *openapiParser) parseParameters(inp []*v3.Parameter) (*spec.HTTPParamete
 
 		sp := &spec.Parameter{
 			Name:     v.Name,
-			Required: *v.Required,
+			Required: v.Required != nil && *v.Required,
 		}
 
 		sp.Schema = &jsonschema.Schema{}
@@ -303,11 +303,14 @@ func (o *openapiParser) parseResponses(responses *orderedmap.Map[string, *v3.Res
 			}
 		}
 
-		content, err := o.parseContent(res.Content)
-		if err != nil {
-			return nil, err
+		if res.Content != nil {
+			content, err := o.parseContent(res.Content)
+			if err != nil {
+				return nil, err
+			}
+			resp.Content = content
 		}
-		resp.Content = content
+
 		outresponses.Attrs.List = append(outresponses.Attrs.List, &resp)
 	}
 	return outresponses, nil
