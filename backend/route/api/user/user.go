@@ -22,7 +22,7 @@ import (
 	protouserbase "github.com/apicat/apicat/v2/backend/route/proto/user/base"
 	protouserrequest "github.com/apicat/apicat/v2/backend/route/proto/user/request"
 	protouserresponse "github.com/apicat/apicat/v2/backend/route/proto/user/response"
-	"github.com/apicat/apicat/v2/backend/service/user_relations"
+	"github.com/apicat/apicat/v2/backend/service/relations"
 	imgutil "github.com/apicat/apicat/v2/backend/utils/image"
 
 	"github.com/apicat/ginrpc"
@@ -64,7 +64,7 @@ func (*userApiImpl) GetList(ctx *gin.Context, opt *protouserrequest.UserListOpti
 		Items: make([]protouserresponse.User, len(items)),
 	}
 	for k, v := range items {
-		list.Items[k] = user_relations.ConvertModelUser(ctx, v)
+		list.Items[k] = relations.ConvertModelUser(ctx, v)
 	}
 	return list, nil
 }
@@ -119,7 +119,7 @@ func (ua *userApiImpl) DelUser(ctx *gin.Context, opt *protouserrequest.UserIDOpt
 // GetSelf 当前登录的用户信息
 func (*userApiImpl) GetSelf(ctx *gin.Context, _ *ginrpc.Empty) (*protouserresponse.User, error) {
 	u := jwt.GetUser(ctx)
-	usr := user_relations.ConvertModelUser(ctx, u)
+	usr := relations.ConvertModelUser(ctx, u)
 	return &usr, nil
 }
 

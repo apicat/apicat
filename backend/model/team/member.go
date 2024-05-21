@@ -34,10 +34,6 @@ type TeamMember struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&TeamMember{})
-}
-
 var roleRanking = map[Role]int{
 	RoleOwner:  3,
 	RoleAdmin:  2,

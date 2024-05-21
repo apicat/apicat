@@ -20,10 +20,6 @@ type ShareTmpToken struct {
 	UpdatedAt    time.Time
 }
 
-func init() {
-	model.RegMigrate(&ShareTmpToken{})
-}
-
 func (stt *ShareTmpToken) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)
 	if stt.ID != 0 {

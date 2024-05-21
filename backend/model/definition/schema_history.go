@@ -19,10 +19,6 @@ type DefinitionSchemaHistory struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&DefinitionSchemaHistory{})
-}
-
 func (dsh *DefinitionSchemaHistory) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)
 	if dsh.ID != 0 && dsh.SchemaID != 0 {

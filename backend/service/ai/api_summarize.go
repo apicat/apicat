@@ -22,22 +22,18 @@ func APISummarize(ctx *gin.Context, collection *spec.Collection) (string, error)
 	}
 
 	var (
-		err      error
-		url      *spec.HTTPURLNode
-		request  *spec.HTTPRequestNode
-		response *spec.HTTPResponsesNode
+		url      *spec.CollectionHttpUrl
+		request  *spec.CollectionHttpRequest
+		response *spec.CollectionHttpResponse
 	)
 	for _, node := range collection.Content {
 		switch node.NodeType() {
-		case spec.NAME_HTTP_URL:
-			url, err = node.ToHTTPURLNode()
-		case spec.NAME_HTTP_REQUEST:
-			request, err = node.ToHTTPRequestNode()
-		case spec.NAME_HTTP_RESPONSES:
-			response, err = node.ToHTTPResponsesNode()
-		}
-		if err != nil {
-			return "", err
+		case spec.NODE_HTTP_URL:
+			url = node.ToHttpUrl()
+		case spec.NODE_HTTP_REQUEST:
+			request = node.ToHttpRequest()
+		case spec.NODE_HTTP_RESPONSE:
+			response = node.ToHttpResponse()
 		}
 	}
 	if url == nil || request == nil || response == nil {
@@ -49,35 +45,35 @@ func APISummarize(ctx *gin.Context, collection *spec.Collection) (string, error)
 		return "", err
 	}
 	summary = append(summary, requestBaseInfo...)
-	summary = append(summary, apiBodySummarize(&request.Content, true)...)
+	summary = append(summary, apiBodySummarize(&request.Attrs.Content, true)...)
 	summary = append(summary, apiResponseSummarize(response)...)
 
 	return strings.Join(summary, "\n"), nil
 }
 
-func apiRequestSummarize(url *spec.HTTPURLNode, request *spec.HTTPRequestNode) ([]string, error) {
+func apiRequestSummarize(url *spec.CollectionHttpUrl, request *spec.CollectionHttpRequest) ([]string, error) {
 	summary := make([]string, 0)
 
-	if url.Path == "" || url.Method == "" {
+	if url.Attrs.Path == "" || url.Attrs.Method == "" {
 		return summary, errors.New("incomplete url")
 	}
-	summary = append(summary, fmt.Sprintf("The request path of the API is \"%s\", and the request method is \"%s\".", url.Path, url.Method))
+	summary = append(summary, fmt.Sprintf("The request path of the API is \"%s\", and the request method is \"%s\".", url.Attrs.Path, url.Attrs.Method))
 
-	if request.Parameters.Path != nil && len(request.Parameters.Path) > 0 {
-		summary = append(summary, fmt.Sprintf("There are %d Path request parameters, namely: ", len(request.Parameters.Path)))
-		summary = append(summary, apiParameterSummarize(&request.Parameters.Path)...)
+	if request.Attrs.Parameters.Path != nil && len(request.Attrs.Parameters.Path) > 0 {
+		summary = append(summary, fmt.Sprintf("There are %d Path request parameters, namely: ", len(request.Attrs.Parameters.Path)))
+		summary = append(summary, apiParameterSummarize(&request.Attrs.Parameters.Path)...)
 	}
-	if request.Parameters.Header != nil && len(request.Parameters.Header) > 0 {
-		summary = append(summary, fmt.Sprintf("There are %d Header request parameters, namely: ", len(request.Parameters.Header)))
-		summary = append(summary, apiParameterSummarize(&request.Parameters.Header)...)
+	if request.Attrs.Parameters.Header != nil && len(request.Attrs.Parameters.Header) > 0 {
+		summary = append(summary, fmt.Sprintf("There are %d Header request parameters, namely: ", len(request.Attrs.Parameters.Header)))
+		summary = append(summary, apiParameterSummarize(&request.Attrs.Parameters.Header)...)
 	}
-	if request.Parameters.Cookie != nil && len(request.Parameters.Cookie) > 0 {
-		summary = append(summary, fmt.Sprintf("There are %d Cookie request parameters, namely: ", len(request.Parameters.Cookie)))
-		summary = append(summary, apiParameterSummarize(&request.Parameters.Cookie)...)
+	if request.Attrs.Parameters.Cookie != nil && len(request.Attrs.Parameters.Cookie) > 0 {
+		summary = append(summary, fmt.Sprintf("There are %d Cookie request parameters, namely: ", len(request.Attrs.Parameters.Cookie)))
+		summary = append(summary, apiParameterSummarize(&request.Attrs.Parameters.Cookie)...)
 	}
-	if request.Parameters.Query != nil && len(request.Parameters.Query) > 0 {
-		summary = append(summary, fmt.Sprintf("There are %d Query request parameters, namely: ", len(request.Parameters.Query)))
-		summary = append(summary, apiParameterSummarize(&request.Parameters.Query)...)
+	if request.Attrs.Parameters.Query != nil && len(request.Attrs.Parameters.Query) > 0 {
+		summary = append(summary, fmt.Sprintf("There are %d Query request parameters, namely: ", len(request.Attrs.Parameters.Query)))
+		summary = append(summary, apiParameterSummarize(&request.Attrs.Parameters.Query)...)
 	}
 
 	return summary, nil
@@ -90,7 +86,7 @@ func apiParameterSummarize(parameters *spec.ParameterList) []string {
 			continue
 		}
 
-		content := fmt.Sprintf("%d. %s: %s", i+1, p.Name, p.Schema.Type.Value()[0])
+		content := fmt.Sprintf("%d. %s: %s", i+1, p.Name, p.Schema.Type.First())
 		if p.Required {
 			content += ", required"
 		} else {
@@ -105,11 +101,11 @@ func apiParameterSummarize(parameters *spec.ParameterList) []string {
 	return summary
 }
 
-func apiResponseSummarize(responses *spec.HTTPResponsesNode) []string {
+func apiResponseSummarize(responses *spec.CollectionHttpResponse) []string {
 	summary := make([]string, 0)
 
-	summary = append(summary, fmt.Sprintf("%d response situations are possible:", len(responses.List)))
-	for i, response := range responses.List {
+	summary = append(summary, fmt.Sprintf("%d response situations are possible:", len(responses.Attrs.List)))
+	for i, response := range responses.Attrs.List {
 		desc := fmt.Sprintf("%d. Response status code %d: %s", i+1, response.Code, response.Name)
 		if response.Description != "" {
 			summary = append(summary, fmt.Sprintf("%s, %s", desc, response.Description))
@@ -167,8 +163,8 @@ func apiBodySummarize(body *spec.HTTPBody, isRequest bool) []string {
 				summary = append(summary, string(js))
 			}
 		case "raw", "application/octet-stream":
-			if schema.Schema.Example != nil {
-				if example, ok := schema.Schema.Example.(string); ok {
+			if schema.Schema.Examples != nil {
+				if example, ok := schema.Schema.Examples.(string); ok {
 					summary = append(summary, fmt.Sprintf("%s. For example: %s", contentTypeDesc, example))
 				}
 			}
@@ -190,7 +186,7 @@ func apiJsonSchemaSummarize(parameterName string, required bool, schema *jsonsch
 		return
 	}
 
-	switch schema.Type.Value()[0] {
+	switch schema.Type.First() {
 	case "string", "integer", "number", "boolean":
 		requiredStr := "optional"
 		if required {
@@ -200,7 +196,7 @@ func apiJsonSchemaSummarize(parameterName string, required bool, schema *jsonsch
 		if schema.Description != "" {
 			desc = fmt.Sprintf(", %s", schema.Description)
 		}
-		result[parameterName] = fmt.Sprintf("%s, %s%s", schema.Type.Value()[0], requiredStr, desc)
+		result[parameterName] = fmt.Sprintf("%s, %s%s", schema.Type.First(), requiredStr, desc)
 	case "object":
 		if schema.Properties != nil && len(schema.Properties) > 0 {
 			requiredParams := make(map[string]bool)

@@ -14,7 +14,7 @@ import (
 	protoproject "github.com/apicat/apicat/v2/backend/route/proto/project"
 	projectrequest "github.com/apicat/apicat/v2/backend/route/proto/project/request"
 	projectresponse "github.com/apicat/apicat/v2/backend/route/proto/project/response"
-	definitionrelations "github.com/apicat/apicat/v2/backend/service/definition_relations"
+	"github.com/apicat/apicat/v2/backend/service/reference"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -72,7 +72,7 @@ func (drai *definitionResponseApiImpl) Create(ctx *gin.Context, opt *projectrequ
 
 func (drai *definitionResponseApiImpl) List(ctx *gin.Context, opt *protobase.ProjectIdOption) (*projectresponse.DefinitionResponseTree, error) {
 	selfP := access.GetSelfProject(ctx)
-	list, err := definition.GetDefinitionResponses(ctx, selfP)
+	list, err := definition.GetDefinitionResponses(ctx, selfP.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "project.GetDefinitionResponses", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionResponse.FailedToGetList"))
@@ -137,20 +137,27 @@ func (drai *definitionResponseApiImpl) Update(ctx *gin.Context, opt *projectrequ
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("definitionResponse.DoesNotExist"))
 	}
 
+	oldRefSchemaIDs, err := reference.ParseRefSchemasFromResponse(dr)
+	if err != nil {
+		slog.ErrorContext(ctx, "reference.ParseRefSchemasFromResponse", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+	}
+
 	dr.Name = opt.Name
 	dr.Description = opt.Description
 	dr.Header = opt.Header
 	dr.Content = opt.Content
-	if err := dr.Update(ctx, selfTM.ID); err != nil {
-		slog.ErrorContext(ctx, "dr.Update", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
-	}
 
 	// 编辑响应时更新响应引用的模型
 	if dr.Type != definition.ResponseCategory {
-		if err := definitionrelations.UpdateResponseReference(ctx, dr); err != nil {
-			slog.ErrorContext(ctx, "definitionrelations.UpdateResponseReference", "err", err)
+		if err := reference.UpdateResponseRef(ctx, dr, oldRefSchemaIDs); err != nil {
+			slog.ErrorContext(ctx, "reference.UpdateResponseRef", "err", err)
 		}
+	}
+
+	if err := dr.Update(ctx, selfTM.ID); err != nil {
+		slog.ErrorContext(ctx, "dr.Update", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
 	}
 
 	return &ginrpc.Empty{}, nil
@@ -196,14 +203,8 @@ func (drai *definitionResponseApiImpl) Delete(ctx *gin.Context, opt *projectrequ
 	}
 
 	if dr.Type != definition.ResponseCategory {
-		if opt.Deref {
-			if err := definitionrelations.UnpackResponseReferences(ctx, dr); err != nil {
-				slog.ErrorContext(ctx, "definitionrelations.UnpackResponseReferences", "err", err)
-			}
-		} else {
-			if err := definitionrelations.RemoveResponseReferences(ctx, dr); err != nil {
-				slog.ErrorContext(ctx, "definitionrelations.RemoveResponseReferences", "err", err)
-			}
+		if err := reference.DerefResponse(ctx, dr, opt.Deref); err != nil {
+			slog.ErrorContext(ctx, "reference.DerefResponse", "err", err)
 		}
 	}
 

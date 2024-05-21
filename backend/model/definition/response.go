@@ -35,10 +35,6 @@ type DefinitionResponse struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&DefinitionResponse{})
-}
-
 func (dr *DefinitionResponse) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)
 	if dr.ID != 0 && dr.ProjectID != "" {
@@ -105,13 +101,15 @@ func (dr *DefinitionResponse) Sort(ctx context.Context, parentID, displayOrder u
 	}).Error
 }
 
-func (dr *DefinitionResponse) ToSpec() (*spec.HTTPResponseDefine, error) {
-	r := &spec.HTTPResponseDefine{
-		ID:          int64(dr.ID),
-		ParentId:    uint64(dr.ParentID),
-		Name:        dr.Name,
-		Type:        dr.Type,
-		Description: dr.Description,
+func (dr *DefinitionResponse) ToSpec() (*spec.DefinitionResponse, error) {
+	r := &spec.DefinitionResponse{
+		BasicResponse: spec.BasicResponse{
+			ID:          int64(dr.ID),
+			Name:        dr.Name,
+			Description: dr.Description,
+		},
+		ParentId: int64(dr.ParentID),
+		Type:     dr.Type,
 	}
 
 	if dr.Header != "" {
@@ -126,4 +124,31 @@ func (dr *DefinitionResponse) ToSpec() (*spec.HTTPResponseDefine, error) {
 	}
 
 	return r, nil
+}
+
+func (dr *DefinitionResponse) DelRef(ctx context.Context, refSchema *DefinitionSchema, deref bool) error {
+	responseSpec, err := dr.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	refSchemaSpec, err := refSchema.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	if deref {
+		if err := responseSpec.Deref(refSchemaSpec); err != nil {
+			return err
+		}
+	} else {
+		responseSpec.DelRef(refSchemaSpec)
+	}
+
+	content, err := json.Marshal(responseSpec.Content)
+	if err != nil {
+		return err
+	}
+
+	return model.DB(ctx).Model(dr).Select("content").UpdateColumn("content", string(content)).Error
 }

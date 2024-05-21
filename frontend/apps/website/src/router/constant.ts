@@ -66,7 +66,7 @@ export const PROJECT_COLLECTION_PATH = '/projects/:project_id/collection/:collec
 
 // project schema
 export const PROJECT_SCHEMA_PATH_NAME = 'project.detail.schema'
-export const PROJECT_SCHEMA_PATH = '/projects/:project_id/schema/:schemaID'
+export const PROJECT_SCHEMA_PATH = '/projects/:project_id/model/:schemaID'
 
 // project response
 export const PROJECT_RESPONSE_PATH_NAME = 'project.detail.response'
@@ -86,7 +86,7 @@ export const ITERATION_DETAIL_PATH = iterationPath
 export const ITERATION_COLLECTION_PATH_NAME = `${iterationName}.collection`
 export const ITERATION_COLLECTION_PATH = `${iterationPath}/collection/:collectionID`
 export const ITERATION_SCHEMA_PATH_NAME = `${iterationName}.schema`
-export const ITERATION_SCHEMA_PATH = `${iterationPath}/schema/:schemaID`
+export const ITERATION_SCHEMA_PATH = `${iterationPath}/model/:schemaID`
 export const ITERATION_RESPONSE_PATH_NAME = `${iterationName}.response`
 export const ITERATION_RESPONSE_PATH = `${iterationPath}/response/:responseID`
 

@@ -27,10 +27,6 @@ type Project struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&Project{})
-}
-
 // Get 获取项目
 func (p *Project) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx).Take(p, "id = ?", p.ID)

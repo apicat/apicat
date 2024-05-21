@@ -14,7 +14,7 @@ import (
 	projectrequest "github.com/apicat/apicat/v2/backend/route/proto/project/request"
 	projectresponse "github.com/apicat/apicat/v2/backend/route/proto/project/response"
 	prototeamresponse "github.com/apicat/apicat/v2/backend/route/proto/team/response"
-	"github.com/apicat/apicat/v2/backend/service/team_relations"
+	"github.com/apicat/apicat/v2/backend/service/relations"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -128,7 +128,7 @@ func (pgai *projectMemberApiImpl) NotInProjectMembers(ctx *gin.Context, opt *pro
 	for _, tm := range tms {
 		if _, exist := projectMemberMap[tm.ID]; !exist {
 			if userInfo, err := tm.UserInfo(ctx, false); err == nil {
-				res = append(res, team_relations.ConvertModelTeamMember(ctx, tm, userInfo))
+				res = append(res, relations.ConvertModelTeamMember(ctx, tm, userInfo))
 			}
 		}
 	}

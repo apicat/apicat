@@ -18,10 +18,6 @@ type TestCase struct {
 	UpdatedAt    time.Time
 }
 
-func init() {
-	model.RegMigrate(&TestCase{})
-}
-
 func (t *TestCase) Create(ctx context.Context) error {
 	return model.DB(ctx).Create(t).Error
 }

@@ -185,7 +185,7 @@ const zh: any = {
         imgLoadFail: '图像加载失败，请重试',
         imgcut: '裁剪区域选择',
         imgTooLarge: '图像过大，应小于 1MB。',
-        imgTooSmall: "图像尺寸应大于'{0}x{1}'。",
+        imgTooSmall: '图像尺寸应大于\'{0}x{1}\'。',
       },
       email: {
         left_title: '邮箱',
@@ -689,8 +689,8 @@ const zh: any = {
         aiGenerateInterface: 'AI 创建 API',
         newInterface: '创建接口',
         newGroup: '新建分类',
-        confirmDeleteGroup: "您确定要删除类别 '{0}' 吗？",
-        confirmDeleteInterface: "您确定要删除接口 '{0}' 吗？",
+        confirmDeleteGroup: '您确定要删除类别 \'{0}\' 吗？',
+        confirmDeleteInterface: '您确定要删除接口 \'{0}\' 吗？',
       },
       unnamedInterface: '未命名接口',
       unnamedCategory: '未命名分类',
@@ -712,8 +712,8 @@ const zh: any = {
         aiGenerateSchema: 'AI 创建模型',
         newSchema: '创建模型',
         newGroup: '新建分类',
-        confirmDeleteGroup: "您确定要删除 '{0}' 分组吗？",
-        confirmDeleteSchema: "您确定要删除 '{0}' 模型吗？",
+        confirmDeleteGroup: '您确定要删除 \'{0}\' 分组吗？',
+        confirmDeleteSchema: '您确定要删除 \'{0}\' 模型吗？',
       },
       history: {
         title: '历史记录',
@@ -737,7 +737,7 @@ const zh: any = {
           titleNull: '模型名称不能为空',
         },
       },
-      unnamedSchema: 'UnnamedSchema',
+      unnamedSchema: 'UnnamedModel',
       unnamedCategory: '未命名分类',
     },
     definitionResponse: {
@@ -752,7 +752,7 @@ const zh: any = {
       popoverMenus: {
         newDefinitionResponse: '新建响应',
         newGroup: '新建分类',
-        confirmDeleteDefinitionResponse: "您确定要删除 '{0}' 响应吗？",
+        confirmDeleteDefinitionResponse: '您确定要删除 \'{0}\' 响应吗？',
         unnamedDefinitionResponse: '未命名响应',
       },
       page: {

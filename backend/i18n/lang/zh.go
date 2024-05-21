@@ -227,4 +227,8 @@ var Zh = map[string]map[string]string{
 		"OpenAIConfigInvalid":      "OpenAI 设置有误。",
 		"AzureOpenAIConfigInvalid": "Azure OpenAI 设置有误。",
 	},
+	"jsonschema": {
+		"JsonSchemaIncorrect": "解析失败，请检查 JSON Schema 是否正确。",
+		"FailedToParse":       "解析失败，请稍后重试。",
+	},
 }

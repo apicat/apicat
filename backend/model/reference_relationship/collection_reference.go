@@ -2,6 +2,7 @@ package referencerelationship
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/apicat/apicat/v2/backend/model"
@@ -15,16 +16,11 @@ const (
 
 type CollectionReference struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:项目id"`
 	CollectionID uint   `gorm:"type:bigint;index;not null;comment:集合id"`
 	RefID        uint   `gorm:"type:bigint;index;not null;comment:引用节点id"`
 	RefType      string `gorm:"type:varchar(255);not null;comment:引用节点类型:schema,response,parameter"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-}
-
-func init() {
-	model.RegMigrate(&CollectionReference{}, &SchemaReference{}, &ResponseReference{}, &ParameterExcept{})
 }
 
 func BatchCreateCollectionReference(ctx context.Context, list []*CollectionReference) error {
@@ -61,4 +57,33 @@ func GetCollectionRefByCIDs(ctx context.Context, projectID string, collectionIDs
 	var list []*CollectionReference
 	tx := model.DB(ctx).Where("project_id = ? AND collection_id in ?", projectID, collectionIDs).Find(&list)
 	return list, tx.Error
+}
+
+func (cr *CollectionReference) GetCollectionRefs(ctx context.Context) ([]*CollectionReference, error) {
+	var list []*CollectionReference
+
+	tx := model.DB(ctx)
+	if cr.CollectionID != 0 {
+		tx = tx.Where("collection_id = ?", cr.CollectionID)
+	} else if cr.RefID != 0 && cr.RefType != "" {
+		tx = tx.Where("ref_id = ? AND ref_type = ?", cr.RefID, cr.RefType)
+	} else {
+		return nil, errors.New("query condition error")
+	}
+
+	return list, tx.Find(&list).Error
+}
+
+func (cr *CollectionReference) GetCollectionIDsByRef(ctx context.Context) ([]uint, error) {
+	var list []uint
+	tx := model.DB(ctx).Model(cr).Where("ref_id = ? AND ref_type = ?", cr.RefID, cr.RefType).Select("collection_id").Find(&list)
+	return list, tx.Error
+}
+
+func (cr *CollectionReference) DelByCollectionID(ctx context.Context) error {
+	return model.DB(ctx).Where("collection_id = ?", cr.CollectionID).Delete(&CollectionReference{}).Error
+}
+
+func (cr *CollectionReference) DelByRef(ctx context.Context) error {
+	return model.DB(ctx).Where("ref_id = ? AND ref_type = ?", cr.RefID, cr.RefType).Delete(&CollectionReference{}).Error
 }

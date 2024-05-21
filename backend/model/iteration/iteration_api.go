@@ -14,10 +14,6 @@ type IterationApi struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&IterationApi{})
-}
-
 func (ia *IterationApi) Create(ctx context.Context) error {
 	return model.DB(ctx).Create(ia).Error
 }

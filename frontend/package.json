@@ -21,16 +21,12 @@
     "watch:packs": "pnpm --filter './packages/*' start",
     "build:packs": "pnpm --filter './packages/*' build",
     "clean:packages": "rimraf -g './packages/*/{dist}'",
-    "clear": "rimraf -g './packages/*/{dist,node_modules}' && rimraf -g './apps/*/{dist,node_modules}' && rimraf node_modules",
+    "clear": "rimraf -g './packages/*/{dist,node_modules}' && rimraf -g './apps/*/{dist,node_modules}' && rimraf './node_modules'",
     "graph": "nx dep-graph",
     "lint": "eslint . --cache",
     "lint:fix": "eslint . --fix",
     "lint-staged": "lint-staged",
     "prepare": "cd .. && husky install frontend/.husky"
-  },
-  "dependencies": {
-    "@aws-sdk/client-s3": "^3.521.0",
-    "@changesets/cli": "^2.27.1"
   },
   "devDependencies": {
     "@antfu/eslint-config": "1.0.0-beta.8",

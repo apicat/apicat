@@ -2,11 +2,11 @@ package global
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 
 	"github.com/apicat/apicat/v2/backend/model"
 	"github.com/apicat/apicat/v2/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 )
 
 const (
@@ -25,10 +25,6 @@ type GlobalParameter struct {
 	Schema       string `gorm:"type:mediumtext;comment:参数内容"`
 	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
 	model.TimeModel
-}
-
-func init() {
-	model.RegMigrate(&GlobalParameter{})
 }
 
 // Get 获取全局参数
@@ -90,8 +86,9 @@ func (gp *GlobalParameter) ToSpec() (*spec.Parameter, error) {
 	}
 
 	if gp.Schema != "" {
-		if err := json.Unmarshal([]byte(gp.Schema), &p.Schema); err != nil {
-			return p, err
+		var err error
+		if p.Schema, err = jsonschema.NewSchemaFromJson(gp.Schema); err != nil {
+			return nil, err
 		}
 	}
 

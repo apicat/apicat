@@ -34,10 +34,6 @@ type DefinitionSchema struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&DefinitionSchema{})
-}
-
 func (ds *DefinitionSchema) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)
 	if ds.ID != 0 && ds.ProjectID != "" {
@@ -113,8 +109,8 @@ func (ds *DefinitionSchema) Sort(ctx context.Context, parentID, displayOrder uin
 	}).Error
 }
 
-func (ds *DefinitionSchema) ToSpec() (*spec.Schema, error) {
-	s := &spec.Schema{
+func (ds *DefinitionSchema) ToSpec() (*spec.DefinitionModel, error) {
+	s := &spec.DefinitionModel{
 		ID:          int64(ds.ID),
 		ParentId:    uint64(ds.ParentID),
 		Name:        ds.Name,
@@ -129,4 +125,31 @@ func (ds *DefinitionSchema) ToSpec() (*spec.Schema, error) {
 	}
 
 	return s, nil
+}
+
+func (ds *DefinitionSchema) DelRef(ctx context.Context, refSchema *DefinitionSchema, deref bool) error {
+	schemaSpec, err := ds.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	refSchemaSpec, err := refSchema.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	if deref {
+		if err := schemaSpec.Deref(refSchemaSpec); err != nil {
+			return err
+		}
+	} else {
+		schemaSpec.DelRef(refSchemaSpec)
+	}
+
+	content, err := json.Marshal(schemaSpec.Schema)
+	if err != nil {
+		return err
+	}
+
+	return model.DB(ctx).Model(ds).Select("schema").UpdateColumn("schema", string(content)).Error
 }

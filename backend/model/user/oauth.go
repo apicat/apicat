@@ -12,7 +12,3 @@ type Oauth2Bind struct {
 	OauthUID string `gorm:"type:varchar(255);comment:对应oauth平台的用户id"`                     // github user.id
 	model.TimeModel
 }
-
-func init() {
-	model.RegMigrate(&Oauth2Bind{})
-}

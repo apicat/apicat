@@ -8,6 +8,7 @@ import useDefinitionResponseStore from '@/store/definitionResponse'
 import { useGlobalParameters } from '@/store/globalParameter'
 import { useGlobalServerUrlStore } from '@/store/globalServerUrl'
 import { getMockData } from '@/api/mock'
+import { apiParseSchema } from '@/api/project/definition/schema'
 
 export interface CollectionContext {
   urls: Ref<ProjectAPI.ResponseURL[]>
@@ -47,9 +48,10 @@ export function useCollectionContextWithoutMounted(): { context: CollectionConte
   const activeUrl = ref()
 
   const acEditorOptions: AcEditorOptions = {
-    codeBlockLanguages: languages,
+    codeBlockLanguages: languages as any,
     onCopySuccess: () => ElMessage.success(t('app.project.collection.copy.copied')),
     handleMockData: async (url, method, data) => await getMockData(url, method, data),
+    handleParseSchema: async schema => await apiParseSchema(schema),
   }
 
   const collectionContext = {

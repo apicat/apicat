@@ -16,10 +16,6 @@ type Tag struct {
 	UpdatedAt    time.Time
 }
 
-func init() {
-	model.RegMigrate(&Tag{})
-}
-
 func (t *Tag) Create(ctx context.Context) error {
 	return model.DB(ctx).Create(t).Error
 }

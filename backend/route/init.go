@@ -111,6 +111,7 @@ func Init() error {
 	registerStorageSysconfig(g)
 	registerEmailSysconfig(g)
 	registerModelSysconfig(g)
+	registerJsonSchema(g)
 
 	slog.Info("init router", "bind", conf.App.AppServerBind)
 	return e.Run(conf.App.AppServerBind)

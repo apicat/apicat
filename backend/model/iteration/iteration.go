@@ -25,10 +25,6 @@ type Iteration struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&Iteration{})
-}
-
 func (i *Iteration) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx).Take(i, "id = ?", i.ID)
 	err := model.NotRecord(tx)

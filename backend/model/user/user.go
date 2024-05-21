@@ -39,10 +39,6 @@ type User struct {
 	model.TimeModel
 }
 
-func init() {
-	model.RegMigrate(&User{})
-}
-
 func (u *User) BeforeCreate(tx *gorm.DB) (err error) {
 	u.Password, err = hashPassword(u.Password)
 	return
