@@ -86,14 +86,16 @@ func (o *openapiParser) parseContent(mts *orderedmap.Map[string, *v3.MediaType])
 		}
 
 		if orderedmap.Len(mediaType.Examples) > 0 {
-			body.Examples = make([]spec.Example, 0)
+			i := 0
+			body.Examples = make(map[string]spec.Example)
 			for examplePair := range orderedmap.Iterate(context.Background(), mediaType.Examples) {
 				v := examplePair.Value()
 				if example, err := json.Marshal(v); err == nil {
-					body.Examples = append(body.Examples, spec.Example{
+					body.Examples[strconv.Itoa(i)] = spec.Example{
 						Summary: v.Summary,
 						Value:   string(example),
-					})
+					}
+					i++
 				}
 			}
 		}
