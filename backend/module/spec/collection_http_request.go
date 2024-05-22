@@ -38,7 +38,7 @@ func NewCollectionHttpRequest() *CollectionHttpRequest {
 		Attrs: &HttpRequestAttrs{
 			GlobalExcepts: NewHttpRequestGlobalExcepts(),
 			Parameters:    NewHTTPParameters(),
-			Content:       HTTPBody{},
+			Content:       make(HTTPBody),
 		},
 	}
 }

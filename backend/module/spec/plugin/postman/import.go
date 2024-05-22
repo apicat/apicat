@@ -36,12 +36,8 @@ func Import(data []byte) (*spec.Spec, error) {
 			return []spec.Server{}
 		}(),
 		Globals: func() *spec.Globals {
-			parmts := &spec.GlobalParameters{}
-			parmts.Header = make(spec.ParameterList, 0)
-			parmts.Query = make(spec.ParameterList, 0)
-			parmts.Cookie = make(spec.ParameterList, 0)
 			return &spec.Globals{
-				Parameters: parmts,
+				Parameters: spec.NewGlobalParameters(),
 			}
 		}(),
 		Definitions: &spec.Definitions{
@@ -54,7 +50,7 @@ func Import(data []byte) (*spec.Spec, error) {
 }
 
 func walkCollection(items []Item, parentid int64) []*spec.Collection {
-	cs := make([]*spec.Collection, 0)
+	cs := make(spec.Collections, 0)
 	for i, v := range items {
 		// http request
 		id := parentid*1024 + int64(i) + 1
@@ -84,8 +80,7 @@ func walkCollection(items []Item, parentid int64) []*spec.Collection {
 }
 
 func convertContent(item Item) []*spec.CollectionNode {
-	req := spec.CollectionHttpRequest{}
-	req.Attrs.Parameters.Fill()
+	req := spec.NewCollectionHttpRequest()
 	for k, v := range item.Request.Url.Path {
 		if !strings.HasPrefix(v, ":") {
 			continue
@@ -99,8 +94,8 @@ func convertContent(item Item) []*spec.CollectionNode {
 		}
 	}
 
-	url := *spec.NewCollectionHttpUrl("/"+strings.Join(item.Request.Url.Path, "/"), item.Request.Method)
-	nodes := []*spec.CollectionNode{
+	url := spec.NewCollectionHttpUrl("/"+strings.Join(item.Request.Url.Path, "/"), item.Request.Method)
+	nodes := spec.CollectionNodes{
 		url.ToCollectionNode(),
 	}
 
@@ -192,7 +187,7 @@ func encodeResponseBody(res []Response) *spec.HttpResponseAttrs {
 			}
 
 		case "plain":
-			b := jsonschema.NewSchema("string")
+			b := jsonschema.NewSchema(jsonschema.T_STR)
 			b.Examples = v.Body
 			r.Content = map[string]*spec.Body{
 				contenttypemapp["plain"]: {
@@ -202,7 +197,7 @@ func encodeResponseBody(res []Response) *spec.HttpResponseAttrs {
 		default:
 			r.Content = map[string]*spec.Body{
 				contenttypemapp["plain"]: {
-					Schema: jsonschema.NewSchema("object"),
+					Schema: jsonschema.NewSchema(jsonschema.T_OBJ),
 				},
 			}
 		}
@@ -211,7 +206,7 @@ func encodeResponseBody(res []Response) *spec.HttpResponseAttrs {
 			if v.Disabled {
 				continue
 			}
-			b := jsonschema.NewSchema("string")
+			b := jsonschema.NewSchema(jsonschema.T_STR)
 			b.Examples = v.Value
 			r.Header = append(r.Header, &spec.Parameter{
 				Name:        v.Key,
@@ -227,7 +222,7 @@ func encodeResponseBody(res []Response) *spec.HttpResponseAttrs {
 		defaultres := spec.Response{Code: 200}
 		defaultres.Name = "success"
 		defaultres.Content = spec.HTTPBody{
-			"application/json": {Schema: jsonschema.NewSchema("object")},
+			"application/json": {Schema: jsonschema.NewSchema(jsonschema.T_OBJ)},
 		}
 		response.List = append(response.List, &defaultres)
 	}
