@@ -78,12 +78,14 @@ func (c *Collection) Create(ctx context.Context, member *team.TeamMember) error 
 		}
 
 		// 获取文档的path
-		if specContent, err := c.ContentToSpec(); err != nil {
-			slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
-		} else {
-			if url := specContent.GetUrl(); url != nil {
-				c.Method = url.Attrs.Method
-				c.Path = url.Attrs.Path
+		if c.Content != "" {
+			if specContent, err := c.ContentToSpec(); err != nil {
+				slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
+			} else {
+				if url := specContent.GetUrl(); url != nil {
+					c.Method = url.Attrs.Method
+					c.Path = url.Attrs.Path
+				}
 			}
 		}
 	}
@@ -105,14 +107,16 @@ func (c *Collection) Update(ctx context.Context, title, content string, memberID
 	}
 
 	// 获取文档的path
-	specContent, err := c.ContentToSpec()
-	if err != nil {
-		slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
-	}
 	method, path := "", ""
-	if url := specContent.GetUrl(); url != nil {
-		method = url.Attrs.Method
-		path = url.Attrs.Path
+	if c.Content != "" {
+		specContent, err := c.ContentToSpec()
+		if err != nil {
+			slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
+		}
+		if url := specContent.GetUrl(); url != nil {
+			method = url.Attrs.Method
+			path = url.Attrs.Path
+		}
 	}
 
 	return model.DB(ctx).Model(c).Updates(map[string]interface{}{
@@ -164,6 +168,10 @@ func (c *Collection) ContentToSpec() (spec.CollectionNodes, error) {
 // DelRefSchema 删除公共模型引用
 // deref: 是否解引用，true: 展开引用自身(collectiuon.$ref to schema detail)，false: 清除引用自身(delete $ref)
 func (c *Collection) DelRefSchema(ctx context.Context, refSchema *definition.DefinitionSchema, deref bool) error {
+	if c.Content == "" {
+		return nil
+	}
+
 	specContent, err := c.ContentToSpec()
 	if err != nil {
 		return err
@@ -193,6 +201,10 @@ func (c *Collection) DelRefSchema(ctx context.Context, refSchema *definition.Def
 // DelRefResponse 删除公共响应引用
 // deref: 是否解引用，true: 展开引用自身(collectiuon.$ref to response detail)，false: 清除引用自身(delete $ref)
 func (c *Collection) DelRefResponse(ctx context.Context, refResponse *definition.DefinitionResponse, deref bool) error {
+	if c.Content == "" {
+		return nil
+	}
+
 	specContent, err := c.ContentToSpec()
 	if err != nil {
 		return err
@@ -222,6 +234,10 @@ func (c *Collection) DelRefResponse(ctx context.Context, refResponse *definition
 // DelExceptParam 删除全局参数排除关系
 // unpack: 是否展开，true: 将globalParam详情添加到parameters中，false: 在glabalExcept中删除globalParamID
 func (c *Collection) DelExceptParam(ctx context.Context, exceptParam *global.GlobalParameter, unpack bool) error {
+	if c.Content == "" {
+		return nil
+	}
+
 	specContent, err := c.ContentToSpec()
 	if err != nil {
 		return err
