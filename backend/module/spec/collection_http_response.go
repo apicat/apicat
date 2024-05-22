@@ -28,7 +28,7 @@ func NewCollectionHttpResponse() *CollectionHttpResponse {
 	return &CollectionHttpResponse{
 		Type: NODE_HTTP_RESPONSE,
 		Attrs: &HttpResponseAttrs{
-			List: Responses{},
+			List: make(Responses, 0),
 		},
 	}
 }

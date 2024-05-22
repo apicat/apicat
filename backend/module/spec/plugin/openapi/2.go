@@ -149,27 +149,32 @@ func (s *swaggerParser) parseDefinitionResponses(in *v2.Swagger) (spec.Definitio
 			if len(in.Produces) == 0 {
 				content["application/json"] = body
 				if response.Examples != nil {
-					body.Examples = make([]spec.Example, 0)
+					i := 0
+					body.Examples = make(map[string]spec.Example)
 					for examplePair := range orderedmap.Iterate(context.Background(), response.Examples.Values) {
 						if example, err := json.Marshal(examplePair.Value()); err == nil {
-							body.Examples = append(body.Examples, spec.Example{
+							body.Examples[strconv.Itoa(i)] = spec.Example{
 								Summary: examplePair.Key(),
 								Value:   string(example),
-							})
+							}
+							i++
 						}
 					}
 				}
 			} else {
+				i := 0
+				body.Examples = make(map[string]spec.Example)
 				for _, v := range in.Produces {
 					content[v] = body
 					if response.Examples != nil {
 						emp, ok := response.Examples.Values.Get(v)
 						if ok {
 							if example, err := json.Marshal(emp); err == nil {
-								body.Examples = append(body.Examples, spec.Example{
+								body.Examples[strconv.Itoa(i)] = spec.Example{
 									Summary: v,
 									Value:   string(example),
-								})
+								}
+								i++
 							}
 						}
 					}
@@ -362,16 +367,20 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 			if err != nil {
 				return nil, err
 			}
+
 			for _, v := range info.Produces {
-				body := &spec.Body{Schema: js}
+				body := &spec.Body{
+					Schema:   js,
+					Examples: make(map[string]spec.Example),
+				}
 				if res.Examples != nil {
 					mp, ok := res.Examples.Values.Get(v)
 					if ok {
 						if example, err := json.Marshal(mp); err == nil {
-							body.Examples = append(body.Examples, spec.Example{
+							body.Examples["0"] = spec.Example{
 								Summary: v,
 								Value:   string(example),
-							})
+							}
 						}
 					}
 				}
