@@ -84,6 +84,9 @@ func NewSchema(typ string) *Schema {
 }
 
 func NewSchemaFromJson(str string) (*Schema, error) {
+	if str == "" {
+		return nil, errors.New("empty json content")
+	}
 	s := &Schema{}
 	if err := json.Unmarshal([]byte(str), s); err != nil {
 		return nil, err

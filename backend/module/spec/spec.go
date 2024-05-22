@@ -3,6 +3,7 @@ package spec
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 )
 
 const TYPE_CATEGORY = "category"
@@ -61,6 +62,10 @@ func NewEmptySpec() *Spec {
 }
 
 func NewSpecFromJson(raw []byte) (*Spec, error) {
+	if len(raw) == 0 {
+		return nil, errors.New("empty json content")
+	}
+
 	var spec Spec
 	if err := json.Unmarshal(raw, &spec); err != nil {
 		return nil, err

@@ -2,6 +2,7 @@ package spec
 
 import (
 	"encoding/json"
+	"errors"
 
 	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 )
@@ -31,6 +32,9 @@ func NewCollection(title, typ string) *Collection {
 }
 
 func NewCollectionFromJson(c string) (*Collection, error) {
+	if c == "" {
+		return nil, errors.New("empty json content")
+	}
 	var collection Collection
 	if err := json.Unmarshal([]byte(c), &collection); err != nil {
 		return nil, err

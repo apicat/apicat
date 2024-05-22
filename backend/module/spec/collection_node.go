@@ -34,6 +34,9 @@ func RegisterNode(n Node) {
 }
 
 func NewCollectionNodesFromJson(c string) (CollectionNodes, error) {
+	if c == "" {
+		return nil, errors.New("empty json content")
+	}
 	var collectionNodes CollectionNodes
 	if err := json.Unmarshal([]byte(c), &collectionNodes); err != nil {
 		return nil, err

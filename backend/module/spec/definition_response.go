@@ -20,6 +20,9 @@ type DefinitionResponse struct {
 type DefinitionResponses []*DefinitionResponse
 
 func NewDefinitionResponseFromJson(str string) (*DefinitionResponse, error) {
+	if str == "" {
+		return nil, errors.New("empty json content")
+	}
 	s := &DefinitionResponse{}
 	if err := json.Unmarshal([]byte(str), s); err != nil {
 		return nil, err

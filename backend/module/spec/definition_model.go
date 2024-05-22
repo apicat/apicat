@@ -23,6 +23,9 @@ type DefinitionModel struct {
 type DefinitionModels []*DefinitionModel
 
 func NewModelFromJson(str string) (*DefinitionModel, error) {
+	if str == "" {
+		return nil, errors.New("empty json content")
+	}
 	s := &DefinitionModel{}
 	if err := json.Unmarshal([]byte(str), s); err != nil {
 		return nil, err
