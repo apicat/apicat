@@ -64,6 +64,11 @@ func updateRefSchemaToschemas(ctx context.Context, sID uint, oldSchemaIDs, newSc
 }
 
 func DerefSchema(ctx context.Context, s *definition.DefinitionSchema, deref bool) error {
+	refSchemaIDs, err := ParseRefSchemasFromSchema(s)
+	if err != nil {
+		return err
+	}
+
 	rc := referencerelation.RefSchemaCollections{RefSchemaID: s.ID}
 	cIDs, err := rc.GetCollectionIDs(ctx)
 	if err != nil {
@@ -99,17 +104,17 @@ func DerefSchema(ctx context.Context, s *definition.DefinitionSchema, deref bool
 
 	if deref {
 		// 建立引用自身的(collections -> self 中的collections)与自身引用的(self -> schemas 中的schemas)之间的引用关系
-		if err := linkSchemaRefContextParentCWithChildS(ctx, cIDs, schemaIDs); err != nil {
+		if err := linkSchemaRefContextParentCWithChildS(ctx, cIDs, refSchemaIDs); err != nil {
 			return err
 		}
 
 		// 建立引用自身的(responses -> self 中的responses)与自身引用的(self -> schemas 中的schemas)之间的引用关系
-		if err := linkSchemaRefContextParentRWithChildS(ctx, rIDs, schemaIDs); err != nil {
+		if err := linkSchemaRefContextParentRWithChildS(ctx, rIDs, refSchemaIDs); err != nil {
 			return err
 		}
 
 		// 建立引用自身的(schemas -> self 中的schemas)与自身引用的(self -> schemas 中的schemas)之间的引用关系
-		if err := linkSchemaRefContextParentSWithChildS(ctx, schemaIDs, schemaIDs); err != nil {
+		if err := linkSchemaRefContextParentSWithChildS(ctx, schemaIDs, refSchemaIDs); err != nil {
 			return err
 		}
 	}
@@ -130,7 +135,7 @@ func DerefSchema(ctx context.Context, s *definition.DefinitionSchema, deref bool
 	}
 
 	// 清除引用关系(self -> scheams)
-	return clearRefSchemaToSchemas(ctx, schemaIDs, s.ID)
+	return clearRefSchemaToSchemas(ctx, refSchemaIDs, s.ID)
 }
 
 // derefSchemaFromSchemas 从公共模型中解引用公共模型
@@ -176,22 +181,6 @@ func derefSchemaFromCollections(ctx context.Context, s *definition.DefinitionSch
 
 	cr := &referencerelationship.CollectionReference{RefID: s.ID, RefType: referencerelationship.ReferenceSchema}
 	return cr.DelByRef(ctx)
-}
-
-// deleteSchemaReference 删除公共模型引用关系
-func deleteSchemaReference(ctx context.Context, s *definition.DefinitionSchema) error {
-	sr := &referencerelationship.SchemaReference{SchemaID: s.ID}
-	refs, err := sr.GetSchemaRefs(ctx)
-	if err != nil {
-		return err
-	}
-
-	var ids []uint
-	for _, item := range refs {
-		ids = append(ids, item.ID)
-	}
-
-	return referencerelationship.BatchDeleteSchemaReference(ctx, ids...)
 }
 
 // clearRefCollectionsToSchema 清除collections引用schema的引用关系
