@@ -119,7 +119,7 @@ func updateExceptParamsToCollection(ctx context.Context, cID uint, oldParamIDs, 
 
 	oldRefsMap := make(map[uint]*referencerelation.ExceptParamCollection, 0)
 	for _, v := range oldRefs {
-		oldRefsMap[v.CollectionID] = v
+		oldRefsMap[v.ExceptParamID] = v
 	}
 
 	wantPop := make([]uint, 0)
