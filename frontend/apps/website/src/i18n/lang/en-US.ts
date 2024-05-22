@@ -941,6 +941,7 @@ const en: any = {
         left_title: 'Users',
         searchKeywordPlaceholder: 'Search by username',
         updatePasswordTitle: 'Update password',
+        updatePassword: 'Password',
         removeUserTitle: 'Remove user',
         removeUserTip: 'Do you want to remove this user?',
       },

@@ -944,6 +944,7 @@ const zh: any = {
         left_title: '用户',
         searchKeywordPlaceholder: '通过用户名搜索',
         updatePasswordTitle: '更新密码',
+        updatePassword: '更新密码',
         removeUserTitle: '删除用户',
         removeUserTip: '确定删除这个用户吗？',
       },
