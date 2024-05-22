@@ -222,8 +222,9 @@ func (s *Schema) DelChildrenRef(ref *Schema) {
 
 	propertyKeys := []string{}
 	if s.Properties != nil {
+		refid := strconv.FormatInt(ref.ID, 10)
 		for k, v := range s.Properties {
-			if v.IsRefID(strconv.FormatInt(ref.ID, 10)) {
+			if v.IsRefID(refid) {
 				propertyKeys = append(propertyKeys, k)
 			}
 			v.DelChildrenRef(ref)
@@ -232,6 +233,7 @@ func (s *Schema) DelChildrenRef(ref *Schema) {
 		for _, k := range propertyKeys {
 			delete(s.Properties, k)
 			s.DelXOrderByName(k)
+			s.DelRequiredByName(k)
 		}
 	}
 
@@ -247,12 +249,29 @@ func (s *Schema) DelXOrderByName(name string) {
 		return
 	}
 
-	if s.XOrder != nil {
+	if len(s.XOrder) > 0 {
 		i := 0
 		for i < len(s.XOrder) {
 			if s.XOrder[i] == name {
 				s.XOrder = append(s.XOrder[:i], s.XOrder[i+1:]...)
-				continue
+				return
+			}
+			i++
+		}
+	}
+}
+
+func (s *Schema) DelRequiredByName(name string) {
+	if s == nil || name == "" {
+		return
+	}
+
+	if len(s.Required) > 0 {
+		i := 0
+		for i < len(s.Required) {
+			if s.Required[i] == name {
+				s.Required = append(s.Required[:i], s.Required[i+1:]...)
+				return
 			}
 			i++
 		}
