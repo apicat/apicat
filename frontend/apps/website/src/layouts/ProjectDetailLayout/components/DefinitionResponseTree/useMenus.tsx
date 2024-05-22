@@ -51,7 +51,7 @@ export function useMenus(
           <div class="break-all">
             {isDir
               ? t('app.interface.popoverMenus.confirmDeleteGroup', [data.name])
-              : t('app.interface.popoverMenus.confirmDeleteInterface', [data.name])}
+              : t('app.interface.popoverMenus.confirmDeleteDefinitionResponse', [data.name])}
           </div>
           {!isDir && (
             <ElCheckbox
