@@ -12,7 +12,7 @@ export function getDefaultSchemaStructure() {
     'properties': {},
     'required': [],
     'x-apicat-orders': [],
-    'example': '',
+    'default': '',
   }
 }
 
