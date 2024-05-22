@@ -108,7 +108,8 @@ func (c *Collection) Update(ctx context.Context, title, content string, memberID
 
 	// 获取文档的path
 	method, path := "", ""
-	if c.Content != "" {
+	if content != "" {
+		c.Content = content
 		specContent, err := c.ContentToSpec()
 		if err != nil {
 			slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
