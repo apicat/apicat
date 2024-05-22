@@ -64,6 +64,7 @@ func (r *Response) ReplaceRef(ref *BasicResponse) error {
 	}
 
 	r.BasicResponse = *ref
+	r.Reference = ""
 	return nil
 }
 
