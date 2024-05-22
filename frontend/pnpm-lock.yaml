@@ -96,11 +96,11 @@ importers:
   apps/website:
     dependencies:
       '@apicat/components':
-        specifier: 0.0.10-beta.0
-        version: 0.0.10-beta.0(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)
+        specifier: 0.0.10-beta.1
+        version: 0.0.10-beta.1(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)
       '@apicat/editor':
-        specifier: 0.0.10-beta.0
-        version: 0.0.10-beta.0(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@tiptap/pm@2.4.0)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash@4.17.21)(prosemirror-commands@1.5.2)(prosemirror-history@1.4.0)(prosemirror-model@1.21.0)(prosemirror-state@1.4.3)(prosemirror-tables@1.3.7)(prosemirror-view@1.33.6)(tippy.js@6.3.7)(vue@3.3.4)
+        specifier: 0.0.10-beta.1
+        version: 0.0.10-beta.1(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@tiptap/pm@2.4.0)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash@4.17.21)(prosemirror-commands@1.5.2)(prosemirror-history@1.4.0)(prosemirror-model@1.21.0)(prosemirror-state@1.4.3)(prosemirror-tables@1.3.7)(prosemirror-view@1.33.6)(tippy.js@6.3.7)(vue@3.3.4)
       '@apicat/hooks':
         specifier: ^0.0.8
         version: 0.0.8(@types/lodash-es@4.17.12)(lodash-es@4.17.21)(lodash@4.17.21)(vue@3.3.4)
@@ -418,8 +418,8 @@ packages:
   '@antfu/utils@0.7.8':
     resolution: {integrity: sha512-rWQkqXRESdjXtc+7NRfK9lASQjpXJu1ayp7qi1d23zZorY+wBHVLHHoVcMsEnkqEBWTFqbztO7/QdJFzyEcLTg==}
 
-  '@apicat/components@0.0.10-beta.0':
-    resolution: {integrity: sha512-5e7egdnlJYvGqVKsGCvibcr1I5ASeINfzkEEd0WuYCbYbmUkWboFXztprmc5Wt6HF/Ttxw8TsJaBkYtDzkr5nA==}
+  '@apicat/components@0.0.10-beta.1':
+    resolution: {integrity: sha512-p6/I9wMM0rEvo2QOSTZzzOPnjL8HsS5M4mWFppxIKgaDFLsi24pIqEKqYawkp442MxISC530T0j14NuShbHYzw==}
     peerDependencies:
       '@codemirror/commands': ^6.3.0
       '@codemirror/language': ^6.9.1
@@ -432,8 +432,8 @@ packages:
       smooth-scroll-into-view-if-needed: ^2.0.2
       vue: 3.3.4
 
-  '@apicat/editor@0.0.10-beta.0':
-    resolution: {integrity: sha512-AbSOXn/ebrU9LBOadkurcDqxvawruSyuGZu5TF6ZmbbccuE28zNBZyPaRo0/9Ut8T9o3iuD6xvwxUg7ZMINayQ==}
+  '@apicat/editor@0.0.10-beta.1':
+    resolution: {integrity: sha512-qSU3VJ/OBIeIi4wM/buNrRTUv45VGGi8LMqRIV+Y1AaaSWGNYKsqV5cKU22f0GuZN1/0cwa8vpZz3G0C/4OSZA==}
     peerDependencies:
       '@codemirror/commands': ^6.3.0
       '@codemirror/language': ^6.9.1
@@ -4654,7 +4654,7 @@ snapshots:
 
   '@antfu/utils@0.7.8': {}
 
-  '@apicat/components@0.0.10-beta.0(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)':
+  '@apicat/components@0.0.10-beta.1(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)':
     dependencies:
       '@apicat/hooks': 0.0.8(@types/lodash-es@4.17.12)(lodash-es@4.17.21)(lodash@4.17.21)(vue@3.3.4)
       '@apicat/shared': 0.0.8
@@ -4674,9 +4674,9 @@ snapshots:
       - '@vue/composition-api'
       - lodash
 
-  '@apicat/editor@0.0.10-beta.0(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@tiptap/pm@2.4.0)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash@4.17.21)(prosemirror-commands@1.5.2)(prosemirror-history@1.4.0)(prosemirror-model@1.21.0)(prosemirror-state@1.4.3)(prosemirror-tables@1.3.7)(prosemirror-view@1.33.6)(tippy.js@6.3.7)(vue@3.3.4)':
+  '@apicat/editor@0.0.10-beta.1(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@tiptap/pm@2.4.0)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash@4.17.21)(prosemirror-commands@1.5.2)(prosemirror-history@1.4.0)(prosemirror-model@1.21.0)(prosemirror-state@1.4.3)(prosemirror-tables@1.3.7)(prosemirror-view@1.33.6)(tippy.js@6.3.7)(vue@3.3.4)':
     dependencies:
-      '@apicat/components': 0.0.10-beta.0(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)
+      '@apicat/components': 0.0.10-beta.1(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)
       '@apicat/hooks': 0.0.8(@types/lodash-es@4.17.12)(lodash-es@4.17.21)(lodash@4.17.21)(vue@3.3.4)
       '@apicat/shared': 0.0.8
       '@codemirror/commands': 6.5.0
