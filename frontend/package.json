@@ -9,7 +9,7 @@
   ],
   "engines": {
     "node": ">=18",
-    "pnpm": ">=8"
+    "pnpm": "^9.0.0"
   },
   "scripts": {
     "preview": "pnpm --filter=@apicat/website preview",
