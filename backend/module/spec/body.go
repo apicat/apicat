@@ -1,6 +1,10 @@
 package spec
 
-import "github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
+import (
+	"encoding/json"
+
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
+)
 
 type Body struct {
 	Schema   *jsonschema.Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
@@ -26,4 +30,13 @@ func (b *HTTPBody) SetXDiff(x string) {
 	for _, v := range *b {
 		v.Schema.SetXDiff(x)
 	}
+}
+
+func (b *HTTPBody) ToJson() string {
+	if b == nil {
+		return ""
+	}
+
+	r, _ := json.Marshal(b)
+	return string(r)
 }

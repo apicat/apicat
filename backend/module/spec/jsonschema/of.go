@@ -51,6 +51,7 @@ func (m *mergeHelper) Merge(froms []*Schema) *Schema {
 func (m *mergeHelper) merge(from *Schema) {
 	m.mergeType(from)
 	m.mergeProperties(from)
+	m.mergeRequired(from)
 	m.mergeOthers(from)
 }
 
@@ -71,6 +72,22 @@ func (m *mergeHelper) mergeProperties(from *Schema) {
 
 	for name, prop := range from.Properties {
 		m.result.Properties[name] = prop
+	}
+}
+
+func (m *mergeHelper) mergeRequired(from *Schema) {
+	if len(from.Required) > 0 {
+		temp := make(map[string]bool)
+		for _, v := range m.result.Required {
+			temp[v] = true
+		}
+
+		for _, v := range from.Required {
+			if _, ok := temp[v]; !ok {
+				m.result.Required = append(m.result.Required, v)
+				temp[v] = true
+			}
+		}
 	}
 }
 
@@ -107,9 +124,6 @@ func (m *mergeHelper) mergeOthers(from *Schema) {
 	}
 	if m.result.MinProperties == nil && from.MinProperties != nil {
 		m.result.MinProperties = from.MinProperties
-	}
-	if m.result.Required == nil && from.Required != nil {
-		m.result.Required = from.Required
 	}
 	if m.result.MaxItems == nil && from.MaxItems != nil {
 		m.result.MaxItems = from.MaxItems
