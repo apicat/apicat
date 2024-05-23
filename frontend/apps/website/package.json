@@ -3,6 +3,9 @@
   "type": "module",
   "version": "0.0.1",
   "private": true,
+  "engines": {
+    "pnpm": "^9.0.0"
+  },
   "scripts": {
     "dev": "vite --open",
     "build": "run-p type-check \"build-only {@}\" --",
@@ -12,8 +15,8 @@
     "type-check": "vue-tsc --noEmit -p tsconfig.json --composite false"
   },
   "dependencies": {
-    "@apicat/components": "0.0.10-beta.2",
-    "@apicat/editor": "0.0.10-beta.2",
+    "@apicat/components": "0.0.10-beta.3",
+    "@apicat/editor": "0.0.10-beta.3",
     "@apicat/hooks": "^0.0.8",
     "@apicat/shared": "^0.0.8",
     "@apicat/tsconfig": "workspace:*",
