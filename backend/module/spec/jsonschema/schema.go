@@ -270,7 +270,7 @@ func (s *Schema) DelRef(ref *Schema) {
 	}
 
 	if len(s.AllOf) > 0 {
-		s.AllOf = s.AllOf.DelRef(ref)
+		s.AllOf.DelRef(ref)
 	}
 	if len(s.AnyOf) > 0 {
 		s.AnyOf.DelRef(ref)

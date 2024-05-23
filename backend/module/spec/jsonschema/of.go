@@ -12,17 +12,18 @@ func (al Of) Merge() Of {
 	return []*Schema{helper.result}
 }
 
-func (al Of) DelRef(ref *Schema) Of {
-	newAllOf := make(Of, 0)
+func (al *Of) DelRef(ref *Schema) {
 	refid := strconv.FormatInt(ref.ID, 10)
-	for _, v := range al {
-		if v.IsRefID(refid) {
-			continue
+	i := 0
+	for i < len(*al) {
+		if (*al)[i].IsRefID(refid) {
+			*al = append((*al)[:i], (*al)[i+1:]...)
+			return
+		} else {
+			(*al)[i].DelRef(ref)
+			i++
 		}
-		v.DelRef(ref)
-		newAllOf = append(newAllOf, v)
 	}
-	return newAllOf
 }
 
 type mergeHelper struct {

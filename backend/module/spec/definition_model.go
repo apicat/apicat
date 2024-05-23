@@ -140,6 +140,7 @@ func (s *DefinitionModels) DelByID(id int64) {
 		} else {
 			if v.ID == id {
 				*s = append((*s)[:i], (*s)[i+1:]...)
+				return
 			}
 		}
 	}

@@ -51,6 +51,7 @@ func (pl *ParameterList) DelByID(id int64) {
 	for i, v := range *pl {
 		if v.ID == id {
 			*pl = append((*pl)[:i], (*pl)[i+1:]...)
+			return
 		}
 	}
 }

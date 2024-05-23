@@ -136,6 +136,7 @@ func (r *DefinitionResponses) DelByID(id int64) {
 		} else {
 			if id == v.ID {
 				*r = append((*r)[:i], (*r)[i+1:]...)
+				return
 			}
 		}
 	}
