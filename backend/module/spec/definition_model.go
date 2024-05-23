@@ -85,11 +85,7 @@ func (s *DefinitionModel) DelRef(ref *DefinitionModel) {
 
 	s.Schema.ID = s.ID
 	ref.Schema.ID = ref.ID
-
-	if s.Schema.Ref() {
-		s.Schema.DelRootRef(ref.Schema)
-	}
-	s.Schema.DelChildrenRef(ref.Schema)
+	s.Schema.DelRef(ref.Schema)
 }
 
 func (s *DefinitionModel) SetXDiff(x string) {

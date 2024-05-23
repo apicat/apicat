@@ -66,6 +66,29 @@ func (h *DerefHelper) deref(s *Schema, path string) error {
 		if err := s.ReplaceRef(ref); err != nil {
 			return err
 		}
+		return nil
+	}
+
+	if len(s.AllOf) > 0 {
+		for _, v := range s.AllOf {
+			if err := h.deref(v, path); err != nil {
+				return err
+			}
+		}
+	}
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			if err := h.deref(v, path); err != nil {
+				return err
+			}
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			if err := h.deref(v, path); err != nil {
+				return err
+			}
+		}
 	}
 
 	if s.Properties != nil {

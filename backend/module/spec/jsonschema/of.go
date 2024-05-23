@@ -1,13 +1,28 @@
 package jsonschema
 
-type AllOf []*Schema
-type AnyOf []*Schema
-type OneOf []*Schema
+import (
+	"strconv"
+)
 
-func (a AllOf) Merge() AllOf {
+type Of []*Schema
+
+func (al Of) Merge() Of {
 	helper := NewMergeHelper(&Schema{})
-	helper.Merge(a)
+	helper.Merge(al)
 	return []*Schema{helper.result}
+}
+
+func (al Of) DelRef(ref *Schema) Of {
+	newAllOf := make(Of, 0)
+	refid := strconv.FormatInt(ref.ID, 10)
+	for _, v := range al {
+		if v.IsRefID(refid) {
+			continue
+		}
+		v.DelRef(ref)
+		newAllOf = append(newAllOf, v)
+	}
+	return newAllOf
 }
 
 type mergeHelper struct {

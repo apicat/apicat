@@ -24,9 +24,9 @@ type Schema struct {
 	Reference *string `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 
 	// Applicator
-	AllOf                AllOf                    `json:"allOf,omitempty" yaml:"allOf,omitempty"`
-	AnyOf                AnyOf                    `json:"anyOf,omitempty" yaml:"anyOf,omitempty"`
-	OneOf                OneOf                    `json:"oneOf,omitempty" yaml:"oneOf,omitempty"`
+	AllOf                Of                       `json:"allOf,omitempty" yaml:"allOf,omitempty"`
+	AnyOf                Of                       `json:"anyOf,omitempty" yaml:"anyOf,omitempty"`
+	OneOf                Of                       `json:"oneOf,omitempty" yaml:"oneOf,omitempty"`
 	Not                  *Schema                  `json:"not,omitempty" yaml:"not,omitempty"`
 	Properties           map[string]*Schema       `json:"properties,omitempty" yaml:"properties,omitempty"`
 	AdditionalProperties *ValueOrBoolean[*Schema] `json:"additionalProperties,omitempty" yaml:"additionalProperties,omitempty"`
@@ -101,6 +101,28 @@ func (s *Schema) DeepRef() bool {
 		return true
 	}
 
+	if len(s.AllOf) > 0 {
+		for _, v := range s.AllOf {
+			if v.DeepRef() {
+				return true
+			}
+		}
+	}
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			if v.DeepRef() {
+				return true
+			}
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			if v.DeepRef() {
+				return true
+			}
+		}
+	}
+
 	if s.Properties != nil {
 		for _, v := range s.Properties {
 			if v.DeepRef() {
@@ -140,9 +162,25 @@ func (s *Schema) DeepFindRefById(id string) (refs []*Schema) {
 		return
 	}
 
+	if len(s.AllOf) > 0 {
+		for _, v := range s.AllOf {
+			refs = append(refs, v.DeepFindRefById(id)...)
+		}
+	}
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			refs = append(refs, v.DeepFindRefById(id)...)
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			refs = append(refs, v.DeepFindRefById(id)...)
+		}
+	}
+
 	if s.Properties != nil {
-		for k := range s.Properties {
-			refs = append(refs, s.Properties[k].DeepFindRefById(id)...)
+		for _, v := range s.Properties {
+			refs = append(refs, v.DeepFindRefById(id)...)
 		}
 	}
 
@@ -175,6 +213,22 @@ func (s *Schema) DeepGetRefID() (ids []int64) {
 		return
 	}
 
+	if len(s.AllOf) > 0 {
+		for _, v := range s.AllOf {
+			ids = append(ids, v.DeepGetRefID()...)
+		}
+	}
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			ids = append(ids, v.DeepGetRefID()...)
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			ids = append(ids, v.DeepGetRefID()...)
+		}
+	}
+
 	if s.Properties != nil {
 		for _, v := range s.Properties {
 			ids = append(ids, v.DeepGetRefID()...)
@@ -201,23 +255,28 @@ func (s *Schema) ReplaceRef(ref *Schema) error {
 	return nil
 }
 
-func (s *Schema) DelRootRef(ref *Schema) {
-	if !s.Ref() || ref == nil {
-		return
-	}
-
-	refID := s.GetRefID()
-	if refID != ref.ID {
-		return
-	}
-
-	s.Reference = nil
-	s.Type = NewSchemaType(T_OBJ)
-}
-
-func (s *Schema) DelChildrenRef(ref *Schema) {
+func (s *Schema) DelRef(ref *Schema) {
 	if s == nil || ref == nil {
 		return
+	}
+
+	if s.Ref() {
+		refID := s.GetRefID()
+		if refID == ref.ID {
+			s.Reference = nil
+			s.Type = NewSchemaType(T_OBJ)
+			return
+		}
+	}
+
+	if len(s.AllOf) > 0 {
+		s.AllOf = s.AllOf.DelRef(ref)
+	}
+	if len(s.AnyOf) > 0 {
+		s.AnyOf.DelRef(ref)
+	}
+	if len(s.OneOf) > 0 {
+		s.OneOf.DelRef(ref)
 	}
 
 	propertyKeys := []string{}
@@ -227,7 +286,7 @@ func (s *Schema) DelChildrenRef(ref *Schema) {
 			if v.IsRefID(refid) {
 				propertyKeys = append(propertyKeys, k)
 			}
-			v.DelChildrenRef(ref)
+			v.DelRef(ref)
 		}
 
 		for _, k := range propertyKeys {
@@ -289,6 +348,21 @@ func (s *Schema) DeepCheckAllOf() bool {
 		return true
 	}
 
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			if v.DeepCheckAllOf() {
+				return true
+			}
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			if v.DeepCheckAllOf() {
+				return true
+			}
+		}
+	}
+
 	if s.Properties != nil {
 		for _, v := range s.Properties {
 			if v.DeepCheckAllOf() {
@@ -310,6 +384,17 @@ func (s *Schema) MergeAllOf() {
 
 	if s.CheckAllOf() {
 		s.AllOf = s.AllOf.Merge()
+	}
+
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			v.MergeAllOf()
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			v.MergeAllOf()
+		}
 	}
 
 	if s.Properties != nil {
@@ -396,6 +481,21 @@ func (s *Schema) SetXDiff(x string) {
 		return
 	}
 
+	if len(s.AllOf) > 0 {
+		for _, v := range s.AllOf {
+			v.SetXDiff(x)
+		}
+	}
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			v.SetXDiff(x)
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			v.SetXDiff(x)
+		}
+	}
 	if s.Properties != nil {
 		for _, v := range s.Properties {
 			v.SetXDiff(x)

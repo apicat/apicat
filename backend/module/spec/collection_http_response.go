@@ -154,10 +154,7 @@ func (r *CollectionHttpResponse) DelRefModel(ref *DefinitionModel) {
 
 		for _, v := range res.Content {
 			if v.Schema != nil {
-				if v.Schema.Ref() {
-					v.Schema.DelRootRef(ref.Schema)
-				}
-				v.Schema.DelChildrenRef(ref.Schema)
+				v.Schema.DelRef(ref.Schema)
 			}
 		}
 	}
