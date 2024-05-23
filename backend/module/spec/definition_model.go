@@ -34,11 +34,6 @@ func NewModelFromJson(str string) (*DefinitionModel, error) {
 	return s, nil
 }
 
-// The id referenced by this model itself
-func (s *DefinitionModel) RefID() int64 {
-	return s.Schema.GetRefID()
-}
-
 // The id referenced by the model itself and its child elements
 func (s *DefinitionModel) RefIDs() []int64 {
 	return s.Schema.DeepGetRefID()

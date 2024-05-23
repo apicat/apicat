@@ -60,8 +60,8 @@ func (r *CollectionHttpResponse) DerefAllResponses(refs DefinitionResponses) err
 	refsMap := refs.ToMap()
 
 	for _, res := range r.Attrs.List {
-		if res.Ref() {
-			if ref, ok := refsMap[res.GetRefID()]; ok {
+		if id, err := res.GetRefID(); err == nil {
+			if ref, ok := refsMap[id]; ok {
 				if err := res.ReplaceRef(&ref.BasicResponse); err != nil {
 					return err
 				}
@@ -135,7 +135,7 @@ func (r *CollectionHttpResponse) DelRefResponse(ref *DefinitionResponse) {
 	}
 
 	for i, v := range r.Attrs.List {
-		if v.Ref() && v.GetRefID() == ref.ID {
+		if id, err := v.GetRefID(); err == nil && id == ref.ID {
 			r.Attrs.List = append(r.Attrs.List[:i], r.Attrs.List[i+1:]...)
 			return
 		}
@@ -180,7 +180,9 @@ func (r *CollectionHttpResponse) GetRefResponseIDs() []int64 {
 	ids := make([]int64, 0)
 	for _, res := range r.Attrs.List {
 		if res.Ref() {
-			ids = append(ids, res.GetRefID())
+			if id, err := res.GetRefID(); err == nil {
+				ids = append(ids, id)
+			}
 		}
 	}
 	return ids

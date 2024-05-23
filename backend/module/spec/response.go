@@ -40,17 +40,17 @@ func (r *Response) IsRefID(id string) bool {
 	return false
 }
 
-func (r *Response) GetRefID() int64 {
+func (r *Response) GetRefID() (int64, error) {
 	if !r.Ref() {
-		return 0
+		return 0, errors.New("no reference")
 	}
 
 	i := strings.LastIndex(r.Reference, "/")
 	if i != -1 {
 		id, _ := strconv.ParseInt(r.Reference[i+1:], 10, 64)
-		return id
+		return id, nil
 	}
-	return 0
+	return 0, errors.New("no reference")
 }
 
 func (r *Response) ReplaceRef(ref *BasicResponse) error {
@@ -58,8 +58,7 @@ func (r *Response) ReplaceRef(ref *BasicResponse) error {
 		return errors.New("response is not a reference or ref is nil")
 	}
 
-	refID := r.GetRefID()
-	if refID != ref.ID {
+	if refID, err := r.GetRefID(); err != nil || refID != ref.ID {
 		return errors.New("ref id does not match")
 	}
 

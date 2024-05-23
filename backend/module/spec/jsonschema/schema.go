@@ -190,17 +190,17 @@ func (s *Schema) DeepFindRefById(id string) (refs []*Schema) {
 	return
 }
 
-func (s *Schema) GetRefID() int64 {
+func (s *Schema) GetRefID() (int64, error) {
 	if !s.Ref() {
-		return 0
+		return 0, errors.New("no reference")
 	}
 
 	i := strings.LastIndex(*s.Reference, "/")
 	if i != -1 {
 		id, _ := strconv.ParseInt((*s.Reference)[i+1:], 10, 64)
-		return id
+		return id, nil
 	}
-	return 0
+	return 0, errors.New("no reference")
 }
 
 func (s *Schema) DeepGetRefID() (ids []int64) {
@@ -208,7 +208,7 @@ func (s *Schema) DeepGetRefID() (ids []int64) {
 		return
 	}
 
-	if id := s.GetRefID(); id > 0 {
+	if id, err := s.GetRefID(); err == nil {
 		ids = append(ids, id)
 		return
 	}
@@ -246,8 +246,7 @@ func (s *Schema) ReplaceRef(ref *Schema) error {
 		return errors.New("schema is not a reference or ref is nil")
 	}
 
-	refID := s.GetRefID()
-	if refID != ref.ID {
+	if refID, err := s.GetRefID(); err != nil || refID != ref.ID {
 		return errors.New("ref id does not match")
 	}
 
@@ -261,8 +260,7 @@ func (s *Schema) DelRef(ref *Schema) {
 	}
 
 	if s.Ref() {
-		refID := s.GetRefID()
-		if refID == ref.ID {
+		if refID, err := s.GetRefID(); err == nil && refID == ref.ID {
 			s.Reference = nil
 			s.Type = NewSchemaType(T_OBJ)
 			return

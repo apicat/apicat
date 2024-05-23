@@ -44,7 +44,11 @@ func (h *DerefHelper) deref(s *Schema, path string) error {
 	}
 
 	if s.Ref() {
-		refID := s.GetRefID()
+		refID, err := s.GetRefID()
+		if err != nil {
+			return err
+		}
+
 		ref, ok := h.RefMap[refID]
 		if !ok {
 			return fmt.Errorf("referenced schema id %d not found", refID)
