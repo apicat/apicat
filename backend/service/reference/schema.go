@@ -6,7 +6,6 @@ import (
 	"github.com/apicat/apicat/v2/backend/model/collection"
 	"github.com/apicat/apicat/v2/backend/model/definition"
 	referencerelation "github.com/apicat/apicat/v2/backend/model/reference_relation"
-	referencerelationship "github.com/apicat/apicat/v2/backend/model/reference_relationship"
 	arrutil "github.com/apicat/apicat/v2/backend/utils/array"
 )
 
@@ -149,8 +148,7 @@ func derefSchemaFromSchemas(ctx context.Context, s *definition.DefinitionSchema,
 		schema.DelRef(ctx, s, deref)
 	}
 
-	sr := &referencerelationship.SchemaReference{RefSchemaID: s.ID}
-	return sr.DelByRefSchemaID(ctx)
+	return nil
 }
 
 // derefSchemaFromResponses 从公共响应中解引用公共模型
@@ -164,8 +162,7 @@ func derefSchemaFromResponses(ctx context.Context, s *definition.DefinitionSchem
 		response.DelRef(ctx, s, deref)
 	}
 
-	rr := &referencerelationship.ResponseReference{RefSchemaID: s.ID}
-	return rr.DelByRefSchemaID(ctx)
+	return nil
 }
 
 // derefSchemaFromCollections 从集合中解引用公共模型
@@ -179,8 +176,7 @@ func derefSchemaFromCollections(ctx context.Context, s *definition.DefinitionSch
 		c.DelRefSchema(ctx, s, deref)
 	}
 
-	cr := &referencerelationship.CollectionReference{RefID: s.ID, RefType: referencerelationship.ReferenceSchema}
-	return cr.DelByRef(ctx)
+	return nil
 }
 
 // clearRefCollectionsToSchema 清除collections引用schema的引用关系
