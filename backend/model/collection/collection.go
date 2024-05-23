@@ -23,19 +23,19 @@ const (
 
 type Collection struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	PublicID     string `gorm:"type:varchar(255);index;comment:集合公开id"`
-	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:项目id"`
-	ParentID     uint   `gorm:"type:bigint;not null;comment:父级id"`
-	Path         string `gorm:"type:varchar(255);not null;comment:请求路径"`
-	Method       string `gorm:"type:varchar(255);not null;comment:请求方法"`
-	Title        string `gorm:"type:varchar(255);not null;comment:名称"`
-	Type         string `gorm:"type:varchar(255);not null;comment:类型:category,doc,http"`
-	ShareKey     string `gorm:"type:varchar(255);comment:项目分享密码"`
-	Content      string `gorm:"type:mediumtext;comment:内容"`
-	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
-	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:创建成员id"`
-	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:最后更新成员id"`
-	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:删除成员id"`
+	PublicID     string `gorm:"type:varchar(255);index;comment:collection public id"`
+	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:project id"`
+	ParentID     uint   `gorm:"type:bigint;not null;comment:parent collection id"`
+	Path         string `gorm:"type:varchar(255);not null;comment:request path"`
+	Method       string `gorm:"type:varchar(255);not null;comment:request method"`
+	Title        string `gorm:"type:varchar(255);not null;comment:collection title"`
+	Type         string `gorm:"type:varchar(255);not null;comment:collection type:category,doc,http"`
+	ShareKey     string `gorm:"type:varchar(255);comment:share key"`
+	Content      string `gorm:"type:mediumtext;comment:doc content"`
+	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:display order"`
+	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:created by member id"`
+	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:updated by member id"`
+	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:deleted by member id"`
 	model.TimeModel
 }
 

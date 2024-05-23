@@ -14,9 +14,9 @@ func init() {
 
 			type TagToCollection struct {
 				ID           uint `gorm:"type:bigint;primaryKey;autoIncrement"`
-				TagID        uint `gorm:"type:bigint;index;not null;comment:标签id"`
-				CollectionID uint `gorm:"type:bigint;not null;comment:集合id"`
-				DisplayOrder int  `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
+				TagID        uint `gorm:"type:bigint;index;not null;comment:tag id"`
+				CollectionID uint `gorm:"type:bigint;not null;comment:collection id"`
+				DisplayOrder int  `gorm:"type:int(11);not null;default:0;comment:display order"`
 				CreatedAt    time.Time
 				UpdatedAt    time.Time
 			}

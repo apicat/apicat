@@ -10,14 +10,14 @@ import (
 func init() {
 	type RefSchemaSchemas struct {
 		ID          uint `gorm:"type:bigint;primaryKey;autoIncrement"`
-		RefSchemaID uint `gorm:"type:bigint;index;not null;comment:被引用的公共模型id"`
-		SchemaID    uint `gorm:"type:bigint;not null;comment:引用ref_schema_id的公共模型id"`
+		RefSchemaID uint `gorm:"type:bigint;index;not null;comment:referenced definition schema id"`
+		SchemaID    uint `gorm:"type:bigint;not null;comment:schema id"`
 	}
 
 	type SchemaReference struct {
 		ID          uint `gorm:"type:bigint;primaryKey;autoIncrement"`
-		SchemaID    uint `gorm:"type:bigint;index;not null;comment:公共模型id"`
-		RefSchemaID uint `gorm:"type:bigint;index;not null;comment:引用的公共模型id"`
+		SchemaID    uint `gorm:"type:bigint;index;not null;comment:definition schema id"`
+		RefSchemaID uint `gorm:"type:bigint;index;not null;comment:ref schema id"`
 		CreatedAt   time.Time
 		UpdatedAt   time.Time
 	}

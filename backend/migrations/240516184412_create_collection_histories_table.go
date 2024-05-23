@@ -13,10 +13,10 @@ func init() {
 
 			type CollectionHistory struct {
 				ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-				CollectionID uint   `gorm:"type:bigint;index;not null;comment:集合id"`
-				Title        string `gorm:"type:varchar(255);not null;comment:名称"`
-				Content      string `gorm:"type:mediumtext;comment:内容"`
-				CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:创建人id"`
+				CollectionID uint   `gorm:"type:bigint;index;not null;comment:collection id"`
+				Title        string `gorm:"type:varchar(255);not null;comment:collection title"`
+				Content      string `gorm:"type:mediumtext;comment:doc content"`
+				CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:created by member id"`
 				model.TimeModel
 			}
 

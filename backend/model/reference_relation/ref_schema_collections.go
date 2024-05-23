@@ -8,8 +8,8 @@ import (
 
 type RefSchemaCollections struct {
 	ID           uint `gorm:"type:bigint;primaryKey;autoIncrement"`
-	RefSchemaID  uint `gorm:"type:bigint;index;not null;comment:被引用的公共模型id"`
-	CollectionID uint `gorm:"type:bigint;not null;comment:引用ref_schema_id的文档id"`
+	RefSchemaID  uint `gorm:"type:bigint;index;not null;comment:referenced definition schema id"`
+	CollectionID uint `gorm:"type:bigint;not null;comment:collection id"`
 }
 
 func (r *RefSchemaCollections) GetCollections(ctx context.Context) ([]*RefSchemaCollections, error) {

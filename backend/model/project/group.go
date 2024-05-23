@@ -11,9 +11,9 @@ import (
 
 type ProjectGroup struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	MemberID     uint   `gorm:"type:bigint;uniqueIndex:ukey;not null;comment:团队成员id"`
-	Name         string `gorm:"type:varchar(255);uniqueIndex:ukey;not null;comment:分组名称"`
-	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
+	MemberID     uint   `gorm:"type:bigint;uniqueIndex:ukey;not null;comment:team member id"`
+	Name         string `gorm:"type:varchar(255);uniqueIndex:ukey;not null;comment:group name"`
+	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:display order"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }

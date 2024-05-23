@@ -8,8 +8,8 @@ import (
 
 type RefSchemaResponses struct {
 	ID          uint `gorm:"type:bigint;primaryKey;autoIncrement"`
-	RefSchemaID uint `gorm:"type:bigint;index;not null;comment:被引用的公共模型id"`
-	ResponseID  uint `gorm:"type:bigint;not null;comment:引用ref_schema_id的公共响应id"`
+	RefSchemaID uint `gorm:"type:bigint;index;not null;comment:referenced definition schema id"`
+	ResponseID  uint `gorm:"type:bigint;not null;comment:response id"`
 }
 
 func (r *RefSchemaResponses) GetResponses(ctx context.Context) ([]*RefSchemaResponses, error) {

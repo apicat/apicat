@@ -11,11 +11,11 @@ import (
 
 type DefinitionSchemaHistory struct {
 	ID          uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	SchemaID    uint   `gorm:"type:bigint;index;not null;comment:模型id"`
-	Name        string `gorm:"type:varchar(255);not null;comment:名称"`
-	Description string `gorm:"type:varchar(255);comment:描述"`
-	Schema      string `gorm:"type:mediumtext;comment:内容"`
-	CreatedBy   uint   `gorm:"type:bigint;not null;default:0;comment:创建人id"`
+	SchemaID    uint   `gorm:"type:bigint;index;not null;comment:schema id"`
+	Name        string `gorm:"type:varchar(255);not null;comment:schema name"`
+	Description string `gorm:"type:varchar(255);comment:schema description"`
+	Schema      string `gorm:"type:mediumtext;comment:schema content"`
+	CreatedBy   uint   `gorm:"type:bigint;not null;default:0;comment:created by member id"`
 	model.TimeModel
 }
 
