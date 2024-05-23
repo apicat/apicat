@@ -43,6 +43,16 @@ func NewCollectionHttpRequest() *CollectionHttpRequest {
 	}
 }
 
+func NewDefaultCollectionHttpRequest() *CollectionHttpRequest {
+	return &CollectionHttpRequest{
+		Type: NODE_HTTP_REQUEST,
+		Attrs: &HttpRequestAttrs{
+			GlobalExcepts: NewHttpRequestGlobalExcepts(),
+			Parameters:    NewHTTPParameters(),
+		},
+	}
+}
+
 func NewHttpRequestGlobalExcepts() *HttpRequestGlobalExcepts {
 	return &HttpRequestGlobalExcepts{
 		Header: []int64{},

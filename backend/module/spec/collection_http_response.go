@@ -33,6 +33,23 @@ func NewCollectionHttpResponse() *CollectionHttpResponse {
 	}
 }
 
+func NewDefaultCollectionHttpResponse() *CollectionHttpResponse {
+	return &CollectionHttpResponse{
+		Type: NODE_HTTP_RESPONSE,
+		Attrs: &HttpResponseAttrs{
+			List: Responses{
+				&Response{
+					BasicResponse: BasicResponse{
+						Name:    "Response Name",
+						Content: NewDefaultHTTPBody(),
+					},
+					Code: 200,
+				},
+			},
+		},
+	}
+}
+
 func (r *CollectionHttpResponse) NodeType() string {
 	return r.Type
 }

@@ -44,6 +44,14 @@ func NewCollectionNodesFromJson(c string) (CollectionNodes, error) {
 	return collectionNodes, nil
 }
 
+func NewHttpCollectionNodes() CollectionNodes {
+	return CollectionNodes{
+		NewCollectionHttpUrl("", "get").ToCollectionNode(),
+		NewDefaultCollectionHttpRequest().ToCollectionNode(),
+		NewDefaultCollectionHttpResponse().ToCollectionNode(),
+	}
+}
+
 func (n *CollectionNode) ToHttpUrl() *CollectionHttpUrl {
 	return n.Node.(*CollectionHttpUrl)
 }
