@@ -187,6 +187,7 @@ export const ResponseContentTypesMap = {
   'text/html': 'html',
   'text/plain': 'raw',
   'application/octet-stream': 'binary',
+  'none': 'none',
 }
 
 export const HttpMethodTypeMap = {
