@@ -62,6 +62,16 @@ func (cai *collectionApiImpl) Create(ctx *gin.Context, opt *collectionrequest.Cr
 		}
 	}
 
+	// 创建http文档时如果content为空则补充默认结构
+	if opt.Type == collection.HttpType && opt.Content == "" {
+		nodes := spec.NewHttpCollectionNodes()
+		nodeStr, err := nodes.ToJson()
+		if err != nil {
+			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.CreationFailed"))
+		}
+		opt.Content = nodeStr
+	}
+
 	c := &collection.Collection{
 		ProjectID: selfPM.ProjectID,
 		ParentID:  opt.ParentID,
