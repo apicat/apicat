@@ -190,7 +190,19 @@ func (r *CollectionHttpResponse) GetRefModelIDs() []int64 {
 			}
 		}
 	}
-	return ids
+	if len(ids) == 0 {
+		return ids
+	}
+
+	result := make([]int64, 0)
+	m := make(map[int64]bool)
+	for _, v := range ids {
+		if _, ok := m[v]; !ok {
+			m[v] = true
+			result = append(result, v)
+		}
+	}
+	return result
 }
 
 func (r *CollectionHttpResponse) GetRefResponseIDs() []int64 {

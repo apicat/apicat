@@ -30,13 +30,26 @@ func NewDefinitionResponseFromJson(str string) (*DefinitionResponse, error) {
 	return s, nil
 }
 
-func (r *DefinitionResponse) RefIDs() (ids []int64) {
+func (r *DefinitionResponse) RefIDs() []int64 {
+	ids := make([]int64, 0)
 	for _, v := range r.Content {
 		if v.Schema != nil {
 			ids = append(ids, v.Schema.DeepGetRefID()...)
 		}
 	}
-	return
+	if len(ids) == 0 {
+		return ids
+	}
+
+	result := make([]int64, 0)
+	m := make(map[int64]bool)
+	for _, v := range ids {
+		if _, ok := m[v]; !ok {
+			m[v] = true
+			result = append(result, v)
+		}
+	}
+	return result
 }
 
 func (r *DefinitionResponse) Deref(ref *DefinitionModel) error {

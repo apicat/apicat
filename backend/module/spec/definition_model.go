@@ -36,7 +36,20 @@ func NewModelFromJson(str string) (*DefinitionModel, error) {
 
 // The id referenced by the model itself and its child elements
 func (s *DefinitionModel) RefIDs() []int64 {
-	return s.Schema.DeepGetRefID()
+	ids := s.Schema.DeepGetRefID()
+	if len(ids) == 0 {
+		return ids
+	}
+
+	result := make([]int64, 0)
+	m := make(map[int64]bool)
+	for _, v := range ids {
+		if _, ok := m[v]; !ok {
+			m[v] = true
+			result = append(result, v)
+		}
+	}
+	return result
 }
 
 // Model(s) refers to Model(ref), removes the reference relationship between s and ref, and replaces the content of ref into s.
