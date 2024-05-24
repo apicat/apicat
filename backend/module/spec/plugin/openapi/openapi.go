@@ -122,6 +122,7 @@ func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 		return nil, err
 	}
 
+	sw.parseDefinitionParameters(&model.Model)
 	return &spec.Spec{
 		ApiCat:      "2.0.1",
 		Info:        sw.parseInfo(model.Model.Info),

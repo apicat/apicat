@@ -103,6 +103,30 @@ func (s *swaggerParser) parseDefinitionModels(defs *v2.Definitions) (spec.Defini
 	return models, nil
 }
 
+func (s *swaggerParser) parseDefinitionParameters(in *v2.Swagger) error {
+	if in.Parameters == nil {
+		return nil
+	}
+	for pair := range orderedmap.Iterate(context.Background(), in.Parameters.Definitions) {
+		parameter := pair.Value()
+		if parameter.Schema != nil {
+			js, err := jsonSchemaConverter(parameter.Schema)
+			if err != nil {
+				return err
+			}
+			k := fmt.Sprintf("%s-%s", parameter.In, parameter.Name)
+			s.parametersMapping[k] = &spec.Parameter{
+				ID:          stringToUnid(parameter.Name),
+				Name:        parameter.Name,
+				Description: parameter.Description,
+				Required:    parameter.Required != nil && *parameter.Required,
+				Schema:      js,
+			}
+		}
+	}
+	return nil
+}
+
 func (s *swaggerParser) parseJsonSchema(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 	js, err := jsonSchemaConverter(b)
 	if err != nil {
@@ -243,7 +267,9 @@ func (s *swaggerParser) parseRequest(in *v2.Swagger, info *v2.Operation) (*spec.
 	for _, v := range info.Parameters {
 		// 这里引用 #/parameters 暂时无法获取
 		// 直接展开
-		if _, ok := s.parametersMapping[v.Name]; ok {
+		k := fmt.Sprintf("%s-%s", v.In, v.Name)
+		if sc, ok := s.parametersMapping[k]; ok {
+			request.Attrs.Parameters.Add(v.In, sc)
 			continue
 		}
 		if _, ok := s.globalParamtersMapping[v.Name]; ok {

@@ -19,6 +19,7 @@ type openapiParser struct {
 	modelMapping      map[string]int64
 	parametersMapping map[string]*spec.Parameter
 }
+
 type openapiGenerator struct {
 	modelMapping map[int64]string
 }
@@ -172,6 +173,27 @@ func (o *openapiParser) parseDefinetions(comp *v3.Components) (*spec.Definitions
 		}
 		responses = append(responses, def)
 	}
+
+	if comp.Parameters != nil {
+		for pair := range orderedmap.Iterate(context.Background(), comp.Parameters) {
+			parameter := pair.Value()
+			if parameter.Schema != nil {
+				js, err := jsonSchemaConverter(parameter.Schema)
+				if err != nil {
+					return nil, err
+				}
+				k := fmt.Sprintf("%s-%s", parameter.In, parameter.Name)
+				o.parametersMapping[k] = &spec.Parameter{
+					ID:          stringToUnid(parameter.Name),
+					Name:        parameter.Name,
+					Description: parameter.Description,
+					Required:    parameter.Required != nil && *parameter.Required,
+					Schema:      js,
+				}
+			}
+		}
+	}
+
 	return &spec.Definitions{
 		Schemas:   models,
 		Responses: responses,
