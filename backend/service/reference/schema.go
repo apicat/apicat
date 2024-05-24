@@ -2,6 +2,7 @@ package reference
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/apicat/apicat/v2/backend/model/collection"
 	"github.com/apicat/apicat/v2/backend/model/definition"
@@ -91,11 +92,12 @@ func DerefSchema(ctx context.Context, s *definition.DefinitionSchema, deref bool
 	}
 
 	rs := referencerelation.RefSchemaSchemas{RefSchemaID: s.ID}
+	fmt.Printf("rs: %v\n", rs)
 	schemaIDs, err := rs.GetSchemaIDs(ctx)
 	if err != nil {
 		return err
 	}
-
+	fmt.Printf("schemaIDs: %v\n", schemaIDs)
 	// 在schema中解引用schema
 	if err := derefSchemaFromSchemas(ctx, s, schemaIDs, deref); err != nil {
 		return err
@@ -139,6 +141,10 @@ func DerefSchema(ctx context.Context, s *definition.DefinitionSchema, deref bool
 
 // derefSchemaFromSchemas 从公共模型中解引用公共模型
 func derefSchemaFromSchemas(ctx context.Context, s *definition.DefinitionSchema, schemaIDs []uint, deref bool) error {
+	if len(schemaIDs) == 0 {
+		return nil
+	}
+
 	schemas, err := definition.GetDefinitionSchemas(ctx, s.ProjectID, schemaIDs...)
 	if err != nil {
 		return err
@@ -153,6 +159,10 @@ func derefSchemaFromSchemas(ctx context.Context, s *definition.DefinitionSchema,
 
 // derefSchemaFromResponses 从公共响应中解引用公共模型
 func derefSchemaFromResponses(ctx context.Context, s *definition.DefinitionSchema, responseIDs []uint, deref bool) error {
+	if len(responseIDs) == 0 {
+		return nil
+	}
+
 	responses, err := definition.GetDefinitionResponses(ctx, s.ProjectID, responseIDs...)
 	if err != nil {
 		return err
@@ -167,6 +177,10 @@ func derefSchemaFromResponses(ctx context.Context, s *definition.DefinitionSchem
 
 // derefSchemaFromCollections 从集合中解引用公共模型
 func derefSchemaFromCollections(ctx context.Context, s *definition.DefinitionSchema, collectionIDs []uint, deref bool) error {
+	if len(collectionIDs) == 0 {
+		return nil
+	}
+
 	collections, err := collection.GetCollections(ctx, s.ProjectID, collectionIDs...)
 	if err != nil {
 		return err

@@ -40,14 +40,16 @@ func DerefExceptParam(ctx context.Context, p *global.GlobalParameter, deref bool
 			}
 		}
 	} else {
-		collections, err := collection.GetCollections(ctx, p.ProjectID, cIDs...)
-		if err != nil {
-			return err
-		}
-
-		for _, c := range collections {
-			if err := c.DelExceptParam(ctx, p, false); err != nil {
+		if len(cIDs) > 0 {
+			collections, err := collection.GetCollections(ctx, p.ProjectID, cIDs...)
+			if err != nil {
 				return err
+			}
+
+			for _, c := range collections {
+				if err := c.DelExceptParam(ctx, p, false); err != nil {
+					return err
+				}
 			}
 		}
 	}
