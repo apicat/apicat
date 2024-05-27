@@ -143,7 +143,7 @@ func CollectionDerefWithApiCatSpec(ctx context.Context, c *collection.Collection
 		return nil, err
 	}
 
-	apicatStruct := spec.NewSpec()
+	apicatStruct := spec.NewEmptySpec()
 	apicatStruct.Collections = append(apicatStruct.Collections, collectionSpec)
 	return apicatStruct, nil
 }
