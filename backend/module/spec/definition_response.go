@@ -67,6 +67,7 @@ func (r *DefinitionResponse) Deref(ref *DefinitionModel) error {
 						return err
 					}
 				}
+				v.Schema.MergeAllOf()
 			}
 		}
 	}
@@ -82,11 +83,12 @@ func (r *DefinitionResponse) DeepDeref(refs DefinitionModels) error {
 
 	for _, v := range r.Content {
 		if v.Schema != nil {
-			s, err := helper.DeepDeref(v.Schema)
+			new, err := helper.DeepDeref(v.Schema)
 			if err != nil {
 				return err
 			}
-			v.Schema = &s
+			new.MergeAllOf()
+			v.Schema = &new
 		}
 	}
 	return nil

@@ -9,7 +9,7 @@ type Of []*Schema
 func (al Of) Merge() Of {
 	helper := NewMergeHelper(&Schema{})
 	helper.Merge(al)
-	return []*Schema{helper.result}
+	return helper.list
 }
 
 func (al *Of) DelRef(ref *Schema) {
@@ -28,24 +28,54 @@ func (al *Of) DelRef(ref *Schema) {
 
 type mergeHelper struct {
 	result *Schema
+	list   Of
 }
 
 func NewMergeHelper(s *Schema) *mergeHelper {
-	return &mergeHelper{
+	m := &mergeHelper{
 		result: s,
+		list:   make(Of, 0),
 	}
+	m.list = append(m.list, m.result)
+	return m
 }
 
-func (m *mergeHelper) Merge(froms []*Schema) *Schema {
+func (m *mergeHelper) Merge(froms Of) Of {
 	for _, from := range froms {
 		if from.CheckAllOf() {
-			helper := NewMergeHelper(m.result)
-			helper.Merge(from.AllOf)
-		} else {
-			m.merge(from)
+			m.Merge(from.AllOf)
+			continue
 		}
+
+		if from.Ref() {
+			m.list = append(m.list, from)
+			continue
+		}
+
+		if from.AnyOf != nil {
+			for _, v := range from.AnyOf {
+				v.MergeAllOf()
+			}
+		}
+
+		if from.OneOf != nil {
+			for _, v := range from.OneOf {
+				v.MergeAllOf()
+			}
+		}
+
+		if from.Properties != nil {
+			for _, prop := range from.Properties {
+				prop.MergeAllOf()
+			}
+		}
+		if from.Items != nil && !from.Items.IsBool() {
+			from.Items.Value().MergeAllOf()
+		}
+
+		m.merge(from)
 	}
-	return m.result
+	return m.list
 }
 
 func (m *mergeHelper) merge(from *Schema) {
@@ -53,6 +83,7 @@ func (m *mergeHelper) merge(from *Schema) {
 	m.mergeProperties(from)
 	m.mergeRequired(from)
 	m.mergeOthers(from)
+	m.mergeXOrder(from)
 }
 
 func (m *mergeHelper) mergeType(from *Schema) {
@@ -85,6 +116,22 @@ func (m *mergeHelper) mergeRequired(from *Schema) {
 		for _, v := range from.Required {
 			if _, ok := temp[v]; !ok {
 				m.result.Required = append(m.result.Required, v)
+				temp[v] = true
+			}
+		}
+	}
+}
+
+func (m *mergeHelper) mergeXOrder(from *Schema) {
+	if len(from.XOrder) > 0 {
+		temp := make(map[string]bool)
+		for _, v := range m.result.XOrder {
+			temp[v] = true
+		}
+
+		for _, v := range from.XOrder {
+			if _, ok := temp[v]; !ok {
+				m.result.XOrder = append(m.result.XOrder, v)
 				temp[v] = true
 			}
 		}
@@ -136,5 +183,8 @@ func (m *mergeHelper) mergeOthers(from *Schema) {
 	}
 	if m.result.Format == "" && from.Format != "" {
 		m.result.Format = from.Format
+	}
+	if m.result.XMock == "" && from.XMock != "" {
+		m.result.XMock = from.XMock
 	}
 }

@@ -107,6 +107,7 @@ func (r *CollectionHttpResponse) DerefModel(ref *DefinitionModel) error {
 							return err
 						}
 					}
+					v.Schema.MergeAllOf()
 				}
 			}
 		}
@@ -139,6 +140,7 @@ func (r *CollectionHttpResponse) DeepDerefModelByHelper(helper *jsonschema.Deref
 				if err != nil {
 					return err
 				}
+				new.MergeAllOf()
 				v.Schema = &new
 			}
 		}

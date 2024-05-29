@@ -269,12 +269,21 @@ func (s *Schema) DelRef(ref *Schema) {
 
 	if len(s.AllOf) > 0 {
 		s.AllOf.DelRef(ref)
+		if len(s.AllOf) == 0 && s.Type == nil {
+			s.Type = ref.Type
+		}
 	}
 	if len(s.AnyOf) > 0 {
 		s.AnyOf.DelRef(ref)
+		if len(s.AnyOf) == 0 && s.Type == nil {
+			s.Type = ref.Type
+		}
 	}
 	if len(s.OneOf) > 0 {
 		s.OneOf.DelRef(ref)
+		if len(s.OneOf) == 0 && s.Type == nil {
+			s.Type = ref.Type
+		}
 	}
 
 	propertyKeys := []string{}

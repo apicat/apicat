@@ -68,6 +68,7 @@ func (s *DefinitionModel) Deref(ref *DefinitionModel) error {
 				return err
 			}
 		}
+		s.Schema.MergeAllOf()
 	}
 	return nil
 }
@@ -82,6 +83,7 @@ func (s *DefinitionModel) DeepDeref(refs DefinitionModels) error {
 	if err != nil {
 		return err
 	}
+	new.MergeAllOf()
 	s.Schema = &new
 	return nil
 }

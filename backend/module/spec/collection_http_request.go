@@ -233,6 +233,7 @@ func (r *CollectionHttpRequest) DerefModel(ref *DefinitionModel) error {
 						return err
 					}
 				}
+				v.Schema.MergeAllOf()
 			}
 		}
 	}
@@ -259,6 +260,7 @@ func (r *CollectionHttpRequest) DeepDerefModelByHelper(helper *jsonschema.DerefH
 			if err != nil {
 				return err
 			}
+			new.MergeAllOf()
 			v.Schema = &new
 		}
 	}
