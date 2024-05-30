@@ -89,9 +89,13 @@ func (ns *CollectionNodes) DerefModel(ref *DefinitionModel) error {
 	for _, node := range *ns {
 		switch node.NodeType() {
 		case NODE_HTTP_REQUEST:
-			return node.ToHttpRequest().DerefModel(ref)
+			if err := node.ToHttpRequest().DerefModel(ref); err != nil {
+				return err
+			}
 		case NODE_HTTP_RESPONSE:
-			return node.ToHttpResponse().DerefModel(ref)
+			if err := node.ToHttpResponse().DerefModel(ref); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -129,6 +133,7 @@ func (ns *CollectionNodes) DerefGlobalParameter(in string, param *Parameter) {
 		switch node.NodeType() {
 		case NODE_HTTP_REQUEST:
 			node.ToHttpRequest().Attrs.Parameters.Add(in, param)
+			return
 		}
 	}
 }
@@ -142,6 +147,7 @@ func (ns *CollectionNodes) DerefGlobalParameters(params *GlobalParameters) {
 		switch node.NodeType() {
 		case NODE_HTTP_REQUEST:
 			node.ToHttpRequest().DerefGlobalParameters(params)
+			return
 		}
 	}
 }
@@ -172,6 +178,7 @@ func (ns *CollectionNodes) DelRefResponse(ref *DefinitionResponse) {
 		switch node.NodeType() {
 		case NODE_HTTP_RESPONSE:
 			node.ToHttpResponse().DelRefResponse(ref)
+			return
 		}
 	}
 }
@@ -181,6 +188,7 @@ func (ns *CollectionNodes) DelGlobalExcept(in string, id int64) {
 		switch node.NodeType() {
 		case NODE_HTTP_REQUEST:
 			node.ToHttpRequest().DelGlobalExcept(in, id)
+			return
 		}
 	}
 }
@@ -264,6 +272,7 @@ func (ns *CollectionNodes) AddReqParameter(in string, p *Parameter) {
 		switch node.NodeType() {
 		case NODE_HTTP_REQUEST:
 			node.ToHttpRequest().Attrs.Parameters.Add(in, p)
+			return
 		}
 	}
 }
@@ -273,6 +282,7 @@ func (ns *CollectionNodes) SortResponses() {
 		switch node.NodeType() {
 		case NODE_HTTP_RESPONSE:
 			node.ToHttpResponse().Sort()
+			return
 		}
 	}
 }

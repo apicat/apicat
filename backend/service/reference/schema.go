@@ -2,7 +2,6 @@ package reference
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/apicat/apicat/v2/backend/model/collection"
 	"github.com/apicat/apicat/v2/backend/model/definition"
@@ -92,12 +91,10 @@ func DerefSchema(ctx context.Context, s *definition.DefinitionSchema, deref bool
 	}
 
 	rs := referencerelation.RefSchemaSchemas{RefSchemaID: s.ID}
-	fmt.Printf("rs: %v\n", rs)
 	schemaIDs, err := rs.GetSchemaIDs(ctx)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("schemaIDs: %v\n", schemaIDs)
 	// 在schema中解引用schema
 	if err := derefSchemaFromSchemas(ctx, s, schemaIDs, deref); err != nil {
 		return err
