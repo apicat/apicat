@@ -313,10 +313,9 @@ func (s *swaggerParser) parseRequest(in *v2.Swagger, info *v2.Operation) (*spec.
 		// 从global获取
 		consumes = in.Consumes
 	}
-	// 有些文件没有consunmer 给个默认 否则body不知道什么是mine
-	// if len(consumes) == 0 && body != nil {
-	// 	consumes = []string{defaultSwaggerConsumerProduce}
-	// }
+	if len(consumes) == 0 && body.Schema != nil {
+		consumes = []string{"application/json"}
+	}
 
 	for _, v := range consumes {
 		if strings.Contains(v, "form") {

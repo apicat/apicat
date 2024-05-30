@@ -158,11 +158,12 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 		}
 
 		out.MergeAllOf()
-		if out.Type.First() != jsonschema.T_OBJ {
+		if out.Type.First() != jsonschema.T_NULL && out.Type.First() != jsonschema.T_OBJ {
 			// if the type is not object, we should take out the contents of allof, make the structure simple
 			helper := jsonschema.NewMergeHelper(&out)
-			helper.Merge(out.AllOf)
-			out.AllOf = nil
+			if new := helper.Merge(out.AllOf); len(new) == 1 {
+				out = *new[0]
+			}
 		}
 	}
 
