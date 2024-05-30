@@ -459,10 +459,10 @@ func (o *openapiGenerator) convertJsonSchema(version string, in *jsonschema.Sche
 func (o *openapiGenerator) generateResponseWithoutRef(resp *spec.BasicResponse, version string) map[string]any {
 	result := map[string]any{}
 	if resp.Content != nil {
-		c := make(map[string]*jsonschema.Schema)
+		c := make(map[string]*spec.Body)
 		for contentType, body := range resp.Content {
-			jsonSchema := o.convertJsonSchema(version, body.Schema)
-			c[contentType] = jsonSchema
+			body.Schema = o.convertJsonSchema(version, body.Schema)
+			c[contentType] = body
 		}
 		result["content"] = c
 	}
@@ -510,7 +510,7 @@ func (o *openapiGenerator) generateReqParams(collectionReq spec.CollectionHttpRe
 }
 
 func (o *openapiGenerator) generateResponse(resp *spec.Response, definitionsResps spec.DefinitionResponses, version string) map[string]any {
-	if resp.Reference != "" {
+	if resp.Ref() {
 		if strings.HasPrefix(resp.Reference, "#/definitions/responses/") {
 			if x := definitionsResps.FindByID(
 				toInt64(getRefName(resp.Reference)),

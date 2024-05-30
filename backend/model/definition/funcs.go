@@ -97,12 +97,12 @@ func GetDefinitionSchemasWithSpec(ctx context.Context, projectID string) (spec.D
 
 	specSchemas := make(spec.DefinitionModels, 0)
 	if len(list) > 0 {
-		listJson, err := json.Marshal(list)
-		if err != nil {
-			return nil, err
-		}
-		if err := json.Unmarshal(listJson, &specSchemas); err != nil {
-			return nil, err
+		for _, v := range list {
+			if specSchema, err := v.ToSpec(); err == nil {
+				specSchemas = append(specSchemas, specSchema)
+			} else {
+				return nil, err
+			}
 		}
 	}
 	return specSchemas, err

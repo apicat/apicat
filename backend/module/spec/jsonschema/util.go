@@ -32,8 +32,10 @@ func (h *DerefHelper) DeepDeref(s *Schema) (Schema, error) {
 		return *copySchema, errors.New("failed to unmarshal schema")
 	}
 
-	for copySchema.DeepRef() {
-		h.deref(copySchema, fmt.Sprintf("[%d]", copySchema.ID))
+	if copySchema.DeepRef() {
+		if err := h.deref(copySchema, fmt.Sprintf("[%d]", copySchema.ID)); err != nil {
+			return *copySchema, err
+		}
 	}
 	return *copySchema, nil
 }

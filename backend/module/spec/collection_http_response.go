@@ -133,7 +133,6 @@ func (r *CollectionHttpResponse) DeepDerefModelByHelper(helper *jsonschema.Deref
 		if res.Content == nil {
 			continue
 		}
-
 		for _, v := range res.Content {
 			if v.Schema != nil {
 				new, err := helper.DeepDeref(v.Schema)

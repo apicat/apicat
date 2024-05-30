@@ -301,6 +301,21 @@ func convertJsonSchemaRef(v *jsonschema.Schema, version string, mapping map[int6
 		}
 	}
 
+	if len(sh.AllOf) > 0 {
+		for i, v := range sh.AllOf {
+			sh.AllOf[i] = convertJsonSchemaRef(v, version, mapping)
+		}
+	}
+	if len(sh.AnyOf) > 0 {
+		for i, v := range sh.AnyOf {
+			sh.AnyOf[i] = convertJsonSchemaRef(v, version, mapping)
+		}
+	}
+	if len(sh.OneOf) > 0 {
+		for i, v := range sh.OneOf {
+			sh.OneOf[i] = convertJsonSchemaRef(v, version, mapping)
+		}
+	}
 	if sh.Properties != nil {
 		for k, v := range sh.Properties {
 			sh.Properties[k] = convertJsonSchemaRef(v, version, mapping)

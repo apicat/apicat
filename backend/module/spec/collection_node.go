@@ -103,7 +103,6 @@ func (ns *CollectionNodes) DerefModel(ref *DefinitionModel) error {
 
 func (ns *CollectionNodes) DeepDerefAll(params *GlobalParameters, definitions *Definitions) error {
 	helper := jsonschema.NewDerefHelper(definitions.Schemas.ToJsonSchemaMap())
-
 	for _, node := range *ns {
 		switch node.NodeType() {
 		case NODE_HTTP_REQUEST:
