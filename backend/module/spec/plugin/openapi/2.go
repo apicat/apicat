@@ -92,12 +92,32 @@ func (s *swaggerParser) parseDefinitionModels(defs *v2.Definitions) (spec.Defini
 
 		id := stringToUnid(k)
 		s.modelMapping[k] = id
-		models = append(models, &spec.DefinitionModel{
-			ID:          id,
-			Name:        k,
-			Description: k,
-			Schema:      js,
-		})
+
+		if js.Type.First() != jsonschema.T_OBJ && js.Type.First() != jsonschema.T_ARR {
+			parentJS := jsonschema.NewSchema(jsonschema.T_OBJ)
+			if js.AnyOf != nil || js.OneOf != nil {
+				parentJS.Properties = map[string]*jsonschema.Schema{
+					k: js,
+				}
+			} else {
+				parentJS.Properties = map[string]*jsonschema.Schema{
+					k: js,
+				}
+			}
+			models = append(models, &spec.DefinitionModel{
+				ID:          id,
+				Name:        k,
+				Description: k,
+				Schema:      parentJS,
+			})
+		} else {
+			models = append(models, &spec.DefinitionModel{
+				ID:          id,
+				Name:        k,
+				Description: k,
+				Schema:      js,
+			})
+		}
 	}
 
 	return models, nil

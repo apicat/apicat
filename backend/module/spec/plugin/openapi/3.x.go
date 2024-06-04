@@ -126,12 +126,31 @@ func (o *openapiParser) parseDefinetions(comp *v3.Components) (*spec.Definitions
 			return nil, err
 		}
 
-		models = append(models, &spec.DefinitionModel{
-			ID:          stringToUnid(k),
-			Name:        k,
-			Description: js.Description,
-			Schema:      js,
-		})
+		if js.Type.First() != jsonschema.T_OBJ && js.Type.First() != jsonschema.T_ARR {
+			parentJS := jsonschema.NewSchema(jsonschema.T_OBJ)
+			if js.AnyOf != nil || js.OneOf != nil {
+				parentJS.Properties = map[string]*jsonschema.Schema{
+					k: js,
+				}
+			} else {
+				parentJS.Properties = map[string]*jsonschema.Schema{
+					k: js,
+				}
+			}
+			models = append(models, &spec.DefinitionModel{
+				ID:          stringToUnid(k),
+				Name:        k,
+				Description: js.Description,
+				Schema:      parentJS,
+			})
+		} else {
+			models = append(models, &spec.DefinitionModel{
+				ID:          stringToUnid(k),
+				Name:        k,
+				Description: js.Description,
+				Schema:      js,
+			})
+		}
 	}
 
 	responses := make(spec.DefinitionResponses, 0)

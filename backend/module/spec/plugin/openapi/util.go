@@ -46,7 +46,6 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 
 	in := b.Schema()
 	out := jsonschema.Schema{
-		Type:          jsonschema.NewSchemaType(in.Type...),
 		Title:         in.Title,
 		Description:   in.Description,
 		MultipleOf:    in.MultipleOf,
@@ -64,6 +63,10 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 		Nullable:      in.Nullable,
 		ReadOnly:      in.ReadOnly,
 		WriteOnly:     in.WriteOnly,
+	}
+
+	if len(in.Type) > 0 {
+		out.Type = jsonschema.NewSchemaType(in.Type...)
 	}
 
 	if in.Default != nil && in.Default.Value != "" {
