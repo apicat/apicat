@@ -3,7 +3,7 @@ module github.com/apicat/apicat/v2
 go 1.21.0
 
 require (
-	github.com/apicat/datagen v0.1.0
+	github.com/apicat/datagen v0.1.1
 	github.com/apicat/ginrpc v0.0.4
 	github.com/aws/aws-sdk-go-v2 v1.25.1
 	github.com/aws/aws-sdk-go-v2/config v1.27.3
