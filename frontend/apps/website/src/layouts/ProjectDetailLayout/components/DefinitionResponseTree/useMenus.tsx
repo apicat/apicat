@@ -51,17 +51,18 @@ export function useMenus(
           <div class="break-all">
             {isDir
               ? t('app.interface.popoverMenus.confirmDeleteGroup', [data.name])
-              : t('app.interface.popoverMenus.confirmDeleteDefinitionResponse', [data.name])}
+              : t('app.definitionResponse.popoverMenus.confirmDeleteDefinitionResponse', [data.name])}
           </div>
           {!isDir && (
             <ElCheckbox
               size="small"
-              style={{ fontWeight: 'normal' }}
+              style={{ fontWeight: 'normal', height: 'auto', marginTop: '6px' }}
               modelValue={isUnref.value}
               onUpdate:modelValue={(val: any) => {
                 isUnref.value = val
-              }}>
-              {t('app.response.tips.unref')}
+              }}
+            >
+              <div class="whitespace-normal">{t('app.definitionResponse.tips.unref')}</div>
             </ElCheckbox>
           )}
         </div>
