@@ -12,8 +12,8 @@
     "type-check": "vue-tsc --noEmit -p tsconfig.json --composite false"
   },
   "dependencies": {
-    "@apicat/components": "0.0.10-beta.7",
-    "@apicat/editor": "0.0.10-beta.7",
+    "@apicat/components": "0.0.10-beta.8",
+    "@apicat/editor": "0.0.10-beta.8",
     "@apicat/hooks": "^0.0.8",
     "@apicat/shared": "^0.0.8",
     "@apicat/tsconfig": "workspace:*",
