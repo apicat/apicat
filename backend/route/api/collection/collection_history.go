@@ -241,10 +241,19 @@ func (srv *collectionHistoryApiImpl) Diff(ctx *gin.Context, opt *collectionreque
 		slog.ErrorContext(ctx, "original.collectionDerefWithSpec", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collectionHistory.DiffFailed"))
 	}
+	if err := originalDoc.Content.ReplaceAllOf(); err != nil {
+		slog.ErrorContext(ctx, "originalDoc.Content.ReplaceAllOf", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collectionHistory.DiffFailed"))
+	}
+
 	c.Content = targetCH.Content
 	targetDoc, err := relations.CollectionDerefWithSpec(ctx, c)
 	if err != nil {
 		slog.ErrorContext(ctx, "target.collectionDerefWithSpec", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collectionHistory.DiffFailed"))
+	}
+	if err := targetDoc.Content.ReplaceAllOf(); err != nil {
+		slog.ErrorContext(ctx, "targetDoc.Content.ReplaceAllOf", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collectionHistory.DiffFailed"))
 	}
 

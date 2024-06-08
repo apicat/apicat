@@ -267,6 +267,17 @@ func (r *CollectionHttpRequest) DeepDerefModelByHelper(helper *jsonschema.DerefH
 	return nil
 }
 
+func (r *CollectionHttpRequest) ReplaceAllOf() error {
+	for _, v := range r.Attrs.Content {
+		if v.Schema != nil {
+			if err := v.Schema.ReplaceAllOf(); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func (r *CollectionHttpRequest) ToCollectionNode() *CollectionNode {
 	return &CollectionNode{
 		Node: r,

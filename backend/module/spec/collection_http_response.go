@@ -147,6 +147,22 @@ func (r *CollectionHttpResponse) DeepDerefModelByHelper(helper *jsonschema.Deref
 	return nil
 }
 
+func (r *CollectionHttpResponse) ReplaceAllOf() error {
+	for _, res := range r.Attrs.List {
+		if res.Content == nil {
+			continue
+		}
+		for _, v := range res.Content {
+			if v.Schema != nil {
+				if err := v.Schema.ReplaceAllOf(); err != nil {
+					return err
+				}
+			}
+		}
+	}
+	return nil
+}
+
 func (r *CollectionHttpResponse) DelRefResponse(ref *DefinitionResponse) {
 	if ref == nil {
 		return

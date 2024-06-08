@@ -161,6 +161,22 @@ func (ns *CollectionNodes) DerefResponse(ref *DefinitionResponse) error {
 	return nil
 }
 
+func (ns *CollectionNodes) ReplaceAllOf() error {
+	for _, node := range *ns {
+		switch node.NodeType() {
+		case NODE_HTTP_REQUEST:
+			if err := node.ToHttpRequest().ReplaceAllOf(); err != nil {
+				return err
+			}
+		case NODE_HTTP_RESPONSE:
+			if err := node.ToHttpResponse().ReplaceAllOf(); err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func (ns *CollectionNodes) DelRefModel(ref *DefinitionModel) {
 	for _, node := range *ns {
 		switch node.NodeType() {

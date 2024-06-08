@@ -381,6 +381,14 @@ func diffOf(a, b *jsonschema.Schema, of string) bool {
 	}
 	if aCount > 0 && bCount == 0 {
 		b.SetXDiff(DIFF_REMOVE)
+		switch of {
+		case "allOf":
+			b.AllOf = a.AllOf
+		case "anyOf":
+			b.AnyOf = a.AnyOf
+		case "oneOf":
+			b.OneOf = a.OneOf
+		}
 		return false
 	}
 

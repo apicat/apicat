@@ -414,6 +414,48 @@ func (s *Schema) MergeAllOf() {
 	}
 }
 
+func (s *Schema) ReplaceAllOf() error {
+	if s == nil {
+		return errors.New("schema is nil")
+	}
+
+	if s.CheckAllOf() {
+		result := s.AllOf.Merge()
+		if len(result) > 1 {
+			return errors.New("allOf has ref schema")
+		}
+		if s.Type == nil {
+			s.Type = NewSchemaType(T_OBJ)
+		}
+		if s.Properties == nil && result[0].Properties != nil {
+			s.Properties = result[0].Properties
+		}
+		s.AllOf = s.AllOf[:0]
+	}
+
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			v.ReplaceAllOf()
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			v.ReplaceAllOf()
+		}
+	}
+
+	if s.Properties != nil {
+		for _, v := range s.Properties {
+			v.ReplaceAllOf()
+		}
+	}
+	if s.Items != nil && !s.Items.IsBool() {
+		s.Items.Value().ReplaceAllOf()
+	}
+
+	return nil
+}
+
 func (s *Schema) Validation(raw []byte) error {
 	return nil
 }
