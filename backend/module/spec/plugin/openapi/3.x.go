@@ -126,7 +126,7 @@ func (o *openapiParser) parseDefinetions(comp *v3.Components) (*spec.Definitions
 			return nil, err
 		}
 
-		if js.Type.First() != jsonschema.T_OBJ && js.Type.First() != jsonschema.T_ARR {
+		if js.Type.First() != jsonschema.T_OBJ && js.Type.First() != jsonschema.T_ARR && js.AllOf == nil {
 			parentJS := jsonschema.NewSchema(jsonschema.T_OBJ)
 			if js.AnyOf != nil || js.OneOf != nil {
 				parentJS.Properties = map[string]*jsonschema.Schema{
