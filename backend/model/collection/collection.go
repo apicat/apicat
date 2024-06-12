@@ -100,8 +100,8 @@ func (c *Collection) Update(ctx context.Context, title, content string, memberID
 	if c.Type != CategoryType {
 		h := &CollectionHistory{
 			CollectionID: c.ID,
-			Title:        c.Title,
-			Content:      c.Content,
+			Title:        title,
+			Content:      content,
 		}
 		h.Create(ctx, memberID)
 	}
