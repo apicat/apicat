@@ -54,13 +54,9 @@ func Diff(original, target *spec.Collection) error {
 						}
 					}
 				case spec.NODE_HTTP_REQUEST:
-					originalReq := originalNode.ToHttpRequest()
-					targetReq := targetNode.ToHttpRequest()
-					diffRequest(originalReq, targetReq)
+					diffRequest(originalNode.ToHttpRequest(), targetNode.ToHttpRequest())
 				case spec.NODE_HTTP_RESPONSE:
-					originalRes := originalNode.ToHttpResponse()
-					targetRes := targetNode.ToHttpResponse()
-					diffResponse(originalRes, targetRes)
+					diffResponse(originalNode.ToHttpResponse(), targetNode.ToHttpResponse())
 				default:
 					return errors.New("node type error")
 				}
@@ -169,13 +165,13 @@ func diffContent(a, b spec.HTTPBody) spec.HTTPBody {
 	names := map[string]struct{}{}
 	aBody, bBody := &spec.Body{}, &spec.Body{}
 	// httpbody just have one value
-	for v := range a {
-		names[v] = struct{}{}
-		aBody = a[v]
+	for contentType := range a {
+		names[contentType] = struct{}{}
+		aBody = a[contentType]
 	}
-	for v := range b {
-		names[v] = struct{}{}
-		bBody = b[v]
+	for contentType := range b {
+		names[contentType] = struct{}{}
+		bBody = b[contentType]
 	}
 	if len(names) != 1 {
 		bBody.Schema.SetXDiff(DIFF_NEW)

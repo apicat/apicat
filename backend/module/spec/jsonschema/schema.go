@@ -250,7 +250,11 @@ func (s *Schema) ReplaceRef(ref *Schema) error {
 		return errors.New("ref id does not match")
 	}
 
-	*s = *ref
+	copyValue := &Schema{}
+	bytes, _ := json.Marshal(ref)
+	json.Unmarshal(bytes, copyValue)
+
+	*s = *copyValue
 	return nil
 }
 
