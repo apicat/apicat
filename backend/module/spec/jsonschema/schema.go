@@ -290,20 +290,9 @@ func (s *Schema) DelRef(ref *Schema) {
 		}
 	}
 
-	propertyKeys := []string{}
 	if s.Properties != nil {
-		refid := strconv.FormatInt(ref.ID, 10)
-		for k, v := range s.Properties {
-			if v.IsRefID(refid) {
-				propertyKeys = append(propertyKeys, k)
-			}
+		for _, v := range s.Properties {
 			v.DelRef(ref)
-		}
-
-		for _, k := range propertyKeys {
-			delete(s.Properties, k)
-			s.DelXOrderByName(k)
-			s.DelRequiredByName(k)
 		}
 	}
 
