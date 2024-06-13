@@ -422,6 +422,7 @@ func (s *Schema) ReplaceAllOf() error {
 		}
 		if s.Properties == nil && result[0].Properties != nil {
 			s.Properties = result[0].Properties
+			s.XOrder = result[0].XOrder
 		}
 		s.AllOf = s.AllOf[:0]
 	}

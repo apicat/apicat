@@ -275,15 +275,42 @@ func diffJsonSchema(a, b *jsonschema.Schema) bool {
 
 	switch bType {
 	case "object":
-		names := map[string]struct{}{}
-		for v := range a.Properties {
-			names[v] = struct{}{}
-		}
-		for v := range b.Properties {
-			names[v] = struct{}{}
+		nameMap := map[string]struct{}{}
+		nameList := make([]string, 0)
+
+		if len(a.XOrder) > 0 {
+			for _, v := range a.XOrder {
+				if _, ok := nameMap[v]; !ok {
+					nameMap[v] = struct{}{}
+					nameList = append(nameList, v)
+				}
+			}
+		} else {
+			for v := range a.Properties {
+				if _, ok := nameMap[v]; !ok {
+					nameMap[v] = struct{}{}
+					nameList = append(nameList, v)
+				}
+			}
 		}
 
-		for v := range names {
+		if len(b.XOrder) > 0 {
+			for _, v := range b.XOrder {
+				if _, ok := nameMap[v]; !ok {
+					nameMap[v] = struct{}{}
+					nameList = append(nameList, v)
+				}
+			}
+		} else {
+			for v := range b.Properties {
+				if _, ok := nameMap[v]; !ok {
+					nameMap[v] = struct{}{}
+					nameList = append(nameList, v)
+				}
+			}
+		}
+
+		for _, v := range nameList {
 			as, aExist := a.Properties[v]
 			bs, bExist := b.Properties[v]
 			if !aExist && bExist {
