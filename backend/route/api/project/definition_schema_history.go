@@ -237,10 +237,19 @@ func (impl *definitionSchemaHistoryApiImpl) Diff(ctx *gin.Context, opt *projectr
 		slog.ErrorContext(ctx, "original.dsDerefWithSpec", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchemaHistory.DiffFailed"))
 	}
+	if err := originalSchema.Schema.ReplaceAllOf(); err != nil {
+		slog.ErrorContext(ctx, "originalSchema.Schema.ReplaceAllOf", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchemaHistory.DiffFailed"))
+	}
+
 	ds.Schema = targetDSH.Schema
 	targetSchema, err := dsDerefWithSpec(ctx, ds)
 	if err != nil {
 		slog.ErrorContext(ctx, "target.dsDerefWithSpec", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchemaHistory.DiffFailed"))
+	}
+	if err := targetSchema.Schema.ReplaceAllOf(); err != nil {
+		slog.ErrorContext(ctx, "targetSchema.Schema.ReplaceAllOf", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchemaHistory.DiffFailed"))
 	}
 
