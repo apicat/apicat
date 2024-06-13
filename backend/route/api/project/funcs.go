@@ -300,7 +300,9 @@ func dsDerefWithSpec(ctx *gin.Context, ds *definition.DefinitionSchema) (*spec.D
 	}
 
 	schemaSpec.DeepDeref(schemas)
-	schemaSpec.Schema.ReplaceAllOf()
+	if err := schemaSpec.Schema.ReplaceAllOf(); err != nil {
+		return nil, err
+	}
 
 	return schemaSpec, nil
 }
