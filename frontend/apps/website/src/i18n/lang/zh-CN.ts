@@ -702,7 +702,7 @@ const zh: any = {
       },
       tips: {
         schemaInputTitle: '请输入您想要生成的模型名称',
-        unref: '解除引用此模型的内容',
+        unref: '预先复制模型内容至所有引用处，再进行删除。',
       },
       form: {
         title: '请输入模型标题',
@@ -744,6 +744,7 @@ const zh: any = {
       title: '响应',
       tips: {
         confirmDelete: '您确定要删除此公共响应吗？',
+        unref: '预先复制响应内容至所有引用处，再进行删除。',
       },
       form: {
         title: '请输入响应名称',
@@ -944,6 +945,7 @@ const zh: any = {
         left_title: '用户',
         searchKeywordPlaceholder: '通过用户名搜索',
         updatePasswordTitle: '更新密码',
+        updatePassword: '更新密码',
         removeUserTitle: '删除用户',
         removeUserTip: '确定删除这个用户吗？',
       },

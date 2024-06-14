@@ -46,7 +46,6 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 
 	in := b.Schema()
 	out := jsonschema.Schema{
-		Type:          jsonschema.NewSchemaType(in.Type...),
 		Title:         in.Title,
 		Description:   in.Description,
 		MultipleOf:    in.MultipleOf,
@@ -61,11 +60,21 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 		UniqueItems:   in.UniqueItems,
 		MaxProperties: in.MaxProperties,
 		MinProperties: in.MinProperties,
-		Default:       in.Default,
 		Nullable:      in.Nullable,
 		ReadOnly:      in.ReadOnly,
 		WriteOnly:     in.WriteOnly,
-		Examples:      in.Example,
+	}
+
+	if len(in.Type) > 0 {
+		out.Type = jsonschema.NewSchemaType(in.Type...)
+	}
+
+	if in.Default != nil && in.Default.Value != "" {
+		out.Default = in.Default.Value
+	}
+
+	if in.Example != nil && in.Example.Value != "" {
+		out.Examples = in.Example.Value
 	}
 
 	if in.ExclusiveMaximum != nil {
@@ -152,11 +161,12 @@ func jsonSchemaConverter(b *base.SchemaProxy) (*jsonschema.Schema, error) {
 		}
 
 		out.MergeAllOf()
-		if out.Type.First() != jsonschema.T_OBJ {
+		if out.Type.First() != jsonschema.T_NULL && out.Type.First() != jsonschema.T_OBJ {
 			// if the type is not object, we should take out the contents of allof, make the structure simple
 			helper := jsonschema.NewMergeHelper(&out)
-			helper.Merge(out.AllOf)
-			out.AllOf = nil
+			if new := helper.Merge(out.AllOf); len(new) == 1 {
+				out = *new[0]
+			}
 		}
 	}
 
@@ -295,6 +305,21 @@ func convertJsonSchemaRef(v *jsonschema.Schema, version string, mapping map[int6
 		}
 	}
 
+	if len(sh.AllOf) > 0 {
+		for i, v := range sh.AllOf {
+			sh.AllOf[i] = convertJsonSchemaRef(v, version, mapping)
+		}
+	}
+	if len(sh.AnyOf) > 0 {
+		for i, v := range sh.AnyOf {
+			sh.AnyOf[i] = convertJsonSchemaRef(v, version, mapping)
+		}
+	}
+	if len(sh.OneOf) > 0 {
+		for i, v := range sh.OneOf {
+			sh.OneOf[i] = convertJsonSchemaRef(v, version, mapping)
+		}
+	}
 	if sh.Properties != nil {
 		for k, v := range sh.Properties {
 			sh.Properties[k] = convertJsonSchemaRef(v, version, mapping)

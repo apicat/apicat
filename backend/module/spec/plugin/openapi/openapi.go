@@ -47,6 +47,7 @@ func Parse(data []byte) (out *spec.Spec, err error) {
 			err = fmt.Errorf("%v", e)
 		}
 	}()
+
 	docment, docerr := libopenapi.NewDocument(data)
 	if docerr != nil {
 		err = docerr
@@ -121,6 +122,7 @@ func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 		return nil, err
 	}
 
+	sw.parseDefinitionParameters(&model.Model)
 	return &spec.Spec{
 		ApiCat:      "2.0.1",
 		Info:        sw.parseInfo(model.Model.Info),

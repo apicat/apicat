@@ -16,6 +16,12 @@ type Document struct {
 	Items []*CollectionDoc
 }
 
+func init() {
+	RegisterNode(&CollectionDoc{
+		Type: NODE_DOC,
+	})
+}
+
 func (d *CollectionDoc) NodeType() string {
 	return d.Type
 }

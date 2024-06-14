@@ -1,10 +1,14 @@
 package spec
 
-import "github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
+import (
+	"encoding/json"
+
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
+)
 
 type Body struct {
 	Schema   *jsonschema.Schema `json:"schema,omitempty" yaml:"schema,omitempty"`
-	Examples []Example          `json:"examples,omitempty" yaml:"examples,omitempty"`
+	Examples map[string]Example `json:"examples,omitempty" yaml:"examples,omitempty"`
 }
 
 type Example struct {
@@ -14,8 +18,25 @@ type Example struct {
 
 type HTTPBody map[string]*Body
 
+func NewDefaultHTTPBody() HTTPBody {
+	return HTTPBody{
+		"application/json": {
+			Schema: jsonschema.NewSchema(jsonschema.T_OBJ),
+		},
+	}
+}
+
 func (b *HTTPBody) SetXDiff(x string) {
 	for _, v := range *b {
 		v.Schema.SetXDiff(x)
 	}
+}
+
+func (b *HTTPBody) ToJson() string {
+	if b == nil {
+		return ""
+	}
+
+	r, _ := json.Marshal(b)
+	return string(r)
 }

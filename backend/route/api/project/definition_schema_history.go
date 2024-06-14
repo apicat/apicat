@@ -237,6 +237,7 @@ func (impl *definitionSchemaHistoryApiImpl) Diff(ctx *gin.Context, opt *projectr
 		slog.ErrorContext(ctx, "original.dsDerefWithSpec", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchemaHistory.DiffFailed"))
 	}
+
 	ds.Schema = targetDSH.Schema
 	targetSchema, err := dsDerefWithSpec(ctx, ds)
 	if err != nil {

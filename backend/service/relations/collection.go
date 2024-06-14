@@ -143,7 +143,7 @@ func CollectionDerefWithApiCatSpec(ctx context.Context, c *collection.Collection
 		return nil, err
 	}
 
-	apicatStruct := spec.NewSpec()
+	apicatStruct := spec.NewEmptySpec()
 	apicatStruct.Collections = append(apicatStruct.Collections, collectionSpec)
 	return apicatStruct, nil
 }
@@ -199,12 +199,12 @@ func CollectionImport(ctx context.Context, member *team.TeamMember, projectID st
 
 // replaceGlobalParametersVirtualIDToID 将集合中的全局参数的虚拟ID替换为真实ID
 func replaceGlobalParametersVirtualIDToID(content string, virtualIDToIDMap collection.VirtualIDToIDMap) string {
-	specContent, err := spec.NewCollectionFromJson(content)
+	specContent, err := spec.NewCollectionNodesFromJson(content)
 	if err != nil {
 		return content
 	}
 
-	req := specContent.Content.GetRequest()
+	req := specContent.GetRequest()
 	if req != nil {
 		for k, v := range req.Attrs.GlobalExcepts.Header {
 			if id, ok := virtualIDToIDMap[v]; ok {

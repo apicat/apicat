@@ -23,19 +23,19 @@ const (
 
 type Collection struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	PublicID     string `gorm:"type:varchar(255);index;comment:集合公开id"`
-	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:项目id"`
-	ParentID     uint   `gorm:"type:bigint;not null;comment:父级id"`
-	Path         string `gorm:"type:varchar(255);not null;comment:请求路径"`
-	Method       string `gorm:"type:varchar(255);not null;comment:请求方法"`
-	Title        string `gorm:"type:varchar(255);not null;comment:名称"`
-	Type         string `gorm:"type:varchar(255);not null;comment:类型:category,doc,http"`
-	ShareKey     string `gorm:"type:varchar(255);comment:项目分享密码"`
-	Content      string `gorm:"type:mediumtext;comment:内容"`
-	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
-	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:创建成员id"`
-	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:最后更新成员id"`
-	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:删除成员id"`
+	PublicID     string `gorm:"type:varchar(255);index;comment:collection public id"`
+	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:project id"`
+	ParentID     uint   `gorm:"type:bigint;not null;comment:parent collection id"`
+	Path         string `gorm:"type:varchar(255);not null;comment:request path"`
+	Method       string `gorm:"type:varchar(255);not null;comment:request method"`
+	Title        string `gorm:"type:varchar(255);not null;comment:collection title"`
+	Type         string `gorm:"type:varchar(255);not null;comment:collection type:category,doc,http"`
+	ShareKey     string `gorm:"type:varchar(255);comment:share key"`
+	Content      string `gorm:"type:mediumtext;comment:doc content"`
+	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:display order"`
+	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:created by member id"`
+	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:updated by member id"`
+	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:deleted by member id"`
 	model.TimeModel
 }
 
@@ -78,12 +78,14 @@ func (c *Collection) Create(ctx context.Context, member *team.TeamMember) error 
 		}
 
 		// 获取文档的path
-		if specContent, err := c.ContentToSpec(); err != nil {
-			slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
-		} else {
-			if url := specContent.GetUrl(); url != nil {
-				c.Method = url.Attrs.Method
-				c.Path = url.Attrs.Path
+		if c.Content != "" {
+			if specContent, err := c.ContentToSpec(); err != nil {
+				slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
+			} else {
+				if url := specContent.GetUrl(); url != nil {
+					c.Method = url.Attrs.Method
+					c.Path = url.Attrs.Path
+				}
 			}
 		}
 	}
@@ -98,21 +100,24 @@ func (c *Collection) Update(ctx context.Context, title, content string, memberID
 	if c.Type != CategoryType {
 		h := &CollectionHistory{
 			CollectionID: c.ID,
-			Title:        c.Title,
-			Content:      c.Content,
+			Title:        title,
+			Content:      content,
 		}
 		h.Create(ctx, memberID)
 	}
 
 	// 获取文档的path
-	specContent, err := c.ContentToSpec()
-	if err != nil {
-		slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
-	}
 	method, path := "", ""
-	if url := specContent.GetUrl(); url != nil {
-		method = url.Attrs.Method
-		path = url.Attrs.Path
+	if content != "" {
+		c.Content = content
+		specContent, err := c.ContentToSpec()
+		if err != nil {
+			slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
+		}
+		if url := specContent.GetUrl(); url != nil {
+			method = url.Attrs.Method
+			path = url.Attrs.Path
+		}
 	}
 
 	return model.DB(ctx).Model(c).Updates(map[string]interface{}{
@@ -164,6 +169,10 @@ func (c *Collection) ContentToSpec() (spec.CollectionNodes, error) {
 // DelRefSchema 删除公共模型引用
 // deref: 是否解引用，true: 展开引用自身(collectiuon.$ref to schema detail)，false: 清除引用自身(delete $ref)
 func (c *Collection) DelRefSchema(ctx context.Context, refSchema *definition.DefinitionSchema, deref bool) error {
+	if c.Content == "" {
+		return nil
+	}
+
 	specContent, err := c.ContentToSpec()
 	if err != nil {
 		return err
@@ -193,6 +202,10 @@ func (c *Collection) DelRefSchema(ctx context.Context, refSchema *definition.Def
 // DelRefResponse 删除公共响应引用
 // deref: 是否解引用，true: 展开引用自身(collectiuon.$ref to response detail)，false: 清除引用自身(delete $ref)
 func (c *Collection) DelRefResponse(ctx context.Context, refResponse *definition.DefinitionResponse, deref bool) error {
+	if c.Content == "" {
+		return nil
+	}
+
 	specContent, err := c.ContentToSpec()
 	if err != nil {
 		return err
@@ -222,6 +235,10 @@ func (c *Collection) DelRefResponse(ctx context.Context, refResponse *definition
 // DelExceptParam 删除全局参数排除关系
 // unpack: 是否展开，true: 将globalParam详情添加到parameters中，false: 在glabalExcept中删除globalParamID
 func (c *Collection) DelExceptParam(ctx context.Context, exceptParam *global.GlobalParameter, unpack bool) error {
+	if c.Content == "" {
+		return nil
+	}
+
 	specContent, err := c.ContentToSpec()
 	if err != nil {
 		return err

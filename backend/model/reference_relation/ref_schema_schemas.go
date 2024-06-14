@@ -8,8 +8,8 @@ import (
 
 type RefSchemaSchemas struct {
 	ID          uint `gorm:"type:bigint;primaryKey;autoIncrement"`
-	RefSchemaID uint `gorm:"type:bigint;index;not null;comment:被引用的公共模型id"`
-	SchemaID    uint `gorm:"type:bigint;not null;comment:引用ref_schema_id的公共模型id"`
+	RefSchemaID uint `gorm:"type:bigint;index;not null;comment:referenced definition schema id"`
+	SchemaID    uint `gorm:"type:bigint;not null;comment:schema id"`
 }
 
 func (r *RefSchemaSchemas) GetSchemas(ctx context.Context) ([]*RefSchemaSchemas, error) {
@@ -20,7 +20,7 @@ func (r *RefSchemaSchemas) GetSchemas(ctx context.Context) ([]*RefSchemaSchemas,
 
 func (r *RefSchemaSchemas) GetSchemaIDs(ctx context.Context) ([]uint, error) {
 	var list []uint
-	tx := model.DB(ctx).Where("ref_schema_id = ?", r.RefSchemaID).Select("schema_id").Find(&list)
+	tx := model.DB(ctx).Model(&RefSchemaSchemas{}).Where("ref_schema_id = ?", r.RefSchemaID).Select("schema_id").Scan(&list)
 	return list, tx.Error
 }
 

@@ -54,13 +54,9 @@ func Diff(original, target *spec.Collection) error {
 						}
 					}
 				case spec.NODE_HTTP_REQUEST:
-					originalReq := originalNode.ToHttpRequest()
-					targetReq := targetNode.ToHttpRequest()
-					compareRequest(originalReq, targetReq)
+					diffRequest(originalNode.ToHttpRequest(), targetNode.ToHttpRequest())
 				case spec.NODE_HTTP_RESPONSE:
-					originalRes := originalNode.ToHttpResponse()
-					targetRes := targetNode.ToHttpResponse()
-					compareResponse(originalRes, targetRes)
+					diffResponse(originalNode.ToHttpResponse(), targetNode.ToHttpResponse())
 				default:
 					return errors.New("node type error")
 				}
@@ -86,11 +82,11 @@ func DiffModel(original, target *spec.DefinitionModel) error {
 	// if a.Name != b.Name {
 	// 	b.XDiff = &DIFF_UPDATE
 	// }
-	compareJsonSchema(copy_original.Schema, target.Schema)
+	diffJsonSchema(copy_original.Schema, target.Schema)
 	return nil
 }
 
-func compareHttpParameters(a *spec.HTTPParameters, b *spec.HTTPParameters) {
+func diffHttpParameters(a *spec.HTTPParameters, b *spec.HTTPParameters) {
 	aMap := a.ToMap()
 	bMap := b.ToMap()
 	for _, typ := range spec.HttpParameterType {
@@ -110,7 +106,7 @@ func compareHttpParameters(a *spec.HTTPParameters, b *spec.HTTPParameters) {
 			continue
 		}
 
-		newv := compareParameterList(aParamList, bParamList)
+		newv := diffParameterList(aParamList, bParamList)
 		switch typ {
 		case "path":
 			b.Path = newv
@@ -124,7 +120,7 @@ func compareHttpParameters(a *spec.HTTPParameters, b *spec.HTTPParameters) {
 	}
 }
 
-func compareParameterList(a, b spec.ParameterList) spec.ParameterList {
+func diffParameterList(a, b spec.ParameterList) spec.ParameterList {
 	names := map[string]struct{}{}
 	for _, v := range a {
 		names[v.Name] = struct{}{}
@@ -149,47 +145,48 @@ func compareParameterList(a, b spec.ParameterList) spec.ParameterList {
 			b = append(b, ap)
 			continue
 		}
-		compareParameter(ap, bp)
+		diffParameter(ap, bp)
 	}
 	return b
 }
 
-func compareParameter(a, b *spec.Parameter) bool {
-	change := false
-	if !compareParamBasicInfo(a, b, false) {
+// Same returns true otherwise false
+func diffParameter(a, b *spec.Parameter) bool {
+	same := true
+	if !diffParamBasicInfo(a, b, false) {
 		b.SetXDiff(DIFF_UPDATE)
-		change = true
+		same = false
 	}
-	sc := compareJsonSchema(a.Schema, b.Schema)
-	return change || sc
+	ss := diffJsonSchema(a.Schema, b.Schema)
+	return same && ss
 }
 
-func compareContent(a, b spec.HTTPBody) spec.HTTPBody {
+func diffContent(a, b spec.HTTPBody) spec.HTTPBody {
 	names := map[string]struct{}{}
 	aBody, bBody := &spec.Body{}, &spec.Body{}
 	// httpbody just have one value
-	for v := range a {
-		names[v] = struct{}{}
-		aBody = a[v]
+	for contentType := range a {
+		names[contentType] = struct{}{}
+		aBody = a[contentType]
 	}
-	for v := range b {
-		names[v] = struct{}{}
-		bBody = b[v]
+	for contentType := range b {
+		names[contentType] = struct{}{}
+		bBody = b[contentType]
 	}
 	if len(names) != 1 {
 		bBody.Schema.SetXDiff(DIFF_NEW)
 	} else {
-		compareJsonSchema(aBody.Schema, bBody.Schema)
+		diffJsonSchema(aBody.Schema, bBody.Schema)
 	}
 	return b
 }
 
-func compareRequest(a, b *spec.CollectionHttpRequest) {
-	compareHttpParameters(a.Attrs.Parameters, b.Attrs.Parameters)
-	b.Attrs.Content = compareContent(a.Attrs.Content, b.Attrs.Content)
+func diffRequest(a, b *spec.CollectionHttpRequest) {
+	diffHttpParameters(a.Attrs.Parameters, b.Attrs.Parameters)
+	b.Attrs.Content = diffContent(a.Attrs.Content, b.Attrs.Content)
 }
 
-func compareResponse(a, b *spec.CollectionHttpResponse) *spec.CollectionHttpResponse {
+func diffResponse(a, b *spec.CollectionHttpResponse) *spec.CollectionHttpResponse {
 	codes := map[int]struct{}{}
 	for _, v := range a.Attrs.List {
 		codes[v.Code] = struct{}{}
@@ -208,7 +205,6 @@ func compareResponse(a, b *spec.CollectionHttpResponse) *spec.CollectionHttpResp
 
 		if !aExist && bExist {
 			bRes.SetXDiff(DIFF_NEW)
-			b.Attrs.List.AddOrUpdate(bRes)
 			continue
 		}
 		if aExist && !bExist {
@@ -220,43 +216,47 @@ func compareResponse(a, b *spec.CollectionHttpResponse) *spec.CollectionHttpResp
 		if bRes.Name != aRes.Name || bRes.Description != aRes.Description {
 			bRes.SetXDiff(DIFF_UPDATE)
 		}
-		bRes.Header = compareParameterList(aRes.Header, bRes.Header)
-		bRes.Content = compareContent(aRes.Content, bRes.Content)
+		bRes.Header = diffParameterList(aRes.Header, bRes.Header)
+		bRes.Content = diffContent(aRes.Content, bRes.Content)
 	}
 	return b
 }
 
 // Same returns true otherwise false
-func compareJsonSchema(a, b *jsonschema.Schema) bool {
+func diffJsonSchema(a, b *jsonschema.Schema) bool {
 	if a == nil && b == nil {
-		return false
+		return true
 	}
 
 	if a == nil && b != nil {
 		b.SetXDiff(DIFF_NEW)
-		return true
+		return false
 	}
 
 	if a != nil && b == nil {
 		a.SetXDiff(DIFF_REMOVE)
 		b = a
-		return true
+		return false
 	}
 
 	if a.Reference != nil || b.Reference != nil {
 		if a.Reference != nil && b.Reference != nil && a.Reference == b.Reference {
-			return false
+			return true
 		}
 		b.SetXDiff(DIFF_UPDATE)
-		return true
+		return false
+	}
+
+	if !diffThreeOf(a, b) {
+		return false
 	}
 
 	if !slices.Equal(a.Type.List(), b.Type.List()) {
 		b.SetXDiff(DIFF_UPDATE)
-		return true
+		return false
 	}
 	if len(a.Type.List()) == 0 {
-		return false
+		return true
 	}
 
 	aType := a.Type.First()
@@ -264,33 +264,63 @@ func compareJsonSchema(a, b *jsonschema.Schema) bool {
 	// For array to object changes all are updated
 	if aType != bType {
 		b.SetXDiff(DIFF_UPDATE)
-		return true
+		return false
 	}
 
-	if !compareJsonSchemaBasicInfo(a, b) {
+	same := true
+	if !diffJsonSchemaBasicInfo(a, b) {
 		b.SetXDiff(DIFF_UPDATE)
+		same = false
 	}
 
-	change := false
 	switch bType {
 	case "object":
-		names := map[string]struct{}{}
-		for v := range a.Properties {
-			names[v] = struct{}{}
-		}
-		for v := range b.Properties {
-			names[v] = struct{}{}
+		nameMap := map[string]struct{}{}
+		nameList := make([]string, 0)
+
+		if len(a.XOrder) > 0 {
+			for _, v := range a.XOrder {
+				if _, ok := nameMap[v]; !ok {
+					nameMap[v] = struct{}{}
+					nameList = append(nameList, v)
+				}
+			}
+		} else {
+			for v := range a.Properties {
+				if _, ok := nameMap[v]; !ok {
+					nameMap[v] = struct{}{}
+					nameList = append(nameList, v)
+				}
+			}
 		}
 
-		for v := range names {
+		if len(b.XOrder) > 0 {
+			for _, v := range b.XOrder {
+				if _, ok := nameMap[v]; !ok {
+					nameMap[v] = struct{}{}
+					nameList = append(nameList, v)
+				}
+			}
+		} else {
+			for v := range b.Properties {
+				if _, ok := nameMap[v]; !ok {
+					nameMap[v] = struct{}{}
+					nameList = append(nameList, v)
+				}
+			}
+		}
+
+		for _, v := range nameList {
 			as, aExist := a.Properties[v]
 			bs, bExist := b.Properties[v]
 			if !aExist && bExist {
 				bs.SetXDiff(DIFF_NEW)
+				same = false
 				continue
 			}
 			if aExist && !bExist {
 				as.SetXDiff(DIFF_REMOVE)
+				same = false
 				if b.Properties == nil {
 					b.Properties = make(map[string]*jsonschema.Schema)
 				}
@@ -302,20 +332,20 @@ func compareJsonSchema(a, b *jsonschema.Schema) bool {
 				b.XOrder = append(b.XOrder, v)
 				continue
 			}
-			sc := compareJsonSchema(as, bs)
-			change = change || sc
+			ss := diffJsonSchema(as, bs)
+			same = same && ss
 		}
 	case "array":
 		if a.Items != nil && b.Items != nil {
-			sc := compareJsonSchema(a.Items.Value(), b.Items.Value())
-			change = change || sc
+			ss := diffJsonSchema(a.Items.Value(), b.Items.Value())
+			same = same && ss
 		}
 	}
-	return change
+	return same
 }
 
 // Same returns true otherwise false
-func compareJsonSchemaBasicInfo(a, b *jsonschema.Schema) bool {
+func diffJsonSchemaBasicInfo(a, b *jsonschema.Schema) bool {
 	if fmt.Sprintf("%v", a.Default) != fmt.Sprintf("%v", b.Default) || a.Description != b.Description {
 		return false
 	}
@@ -323,7 +353,7 @@ func compareJsonSchemaBasicInfo(a, b *jsonschema.Schema) bool {
 }
 
 // Same returns true otherwise false
-func compareParamBasicInfo(a *spec.Parameter, b *spec.Parameter, onlyRequired bool) bool {
+func diffParamBasicInfo(a *spec.Parameter, b *spec.Parameter, onlyRequired bool) bool {
 	if onlyRequired {
 		if a.Required != b.Required {
 			return false
@@ -334,4 +364,112 @@ func compareParamBasicInfo(a *spec.Parameter, b *spec.Parameter, onlyRequired bo
 		}
 	}
 	return true
+}
+
+func diffThreeOf(a, b *jsonschema.Schema) bool {
+	if !diffOf(a, b, "allOf") {
+		return false
+	}
+	if !diffOf(a, b, "anyOf") {
+		return false
+	}
+	if !diffOf(a, b, "oneOf") {
+		return false
+	}
+	return true
+}
+
+func diffOf(a, b *jsonschema.Schema, of string) bool {
+	var aCount, bCount int
+	switch of {
+	case "allOf":
+		aCount = len(a.AllOf)
+		bCount = len(b.AllOf)
+	case "anyOf":
+		aCount = len(a.AnyOf)
+		bCount = len(b.AnyOf)
+	case "oneOf":
+		aCount = len(a.OneOf)
+		bCount = len(b.OneOf)
+	default:
+		return false
+	}
+
+	if aCount == 0 && bCount == 0 {
+		return true
+	}
+	if aCount == 0 && bCount > 0 {
+		b.SetXDiff(DIFF_NEW)
+		return false
+	}
+	if aCount > 0 && bCount == 0 {
+		b.SetXDiff(DIFF_REMOVE)
+		switch of {
+		case "allOf":
+			b.AllOf = a.AllOf
+		case "anyOf":
+			b.AnyOf = a.AnyOf
+		case "oneOf":
+			b.OneOf = a.OneOf
+		}
+		return false
+	}
+
+	same := true
+	i := 0
+	for {
+		if i == aCount && i == bCount {
+			break
+		}
+
+		if i == aCount && i < bCount {
+			for j := i; j < bCount; j++ {
+				switch of {
+				case "allOf":
+					b.AllOf[j].SetXDiff(DIFF_NEW)
+				case "anyOf":
+					b.AnyOf[j].SetXDiff(DIFF_NEW)
+				case "oneOf":
+					b.OneOf[j].SetXDiff(DIFF_NEW)
+				}
+			}
+			same = false
+			break
+		}
+
+		if i < aCount && i == bCount {
+			for j := i; j < aCount; j++ {
+				switch of {
+				case "allOf":
+					a.AllOf[j].SetXDiff(DIFF_REMOVE)
+					b.AllOf = append(b.AllOf, a.AllOf[j])
+				case "anyOf":
+					a.AnyOf[j].SetXDiff(DIFF_REMOVE)
+					b.AnyOf = append(b.AnyOf, a.AnyOf[j])
+				case "oneOf":
+					a.OneOf[j].SetXDiff(DIFF_REMOVE)
+					b.OneOf = append(b.OneOf, a.OneOf[j])
+				}
+			}
+			same = false
+			break
+		}
+
+		switch of {
+		case "allOf":
+			if !diffJsonSchema(a.AllOf[i], b.AllOf[i]) {
+				same = false
+			}
+		case "anyOf":
+			if !diffJsonSchema(a.AnyOf[i], b.AnyOf[i]) {
+				same = false
+			}
+		case "oneOf":
+			if !diffJsonSchema(a.OneOf[i], b.OneOf[i]) {
+				same = false
+			}
+		}
+		i++
+	}
+	return same
 }

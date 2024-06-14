@@ -38,12 +38,34 @@ function _t(ctx: Ctx, o: JSONSchema, schemas: any) {
       }
       break
     default:
-      if (
-        Object.prototype.hasOwnProperty.call(o, 'anyOf')
-        || Object.prototype.hasOwnProperty.call(o, 'allOf')
-        || Object.prototype.hasOwnProperty.call(o, 'oneOf')
-      ) {
-        data = _t(ctx, (o.anyOf || o.allOf || o.oneOf)![0], schemas)
+      if (Object.prototype.hasOwnProperty.call(o, 'anyOf')) {
+        data = {}
+        for (const subSchema of o.anyOf!) {
+          const subData = _t(ctx, subSchema, schemas)
+          Object.assign(data, subData)
+        }
+      }
+      else if (Object.prototype.hasOwnProperty.call(o, 'allOf')) {
+        data = {}
+        for (const subSchema of o.allOf!) {
+          const subData = _t(ctx, subSchema, schemas)
+          Object.assign(data, subData)
+        }
+      }
+      else if (Object.prototype.hasOwnProperty.call(o, 'oneOf')) {
+        const validSubSchemas = o.oneOf!.filter((subSchema) => {
+          try {
+            const subData = _t(ctx, subSchema, schemas)
+            return subData !== undefined
+          }
+          catch (e) {
+            return false
+          }
+        })
+        if (validSubSchemas.length > 0)
+          data = _t(ctx, validSubSchemas[0], schemas)
+        else
+          data = undefined
       }
       else if (Object.prototype.hasOwnProperty.call(o, '$ref')) {
         const uri = o.$ref!
@@ -52,7 +74,7 @@ function _t(ctx: Ctx, o: JSONSchema, schemas: any) {
           data = {}
         }
         else {
-          const ref = schemas.find((d: any) => d.id === id)
+          const ref = (schemas || []).find((d: any) => d.id === id)
           if (ref) {
             ctx = JSON.parse(JSON.stringify(ctx))
             ctx[ref.id] = true

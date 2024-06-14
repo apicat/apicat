@@ -62,6 +62,16 @@ func (cai *collectionApiImpl) Create(ctx *gin.Context, opt *collectionrequest.Cr
 		}
 	}
 
+	// 创建http文档时如果content为空则补充默认结构
+	if opt.Type == collection.HttpType && opt.Content == "" {
+		nodes := spec.NewHttpCollectionNodes()
+		nodeStr, err := nodes.ToJson()
+		if err != nil {
+			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.CreationFailed"))
+		}
+		opt.Content = nodeStr
+	}
+
 	c := &collection.Collection{
 		ProjectID: selfPM.ProjectID,
 		ParentID:  opt.ParentID,
@@ -212,13 +222,6 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
 	}
 
-	// 编辑文档时更新文档引用关系
-	if c.Type != collection.CategoryType {
-		if err := reference.UpdateCollectionRef(ctx, c, oldRefSchemaIDs, oldRefResponseIDs, oldExceptparamIDs); err != nil {
-			slog.ErrorContext(ctx, "collectionrelations.UpdateCollectionRef", "err", err)
-		}
-	}
-
 	if cs, err := spec.NewCollectionNodesFromJson(opt.Content); err == nil {
 		cs.SortResponses()
 		if s, err := cs.ToJson(); err == nil {
@@ -229,6 +232,13 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 	if err := c.Update(ctx, opt.Title, opt.Content, selfTM.ID); err != nil {
 		slog.ErrorContext(ctx, "c.Update", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+	}
+
+	// 编辑文档时更新文档引用关系
+	if c.Type != collection.CategoryType {
+		if err := reference.UpdateCollectionRef(ctx, c, oldRefSchemaIDs, oldRefResponseIDs, oldExceptparamIDs); err != nil {
+			slog.ErrorContext(ctx, "collectionrelations.UpdateCollectionRef", "err", err)
+		}
 	}
 
 	return &ginrpc.Empty{}, nil

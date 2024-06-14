@@ -1,7 +1,7 @@
 export function usePopover(options?: { ignore?: string[]; onHide?: () => void }) {
   const { ignore = [], onHide } = options || {}
 
-  const popoverRefEl = ref<Nullable<HTMLElement>>(null)
+  const popoverRefEl = ref<HTMLElement | null>(null)
   const isShowPopoverMenu = ref(false)
 
   function show(el: HTMLElement) {

@@ -15,9 +15,9 @@ type Globals struct {
 
 func NewGlobalParameters() *GlobalParameters {
 	return &GlobalParameters{
-		Query:  ParameterList{},
-		Cookie: ParameterList{},
-		Header: ParameterList{},
+		Query:  make(ParameterList, 0),
+		Cookie: make(ParameterList, 0),
+		Header: make(ParameterList, 0),
 	}
 }
 

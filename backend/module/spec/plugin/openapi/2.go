@@ -92,15 +92,59 @@ func (s *swaggerParser) parseDefinitionModels(defs *v2.Definitions) (spec.Defini
 
 		id := stringToUnid(k)
 		s.modelMapping[k] = id
-		models = append(models, &spec.DefinitionModel{
-			ID:          id,
-			Name:        k,
-			Description: k,
-			Schema:      js,
-		})
+
+		if js.Type.First() != jsonschema.T_OBJ && js.Type.First() != jsonschema.T_ARR && js.AllOf == nil {
+			parentJS := jsonschema.NewSchema(jsonschema.T_OBJ)
+			if js.AnyOf != nil || js.OneOf != nil {
+				parentJS.Properties = map[string]*jsonschema.Schema{
+					k: js,
+				}
+			} else {
+				parentJS.Properties = map[string]*jsonschema.Schema{
+					k: js,
+				}
+			}
+			models = append(models, &spec.DefinitionModel{
+				ID:          id,
+				Name:        k,
+				Description: k,
+				Schema:      parentJS,
+			})
+		} else {
+			models = append(models, &spec.DefinitionModel{
+				ID:          id,
+				Name:        k,
+				Description: k,
+				Schema:      js,
+			})
+		}
 	}
 
 	return models, nil
+}
+
+func (s *swaggerParser) parseDefinitionParameters(in *v2.Swagger) error {
+	if in.Parameters == nil {
+		return nil
+	}
+	for pair := range orderedmap.Iterate(context.Background(), in.Parameters.Definitions) {
+		parameter := pair.Value()
+		if parameter.Schema != nil {
+			js, err := jsonSchemaConverter(parameter.Schema)
+			if err != nil {
+				return err
+			}
+			k := fmt.Sprintf("%s-%s", parameter.In, parameter.Name)
+			s.parametersMapping[k] = &spec.Parameter{
+				ID:          stringToUnid(parameter.Name),
+				Name:        parameter.Name,
+				Description: parameter.Description,
+				Required:    parameter.Required != nil && *parameter.Required,
+				Schema:      js,
+			}
+		}
+	}
+	return nil
 }
 
 func (s *swaggerParser) parseJsonSchema(b *base.SchemaProxy) (*jsonschema.Schema, error) {
@@ -149,27 +193,32 @@ func (s *swaggerParser) parseDefinitionResponses(in *v2.Swagger) (spec.Definitio
 			if len(in.Produces) == 0 {
 				content["application/json"] = body
 				if response.Examples != nil {
-					body.Examples = make([]spec.Example, 0)
+					i := 0
+					body.Examples = make(map[string]spec.Example)
 					for examplePair := range orderedmap.Iterate(context.Background(), response.Examples.Values) {
 						if example, err := json.Marshal(examplePair.Value()); err == nil {
-							body.Examples = append(body.Examples, spec.Example{
+							body.Examples[strconv.Itoa(i)] = spec.Example{
 								Summary: examplePair.Key(),
 								Value:   string(example),
-							})
+							}
+							i++
 						}
 					}
 				}
 			} else {
+				i := 0
+				body.Examples = make(map[string]spec.Example)
 				for _, v := range in.Produces {
 					content[v] = body
 					if response.Examples != nil {
 						emp, ok := response.Examples.Values.Get(v)
 						if ok {
 							if example, err := json.Marshal(emp); err == nil {
-								body.Examples = append(body.Examples, spec.Example{
+								body.Examples[strconv.Itoa(i)] = spec.Example{
 									Summary: v,
 									Value:   string(example),
-								})
+								}
+								i++
 							}
 						}
 					}
@@ -238,7 +287,9 @@ func (s *swaggerParser) parseRequest(in *v2.Swagger, info *v2.Operation) (*spec.
 	for _, v := range info.Parameters {
 		// 这里引用 #/parameters 暂时无法获取
 		// 直接展开
-		if _, ok := s.parametersMapping[v.Name]; ok {
+		k := fmt.Sprintf("%s-%s", v.In, v.Name)
+		if sc, ok := s.parametersMapping[k]; ok {
+			request.Attrs.Parameters.Add(v.In, sc)
 			continue
 		}
 		if _, ok := s.globalParamtersMapping[v.Name]; ok {
@@ -282,10 +333,9 @@ func (s *swaggerParser) parseRequest(in *v2.Swagger, info *v2.Operation) (*spec.
 		// 从global获取
 		consumes = in.Consumes
 	}
-	// 有些文件没有consunmer 给个默认 否则body不知道什么是mine
-	// if len(consumes) == 0 && body != nil {
-	// 	consumes = []string{defaultSwaggerConsumerProduce}
-	// }
+	if len(consumes) == 0 && body.Schema != nil {
+		consumes = []string{"application/json"}
+	}
 
 	for _, v := range consumes {
 		if strings.Contains(v, "form") {
@@ -362,16 +412,20 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 			if err != nil {
 				return nil, err
 			}
+
 			for _, v := range info.Produces {
-				body := &spec.Body{Schema: js}
+				body := &spec.Body{
+					Schema:   js,
+					Examples: make(map[string]spec.Example),
+				}
 				if res.Examples != nil {
 					mp, ok := res.Examples.Values.Get(v)
 					if ok {
 						if example, err := json.Marshal(mp); err == nil {
-							body.Examples = append(body.Examples, spec.Example{
+							body.Examples["0"] = spec.Example{
 								Summary: v,
 								Value:   string(example),
-							})
+							}
 						}
 					}
 				}

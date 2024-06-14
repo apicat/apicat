@@ -531,7 +531,7 @@ func Export(ctx *gin.Context) {
 		return
 	}
 
-	apicatData := spec.NewSpec()
+	apicatData := spec.NewEmptySpec()
 	relations.SpecFillInfo(ctx, apicatData, p)
 	relations.SpecFillServers(ctx, apicatData, p.ID)
 	relations.SpecFillGlobals(ctx, apicatData, p.ID)

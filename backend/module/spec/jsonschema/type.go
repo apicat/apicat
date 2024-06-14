@@ -72,6 +72,6 @@ func (s SchemaType) MarshalJSON() ([]byte, error) {
 	if s.isSlice {
 		return json.Marshal(s.types)
 	} else {
-		return json.Marshal(s.types[0])
+		return json.Marshal(s.First())
 	}
 }

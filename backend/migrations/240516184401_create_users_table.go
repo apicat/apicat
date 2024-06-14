@@ -14,15 +14,15 @@ func init() {
 		Migrate: func(tx *gorm.DB) error {
 			type User struct {
 				ID          uint      `gorm:"primarykey"`
-				Name        string    `gorm:"type:varchar(255);comment:用户名"`
-				Password    string    `gorm:"type:varchar(64);comment:密码"`
-				Email       string    `gorm:"type:varchar(255);uniqueIndex;comment:邮箱"`
-				Avatar      string    `gorm:"type:varchar(255);comment:头像"`
-				Language    string    `gorm:"type:varchar(32);comment:语言"` // zh-CN en-US
-				Role        string    `gorm:"type:varchar(32);comment:角色"`
-				LastLoginIP string    `gorm:"type:varchar(15);comment:最后登录ip"`
-				LastLoginAt time.Time `gorm:"type:datetime;not null;comment:最后登录时间"`
-				IsActive    bool      `gorm:"type:tinyint;not null;comment:是否激活"`
+				Name        string    `gorm:"type:varchar(255);comment:username"`
+				Password    string    `gorm:"type:varchar(64);comment:password"`
+				Email       string    `gorm:"type:varchar(255);uniqueIndex;comment:e-mail address"`
+				Avatar      string    `gorm:"type:varchar(255);comment:user avatar"`
+				Language    string    `gorm:"type:varchar(32);comment:language"` // zh-CN en-US
+				Role        string    `gorm:"type:varchar(32);comment:role"`
+				LastLoginIP string    `gorm:"type:varchar(15);comment:last login ip"`
+				LastLoginAt time.Time `gorm:"type:datetime;not null;comment:last login time"`
+				IsActive    bool      `gorm:"type:tinyint;not null;comment:is active"`
 				model.TimeModel
 			}
 

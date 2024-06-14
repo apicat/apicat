@@ -8,8 +8,8 @@ import (
 
 type ExceptParamCollection struct {
 	ID            uint `gorm:"type:bigint;primaryKey;autoIncrement"`
-	ExceptParamID uint `gorm:"type:bigint;index;not null;comment:被排除的全局参数id"`
-	CollectionID  uint `gorm:"type:bigint;not null;comment:排除except_param_id的文档id"`
+	ExceptParamID uint `gorm:"type:bigint;index;not null;comment:excluded global parameter id"`
+	CollectionID  uint `gorm:"type:bigint;not null;comment:collection id"`
 }
 
 func (e *ExceptParamCollection) GetCollections(ctx context.Context) ([]*ExceptParamCollection, error) {
@@ -20,7 +20,7 @@ func (e *ExceptParamCollection) GetCollections(ctx context.Context) ([]*ExceptPa
 
 func (e *ExceptParamCollection) GetCollectionIDs(ctx context.Context) ([]uint, error) {
 	var list []uint
-	tx := model.DB(ctx).Where("except_param_id = ?", e.ExceptParamID).Select("collection_id").Find(&list)
+	tx := model.DB(ctx).Model(&ExceptParamCollection{}).Where("except_param_id = ?", e.ExceptParamID).Select("collection_id").Scan(&list)
 	return list, tx.Error
 }
 

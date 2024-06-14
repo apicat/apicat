@@ -24,9 +24,9 @@ type Schema struct {
 	Reference *string `json:"$ref,omitempty" yaml:"$ref,omitempty"`
 
 	// Applicator
-	AllOf                AllOf                    `json:"allOf,omitempty" yaml:"allOf,omitempty"`
-	AnyOf                AnyOf                    `json:"anyOf,omitempty" yaml:"anyOf,omitempty"`
-	OneOf                OneOf                    `json:"oneOf,omitempty" yaml:"oneOf,omitempty"`
+	AllOf                Of                       `json:"allOf,omitempty" yaml:"allOf,omitempty"`
+	AnyOf                Of                       `json:"anyOf,omitempty" yaml:"anyOf,omitempty"`
+	OneOf                Of                       `json:"oneOf,omitempty" yaml:"oneOf,omitempty"`
 	Not                  *Schema                  `json:"not,omitempty" yaml:"not,omitempty"`
 	Properties           map[string]*Schema       `json:"properties,omitempty" yaml:"properties,omitempty"`
 	AdditionalProperties *ValueOrBoolean[*Schema] `json:"additionalProperties,omitempty" yaml:"additionalProperties,omitempty"`
@@ -84,6 +84,9 @@ func NewSchema(typ string) *Schema {
 }
 
 func NewSchemaFromJson(str string) (*Schema, error) {
+	if str == "" {
+		return nil, errors.New("empty json content")
+	}
 	s := &Schema{}
 	if err := json.Unmarshal([]byte(str), s); err != nil {
 		return nil, err
@@ -96,6 +99,28 @@ func (s *Schema) Ref() bool { return s != nil && s.Reference != nil }
 func (s *Schema) DeepRef() bool {
 	if s != nil && s.Ref() {
 		return true
+	}
+
+	if len(s.AllOf) > 0 {
+		for _, v := range s.AllOf {
+			if v.DeepRef() {
+				return true
+			}
+		}
+	}
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			if v.DeepRef() {
+				return true
+			}
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			if v.DeepRef() {
+				return true
+			}
+		}
 	}
 
 	if s.Properties != nil {
@@ -137,9 +162,25 @@ func (s *Schema) DeepFindRefById(id string) (refs []*Schema) {
 		return
 	}
 
+	if len(s.AllOf) > 0 {
+		for _, v := range s.AllOf {
+			refs = append(refs, v.DeepFindRefById(id)...)
+		}
+	}
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			refs = append(refs, v.DeepFindRefById(id)...)
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			refs = append(refs, v.DeepFindRefById(id)...)
+		}
+	}
+
 	if s.Properties != nil {
-		for k := range s.Properties {
-			refs = append(refs, s.Properties[k].DeepFindRefById(id)...)
+		for _, v := range s.Properties {
+			refs = append(refs, v.DeepFindRefById(id)...)
 		}
 	}
 
@@ -149,17 +190,17 @@ func (s *Schema) DeepFindRefById(id string) (refs []*Schema) {
 	return
 }
 
-func (s *Schema) GetRefID() int64 {
+func (s *Schema) GetRefID() (int64, error) {
 	if !s.Ref() {
-		return 0
+		return 0, errors.New("no reference")
 	}
 
 	i := strings.LastIndex(*s.Reference, "/")
 	if i != -1 {
 		id, _ := strconv.ParseInt((*s.Reference)[i+1:], 10, 64)
-		return id
+		return id, nil
 	}
-	return 0
+	return 0, errors.New("no reference")
 }
 
 func (s *Schema) DeepGetRefID() (ids []int64) {
@@ -167,9 +208,25 @@ func (s *Schema) DeepGetRefID() (ids []int64) {
 		return
 	}
 
-	if id := s.GetRefID(); id > 0 {
+	if id, err := s.GetRefID(); err == nil {
 		ids = append(ids, id)
 		return
+	}
+
+	if len(s.AllOf) > 0 {
+		for _, v := range s.AllOf {
+			ids = append(ids, v.DeepGetRefID()...)
+		}
+	}
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			ids = append(ids, v.DeepGetRefID()...)
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			ids = append(ids, v.DeepGetRefID()...)
+		}
 	}
 
 	if s.Properties != nil {
@@ -189,46 +246,53 @@ func (s *Schema) ReplaceRef(ref *Schema) error {
 		return errors.New("schema is not a reference or ref is nil")
 	}
 
-	refID := s.GetRefID()
-	if refID != ref.ID {
+	if refID, err := s.GetRefID(); err != nil || refID != ref.ID {
 		return errors.New("ref id does not match")
 	}
 
-	*s = *ref
+	copyValue := &Schema{}
+	bytes, _ := json.Marshal(ref)
+	json.Unmarshal(bytes, copyValue)
+
+	*s = *copyValue
 	return nil
 }
 
-func (s *Schema) DelRootRef(ref *Schema) {
-	if !s.Ref() || ref == nil {
-		return
-	}
-
-	refID := s.GetRefID()
-	if refID != ref.ID {
-		return
-	}
-
-	s.Reference = nil
-	s.Type = NewSchemaType(T_OBJ)
-}
-
-func (s *Schema) DelChildrenRef(ref *Schema) {
+func (s *Schema) DelRef(ref *Schema) {
 	if s == nil || ref == nil {
 		return
 	}
 
-	propertyKeys := []string{}
-	if s.Properties != nil {
-		for k, v := range s.Properties {
-			if v.IsRefID(strconv.FormatInt(ref.ID, 10)) {
-				propertyKeys = append(propertyKeys, k)
-			}
-			v.DelChildrenRef(ref)
+	if s.Ref() {
+		if refID, err := s.GetRefID(); err == nil && refID == ref.ID {
+			s.Reference = nil
+			s.Type = NewSchemaType(T_OBJ)
+			return
 		}
+	}
 
-		for _, k := range propertyKeys {
-			delete(s.Properties, k)
-			s.DelXOrderByName(k)
+	if len(s.AllOf) > 0 {
+		s.AllOf.DelRef(ref)
+		if len(s.AllOf) == 0 && s.Type == nil {
+			s.Type = ref.Type
+		}
+	}
+	if len(s.AnyOf) > 0 {
+		s.AnyOf.DelRef(ref)
+		if len(s.AnyOf) == 0 && s.Type == nil {
+			s.Type = ref.Type
+		}
+	}
+	if len(s.OneOf) > 0 {
+		s.OneOf.DelRef(ref)
+		if len(s.OneOf) == 0 && s.Type == nil {
+			s.Type = ref.Type
+		}
+	}
+
+	if s.Properties != nil {
+		for _, v := range s.Properties {
+			v.DelRef(ref)
 		}
 	}
 
@@ -244,12 +308,29 @@ func (s *Schema) DelXOrderByName(name string) {
 		return
 	}
 
-	if s.XOrder != nil {
+	if len(s.XOrder) > 0 {
 		i := 0
 		for i < len(s.XOrder) {
 			if s.XOrder[i] == name {
 				s.XOrder = append(s.XOrder[:i], s.XOrder[i+1:]...)
-				continue
+				return
+			}
+			i++
+		}
+	}
+}
+
+func (s *Schema) DelRequiredByName(name string) {
+	if s == nil || name == "" {
+		return
+	}
+
+	if len(s.Required) > 0 {
+		i := 0
+		for i < len(s.Required) {
+			if s.Required[i] == name {
+				s.Required = append(s.Required[:i], s.Required[i+1:]...)
+				return
 			}
 			i++
 		}
@@ -265,6 +346,21 @@ func (s *Schema) DeepCheckAllOf() bool {
 
 	if s.CheckAllOf() {
 		return true
+	}
+
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			if v.DeepCheckAllOf() {
+				return true
+			}
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			if v.DeepCheckAllOf() {
+				return true
+			}
+		}
 	}
 
 	if s.Properties != nil {
@@ -290,6 +386,17 @@ func (s *Schema) MergeAllOf() {
 		s.AllOf = s.AllOf.Merge()
 	}
 
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			v.MergeAllOf()
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			v.MergeAllOf()
+		}
+	}
+
 	if s.Properties != nil {
 		for _, v := range s.Properties {
 			v.MergeAllOf()
@@ -298,6 +405,49 @@ func (s *Schema) MergeAllOf() {
 	if s.Items != nil && !s.Items.IsBool() {
 		s.Items.Value().MergeAllOf()
 	}
+}
+
+func (s *Schema) ReplaceAllOf() error {
+	if s == nil {
+		return errors.New("schema is nil")
+	}
+
+	if s.CheckAllOf() {
+		result := s.AllOf.Merge()
+		if len(result) > 1 {
+			return errors.New("allOf has ref schema")
+		}
+		if s.Type == nil {
+			s.Type = NewSchemaType(T_OBJ)
+		}
+		if s.Properties == nil && result[0].Properties != nil {
+			s.Properties = result[0].Properties
+			s.XOrder = result[0].XOrder
+		}
+		s.AllOf = s.AllOf[:0]
+	}
+
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			v.ReplaceAllOf()
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			v.ReplaceAllOf()
+		}
+	}
+
+	if s.Properties != nil {
+		for _, v := range s.Properties {
+			v.ReplaceAllOf()
+		}
+	}
+	if s.Items != nil && !s.Items.IsBool() {
+		s.Items.Value().ReplaceAllOf()
+	}
+
+	return nil
 }
 
 func (s *Schema) Validation(raw []byte) error {
@@ -374,6 +524,21 @@ func (s *Schema) SetXDiff(x string) {
 		return
 	}
 
+	if len(s.AllOf) > 0 {
+		for _, v := range s.AllOf {
+			v.SetXDiff(x)
+		}
+	}
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			v.SetXDiff(x)
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			v.SetXDiff(x)
+		}
+	}
 	if s.Properties != nil {
 		for _, v := range s.Properties {
 			v.SetXDiff(x)

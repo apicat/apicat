@@ -20,6 +20,9 @@ type DefinitionResponse struct {
 type DefinitionResponses []*DefinitionResponse
 
 func NewDefinitionResponseFromJson(str string) (*DefinitionResponse, error) {
+	if str == "" {
+		return nil, errors.New("empty json content")
+	}
 	s := &DefinitionResponse{}
 	if err := json.Unmarshal([]byte(str), s); err != nil {
 		return nil, err
@@ -27,13 +30,26 @@ func NewDefinitionResponseFromJson(str string) (*DefinitionResponse, error) {
 	return s, nil
 }
 
-func (r *DefinitionResponse) RefIDs() (ids []int64) {
+func (r *DefinitionResponse) RefIDs() []int64 {
+	ids := make([]int64, 0)
 	for _, v := range r.Content {
 		if v.Schema != nil {
 			ids = append(ids, v.Schema.DeepGetRefID()...)
 		}
 	}
-	return
+	if len(ids) == 0 {
+		return ids
+	}
+
+	result := make([]int64, 0)
+	m := make(map[int64]bool)
+	for _, v := range ids {
+		if _, ok := m[v]; !ok {
+			m[v] = true
+			result = append(result, v)
+		}
+	}
+	return result
 }
 
 func (r *DefinitionResponse) Deref(ref *DefinitionModel) error {
@@ -51,6 +67,7 @@ func (r *DefinitionResponse) Deref(ref *DefinitionModel) error {
 						return err
 					}
 				}
+				v.Schema.MergeAllOf()
 			}
 		}
 	}
@@ -66,11 +83,12 @@ func (r *DefinitionResponse) DeepDeref(refs DefinitionModels) error {
 
 	for _, v := range r.Content {
 		if v.Schema != nil {
-			s, err := helper.DeepDeref(v.Schema)
+			new, err := helper.DeepDeref(v.Schema)
 			if err != nil {
 				return err
 			}
-			v.Schema = &s
+			new.MergeAllOf()
+			v.Schema = &new
 		}
 	}
 	return nil
@@ -84,10 +102,7 @@ func (r *DefinitionResponse) DelRef(ref *DefinitionModel) {
 
 	for _, v := range r.Content {
 		if v.Schema != nil {
-			if v.Schema.Ref() {
-				v.Schema.DelRootRef(ref.Schema)
-			}
-			v.Schema.DelChildrenRef(ref.Schema)
+			v.Schema.DelRef(ref.Schema)
 		}
 	}
 }
@@ -136,6 +151,7 @@ func (r *DefinitionResponses) DelByID(id int64) {
 		} else {
 			if id == v.ID {
 				*r = append((*r)[:i], (*r)[i+1:]...)
+				return
 			}
 		}
 	}

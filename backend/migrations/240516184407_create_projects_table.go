@@ -13,13 +13,13 @@ func init() {
 
 			type Project struct {
 				ID          string `gorm:"type:varchar(24);primarykey"`
-				TeamID      string `gorm:"type:varchar(24);index;comment:团队id"`
-				MemberID    uint   `gorm:"type:bigint;comment:项目管理者的团队成员id"`
-				Title       string `gorm:"type:varchar(255);not null;comment:项目名称"`
-				Visibility  string `gorm:"type:varchar(32);not null;comment:项目可见性:0私有,1公开"`
-				ShareKey    string `gorm:"type:varchar(255);comment:项目分享密码"`
-				Description string `gorm:"type:varchar(255);comment:项目描述"`
-				Cover       string `gorm:"type:varchar(255);comment:项目封面"`
+				TeamID      string `gorm:"type:varchar(24);index;comment:team id"`
+				MemberID    uint   `gorm:"type:bigint;comment:team member ID of the project manager"`
+				Title       string `gorm:"type:varchar(255);not null;comment:project title"`
+				Visibility  string `gorm:"type:varchar(32);not null;comment:project visibility:0-private,1-public"`
+				ShareKey    string `gorm:"type:varchar(255);comment:project share key"`
+				Description string `gorm:"type:varchar(255);comment:project description"`
+				Cover       string `gorm:"type:varchar(255);comment:project cover"`
 				model.TimeModel
 			}
 

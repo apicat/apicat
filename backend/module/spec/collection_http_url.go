@@ -4,13 +4,19 @@ const NODE_HTTP_URL = "apicat-http-url"
 
 type CollectionHttpUrl struct {
 	Type  string       `json:"type" yaml:"type"`
-	Attrs HttpUrlAttrs `json:"attr" yaml:"attrs"`
+	Attrs HttpUrlAttrs `json:"attrs" yaml:"attrs"`
 }
 
 type HttpUrlAttrs struct {
 	Path   string `json:"path" yaml:"path"`
 	Method string `json:"method" yaml:"method"`
 	XDiff  string `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
+}
+
+func init() {
+	RegisterNode(&CollectionHttpUrl{
+		Type: NODE_HTTP_URL,
+	})
 }
 
 func NewCollectionHttpUrl(p, m string) *CollectionHttpUrl {

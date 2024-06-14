@@ -700,7 +700,7 @@ const en: any = {
       },
       tips: {
         schemaInputTitle: 'Please enter the model name you want to generate',
-        unref: 'Unlink content referencing this model',
+        unref: 'Pre-copy the model content to all reference locations before deletion.',
       },
       form: {
         title: 'Please enter model title',
@@ -742,6 +742,7 @@ const en: any = {
       title: 'Responses',
       tips: {
         confirmDelete: 'Are you sure you want to delete this public response?',
+        unref: 'Pre-copy the response content to all reference locations before deletion.',
       },
       form: {
         title: 'Please enter response title',
@@ -941,6 +942,7 @@ const en: any = {
         left_title: 'Users',
         searchKeywordPlaceholder: 'Search by username',
         updatePasswordTitle: 'Update password',
+        updatePassword: 'Password',
         removeUserTitle: 'Remove user',
         removeUserTip: 'Do you want to remove this user?',
       },

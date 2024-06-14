@@ -32,8 +32,10 @@ func (h *DerefHelper) DeepDeref(s *Schema) (Schema, error) {
 		return *copySchema, errors.New("failed to unmarshal schema")
 	}
 
-	for copySchema.DeepRef() {
-		h.deref(copySchema, fmt.Sprintf("[%d]", copySchema.ID))
+	if copySchema.DeepRef() {
+		if err := h.deref(copySchema, fmt.Sprintf("[%d]", copySchema.ID)); err != nil {
+			return *copySchema, err
+		}
 	}
 	return *copySchema, nil
 }
@@ -44,7 +46,11 @@ func (h *DerefHelper) deref(s *Schema, path string) error {
 	}
 
 	if s.Ref() {
-		refID := s.GetRefID()
+		refID, err := s.GetRefID()
+		if err != nil {
+			return err
+		}
+
 		ref, ok := h.RefMap[refID]
 		if !ok {
 			return fmt.Errorf("referenced schema id %d not found", refID)
@@ -65,6 +71,29 @@ func (h *DerefHelper) deref(s *Schema, path string) error {
 		// Dereference itself
 		if err := s.ReplaceRef(ref); err != nil {
 			return err
+		}
+		return nil
+	}
+
+	if len(s.AllOf) > 0 {
+		for _, v := range s.AllOf {
+			if err := h.deref(v, path); err != nil {
+				return err
+			}
+		}
+	}
+	if len(s.AnyOf) > 0 {
+		for _, v := range s.AnyOf {
+			if err := h.deref(v, path); err != nil {
+				return err
+			}
+		}
+	}
+	if len(s.OneOf) > 0 {
+		for _, v := range s.OneOf {
+			if err := h.deref(v, path); err != nil {
+				return err
+			}
 		}
 	}
 

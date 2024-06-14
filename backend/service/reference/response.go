@@ -98,6 +98,10 @@ func DerefResponse(ctx context.Context, r *definition.DefinitionResponse, deref 
 
 // derefResponseFromCollections 解开collection中引用response的地方
 func derefResponseFromCollections(ctx context.Context, r *definition.DefinitionResponse, collectionIDs []uint, deref bool) error {
+	if len(collectionIDs) == 0 {
+		return nil
+	}
+
 	collections, err := collection.GetCollections(ctx, r.ProjectID, collectionIDs...)
 	if err != nil {
 		return err

@@ -8,6 +8,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/i18n"
 	"github.com/apicat/apicat/v2/backend/model/definition"
 	"github.com/apicat/apicat/v2/backend/model/project"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 	"github.com/apicat/apicat/v2/backend/route/middleware/access"
 	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
@@ -47,6 +48,11 @@ func (dsai *definitionSchemaApiImpl) Create(ctx *gin.Context, opt *projectreques
 		if !exist {
 			return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("category.DoesNotExist"))
 		}
+	}
+
+	// 创建schema时如果schema为空则补充默认结构
+	if opt.Type == definition.SchemaSchema && opt.Schema == "" {
+		opt.Schema = jsonschema.NewSchema(jsonschema.T_OBJ).ToJson()
 	}
 
 	ds := &definition.DefinitionSchema{

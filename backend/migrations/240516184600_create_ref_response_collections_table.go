@@ -10,15 +10,15 @@ import (
 func init() {
 	type RefResponseCollections struct {
 		ID             uint `gorm:"type:bigint;primaryKey;autoIncrement"`
-		RefResponserID uint `gorm:"type:bigint;index;not null;comment:被引用的公共响应id"`
-		CollectionID   uint `gorm:"type:bigint;not null;comment:引用ref_responser_id的文档id"`
+		RefResponserID uint `gorm:"type:bigint;index;not null;comment:referenced definition response id"`
+		CollectionID   uint `gorm:"type:bigint;not null;comment:collection id"`
 	}
 
 	type CollectionReference struct {
 		ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-		CollectionID uint   `gorm:"type:bigint;index;not null;comment:集合id"`
-		RefID        uint   `gorm:"type:bigint;index;not null;comment:引用节点id"`
-		RefType      string `gorm:"type:varchar(255);not null;comment:引用节点类型:schema,response,parameter"`
+		CollectionID uint   `gorm:"type:bigint;index;not null;comment:collection id"`
+		RefID        uint   `gorm:"type:bigint;index;not null;comment:ref node id"`
+		RefType      string `gorm:"type:varchar(255);not null;comment:ref node type:schema,response,parameter"`
 		CreatedAt    time.Time
 		UpdatedAt    time.Time
 	}

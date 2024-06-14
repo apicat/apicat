@@ -19,6 +19,7 @@ type openapiParser struct {
 	modelMapping      map[string]int64
 	parametersMapping map[string]*spec.Parameter
 }
+
 type openapiGenerator struct {
 	modelMapping map[int64]string
 }
@@ -80,17 +81,22 @@ func (o *openapiParser) parseContent(mts *orderedmap.Map[string, *v3.MediaType])
 		if err != nil {
 			return nil, err
 		}
-		js.Examples = mediaType.Example
+
+		if mediaType.Example != nil {
+			js.Examples = mediaType.Example.Value
+		}
 
 		if orderedmap.Len(mediaType.Examples) > 0 {
-			body.Examples = make([]spec.Example, 0)
+			i := 0
+			body.Examples = make(map[string]spec.Example)
 			for examplePair := range orderedmap.Iterate(context.Background(), mediaType.Examples) {
 				v := examplePair.Value()
 				if example, err := json.Marshal(v); err == nil {
-					body.Examples = append(body.Examples, spec.Example{
+					body.Examples[strconv.Itoa(i)] = spec.Example{
 						Summary: v.Summary,
 						Value:   string(example),
-					})
+					}
+					i++
 				}
 			}
 		}
@@ -120,12 +126,31 @@ func (o *openapiParser) parseDefinetions(comp *v3.Components) (*spec.Definitions
 			return nil, err
 		}
 
-		models = append(models, &spec.DefinitionModel{
-			ID:          stringToUnid(k),
-			Name:        k,
-			Description: js.Description,
-			Schema:      js,
-		})
+		if js.Type.First() != jsonschema.T_OBJ && js.Type.First() != jsonschema.T_ARR && js.AllOf == nil {
+			parentJS := jsonschema.NewSchema(jsonschema.T_OBJ)
+			if js.AnyOf != nil || js.OneOf != nil {
+				parentJS.Properties = map[string]*jsonschema.Schema{
+					k: js,
+				}
+			} else {
+				parentJS.Properties = map[string]*jsonschema.Schema{
+					k: js,
+				}
+			}
+			models = append(models, &spec.DefinitionModel{
+				ID:          stringToUnid(k),
+				Name:        k,
+				Description: js.Description,
+				Schema:      parentJS,
+			})
+		} else {
+			models = append(models, &spec.DefinitionModel{
+				ID:          stringToUnid(k),
+				Name:        k,
+				Description: js.Description,
+				Schema:      js,
+			})
+		}
 	}
 
 	responses := make(spec.DefinitionResponses, 0)
@@ -167,6 +192,27 @@ func (o *openapiParser) parseDefinetions(comp *v3.Components) (*spec.Definitions
 		}
 		responses = append(responses, def)
 	}
+
+	if comp.Parameters != nil {
+		for pair := range orderedmap.Iterate(context.Background(), comp.Parameters) {
+			parameter := pair.Value()
+			if parameter.Schema != nil {
+				js, err := jsonSchemaConverter(parameter.Schema)
+				if err != nil {
+					return nil, err
+				}
+				k := fmt.Sprintf("%s-%s", parameter.In, parameter.Name)
+				o.parametersMapping[k] = &spec.Parameter{
+					ID:          stringToUnid(parameter.Name),
+					Name:        parameter.Name,
+					Description: parameter.Description,
+					Required:    parameter.Required != nil && *parameter.Required,
+					Schema:      js,
+				}
+			}
+		}
+	}
+
 	return &spec.Definitions{
 		Schemas:   models,
 		Responses: responses,
@@ -235,7 +281,7 @@ func (o *openapiParser) parseParameters(inp []*v3.Parameter) (*spec.HTTPParamete
 
 		sp := &spec.Parameter{
 			Name:     v.Name,
-			Required: *v.Required,
+			Required: v.Required != nil && *v.Required,
 		}
 
 		sp.Schema = &jsonschema.Schema{}
@@ -247,7 +293,9 @@ func (o *openapiParser) parseParameters(inp []*v3.Parameter) (*spec.HTTPParamete
 			sp.Schema = js
 		}
 		sp.Schema.Description = v.Description
-		sp.Schema.Examples = v.Example
+		if v.Example != nil {
+			sp.Schema.Examples = v.Example
+		}
 		sp.Schema.Deprecated = &v.Deprecated
 		rawparamter.Add(v.In, sp)
 	}
@@ -303,11 +351,14 @@ func (o *openapiParser) parseResponses(responses *orderedmap.Map[string, *v3.Res
 			}
 		}
 
-		content, err := o.parseContent(res.Content)
-		if err != nil {
-			return nil, err
+		if res.Content != nil {
+			content, err := o.parseContent(res.Content)
+			if err != nil {
+				return nil, err
+			}
+			resp.Content = content
 		}
-		resp.Content = content
+
 		outresponses.Attrs.List = append(outresponses.Attrs.List, &resp)
 	}
 	return outresponses, nil
@@ -427,10 +478,10 @@ func (o *openapiGenerator) convertJsonSchema(version string, in *jsonschema.Sche
 func (o *openapiGenerator) generateResponseWithoutRef(resp *spec.BasicResponse, version string) map[string]any {
 	result := map[string]any{}
 	if resp.Content != nil {
-		c := make(map[string]*jsonschema.Schema)
+		c := make(map[string]*spec.Body)
 		for contentType, body := range resp.Content {
-			jsonSchema := o.convertJsonSchema(version, body.Schema)
-			c[contentType] = jsonSchema
+			body.Schema = o.convertJsonSchema(version, body.Schema)
+			c[contentType] = body
 		}
 		result["content"] = c
 	}
@@ -478,7 +529,7 @@ func (o *openapiGenerator) generateReqParams(collectionReq spec.CollectionHttpRe
 }
 
 func (o *openapiGenerator) generateResponse(resp *spec.Response, definitionsResps spec.DefinitionResponses, version string) map[string]any {
-	if resp.Reference != "" {
+	if resp.Ref() {
 		if strings.HasPrefix(resp.Reference, "#/definitions/responses/") {
 			if x := definitionsResps.FindByID(
 				toInt64(getRefName(resp.Reference)),

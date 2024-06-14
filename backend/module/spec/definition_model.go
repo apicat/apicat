@@ -23,6 +23,9 @@ type DefinitionModel struct {
 type DefinitionModels []*DefinitionModel
 
 func NewModelFromJson(str string) (*DefinitionModel, error) {
+	if str == "" {
+		return nil, errors.New("empty json content")
+	}
 	s := &DefinitionModel{}
 	if err := json.Unmarshal([]byte(str), s); err != nil {
 		return nil, err
@@ -31,14 +34,22 @@ func NewModelFromJson(str string) (*DefinitionModel, error) {
 	return s, nil
 }
 
-// The id referenced by this model itself
-func (s *DefinitionModel) RefID() int64 {
-	return s.Schema.GetRefID()
-}
-
 // The id referenced by the model itself and its child elements
 func (s *DefinitionModel) RefIDs() []int64 {
-	return s.Schema.DeepGetRefID()
+	ids := s.Schema.DeepGetRefID()
+	if len(ids) == 0 {
+		return ids
+	}
+
+	result := make([]int64, 0)
+	m := make(map[int64]bool)
+	for _, v := range ids {
+		if _, ok := m[v]; !ok {
+			m[v] = true
+			result = append(result, v)
+		}
+	}
+	return result
 }
 
 // Model(s) refers to Model(ref), removes the reference relationship between s and ref, and replaces the content of ref into s.
@@ -57,6 +68,7 @@ func (s *DefinitionModel) Deref(ref *DefinitionModel) error {
 				return err
 			}
 		}
+		s.Schema.MergeAllOf()
 	}
 	return nil
 }
@@ -71,6 +83,7 @@ func (s *DefinitionModel) DeepDeref(refs DefinitionModels) error {
 	if err != nil {
 		return err
 	}
+	new.MergeAllOf()
 	s.Schema = &new
 	return nil
 }
@@ -82,11 +95,7 @@ func (s *DefinitionModel) DelRef(ref *DefinitionModel) {
 
 	s.Schema.ID = s.ID
 	ref.Schema.ID = ref.ID
-
-	if s.Schema.Ref() {
-		s.Schema.DelRootRef(ref.Schema)
-	}
-	s.Schema.DelChildrenRef(ref.Schema)
+	s.Schema.DelRef(ref.Schema)
 }
 
 func (s *DefinitionModel) SetXDiff(x string) {
@@ -141,6 +150,7 @@ func (s *DefinitionModels) DelByID(id int64) {
 		} else {
 			if v.ID == id {
 				*s = append((*s)[:i], (*s)[i+1:]...)
+				return
 			}
 		}
 	}

@@ -10,10 +10,10 @@ import (
 
 type Server struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:项目id"`
-	Description  string `gorm:"type:varchar(255);not null;comment:描述"`
-	URL          string `gorm:"type:varchar(255);not null;comment:服务器地址"`
-	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
+	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:project id"`
+	Description  string `gorm:"type:varchar(255);not null;comment:server description"`
+	URL          string `gorm:"type:varchar(255);not null;comment:server url"`
+	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:display order"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
 }

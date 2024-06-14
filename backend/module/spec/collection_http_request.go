@@ -11,7 +11,7 @@ const NODE_HTTP_REQUEST = "apicat-http-request"
 
 type CollectionHttpRequest struct {
 	Type  string            `json:"type" yaml:"type"`
-	Attrs *HttpRequestAttrs `json:"attr" yaml:"attrs"`
+	Attrs *HttpRequestAttrs `json:"attrs" yaml:"attrs"`
 }
 
 type HttpRequestAttrs struct {
@@ -26,13 +26,29 @@ type HttpRequestGlobalExcepts struct {
 	Query  []int64 `json:"query" yaml:"query"`
 }
 
+func init() {
+	RegisterNode(&CollectionHttpRequest{
+		Type: NODE_HTTP_REQUEST,
+	})
+}
+
 func NewCollectionHttpRequest() *CollectionHttpRequest {
 	return &CollectionHttpRequest{
 		Type: NODE_HTTP_REQUEST,
 		Attrs: &HttpRequestAttrs{
 			GlobalExcepts: NewHttpRequestGlobalExcepts(),
 			Parameters:    NewHTTPParameters(),
-			Content:       HTTPBody{},
+			Content:       make(HTTPBody),
+		},
+	}
+}
+
+func NewDefaultCollectionHttpRequest() *CollectionHttpRequest {
+	return &CollectionHttpRequest{
+		Type: NODE_HTTP_REQUEST,
+		Attrs: &HttpRequestAttrs{
+			GlobalExcepts: NewHttpRequestGlobalExcepts(),
+			Parameters:    NewHTTPParameters(),
 		},
 	}
 }
@@ -153,7 +169,19 @@ func (r *CollectionHttpRequest) GetRefModelIDs() []int64 {
 			ids = append(ids, v.Schema.DeepGetRefID()...)
 		}
 	}
-	return ids
+	if len(ids) == 0 {
+		return ids
+	}
+
+	result := make([]int64, 0)
+	m := make(map[int64]bool)
+	for _, v := range ids {
+		if _, ok := m[v]; !ok {
+			m[v] = true
+			result = append(result, v)
+		}
+	}
+	return result
 }
 
 func (r *CollectionHttpRequest) DerefGlobalParameters(params *GlobalParameters) {
@@ -205,6 +233,7 @@ func (r *CollectionHttpRequest) DerefModel(ref *DefinitionModel) error {
 						return err
 					}
 				}
+				v.Schema.MergeAllOf()
 			}
 		}
 	}
@@ -231,7 +260,19 @@ func (r *CollectionHttpRequest) DeepDerefModelByHelper(helper *jsonschema.DerefH
 			if err != nil {
 				return err
 			}
+			new.MergeAllOf()
 			v.Schema = &new
+		}
+	}
+	return nil
+}
+
+func (r *CollectionHttpRequest) ReplaceAllOf() error {
+	for _, v := range r.Attrs.Content {
+		if v.Schema != nil {
+			if err := v.Schema.ReplaceAllOf(); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
@@ -251,10 +292,7 @@ func (r *CollectionHttpRequest) DelRefModel(ref *DefinitionModel) {
 
 	for _, v := range r.Attrs.Content {
 		if v.Schema != nil {
-			if v.Schema.Ref() {
-				v.Schema.DelRootRef(ref.Schema)
-			}
-			v.Schema.DelChildrenRef(ref.Schema)
+			v.Schema.DelRef(ref.Schema)
 		}
 	}
 }

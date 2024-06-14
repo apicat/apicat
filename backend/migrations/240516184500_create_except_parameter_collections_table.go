@@ -10,14 +10,14 @@ import (
 func init() {
 	type ExceptParamCollection struct {
 		ID            uint `gorm:"type:bigint;primaryKey;autoIncrement"`
-		ExceptParamID uint `gorm:"type:bigint;index;not null;comment:被排除的全局参数id"`
-		CollectionID  uint `gorm:"type:bigint;not null;comment:排除except_param_id的文档id"`
+		ExceptParamID uint `gorm:"type:bigint;index;not null;comment:excluded global parameter id"`
+		CollectionID  uint `gorm:"type:bigint;not null;comment:collection id"`
 	}
 
 	type ParameterExcept struct {
 		ID                 uint `gorm:"type:bigint;primaryKey;autoIncrement"`
-		ParameterID        uint `gorm:"type:bigint;index;not null;comment:全局参数id"`
-		ExceptCollectionID uint `gorm:"type:bigint;index;not null;comment:排除集合id"`
+		ParameterID        uint `gorm:"type:bigint;index;not null;comment:global parameter id"`
+		ExceptCollectionID uint `gorm:"type:bigint;index;not null;comment:excluded collection id"`
 		CreatedAt          time.Time
 		UpdatedAt          time.Time
 	}
@@ -25,18 +25,12 @@ func init() {
 	m := &gormigrate.Migration{
 		ID: "240516184501",
 		Migrate: func(tx *gorm.DB) error {
-
-			if tx.Migrator().HasTable(&ExceptParamCollection{}) {
-				return nil
+			if !tx.Migrator().HasTable(&ExceptParamCollection{}) {
+				if err := tx.Migrator().CreateTable(&ExceptParamCollection{}); err != nil {
+					return err
+				}
 			}
-			return tx.Migrator().CreateTable(&ExceptParamCollection{})
-		},
-	}
-	MigrationHelper.Register(m)
 
-	md := &gormigrate.Migration{
-		ID: "240516184502",
-		Migrate: func(tx *gorm.DB) error {
 			var list []*ParameterExcept
 			if err := tx.Find(&list).Error; err != nil {
 				return err
@@ -56,5 +50,5 @@ func init() {
 			return tx.Create(&newList).Error
 		},
 	}
-	MigrationHelper.Register(md)
+	MigrationHelper.Register(m)
 }

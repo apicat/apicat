@@ -21,16 +21,16 @@ const (
 
 type DefinitionSchema struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:项目id"`
-	ParentID     uint   `gorm:"type:bigint;not null;comment:父级id"`
-	Name         string `gorm:"type:varchar(255);not null;comment:名称"`
-	Description  string `gorm:"type:varchar(255);comment:描述"`
-	Type         string `gorm:"type:varchar(255);not null;comment:类型:category,schema"`
-	Schema       string `gorm:"type:mediumtext;comment:内容"`
-	DisplayOrder uint   `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
-	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:创建成员id"`
-	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:最后更新成员id"`
-	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:删除成员id"`
+	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:project id"`
+	ParentID     uint   `gorm:"type:bigint;not null;comment:parent schema id"`
+	Name         string `gorm:"type:varchar(255);not null;comment:scheam name"`
+	Description  string `gorm:"type:varchar(255);comment:schema description"`
+	Type         string `gorm:"type:varchar(255);not null;comment:schema type:category,schema"`
+	Schema       string `gorm:"type:mediumtext;comment:schema content"`
+	DisplayOrder uint   `gorm:"type:int(11);not null;default:0;comment:display order"`
+	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:created by member id"`
+	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:updated by member id"`
+	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:deleted by member id"`
 	model.TimeModel
 }
 

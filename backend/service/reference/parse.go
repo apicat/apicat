@@ -6,6 +6,11 @@ import (
 )
 
 func ParseRefSchemasFromCollection(c *collection.Collection) ([]uint, error) {
+	var list []uint
+	if c.Content == "" {
+		return list, nil
+	}
+
 	specC, err := c.ContentToSpec()
 	if err != nil {
 		return nil, err
@@ -13,7 +18,6 @@ func ParseRefSchemasFromCollection(c *collection.Collection) ([]uint, error) {
 
 	refSchemaIDs := specC.GetRefModelIDs()
 
-	var list []uint
 	for _, v := range refSchemaIDs {
 		list = append(list, uint(v))
 	}
@@ -54,6 +58,11 @@ func ParseRefSchemasFromSchema(s *definition.DefinitionSchema) ([]uint, error) {
 }
 
 func ParseRefResponsesFromCollection(c *collection.Collection) ([]uint, error) {
+	var list []uint
+	if c.Content == "" {
+		return list, nil
+	}
+
 	specC, err := c.ContentToSpec()
 	if err != nil {
 		return nil, err
@@ -61,7 +70,6 @@ func ParseRefResponsesFromCollection(c *collection.Collection) ([]uint, error) {
 
 	refResponseIDs := specC.GetRefResponseIDs()
 
-	var list []uint
 	for _, v := range refResponseIDs {
 		list = append(list, uint(v))
 	}
