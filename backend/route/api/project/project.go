@@ -16,10 +16,7 @@ import (
 	projectbase "github.com/apicat/apicat/v2/backend/route/proto/project/base"
 	projectrequest "github.com/apicat/apicat/v2/backend/route/proto/project/request"
 	projectresponse "github.com/apicat/apicat/v2/backend/route/proto/project/response"
-	collectionrelations "github.com/apicat/apicat/v2/backend/service/collection_relations"
-	definitionrelations "github.com/apicat/apicat/v2/backend/service/definition_relations"
-	globalrelations "github.com/apicat/apicat/v2/backend/service/global_relations"
-	projectrelations "github.com/apicat/apicat/v2/backend/service/project_relations"
+	"github.com/apicat/apicat/v2/backend/service/relations"
 	"github.com/apicat/apicat/v2/backend/utils/onetime_token"
 
 	"encoding/json"
@@ -132,12 +129,12 @@ func (pai *projectApiImpl) Create(ctx *gin.Context, opt *projectrequest.CreatePr
 		project.ServersImport(ctx, p.ID, content.Servers)
 
 		refContentVirtualIDToID := &collection.RefContentVirtualIDToId{}
-		refContentVirtualIDToID.GlobalParameters = globalrelations.ImportGlobalParameters(ctx, p.ID, content.Globals.Parameters)
-		refContentVirtualIDToID.DefinitionParameters = definitionrelations.ImportDefinitionParameters(ctx, p.ID, content.Definitions.Parameters)
-		refContentVirtualIDToID.DefinitionSchemas = definitionrelations.ImportDefinitionSchemas(ctx, p.ID, content.Definitions.Schemas, selfMember, 0)
-		refContentVirtualIDToID.DefinitionResponses = definitionrelations.ImportDefinitionResponses(ctx, p.ID, content.Definitions.Responses, selfMember, refContentVirtualIDToID.DefinitionSchemas, 0)
+		refContentVirtualIDToID.GlobalParameters = relations.ImportGlobalParameters(ctx, p.ID, content.Globals.Parameters)
+		// refContentVirtualIDToID.DefinitionParameters = relations.ImportDefinitionParameters(ctx, p.ID, content.Definitions.Parameters)
+		refContentVirtualIDToID.DefinitionSchemas = relations.ImportDefinitionSchemas(ctx, p.ID, content.Definitions.Schemas, selfMember, 0)
+		refContentVirtualIDToID.DefinitionResponses = relations.ImportDefinitionResponses(ctx, p.ID, content.Definitions.Responses, selfMember, refContentVirtualIDToID.DefinitionSchemas, 0)
 
-		collectionrelations.CollectionImport(ctx, selfMember, p.ID, 0, content.Collections, refContentVirtualIDToID)
+		relations.CollectionImport(ctx, selfMember, p.ID, 0, content.Collections, refContentVirtualIDToID)
 	}
 
 	return &projectresponse.ProjectListItem{
@@ -534,12 +531,12 @@ func Export(ctx *gin.Context) {
 		return
 	}
 
-	apicatData := spec.NewSpec()
-	projectrelations.SpecFillInfo(ctx, apicatData, p)
-	projectrelations.SpecFillServers(ctx, apicatData, p.ID)
-	projectrelations.SpecFillGlobals(ctx, apicatData, p.ID)
-	projectrelations.SpecFillDefinitions(ctx, apicatData, p.ID)
-	projectrelations.SpecFillCollections(ctx, apicatData, p.ID)
+	apicatData := spec.NewEmptySpec()
+	relations.SpecFillInfo(ctx, apicatData, p)
+	relations.SpecFillServers(ctx, apicatData, p.ID)
+	relations.SpecFillGlobals(ctx, apicatData, p.ID)
+	relations.SpecFillDefinitions(ctx, apicatData, p.ID)
+	relations.SpecFillCollections(ctx, apicatData, p.ID)
 	if apicatDataJson, err := json.Marshal(apicatData); err != nil {
 		slog.ErrorContext(ctx, "export", "marshalErr", err)
 	} else {
@@ -549,15 +546,15 @@ func Export(ctx *gin.Context) {
 	var content []byte
 	switch t.Type {
 	case "swagger":
-		content, err = openapi.Encode(apicatData, "2.0", "json")
+		content, err = openapi.Generate(apicatData, "2.0", "json")
 	case "openapi3.0.0":
-		content, err = openapi.Encode(apicatData, "3.0.0", "json")
+		content, err = openapi.Generate(apicatData, "3.0.0", "json")
 	case "openapi3.0.1":
-		content, err = openapi.Encode(apicatData, "3.0.1", "json")
+		content, err = openapi.Generate(apicatData, "3.0.1", "json")
 	case "openapi3.0.2":
-		content, err = openapi.Encode(apicatData, "3.0.2", "json")
+		content, err = openapi.Generate(apicatData, "3.0.2", "json")
 	case "openapi3.1.0":
-		content, err = openapi.Encode(apicatData, "3.1.0", "json")
+		content, err = openapi.Generate(apicatData, "3.1.0", "json")
 	case "HTML":
 		content, err = export.HTML(apicatData)
 	case "md":

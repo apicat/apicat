@@ -4,7 +4,6 @@ import (
 	"io"
 
 	"github.com/apicat/apicat/v2/backend/module/spec"
-
 	"github.com/gomarkdown/markdown"
 	"github.com/gomarkdown/markdown/ast"
 	"github.com/gomarkdown/markdown/parser"
@@ -17,15 +16,15 @@ func ToDocment(md []byte) *spec.Document {
 	doc := p.Parse(md)
 
 	renderer := &markdownRenderDoc{
-		tree: make([]*spec.DocNode, 0),
+		tree: make([]*spec.CollectionDoc, 0),
 	}
 	markdown.Render(doc, renderer)
 	return &spec.Document{Items: renderer.tree}
 }
 
 type markdownRenderDoc struct {
-	tree  []*spec.DocNode
-	state []*spec.DocNode
+	tree  []*spec.CollectionDoc
+	state []*spec.CollectionDoc
 }
 
 func (r *markdownRenderDoc) RenderNode(w io.Writer, node ast.Node, entering bool) ast.WalkStatus {
@@ -78,10 +77,10 @@ func (r *markdownRenderDoc) statePop() {
 	}
 }
 
-func (r *markdownRenderDoc) statePush(n *spec.DocNode) {
+func (r *markdownRenderDoc) statePush(n *spec.CollectionDoc) {
 	last := r.stateNode()
 	if last == nil {
-		r.state = []*spec.DocNode{n}
+		r.state = []*spec.CollectionDoc{n}
 		r.tree = append(r.tree, n)
 	} else {
 		last.Content = append(last.Content, n)
@@ -89,7 +88,7 @@ func (r *markdownRenderDoc) statePush(n *spec.DocNode) {
 	}
 }
 
-func (r *markdownRenderDoc) stateNode() *spec.DocNode {
+func (r *markdownRenderDoc) stateNode() *spec.CollectionDoc {
 	n := len(r.state)
 	if n == 0 {
 		return nil
@@ -100,7 +99,7 @@ func (r *markdownRenderDoc) stateNode() *spec.DocNode {
 func (r *markdownRenderDoc) block(name string, entering bool, attrs ...attribute) {
 	if entering {
 		r.statePush(
-			&spec.DocNode{
+			&spec.CollectionDoc{
 				Type:  name,
 				Attrs: megredAttrs(attrs),
 			},
@@ -111,7 +110,7 @@ func (r *markdownRenderDoc) block(name string, entering bool, attrs ...attribute
 }
 
 func (r *markdownRenderDoc) inline(name string, text []byte, attrs ...attribute) {
-	n := &spec.DocNode{
+	n := &spec.CollectionDoc{
 		Type:  name,
 		Attrs: megredAttrs(attrs),
 	}
@@ -126,7 +125,7 @@ func (r *markdownRenderDoc) mark(name string, entering bool, attrs ...attribute)
 	if entering {
 		cur := r.stateNode()
 		cur.Mark = append(cur.Mark,
-			&spec.DocNode{
+			&spec.CollectionDoc{
 				Type:  name,
 				Attrs: megredAttrs(attrs),
 			},

@@ -24,18 +24,14 @@ type Role string
 
 type TeamMember struct {
 	ID              uint      `gorm:"primarykey"`
-	TeamID          string    `gorm:"type:varchar(24);uniqueIndex:ukey;not null;comment:团队id"`
-	UserID          uint      `gorm:"type:bigint;uniqueIndex:ukey;not null;comment:用户id"`
-	Role            Role      `gorm:"type:varchar(32);comment:角色"`
-	Status          string    `gorm:"type:varchar(32);default:active;comment:状态"`
-	InvitationToken string    `gorm:"type:varchar(32);index;comment:邀请码"`
-	InvitedBy       uint      `gorm:"type:bigint;default:0;comment:邀请人的TeamMemberID"`
-	LastActiveAt    time.Time `gorm:"type:datetime;not null;comment:最后活跃时间"`
+	TeamID          string    `gorm:"type:varchar(24);uniqueIndex:ukey;not null;comment:team id"`
+	UserID          uint      `gorm:"type:bigint;uniqueIndex:ukey;not null;comment:user id"`
+	Role            Role      `gorm:"type:varchar(32);comment:team member role"`
+	Status          string    `gorm:"type:varchar(32);default:active;comment:team member status"`
+	InvitationToken string    `gorm:"type:varchar(32);index;comment:invitation code"`
+	InvitedBy       uint      `gorm:"type:bigint;default:0;comment:invited by member id"`
+	LastActiveAt    time.Time `gorm:"type:datetime;not null;comment:last active time"`
 	model.TimeModel
-}
-
-func init() {
-	model.RegMigrate(&TeamMember{})
 }
 
 var roleRanking = map[Role]int{

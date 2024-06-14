@@ -8,6 +8,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/i18n"
 	"github.com/apicat/apicat/v2/backend/model/definition"
 	"github.com/apicat/apicat/v2/backend/model/project"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 	"github.com/apicat/apicat/v2/backend/route/middleware/access"
 	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 	protobase "github.com/apicat/apicat/v2/backend/route/proto/base"
@@ -15,7 +16,7 @@ import (
 	projectrequest "github.com/apicat/apicat/v2/backend/route/proto/project/request"
 	projectresponse "github.com/apicat/apicat/v2/backend/route/proto/project/response"
 	"github.com/apicat/apicat/v2/backend/service/ai"
-	definitionrelations "github.com/apicat/apicat/v2/backend/service/definition_relations"
+	"github.com/apicat/apicat/v2/backend/service/reference"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -49,6 +50,11 @@ func (dsai *definitionSchemaApiImpl) Create(ctx *gin.Context, opt *projectreques
 		}
 	}
 
+	// 创建schema时如果schema为空则补充默认结构
+	if opt.Type == definition.SchemaSchema && opt.Schema == "" {
+		opt.Schema = jsonschema.NewSchema(jsonschema.T_OBJ).ToJson()
+	}
+
 	ds := &definition.DefinitionSchema{
 		ProjectID:   selfPM.ProjectID,
 		ParentID:    opt.ParentID,
@@ -72,7 +78,7 @@ func (dsai *definitionSchemaApiImpl) Create(ctx *gin.Context, opt *projectreques
 
 func (dsai *definitionSchemaApiImpl) List(ctx *gin.Context, opt *protobase.ProjectIdOption) (*projectresponse.DefinitionSchemaTree, error) {
 	selfP := access.GetSelfProject(ctx)
-	list, err := definition.GetDefinitionSchemas(ctx, selfP)
+	list, err := definition.GetDefinitionSchemas(ctx, selfP.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "project.GetDefinitionSchemas", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchema.FailedToGetList"))
@@ -137,17 +143,27 @@ func (dsai *definitionSchemaApiImpl) Update(ctx *gin.Context, opt *projectreques
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("definitionSchema.DoesNotExist"))
 	}
 
-	if err := ds.Update(ctx, opt.Name, opt.Description, opt.Schema, selfTM.ID); err != nil {
-		slog.ErrorContext(ctx, "ds.Update", "err", err)
+	oldRefSchemaIDs, err := reference.ParseRefSchemasFromSchema(ds)
+	if err != nil {
+		slog.ErrorContext(ctx, "reference.ParseRefSchemasFromSchema", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
 	}
+
+	ds.Name = opt.Name
+	ds.Description = opt.Description
+	ds.Schema = opt.Schema
 
 	// 编辑模型后更新模型的引用关系
 	if ds.Type != definition.SchemaCategory {
 		// 更新模型引用关系
-		if err := definitionrelations.UpdateSchemaReference(ctx, ds); err != nil {
-			slog.ErrorContext(ctx, "definitionrelations.UpdateSchemaReference", "err", err)
+		if err := reference.UpdateSchemaRef(ctx, ds, oldRefSchemaIDs); err != nil {
+			slog.ErrorContext(ctx, "reference.UpdateSchemaRef", "err", err)
 		}
+	}
+
+	if err := ds.Update(ctx, opt.Name, opt.Description, opt.Schema, selfTM.ID); err != nil {
+		slog.ErrorContext(ctx, "ds.Update", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
 	}
 
 	return &ginrpc.Empty{}, nil
@@ -193,14 +209,8 @@ func (dsai *definitionSchemaApiImpl) Delete(ctx *gin.Context, opt *projectreques
 	}
 
 	if ds.Type != definition.SchemaCategory {
-		if opt.Deref {
-			if err := definitionrelations.UnpackDefinitionSchemaReferences(ctx, ds); err != nil {
-				slog.ErrorContext(ctx, "definitionrelations.UnpackDefinitionSchemaReferences", "err", err)
-			}
-		} else {
-			if err := definitionrelations.RemoveDefinitionSchemaReferences(ctx, ds); err != nil {
-				slog.ErrorContext(ctx, "definitionrelations.RemoveDefinitionSchemaReferences", "err", err)
-			}
+		if err := reference.DerefSchema(ctx, ds, opt.Deref); err != nil {
+			slog.ErrorContext(ctx, "reference.DerefSchema", "err", err)
 		}
 	}
 

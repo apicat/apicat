@@ -7,11 +7,9 @@ import (
 	collectionbase "github.com/apicat/apicat/v2/backend/route/proto/collection/base"
 	collectionresponse "github.com/apicat/apicat/v2/backend/route/proto/collection/response"
 	projectbase "github.com/apicat/apicat/v2/backend/route/proto/project/base"
-
-	"github.com/gin-gonic/gin"
 )
 
-func convertModelCollection(ctx *gin.Context, c *collection.Collection, cUserInfo, uUserInfo *user.User) *collectionresponse.Collection {
+func convertModelCollection(c *collection.Collection, cUserInfo, uUserInfo *user.User) *collectionresponse.Collection {
 	return &collectionresponse.Collection{
 		EmbedInfo: protobase.EmbedInfo{
 			ID:        c.ID,
@@ -35,7 +33,7 @@ func convertModelCollection(ctx *gin.Context, c *collection.Collection, cUserInf
 	}
 }
 
-func convertModelCollectionHistory(ctx *gin.Context, c *collection.CollectionHistory, userInfo *user.User) *collectionresponse.CollectionHistory {
+func convertModelCollectionHistory(c *collection.CollectionHistory, userInfo *user.User) *collectionresponse.CollectionHistory {
 	return &collectionresponse.CollectionHistory{
 		IdCreateTimeInfo: protobase.IdCreateTimeInfo{
 			ID:        c.ID,

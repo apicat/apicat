@@ -245,7 +245,7 @@ func openapiAndSwaggerFileParse(fileContent string) (*spec.Spec, error) {
 		return nil, ginrpc.NewError(http.StatusBadRequest, err)
 	}
 
-	return openapi.Decode(rawContent)
+	return openapi.Parse(rawContent)
 }
 
 // apicat 文件解析
@@ -265,7 +265,7 @@ func apicatFileParse(fileContent string) (*spec.Spec, error) {
 		return nil, ginrpc.NewError(http.StatusBadRequest, err)
 	}
 
-	return spec.ParseJSON(rawContent)
+	return spec.NewSpecFromJson(rawContent)
 }
 
 // postman 文件解析
@@ -288,7 +288,7 @@ func postmanFileParse(fileContent string) (*spec.Spec, error) {
 	return postman.Import(rawContent)
 }
 
-func dsDerefWithSpec(ctx *gin.Context, ds *definition.DefinitionSchema) (*spec.Schema, error) {
+func dsDerefWithSpec(ctx *gin.Context, ds *definition.DefinitionSchema) (*spec.DefinitionModel, error) {
 	schemaSpec, err := ds.ToSpec()
 	if err != nil {
 		return nil, err
@@ -299,7 +299,13 @@ func dsDerefWithSpec(ctx *gin.Context, ds *definition.DefinitionSchema) (*spec.S
 		return nil, err
 	}
 
-	schemaSpec.Deref(schemas...)
+	if err := schemaSpec.DeepDeref(schemas); err != nil {
+		return nil, err
+	}
+
+	if err := schemaSpec.Schema.ReplaceAllOf(); err != nil {
+		return nil, err
+	}
 
 	return schemaSpec, nil
 }

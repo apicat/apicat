@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { JSONSchemaEditor } from '@apicat/components'
+import { JSONSchemaTable } from '@apicat/components'
 import { Close } from '@element-plus/icons-vue'
 import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
@@ -79,7 +79,7 @@ defineExpose({
           <h1 class="ac-document__title">
             {{ leftSchema.title }}
           </h1>
-          <JSONSchemaEditor :schema="leftSchema.schema" readonly :definition-schemas="schemaStore.schemas" />
+          <JSONSchemaTable :schema="leftSchema.schema" readonly :definition-schemas="schemaStore.schemas" />
         </div>
       </div>
 
@@ -103,7 +103,7 @@ defineExpose({
           <h1 class="ac-document__title">
             {{ rightSchema.title }}
           </h1>
-          <JSONSchemaEditor :schema="rightSchema.schema" readonly :definition-schemas="schemaStore.schemas" />
+          <JSONSchemaTable :schema="rightSchema.schema" readonly :definition-schemas="schemaStore.schemas" />
         </div>
       </div>
     </section>

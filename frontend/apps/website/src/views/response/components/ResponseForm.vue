@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { JSONSchemaEditor, SimpleParamTable, ToggleHeading } from '@apicat/components'
+import { JSONSchemaTable, SimpleParamTable, ToggleHeading } from '@apicat/components'
 import ResponseExamples from './ResponseExamples.vue'
 import { useResponse } from './useResponse'
 import { ResponseContentTypesMap } from '@/commons/constant'
+import { apiParseSchema } from '@/api/project/definition/schema'
 
 export interface ResponseFormProps {
   response: Definition.ResponseDetail
@@ -39,7 +40,7 @@ const { examples, headers, contentType, isJSONSchema, contentSchema } = useRespo
       </template>
 
       <div class="">
-        <JSONSchemaEditor v-if="isJSONSchema" v-model:schema="contentSchema" :definition-schemas="definitionSchemas" />
+        <JSONSchemaTable v-if="isJSONSchema" v-model:schema="contentSchema" :definition-schemas="definitionSchemas" :handle-parse-schema="apiParseSchema" />
         <ResponseExamples v-model:examples="examples" :lang="(ResponseContentTypesMap as any)[contentType]" />
       </div>
     </ToggleHeading>

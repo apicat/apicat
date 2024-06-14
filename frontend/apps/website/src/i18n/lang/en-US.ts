@@ -18,7 +18,7 @@ const en: any = {
       createTeam: 'Create Team',
       joinTeam: 'Join Team',
       connectOAuth: 'Connect OAuth',
-      schemaHistory: 'Schema History',
+      schemaHistory: 'Model History',
       collectionHistory: 'Collection History',
       login: 'Login',
       register: 'Register',
@@ -183,7 +183,7 @@ const en: any = {
         imgLoadFail: 'Image fail to load, plase try again.',
         imgcut: 'Crop region selection',
         imgTooLarge: 'Image too large. It should be less than 1MB.',
-        imgTooSmall: "The image dimensions should be greater than '{0}x{1}'.",
+        imgTooSmall: 'The image dimensions should be greater than \'{0}x{1}\'.',
       },
       email: {
         left_title: 'Email',
@@ -215,7 +215,7 @@ const en: any = {
       title: 'Team',
       no_current: 'No team selected',
       create: {
-        title0: "You don't have a team yet",
+        title0: 'You don\'t have a team yet',
         title1: 'Create team',
         name: 'Team name',
         submit: 'Create a new team',
@@ -280,7 +280,7 @@ const en: any = {
         transfer: {
           title: 'Transfer ownership',
           holder: 'Select an admin for the team',
-          tip: "You can transfer this team to another administrator, and once that's done, you'll no longer be the owner of the team, but become a team member.",
+          tip: 'You can transfer this team to another administrator, and once that\'s done, you\'ll no longer be the owner of the team, but become a team member.',
           btn: 'Transfer',
           pop: {
             tip: 'After the transfer, you will no longer be the team owner. Please confirm.',
@@ -378,7 +378,7 @@ const en: any = {
         quitProjectTitle: 'Exit Project',
         quitProject: 'Are you sure you want to exit this project?',
         transferProjectToMember: 'Are you sure you want to transfer this project to that member?',
-        targetMemberPermissionError: "The member's role has been changed. Please try again.",
+        targetMemberPermissionError: 'The member\'s role has been changed. Please try again.',
         noData: 'No project information available',
       },
       list: {
@@ -687,31 +687,31 @@ const en: any = {
         aiGenerateInterface: 'Create an API with AI',
         newInterface: 'Create an API',
         newGroup: 'Create a category',
-        confirmDeleteGroup: "Are you sure you want to delete the category '{0}'?",
-        confirmDeleteInterface: "Are you sure you want to delete the API '{0}'?",
+        confirmDeleteGroup: 'Are you sure you want to delete the category \'{0}\'?',
+        confirmDeleteInterface: 'Are you sure you want to delete the API \'{0}\'?',
       },
       unnamedInterface: 'Unnamed',
       unnamedCategory: 'UnnamedCategory',
     },
     schema: {
-      title: 'Schemas',
+      title: 'Models',
       common: {
-        aiGenerateSchema: 'Create a schema with AI',
+        aiGenerateSchema: 'Create a model with AI',
       },
       tips: {
-        schemaInputTitle: 'Please enter the schema name you want to generate',
-        unref: 'Unlink content referencing this schema',
+        schemaInputTitle: 'Please enter the model name you want to generate',
+        unref: 'Pre-copy the model content to all reference locations before deletion.',
       },
       form: {
-        title: 'Please enter schema title',
-        desc: 'Please enter schema description',
+        title: 'Please enter model title',
+        desc: 'Please enter model description',
       },
       popoverMenus: {
-        aiGenerateSchema: 'Create a schema with AI',
-        newSchema: 'Create a schema',
+        aiGenerateSchema: 'Create a model with AI',
+        newSchema: 'Create a model',
         newGroup: 'Create a category',
-        confirmDeleteGroup: "Are you sure you want to delete category '{0}'?",
-        confirmDeleteSchema: "Are you sure you want to delete model '{0}'?",
+        confirmDeleteGroup: 'Are you sure you want to delete category \'{0}\'?',
+        confirmDeleteSchema: 'Are you sure you want to delete model \'{0}\'?',
       },
       history: {
         title: 'History',
@@ -727,21 +727,22 @@ const en: any = {
         },
       },
       ai: {
-        title: 'Create Schema with AI',
-        aiPromptPlaceholder: 'Input the description information of the schema you want.',
+        title: 'Create Model with AI',
+        aiPromptPlaceholder: 'Input the description information of the model you want.',
       },
       page: {
         edit: {
           titleNull: 'Title can not be none',
         },
       },
-      unnamedSchema: 'UnnamedSchema',
+      unnamedSchema: 'UnnamedModel',
       unnamedCategory: 'UnnamedCategory',
     },
     definitionResponse: {
       title: 'Responses',
       tips: {
         confirmDelete: 'Are you sure you want to delete this public response?',
+        unref: 'Pre-copy the response content to all reference locations before deletion.',
       },
       form: {
         title: 'Please enter response title',
@@ -750,7 +751,7 @@ const en: any = {
       popoverMenus: {
         newDefinitionResponse: 'Create a response',
         newGroup: 'Create a category',
-        confirmDeleteDefinitionResponse: "Are you sure you want to delete the '{0}' response?",
+        confirmDeleteDefinitionResponse: 'Are you sure you want to delete the \'{0}\' response?',
         unnamedDefinitionResponse: 'Unnamed Response',
       },
       page: {
@@ -941,6 +942,7 @@ const en: any = {
         left_title: 'Users',
         searchKeywordPlaceholder: 'Search by username',
         updatePasswordTitle: 'Update password',
+        updatePassword: 'Password',
         removeUserTitle: 'Remove user',
         removeUserTip: 'Do you want to remove this user?',
       },

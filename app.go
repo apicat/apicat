@@ -7,6 +7,7 @@ import (
 	"net/url"
 
 	"github.com/apicat/apicat/v2/backend/config"
+	"github.com/apicat/apicat/v2/backend/migrations"
 	"github.com/apicat/apicat/v2/backend/model"
 	"github.com/apicat/apicat/v2/backend/model/sysconfig"
 	"github.com/apicat/apicat/v2/backend/module/cache"
@@ -37,6 +38,10 @@ func (a *App) Run() error {
 
 	if err := model.Init(); err != nil {
 		return fmt.Errorf("init %v", err)
+	}
+
+	if err := migrations.MigrationHelper.Run(model.DBWithoutCtx()); err != nil {
+		return fmt.Errorf("run migration err: %v", err)
 	}
 
 	if err := cache.Init(config.Get().Cache.ToCfg()); err != nil {

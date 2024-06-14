@@ -13,7 +13,6 @@ import (
 )
 
 var defaultDB *gorm.DB
-var autoMigrateTables = []any{}
 
 func DB(ctx context.Context) *gorm.DB {
 	return defaultDB.WithContext(ctx)
@@ -21,11 +20,6 @@ func DB(ctx context.Context) *gorm.DB {
 
 func DBWithoutCtx() *gorm.DB {
 	return defaultDB
-}
-
-// RegMigrate 注册需要自动同步表结构的对象
-func RegMigrate(v ...any) {
-	autoMigrateTables = append(autoMigrateTables, v...)
 }
 
 func Init() error {
@@ -59,11 +53,7 @@ func Init() error {
 	if cfg.ConnMaxIdleTime > 0 {
 		rawDB.SetConnMaxLifetime(cfg.ConnMaxIdleTime)
 	}
-	if len(autoMigrateTables) > 0 {
-		if err := db.AutoMigrate(autoMigrateTables...); err != nil {
-			return err
-		}
-	}
+
 	defaultDB = db
 	return nil
 }

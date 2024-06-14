@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { JSONSchemaEditor } from '@apicat/components'
+import { JSONSchemaTable } from '@apicat/components'
 import { useNamespace } from '@apicat/hooks'
 import { ElMessage, ClickOutside as vClickOutside } from 'element-plus'
 import { useI18n } from 'vue-i18n'
@@ -12,6 +12,7 @@ import { getSchemaHistoryPath } from '@/router/history'
 import { injectPagesMode } from '@/layouts/ProjectDetailLayout/composables/usePagesMode'
 import { useTitleInputFocus } from '@/hooks/useTitleInputFocus'
 import { injectAsyncInitTask } from '@/hooks/useWaitAsyncTask'
+import { apiParseSchema } from '@/api/project/definition/schema'
 
 defineOptions({ inheritAttrs: false })
 const props = defineProps<{ project_id: string; schemaID: string }>()
@@ -153,7 +154,15 @@ injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
       </div>
     </div>
 
-    <JSONSchemaEditor v-if="!loading && schema" :key="schema.id" v-model:schema="schema.schema" :readonly="readonly" :root-schema-key="schema.id" :definition-schemas="schemas" />
+    <JSONSchemaTable
+      v-if="!loading && schema"
+      :key="schema.id"
+      v-model:schema="schema.schema"
+      :readonly="readonly"
+      :root-schema-key="schema.id"
+      :definition-schemas="schemas"
+      :handle-parse-schema="apiParseSchema"
+    />
     <GenerateCode v-if="readonly && schema" ref="generateCodeRef" :schema="schema" />
   </div>
 </template>

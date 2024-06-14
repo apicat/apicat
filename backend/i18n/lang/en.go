@@ -227,4 +227,8 @@ var En = map[string]map[string]string{
 		"OpenAIConfigInvalid":      "Invalid OpenAI configuration.",
 		"AzureOpenAIConfigInvalid": "Invalid Azure OpenAI configuration.",
 	},
+	"jsonschema": {
+		"JsonSchemaIncorrect": "Parsing failed, please check if the JSON Schema is correct.",
+		"FailedToParse":       "Parsing failed, please try again later.",
+	},
 }

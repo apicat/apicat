@@ -14,7 +14,7 @@ func TestMd(t *testing.T) {
 		t.Log(err)
 		t.Fail()
 	}
-	s, err := spec.ParseJSON(raw)
+	s, err := spec.NewSpecFromJson(raw)
 	if err != nil {
 		t.Log(err)
 		t.Fail()
@@ -33,7 +33,7 @@ func TestHTML(t *testing.T) {
 		t.Log(err)
 		t.Fail()
 	}
-	s, err := spec.ParseJSON(raw)
+	s, err := spec.NewSpecFromJson(raw)
 	if err != nil {
 		t.Log(err)
 		t.Fail()

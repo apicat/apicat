@@ -12,16 +12,12 @@ import (
 
 type ShareTmpToken struct {
 	ID           uint      `gorm:"type:bigint;primaryKey;autoIncrement"`
-	ShareToken   string    `gorm:"type:varchar(255);index;not null;comment:md5的分享token"`
-	Expiration   time.Time `gorm:"type:datetime;not null;comment:过期时间"`
-	ProjectID    string    `gorm:"type:varchar(24);index;not null;comment:项目id"`
-	CollectionID uint      `gorm:"type:bigint;index;comment:集合id"`
+	ShareToken   string    `gorm:"type:varchar(255);index;not null;comment:share token"`
+	Expiration   time.Time `gorm:"type:datetime;not null;comment:expiration time"`
+	ProjectID    string    `gorm:"type:varchar(24);index;not null;comment:project id"`
+	CollectionID uint      `gorm:"type:bigint;index;comment:collection id"`
 	CreatedAt    time.Time
 	UpdatedAt    time.Time
-}
-
-func init() {
-	model.RegMigrate(&ShareTmpToken{})
 }
 
 func (stt *ShareTmpToken) Get(ctx context.Context) (bool, error) {

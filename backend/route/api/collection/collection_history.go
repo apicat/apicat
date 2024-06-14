@@ -17,7 +17,7 @@ import (
 	collectionbase "github.com/apicat/apicat/v2/backend/route/proto/collection/base"
 	collectionrequest "github.com/apicat/apicat/v2/backend/route/proto/collection/request"
 	collectionresponse "github.com/apicat/apicat/v2/backend/route/proto/collection/response"
-	collectionrelations "github.com/apicat/apicat/v2/backend/service/collection_relations"
+	"github.com/apicat/apicat/v2/backend/service/relations"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -115,7 +115,7 @@ func (srv *collectionHistoryApiImpl) Get(ctx *gin.Context, opt *collectionreques
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collectionHistory.FailedToGet"))
 	}
 
-	return convertModelCollectionHistory(ctx, ch, userInfo), nil
+	return convertModelCollectionHistory(ch, userInfo), nil
 }
 
 func (srv *collectionHistoryApiImpl) Restore(ctx *gin.Context, opt *collectionrequest.CollectionHistoryIDOption) (*ginrpc.Empty, error) {
@@ -236,15 +236,24 @@ func (srv *collectionHistoryApiImpl) Diff(ctx *gin.Context, opt *collectionreque
 
 	// 对文档进行解引用
 	c.Content = originalCH.Content
-	originalDoc, err := collectionrelations.CollectionDerefWithSpec(ctx, c)
+	originalDoc, err := relations.CollectionDerefWithSpec(ctx, c)
 	if err != nil {
 		slog.ErrorContext(ctx, "original.collectionDerefWithSpec", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collectionHistory.DiffFailed"))
 	}
+	if err := originalDoc.Content.ReplaceAllOf(); err != nil {
+		slog.ErrorContext(ctx, "originalDoc.Content.ReplaceAllOf", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collectionHistory.DiffFailed"))
+	}
+
 	c.Content = targetCH.Content
-	targetDoc, err := collectionrelations.CollectionDerefWithSpec(ctx, c)
+	targetDoc, err := relations.CollectionDerefWithSpec(ctx, c)
 	if err != nil {
 		slog.ErrorContext(ctx, "target.collectionDerefWithSpec", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collectionHistory.DiffFailed"))
+	}
+	if err := targetDoc.Content.ReplaceAllOf(); err != nil {
+		slog.ErrorContext(ctx, "targetDoc.Content.ReplaceAllOf", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collectionHistory.DiffFailed"))
 	}
 
@@ -268,7 +277,7 @@ func (srv *collectionHistoryApiImpl) Diff(ctx *gin.Context, opt *collectionreque
 	targetCH.Content = string(targetContentStr)
 
 	return &collectionresponse.DiffCollectionHistories{
-		Doc1: convertModelCollectionHistory(ctx, originalCH, originalCHUserInfo),
-		Doc2: convertModelCollectionHistory(ctx, targetCH, targetCHUserInfo),
+		Doc1: convertModelCollectionHistory(originalCH, originalCHUserInfo),
+		Doc2: convertModelCollectionHistory(targetCH, targetCHUserInfo),
 	}, nil
 }

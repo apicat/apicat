@@ -21,22 +21,18 @@ const (
 
 type DefinitionResponse struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:项目id"`
-	ParentID     uint   `gorm:"type:bigint;not null;comment:父级id"`
-	Name         string `gorm:"type:varchar(255);not null;comment:响应名称"`
-	Description  string `gorm:"type:varchar(255);not null;comment:状态描述"`
-	Type         string `gorm:"type:varchar(255);not null;comment:响应类型:category,response"`
-	Header       string `gorm:"type:mediumtext;comment:响应头"`
-	Content      string `gorm:"type:mediumtext;comment:响应内容"`
-	DisplayOrder uint   `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
-	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:创建成员id"`
-	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:最后更新成员id"`
-	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:删除成员id"`
+	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:project id"`
+	ParentID     uint   `gorm:"type:bigint;not null;comment:parent response id"`
+	Name         string `gorm:"type:varchar(255);not null;comment:response name"`
+	Description  string `gorm:"type:varchar(255);not null;comment:response description"`
+	Type         string `gorm:"type:varchar(255);not null;comment:response type:category,response"`
+	Header       string `gorm:"type:mediumtext;comment:response header"`
+	Content      string `gorm:"type:mediumtext;comment:response content"`
+	DisplayOrder uint   `gorm:"type:int(11);not null;default:0;comment:display order"`
+	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:created by member id"`
+	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:updated by member id"`
+	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:deleted by member id"`
 	model.TimeModel
-}
-
-func init() {
-	model.RegMigrate(&DefinitionResponse{})
 }
 
 func (dr *DefinitionResponse) Get(ctx context.Context) (bool, error) {
@@ -105,13 +101,15 @@ func (dr *DefinitionResponse) Sort(ctx context.Context, parentID, displayOrder u
 	}).Error
 }
 
-func (dr *DefinitionResponse) ToSpec() (*spec.HTTPResponseDefine, error) {
-	r := &spec.HTTPResponseDefine{
-		ID:          int64(dr.ID),
-		ParentId:    uint64(dr.ParentID),
-		Name:        dr.Name,
-		Type:        dr.Type,
-		Description: dr.Description,
+func (dr *DefinitionResponse) ToSpec() (*spec.DefinitionResponse, error) {
+	r := &spec.DefinitionResponse{
+		BasicResponse: spec.BasicResponse{
+			ID:          int64(dr.ID),
+			Name:        dr.Name,
+			Description: dr.Description,
+		},
+		ParentId: int64(dr.ParentID),
+		Type:     dr.Type,
 	}
 
 	if dr.Header != "" {
@@ -126,4 +124,31 @@ func (dr *DefinitionResponse) ToSpec() (*spec.HTTPResponseDefine, error) {
 	}
 
 	return r, nil
+}
+
+func (dr *DefinitionResponse) DelRef(ctx context.Context, refSchema *DefinitionSchema, deref bool) error {
+	responseSpec, err := dr.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	refSchemaSpec, err := refSchema.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	if deref {
+		if err := responseSpec.Deref(refSchemaSpec); err != nil {
+			return err
+		}
+	} else {
+		responseSpec.DelRef(refSchemaSpec)
+	}
+
+	content, err := json.Marshal(responseSpec.Content)
+	if err != nil {
+		return err
+	}
+
+	return model.DB(ctx).Model(dr).Select("content").UpdateColumn("content", string(content)).Error
 }

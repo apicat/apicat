@@ -3,6 +3,7 @@ package route
 import (
 	"github.com/apicat/apicat/v2/backend/route/api/collection"
 	"github.com/apicat/apicat/v2/backend/route/api/iteration"
+	"github.com/apicat/apicat/v2/backend/route/api/jsonschema"
 	"github.com/apicat/apicat/v2/backend/route/api/project"
 	"github.com/apicat/apicat/v2/backend/route/api/sysconfig"
 	"github.com/apicat/apicat/v2/backend/route/api/team"
@@ -297,4 +298,9 @@ func registerModelSysconfig(g *gin.RouterGroup) {
 	g.GET("/sysconfigs/models", access.SysAdmin(), ginrpc.Handle(srv.Get))
 	g.PUT("/sysconfigs/models/openai", access.SysAdmin(), ginrpc.Handle(srv.UpdateOpenAI))
 	g.PUT("/sysconfigs/models/azure-openai", access.SysAdmin(), ginrpc.Handle(srv.UpdateAzureOpenAI))
+}
+
+func registerJsonSchema(g *gin.RouterGroup) {
+	srv := jsonschema.NewJsonSchemaApi()
+	g.POST("/jsonschema/parse", ginrpc.Handle(srv.Parse))
 }

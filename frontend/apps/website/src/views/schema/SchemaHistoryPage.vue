@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useNamespace } from '@apicat/hooks'
-import { JSONSchemaEditor } from '@apicat/components'
+import { JSONSchemaTable } from '@apicat/components'
 import { useI18n } from 'vue-i18n'
 import SchemaDiffDialog from './SchemaDiffDialog.vue'
 import { apiGetSchemaHistoryInfo, apiRestoreSchemaHistory } from '@/api/project/definition/schema'
@@ -73,7 +73,7 @@ watch(
       </div>
     </div>
     <div v-loading="loading" :class="[ns.b()]">
-      <JSONSchemaEditor :schema="schemaHistoryInfo.schema" readonly :definition-schemas="schemaStore.schemas" />
+      <JSONSchemaTable :schema="schemaHistoryInfo.schema" readonly :definition-schemas="schemaStore.schemas" />
     </div>
     <SchemaDiffDialog ref="schemaDiffRef" />
   </div>

@@ -4,7 +4,7 @@ import CollectionHistoryLayout from '@/layouts/CollectionHistoryLayout.vue'
 import SchemaHistoryLayout from '@/layouts/SchemaHistoryLayout.vue'
 
 const collectionHistoryPath = '/projects/:projectID/collection/:collectionID/history/:historyID?'
-const shcemaHistoryPath = '/projects/:projectID/schema/:schemaID/history/:historyID?'
+const shcemaHistoryPath = '/projects/:projectID/model/:schemaID/history/:historyID?'
 
 export function getCollectionHistoryPath(projectID: string, collectionID: number, historyID?: number) {
   return compile(collectionHistoryPath)({ projectID, collectionID, historyID })

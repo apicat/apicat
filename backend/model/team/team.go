@@ -13,14 +13,10 @@ import (
 
 type Team struct {
 	ID      string `gorm:"type:varchar(24);primarykey"`
-	Name    string `gorm:"type:varchar(255);not null;comment:团队名"`
-	Avatar  string `gorm:"type:varchar(255);comment:头像"`
-	OwnerID uint   `gorm:"type:bigint;comment:团队所有者id"`
+	Name    string `gorm:"type:varchar(255);not null;comment:team name"`
+	Avatar  string `gorm:"type:varchar(255);comment:team avatar"`
+	OwnerID uint   `gorm:"type:bigint;comment:team owner id"`
 	model.TimeModel
-}
-
-func init() {
-	model.RegMigrate(&Team{})
 }
 
 // Get 获取team

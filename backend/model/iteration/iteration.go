@@ -15,18 +15,14 @@ import (
 
 type Iteration struct {
 	ID          string `gorm:"type:varchar(24);primarykey"`
-	TeamID      string `gorm:"type:varchar(24);not null;comment:团队id"`
-	ProjectID   string `gorm:"type:varchar(24);index;not null;comment:项目id"`
-	Title       string `gorm:"type:varchar(255);not null;comment:迭代标题"`
-	Description string `gorm:"type:varchar(255);comment:迭代描述"`
-	CreatedBy   uint   `gorm:"type:bigint;not null;default:0;comment:创建人id"`
-	UpdatedBy   uint   `gorm:"type:bigint;not null;default:0;comment:最后更新人id"`
-	DeletedBy   uint   `gorm:"type:bigint;default:null;comment:删除人id"`
+	TeamID      string `gorm:"type:varchar(24);not null;comment:team id"`
+	ProjectID   string `gorm:"type:varchar(24);index;not null;comment:project id"`
+	Title       string `gorm:"type:varchar(255);not null;comment:iteartion title"`
+	Description string `gorm:"type:varchar(255);comment:iteration description"`
+	CreatedBy   uint   `gorm:"type:bigint;not null;default:0;comment:created by member id"`
+	UpdatedBy   uint   `gorm:"type:bigint;not null;default:0;comment:updated by member id"`
+	DeletedBy   uint   `gorm:"type:bigint;default:null;comment:deleted by member id"`
 	model.TimeModel
-}
-
-func init() {
-	model.RegMigrate(&Iteration{})
 }
 
 func (i *Iteration) Get(ctx context.Context) (bool, error) {

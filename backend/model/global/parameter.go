@@ -2,11 +2,11 @@ package global
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 
 	"github.com/apicat/apicat/v2/backend/model"
 	"github.com/apicat/apicat/v2/backend/module/spec"
+	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 )
 
 const (
@@ -18,17 +18,13 @@ const (
 
 type GlobalParameter struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:项目id"`
-	In           string `gorm:"type:varchar(32);not null;comment:位置:header,cookie,query,path"`
-	Name         string `gorm:"type:varchar(255);not null;comment:参数名称"`
-	Required     bool   `gorm:"type:tinyint;not null;comment:是否必传"`
-	Schema       string `gorm:"type:mediumtext;comment:参数内容"`
-	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
+	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:project id"`
+	In           string `gorm:"type:varchar(32);not null;comment:param in:header,cookie,query,path"`
+	Name         string `gorm:"type:varchar(255);not null;comment:param name"`
+	Required     bool   `gorm:"type:tinyint;not null;comment:is required"`
+	Schema       string `gorm:"type:mediumtext;comment:param schema"`
+	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:display order"`
 	model.TimeModel
-}
-
-func init() {
-	model.RegMigrate(&GlobalParameter{})
 }
 
 // Get 获取全局参数
@@ -90,8 +86,9 @@ func (gp *GlobalParameter) ToSpec() (*spec.Parameter, error) {
 	}
 
 	if gp.Schema != "" {
-		if err := json.Unmarshal([]byte(gp.Schema), &p.Schema); err != nil {
-			return p, err
+		var err error
+		if p.Schema, err = jsonschema.NewSchemaFromJson(gp.Schema); err != nil {
+			return nil, err
 		}
 	}
 

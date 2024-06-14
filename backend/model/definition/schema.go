@@ -21,21 +21,17 @@ const (
 
 type DefinitionSchema struct {
 	ID           uint   `gorm:"type:bigint;primaryKey;autoIncrement"`
-	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:项目id"`
-	ParentID     uint   `gorm:"type:bigint;not null;comment:父级id"`
-	Name         string `gorm:"type:varchar(255);not null;comment:名称"`
-	Description  string `gorm:"type:varchar(255);comment:描述"`
-	Type         string `gorm:"type:varchar(255);not null;comment:类型:category,schema"`
-	Schema       string `gorm:"type:mediumtext;comment:内容"`
-	DisplayOrder uint   `gorm:"type:int(11);not null;default:0;comment:显示顺序"`
-	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:创建成员id"`
-	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:最后更新成员id"`
-	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:删除成员id"`
+	ProjectID    string `gorm:"type:varchar(24);index;not null;comment:project id"`
+	ParentID     uint   `gorm:"type:bigint;not null;comment:parent schema id"`
+	Name         string `gorm:"type:varchar(255);not null;comment:scheam name"`
+	Description  string `gorm:"type:varchar(255);comment:schema description"`
+	Type         string `gorm:"type:varchar(255);not null;comment:schema type:category,schema"`
+	Schema       string `gorm:"type:mediumtext;comment:schema content"`
+	DisplayOrder uint   `gorm:"type:int(11);not null;default:0;comment:display order"`
+	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:created by member id"`
+	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:updated by member id"`
+	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:deleted by member id"`
 	model.TimeModel
-}
-
-func init() {
-	model.RegMigrate(&DefinitionSchema{})
 }
 
 func (ds *DefinitionSchema) Get(ctx context.Context) (bool, error) {
@@ -113,8 +109,8 @@ func (ds *DefinitionSchema) Sort(ctx context.Context, parentID, displayOrder uin
 	}).Error
 }
 
-func (ds *DefinitionSchema) ToSpec() (*spec.Schema, error) {
-	s := &spec.Schema{
+func (ds *DefinitionSchema) ToSpec() (*spec.DefinitionModel, error) {
+	s := &spec.DefinitionModel{
 		ID:          int64(ds.ID),
 		ParentId:    uint64(ds.ParentID),
 		Name:        ds.Name,
@@ -129,4 +125,31 @@ func (ds *DefinitionSchema) ToSpec() (*spec.Schema, error) {
 	}
 
 	return s, nil
+}
+
+func (ds *DefinitionSchema) DelRef(ctx context.Context, refSchema *DefinitionSchema, deref bool) error {
+	schemaSpec, err := ds.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	refSchemaSpec, err := refSchema.ToSpec()
+	if err != nil {
+		return err
+	}
+
+	if deref {
+		if err := schemaSpec.Deref(refSchemaSpec); err != nil {
+			return err
+		}
+	} else {
+		schemaSpec.DelRef(refSchemaSpec)
+	}
+
+	content, err := json.Marshal(schemaSpec.Schema)
+	if err != nil {
+		return err
+	}
+
+	return model.DB(ctx).Model(ds).Select("schema").UpdateColumn("schema", string(content)).Error
 }

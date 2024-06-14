@@ -16,7 +16,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/route/proto/collection/request"
 	"github.com/apicat/apicat/v2/backend/route/proto/collection/response"
 	"github.com/apicat/apicat/v2/backend/service/ai"
-	collectionrelations "github.com/apicat/apicat/v2/backend/service/collection_relations"
+	"github.com/apicat/apicat/v2/backend/service/relations"
 
 	"github.com/apicat/ginrpc"
 	"github.com/gin-gonic/gin"
@@ -43,7 +43,7 @@ func (ts *testCaseApiImpl) Generate(ctx *gin.Context, opt *request.GenerateTestC
 	if !exist {
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.DoesNotExist"))
 	}
-	sc, err := collectionrelations.CollectionDerefWithSpec(ctx, c)
+	sc, err := relations.CollectionDerefWithSpec(ctx, c)
 	if err != nil {
 		slog.ErrorContext(ctx, "collectionDerefWithApiCatSpec", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("testCase.GenerationFailed"))
@@ -144,7 +144,7 @@ func (ts *testCaseApiImpl) Regenerate(ctx *gin.Context, opt *request.RegenerateT
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("testCase.DoesNotExist"))
 	}
 
-	sc, err := collectionrelations.CollectionDerefWithSpec(ctx, c)
+	sc, err := relations.CollectionDerefWithSpec(ctx, c)
 	if err != nil {
 		slog.ErrorContext(ctx, "collectionDerefWithApiCatSpec", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("testCase.RegenerationFailed"))

@@ -21,8 +21,9 @@ import (
 	collectionrequest "github.com/apicat/apicat/v2/backend/route/proto/collection/request"
 	collectionresponse "github.com/apicat/apicat/v2/backend/route/proto/collection/response"
 	"github.com/apicat/apicat/v2/backend/service/ai"
-	collectionrelations "github.com/apicat/apicat/v2/backend/service/collection_relations"
-	projectrelations "github.com/apicat/apicat/v2/backend/service/project_relations"
+	"github.com/apicat/apicat/v2/backend/service/except"
+	"github.com/apicat/apicat/v2/backend/service/reference"
+	"github.com/apicat/apicat/v2/backend/service/relations"
 	"github.com/apicat/apicat/v2/backend/utils/onetime_token"
 
 	"github.com/apicat/apicat/v2/backend/module/spec"
@@ -59,6 +60,16 @@ func (cai *collectionApiImpl) Create(ctx *gin.Context, opt *collectionrequest.Cr
 		if !exist {
 			return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("category.DoesNotExist"))
 		}
+	}
+
+	// 创建http文档时如果content为空则补充默认结构
+	if opt.Type == collection.HttpType && opt.Content == "" {
+		nodes := spec.NewHttpCollectionNodes()
+		nodeStr, err := nodes.ToJson()
+		if err != nil {
+			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.CreationFailed"))
+		}
+		opt.Content = nodeStr
 	}
 
 	c := &collection.Collection{
@@ -100,12 +111,12 @@ func (cai *collectionApiImpl) Create(ctx *gin.Context, opt *collectionrequest.Cr
 	}
 
 	userInfo := jwt.GetUser(ctx)
-	return convertModelCollection(ctx, c, userInfo, userInfo), nil
+	return convertModelCollection(c, userInfo, userInfo), nil
 }
 
 func (cai *collectionApiImpl) List(ctx *gin.Context, opt *collectionrequest.GetCollectionListOption) (*collectionresponse.CollectionTree, error) {
 	selfP := access.GetSelfProject(ctx)
-	collections, err := collection.GetCollections(ctx, selfP)
+	collections, err := collection.GetCollections(ctx, selfP.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "collection.GetCollections", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.FailedToGetList"))
@@ -173,7 +184,7 @@ func (cai *collectionApiImpl) Get(ctx *gin.Context, opt *collectionbase.ProjectC
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.FailedToGet"))
 	}
 
-	return convertModelCollection(ctx, c, cUserInfo, uUserInfo), nil
+	return convertModelCollection(c, cUserInfo, uUserInfo), nil
 }
 
 func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.UpdateCollectionOption) (*ginrpc.Empty, error) {
@@ -193,6 +204,31 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("collection.DoesNotExist"))
 	}
 
+	oldRefSchemaIDs, err := reference.ParseRefSchemasFromCollection(c)
+	if err != nil {
+		slog.ErrorContext(ctx, "reference.ParseRefSchemasFromCollection", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+	}
+
+	oldRefResponseIDs, err := reference.ParseRefResponsesFromCollection(c)
+	if err != nil {
+		slog.ErrorContext(ctx, "reference.ParseRefResponsesFromCollection", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+	}
+
+	oldExceptparamIDs, err := except.ParseExceptParamsFromCollection(c)
+	if err != nil {
+		slog.ErrorContext(ctx, "reference.ParseExceptParamsFromCollection", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+	}
+
+	if cs, err := spec.NewCollectionNodesFromJson(opt.Content); err == nil {
+		cs.SortResponses()
+		if s, err := cs.ToJson(); err == nil {
+			opt.Content = s
+		}
+	}
+
 	if err := c.Update(ctx, opt.Title, opt.Content, selfTM.ID); err != nil {
 		slog.ErrorContext(ctx, "c.Update", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
@@ -200,8 +236,8 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 
 	// 编辑文档时更新文档引用关系
 	if c.Type != collection.CategoryType {
-		if err := collectionrelations.UpdateCollectionReference(ctx, c); err != nil {
-			slog.ErrorContext(ctx, "collectionrelations.UpdateCollectionReference", "err", err)
+		if err := reference.UpdateCollectionRef(ctx, c, oldRefSchemaIDs, oldRefResponseIDs, oldExceptparamIDs); err != nil {
+			slog.ErrorContext(ctx, "collectionrelations.UpdateCollectionRef", "err", err)
 		}
 	}
 
@@ -228,8 +264,8 @@ func (cai *collectionApiImpl) Delete(ctx *gin.Context, opt *collectionrequest.De
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("collection.DoesNotExist"))
 	}
 
-	if err := collectionrelations.DeleteCollections(ctx, selfPM.ProjectID, c, selfTM); err != nil {
-		slog.ErrorContext(ctx, "collectionrelations.DeleteCollections", "err", err)
+	if err := relations.DeleteCollections(ctx, selfPM.ProjectID, c, selfTM); err != nil {
+		slog.ErrorContext(ctx, "relations.DeleteCollections", "err", err)
 		if c.Type == collection.CategoryType {
 			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("category.FailedToDelete"))
 		}
@@ -360,7 +396,7 @@ func (cai *collectionApiImpl) Copy(ctx *gin.Context, opt *collectionrequest.Copy
 	}
 
 	userInfo := jwt.GetUser(ctx)
-	return convertModelCollection(ctx, newC, userInfo, userInfo), nil
+	return convertModelCollection(newC, userInfo, userInfo), nil
 }
 
 func (cai *collectionApiImpl) Trashes(ctx *gin.Context, opt *protobase.ProjectIdOption) (*collectionresponse.TrashList, error) {
@@ -530,7 +566,7 @@ func (cai *collectionApiImpl) AIGenerate(ctx *gin.Context, opt *collectionreques
 	}
 
 	userInfo := jwt.GetUser(ctx)
-	return convertModelCollection(ctx, c, userInfo, userInfo), nil
+	return convertModelCollection(c, userInfo, userInfo), nil
 }
 
 func Export(ctx *gin.Context) {
@@ -601,7 +637,7 @@ func Export(ctx *gin.Context) {
 		return
 	}
 
-	apicatData, err := collectionrelations.CollectionDerefWithApiCatSpec(ctx, c)
+	apicatData, err := relations.CollectionDerefWithApiCatSpec(ctx, c)
 	if err != nil {
 		slog.ErrorContext(ctx, "collectionDerefWithApiCatSpec", "err", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
@@ -609,8 +645,8 @@ func Export(ctx *gin.Context) {
 		})
 		return
 	}
-	projectrelations.SpecFillInfo(ctx, apicatData, p)
-	projectrelations.SpecFillServers(ctx, apicatData, p.ID)
+	relations.SpecFillInfo(ctx, apicatData, p)
+	relations.SpecFillServers(ctx, apicatData, p.ID)
 
 	if apicatDataJson, err := json.Marshal(apicatData); err != nil {
 		slog.ErrorContext(ctx, "export", "marshalErr", err)
@@ -623,15 +659,15 @@ func Export(ctx *gin.Context) {
 	)
 	switch t.Type {
 	case "swagger":
-		content, err = openapi.Encode(apicatData, "2.0", "json")
+		content, err = openapi.Generate(apicatData, "2.0", "json")
 	case "openapi3.0.0":
-		content, err = openapi.Encode(apicatData, "3.0.0", "json")
+		content, err = openapi.Generate(apicatData, "3.0.0", "json")
 	case "openapi3.0.1":
-		content, err = openapi.Encode(apicatData, "3.0.1", "json")
+		content, err = openapi.Generate(apicatData, "3.0.1", "json")
 	case "openapi3.0.2":
-		content, err = openapi.Encode(apicatData, "3.0.2", "json")
+		content, err = openapi.Generate(apicatData, "3.0.2", "json")
 	case "openapi3.1.0":
-		content, err = openapi.Encode(apicatData, "3.1.0", "json")
+		content, err = openapi.Generate(apicatData, "3.1.0", "json")
 	case "HTML":
 		content, err = export.HTML(apicatData)
 	case "md":

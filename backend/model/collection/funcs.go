@@ -2,15 +2,12 @@ package collection
 
 import (
 	"context"
-	"encoding/json"
-	"errors"
 	"log/slog"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/apicat/apicat/v2/backend/model"
-	"github.com/apicat/apicat/v2/backend/model/project"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/model/user"
 
@@ -45,13 +42,13 @@ func (m VirtualIDToIDMap) Merge(m2 VirtualIDToIDMap) {
 	}
 }
 
-func GetCollections(ctx context.Context, p *project.Project, cIDs ...uint) ([]*Collection, error) {
+func GetCollections(ctx context.Context, projectID string, cIDs ...uint) ([]*Collection, error) {
 	var collections []*Collection
 	tx := model.DB(ctx)
 	if len(cIDs) > 0 {
 		tx = tx.Where("id in (?)", cIDs)
 	}
-	tx = tx.Where("project_id = ?", p.ID).Order("display_order asc")
+	tx = tx.Where("project_id = ?", projectID).Order("display_order asc")
 	return collections, tx.Find(&collections).Error
 }
 
@@ -65,7 +62,7 @@ func BatchDeleteCollections(ctx context.Context, DeletedBy uint, cIDs ...uint) e
 func ExportCollections(ctx context.Context, pID string) spec.Collections {
 	result := make(spec.Collections, 0)
 
-	collections, err := GetCollections(ctx, &project.Project{ID: pID})
+	collections, err := GetCollections(ctx, pID)
 	if err != nil {
 		slog.ErrorContext(ctx, "GetDefinitionResponses", "err", err)
 		return result
@@ -80,10 +77,10 @@ func exportBuildcollectionsTree(ctx context.Context, collections []*Collection, 
 	for _, collection := range collections {
 		if collection.ParentID == parentCollection.ID {
 			collectItem := &spec.Collection{
-				ID:       collection.ID,
-				ParentID: collection.ParentID,
+				ID:       int64(collection.ID),
+				ParentID: int64(collection.ParentID),
 				Title:    collection.Title,
-				Type:     spec.CollectionType(collection.Type),
+				Type:     collection.Type,
 			}
 
 			// 将父级的分类名称也加入Tags中
@@ -98,8 +95,7 @@ func exportBuildcollectionsTree(ctx context.Context, collections []*Collection, 
 			}
 
 			if collection.Type != CategoryType {
-				content := []*spec.NodeProxy{}
-				if json.Unmarshal([]byte(collection.Content), &content) == nil {
+				if content, err := spec.NewCollectionNodesFromJson(collection.Content); err == nil {
 					collectItem.Content = content
 				}
 			}
@@ -237,91 +233,6 @@ func CollectionToTagID(ctx context.Context, collectionID uint) []uint {
 	}
 
 	return tagIDs
-}
-
-// TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionContentSpec(ctx context.Context, content string) ([]*spec.NodeProxy, error) {
-	specContent := []*spec.NodeProxy{}
-	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
-		return nil, errors.New("GetCollectionContentSpec unmarshal error")
-	}
-
-	return specContent, nil
-}
-
-// TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionURLNode(ctx context.Context, content string) (*spec.HTTPNode[spec.HTTPURLNode], error) {
-	url := &spec.HTTPNode[spec.HTTPURLNode]{}
-	if content == "" {
-		return url, nil
-	}
-
-	var specContent []*spec.NodeProxy
-	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
-		return url, errors.New("unmarshal error")
-	}
-
-	for _, i := range specContent {
-		switch nx := i.Node.(type) {
-		case *spec.HTTPNode[spec.HTTPURLNode]:
-			url = nx
-		}
-	}
-	if url == nil {
-		return url, errors.New("parsing error")
-	}
-
-	return url, nil
-}
-
-// TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionRequestNode(ctx context.Context, content string) (*spec.HTTPNode[spec.HTTPRequestNode], error) {
-	request := &spec.HTTPNode[spec.HTTPRequestNode]{}
-	if content == "" {
-		return request, nil
-	}
-
-	var specContent []*spec.NodeProxy
-	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
-		return request, errors.New("unmarshal error")
-	}
-
-	for _, i := range specContent {
-		switch nx := i.Node.(type) {
-		case *spec.HTTPNode[spec.HTTPRequestNode]:
-			request = nx
-		}
-	}
-	if request == nil {
-		return request, errors.New("parsing error")
-	}
-
-	return request, nil
-}
-
-// TODO 移除表关系后将次方法移动到backend/service/collection_relations/collection_relations.go中。collection_relations中引用了model.collection导致现在移动不了
-func GetCollectionResponseNode(ctx context.Context, content string) (*spec.HTTPNode[spec.HTTPResponsesNode], error) {
-	response := &spec.HTTPNode[spec.HTTPResponsesNode]{}
-	if content == "" {
-		return response, nil
-	}
-
-	var specContent []*spec.NodeProxy
-	if err := json.Unmarshal([]byte(content), &specContent); err != nil {
-		return response, errors.New("unmarshal error")
-	}
-
-	for _, i := range specContent {
-		switch nx := i.Node.(type) {
-		case *spec.HTTPNode[spec.HTTPResponsesNode]:
-			response = nx
-		}
-	}
-	if response == nil {
-		return response, errors.New("parsing error")
-	}
-
-	return response, nil
 }
 
 // GetTestCases 获取测试用例列表

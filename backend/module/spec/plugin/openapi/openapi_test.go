@@ -21,7 +21,7 @@ func TestDecode(t *testing.T) {
 		if err != nil {
 			t.Fatal(k, err)
 		}
-		if x, err := Decode(raw); err != nil {
+		if x, err := Parse(raw); err != nil {
 			t.Fatal(k, err)
 		} else {
 			d, _ := x.ToJSON(spec.JSONOption{Indent: ""})
@@ -35,7 +35,7 @@ func TestDecode(t *testing.T) {
 // 	if err != nil {
 // 		t.FailNow()
 // 	}
-// 	p, err := spec.ParseJSON(raw)
+// 	p, err := spec.NewSpecFromJson(raw)
 // 	if err != nil {
 // 		t.FailNow()
 // 	}
@@ -55,9 +55,9 @@ func TestDecode(t *testing.T) {
 func TestToOpenapi(t *testing.T) {
 	a, _ := os.ReadFile("../../testdata/items_tree_export_openapi.json")
 
-	ab, _ := spec.ParseJSON(a)
+	ab, _ := spec.NewSpecFromJson(a)
 
-	b, err := Encode(ab, "3.1.0", "json")
+	b, err := Generate(ab, "3.1.0", "json")
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -72,7 +72,7 @@ func TestToOpenapi(t *testing.T) {
 func TestToApiCat(t *testing.T) {
 	a, _ := os.ReadFile("../../testdata/items_tree_import_openapi.json")
 
-	b, err := Decode(a)
+	b, err := Parse(a)
 	if err != nil {
 		fmt.Println(err)
 	}
@@ -88,7 +88,7 @@ func TestToApiCat(t *testing.T) {
 func TestComponentsParamenters(t *testing.T) {
 	a, _ := os.ReadFile("../../testdata/components_parameters.yml")
 
-	b, err := Decode(a)
+	b, err := Parse(a)
 	if err != nil {
 		fmt.Println(err)
 	}

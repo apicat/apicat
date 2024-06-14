@@ -19,7 +19,7 @@ import (
 	protouserrequest "github.com/apicat/apicat/v2/backend/route/proto/user/request"
 	protouserresponse "github.com/apicat/apicat/v2/backend/route/proto/user/response"
 	"github.com/apicat/apicat/v2/backend/service/mailer"
-	"github.com/apicat/apicat/v2/backend/service/team_relations"
+	"github.com/apicat/apicat/v2/backend/service/relations"
 	"github.com/apicat/apicat/v2/backend/utils/onetime_token"
 	"github.com/apicat/apicat/v2/backend/utils/password"
 
@@ -94,8 +94,8 @@ func (s *accountApiImpl) Login(ctx *gin.Context, opt *protouserrequest.LoginOpti
 
 	// 如果有邀请码则加入团队
 	if opt.InvitationToken != "" {
-		if err = team_relations.JoinTeam(ctx, opt.InvitationToken, usr); err != nil {
-			slog.ErrorContext(ctx, "team_relations.JoinTeam", "err", err)
+		if err = relations.JoinTeam(ctx, opt.InvitationToken, usr); err != nil {
+			slog.ErrorContext(ctx, "relations.JoinTeam", "err", err)
 		}
 	}
 
@@ -150,8 +150,8 @@ func (s *accountApiImpl) Register(ctx *gin.Context, opt *protouserrequest.Regist
 
 	// 如果有邀请码则加入团队
 	if opt.InvitationToken != "" {
-		if err := team_relations.JoinTeam(ctx, opt.InvitationToken, usr); err != nil {
-			slog.ErrorContext(ctx, "team_relations.JoinTeam", "err", err)
+		if err := relations.JoinTeam(ctx, opt.InvitationToken, usr); err != nil {
+			slog.ErrorContext(ctx, "relations.JoinTeam", "err", err)
 		}
 	}
 
@@ -268,8 +268,8 @@ func (s *accountApiImpl) LoginWithOauthCode(ctx *gin.Context, opt *protouserrequ
 
 	defer func() {
 		if usr != nil && opt.InvitationToken != "" {
-			if err = team_relations.JoinTeam(ctx, opt.InvitationToken, usr); err != nil {
-				slog.ErrorContext(ctx, "team_relations.JoinTeam", "err", err)
+			if err = relations.JoinTeam(ctx, opt.InvitationToken, usr); err != nil {
+				slog.ErrorContext(ctx, "relations.JoinTeam", "err", err)
 			}
 		}
 	}()
