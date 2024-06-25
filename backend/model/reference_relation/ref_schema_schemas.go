@@ -41,6 +41,9 @@ func BatchDelRefSchemaSchemas(ctx context.Context, ids ...uint) error {
 // GetRefSchemaSchema 获取指定schema引用指定schemas的引用关系
 func GetRefSchemaSchema(ctx context.Context, schemaID uint, refSchemaIDs ...uint) ([]*RefSchemaSchemas, error) {
 	var list []*RefSchemaSchemas
+	if len(refSchemaIDs) == 0 {
+		return list, nil
+	}
 	tx := model.DB(ctx).Where("ref_schema_id in ?", refSchemaIDs).Where("schema_id = ?", schemaID).Find(&list)
 	return list, tx.Error
 }
@@ -48,6 +51,9 @@ func GetRefSchemaSchema(ctx context.Context, schemaID uint, refSchemaIDs ...uint
 // GetRefSchemaSchemas 获取所有schemas引用指定schemas的引用关系
 func GetRefSchemaSchemas(ctx context.Context, refSchemaIDs ...uint) ([]*RefSchemaSchemas, error) {
 	var list []*RefSchemaSchemas
+	if len(refSchemaIDs) == 0 {
+		return list, nil
+	}
 	tx := model.DB(ctx).Where("ref_schema_id in ?", refSchemaIDs).Find(&list)
 	return list, tx.Error
 }
