@@ -32,23 +32,26 @@ func init() {
 				}
 			}
 
-			var list []*CollectionReference
-			if err := tx.Where("ref_type = ?", "response").Find(&list).Error; err != nil {
-				return err
-			}
+			if tx.Migrator().HasTable(&CollectionReference{}) {
+				var list []*CollectionReference
+				if err := tx.Where("ref_type = ?", "response").Find(&list).Error; err != nil {
+					return err
+				}
 
-			var newList []*RefResponseCollections
-			for _, item := range list {
-				newList = append(newList, &RefResponseCollections{
-					RefResponserID: item.RefID,
-					CollectionID:   item.CollectionID,
-				})
-			}
+				var newList []*RefResponseCollections
+				for _, item := range list {
+					newList = append(newList, &RefResponseCollections{
+						RefResponserID: item.RefID,
+						CollectionID:   item.CollectionID,
+					})
+				}
 
-			if len(newList) == 0 {
-				return nil
+				if len(newList) == 0 {
+					return nil
+				}
+				return tx.Create(&newList).Error
 			}
-			return tx.Create(&newList).Error
+			return nil
 		},
 	}
 	MigrationHelper.Register(m)

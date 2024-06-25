@@ -31,23 +31,26 @@ func init() {
 				}
 			}
 
-			var list []*ParameterExcept
-			if err := tx.Find(&list).Error; err != nil {
-				return err
-			}
+			if tx.Migrator().HasTable(&ParameterExcept{}) {
+				var list []*ParameterExcept
+				if err := tx.Find(&list).Error; err != nil {
+					return err
+				}
 
-			var newList []*ExceptParamCollection
-			for _, item := range list {
-				newList = append(newList, &ExceptParamCollection{
-					ExceptParamID: item.ParameterID,
-					CollectionID:  item.ExceptCollectionID,
-				})
-			}
+				var newList []*ExceptParamCollection
+				for _, item := range list {
+					newList = append(newList, &ExceptParamCollection{
+						ExceptParamID: item.ParameterID,
+						CollectionID:  item.ExceptCollectionID,
+					})
+				}
 
-			if len(newList) == 0 {
-				return nil
+				if len(newList) == 0 {
+					return nil
+				}
+				return tx.Create(&newList).Error
 			}
-			return tx.Create(&newList).Error
+			return nil
 		},
 	}
 	MigrationHelper.Register(m)

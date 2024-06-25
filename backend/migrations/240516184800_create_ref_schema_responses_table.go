@@ -31,23 +31,26 @@ func init() {
 				}
 			}
 
-			var list []*ResponseReference
-			if err := tx.Find(&list).Error; err != nil {
-				return err
-			}
+			if tx.Migrator().HasTable(&ResponseReference{}) {
+				var list []*ResponseReference
+				if err := tx.Find(&list).Error; err != nil {
+					return err
+				}
 
-			var newList []*RefSchemaResponses
-			for _, item := range list {
-				newList = append(newList, &RefSchemaResponses{
-					RefSchemaID: item.RefSchemaID,
-					ResponseID:  item.ResponseID,
-				})
-			}
+				var newList []*RefSchemaResponses
+				for _, item := range list {
+					newList = append(newList, &RefSchemaResponses{
+						RefSchemaID: item.RefSchemaID,
+						ResponseID:  item.ResponseID,
+					})
+				}
 
-			if len(newList) == 0 {
-				return nil
+				if len(newList) == 0 {
+					return nil
+				}
+				return tx.Create(&newList).Error
 			}
-			return tx.Create(&newList).Error
+			return nil
 		},
 	}
 	MigrationHelper.Register(m)
