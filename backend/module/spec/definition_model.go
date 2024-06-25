@@ -122,7 +122,9 @@ func (s *DefinitionModel) ItemsTreeToList() DefinitionModels {
 func (s *DefinitionModels) FindByName(name string) *DefinitionModel {
 	for _, v := range *s {
 		if v.Type == TYPE_CATEGORY {
-			return v.Items.FindByName(name)
+			if m := v.Items.FindByName(name); m != nil {
+				return m
+			}
 		}
 		if v.Name == name {
 			return v
@@ -134,7 +136,9 @@ func (s *DefinitionModels) FindByName(name string) *DefinitionModel {
 func (s *DefinitionModels) FindByID(id int64) *DefinitionModel {
 	for _, v := range *s {
 		if v.Type == TYPE_CATEGORY {
-			return v.Items.FindByID(id)
+			if m := v.Items.FindByID(id); m != nil {
+				return m
+			}
 		}
 		if id == v.ID {
 			return v

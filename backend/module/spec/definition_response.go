@@ -123,7 +123,9 @@ func (r *DefinitionResponse) ItemsTreeToList() DefinitionResponses {
 func (r *DefinitionResponses) FindByName(name string) *DefinitionResponse {
 	for _, v := range *r {
 		if v.Type == TYPE_CATEGORY {
-			return v.Items.FindByName(name)
+			if resp := v.Items.FindByName(name); resp != nil {
+				return resp
+			}
 		}
 		if v.Name == name {
 			return v
