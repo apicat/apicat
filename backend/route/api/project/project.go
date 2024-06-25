@@ -133,7 +133,6 @@ func (pai *projectApiImpl) Create(ctx *gin.Context, opt *projectrequest.CreatePr
 		// refContentVirtualIDToID.DefinitionParameters = relations.ImportDefinitionParameters(ctx, p.ID, content.Definitions.Parameters)
 		refContentVirtualIDToID.DefinitionSchemas = relations.ImportDefinitionSchemas(ctx, p.ID, content.Definitions.Schemas, selfMember, 0)
 		refContentVirtualIDToID.DefinitionResponses = relations.ImportDefinitionResponses(ctx, p.ID, content.Definitions.Responses, selfMember, refContentVirtualIDToID.DefinitionSchemas, 0)
-
 		relations.CollectionImport(ctx, selfMember, p.ID, 0, content.Collections, refContentVirtualIDToID)
 	}
 

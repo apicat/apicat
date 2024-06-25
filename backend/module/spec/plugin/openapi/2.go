@@ -534,11 +534,11 @@ func (s *swaggerGenerator) generateBase(in *spec.Spec) *swaggerSpec {
 		if v.Type == string(spec.TYPE_CATEGORY) {
 			items := v.ItemsTreeToList()
 			for _, item := range items {
-				s.modelNames[item.ID] = item.Name
+				s.modelNames[item.ID] = strings.ReplaceAll(item.Name, " ", "")
 			}
 			definitionModels = append(definitionModels, items...)
 		} else {
-			s.modelNames[v.ID] = v.Name
+			s.modelNames[v.ID] = strings.ReplaceAll(v.Name, " ", "")
 			definitionModels = append(definitionModels, v)
 		}
 	}

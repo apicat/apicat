@@ -554,11 +554,11 @@ func (o *openapiGenerator) generateComponents(version string, in *spec.Spec) map
 		if v.Type == string(spec.TYPE_CATEGORY) {
 			items := v.ItemsTreeToList()
 			for _, item := range items {
-				o.modelMapping[item.ID] = item.Name
+				o.modelMapping[item.ID] = strings.ReplaceAll(item.Name, " ", "")
 			}
 			definitionModels = append(definitionModels, items...)
 		} else {
-			o.modelMapping[v.ID] = v.Name
+			o.modelMapping[v.ID] = strings.ReplaceAll(v.Name, " ", "")
 			definitionModels = append(definitionModels, v)
 		}
 	}
