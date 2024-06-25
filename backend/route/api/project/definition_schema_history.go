@@ -246,7 +246,7 @@ func (impl *definitionSchemaHistoryApiImpl) Diff(ctx *gin.Context, opt *projectr
 	}
 
 	if err := diff.DiffModel(originalSchema, targetSchema); err != nil {
-		slog.ErrorContext(ctx, "diff.DiffSchema", "err", err)
+		slog.ErrorContext(ctx, "diff.DiffModel", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchemaHistory.DiffFailed"))
 	}
 

@@ -537,10 +537,8 @@ func Export(ctx *gin.Context) {
 	relations.SpecFillGlobals(ctx, apicatData, p.ID)
 	relations.SpecFillDefinitions(ctx, apicatData, p.ID)
 	relations.SpecFillCollections(ctx, apicatData, p.ID)
-	if apicatDataJson, err := json.Marshal(apicatData); err != nil {
+	if _, err := json.Marshal(apicatData); err != nil {
 		slog.ErrorContext(ctx, "export", "marshalErr", err)
-	} else {
-		slog.InfoContext(ctx, "export", "apicatData", apicatDataJson)
 	}
 
 	var content []byte
