@@ -135,7 +135,9 @@ func (r *DefinitionResponses) FindByName(name string) *DefinitionResponse {
 func (r *DefinitionResponses) FindByID(id int64) *DefinitionResponse {
 	for _, v := range *r {
 		if v.Type == TYPE_CATEGORY {
-			return v.Items.FindByID(id)
+			if resp := v.Items.FindByID(id); resp != nil {
+				return resp
+			}
 		}
 		if id == v.ID {
 			return v

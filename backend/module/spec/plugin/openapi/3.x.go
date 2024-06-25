@@ -534,7 +534,7 @@ func (o *openapiGenerator) generateResponse(resp *spec.Response, definitionsResp
 			if x := definitionsResps.FindByID(
 				toInt64(getRefName(resp.Reference)),
 			); x != nil {
-				name_id := fmt.Sprintf("%s-%d", x.Name, x.ID)
+				name_id := fmt.Sprintf("%s-%d", strings.ReplaceAll(x.Name, " ", ""), x.ID)
 				return map[string]any{
 					"$ref": "#/components/responses/" + name_id,
 				}

@@ -699,9 +699,9 @@ func (s *swaggerGenerator) generateResponse(resp *spec.Response, definitionsResp
 				toInt64(getRefName(resp.Reference)),
 			)
 			if x != nil {
-				name := fmt.Sprintf("%s-%d", x.Name, x.ID)
+				name_id := fmt.Sprintf("%s-%d", strings.ReplaceAll(x.Name, " ", ""), x.ID)
 				return map[string]any{
-					"$ref": "#/responses/" + name,
+					"$ref": "#/responses/" + name_id,
 				}
 			}
 		}
