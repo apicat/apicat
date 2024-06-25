@@ -44,7 +44,7 @@ type openapiPathItem struct {
 }
 
 type openapiRequestbody struct {
-	Content map[string]*jsonschema.Schema `json:"content,omitempty"`
+	Content map[string]any `json:"content,omitempty"`
 }
 
 func (o *openapiParser) parseInfo(info *base.Info) spec.Info {
@@ -626,14 +626,20 @@ func (o *openapiGenerator) generatePaths(version string, in *spec.Spec) (map[str
 					continue
 				}
 
-				sp := o.convertJsonSchema(version, body.Schema)
-				sp.Examples = body.Examples
 				if item.RequestBody == nil {
 					item.RequestBody = &openapiRequestbody{
-						Content: make(map[string]*jsonschema.Schema),
+						Content: make(map[string]any),
 					}
 				}
-				item.RequestBody.Content[contentType] = sp
+
+				if body.Examples != nil {
+					item.RequestBody.Content[contentType] = map[string]any{
+						"examples": body.Examples,
+					}
+				}
+				item.RequestBody.Content[contentType] = map[string]any{
+					"schema": o.convertJsonSchema(version, body.Schema),
+				}
 			}
 
 			for _, v := range op.Res.Attrs.List {

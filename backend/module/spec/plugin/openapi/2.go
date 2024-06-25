@@ -710,16 +710,34 @@ func (s *swaggerGenerator) generateResponse(resp *spec.Response, definitionsResp
 	return s.generateResponseWithoutRef(&resp.BasicResponse)
 }
 
+func (s *swaggerGenerator) getRefResponseContentType(resp *spec.Response, definitionsResps spec.DefinitionResponses) string {
+	x := definitionsResps.FindByID(
+		toInt64(getRefName(resp.Reference)),
+	)
+	if x != nil {
+		for k := range x.Content {
+			return k
+		}
+	}
+	return ""
+}
+
 func (s *swaggerGenerator) generatePathResponse(resp spec.CollectionHttpResponse, definitionsResps spec.DefinitionResponses) (map[string]any, []string) {
 	product := map[string]struct{}{}
 	result := make(map[string]any)
 
 	for _, r := range resp.Attrs.List {
 		result[strconv.Itoa(r.Code)] = s.generateResponse(r, definitionsResps)
-		for k := range r.Content {
-			if _, ok := product[k]; !ok {
-				product[k] = struct{}{}
-				continue
+		if r.Reference != "" {
+			if ct := s.getRefResponseContentType(r, definitionsResps); ct != "" {
+				product[ct] = struct{}{}
+			}
+		} else {
+			for k := range r.Content {
+				if _, ok := product[k]; !ok {
+					product[k] = struct{}{}
+					continue
+				}
 			}
 		}
 	}
