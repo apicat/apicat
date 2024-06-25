@@ -571,7 +571,7 @@ func (o *openapiGenerator) generateComponents(version string, in *spec.Spec) map
 		if v.Type == string(spec.TYPE_CATEGORY) {
 			resps := v.ItemsTreeToList()
 			for _, resp := range resps {
-				name_id := fmt.Sprintf("%s-%d", resp.Name, resp.ID)
+				name_id := fmt.Sprintf("%s-%d", strings.ReplaceAll(resp.Name, " ", ""), resp.ID)
 				respons[name_id] = o.generateResponseWithoutRef(&resp.BasicResponse, version)
 			}
 		} else {

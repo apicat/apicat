@@ -109,7 +109,7 @@ func (r *DefinitionResponse) DelRef(ref *DefinitionModel) {
 
 func (r *DefinitionResponse) ItemsTreeToList() DefinitionResponses {
 	list := make(DefinitionResponses, 0)
-	if r.Type == TYPE_MODEL {
+	if r.Type == TYPE_RESPONSE {
 		list = append(list, r)
 	}
 	if r.Items != nil && len(r.Items) > 0 {

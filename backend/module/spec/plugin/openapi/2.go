@@ -566,7 +566,7 @@ func (s *swaggerGenerator) generateBase(in *spec.Spec) *swaggerSpec {
 			if v.Type == string(spec.TYPE_CATEGORY) {
 				items := v.ItemsTreeToList()
 				for _, item := range items {
-					name_id := fmt.Sprintf("%s-%d", item.Name, item.ID)
+					name_id := fmt.Sprintf("%s-%d", strings.ReplaceAll(item.Name, " ", ""), item.ID)
 					out.Responses[name_id] = s.generateResponseWithoutRef(&item.BasicResponse)
 				}
 			} else {
