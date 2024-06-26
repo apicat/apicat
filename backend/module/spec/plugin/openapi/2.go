@@ -358,7 +358,17 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 	// 	// 我们没有default
 	// 	// todo
 	// }
+
+	i := 0
 	for pair := range orderedmap.Iterate(context.Background(), info.Responses.Codes) {
+		if len(info.Produces) == 0 {
+			return nil, fmt.Errorf("response content type is empty")
+		}
+		contentType := info.Produces[len(info.Produces)-1]
+		if i < len(info.Produces) {
+			contentType = info.Produces[i]
+		}
+
 		code := pair.Key()
 		res := pair.Value()
 
@@ -384,13 +394,13 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 
 		// libopenapi not support response ref, in swagger 2.0
 		// it's like dereference
-		if res.GoLow().Schema.GetReference() != "" {
-			ref := res.GoLow().Schema.GetReference()
-			refs := fmt.Sprintf("#/definitions/responses/%d", stringToUnid(ref[strings.LastIndex(ref, "/")+1:]))
-			resp.Reference = refs
-			outresponses.Attrs.List = append(outresponses.Attrs.List, &resp)
-			continue
-		}
+		// if res.GoLow().Reference.GetReference() != "" {
+		// 	ref := res.GoLow().Reference.GetReference()
+		// 	refs := fmt.Sprintf("#/definitions/responses/%d", stringToUnid(ref[strings.LastIndex(ref, "/")+1:]))
+		// 	resp.Reference = refs
+		// 	outresponses.Attrs.List = append(outresponses.Attrs.List, &resp)
+		// 	continue
+		// }
 
 		if res.Headers != nil {
 			for headerPair := range orderedmap.Iterate(context.Background(), res.Headers) {
@@ -413,27 +423,25 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 				return nil, err
 			}
 
-			for _, v := range info.Produces {
-				body := &spec.Body{
-					Schema:   js,
-					Examples: make(map[string]spec.Example),
-				}
-				if res.Examples != nil {
-					mp, ok := res.Examples.Values.Get(v)
-					if ok {
-						if example, err := json.Marshal(mp); err == nil {
-							body.Examples["0"] = spec.Example{
-								Summary: v,
-								Value:   string(example),
-							}
-						}
+			body := &spec.Body{
+				Schema:   js,
+				Examples: make(map[string]spec.Example),
+			}
+			if res.Examples != nil {
+				mp, ok := res.Examples.Values.Get(contentType)
+				if ok {
+					body.Examples["0"] = spec.Example{
+						Summary: contentType,
+						Value:   mp.Value,
 					}
 				}
-				resp.Content[v] = body
 			}
+			resp.Content[contentType] = body
 		}
 		outresponses.Attrs.List = append(outresponses.Attrs.List, &resp)
+		i++
 	}
+
 	if len(outresponses.Attrs.List) == 0 {
 		outresponses.Attrs.List = append(outresponses.Attrs.List, &spec.Response{
 			Code:          200,
