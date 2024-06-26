@@ -77,6 +77,11 @@ func (o *openapiParser) parseContent(mts *orderedmap.Map[string, *v3.MediaType])
 		mediaType := pair.Value()
 		body := &spec.Body{}
 
+		if mediaType.Schema == nil {
+			content[contentType] = body
+			continue
+		}
+
 		js, err := jsonSchemaConverter(mediaType.Schema)
 		if err != nil {
 			return nil, err
