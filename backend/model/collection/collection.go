@@ -80,7 +80,7 @@ func (c *Collection) Create(ctx context.Context, member *team.TeamMember) error 
 		// 获取文档的path
 		if c.Content != "" {
 			if specContent, err := c.ContentToSpec(); err != nil {
-				slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
+				slog.ErrorContext(ctx, "c.ContentToSpec", "err", err)
 			} else {
 				if url := specContent.GetUrl(); url != nil {
 					c.Method = url.Attrs.Method
@@ -112,7 +112,7 @@ func (c *Collection) Update(ctx context.Context, title, content string, memberID
 		c.Content = content
 		specContent, err := c.ContentToSpec()
 		if err != nil {
-			slog.ErrorContext(ctx, "spec.NewCollectionFromJson", "err", err)
+			slog.ErrorContext(ctx, "c.ContentToSpec", "err", err)
 		}
 		if url := specContent.GetUrl(); url != nil {
 			method = url.Attrs.Method

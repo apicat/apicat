@@ -2,7 +2,6 @@ package definition
 
 import (
 	"context"
-	"encoding/json"
 	"log/slog"
 	"time"
 
@@ -64,13 +63,11 @@ func exportBuildDefinitionResponseTree(ctx context.Context, responses []*Definit
 		if r.ParentID == parentID {
 			children := exportBuildDefinitionResponseTree(ctx, responses, r.ID)
 
-			if respJson, err := json.Marshal(r); err == nil {
-				if specresponse, err := spec.NewDefinitionResponseFromJson(string(respJson)); err == nil {
-					if r.Type == ResponseCategory {
-						specresponse.Items = children
-					}
-					result = append(result, specresponse)
+			if specResponse, err := r.ToSpec(); err == nil {
+				if r.Type == ResponseCategory {
+					specResponse.Items = children
 				}
+				result = append(result, specResponse)
 			}
 		}
 	}

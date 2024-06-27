@@ -358,7 +358,17 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 	// 	// 我们没有default
 	// 	// todo
 	// }
+
+	i := 0
 	for pair := range orderedmap.Iterate(context.Background(), info.Responses.Codes) {
+		if len(info.Produces) == 0 {
+			return nil, fmt.Errorf("response content type is empty")
+		}
+		contentType := info.Produces[len(info.Produces)-1]
+		if i < len(info.Produces) {
+			contentType = info.Produces[i]
+		}
+
 		code := pair.Key()
 		res := pair.Value()
 
@@ -384,13 +394,13 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 
 		// libopenapi not support response ref, in swagger 2.0
 		// it's like dereference
-		if res.GoLow().Schema.GetReference() != "" {
-			ref := res.GoLow().Schema.GetReference()
-			refs := fmt.Sprintf("#/definitions/responses/%d", stringToUnid(ref[strings.LastIndex(ref, "/")+1:]))
-			resp.Reference = refs
-			outresponses.Attrs.List = append(outresponses.Attrs.List, &resp)
-			continue
-		}
+		// if res.GoLow().Reference.GetReference() != "" {
+		// 	ref := res.GoLow().Reference.GetReference()
+		// 	refs := fmt.Sprintf("#/definitions/responses/%d", stringToUnid(ref[strings.LastIndex(ref, "/")+1:]))
+		// 	resp.Reference = refs
+		// 	outresponses.Attrs.List = append(outresponses.Attrs.List, &resp)
+		// 	continue
+		// }
 
 		if res.Headers != nil {
 			for headerPair := range orderedmap.Iterate(context.Background(), res.Headers) {
@@ -413,27 +423,25 @@ func (s *swaggerParser) parseResponse(info *v2.Operation) (*spec.CollectionHttpR
 				return nil, err
 			}
 
-			for _, v := range info.Produces {
-				body := &spec.Body{
-					Schema:   js,
-					Examples: make(map[string]spec.Example),
-				}
-				if res.Examples != nil {
-					mp, ok := res.Examples.Values.Get(v)
-					if ok {
-						if example, err := json.Marshal(mp); err == nil {
-							body.Examples["0"] = spec.Example{
-								Summary: v,
-								Value:   string(example),
-							}
-						}
+			body := &spec.Body{
+				Schema:   js,
+				Examples: make(map[string]spec.Example),
+			}
+			if res.Examples != nil {
+				mp, ok := res.Examples.Values.Get(contentType)
+				if ok {
+					body.Examples["0"] = spec.Example{
+						Summary: contentType,
+						Value:   mp.Value,
 					}
 				}
-				resp.Content[v] = body
 			}
+			resp.Content[contentType] = body
 		}
 		outresponses.Attrs.List = append(outresponses.Attrs.List, &resp)
+		i++
 	}
+
 	if len(outresponses.Attrs.List) == 0 {
 		outresponses.Attrs.List = append(outresponses.Attrs.List, &spec.Response{
 			Code:          200,
@@ -534,11 +542,11 @@ func (s *swaggerGenerator) generateBase(in *spec.Spec) *swaggerSpec {
 		if v.Type == string(spec.TYPE_CATEGORY) {
 			items := v.ItemsTreeToList()
 			for _, item := range items {
-				s.modelNames[item.ID] = item.Name
+				s.modelNames[item.ID] = strings.ReplaceAll(item.Name, " ", "")
 			}
 			definitionModels = append(definitionModels, items...)
 		} else {
-			s.modelNames[v.ID] = v.Name
+			s.modelNames[v.ID] = strings.ReplaceAll(v.Name, " ", "")
 			definitionModels = append(definitionModels, v)
 		}
 	}
@@ -566,7 +574,7 @@ func (s *swaggerGenerator) generateBase(in *spec.Spec) *swaggerSpec {
 			if v.Type == string(spec.TYPE_CATEGORY) {
 				items := v.ItemsTreeToList()
 				for _, item := range items {
-					name_id := fmt.Sprintf("%s-%d", item.Name, item.ID)
+					name_id := fmt.Sprintf("%s-%d", strings.ReplaceAll(item.Name, " ", ""), item.ID)
 					out.Responses[name_id] = s.generateResponseWithoutRef(&item.BasicResponse)
 				}
 			} else {
@@ -699,9 +707,9 @@ func (s *swaggerGenerator) generateResponse(resp *spec.Response, definitionsResp
 				toInt64(getRefName(resp.Reference)),
 			)
 			if x != nil {
-				name := fmt.Sprintf("%s-%d", x.Name, x.ID)
+				name_id := fmt.Sprintf("%s-%d", strings.ReplaceAll(x.Name, " ", ""), x.ID)
 				return map[string]any{
-					"$ref": "#/responses/" + name,
+					"$ref": "#/responses/" + name_id,
 				}
 			}
 		}
@@ -710,16 +718,34 @@ func (s *swaggerGenerator) generateResponse(resp *spec.Response, definitionsResp
 	return s.generateResponseWithoutRef(&resp.BasicResponse)
 }
 
+func (s *swaggerGenerator) getRefResponseContentType(resp *spec.Response, definitionsResps spec.DefinitionResponses) string {
+	x := definitionsResps.FindByID(
+		toInt64(getRefName(resp.Reference)),
+	)
+	if x != nil {
+		for k := range x.Content {
+			return k
+		}
+	}
+	return ""
+}
+
 func (s *swaggerGenerator) generatePathResponse(resp spec.CollectionHttpResponse, definitionsResps spec.DefinitionResponses) (map[string]any, []string) {
 	product := map[string]struct{}{}
 	result := make(map[string]any)
 
 	for _, r := range resp.Attrs.List {
 		result[strconv.Itoa(r.Code)] = s.generateResponse(r, definitionsResps)
-		for k := range r.Content {
-			if _, ok := product[k]; !ok {
-				product[k] = struct{}{}
-				continue
+		if r.Reference != "" {
+			if ct := s.getRefResponseContentType(r, definitionsResps); ct != "" {
+				product[ct] = struct{}{}
+			}
+		} else {
+			for k := range r.Content {
+				if _, ok := product[k]; !ok {
+					product[k] = struct{}{}
+					continue
+				}
 			}
 		}
 	}

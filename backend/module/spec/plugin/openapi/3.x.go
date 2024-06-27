@@ -44,7 +44,7 @@ type openapiPathItem struct {
 }
 
 type openapiRequestbody struct {
-	Content map[string]*jsonschema.Schema `json:"content,omitempty"`
+	Content map[string]any `json:"content,omitempty"`
 }
 
 func (o *openapiParser) parseInfo(info *base.Info) spec.Info {
@@ -76,6 +76,11 @@ func (o *openapiParser) parseContent(mts *orderedmap.Map[string, *v3.MediaType])
 		contentType := pair.Key()
 		mediaType := pair.Value()
 		body := &spec.Body{}
+
+		if mediaType.Schema == nil {
+			content[contentType] = body
+			continue
+		}
 
 		js, err := jsonSchemaConverter(mediaType.Schema)
 		if err != nil {
@@ -534,7 +539,7 @@ func (o *openapiGenerator) generateResponse(resp *spec.Response, definitionsResp
 			if x := definitionsResps.FindByID(
 				toInt64(getRefName(resp.Reference)),
 			); x != nil {
-				name_id := fmt.Sprintf("%s-%d", x.Name, x.ID)
+				name_id := fmt.Sprintf("%s-%d", strings.ReplaceAll(x.Name, " ", ""), x.ID)
 				return map[string]any{
 					"$ref": "#/components/responses/" + name_id,
 				}
@@ -554,11 +559,11 @@ func (o *openapiGenerator) generateComponents(version string, in *spec.Spec) map
 		if v.Type == string(spec.TYPE_CATEGORY) {
 			items := v.ItemsTreeToList()
 			for _, item := range items {
-				o.modelMapping[item.ID] = item.Name
+				o.modelMapping[item.ID] = strings.ReplaceAll(item.Name, " ", "")
 			}
 			definitionModels = append(definitionModels, items...)
 		} else {
-			o.modelMapping[v.ID] = v.Name
+			o.modelMapping[v.ID] = strings.ReplaceAll(v.Name, " ", "")
 			definitionModels = append(definitionModels, v)
 		}
 	}
@@ -571,7 +576,7 @@ func (o *openapiGenerator) generateComponents(version string, in *spec.Spec) map
 		if v.Type == string(spec.TYPE_CATEGORY) {
 			resps := v.ItemsTreeToList()
 			for _, resp := range resps {
-				name_id := fmt.Sprintf("%s-%d", resp.Name, resp.ID)
+				name_id := fmt.Sprintf("%s-%d", strings.ReplaceAll(resp.Name, " ", ""), resp.ID)
 				respons[name_id] = o.generateResponseWithoutRef(&resp.BasicResponse, version)
 			}
 		} else {
@@ -626,14 +631,20 @@ func (o *openapiGenerator) generatePaths(version string, in *spec.Spec) (map[str
 					continue
 				}
 
-				sp := o.convertJsonSchema(version, body.Schema)
-				sp.Examples = body.Examples
 				if item.RequestBody == nil {
 					item.RequestBody = &openapiRequestbody{
-						Content: make(map[string]*jsonschema.Schema),
+						Content: make(map[string]any),
 					}
 				}
-				item.RequestBody.Content[contentType] = sp
+
+				if body.Examples != nil {
+					item.RequestBody.Content[contentType] = map[string]any{
+						"examples": body.Examples,
+					}
+				}
+				item.RequestBody.Content[contentType] = map[string]any{
+					"schema": o.convertJsonSchema(version, body.Schema),
+				}
 			}
 
 			for _, v := range op.Res.Attrs.List {

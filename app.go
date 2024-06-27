@@ -1,4 +1,3 @@
-//go:generate catb --in_dir=backend/route/proto --out_dir=doc
 package apicat
 
 import (

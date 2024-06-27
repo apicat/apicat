@@ -109,7 +109,7 @@ func (r *DefinitionResponse) DelRef(ref *DefinitionModel) {
 
 func (r *DefinitionResponse) ItemsTreeToList() DefinitionResponses {
 	list := make(DefinitionResponses, 0)
-	if r.Type == TYPE_MODEL {
+	if r.Type == TYPE_RESPONSE {
 		list = append(list, r)
 	}
 	if r.Items != nil && len(r.Items) > 0 {
@@ -123,7 +123,9 @@ func (r *DefinitionResponse) ItemsTreeToList() DefinitionResponses {
 func (r *DefinitionResponses) FindByName(name string) *DefinitionResponse {
 	for _, v := range *r {
 		if v.Type == TYPE_CATEGORY {
-			return v.Items.FindByName(name)
+			if resp := v.Items.FindByName(name); resp != nil {
+				return resp
+			}
 		}
 		if v.Name == name {
 			return v
@@ -135,7 +137,9 @@ func (r *DefinitionResponses) FindByName(name string) *DefinitionResponse {
 func (r *DefinitionResponses) FindByID(id int64) *DefinitionResponse {
 	for _, v := range *r {
 		if v.Type == TYPE_CATEGORY {
-			return v.Items.FindByID(id)
+			if resp := v.Items.FindByID(id); resp != nil {
+				return resp
+			}
 		}
 		if id == v.ID {
 			return v

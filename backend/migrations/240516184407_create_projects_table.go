@@ -18,7 +18,7 @@ func init() {
 				Title       string `gorm:"type:varchar(255);not null;comment:project title"`
 				Visibility  string `gorm:"type:varchar(32);not null;comment:project visibility:0-private,1-public"`
 				ShareKey    string `gorm:"type:varchar(255);comment:project share key"`
-				Description string `gorm:"type:varchar(255);comment:project description"`
+				Description string `gorm:"type:varchar(1024);comment:project description"`
 				Cover       string `gorm:"type:varchar(255);comment:project cover"`
 				model.TimeModel
 			}

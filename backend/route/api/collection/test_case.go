@@ -45,7 +45,7 @@ func (ts *testCaseApiImpl) Generate(ctx *gin.Context, opt *request.GenerateTestC
 	}
 	sc, err := relations.CollectionDerefWithSpec(ctx, c)
 	if err != nil {
-		slog.ErrorContext(ctx, "collectionDerefWithApiCatSpec", "err", err)
+		slog.ErrorContext(ctx, "CollectionDerefWithSpec", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("testCase.GenerationFailed"))
 	}
 

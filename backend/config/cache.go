@@ -11,10 +11,6 @@ type Cache struct {
 	DB       int    `yaml:"DB"`
 }
 
-func SetCache(cacheConfig *Cache) {
-	globalConf.Cache = cacheConfig
-}
-
 func (c *Cache) ToCfg() cache.Cache {
 	return cache.Cache{
 		Driver: cache.REDIS,

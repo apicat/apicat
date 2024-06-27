@@ -175,6 +175,19 @@ func rednerHttpPart(buf *bytes.Buffer, i int, path, method string, api HttpApi) 
 }
 
 func renderSchema(buf *bytes.Buffer, name string, lvl int, required bool, s *jsonschema.Schema) {
+	if len(s.AllOf) > 0 {
+		renderSchemaAllOf(buf, lvl, s)
+		return
+	}
+	if len(s.AnyOf) > 0 {
+		renderSchemaAnyOf(buf, name, lvl, required, s)
+		return
+	}
+	if len(s.OneOf) > 0 {
+		renderSchemaAnyOf(buf, name, lvl, required, s)
+		return
+	}
+
 	if s.Type == nil {
 		return
 	}
@@ -209,6 +222,34 @@ func renderSchemaItem(buf *bytes.Buffer, name, typ, desc string, lvl int, requir
 	buf.WriteByte('|')
 	renderString(buf, desc)
 	buf.WriteByte('\n')
+}
+
+func renderSchemaAllOf(buf *bytes.Buffer, lvl int, s *jsonschema.Schema) {
+	if len(s.AllOf) == 0 {
+		return
+	}
+
+	for _, v := range s.AllOf {
+		if v.Properties != nil {
+			for k, vs := range v.Properties {
+				renderSchema(buf, k, lvl, slices.Contains(s.Required, k), vs)
+			}
+		}
+	}
+}
+
+func renderSchemaAnyOf(buf *bytes.Buffer, name string, lvl int, required bool, s *jsonschema.Schema) {
+	if len(s.AnyOf) > 0 {
+		renderSchemaItem(buf, name, "multi types", s.Description, lvl, required)
+		for i, v := range s.AnyOf {
+			renderSchema(buf, fmt.Sprintf("type%d", i+1), lvl+1, false, v)
+		}
+	} else if len(s.OneOf) > 0 {
+		renderSchemaItem(buf, name, "Multi types", s.Description, lvl, required)
+		for i, v := range s.OneOf {
+			renderSchema(buf, fmt.Sprintf("type%d", i+1), lvl+1, false, v)
+		}
+	}
 }
 
 func renderTableHeader(buf *bytes.Buffer, fileds []string) {
