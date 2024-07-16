@@ -16,7 +16,7 @@ func main() {
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value:   "config.yaml",
+				Value:   ".env",
 				Usage:   "Load configuration from `FILE`",
 			},
 		},
