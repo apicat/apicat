@@ -47,8 +47,8 @@ func LoadStorageConfig() {
 		case storage.QINIU:
 			globalConf.Storage.Driver = storage.QINIU
 			loadQiniuConfig()
-		case storage.LOCAL:
-			globalConf.Storage.Driver = storage.LOCAL
+		case storage.LOCAL_DISK:
+			globalConf.Storage.Driver = storage.LOCAL_DISK
 			loadLocalDiskConfig()
 		}
 	}
@@ -93,6 +93,7 @@ func loadLocalDiskConfig() {
 	globalConf.Storage.LocalDisk = &LocalDisk{}
 	if v, exists := os.LookupEnv("LOCAL_DISK_PATH"); exists {
 		globalConf.Storage.LocalDisk.Path = v
+		globalConf.Storage.LocalDisk.Url = globalConf.App.AppUrl + "/uploads"
 	}
 }
 
@@ -136,19 +137,18 @@ func CheckStorageConfig() error {
 		if globalConf.Storage.Qiniu.Url == "" {
 			return errors.New("qiniu url is empty")
 		}
-	case storage.LOCAL:
+	case storage.LOCAL_DISK:
 		if globalConf.Storage.LocalDisk == nil {
 			return errors.New("local disk config is empty")
 		}
 		if globalConf.Storage.LocalDisk.Path == "" {
 			return errors.New("local disk path is empty")
 		}
+		if globalConf.Storage.LocalDisk.Url == "" {
+			return errors.New("local disk url is empty")
+		}
 	}
 	return nil
-}
-
-func SetStorage(storageConfig *Storage) {
-	globalConf.Storage = storageConfig
 }
 
 func SetLocalDiskUrl(url string) {
@@ -178,7 +178,7 @@ func (s *Storage) ToCfg() storage.Storage {
 				Url:             s.Qiniu.Url,
 			},
 		}
-	case storage.LOCAL:
+	case storage.LOCAL_DISK:
 		return storage.Storage{
 			Driver: s.Driver,
 			LocalDisk: local.Disk{

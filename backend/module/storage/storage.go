@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	LOCAL      = "disk"
+	LOCAL_DISK = "disk"
 	CLOUDFLARE = "cloudflare"
 	QINIU      = "qiniu"
 )
@@ -31,7 +31,7 @@ func NewStorage(cfg Storage) common.Storage {
 		return cloudflare.NewR2(cfg.Cloudflare)
 	case QINIU:
 		return qiniu.NewQiniu(cfg.Qiniu)
-	case LOCAL:
+	case LOCAL_DISK:
 		return local.NewDisk(cfg.LocalDisk)
 	default:
 		return nil
@@ -46,7 +46,7 @@ func Init(cfg Storage) error {
 	case QINIU:
 		s := qiniu.NewQiniu(cfg.Qiniu)
 		return s.Check()
-	case LOCAL:
+	case LOCAL_DISK:
 		s := local.NewDisk(cfg.LocalDisk)
 		return s.Check()
 	default:

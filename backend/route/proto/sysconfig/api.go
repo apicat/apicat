@@ -32,24 +32,6 @@ type OauthApi interface {
 	Update(*gin.Context, *sysconfigbase.GitHubOption) (*ginrpc.Empty, error)
 }
 
-type StorageApi interface {
-	// Get Get storage config list
-	// @route GET /sysconfigs/storages
-	Get(*gin.Context, *ginrpc.Empty) (*sysconfigbase.ConfigList, error)
-
-	// Update Update disk storage config
-	// @route PUT /sysconfigs/storages/disk
-	UpdateDisk(*gin.Context, *sysconfigrequest.DiskOption) (*ginrpc.Empty, error)
-
-	// Update Update cloudflare storage config
-	// @route PUT /sysconfigs/storages/cloudflare
-	UpdateCloudflare(*gin.Context, *sysconfigrequest.CloudflareOption) (*ginrpc.Empty, error)
-
-	// Update Update qiniu storage config
-	// @route PUT /sysconfigs/storages/qiniu
-	UpdateQiniu(*gin.Context, *sysconfigrequest.QiniuOption) (*ginrpc.Empty, error)
-}
-
 type EmailApi interface {
 	// Get Get email config list
 	// @route GET /sysconfigs/emails

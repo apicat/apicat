@@ -37,7 +37,7 @@ func Init() error {
 	// 前端单页路由以及静态资源
 	frontendHandle(e)
 
-	if s := config.Get().Storage; s.Driver == storage.LOCAL {
+	if s := config.Get().Storage; s.Driver == storage.LOCAL_DISK {
 		e.Static("/uploads/", s.LocalDisk.Path)
 	}
 
@@ -108,7 +108,6 @@ func Init() error {
 	registerIteration(g)
 	registerOauthSysconfig(g)
 	registerServiceSysconfig(g)
-	registerStorageSysconfig(g)
 	registerEmailSysconfig(g)
 	registerModelSysconfig(g)
 	registerJsonSchema(g)
