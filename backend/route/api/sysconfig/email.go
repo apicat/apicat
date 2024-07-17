@@ -3,7 +3,6 @@ package sysconfig
 import (
 	"encoding/json"
 	"log/slog"
-	"net/mail"
 	"strings"
 
 	"github.com/apicat/apicat/v2/backend/config"
@@ -34,33 +33,11 @@ func (e *emailApiImpl) Get(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfigbase.Co
 	}
 	slist := make(sysconfigbase.ConfigList, 0, len(list))
 	for _, v := range list {
-		if v.Driver == mailmodule.SMTP {
-			d := &sysconfigbase.ConfigDetail{
-				Driver: v.Driver,
-				Use:    v.BeingUsed,
-				Config: map[string]interface{}{
-					"host":     "",
-					"user":     "",
-					"address":  "",
-					"password": "",
-				},
-			}
-
-			var smtpCfg config.EmailSmtp
-			if err := json.Unmarshal([]byte(v.Config), &smtpCfg); err == nil {
-				d.Config["host"] = smtpCfg.Host
-				d.Config["user"] = smtpCfg.From.Name
-				d.Config["address"] = smtpCfg.From.Address
-				d.Config["password"] = smtpCfg.Password
-			}
-			slist = append(slist, d)
-		} else {
-			slist = append(slist, &sysconfigbase.ConfigDetail{
-				Driver: v.Driver,
-				Use:    v.BeingUsed,
-				Config: cfgFormat(v),
-			})
-		}
+		slist = append(slist, &sysconfigbase.ConfigDetail{
+			Driver: v.Driver,
+			Use:    v.BeingUsed,
+			Config: cfgFormat(v),
+		})
 	}
 	return &slist, nil
 }
@@ -74,7 +51,8 @@ func (e *emailApiImpl) UpdateSMTP(ctx *gin.Context, opt *sysconfigrequest.SMTPOp
 		Driver: mailmodule.SMTP,
 		Smtp: &config.EmailSmtp{
 			Host:     opt.Host,
-			From:     mail.Address{Name: opt.User, Address: opt.Address},
+			Address:  opt.Address,
+			Name:     opt.User,
 			Password: opt.Password,
 		},
 	}
@@ -104,10 +82,10 @@ func (e *emailApiImpl) UpdateSendCloud(ctx *gin.Context, opt *sysconfigrequest.S
 	emailConfig := &config.Email{
 		Driver: mailmodule.SENDCLOUD,
 		SendCloud: &config.EmailSendCloud{
-			ApiUser:  opt.ApiUser,
-			ApiKey:   opt.ApiKey,
-			From:     opt.FromEmail,
-			FromName: opt.FromName,
+			ApiUser:     opt.ApiUser,
+			ApiKey:      opt.ApiKey,
+			FromAddress: opt.FromEmail,
+			FromName:    opt.FromName,
 		},
 	}
 

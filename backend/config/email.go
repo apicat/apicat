@@ -27,10 +27,10 @@ type EmailSendCloud struct {
 
 // Smtp
 type EmailSmtp struct {
-	Host        string `json:"host"`
-	FromAddress string `json:"fromAddress"`
-	FromName    string `json:"fromName"`
-	Password    string `json:"password"`
+	Host     string `json:"host"`
+	Address  string `json:"address"`
+	Name     string `json:"name"`
+	Password string `json:"password"`
 }
 
 func LoadEmailConfig() {
@@ -78,13 +78,13 @@ func loadSmtpConfig() {
 	} else {
 		return
 	}
-	if v, exists := os.LookupEnv("SMTP_FROM_ADDRESS"); exists {
-		globalConf.Email.Smtp.FromAddress = v
+	if v, exists := os.LookupEnv("SMTP_ADDRESS"); exists {
+		globalConf.Email.Smtp.Address = v
 	} else {
 		return
 	}
-	if v, exists := os.LookupEnv("SMTP_FROM_NAME"); exists {
-		globalConf.Email.Smtp.FromName = v
+	if v, exists := os.LookupEnv("SMTP_NAME"); exists {
+		globalConf.Email.Smtp.Name = v
 	}
 	if v, exists := os.LookupEnv("SMTP_PASSWORD"); exists {
 		globalConf.Email.Smtp.Password = v
@@ -106,8 +106,8 @@ func CheckEmailConfig() error {
 		if globalConf.Email.Smtp.Host == "" {
 			return errors.New("smtp host is empty")
 		}
-		if globalConf.Email.Smtp.FromAddress == "" {
-			return errors.New("smtp from address is empty")
+		if globalConf.Email.Smtp.Address == "" {
+			return errors.New("smtp address is empty")
 		}
 		if globalConf.Email.Smtp.Password == "" {
 			return errors.New("smtp password is empty")
@@ -148,8 +148,8 @@ func (e *Email) ToCfg() mailsender.Sender {
 			Smtp: smtp.SmtpSender{
 				Host: e.Smtp.Host,
 				From: mail.Address{
-					Address: e.Smtp.FromAddress,
-					Name:    e.Smtp.FromName,
+					Address: e.Smtp.Address,
+					Name:    e.Smtp.Name,
 				},
 				Password: e.Smtp.Password,
 			},

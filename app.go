@@ -46,7 +46,7 @@ func (a *App) Run() error {
 		return fmt.Errorf("init cache err: %v", err)
 	}
 
-	sysconfig.Init()
+	sysconfig.Load()
 
 	if err := storage.Init(config.Get().Storage.ToCfg()); err != nil {
 		return fmt.Errorf("init storage err: %v", err)

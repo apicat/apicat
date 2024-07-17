@@ -24,7 +24,6 @@ func NewServiceApi() protosysconfig.ServiceApi {
 func (s *serviceApiImpl) Get(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfigbase.ServiceOption, error) {
 	app := config.Get().App
 	return &sysconfigbase.ServiceOption{
-		AppName: app.AppName,
 		AppUrl:  app.AppUrl,
 		MockUrl: app.MockUrl,
 	}, nil
@@ -32,7 +31,6 @@ func (s *serviceApiImpl) Get(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfigbase.
 
 func (s *serviceApiImpl) Update(ctx *gin.Context, opt *sysconfigbase.ServiceOption) (*ginrpc.Empty, error) {
 	appConfig := &config.App{
-		AppName: opt.AppName,
 		AppUrl:  opt.AppUrl,
 		MockUrl: opt.MockUrl,
 	}
