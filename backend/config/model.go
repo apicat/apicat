@@ -4,8 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/apicat/apicat/v2/backend/module/llm"
-	"github.com/apicat/apicat/v2/backend/module/llm/openai"
+	"github.com/apicat/apicat/v2/backend/module/model"
 )
 
 type Model struct {
@@ -35,22 +34,22 @@ func LoadModelConfig() {
 
 	if v, exists := os.LookupEnv("LLM_DRIVER"); exists {
 		switch v {
-		case llm.OPENAI:
-			globalConf.Model.LLMDriver = llm.OPENAI
+		case model.OPENAI:
+			globalConf.Model.LLMDriver = model.OPENAI
 			loadOpenAIConfig()
-		case llm.AZUREOPENAI:
-			globalConf.Model.LLMDriver = llm.AZUREOPENAI
+		case model.AZUREOPENAI:
+			globalConf.Model.LLMDriver = model.AZUREOPENAI
 			loadAzureOpenAIConfig()
 		}
 	}
 
 	if v, exists := os.LookupEnv("EMBEDDING_DRIVER"); exists {
 		switch v {
-		case llm.OPENAI:
-			globalConf.Model.EmbeddingDriver = llm.OPENAI
+		case model.OPENAI:
+			globalConf.Model.EmbeddingDriver = model.OPENAI
 			loadOpenAIConfig()
-		case llm.AZUREOPENAI:
-			globalConf.Model.EmbeddingDriver = llm.AZUREOPENAI
+		case model.AZUREOPENAI:
+			globalConf.Model.EmbeddingDriver = model.AZUREOPENAI
 			loadAzureOpenAIConfig()
 		}
 	}
@@ -94,57 +93,62 @@ func loadAzureOpenAIConfig() {
 func CheckModelConfig() error {
 	if globalConf.Model.LLMDriver != "" {
 		switch globalConf.Model.LLMDriver {
-		case llm.OPENAI:
-			if globalConf.Model.OpenAI == nil {
-				return errors.New("openai config is empty")
+		case model.OPENAI:
+			if err := checkOpenAI("llm"); err != nil {
+				return err
 			}
-			if globalConf.Model.OpenAI.ApiKey == "" {
-				return errors.New("openai api key is empty")
-			}
-			if globalConf.Model.OpenAI.LLM == "" {
-				return errors.New("openai llm is empty")
-			}
-		case llm.AZUREOPENAI:
-			if globalConf.Model.AzureOpenAI == nil {
-				return errors.New("azure openai config is empty")
-			}
-			if globalConf.Model.AzureOpenAI.ApiKey == "" {
-				return errors.New("azure openai api key is empty")
-			}
-			if globalConf.Model.AzureOpenAI.Endpoint == "" {
-				return errors.New("azure openai endpoint is empty")
-			}
-			if globalConf.Model.AzureOpenAI.LLM == "" {
-				return errors.New("azure openai llm is empty")
+		case model.AZUREOPENAI:
+			if err := checkAzureOpenAI("llm"); err != nil {
+				return err
 			}
 		}
 	}
 	if globalConf.Model.EmbeddingDriver != "" {
 		switch globalConf.Model.EmbeddingDriver {
-		case llm.OPENAI:
-			if globalConf.Model.OpenAI == nil {
-				return errors.New("openai config is empty")
+		case model.OPENAI:
+			if err := checkOpenAI("embedding"); err != nil {
+				return err
 			}
-			if globalConf.Model.OpenAI.ApiKey == "" {
-				return errors.New("openai api key is empty")
-			}
-			if globalConf.Model.OpenAI.Embedding == "" {
-				return errors.New("openai embedding is empty")
-			}
-		case llm.AZUREOPENAI:
-			if globalConf.Model.AzureOpenAI == nil {
-				return errors.New("azure openai config is empty")
-			}
-			if globalConf.Model.AzureOpenAI.ApiKey == "" {
-				return errors.New("azure openai api key is empty")
-			}
-			if globalConf.Model.AzureOpenAI.Endpoint == "" {
-				return errors.New("azure openai endpoint is empty")
-			}
-			if globalConf.Model.AzureOpenAI.Embedding == "" {
-				return errors.New("azure openai embedding is empty")
+		case model.AZUREOPENAI:
+			if err := checkAzureOpenAI("embedding"); err != nil {
+				return err
 			}
 		}
+	}
+	return nil
+}
+
+func checkOpenAI(modelType string) error {
+	if globalConf.Model.OpenAI == nil {
+		return errors.New("openai config is empty")
+	}
+	if globalConf.Model.OpenAI.ApiKey == "" {
+		return errors.New("openai api key is empty")
+	}
+	if modelType == "llm" && globalConf.Model.OpenAI.LLM == "" {
+		return errors.New("openai llm is empty")
+	}
+	if modelType == "embedding" && globalConf.Model.OpenAI.Embedding == "" {
+		return errors.New("openai embedding is empty")
+	}
+	return nil
+}
+
+func checkAzureOpenAI(modelType string) error {
+	if globalConf.Model.AzureOpenAI == nil {
+		return errors.New("azure openai config is empty")
+	}
+	if globalConf.Model.AzureOpenAI.ApiKey == "" {
+		return errors.New("azure openai api key is empty")
+	}
+	if globalConf.Model.AzureOpenAI.Endpoint == "" {
+		return errors.New("azure openai endpoint is empty")
+	}
+	if modelType == "llm" && globalConf.Model.AzureOpenAI.LLM == "" {
+		return errors.New("azure openai llm is empty")
+	}
+	if modelType == "embedding" && globalConf.Model.AzureOpenAI.Embedding == "" {
+		return errors.New("azure openai embedding is empty")
 	}
 	return nil
 }
@@ -152,9 +156,9 @@ func CheckModelConfig() error {
 func SetLLMModel(m *Model) {
 	globalConf.Model.LLMDriver = m.LLMDriver
 	switch m.LLMDriver {
-	case llm.OPENAI:
+	case model.OPENAI:
 		globalConf.Model.OpenAI = m.OpenAI
-	case llm.AZUREOPENAI:
+	case model.AZUREOPENAI:
 		globalConf.Model.AzureOpenAI = m.AzureOpenAI
 	}
 }
@@ -162,41 +166,58 @@ func SetLLMModel(m *Model) {
 func SetEmbeddingModel(m *Model) {
 	globalConf.Model.EmbeddingDriver = m.EmbeddingDriver
 	switch m.EmbeddingDriver {
-	case llm.OPENAI:
+	case model.OPENAI:
 		globalConf.Model.OpenAI = m.OpenAI
-	case llm.AZUREOPENAI:
+	case model.AZUREOPENAI:
 		globalConf.Model.AzureOpenAI = m.AzureOpenAI
 	}
 }
 
-func (m *Model) ToCfg() llm.LLM {
+func (m *Model) ToCfg(modelType string) model.Model {
 	if m == nil {
-		return llm.LLM{}
+		return model.Model{}
 	}
 
-	switch l.Driver {
-	case llm.OPENAI:
-		return llm.LLM{
-			Driver: l.Driver,
-			OpenAI: openai.OpenAI{
-				ApiKey:         l.OpenAI.ApiKey,
-				OrganizationID: l.OpenAI.OrganizationID,
-				ApiBase:        l.OpenAI.ApiBase,
-				LLMName:        l.OpenAI.LLMName,
-				EmbeddingName:  l.OpenAI.EmbeddingName,
-			},
-		}
-	case llm.AZUREOPENAI:
-		return llm.LLM{
-			Driver: l.Driver,
-			AzureOpenAI: openai.AzureOpenAI{
-				ApiKey:        l.AzureOpenAI.ApiKey,
-				Endpoint:      l.AzureOpenAI.Endpoint,
-				LLMName:       l.AzureOpenAI.LLMName,
-				EmbeddingName: l.AzureOpenAI.EmbeddingName,
-			},
-		}
+	var driver string
+	if modelType == "llm" {
+		driver = m.LLMDriver
+	} else if modelType == "embedding" {
+		driver = m.EmbeddingDriver
+	} else {
+		return model.Model{}
+	}
+
+	switch driver {
+	case model.OPENAI:
+		return m.toOpenAICfg()
+	case model.AZUREOPENAI:
+		return m.toAzureOpenAICfg()
 	default:
-		return llm.LLM{}
+		return model.Model{}
+	}
+}
+
+func (m *Model) toOpenAICfg() model.Model {
+	return model.Model{
+		Driver: model.OPENAI,
+		OpenAI: model.OpenAI{
+			ApiKey:         m.OpenAI.ApiKey,
+			OrganizationID: m.OpenAI.OrganizationID,
+			ApiBase:        m.OpenAI.ApiBase,
+			LLM:            m.OpenAI.LLM,
+			Embedding:      m.OpenAI.Embedding,
+		},
+	}
+}
+
+func (m *Model) toAzureOpenAICfg() model.Model {
+	return model.Model{
+		Driver: model.AZUREOPENAI,
+		AzureOpenAI: model.AzureOpenAI{
+			ApiKey:    m.AzureOpenAI.ApiKey,
+			Endpoint:  m.AzureOpenAI.Endpoint,
+			LLM:       m.AzureOpenAI.LLM,
+			Embedding: m.AzureOpenAI.Embedding,
+		},
 	}
 }

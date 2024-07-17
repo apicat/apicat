@@ -33,7 +33,7 @@ func Init() error {
 	)
 	slog.Info("init database", "host", cfg.Host, "database", cfg.Database)
 	dbLogger := &tracelogger{}
-	if cfg.Debug {
+	if config.Get().App.Debug {
 		dbLogger.lvl = logger.Info
 	}
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{Logger: dbLogger})
