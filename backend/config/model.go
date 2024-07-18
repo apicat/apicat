@@ -37,8 +37,8 @@ func LoadModelConfig() {
 		case model.OPENAI:
 			globalConf.Model.LLMDriver = model.OPENAI
 			loadOpenAIConfig()
-		case model.AZUREOPENAI:
-			globalConf.Model.LLMDriver = model.AZUREOPENAI
+		case model.AZURE_OPENAI:
+			globalConf.Model.LLMDriver = model.AZURE_OPENAI
 			loadAzureOpenAIConfig()
 		}
 	}
@@ -48,8 +48,8 @@ func LoadModelConfig() {
 		case model.OPENAI:
 			globalConf.Model.EmbeddingDriver = model.OPENAI
 			loadOpenAIConfig()
-		case model.AZUREOPENAI:
-			globalConf.Model.EmbeddingDriver = model.AZUREOPENAI
+		case model.AZURE_OPENAI:
+			globalConf.Model.EmbeddingDriver = model.AZURE_OPENAI
 			loadAzureOpenAIConfig()
 		}
 	}
@@ -97,7 +97,7 @@ func CheckModelConfig() error {
 			if err := checkOpenAI("llm"); err != nil {
 				return err
 			}
-		case model.AZUREOPENAI:
+		case model.AZURE_OPENAI:
 			if err := checkAzureOpenAI("llm"); err != nil {
 				return err
 			}
@@ -109,7 +109,7 @@ func CheckModelConfig() error {
 			if err := checkOpenAI("embedding"); err != nil {
 				return err
 			}
-		case model.AZUREOPENAI:
+		case model.AZURE_OPENAI:
 			if err := checkAzureOpenAI("embedding"); err != nil {
 				return err
 			}
@@ -153,23 +153,28 @@ func checkAzureOpenAI(modelType string) error {
 	return nil
 }
 
-func SetLLMModel(m *Model) {
-	globalConf.Model.LLMDriver = m.LLMDriver
-	switch m.LLMDriver {
-	case model.OPENAI:
-		globalConf.Model.OpenAI = m.OpenAI
-	case model.AZUREOPENAI:
-		globalConf.Model.AzureOpenAI = m.AzureOpenAI
+func SetModel(m *Model) {
+	if m.LLMDriver != "" {
+		globalConf.Model.LLMDriver = m.LLMDriver
+		switch m.LLMDriver {
+		case model.OPENAI:
+			globalConf.Model.OpenAI = m.OpenAI
+		case model.AZURE_OPENAI:
+			globalConf.Model.AzureOpenAI = m.AzureOpenAI
+		default:
+			globalConf.Model.LLMDriver = ""
+		}
 	}
-}
-
-func SetEmbeddingModel(m *Model) {
-	globalConf.Model.EmbeddingDriver = m.EmbeddingDriver
-	switch m.EmbeddingDriver {
-	case model.OPENAI:
-		globalConf.Model.OpenAI = m.OpenAI
-	case model.AZUREOPENAI:
-		globalConf.Model.AzureOpenAI = m.AzureOpenAI
+	if m.EmbeddingDriver != "" {
+		globalConf.Model.EmbeddingDriver = m.EmbeddingDriver
+		switch m.EmbeddingDriver {
+		case model.OPENAI:
+			globalConf.Model.OpenAI = m.OpenAI
+		case model.AZURE_OPENAI:
+			globalConf.Model.AzureOpenAI = m.AzureOpenAI
+		default:
+			globalConf.Model.EmbeddingDriver = ""
+		}
 	}
 }
 
@@ -190,7 +195,7 @@ func (m *Model) ToCfg(modelType string) model.Model {
 	switch driver {
 	case model.OPENAI:
 		return m.toOpenAICfg()
-	case model.AZUREOPENAI:
+	case model.AZURE_OPENAI:
 		return m.toAzureOpenAICfg()
 	default:
 		return model.Model{}
@@ -212,7 +217,7 @@ func (m *Model) toOpenAICfg() model.Model {
 
 func (m *Model) toAzureOpenAICfg() model.Model {
 	return model.Model{
-		Driver: model.AZUREOPENAI,
+		Driver: model.AZURE_OPENAI,
 		AzureOpenAI: model.AzureOpenAI{
 			ApiKey:    m.AzureOpenAI.ApiKey,
 			Endpoint:  m.AzureOpenAI.Endpoint,

@@ -56,6 +56,10 @@ func UpdateOrCreate(ctx context.Context, sc *Sysconfig) error {
 	})
 }
 
+func ClearModelStatus(ctx context.Context) error {
+	return model.DB(ctx).Model(&Sysconfig{}).Where("type = ?", "model").Updates(map[string]interface{}{"extra": "", "being_used": 0}).Error
+}
+
 func Load() {
 	loadAppConfig()
 	loadEmailConfig()
@@ -113,12 +117,12 @@ func loadModelConfig() {
 						cfg.EmbeddingDriver = aimodel.OPENAI
 					}
 				}
-			case aimodel.AZUREOPENAI:
+			case aimodel.AZURE_OPENAI:
 				if err := json.Unmarshal([]byte(m.Config), &cfg.AzureOpenAI); err == nil {
 					if m.Extra == "llm" {
-						cfg.LLMDriver = aimodel.AZUREOPENAI
+						cfg.LLMDriver = aimodel.AZURE_OPENAI
 					} else if m.Extra == "embedding" {
-						cfg.EmbeddingDriver = aimodel.AZUREOPENAI
+						cfg.EmbeddingDriver = aimodel.AZURE_OPENAI
 					}
 				}
 			}

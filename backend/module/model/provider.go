@@ -5,8 +5,8 @@ import (
 )
 
 const (
-	OPENAI      = "openai"
-	AZUREOPENAI = "azure-openai"
+	OPENAI       = "openai"
+	AZURE_OPENAI = "azure-openai"
 )
 
 type Model struct {
@@ -22,7 +22,7 @@ func NewModel(cfg Model) (Provider, error) {
 		} else {
 			return nil, errors.New("NewOpenAI failed")
 		}
-	} else if cfg.Driver == AZUREOPENAI {
+	} else if cfg.Driver == AZURE_OPENAI {
 		if o := NewAzureOpenAI(cfg.AzureOpenAI); o != nil {
 			return o, nil
 		} else {
