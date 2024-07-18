@@ -54,7 +54,7 @@ func (s *modelApiImpl) UpdateOpenAI(ctx *gin.Context, opt *sysconfigrequest.Open
 		modelConfig.LLMDriver = model.OPENAI
 		modelConfig.OpenAI.LLM = opt.LLM
 
-		if openAI, err := model.NewModel(modelConfig.ToCfg("llm")); err != nil {
+		if openAI, err := model.NewModel(modelConfig.ToModuleStruct("llm")); err != nil {
 			slog.ErrorContext(ctx, "model.NewModel.OpenAI", "err", err)
 			return nil, ginrpc.NewError(http.StatusBadRequest, err)
 		} else {
@@ -68,7 +68,7 @@ func (s *modelApiImpl) UpdateOpenAI(ctx *gin.Context, opt *sysconfigrequest.Open
 		modelConfig.EmbeddingDriver = model.OPENAI
 		modelConfig.OpenAI.Embedding = opt.Embedding
 
-		if openAI, err := model.NewModel(modelConfig.ToCfg("embedding")); err != nil {
+		if openAI, err := model.NewModel(modelConfig.ToModuleStruct("embedding")); err != nil {
 			slog.ErrorContext(ctx, "model.NewModel.OpenAI", "err", err)
 			return nil, ginrpc.NewError(http.StatusBadRequest, err)
 		} else {
@@ -121,7 +121,7 @@ func (s *modelApiImpl) UpdateAzureOpenAI(ctx *gin.Context, opt *sysconfigrequest
 		modelConfig.LLMDriver = model.AZURE_OPENAI
 		modelConfig.AzureOpenAI.LLM = opt.LLM
 
-		if azureOpenAI, err := model.NewModel(modelConfig.ToCfg("llm")); err != nil {
+		if azureOpenAI, err := model.NewModel(modelConfig.ToModuleStruct("llm")); err != nil {
 			slog.ErrorContext(ctx, "model.NewModel.AzureOpenAI", "err", err)
 			return nil, ginrpc.NewError(http.StatusBadRequest, err)
 		} else {
@@ -135,7 +135,7 @@ func (s *modelApiImpl) UpdateAzureOpenAI(ctx *gin.Context, opt *sysconfigrequest
 		modelConfig.EmbeddingDriver = model.AZURE_OPENAI
 		modelConfig.AzureOpenAI.Embedding = opt.Embedding
 
-		if azureOpenAI, err := model.NewModel(modelConfig.ToCfg("embedding")); err != nil {
+		if azureOpenAI, err := model.NewModel(modelConfig.ToModuleStruct("embedding")); err != nil {
 			slog.ErrorContext(ctx, "model.NewModel.AzureOpenAI", "err", err)
 			return nil, ginrpc.NewError(http.StatusBadRequest, err)
 		} else {

@@ -178,7 +178,7 @@ func SetModel(m *Model) {
 	}
 }
 
-func (m *Model) ToCfg(modelType string) model.Model {
+func (m *Model) ToModuleStruct(modelType string) model.Model {
 	if m == nil {
 		return model.Model{}
 	}

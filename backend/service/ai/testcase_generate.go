@@ -16,8 +16,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 
 	"github.com/apicat/apicat/v2/backend/module/cache"
-	"github.com/apicat/apicat/v2/backend/module/llm"
-	llmcommon "github.com/apicat/apicat/v2/backend/module/llm/common"
+	"github.com/apicat/apicat/v2/backend/module/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -60,16 +59,12 @@ func TestCaseListGenerate(ctx *gin.Context, apiSummary string, testCases []strin
 		return nil, err
 	}
 
-	a, err := llm.NewLLM(config.Get().LLM.ToCfg())
+	m, err := model.NewModel(config.Get().Model.ToModuleStruct("llm"))
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := a.ChatCompletionRequest(&llmcommon.ChatCompletionRequest{
-		Temperature: 0.3,
-		MaxTokens:   4000,
-		Messages:    messages,
-	})
+	result, err := m.ChatCompletionRequest(model.NewChatCompletionOption(messages))
 	if err != nil {
 		return nil, err
 	}
@@ -154,16 +149,12 @@ func TestCaseDetailGenerate(language, apiSummary, testCaseTitle string) (*TestCa
 		return nil, err
 	}
 
-	a, err := llm.NewLLM(config.Get().LLM.ToCfg())
+	m, err := model.NewModel(config.Get().Model.ToModuleStruct("llm"))
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := a.ChatCompletionRequest(&llmcommon.ChatCompletionRequest{
-		Temperature: 0.3,
-		MaxTokens:   2000,
-		Messages:    messages,
-	})
+	result, err := m.ChatCompletionRequest(model.NewChatCompletionOption(messages))
 	if err != nil {
 		return nil, err
 	}
@@ -206,16 +197,12 @@ func TestCaseDetailRegenerate(testCase *collection.TestCase, language, apiSummar
 		return nil, err
 	}
 
-	a, err := llm.NewLLM(config.Get().LLM.ToCfg())
+	m, err := model.NewModel(config.Get().Model.ToModuleStruct("llm"))
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := a.ChatCompletionRequest(&llmcommon.ChatCompletionRequest{
-		Temperature: 0.3,
-		MaxTokens:   4000,
-		Messages:    messages,
-	})
+	result, err := m.ChatCompletionRequest(model.NewChatCompletionOption(messages))
 	if err != nil {
 		return nil, err
 	}

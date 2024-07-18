@@ -10,8 +10,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/model/definition"
 	"github.com/apicat/apicat/v2/backend/route/middleware/jwt"
 
-	"github.com/apicat/apicat/v2/backend/module/llm"
-	llmcommon "github.com/apicat/apicat/v2/backend/module/llm/common"
+	"github.com/apicat/apicat/v2/backend/module/model"
 	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
 	"github.com/gin-gonic/gin"
 )
@@ -23,16 +22,12 @@ func SchemaGenerate(ctx *gin.Context, prompt string) (*definition.DefinitionSche
 		return nil, err
 	}
 
-	a, err := llm.NewLLM(config.Get().LLM.ToCfg())
+	m, err := model.NewModel(config.Get().Model.ToModuleStruct("llm"))
 	if err != nil {
 		return nil, err
 	}
 
-	result, err := a.ChatCompletionRequest(&llmcommon.ChatCompletionRequest{
-		Temperature: 0.3,
-		MaxTokens:   3000,
-		Messages:    messages,
-	})
+	result, err := m.ChatCompletionRequest(model.NewChatCompletionOption(messages))
 	if err != nil {
 		return nil, err
 	}
