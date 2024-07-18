@@ -42,13 +42,13 @@ func (a *App) Run() error {
 		return fmt.Errorf("run migration err: %v", err)
 	}
 
-	if err := cache.Init(config.Get().Cache.ToCfg()); err != nil {
+	if err := cache.Init(config.Get().Cache.ToModuleStruct()); err != nil {
 		return fmt.Errorf("init cache err: %v", err)
 	}
 
 	sysconfig.Load()
 
-	if err := storage.Init(config.Get().Storage.ToCfg()); err != nil {
+	if err := storage.Init(config.Get().Storage.ToModuleStruct()); err != nil {
 		return fmt.Errorf("init storage err: %v", err)
 	}
 

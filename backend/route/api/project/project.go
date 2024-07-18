@@ -461,7 +461,7 @@ func (pai *projectApiImpl) GetExportPath(ctx *gin.Context, opt *projectrequest.G
 		selfTM.ID,
 		time.Now().Unix(),
 	)
-	c, err := cache.NewCache(config.Get().Cache.ToCfg())
+	c, err := cache.NewCache(config.Get().Cache.ToModuleStruct())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("project.ExportFailed"))
@@ -488,7 +488,7 @@ func Export(ctx *gin.Context) {
 		return
 	}
 
-	c, err := cache.NewCache(config.Get().Cache.ToCfg())
+	c, err := cache.NewCache(config.Get().Cache.ToModuleStruct())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{

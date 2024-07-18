@@ -46,7 +46,7 @@ func CheckCacheConfig() error {
 	return nil
 }
 
-func (c *Cache) ToCfg() cache.Cache {
+func (c *Cache) ToModuleStruct() cache.Cache {
 	return cache.Cache{
 		Driver: cache.REDIS,
 		Redis: redis.RedisOpt{

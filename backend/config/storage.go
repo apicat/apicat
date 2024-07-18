@@ -155,7 +155,7 @@ func SetLocalDiskUrl(url string) {
 	globalConf.Storage.LocalDisk.Url = url + "/uploads"
 }
 
-func (s *Storage) ToCfg() storage.Storage {
+func (s *Storage) ToModuleStruct() storage.Storage {
 	switch s.Driver {
 	case storage.CLOUDFLARE:
 		return storage.Storage{

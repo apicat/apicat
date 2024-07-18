@@ -1,5 +1,3 @@
-github.com/apicat/datagen v0.1.0 h1:DTThbux7kEoXC7amrsS+FUN4+joNGub+W75y4lqEaO0=
-github.com/apicat/datagen v0.1.0/go.mod h1:VrGzjXiMSVkb8xZ6ljp3pufElSZSb9JPFjhI384jZdU=
 github.com/apicat/datagen v0.1.1 h1:qPAVDCdrISd82n8r5h5fXPa300k6iB14Jbj2B851JEE=
 github.com/apicat/datagen v0.1.1/go.mod h1:VrGzjXiMSVkb8xZ6ljp3pufElSZSb9JPFjhI384jZdU=
 github.com/apicat/ginrpc v0.0.4 h1:b3Do1/i2MsXrJeAawtv8tG7NexrwSaD2ZnsNf5BPZMw=

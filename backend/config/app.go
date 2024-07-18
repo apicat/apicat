@@ -1,7 +1,6 @@
 package config
 
 import (
-	"encoding/json"
 	"errors"
 	"os"
 	"strings"
@@ -53,14 +52,4 @@ func CheckAppConfig() error {
 func SetApp(appConfig *App) {
 	globalConf.App.AppUrl = appConfig.AppUrl
 	globalConf.App.MockUrl = appConfig.MockUrl
-}
-
-func (a *App) ToMapInterface() map[string]interface{} {
-	var (
-		res      map[string]interface{}
-		jsonByte []byte
-	)
-	jsonByte, _ = json.Marshal(a)
-	_ = json.Unmarshal(jsonByte, &res)
-	return res
 }

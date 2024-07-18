@@ -12,6 +12,7 @@ require (
 	github.com/go-gormigrate/gormigrate/v2 v2.1.2
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/gomarkdown/markdown v0.0.0-20230322041520-c84983bdbf2a
+	github.com/joho/godotenv v1.5.1
 	github.com/pb33f/libopenapi v0.16.5
 	github.com/qiniu/go-sdk/v7 v7.18.2
 	github.com/sashabaranov/go-openai v1.20.2
@@ -47,7 +48,6 @@ require (
 	github.com/google/uuid v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/joho/godotenv v1.5.1 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect

@@ -3,7 +3,6 @@ package mailer
 import (
 	"fmt"
 	"log/slog"
-	"net/http"
 	"time"
 
 	"github.com/apicat/apicat/v2/backend/config"
@@ -17,14 +16,6 @@ import (
 type UserToken struct {
 	Email  string
 	UserID uint
-}
-
-func scheme(r *http.Request) string {
-	scheme := "http"
-	if r.TLS != nil || r.Header.Get("X-Forwarded-Proto") == "https" {
-		scheme = "https"
-	}
-	return scheme
 }
 
 // SendActiveAccountMail 发送激活账户邮件
@@ -41,7 +32,7 @@ func SendActiveAccountMail(ctx *gin.Context, usr *user.User) {
 		time.Now().Unix(),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToCfg())
+	c, err := cache.NewCache(config.Get().Cache.ToModuleStruct())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return
@@ -78,7 +69,7 @@ func SendResetPasswordMail(ctx *gin.Context, usr *user.User) {
 		time.Now().Unix(),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToCfg())
+	c, err := cache.NewCache(config.Get().Cache.ToModuleStruct())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return
@@ -115,7 +106,7 @@ func SendModifyEmailMail(ctx *gin.Context, usr *user.User, newEmail string) {
 		time.Now().Unix(),
 	)
 
-	c, err := cache.NewCache(config.Get().Cache.ToCfg())
+	c, err := cache.NewCache(config.Get().Cache.ToModuleStruct())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return

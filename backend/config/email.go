@@ -136,7 +136,7 @@ func SetEmail(emailConfig *Email) {
 	globalConf.Email = emailConfig
 }
 
-func (e *Email) ToCfg() mailsender.Sender {
+func (e *Email) ToModuleStruct() mailsender.Sender {
 	if e == nil {
 		return mailsender.Sender{}
 	}
