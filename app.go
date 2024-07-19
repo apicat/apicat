@@ -46,11 +46,11 @@ func (a *App) Run() error {
 		return fmt.Errorf("init cache err: %v", err)
 	}
 
-	sysconfig.Load()
-
 	if err := storage.Init(config.Get().Storage.ToModuleStruct()); err != nil {
 		return fmt.Errorf("init storage err: %v", err)
 	}
+
+	sysconfig.Load()
 
 	if err := runMock(); err != nil {
 		return err

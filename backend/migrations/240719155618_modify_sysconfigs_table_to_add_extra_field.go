@@ -120,6 +120,17 @@ func init() {
 							return err
 						}
 					}
+
+					if err := tx.Where("type = ?", "storage").Find(&list).Error; err != nil {
+						return err
+					}
+					for _, v := range list {
+						if v.Driver == "disk" {
+							if err := tx.Model(&sysconfig{}).Where("id = ?", v.ID).Update("driver", "localdisk").Error; err != nil {
+								return err
+							}
+						}
+					}
 				}
 			}
 			return nil

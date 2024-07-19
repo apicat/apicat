@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	LOCAL_DISK = "disk"
+	LOCAL_DISK = "localdisk"
 	CLOUDFLARE = "cloudflare"
 	QINIU      = "qiniu"
 )
