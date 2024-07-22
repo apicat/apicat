@@ -153,6 +153,10 @@ func checkAzureOpenAI(modelType string) error {
 	return nil
 }
 
+func GetModel() *Model {
+	return globalConf.Model
+}
+
 func SetModel(m *Model) {
 	if m.LLMDriver != "" {
 		globalConf.Model.LLMDriver = m.LLMDriver

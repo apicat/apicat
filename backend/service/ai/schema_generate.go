@@ -22,7 +22,7 @@ func SchemaGenerate(ctx *gin.Context, prompt string) (*definition.DefinitionSche
 		return nil, err
 	}
 
-	m, err := model.NewModel(config.Get().Model.ToModuleStruct("llm"))
+	m, err := model.NewModel(config.GetModel().ToModuleStruct("llm"))
 	if err != nil {
 		return nil, err
 	}

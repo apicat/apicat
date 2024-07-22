@@ -59,7 +59,7 @@ func TestCaseListGenerate(ctx *gin.Context, apiSummary string, testCases []strin
 		return nil, err
 	}
 
-	m, err := model.NewModel(config.Get().Model.ToModuleStruct("llm"))
+	m, err := model.NewModel(config.GetModel().ToModuleStruct("llm"))
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func TestCaseDetailGenerate(language, apiSummary, testCaseTitle string) (*TestCa
 		return nil, err
 	}
 
-	m, err := model.NewModel(config.Get().Model.ToModuleStruct("llm"))
+	m, err := model.NewModel(config.GetModel().ToModuleStruct("llm"))
 	if err != nil {
 		return nil, err
 	}
@@ -197,7 +197,7 @@ func TestCaseDetailRegenerate(testCase *collection.TestCase, language, apiSummar
 		return nil, err
 	}
 
-	m, err := model.NewModel(config.Get().Model.ToModuleStruct("llm"))
+	m, err := model.NewModel(config.GetModel().ToModuleStruct("llm"))
 	if err != nil {
 		return nil, err
 	}

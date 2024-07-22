@@ -19,22 +19,77 @@ import (
 
 type modelApiImpl struct{}
 
+var modelDrivers = []string{model.OPENAI, model.AZURE_OPENAI}
+var openaiLLMSupport = []string{"gpt-4", "gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-3.5-turbo"}
+var openaiEmbeddingSupport = []string{"text-embedding-3-small", "text-embedding-3-large", "text-embedding-ada-002"}
+
 func NewModelApi() protosysconfig.ModelApi {
 	return &modelApiImpl{}
 }
 
 func (s *modelApiImpl) Get(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfigresponse.ModelConfigList, error) {
-	list, err := sysconfig.GetList(ctx, "model")
-	if err != nil {
-		slog.ErrorContext(ctx, "sysconfig.GetList", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.FailedToGetModelList"))
+	configMap := make(map[string]*sysconfigresponse.ModelConfigDetail)
+
+	modelCfg := config.GetModel()
+	drivers := make([]string, 0)
+	if modelCfg.LLMDriver != "" {
+		drivers = append(drivers, modelCfg.LLMDriver)
 	}
-	slist := make(sysconfigresponse.ModelConfigList, 0, len(list))
-	for _, v := range list {
-		slist = append(slist, &sysconfigresponse.ModelConfigDetail{
-			Driver: v.Driver,
-			Config: cfgFormat(v),
-		})
+	if modelCfg.EmbeddingDriver != "" && modelCfg.EmbeddingDriver != modelCfg.LLMDriver {
+		drivers = append(drivers, modelCfg.EmbeddingDriver)
+	}
+
+	for _, driver := range drivers {
+		switch driver {
+		case model.OPENAI:
+			if js, err := json.Marshal(modelCfg.OpenAI); err == nil {
+				configMap[model.OPENAI] = &sysconfigresponse.ModelConfigDetail{
+					Driver: model.OPENAI,
+					Config: cfgFormat(&sysconfig.Sysconfig{Config: string(js)}),
+					Models: sysconfigresponse.ModelNameList{
+						"llm":       openaiLLMSupport,
+						"embedding": openaiEmbeddingSupport,
+					},
+				}
+			}
+		case model.AZURE_OPENAI:
+			if js, err := json.Marshal(modelCfg.AzureOpenAI); err == nil {
+				configMap[model.AZURE_OPENAI] = &sysconfigresponse.ModelConfigDetail{
+					Driver: model.AZURE_OPENAI,
+					Config: cfgFormat(&sysconfig.Sysconfig{Config: string(js)}),
+				}
+			}
+		}
+	}
+
+	if list, err := sysconfig.GetList(ctx, "model"); err == nil {
+		for _, v := range list {
+			if _, ok := configMap[v.Driver]; !ok {
+				switch v.Driver {
+				case model.OPENAI:
+					configMap[model.OPENAI] = &sysconfigresponse.ModelConfigDetail{
+						Driver: v.Driver,
+						Config: cfgFormat(v),
+						Models: sysconfigresponse.ModelNameList{
+							"llm":       openaiLLMSupport,
+							"embedding": openaiEmbeddingSupport,
+						},
+					}
+				case model.AZURE_OPENAI:
+					configMap[model.AZURE_OPENAI] = &sysconfigresponse.ModelConfigDetail{
+						Driver: v.Driver,
+						Config: cfgFormat(v),
+					}
+				}
+			}
+		}
+	}
+
+	slist := make(sysconfigresponse.ModelConfigList, 0)
+	for _, v := range modelDrivers {
+		if _, ok := configMap[v]; ok {
+			slist = append(slist, configMap[v])
+		}
 	}
 	return &slist, nil
 }
@@ -177,40 +232,89 @@ func (s *modelApiImpl) UpdateAzureOpenAI(ctx *gin.Context, opt *sysconfigrequest
 }
 
 func (s *modelApiImpl) GetDefault(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfigresponse.DefaultModelMap, error) {
-	list, err := sysconfig.GetList(ctx, "model")
-	if err != nil {
-		slog.ErrorContext(ctx, "sysconfig.GetList", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.FailedToGetModelList"))
-	}
+	llmDefaultMap := make(map[string]*sysconfigresponse.DefaultModelDetail)
+	embeddingDefaultMap := make(map[string]*sysconfigresponse.DefaultModelDetail)
 
-	defaultMap := sysconfigresponse.DefaultModelMap{
-		"llm":       sysconfigresponse.DefaultModelList{},
-		"embedding": sysconfigresponse.DefaultModelList{},
-	}
-
-	type modelName struct {
-		LLM       string `json:"llm"`
-		Embedding string `json:"embedding"`
-	}
-	for _, v := range list {
-		var cfg modelName
-		if err := json.Unmarshal([]byte(v.Config), &cfg); err == nil {
-			if cfg.LLM != "" {
-				defaultMap["llm"] = append(defaultMap["llm"], &sysconfigresponse.DefaultModelDetail{
-					Driver:   v.Driver,
-					Model:    cfg.LLM,
-					Selected: v.BeingUsed,
-				})
+	modelCfg := config.GetModel()
+	var setDefault = func(typ, driver string) {
+		switch driver {
+		case model.OPENAI:
+			if typ == "llm" {
+				llmDefaultMap[model.OPENAI] = &sysconfigresponse.DefaultModelDetail{
+					Driver:   model.OPENAI,
+					Model:    modelCfg.OpenAI.LLM,
+					Selected: true,
+				}
+			} else if typ == "embedding" {
+				embeddingDefaultMap[model.OPENAI] = &sysconfigresponse.DefaultModelDetail{
+					Driver:   model.OPENAI,
+					Model:    modelCfg.OpenAI.Embedding,
+					Selected: true,
+				}
 			}
-			if cfg.Embedding != "" {
-				defaultMap["embedding"] = append(defaultMap["embedding"], &sysconfigresponse.DefaultModelDetail{
-					Driver:   v.Driver,
-					Model:    cfg.Embedding,
-					Selected: v.BeingUsed,
-				})
+		case model.AZURE_OPENAI:
+			if typ == "llm" {
+				llmDefaultMap[model.AZURE_OPENAI] = &sysconfigresponse.DefaultModelDetail{
+					Driver:   model.AZURE_OPENAI,
+					Model:    modelCfg.AzureOpenAI.LLM,
+					Selected: true,
+				}
+			} else if typ == "embedding" {
+				embeddingDefaultMap[model.AZURE_OPENAI] = &sysconfigresponse.DefaultModelDetail{
+					Driver:   model.AZURE_OPENAI,
+					Model:    modelCfg.AzureOpenAI.Embedding,
+					Selected: true,
+				}
 			}
 		}
 	}
+
+	if modelCfg.LLMDriver != "" {
+		setDefault("llm", modelCfg.LLMDriver)
+	}
+	if modelCfg.EmbeddingDriver != "" {
+		setDefault("embedding", modelCfg.EmbeddingDriver)
+	}
+
+	if list, err := sysconfig.GetList(ctx, "model"); err == nil {
+		type modelName struct {
+			LLM       string `json:"llm"`
+			Embedding string `json:"embedding"`
+		}
+		for _, v := range list {
+			var cfg modelName
+			if err := json.Unmarshal([]byte(v.Config), &cfg); err == nil {
+				if _, ok := llmDefaultMap[v.Driver]; !ok && cfg.LLM != "" {
+					llmDefaultMap[v.Driver] = &sysconfigresponse.DefaultModelDetail{
+						Driver:   v.Driver,
+						Model:    cfg.LLM,
+						Selected: v.BeingUsed && v.Extra == "llm",
+					}
+				}
+				if _, ok := embeddingDefaultMap[v.Driver]; !ok && cfg.Embedding != "" {
+					embeddingDefaultMap[v.Driver] = &sysconfigresponse.DefaultModelDetail{
+						Driver:   v.Driver,
+						Model:    cfg.Embedding,
+						Selected: v.BeingUsed && v.Extra == "embedding",
+					}
+				}
+			}
+		}
+	}
+
+	defaultMap := sysconfigresponse.DefaultModelMap{
+		"llm":       make(sysconfigresponse.DefaultModelList, 0),
+		"embedding": make(sysconfigresponse.DefaultModelList, 0),
+	}
+	for _, v := range modelDrivers {
+		if _, ok := llmDefaultMap[v]; ok {
+			defaultMap["llm"] = append(defaultMap["llm"], llmDefaultMap[v])
+		}
+		if _, ok := embeddingDefaultMap[v]; ok {
+			defaultMap["embedding"] = append(defaultMap["embedding"], embeddingDefaultMap[v])
+		}
+	}
+
 	return &defaultMap, nil
 }
 

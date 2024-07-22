@@ -22,7 +22,7 @@ func DocGenerate(ctx *gin.Context, prompt string) (*collection.Collection, error
 		return nil, err
 	}
 
-	m, err := model.NewModel(config.Get().Model.ToModuleStruct("llm"))
+	m, err := model.NewModel(config.GetModel().ToModuleStruct("llm"))
 	if err != nil {
 		return nil, err
 	}

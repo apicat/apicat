@@ -213,7 +213,6 @@ var En = map[string]map[string]string{
 		"OauthUpdateFailed":        "Oauth setting failed, please try again later.",
 		"EmailUpdateFailed":        "Email setting failed, please try again later.",
 		"SMTPConfigInvalid":        "Invalid SMTP configuration.",
-		"FailedToGetModelList":     "Failed to get model list, please try again later.",
 		"ReasoningModelNotExist":   "Reasoning model does not exist.",
 		"EmbeddingModelNotExist":   "Embedding model does not exist.",
 		"ModelUpdateFailed":        "Model setting failed, please try again later.",

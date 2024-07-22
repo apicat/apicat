@@ -1,8 +1,11 @@
 package response
 
+type ModelNameList map[string][]string
+
 type ModelConfigDetail struct {
 	Driver string                 `json:"driver" binding:"required,gt=1"`
 	Config map[string]interface{} `json:"config" binding:"required"`
+	Models ModelNameList          `json:"models" binding:"omitempty"`
 }
 
 type ModelConfigList []*ModelConfigDetail
