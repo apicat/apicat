@@ -49,6 +49,10 @@ func CheckAppConfig() error {
 	return nil
 }
 
+func GetApp() *App {
+	return globalConf.App
+}
+
 func SetApp(appConfig *App) {
 	globalConf.App.AppUrl = appConfig.AppUrl
 	globalConf.App.MockUrl = appConfig.MockUrl

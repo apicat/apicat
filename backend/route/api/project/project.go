@@ -168,7 +168,7 @@ func (pai *projectApiImpl) Get(ctx *gin.Context, opt *projectrequest.GetProjectD
 		pm = &project.ProjectMember{ProjectID: p.ID, Permission: project.ProjectMemberNone}
 	}
 
-	cfg := config.Get().App
+	cfg := config.GetApp()
 	return &projectresponse.ProjectDetail{
 		ProjectListItem: projectresponse.ProjectListItem{
 			OnlyIdInfo: protobase.OnlyIdInfo{

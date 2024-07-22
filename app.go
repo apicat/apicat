@@ -30,7 +30,7 @@ func (a *App) Run() error {
 		return fmt.Errorf("check config err: %v", err)
 	}
 
-	if err := logger.Init(config.Get().App.Debug, config.Get().Log); err != nil {
+	if err := logger.Init(config.GetApp().Debug, config.Get().Log); err != nil {
 		return fmt.Errorf("init log err: %v", err)
 	}
 
@@ -63,7 +63,7 @@ func (a *App) Run() error {
 }
 
 func runMock() error {
-	cfg := config.Get().App
+	cfg := config.GetApp()
 	if cfg.AppUrl == "" || cfg.MockServerBind == "" {
 		return fmt.Errorf("init mock err, cfg: %v", cfg)
 	}

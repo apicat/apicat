@@ -47,7 +47,7 @@ func SendActiveAccountMail(ctx *gin.Context, usr *user.User) {
 	content := createContent("email_verification.tmpl", contentData{
 		Link: fmt.Sprintf(
 			"%s/email_verification/%s",
-			config.Get().App.AppUrl,
+			config.GetApp().AppUrl,
 			token,
 		),
 		Data: usr,
@@ -84,7 +84,7 @@ func SendResetPasswordMail(ctx *gin.Context, usr *user.User) {
 	content := createContent("reset_password.tmpl", contentData{
 		Link: fmt.Sprintf(
 			"%s/reset_password/%s",
-			config.Get().App.AppUrl,
+			config.GetApp().AppUrl,
 			token,
 		),
 		Data: usr,
@@ -121,7 +121,7 @@ func SendModifyEmailMail(ctx *gin.Context, usr *user.User, newEmail string) {
 	content := createContent("change_email.tmpl", contentData{
 		Link: fmt.Sprintf(
 			"%s/change_email/%s",
-			config.Get().App.AppUrl,
+			config.GetApp().AppUrl,
 			token,
 		),
 		Data: gin.H{

@@ -22,7 +22,7 @@ func NewServiceApi() protosysconfig.ServiceApi {
 }
 
 func (s *serviceApiImpl) Get(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfigbase.ServiceOption, error) {
-	app := config.Get().App
+	app := config.GetApp()
 	return &sysconfigbase.ServiceOption{
 		AppUrl:  app.AppUrl,
 		MockUrl: app.MockUrl,
