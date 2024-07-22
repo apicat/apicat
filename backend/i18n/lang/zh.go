@@ -211,7 +211,6 @@ var Zh = map[string]map[string]string{
 		"ServiceBindFailed":        "您要绑定的IP和端口不正确。",
 		"ServiceBindPortSame":      "您的应用服务端口和 Mock 服务端口不能相同。",
 		"OauthUpdateFailed":        "Oauth 设置失败，请稍后重试。",
-		"FailedToGetEmailList":     "获取邮件设置失败，请稍后重试。",
 		"EmailUpdateFailed":        "邮件设置失败，请稍后重试。",
 		"SMTPConfigInvalid":        "SMTP 设置有误。",
 		"FailedToGetModelList":     "获取模型列表失败，请稍后重试。",

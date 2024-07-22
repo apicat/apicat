@@ -10,7 +10,7 @@ import (
 )
 
 func Send(subject string, content fmt.Stringer, to ...string) error {
-	sender := mail.NewSender(config.Get().Email.ToModuleStruct())
+	sender := mail.NewSender(config.GetEmail().ToModuleStruct())
 	if sender == nil {
 		return nil
 	}

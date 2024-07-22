@@ -132,6 +132,10 @@ func CheckEmailConfig() error {
 	return nil
 }
 
+func GetEmail() *Email {
+	return globalConf.Email
+}
+
 func SetEmail(emailConfig *Email) {
 	globalConf.Email = emailConfig
 }

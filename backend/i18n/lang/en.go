@@ -211,7 +211,6 @@ var En = map[string]map[string]string{
 		"ServiceBindFailed":        "The IP and port you want to bind are incorrect.",
 		"ServiceBindPortSame":      "Your App service port and mock app service port cannot be the same.",
 		"OauthUpdateFailed":        "Oauth setting failed, please try again later.",
-		"FailedToGetEmailList":     "Failed to get email config, please try again later.",
 		"EmailUpdateFailed":        "Email setting failed, please try again later.",
 		"SMTPConfigInvalid":        "Invalid SMTP configuration.",
 		"FailedToGetModelList":     "Failed to get model list, please try again later.",
