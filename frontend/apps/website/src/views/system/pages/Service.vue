@@ -55,7 +55,7 @@ apiGetService().then((v) => {
 
       <!-- submit -->
       <ElButton :loading="submitting" class="w-full mt-8px" type="primary" @click="submit">
-        {{ $t('app.common.update') }}
+        {{ $t('app.common.save') }}
       </ElButton>
     </ElForm>
   </div>

@@ -33,7 +33,7 @@ function submit() {
         <div class="left mr-8px">
           <IconSvg name="ac-azure" width="24" />
         </div>
-        <div class="right font-bold">
+        <div class="font-bold right">
           {{ $t(`${tBase}.title`) }}
         </div>
       </div>
@@ -56,7 +56,7 @@ function submit() {
     </ElForm>
 
     <el-button :loading="submitting" type="primary" @click="submit">
-      {{ $t('app.common.update') }}
+      {{ $t('app.common.save') }}
     </el-button>
   </CollapseCardItem>
 </template>

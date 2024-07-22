@@ -62,7 +62,7 @@ function submit() {
     </ElForm>
 
     <el-button :loading="submitting" type="primary" @click="submit">
-      {{ $t('app.common.update') }}
+      {{ $t('app.common.save') }}
     </el-button>
   </CollapseCardItem>
 </template>

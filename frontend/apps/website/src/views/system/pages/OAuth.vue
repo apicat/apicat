@@ -79,7 +79,7 @@ apiGetOAuth().then((v) => {
         </ElForm>
 
         <el-button type="primary" :loading="isLoading" @click="handleSubmit">
-          {{ $t('app.common.update') }}
+          {{ $t('app.common.save') }}
         </el-button>
       </CollapseCardItem>
     </div>
