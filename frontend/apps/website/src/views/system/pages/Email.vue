@@ -40,7 +40,7 @@ apiGetEmail().then((res) => {
   <div class="bg-white w-85%">
     <h1>{{ $t(`${tBase}.title`) }}</h1>
 
-    <div class="mt-40px flex flex-col">
+    <div class="flex flex-col">
       <SMTP v-model:config="data[SysEmail.SMTP]" class="collapse-box" :name="SysEmail.SMTP" :collapse="collapse" />
       <SendCloud
         v-model:config="data[SysEmail.SendCloud]"
@@ -53,15 +53,8 @@ apiGetEmail().then((res) => {
 </template>
 
 <style scoped>
-h1 {
-  font-size: 30px;
-}
 
 :deep(.el-select .el-input) {
-  height: 40px;
-}
-
-:deep(.el-button) {
   height: 40px;
 }
 
@@ -87,9 +80,5 @@ h1 {
 .right {
   /* justify-content: flex-end; */
   flex-grow: 1;
-}
-
-.content {
-  margin-top: 40px;
 }
 </style>

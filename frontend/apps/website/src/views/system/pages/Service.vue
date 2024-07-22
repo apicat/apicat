@@ -8,13 +8,11 @@ import { isUrlRule, notNullRule } from '@/commons'
 const { t } = useI18n()
 const tBase = 'app.system.service'
 const form = ref<SystemAPI.ServiceData>({
-  appName: '',
   appUrl: '',
   mockUrl: '',
 })
 const formRef = ref<FormInstance>()
 const rules = reactive<FormRules<SystemAPI.ServiceData>>({
-  appName: notNullRule(t(`${tBase}.rules.appname`)),
   appUrl: [...isUrlRule(t(`${tBase}.rules.appurl`), true, true), ...notNullRule(t(`${tBase}.rules.appurl`))],
   mockUrl: [...isUrlRule(t(`${tBase}.rules.mockurl`), true, true), ...notNullRule(t(`${tBase}.rules.mockurl`))],
 })
@@ -33,15 +31,10 @@ apiGetService().then((v) => {
 </script>
 
 <template>
-  <div class="bg-white w-450px">
+  <div class="bg-white w-85%">
     <h1>{{ $t('app.system.service.title') }}</h1>
-    <ElForm ref="formRef" class="content" label-position="top" :rules="rules" :model="form" @submit.prevent="submit">
-      <div style="margin-top: 40px">
-        <!-- appname -->
-        <ElFormItem prop="appName" :label="$t('app.system.service.appname')">
-          <ElInput v-model="form.appName" maxlength="255" />
-        </ElFormItem>
-
+    <ElForm ref="formRef" label-position="top" :rules="rules" :model="form" @submit.prevent="submit">
+      <div >
         <!-- appurl -->
         <ElFormItem prop="appUrl" :label="$t('app.system.service.appurl')">
           <ElInput v-model="form.appUrl" maxlength="255" />
@@ -62,15 +55,8 @@ apiGetService().then((v) => {
 </template>
 
 <style scoped>
-h1 {
-  font-size: 30px;
-}
 
 :deep(.el-select .el-input) {
-  height: 40px;
-}
-
-:deep(.el-button) {
   height: 40px;
 }
 
@@ -93,10 +79,6 @@ h1 {
 .right {
   /* justify-content: flex-end; */
   flex-grow: 1;
-}
-
-.content {
-  margin-top: 40px;
 }
 
 /* el-upload */

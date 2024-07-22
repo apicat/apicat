@@ -39,7 +39,7 @@ apiGetModel().then((res) => {
   <div class="bg-white w-85%">
     <h1>{{ $t(`${tBase}.title`) }}</h1>
 
-    <div class="mt-40px flex flex-col">
+    <div class="flex flex-col">
       <OpenAI
         v-model:config="data[SysModel.OpenAI]"
         :name="SysModel.OpenAI"
@@ -57,15 +57,7 @@ apiGetModel().then((res) => {
 </template>
 
 <style scoped>
-h1 {
-  font-size: 30px;
-}
-
 :deep(.el-select .el-input) {
-  height: 40px;
-}
-
-:deep(.el-button) {
   height: 40px;
 }
 
@@ -85,15 +77,9 @@ h1 {
 
 .left {
   justify-content: flex-start;
-  /* flex-grow: 1; */
 }
 
 .right {
-  /* justify-content: flex-end; */
   flex-grow: 1;
-}
-
-.content {
-  margin-top: 40px;
 }
 </style>

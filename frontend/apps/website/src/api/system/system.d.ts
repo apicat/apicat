@@ -6,7 +6,6 @@ declare namespace SystemAPI {
 
   // service
   interface ServiceData {
-    appName: string
     appUrl: string
     mockUrl: string
   }

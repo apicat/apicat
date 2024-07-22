@@ -45,7 +45,6 @@ function isSelf(row: UserAPI.ResponseUserInfo) {
   <h1>{{ $t('app.system.users.title') }}</h1>
   <AcSimpleTable
     v-model:page="currentPage"
-    class="mt-40px"
     is-show-pager
     round-border
     row-class-name="memberRow"

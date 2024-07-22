@@ -44,10 +44,8 @@ apiGetOAuth().then((v) => {
 
 <template>
   <div class="bg-white w-85%">
-    <h1 class="text-30px">
-      {{ $t('app.system.oauth.title') }}
-    </h1>
-    <div class="mt-40px">
+    <h1>{{ $t('app.system.oauth.title') }}</h1>
+    <div >
       <CollapseCardItem name="github" :collapse-ctx="collapse">
         <template #title>
           <div class="row-lr">
@@ -85,13 +83,3 @@ apiGetOAuth().then((v) => {
     </div>
   </div>
 </template>
-
-<style scoped>
-:deep(.el-button) {
-  height: 40px;
-}
-
-.content {
-  margin-top: 40px;
-}
-</style>
