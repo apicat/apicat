@@ -84,4 +84,23 @@ declare namespace SystemAPI {
       embedding: string[]
     }
   }
+
+  interface ModelDefault {
+    driver: string
+    model: string
+  }
+
+  interface ModelDefaultItem extends ModelDefault {
+    selected: boolean
+  }
+
+  interface ModelDefaultConfig {
+    llm: ModelDefaultItem[]
+    embedding: ModelDefaultItem[]
+  }
+
+  interface ResquestModelDefaultConfig {
+    llm: ModelDefault
+    embedding: ModelDefault
+  }
 }
