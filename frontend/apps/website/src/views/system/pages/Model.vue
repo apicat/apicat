@@ -8,31 +8,65 @@ import OpenAI from '@/views/system/pages/Model/OpenAI.vue'
 const tBase = 'app.system.model'
 const collapse = useCollapse({})
 
-interface A {
-  [SysModel.OpenAI]: SystemAPI.ModelOpenAI
-  [SysModel.Azure]: SystemAPI.ModelAzure
-}
-const data = ref<A>({
-  [SysModel.OpenAI]: {
-    apiKey: '',
-    organizationID: '',
-    apiBase: '',
-    llmName: '',
-  },
-  [SysModel.Azure]: {
-    apiKey: '',
-    endpoint: '',
-    llmName: '',
-  },
-})
-apiGetModel().then((res) => {
-  for (let i = 0; i < res.length; i++) {
-    const v = res[i]
-    data.value[v.driver as keyof A] = v.config as any
-    if (v.use)
-      collapse.ctx.open(v.driver)
+const data = ref<SystemAPI.ModelItem[]>([])
+const llmModels = ref<string[]>([])
+const embeddingModels = ref<string[]>([])
+  
+const findDriver = (driver:SysModel) => data.value.find((item) => item.driver === driver)
+
+const openAIConfig = computed<SystemAPI.ModelOpenAI>(() => {
+  const config = findDriver(SysModel.OpenAI)
+  if(config){
+    llmModels.value = config.models?.llm || []
+    embeddingModels.value = config.models?.embedding || []
+  }
+  
+  return config ? config.config as SystemAPI.ModelOpenAI : {
+    apiKey:'',
+    llm:'',
+    embedding:''
   }
 })
+
+const azureConfig = computed<SystemAPI.ModelAzure>(() =>{
+  const config = findDriver(SysModel.Azure)
+  return config ? config.config as SystemAPI.ModelAzure : {
+    apiKey:'',
+    endpoint:'',
+    llm:'',
+    embedding:''
+  }
+})
+
+onBeforeMount(async () => {
+  const res = await apiGetModel()
+  data.value = [
+  {
+    "driver": "openai",
+    "config": {
+      "apiKey": "abcdefg",
+      "organizationID": "a1b2c3",
+      "apiBase": "abcde12345",
+      "llm": "gpt-3.5-turbo",
+      "embedding": "text-embedding-3-small"
+    },
+    "models": {
+      "llm": ["gpt-4-turbo", "gpt-4o", "gpt-3.5-turbo"],
+      "embedding": ["text-embedding-3-small", "text-embedding-3-large"]
+    }
+  },
+  {
+    "driver": "azure-openai",
+    "config": {
+      "apiKey": "abcdefg",
+      "endpoint": "https://test.azure-openai.com/wahaha/",
+      "llm": "gpt-35-turbo",
+      "embedding": "text-embedding-3-small"
+    }
+  }
+] as SystemAPI.ModelItem[]
+})
+
 </script>
 
 <template>
@@ -41,13 +75,15 @@ apiGetModel().then((res) => {
 
     <div class="flex flex-col">
       <OpenAI
-        v-model:config="data[SysModel.OpenAI]"
+        :config="openAIConfig"
         :name="SysModel.OpenAI"
         class="collapse-box"
         :collapse="collapse"
+        :embedding-models="embeddingModels"
+        :llm-models="llmModels"
       />
       <Azure
-        v-model:config="data[SysModel.Azure]"
+        :config="azureConfig"
         class="collapse-box mt-30px"
         :name="SysModel.Azure"
         :collapse="collapse"

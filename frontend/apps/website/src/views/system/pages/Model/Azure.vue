@@ -15,13 +15,27 @@ const formRef = ref<FormInstance>()
 const rules: FormRules<typeof props.config> = {
   apiKey: notNullRule(t(`${tBase}.rules.apiKey`)),
   endpoint: notNullRule(t(`${tBase}.rules.endpoint`)),
-  llmName: notNullRule(t(`${tBase}.rules.llmName`)),
+  llm: notNullRule(t(`${tBase}.rules.llmName`)),
+  embedding: notNullRule(t(`${tBase}.rules.embedding`)),
 }
+
 const [submitting, update] = useApi(apiUpdateModelAzure)
+
+const config = ref({
+  apiKey: '',
+  endpoint: '',
+  llm: '',
+  embedding: '',
+  ...props.config
+})
+
+// sync config
+watch(() => props.config, (val) => Object.assign(config.value, val))
+
 function submit() {
   formRef.value!.validate((valid) => {
     if (valid)
-      update(props.config as SystemAPI.ModelAzure)
+      update(config.value as SystemAPI.ModelAzure)
   })
 }
 </script>
@@ -38,20 +52,25 @@ function submit() {
         </div>
       </div>
     </template>
-    <ElForm ref="formRef" label-position="top" :rules="rules" :model="props.config" @submit.prevent="submit">
+    <ElForm ref="formRef" label-position="top" :rules="rules" :model="config" @submit.prevent="submit">
       <!-- api key -->
       <ElFormItem prop="apiKey" :label="$t(`${tBase}.apiKey`)">
-        <ElInput v-model="props.config.apiKey" maxlength="255" />
+        <ElInput v-model="config.apiKey" maxlength="255" />
       </ElFormItem>
 
       <!-- endpoint  -->
       <ElFormItem prop="endpoint" :label="$t(`${tBase}.endpoint`)">
-        <ElInput v-model="props.config.endpoint" maxlength="255" />
+        <ElInput v-model="config.endpoint" maxlength="255" />
       </ElFormItem>
 
       <!-- llm name  -->
-      <ElFormItem prop="llmName" :label="$t(`${tBase}.llmName`)">
-        <ElInput v-model="props.config.llmName" maxlength="255" />
+      <ElFormItem prop="llm" :label="$t(`${tBase}.llmName`)">
+        <ElInput v-model="config.llm" maxlength="255" />
+      </ElFormItem>
+
+      <!-- embedding  -->
+      <ElFormItem prop="embedding" :label="$t(`${tBase}.embedding`)">
+        <ElInput v-model="config.embedding" maxlength="255" />
       </ElFormItem>
     </ElForm>
 
@@ -60,5 +79,3 @@ function submit() {
     </el-button>
   </CollapseCardItem>
 </template>
-
-<style scoped></style>

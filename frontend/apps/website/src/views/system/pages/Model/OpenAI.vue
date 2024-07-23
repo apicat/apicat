@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { FormInstance, FormRules } from 'element-plus'
+import { ElSelect, type FormInstance, type FormRules } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import CollapseCardItem from '@/components/collapse/CollapseCardItem.vue'
 import { type UseCollapse } from '@/components/collapse/useCollapse'
@@ -8,13 +8,21 @@ import { apiUpdateModelOpenAI } from '@/api/system'
 import useApi from '@/hooks/useApi'
 import { notNullRule } from '@/commons'
 
-const props = defineProps<{ collapse: UseCollapse; name: string; config: Partial<SystemAPI.ModelOpenAI> }>()
+const props = defineProps<{ 
+  collapse: UseCollapse; 
+  name: string; 
+  config: Partial<SystemAPI.ModelOpenAI> 
+  llmModels?:string[]
+  embeddingModels?:string[]
+  }>()
+  
 const { t } = useI18n()
 const tBase = 'app.system.model.openai'
 const formRef = ref<FormInstance>()
 const rules: FormRules<typeof props.config> = {
   apiKey: notNullRule(t(`${tBase}.rules.apiKey`)),
-  llmName: notNullRule(t(`${tBase}.rules.llmName`)),
+  llm: notNullRule(t(`${tBase}.rules.llmName`)),
+  embedding: notNullRule(t(`${tBase}.rules.embedding`)),
 }
 const [submitting, update] = useApi(apiUpdateModelOpenAI)
 function submit() {
@@ -54,8 +62,17 @@ function submit() {
       </ElFormItem>
 
       <!-- llm name  -->
-      <ElFormItem prop="llmName" :label="$t(`${tBase}.llmName`)">
-        <ElInput v-model="props.config.llmName" maxlength="255" />
+      <ElFormItem prop="llm" :label="$t(`${tBase}.llmName`)">
+        <ElSelect v-model="props.config.llm" class="w-full">
+          <ElOption v-for="i in llmModels" :label="i" :value="i"></ElOption>
+        </ElSelect>
+      </ElFormItem>
+
+      <!-- embedding name  -->
+      <ElFormItem prop="embedding" :label="$t(`${tBase}.embedding`)">
+        <ElSelect v-model="props.config.embedding" class="w-full">
+          <ElOption v-for="i in embeddingModels" :label="i" :value="i"></ElOption>
+        </ElSelect>
       </ElFormItem>
     </ElForm>
 
