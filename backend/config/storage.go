@@ -18,23 +18,23 @@ type Storage struct {
 }
 
 type LocalDisk struct {
-	Path string `json:"path"`
-	Url  string `json:"url"`
+	Path string
+	Url  string
 }
 
 type Cloudflare struct {
-	AccountID       string `json:"accountID"`
-	AccessKeyID     string `json:"accessKeyID"`
-	AccessKeySecret string `json:"accessKeySecret"`
-	BucketName      string `json:"bucketName"`
-	Url             string `json:"bucketUrl"`
+	AccountID       string
+	AccessKeyID     string
+	AccessKeySecret string
+	BucketName      string
+	Url             string
 }
 
 type Qiniu struct {
-	AccessKeyID     string `json:"accessKey"`
-	AccessKeySecret string `json:"secretKey"`
-	BucketName      string `json:"bucketName"`
-	Url             string `json:"bucketUrl"`
+	AccessKeyID     string
+	AccessKeySecret string
+	BucketName      string
+	Url             string
 }
 
 func LoadStorageConfig() {

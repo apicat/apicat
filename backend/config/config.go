@@ -18,6 +18,7 @@ type Config struct {
 	Email    *Email
 	Oauth2   map[string]oauth2.Config
 	Model    *Model
+	Vector   *Vector
 }
 
 var globalConf = &Config{}
@@ -34,6 +35,7 @@ func Load(path string) error {
 	LoadEmailConfig()
 	LoadStorageConfig()
 	LoadModelConfig()
+	LoadVertorConfig()
 	return nil
 }
 
@@ -58,6 +60,9 @@ func Check() error {
 		return err
 	}
 	if err := CheckModelConfig(); err != nil {
+		return err
+	}
+	if err := CheckVectorConfig(); err != nil {
 		return err
 	}
 	return nil
