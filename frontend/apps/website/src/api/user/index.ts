@@ -51,7 +51,7 @@ export async function apiGetSystemUserList(params?: Record<string, any>): Promis
 }
 
 // 修改系统用户密码
-export async function apiChangeSystemUserPassword(data: { id: number;password: string;confirmPassword: string }): Promise<void> {
+export async function apiChangeSystemUserPassword(data: { id: number, password: string, confirmPassword: string }): Promise<void> {
   const { id, ...info } = data
   return DefaultAjax.patch(`/users/${id}`, { ...info }, { isShowSuccessMsg: true })
 }

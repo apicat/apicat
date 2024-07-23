@@ -59,20 +59,29 @@ declare namespace SystemAPI {
   }
 
   // model
-  interface ModelAzure {
+
+  interface ModelCommonConfig {
+    llm: string
+    embedding: string
+  }
+
+  interface ModelAzure extends ModelCommonConfig {
     apiKey: string
     endpoint: string
-    llmName: string
   }
-  interface ModelOpenAI {
+
+  interface ModelOpenAI extends ModelCommonConfig {
     apiKey: string
     organizationID?: string
     apiBase?: string
-    llmName: string
   }
+
   interface ModelItem {
     driver: ModelDrivers
-    use: boolean
     config: ModelAzure | ModelOpenAI
+    models?: {
+      llm: string[]
+      embedding: string[]
+    }
   }
 }

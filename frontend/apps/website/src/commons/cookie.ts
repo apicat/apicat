@@ -2,12 +2,12 @@ import { getCookie, removeCookie, setCookie } from 'tiny-cookie'
 import { STORAGE_PREFIX } from './constant'
 
 export interface CookieOptions {
-  domain?: string
-  path?: string
-  expires?: Date | string | number
+  'domain'?: string
+  'path'?: string
+  'expires'?: Date | string | number
   'max-age'?: number
-  secure?: boolean
-  samesite?: string
+  'secure'?: boolean
+  'samesite'?: string
 }
 
 export const Cookies = {

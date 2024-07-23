@@ -49,7 +49,7 @@ export default function isFQDN(str, options) {
     if (part.length > 63 && !options.ignore_max_length)
       return false
 
-    if (!/^[a-z_\u00A1-\uFFFF0-9-]+$/i.test(part))
+    if (!/^[\w\u00A1-\uFFFF-]+$/.test(part))
       return false
 
     // disallow full-width chars

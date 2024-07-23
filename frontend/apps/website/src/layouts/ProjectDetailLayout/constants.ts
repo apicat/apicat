@@ -15,7 +15,7 @@ export interface CurrentNodeContext {
   activeCollectionNode: (id: number) => void
   activeSchemaNode: (id: number) => void
   activeResponseNode: (id: number) => void
-  currentActiveNode: Ref<{ id?: number; type: string }>
+  currentActiveNode: Ref<{ id?: number, type: string }>
   activeCollectionKey: ComputedRef<number | undefined>
   activeSchemaKey: ComputedRef<number | undefined>
   activeResponseKey: ComputedRef<number | undefined>

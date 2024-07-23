@@ -5,7 +5,7 @@ const inputLimit = {
     let inputLock = false
 
     const doRule = (e: any) => {
-      const v = e.target.value.match(/[\w-_]+/g, '') || []
+      const v = e.target.value.match(/[\w-]+/g, '') || []
       e.target.value = v.join('')
       // 手动更新绑定值
       e.target.dispatchEvent(new Event('input'))

@@ -1,4 +1,4 @@
-export function usePopover(options?: { ignore?: string[]; onHide?: () => void }) {
+export function usePopover(options?: { ignore?: string[], onHide?: () => void }) {
   const { ignore = [], onHide } = options || {}
 
   const popoverRefEl = ref<HTMLElement | null>(null)

@@ -43,7 +43,7 @@ export const useGlobalParameters = defineStore('project.globalParameter', {
       this.parameters[key] = this.parameters[key].filter(p => p.id !== id)
     },
 
-    async sortGlobalParameter(projectID: string, data: { oldIndex: number;newIndex: number;in: ProjectAPI.GlobalParameterType }) {
+    async sortGlobalParameter(projectID: string, data: { oldIndex: number, newIndex: number, in: ProjectAPI.GlobalParameterType }) {
       const key = data.in as ProjectAPI.GlobalParameterType
       const parameters = this.parameters[key]
       if (!parameters || !parameters.length)

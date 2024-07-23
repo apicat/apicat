@@ -7,12 +7,12 @@ interface Options {
 }
 
 interface Emits {
-  onChange?(key: string, openState: boolean): void
+  onChange?: (key: string, openState: boolean) => void
 }
 
 interface CollapseItemCtx {
-  open(): void
-  close(emit?: boolean): void
+  open: () => void
+  close: (emit?: boolean) => void
 }
 
 type OpendItems = Set<string>
@@ -21,9 +21,9 @@ export interface UseCollapse {
   opendItems: Ref<OpendItems>
   ctx: {
     current: Ref<OpendItems>
-    open(key: string): void
-    close(key: string): void
-    register(name: string, itemCtx: CollapseItemCtx): CollapseItemCtx
+    open: (key: string) => void
+    close: (key: string) => void
+    register: (name: string, itemCtx: CollapseItemCtx) => CollapseItemCtx
   }
 }
 

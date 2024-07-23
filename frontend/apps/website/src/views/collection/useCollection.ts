@@ -12,7 +12,7 @@ import { injectAsyncInitTask } from '@/hooks/useWaitAsyncTask'
 
 let oldTitle = ''
 
-export function useCollection(props: { project_id: string; collectionID: string }) {
+export function useCollection(props: { project_id: string, collectionID: string }) {
   const { t } = useI18n()
   const router = useRouter()
   const { toggleMode, readonly, switchToWriteMode } = injectPagesMode('collection') as PageModeCtx

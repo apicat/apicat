@@ -40,7 +40,6 @@ export function useIterationForm(props: IterationFormProps, emits: IterationForm
       await formIns.validate()
       isLoadingForSubmit.value = true
       if (isEditMode.value) {
-        // eslint-disable-next-line unused-imports/no-unused-vars
         const { projectID, ...data } = iterationInfo.value
         await apiEditIterationInfo(iterationIDRef.value!, data)
       }
