@@ -290,6 +290,8 @@ func registerModelSysconfig(g *gin.RouterGroup) {
 	g.GET("/sysconfigs/models", access.SysAdmin(), ginrpc.Handle(srv.Get))
 	g.PUT("/sysconfigs/models/openai", access.SysAdmin(), ginrpc.Handle(srv.UpdateOpenAI))
 	g.PUT("/sysconfigs/models/azure-openai", access.SysAdmin(), ginrpc.Handle(srv.UpdateAzureOpenAI))
+	g.GET("/sysconfigs/models/default", access.SysAdmin(), ginrpc.Handle(srv.GetDefault))
+	g.PUT("/sysconfigs/models/default", access.SysAdmin(), ginrpc.Handle(srv.UpdateDefault))
 }
 
 func registerJsonSchema(g *gin.RouterGroup) {

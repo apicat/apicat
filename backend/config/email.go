@@ -29,7 +29,7 @@ type EmailSendCloud struct {
 type EmailSmtp struct {
 	Host     string `json:"host"`
 	Address  string `json:"address"`
-	Name     string `json:"name"`
+	User     string `json:"user"`
 	Password string `json:"password"`
 }
 
@@ -83,8 +83,8 @@ func loadSmtpConfig() {
 	} else {
 		return
 	}
-	if v, exists := os.LookupEnv("SMTP_NAME"); exists {
-		globalConf.Email.Smtp.Name = v
+	if v, exists := os.LookupEnv("SMTP_USER"); exists {
+		globalConf.Email.Smtp.User = v
 	}
 	if v, exists := os.LookupEnv("SMTP_PASSWORD"); exists {
 		globalConf.Email.Smtp.Password = v
@@ -153,7 +153,7 @@ func (e *Email) ToModuleStruct() mailsender.Sender {
 				Host: e.Smtp.Host,
 				From: mail.Address{
 					Address: e.Smtp.Address,
-					Name:    e.Smtp.Name,
+					Name:    e.Smtp.User,
 				},
 				Password: e.Smtp.Password,
 			},

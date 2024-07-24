@@ -81,7 +81,7 @@ func (e *emailApiImpl) UpdateSMTP(ctx *gin.Context, opt *sysconfigrequest.SMTPOp
 		Smtp: &config.EmailSmtp{
 			Host:     opt.Host,
 			Address:  opt.Address,
-			Name:     opt.User,
+			User:     opt.User,
 			Password: opt.Password,
 		},
 	}
@@ -113,7 +113,7 @@ func (e *emailApiImpl) UpdateSendCloud(ctx *gin.Context, opt *sysconfigrequest.S
 		SendCloud: &config.EmailSendCloud{
 			ApiUser:     opt.ApiUser,
 			ApiKey:      opt.ApiKey,
-			FromAddress: opt.FromEmail,
+			FromAddress: opt.FromAddress,
 			FromName:    opt.FromName,
 		},
 	}

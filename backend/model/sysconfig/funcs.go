@@ -115,6 +115,9 @@ func loadModelConfig() {
 						cfg.LLMDriver = aimodel.OPENAI
 					} else if m.Extra == "embedding" {
 						cfg.EmbeddingDriver = aimodel.OPENAI
+					} else if m.Extra == "llm,embedding" {
+						cfg.LLMDriver = aimodel.OPENAI
+						cfg.EmbeddingDriver = aimodel.OPENAI
 					}
 				}
 			case aimodel.AZURE_OPENAI:
@@ -122,6 +125,9 @@ func loadModelConfig() {
 					if m.Extra == "llm" {
 						cfg.LLMDriver = aimodel.AZURE_OPENAI
 					} else if m.Extra == "embedding" {
+						cfg.EmbeddingDriver = aimodel.AZURE_OPENAI
+					} else if m.Extra == "llm,embedding" {
+						cfg.LLMDriver = aimodel.AZURE_OPENAI
 						cfg.EmbeddingDriver = aimodel.AZURE_OPENAI
 					}
 				}

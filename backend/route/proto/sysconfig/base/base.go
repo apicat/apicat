@@ -1,7 +1,6 @@
 package base
 
 type ServiceOption struct {
-	AppName string `json:"appName" binding:"required,gt=1"`
 	AppUrl  string `json:"appUrl" binding:"required,url"`
 	MockUrl string `json:"mockUrl" binding:"required,url"`
 }

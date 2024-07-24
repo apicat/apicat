@@ -30,12 +30,17 @@ func (s *serviceApiImpl) Get(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfigbase.
 }
 
 func (s *serviceApiImpl) Update(ctx *gin.Context, opt *sysconfigbase.ServiceOption) (*ginrpc.Empty, error) {
-	appConfig := &config.App{
-		AppUrl:  opt.AppUrl,
-		MockUrl: opt.MockUrl,
+	oldCfg := config.GetApp()
+
+	newCfg := &config.App{
+		Debug:          oldCfg.Debug,
+		AppUrl:         opt.AppUrl,
+		AppServerBind:  oldCfg.AppServerBind,
+		MockUrl:        opt.MockUrl,
+		MockServerBind: oldCfg.MockServerBind,
 	}
 
-	jsonData, err := json.Marshal(appConfig)
+	jsonData, err := json.Marshal(newCfg)
 	if err != nil {
 		slog.ErrorContext(ctx, "json.Marshal", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.ServiceUpdateFailed"))
@@ -52,7 +57,7 @@ func (s *serviceApiImpl) Update(ctx *gin.Context, opt *sysconfigbase.ServiceOpti
 		slog.ErrorContext(ctx, "sysconfig.UpdateOrCreate", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.ServiceUpdateFailed"))
 	}
-	config.SetApp(appConfig)
+	config.SetApp(newCfg)
 	config.SetLocalDiskUrl(opt.AppUrl)
 	return &ginrpc.Empty{}, nil
 }

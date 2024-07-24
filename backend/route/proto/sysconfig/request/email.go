@@ -8,8 +8,8 @@ type SMTPOption struct {
 }
 
 type SendCloudOption struct {
-	ApiUser   string `json:"apiUser" binding:"required,gt=1"`
-	ApiKey    string `json:"apiKey" binding:"required,gt=1"`
-	FromEmail string `json:"fromEmail" binding:"required,email"`
-	FromName  string `json:"fromName" binding:"required,gt=1"`
+	ApiUser     string `json:"apiUser" binding:"required,gt=1"`
+	ApiKey      string `json:"apiKey" binding:"required,gt=1"`
+	FromAddress string `json:"fromAddress" binding:"required,email"`
+	FromName    string `json:"fromName" binding:"required,gt=1"`
 }
