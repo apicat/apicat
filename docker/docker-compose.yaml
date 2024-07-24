@@ -1,0 +1,76 @@
+services:
+  apicat:
+    depends_on:
+      - db
+      - redis
+    image: natuo/apicat:latest
+    restart: always
+    environment:
+      - APP_DEBUG=false
+      - APP_URL=http://localhost:8000
+      - APP_SERVER_BIND=0.0.0.0:8000
+      - MOCK_URL=http://localhost:8001
+      - MOCK_SERVER_BIND=0.0.0.0:8001
+      - DB_HOST=db:3306
+      - DB_USERNAME=root
+      - DB_PASSWORD=apicat123456
+      - DB_DATABASE=apicat
+      - REDIS_HOST=redis:6379
+      - REDIS_PASSWORD=apicat123456
+      - REDIS_DB=0
+      - STORAGE_DRIVER=localdisk
+      - LOCAL_DISK_PATH=./uploads
+      - VECTOR_DRIVER=weaviate
+      - WEAVIATE_HOST=weaviate:8080
+      - WEAVIATE_API_KEY=WderdPlY9dcgYn5TzF5ZuT1UX7sd0fic
+    networks:
+      - apicat_network
+    volumes:
+      - ./volumes/app/uploads:/app/uploads
+    ports:
+      - "8000:8000"
+      - "8001:8001"
+    entrypoint:
+      - /bin/bash
+      - /app/wait-for-it.sh
+      - apicat_db:3306
+      - -s
+      - -t
+      - "60"
+      - --
+      - /app/apicat-server
+
+  db:
+    image: mysql:8.2
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=apicat123456
+      - MYSQL_DATABASE=apicat
+    networks:
+      - apicat_network
+    volumes:
+      - ./volumes/mysql:/var/lib/mysql
+
+  redis:
+    image: redis:6-alpine
+    restart: always
+    command: redis-server --requirepass apicat123456
+    networks:
+      - apicat_network
+
+  weaviate:
+    image: semitechnologies/weaviate:1.25.5
+    restart: always
+    environment:
+      - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=false
+      - AUTHENTICATION_APIKEY_ENABLED=true
+      - AUTHENTICATION_APIKEY_ALLOWED_KEYS=WderdPlY9dcgYn5TzF5ZuT1UX7sd0fic
+      - AUTHENTICATION_APIKEY_USERS=hello@apicat.ai
+      - WEAVIATE_AUTHORIZATION_ADMINLIST_ENABLED=true
+      - WEAVIATE_AUTHORIZATION_ADMINLIST_USERS=hello@apicat.ai
+    volumes:
+      - ./volumes/weaviate:/var/lib/weaviate
+
+networks:
+  apicat_network:
+    driver: bridge

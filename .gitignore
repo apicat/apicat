@@ -31,3 +31,7 @@ uploads/*
 config.yaml
 setting.yaml
 .env
+
+docker/volumes/mysql/*
+docker/volumes/weaviate/*
+docker/volumes/app/uploads/*

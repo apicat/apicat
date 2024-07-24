@@ -27,15 +27,16 @@ ApiCat 是一个 API 文档管理工具，完全兼容 OpenAPI 规范。在 ApiC
 
 ## 本地部署
 
-本地部署 ApiCat 最简单方法是运行我们的 [docker-compose.yml](./docker-compose.yaml) 文件。在运行安装命令之前，请确保您的机器上安装了 [Docker](https://docs.docker.com/get-docker/) 和 [Docker Compose](https://docs.docker.com/compose/install/)：
+本地部署 ApiCat 最简单方法是运行我们的 [docker-compose.yaml](./docker/docker-compose.yaml) 文件。在运行安装命令之前，请确保您的机器上安装了 [Docker](https://docs.docker.com/get-docker/) 和 [Docker Compose](https://docs.docker.com/compose/install/)：
 
 ```bash
+cd docker
 docker compose up -d
 ```
 
 运行后，可以在浏览器上访问 [http://localhost:8000](http://localhost:8000) 即可开始使用 ApiCat。
 
-如果您需要自定义配置，请参考我们的 [docker-compose.yml](./docker-compose.yaml) 文件，并手动设置环境配置。更改后，请再次运行 `docker-compose up -d`。
+如果您需要自定义配置，请参考我们的 [docker-compose.yaml](./docker/docker-compose.yaml) 文件，并手动设置环境配置。更改后，请再次运行 `docker-compose up -d`。
 
 ## 交流
 
