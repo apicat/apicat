@@ -278,14 +278,6 @@ func registerServiceSysconfig(g *gin.RouterGroup) {
 	g.PUT("/sysconfigs/service", access.SysAdmin(), ginrpc.Handle(srv.Update))
 }
 
-func registerStorageSysconfig(g *gin.RouterGroup) {
-	srv := sysconfig.NewStorageApi()
-	g.GET("/sysconfigs/storages", access.SysAdmin(), ginrpc.Handle(srv.Get))
-	g.PUT("/sysconfigs/storages/disk", access.SysAdmin(), ginrpc.Handle(srv.UpdateDisk))
-	g.PUT("/sysconfigs/storages/cloudflare", access.SysAdmin(), ginrpc.Handle(srv.UpdateCloudflare))
-	g.PUT("/sysconfigs/storages/qiniu", access.SysAdmin(), ginrpc.Handle(srv.UpdateQiniu))
-}
-
 func registerEmailSysconfig(g *gin.RouterGroup) {
 	srv := sysconfig.NewEmailApi()
 	g.GET("/sysconfigs/emails", access.SysAdmin(), ginrpc.Handle(srv.Get))
@@ -298,6 +290,8 @@ func registerModelSysconfig(g *gin.RouterGroup) {
 	g.GET("/sysconfigs/models", access.SysAdmin(), ginrpc.Handle(srv.Get))
 	g.PUT("/sysconfigs/models/openai", access.SysAdmin(), ginrpc.Handle(srv.UpdateOpenAI))
 	g.PUT("/sysconfigs/models/azure-openai", access.SysAdmin(), ginrpc.Handle(srv.UpdateAzureOpenAI))
+	g.GET("/sysconfigs/models/default", access.SysAdmin(), ginrpc.Handle(srv.GetDefault))
+	g.PUT("/sysconfigs/models/default", access.SysAdmin(), ginrpc.Handle(srv.UpdateDefault))
 }
 
 func registerJsonSchema(g *gin.RouterGroup) {

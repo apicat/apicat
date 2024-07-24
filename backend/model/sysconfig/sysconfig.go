@@ -12,6 +12,7 @@ type Sysconfig struct {
 	Driver    string `gorm:"type:varchar(255);uniqueIndex:ukey;not null"`
 	BeingUsed bool   `gorm:"type:tinyint;comment:is using"`
 	Config    string `gorm:"type:varchar(512);"`
+	Extra     string `gorm:"type:varchar(512);"`
 }
 
 func (o *Sysconfig) Get(ctx context.Context) (bool, error) {

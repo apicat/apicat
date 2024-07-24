@@ -19,7 +19,6 @@ cmd/app/app
 .neoconf.json
 # Dependency directories (remove the comment below to include it)
 # vendor/
-cmd/app/start.sh
 
 frontend/dist/*
 frontend/packages/ac-editor/neovide_backtraces.log
@@ -31,3 +30,8 @@ logs/*
 uploads/*
 config.yaml
 setting.yaml
+.env
+
+docker/volumes/mysql/*
+docker/volumes/weaviate/*
+docker/volumes/app/uploads/*

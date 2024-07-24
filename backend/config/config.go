@@ -1,75 +1,42 @@
 package config
 
 import (
-	"errors"
 	"os"
-	"strconv"
-	"strings"
 
 	"github.com/apicat/apicat/v2/backend/module/oauth2"
+	"github.com/joho/godotenv"
 
 	"gopkg.in/natefinch/lumberjack.v2"
-	"gopkg.in/yaml.v3"
 )
 
 type Config struct {
-	App      *App                     `yaml:"App"`
-	Log      *lumberjack.Logger       `yaml:"Log"`
-	Database *Database                `yaml:"Database"`
-	Cache    *Cache                   `yaml:"Cache"`
-	Storage  *Storage                 `yaml:"Storage"`
-	Email    *Email                   `yaml:"Email"`
-	Oauth2   map[string]oauth2.Config `yaml:"Oauth2"`
-	LLM      *LLM                     `yaml:"LLM"`
+	App      *App
+	Log      *lumberjack.Logger
+	Database *Database
+	Cache    *Cache
+	Storage  *Storage
+	Email    *Email
+	Oauth2   map[string]oauth2.Config
+	Model    *Model
+	Vector   *Vector
 }
 
-var globalConf = getDefault()
+var globalConf = &Config{}
 
 func Load(path string) error {
-	b, err := os.ReadFile(path)
-	if err == nil {
-		if err := yaml.Unmarshal(b, globalConf); err != nil {
+	if _, err := os.Stat(path); err == nil {
+		if err := godotenv.Load(path); err != nil {
 			return err
 		}
 	}
+	LoadAppConfig()
+	LoadDatabaseConfig()
+	LoadCacheConfig()
+	LoadEmailConfig()
+	LoadStorageConfig()
+	LoadModelConfig()
+	LoadVertorConfig()
 	return nil
-}
-
-func LoadFromEnv() {
-	if v, exists := os.LookupEnv("APICAT_APP_SERVER_BIND"); exists {
-		globalConf.App.AppServerBind = v
-	}
-	if v, exists := os.LookupEnv("APICAT_MOCK_SERVER_BIND"); exists {
-		globalConf.App.MockServerBind = v
-	}
-	if v, exists := os.LookupEnv("APICAT_DEBUG"); exists {
-		globalConf.Database.Debug = strings.ToLower(v) == "true"
-	}
-	if v, exists := os.LookupEnv("APICAT_DB_HOST"); exists {
-		globalConf.Database.Host = v
-	}
-	if v, exists := os.LookupEnv("APICAT_DB_USERNAME"); exists {
-		globalConf.Database.Username = v
-	}
-	if v, exists := os.LookupEnv("APICAT_DB_PASSWORD"); exists {
-		globalConf.Database.Password = v
-	}
-	if v, exists := os.LookupEnv("APICAT_DB_DATABASE"); exists {
-		globalConf.Database.Database = v
-	}
-	if v, exists := os.LookupEnv("APICAT_CACHE_HOST"); exists {
-		globalConf.Cache.Host = v
-	}
-	if v, exists := os.LookupEnv("APICAT_CACHE_PASSWORD"); exists {
-		globalConf.Cache.Password = v
-	}
-	if v, exists := os.LookupEnv("APICAT_CACHE_DB"); exists {
-		if i, err := strconv.Atoi(v); err == nil {
-			globalConf.Cache.DB = i
-		} else {
-			globalConf.Cache.DB = 0
-		}
-	}
 }
 
 func Get() *Config {
@@ -77,44 +44,26 @@ func Get() *Config {
 }
 
 func Check() error {
-	if globalConf.App == nil {
-		return errors.New("app config is nil")
+	if err := CheckAppConfig(); err != nil {
+		return err
 	}
-	if globalConf.App.AppServerBind == "" {
-		return errors.New("app server bind is empty")
+	if err := CheckDatabaseConfig(); err != nil {
+		return err
 	}
-	if globalConf.App.MockServerBind == "" {
-		return errors.New("mock server bind is empty")
+	if err := CheckCacheConfig(); err != nil {
+		return err
 	}
-	if globalConf.Database == nil {
-		return errors.New("database config is nil")
+	if err := CheckStorageConfig(); err != nil {
+		return err
 	}
-	if globalConf.Database.Host == "" {
-		return errors.New("database host is empty")
+	if err := CheckEmailConfig(); err != nil {
+		return err
 	}
-	if globalConf.Database.Username == "" {
-		return errors.New("database username is empty")
+	if err := CheckModelConfig(); err != nil {
+		return err
 	}
-	if globalConf.Database.Database == "" {
-		return errors.New("database name is empty")
-	}
-	if globalConf.Cache == nil {
-		return errors.New("cache config is nil")
-	}
-	if globalConf.Cache.Host == "" {
-		return errors.New("cache host is empty")
-	}
-	if globalConf.Cache.DB < 0 || globalConf.Cache.DB > 15 {
-		return errors.New("cache db is invalid")
+	if err := CheckVectorConfig(); err != nil {
+		return err
 	}
 	return nil
-}
-
-func getDefault() *Config {
-	return &Config{
-		App:      GetAppDefault(),
-		Database: &Database{},
-		Cache:    &Cache{},
-		Storage:  GetStorageDefault(),
-	}
 }

@@ -1,6 +1,9 @@
 package config
 
 import (
+	"errors"
+	"os"
+
 	"github.com/apicat/apicat/v2/backend/module/storage"
 	"github.com/apicat/apicat/v2/backend/module/storage/cloudflare"
 	"github.com/apicat/apicat/v2/backend/module/storage/local"
@@ -8,50 +11,151 @@ import (
 )
 
 type Storage struct {
-	Driver     string      `yaml:"Driver"`
-	LocalDisk  *LocalDisk  `yaml:"LocalDisk"`
-	Cloudflare *Cloudflare `yaml:"Cloudflare"`
-	Qiniu      *Qiniu      `yaml:"Qiniu"`
+	Driver     string
+	LocalDisk  *LocalDisk
+	Cloudflare *Cloudflare
+	Qiniu      *Qiniu
 }
 
 type LocalDisk struct {
-	Path string `yaml:"Path" json:"path"`
-	Url  string `yaml:"Url" json:"url"`
+	Path string
+	Url  string
 }
 
 type Cloudflare struct {
-	AccountID       string `yaml:"AccountID" json:"accountID"`
-	AccessKeyID     string `yaml:"AccessKeyID" json:"accessKeyID"`
-	AccessKeySecret string `yaml:"AccessKeySecret" json:"accessKeySecret"`
-	BucketName      string `yaml:"BucketName" json:"bucketName"`
-	Url             string `yaml:"Url" json:"bucketUrl"`
+	AccountID       string
+	AccessKeyID     string
+	AccessKeySecret string
+	BucketName      string
+	Url             string
 }
 
 type Qiniu struct {
-	AccessKeyID     string `yaml:"AccessKeyID" json:"accessKey"`
-	AccessKeySecret string `yaml:"AccessKeySecret" json:"secretKey"`
-	BucketName      string `yaml:"BucketName" json:"bucketName"`
-	Url             string `yaml:"Url" json:"bucketUrl"`
+	AccessKeyID     string
+	AccessKeySecret string
+	BucketName      string
+	Url             string
 }
 
-func GetStorageDefault() *Storage {
-	return &Storage{
-		Driver: storage.LOCAL,
-		LocalDisk: &LocalDisk{
-			Path: "./uploads",
-		},
+func LoadStorageConfig() {
+	globalConf.Storage = &Storage{}
+	if v, exists := os.LookupEnv("STORAGE_DRIVER"); exists {
+		switch v {
+		case storage.CLOUDFLARE:
+			globalConf.Storage.Driver = storage.CLOUDFLARE
+			loadCloudflareConfig()
+		case storage.QINIU:
+			globalConf.Storage.Driver = storage.QINIU
+			loadQiniuConfig()
+		case storage.LOCAL_DISK:
+			globalConf.Storage.Driver = storage.LOCAL_DISK
+			loadLocalDiskConfig()
+		}
 	}
 }
 
-func SetStorage(storageConfig *Storage) {
-	globalConf.Storage = storageConfig
+func loadCloudflareConfig() {
+	globalConf.Storage.Cloudflare = &Cloudflare{}
+	if v, exists := os.LookupEnv("CLOUDFLARE_ACCOUNT_ID"); exists {
+		globalConf.Storage.Cloudflare.AccountID = v
+	}
+	if v, exists := os.LookupEnv("CLOUDFLARE_ACCESS_KEY_ID"); exists {
+		globalConf.Storage.Cloudflare.AccessKeyID = v
+	}
+	if v, exists := os.LookupEnv("CLOUDFLARE_ACCESS_KEY_SECRET"); exists {
+		globalConf.Storage.Cloudflare.AccessKeySecret = v
+	}
+	if v, exists := os.LookupEnv("CLOUDFLARE_BUCKET_NAME"); exists {
+		globalConf.Storage.Cloudflare.BucketName = v
+	}
+	if v, exists := os.LookupEnv("CLOUDFLARE_URL"); exists {
+		globalConf.Storage.Cloudflare.Url = v
+	}
+}
+
+func loadQiniuConfig() {
+	globalConf.Storage.Qiniu = &Qiniu{}
+	if v, exists := os.LookupEnv("QINIU_ACCESS_KEY_ID"); exists {
+		globalConf.Storage.Qiniu.AccessKeyID = v
+	}
+	if v, exists := os.LookupEnv("QINIU_ACCESS_KEY_SECRET"); exists {
+		globalConf.Storage.Qiniu.AccessKeySecret = v
+	}
+	if v, exists := os.LookupEnv("QINIU_BUCKET_NAME"); exists {
+		globalConf.Storage.Qiniu.BucketName = v
+	}
+	if v, exists := os.LookupEnv("QINIU_URL"); exists {
+		globalConf.Storage.Qiniu.Url = v
+	}
+}
+
+func loadLocalDiskConfig() {
+	globalConf.Storage.LocalDisk = &LocalDisk{}
+	if v, exists := os.LookupEnv("LOCAL_DISK_PATH"); exists {
+		globalConf.Storage.LocalDisk.Path = v
+		globalConf.Storage.LocalDisk.Url = globalConf.App.AppUrl + "/uploads"
+	}
+}
+
+func CheckStorageConfig() error {
+	if globalConf.Storage.Driver == "" {
+		return errors.New("storage driver is empty")
+	}
+	switch globalConf.Storage.Driver {
+	case storage.CLOUDFLARE:
+		if globalConf.Storage.Cloudflare == nil {
+			return errors.New("cloudflare config is empty")
+		}
+		if globalConf.Storage.Cloudflare.AccountID == "" {
+			return errors.New("cloudflare account id is empty")
+		}
+		if globalConf.Storage.Cloudflare.AccessKeyID == "" {
+			return errors.New("cloudflare access key id is empty")
+		}
+		if globalConf.Storage.Cloudflare.AccessKeySecret == "" {
+			return errors.New("cloudflare access key secret is empty")
+		}
+		if globalConf.Storage.Cloudflare.BucketName == "" {
+			return errors.New("cloudflare bucket name is empty")
+		}
+		if globalConf.Storage.Cloudflare.Url == "" {
+			return errors.New("cloudflare url is empty")
+		}
+	case storage.QINIU:
+		if globalConf.Storage.Qiniu == nil {
+			return errors.New("qiniu config is empty")
+		}
+		if globalConf.Storage.Qiniu.AccessKeyID == "" {
+			return errors.New("qiniu access key id is empty")
+		}
+		if globalConf.Storage.Qiniu.AccessKeySecret == "" {
+			return errors.New("qiniu access key secret is empty")
+		}
+		if globalConf.Storage.Qiniu.BucketName == "" {
+			return errors.New("qiniu bucket name is empty")
+		}
+		if globalConf.Storage.Qiniu.Url == "" {
+			return errors.New("qiniu url is empty")
+		}
+	case storage.LOCAL_DISK:
+		if globalConf.Storage.LocalDisk == nil {
+			return errors.New("local disk config is empty")
+		}
+		if globalConf.Storage.LocalDisk.Path == "" {
+			return errors.New("local disk path is empty")
+		}
+		if globalConf.Storage.LocalDisk.Url == "" {
+			return errors.New("local disk url is empty")
+		}
+	}
+	return nil
 }
 
 func SetLocalDiskUrl(url string) {
 	globalConf.Storage.LocalDisk.Url = url + "/uploads"
 }
 
-func (s *Storage) ToCfg() storage.Storage {
+func (s *Storage) ToModuleStruct() storage.Storage {
 	switch s.Driver {
 	case storage.CLOUDFLARE:
 		return storage.Storage{
@@ -74,7 +178,7 @@ func (s *Storage) ToCfg() storage.Storage {
 				Url:             s.Qiniu.Url,
 			},
 		}
-	case storage.LOCAL:
+	case storage.LOCAL_DISK:
 		return storage.Storage{
 			Driver: s.Driver,
 			LocalDisk: local.Disk{
