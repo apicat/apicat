@@ -14,6 +14,8 @@ services:
     image: redis:6-alpine
     restart: always
     command: redis-server --requirepass apicat123456
+    ports:
+      - "6379:6379"
 
   weaviate:
     image: semitechnologies/weaviate:1.25.5

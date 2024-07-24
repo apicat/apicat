@@ -33,7 +33,7 @@ services:
     entrypoint:
       - /bin/bash
       - /app/wait-for-it.sh
-      - apicat_db:3306
+      - db:3306
       - -s
       - -t
       - "60"
