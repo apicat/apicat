@@ -6,10 +6,9 @@ import (
 
 	"github.com/apicat/apicat/v2/backend/config"
 	"github.com/apicat/apicat/v2/backend/model"
-	"github.com/apicat/apicat/v2/backend/module/llm"
 	mailmodule "github.com/apicat/apicat/v2/backend/module/mail"
+	aimodel "github.com/apicat/apicat/v2/backend/module/model"
 	"github.com/apicat/apicat/v2/backend/module/oauth2"
-	"github.com/apicat/apicat/v2/backend/module/storage"
 
 	"gorm.io/gorm"
 )
@@ -17,6 +16,12 @@ import (
 func GetList(ctx context.Context, t string) ([]*Sysconfig, error) {
 	var list []*Sysconfig
 	err := model.DB(ctx).Where("type = ?", t).Find(&list).Error
+	return list, err
+}
+
+func GetUseingList(ctx context.Context, t string) ([]*Sysconfig, error) {
+	var list []*Sysconfig
+	err := model.DB(ctx).Where("type = ? and being_used = ?", t, 1).Find(&list).Error
 	return list, err
 }
 
@@ -51,15 +56,18 @@ func UpdateOrCreate(ctx context.Context, sc *Sysconfig) error {
 	})
 }
 
-func Init() {
-	initAppConfig()
-	initStorageConfig()
-	initEmailConfig()
-	initModelConfig()
-	initOauthConfig()
+func ClearModelStatus(ctx context.Context) error {
+	return model.DB(ctx).Model(&Sysconfig{}).Where("type = ?", "model").Updates(map[string]interface{}{"extra": "", "being_used": 0}).Error
 }
 
-func initAppConfig() {
+func Load() {
+	loadAppConfig()
+	loadEmailConfig()
+	loadModelConfig()
+	loadOauthConfig()
+}
+
+func loadAppConfig() {
 	r := &Sysconfig{
 		Type:   "service",
 		Driver: "default",
@@ -74,45 +82,7 @@ func initAppConfig() {
 	}
 }
 
-func initStorageConfig() {
-	var cfg config.Storage
-	r := &Sysconfig{
-		Type: "storage",
-	}
-	exist, _ := r.GetByUse(context.Background())
-	if exist {
-		cfg.Driver = r.Driver
-
-		switch r.Driver {
-		case storage.LOCAL:
-			if err := json.Unmarshal([]byte(r.Config), &cfg.LocalDisk); err == nil {
-				config.SetStorage(&cfg)
-				return
-			}
-		case storage.CLOUDFLARE:
-			if err := json.Unmarshal([]byte(r.Config), &cfg.Cloudflare); err == nil {
-				config.SetStorage(&cfg)
-				return
-			}
-		case storage.QINIU:
-			if err := json.Unmarshal([]byte(r.Config), &cfg.Qiniu); err == nil {
-				config.SetStorage(&cfg)
-				return
-			}
-		}
-	}
-	defaultCfg := config.GetStorageDefault()
-	defaultCfg.LocalDisk.Url = config.Get().App.AppUrl + "/uploads"
-	config.SetStorage(defaultCfg)
-
-	configJson, _ := json.Marshal(defaultCfg.LocalDisk)
-	r.Driver = defaultCfg.Driver
-	r.BeingUsed = true
-	r.Config = string(configJson)
-	UpdateOrCreate(context.Background(), r)
-}
-
-func initEmailConfig() {
+func loadEmailConfig() {
 	var cfg config.Email
 	r := &Sysconfig{
 		Type: "email",
@@ -134,29 +104,40 @@ func initEmailConfig() {
 	}
 }
 
-func initModelConfig() {
-	var cfg config.LLM
-	r := &Sysconfig{
-		Type: "model",
-	}
-	exist, _ := r.GetByUse(context.Background())
-	if exist {
-		switch r.Driver {
-		case llm.OPENAI:
-			if err := json.Unmarshal([]byte(r.Config), &cfg.OpenAI); err == nil {
-				cfg.Driver = llm.OPENAI
-				config.SetLLM(&cfg)
-			}
-		case llm.AZUREOPENAI:
-			if err := json.Unmarshal([]byte(r.Config), &cfg.AzureOpenAI); err == nil {
-				cfg.Driver = llm.AZUREOPENAI
-				config.SetLLM(&cfg)
+func loadModelConfig() {
+	if models, err := GetUseingList(context.Background(), "model"); err == nil {
+		var cfg config.Model
+		for _, m := range models {
+			switch m.Driver {
+			case aimodel.OPENAI:
+				if err := json.Unmarshal([]byte(m.Config), &cfg.OpenAI); err == nil {
+					if m.Extra == "llm" {
+						cfg.LLMDriver = aimodel.OPENAI
+					} else if m.Extra == "embedding" {
+						cfg.EmbeddingDriver = aimodel.OPENAI
+					} else if m.Extra == "llm,embedding" {
+						cfg.LLMDriver = aimodel.OPENAI
+						cfg.EmbeddingDriver = aimodel.OPENAI
+					}
+				}
+			case aimodel.AZURE_OPENAI:
+				if err := json.Unmarshal([]byte(m.Config), &cfg.AzureOpenAI); err == nil {
+					if m.Extra == "llm" {
+						cfg.LLMDriver = aimodel.AZURE_OPENAI
+					} else if m.Extra == "embedding" {
+						cfg.EmbeddingDriver = aimodel.AZURE_OPENAI
+					} else if m.Extra == "llm,embedding" {
+						cfg.LLMDriver = aimodel.AZURE_OPENAI
+						cfg.EmbeddingDriver = aimodel.AZURE_OPENAI
+					}
+				}
 			}
 		}
+		config.SetModel(&cfg)
 	}
 }
 
-func initOauthConfig() {
+func loadOauthConfig() {
 	var cfg map[string]interface{}
 	r := &Sysconfig{
 		Type: "oauth",

@@ -1,0 +1,33 @@
+services:
+  db:
+    image: mysql:8.2
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=apicat123456
+      - MYSQL_DATABASE=apicat
+    volumes:
+      - ./volumes/mysql:/var/lib/mysql
+    ports:
+      - "3306:3306"
+
+  redis:
+    image: redis:6-alpine
+    restart: always
+    command: redis-server --requirepass apicat123456
+    ports:
+      - "6379:6379"
+
+  weaviate:
+    image: semitechnologies/weaviate:1.25.5
+    restart: always
+    environment:
+      - AUTHENTICATION_ANONYMOUS_ACCESS_ENABLED=false
+      - AUTHENTICATION_APIKEY_ENABLED=true
+      - AUTHENTICATION_APIKEY_ALLOWED_KEYS=WderdPlY9dcgYn5TzF5ZuT1UX7sd0fic
+      - AUTHENTICATION_APIKEY_USERS=hello@apicat.ai
+      - WEAVIATE_AUTHORIZATION_ADMINLIST_ENABLED=true
+      - WEAVIATE_AUTHORIZATION_ADMINLIST_USERS=hello@apicat.ai
+    volumes:
+      - ./volumes/weaviate:/var/lib/weaviate
+    ports:
+      - "8080:8080"

@@ -150,7 +150,7 @@ func (psai *projectShareApiImpl) Reset(ctx *gin.Context, opt *protobase.ProjectI
 
 // Check 检查分享密钥
 func (psai *projectShareApiImpl) Check(ctx *gin.Context, opt *projectrequest.CheckProjectShareSecretKeyOption) (*projectbase.ShareCode, error) {
-	pcache, err := cache.NewCache(config.Get().Cache.ToCfg())
+	pcache, err := cache.NewCache(config.Get().Cache.ToModuleStruct())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("share.SharedKeyVerificationFailed"))

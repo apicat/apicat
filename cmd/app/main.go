@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/apicat/apicat/v2"
+	"github.com/apicat/apicat/v2/backend/migrations"
 	"github.com/urfave/cli/v2"
 )
 
@@ -16,8 +17,18 @@ func main() {
 			&cli.StringFlag{
 				Name:    "config",
 				Aliases: []string{"c"},
-				Value:   "config.yaml",
+				Value:   ".env",
 				Usage:   "Load configuration from `FILE`",
+			},
+		},
+		Commands: []*cli.Command{
+			{
+				Name:  "make:migration",
+				Usage: "Automated DB schema updates",
+				Action: func(cCtx *cli.Context) error {
+					migrations.Generate(cCtx.Args().First())
+					return nil
+				},
 			},
 		},
 		Action: func(ctx *cli.Context) error {

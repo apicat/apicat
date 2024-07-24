@@ -1,6 +1,7 @@
 package local
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -25,10 +26,18 @@ func NewDisk(cfg Disk) *Disk {
 }
 
 func (d *Disk) Check() error {
+	if d.Url == "" {
+		return errors.New("local disk url is empty")
+	}
+
 	return mkdir(d.Path)
 }
 
 func (d *Disk) PutObject(key string, data []byte, contentType string) (string, error) {
+	if d.Url == "" {
+		return "", errors.New("local disk url is empty")
+	}
+
 	if strings.Index(key, "/") > 0 {
 		dir := strings.Split(key, "/")
 		dirPath := d.Path + "/" + strings.Join(dir[:len(dir)-1], "/")

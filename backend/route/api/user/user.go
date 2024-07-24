@@ -127,7 +127,7 @@ func (*userApiImpl) GetSelf(ctx *gin.Context, _ *ginrpc.Empty) (*protouserrespon
 func (ua *userApiImpl) ChangePassword(ctx *gin.Context, opt *protouserrequest.ChangePwdOption) (*ginrpc.Empty, error) {
 	u := jwt.GetUser(ctx)
 
-	ucache, err := cache.NewCache(config.Get().Cache.ToCfg())
+	ucache, err := cache.NewCache(config.Get().Cache.ToModuleStruct())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.PasswordUpdateFailed"))
@@ -188,7 +188,7 @@ func (ua *userApiImpl) ChangeEmail(ctx *gin.Context, opt *protouserbase.EmailOpt
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("user.EmailNotChanged"))
 	}
 
-	ucache, err := cache.NewCache(config.Get().Cache.ToCfg())
+	ucache, err := cache.NewCache(config.Get().Cache.ToModuleStruct())
 	if err != nil {
 		slog.ErrorContext(ctx, "cache.NewCache", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("user.EmailUpdateFailed"))
@@ -254,7 +254,7 @@ func (*userApiImpl) UploadAvatar(ctx *gin.Context, opt *protouserrequest.UploadA
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("common.ImageUploadFailed"))
 	}
 
-	helper := storage.NewStorage(config.Get().Storage.ToCfg())
+	helper := storage.NewStorage(config.Get().Storage.ToModuleStruct())
 	contentType := http.DetectContentType(croppedFileBytes)
 	path, err := helper.PutObject(fileName, croppedFileBytes, contentType)
 	if err != nil {

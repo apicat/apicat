@@ -8,7 +8,7 @@ import (
 	"strings"
 	"text/template"
 
-	llmcommon "github.com/apicat/apicat/v2/backend/module/llm/common"
+	"github.com/apicat/apicat/v2/backend/module/model"
 )
 
 const (
@@ -73,7 +73,7 @@ func (p *prompt) SetRole(role map[string]string) {
 	}
 }
 
-func (t *tpl) Prompt() ([]llmcommon.ChatCompletionMessage, error) {
+func (t *tpl) Prompt() (model.ChatCompletionMessages, error) {
 	content, err := t.split()
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (t *tpl) Prompt() ([]llmcommon.ChatCompletionMessage, error) {
 		return nil, errors.New("prompt content is empty")
 	}
 
-	var message []llmcommon.ChatCompletionMessage
+	var message model.ChatCompletionMessages
 	for _, p := range content {
 		p = strings.TrimSpace(p)
 		if len(p) < ROLE_PROMPT_LEN {
@@ -115,7 +115,7 @@ func (t *tpl) split() ([]string, error) {
 	}
 }
 
-func (t *tpl) build(content string) (llmcommon.ChatCompletionMessage, error) {
+func (t *tpl) build(content string) (model.ChatCompletionMessage, error) {
 	role := content[:ROLE_PROMPT_LEN]
 	msg := content[ROLE_PROMPT_LEN:]
 	roleName := ""
@@ -128,10 +128,10 @@ func (t *tpl) build(content string) (llmcommon.ChatCompletionMessage, error) {
 	case ASISTENT_PROMPT:
 		roleName = t.tpldata.AssistantRole
 	default:
-		return llmcommon.ChatCompletionMessage{}, fmt.Errorf("wrong role: %s", role)
+		return model.ChatCompletionMessage{}, fmt.Errorf("wrong role: %s", role)
 	}
 
-	return llmcommon.ChatCompletionMessage{
+	return model.ChatCompletionMessage{
 		Role:    roleName,
 		Content: msg,
 	}, nil

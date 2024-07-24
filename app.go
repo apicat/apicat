@@ -20,9 +20,8 @@ type App struct{}
 
 func NewApp(conf string) *App {
 	if err := config.Load(conf); err != nil {
-		log.Printf("load config %s faild, use default config. err: %s", conf, err)
+		log.Printf("load config %s faild: %s", conf, err)
 	}
-	config.LoadFromEnv()
 	return &App{}
 }
 
@@ -31,7 +30,7 @@ func (a *App) Run() error {
 		return fmt.Errorf("check config err: %v", err)
 	}
 
-	if err := logger.Init(config.Get().App.Debug, config.Get().Log); err != nil {
+	if err := logger.Init(config.GetApp().Debug, config.Get().Log); err != nil {
 		return fmt.Errorf("init log err: %v", err)
 	}
 
@@ -43,15 +42,15 @@ func (a *App) Run() error {
 		return fmt.Errorf("run migration err: %v", err)
 	}
 
-	if err := cache.Init(config.Get().Cache.ToCfg()); err != nil {
+	if err := cache.Init(config.Get().Cache.ToModuleStruct()); err != nil {
 		return fmt.Errorf("init cache err: %v", err)
 	}
 
-	sysconfig.Init()
-
-	if err := storage.Init(config.Get().Storage.ToCfg()); err != nil {
+	if err := storage.Init(config.Get().Storage.ToModuleStruct()); err != nil {
 		return fmt.Errorf("init storage err: %v", err)
 	}
+
+	sysconfig.Load()
 
 	if err := runMock(); err != nil {
 		return err
@@ -64,7 +63,7 @@ func (a *App) Run() error {
 }
 
 func runMock() error {
-	cfg := config.Get().App
+	cfg := config.GetApp()
 	if cfg.AppUrl == "" || cfg.MockServerBind == "" {
 		return fmt.Errorf("init mock err, cfg: %v", cfg)
 	}

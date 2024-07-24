@@ -30,12 +30,13 @@ You can try out [ApiCat](https://apicat.ai) now. It provides all the capabilitie
 The easiest way to start the ApiCat is to run our docker-compose.yaml file. Before running the installation command, make sure that [Docker](https://docs.docker.com/get-docker/) and [Docker Compose](https://docs.docker.com/compose/install/) are installed on your machine:
 
 ```bash
+cd docker
 docker compose up -d
 ```
 
 After running, you can visit [http://localhost:8000](http://localhost:8000) on your browser to start using ApiCat.
 
-If you need to customize the configuration, please refer to our [docker-compose.yml](./docker-compose.yaml) file and manually set the environment configuration. After making the changes, please run `docker-compose up -d` again.
+If you need to customize the configuration, please refer to our [docker-compose.yaml](./docker/docker-compose.yaml) file and manually set the environment configuration. After making the changes, please run `docker-compose up -d` again.
 
 ## Community
 

@@ -14,3 +14,4 @@ frontend/.nx
 frontend/.env
 
 uploads/*
+docker/*
