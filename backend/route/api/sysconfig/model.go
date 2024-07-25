@@ -20,16 +20,38 @@ import (
 
 type modelApiImpl struct{}
 
-var modelDrivers = []string{model.OPENAI, model.AZURE_OPENAI}
-var openaiLLMSupport = []string{"gpt-4", "gpt-4o", "gpt-4o-mini", "gpt-4-turbo", "gpt-3.5-turbo"}
-var openaiEmbeddingSupport = []string{"text-embedding-3-small", "text-embedding-3-large", "text-embedding-ada-002"}
+var modelSupports = []string{model.OPENAI, model.AZURE_OPENAI}
 
 func NewModelApi() protosysconfig.ModelApi {
 	return &modelApiImpl{}
 }
 
 func (s *modelApiImpl) Get(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfigresponse.ModelConfigList, error) {
-	configMap := make(map[string]*sysconfigresponse.ModelConfigDetail)
+	modelMap := make(map[string]*sysconfigresponse.ModelConfigDetail)
+	for _, m := range modelSupports {
+		switch m {
+		case model.OPENAI:
+			emptyCfg, _ := json.Marshal(config.OpenAI{})
+			modelMap[model.OPENAI] = &sysconfigresponse.ModelConfigDetail{
+				Driver: model.OPENAI,
+				Config: cfgFormat(&sysconfig.Sysconfig{Config: string(emptyCfg)}),
+				Models: sysconfigresponse.ModelNameList{
+					"llm":       model.OPENAI_LLM_SUPPORTS,
+					"embedding": model.OPENAI_EMBEDDING_SUPPORTS,
+				},
+			}
+		case model.AZURE_OPENAI:
+			emptyCfg, _ := json.Marshal(config.AzureOpenAI{})
+			modelMap[model.AZURE_OPENAI] = &sysconfigresponse.ModelConfigDetail{
+				Driver: model.AZURE_OPENAI,
+				Config: cfgFormat(&sysconfig.Sysconfig{Config: string(emptyCfg)}),
+				Models: sysconfigresponse.ModelNameList{
+					"llm":       model.OPENAI_LLM_SUPPORTS,
+					"embedding": model.OPENAI_EMBEDDING_SUPPORTS,
+				},
+			}
+		}
+	}
 
 	modelCfg := config.GetModel()
 	drivers := make([]string, 0)
@@ -44,58 +66,52 @@ func (s *modelApiImpl) Get(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfigrespons
 		switch driver {
 		case model.OPENAI:
 			if js, err := json.Marshal(modelCfg.OpenAI); err == nil {
-				configMap[model.OPENAI] = &sysconfigresponse.ModelConfigDetail{
-					Driver: model.OPENAI,
-					Config: cfgFormat(&sysconfig.Sysconfig{Config: string(js)}),
-					Models: sysconfigresponse.ModelNameList{
-						"llm":       openaiLLMSupport,
-						"embedding": openaiEmbeddingSupport,
-					},
-				}
+				modelMap[model.OPENAI].Config = cfgFormat(&sysconfig.Sysconfig{Config: string(js)})
 			}
 		case model.AZURE_OPENAI:
 			if js, err := json.Marshal(modelCfg.AzureOpenAI); err == nil {
-				configMap[model.AZURE_OPENAI] = &sysconfigresponse.ModelConfigDetail{
-					Driver: model.AZURE_OPENAI,
-					Config: cfgFormat(&sysconfig.Sysconfig{Config: string(js)}),
-				}
+				modelMap[model.AZURE_OPENAI].Config = cfgFormat(&sysconfig.Sysconfig{Config: string(js)})
 			}
 		}
 	}
 
 	if list, err := sysconfig.GetList(ctx, "model"); err == nil {
 		for _, v := range list {
-			if _, ok := configMap[v.Driver]; !ok {
-				switch v.Driver {
-				case model.OPENAI:
-					configMap[model.OPENAI] = &sysconfigresponse.ModelConfigDetail{
-						Driver: v.Driver,
-						Config: cfgFormat(v),
-						Models: sysconfigresponse.ModelNameList{
-							"llm":       openaiLLMSupport,
-							"embedding": openaiEmbeddingSupport,
-						},
-					}
-				case model.AZURE_OPENAI:
-					configMap[model.AZURE_OPENAI] = &sysconfigresponse.ModelConfigDetail{
-						Driver: v.Driver,
-						Config: cfgFormat(v),
-					}
-				}
+			switch v.Driver {
+			case model.OPENAI:
+				modelMap[model.OPENAI].Config = cfgFormat(v)
+			case model.AZURE_OPENAI:
+				modelMap[model.AZURE_OPENAI].Config = cfgFormat(v)
 			}
 		}
 	}
 
 	slist := make(sysconfigresponse.ModelConfigList, 0)
-	for _, v := range modelDrivers {
-		if _, ok := configMap[v]; ok {
-			slist = append(slist, configMap[v])
+	for _, v := range modelSupports {
+		if _, ok := modelMap[v]; ok {
+			slist = append(slist, modelMap[v])
 		}
 	}
 	return &slist, nil
 }
 
 func (s *modelApiImpl) UpdateOpenAI(ctx *gin.Context, opt *sysconfigrequest.OpenAIOption) (*ginrpc.Empty, error) {
+	if opt.LLM == "" && opt.Embedding == "" {
+		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.ModelNotSelect"))
+	}
+	if opt.LLM != "" && !model.ModelAvailable(model.OPENAI, "llm", opt.LLM) {
+		return nil, ginrpc.NewError(
+			http.StatusBadRequest,
+			i18n.NewErr("sysConfig.NotSupportModel", opt.LLM),
+		)
+	}
+	if opt.Embedding != "" && !model.ModelAvailable(model.OPENAI, "embedding", opt.Embedding) {
+		return nil, ginrpc.NewError(
+			http.StatusBadRequest,
+			i18n.NewErr("sysConfig.NotSupportModel", opt.Embedding),
+		)
+	}
+
 	modelConfig := &config.Model{
 		OpenAI: &config.OpenAI{
 			ApiKey:         opt.ApiKey,
@@ -166,6 +182,25 @@ func (s *modelApiImpl) UpdateOpenAI(ctx *gin.Context, opt *sysconfigrequest.Open
 }
 
 func (s *modelApiImpl) UpdateAzureOpenAI(ctx *gin.Context, opt *sysconfigrequest.AzureOpenAIOption) (*ginrpc.Empty, error) {
+	if opt.LLM == "" && opt.Embedding == "" {
+		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.ModelNotSelect"))
+	}
+	if opt.LLM != "" && opt.LLMDeployName == "" || opt.Embedding != "" && opt.EmbeddingDeployName == "" {
+		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.DeployNameEmpty"))
+	}
+	if opt.LLM != "" && !model.ModelAvailable(model.AZURE_OPENAI, "llm", opt.LLM) {
+		return nil, ginrpc.NewError(
+			http.StatusBadRequest,
+			i18n.NewErr("sysConfig.NotSupportModel", opt.LLM),
+		)
+	}
+	if opt.Embedding != "" && !model.ModelAvailable(model.AZURE_OPENAI, "embedding", opt.Embedding) {
+		return nil, ginrpc.NewError(
+			http.StatusBadRequest,
+			i18n.NewErr("sysConfig.NotSupportModel", opt.Embedding),
+		)
+	}
+
 	modelConfig := &config.Model{
 		AzureOpenAI: &config.AzureOpenAI{
 			ApiKey:   opt.ApiKey,
@@ -176,6 +211,7 @@ func (s *modelApiImpl) UpdateAzureOpenAI(ctx *gin.Context, opt *sysconfigrequest
 	if opt.LLM != "" {
 		modelConfig.LLMDriver = model.AZURE_OPENAI
 		modelConfig.AzureOpenAI.LLM = opt.LLM
+		modelConfig.AzureOpenAI.LLMDeployName = opt.LLMDeployName
 
 		if azureOpenAI, err := model.NewModel(modelConfig.ToModuleStruct("llm")); err != nil {
 			slog.ErrorContext(ctx, "model.NewModel.AzureOpenAI", "err", err)
@@ -190,6 +226,7 @@ func (s *modelApiImpl) UpdateAzureOpenAI(ctx *gin.Context, opt *sysconfigrequest
 	if opt.Embedding != "" {
 		modelConfig.EmbeddingDriver = model.AZURE_OPENAI
 		modelConfig.AzureOpenAI.Embedding = opt.Embedding
+		modelConfig.AzureOpenAI.EmbeddingDeployName = opt.EmbeddingDeployName
 
 		if azureOpenAI, err := model.NewModel(modelConfig.ToModuleStruct("embedding")); err != nil {
 			slog.ErrorContext(ctx, "model.NewModel.AzureOpenAI", "err", err)
@@ -307,7 +344,7 @@ func (s *modelApiImpl) GetDefault(ctx *gin.Context, _ *ginrpc.Empty) (*sysconfig
 		"llm":       make(sysconfigresponse.DefaultModelList, 0),
 		"embedding": make(sysconfigresponse.DefaultModelList, 0),
 	}
-	for _, v := range modelDrivers {
+	for _, v := range modelSupports {
 		if _, ok := llmDefaultMap[v]; ok {
 			defaultMap["llm"] = append(defaultMap["llm"], llmDefaultMap[v])
 		}
@@ -324,7 +361,6 @@ func (s *modelApiImpl) UpdateDefault(ctx *gin.Context, opt *sysconfigrequest.Def
 		LLM       string `json:"llm"`
 		Embedding string `json:"embedding"`
 	}
-	var cfg modelName
 
 	modelCfg := &config.Model{
 		LLMDriver:       opt.LLM.Driver,
@@ -345,80 +381,84 @@ func (s *modelApiImpl) UpdateDefault(ctx *gin.Context, opt *sysconfigrequest.Def
 		return nil
 	}
 
-	defaultModel := &sysconfig.Sysconfig{
+	llmModel := &sysconfig.Sysconfig{
 		Type:   "model",
 		Driver: opt.LLM.Driver,
 	}
-	exist, err := defaultModel.Get(ctx)
+	exist, err := llmModel.Get(ctx)
 	if err != nil {
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.ModelUpdateFailed"))
 	}
 	if !exist {
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.ReasoningModelNotExist"))
 	}
-	if err := json.Unmarshal([]byte(defaultModel.Config), &cfg); err != nil {
+	llmCfg := &modelName{}
+	if err := json.Unmarshal([]byte(llmModel.Config), &llmCfg); err != nil {
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
 	}
-	if cfg.LLM != opt.LLM.Model {
+	if llmCfg.LLM != opt.LLM.Model {
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.ReasoningModelNotExist"))
 	}
 
-	defaultModel.BeingUsed = true
+	llmModel.BeingUsed = true
+	llmModel.Extra = "llm"
+
 	if opt.LLM.Driver == opt.Embedding.Driver {
-		if cfg.Embedding != opt.Embedding.Model {
+		if llmCfg.Embedding != opt.Embedding.Model {
 			return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.EmbeddingModelNotExist"))
 		}
+		llmModel.Extra = "llm,embedding"
 
 		if err := sysconfig.ClearModelStatus(ctx); err != nil {
 			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
 		}
+		if err := llmModel.Update(ctx); err != nil {
+			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
+		}
+		if err := setModelCfg(llmModel); err != nil {
+			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
+		}
+		config.SetModel(modelCfg)
+		return nil, nil
+	}
 
-		defaultModel.Extra = "llm,embedding"
-		if err := defaultModel.Update(ctx); err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
-		}
-		if err := setModelCfg(defaultModel); err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
-		}
-	} else {
-		defaultModel.Extra = "llm"
-		if err := defaultModel.Update(ctx); err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
-		}
-		if err := setModelCfg(defaultModel); err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
-		}
+	embeddingModel := &sysconfig.Sysconfig{
+		Type:   "model",
+		Driver: opt.Embedding.Driver,
+	}
+	exist, err = embeddingModel.Get(ctx)
+	if err != nil {
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.ModelUpdateFailed"))
+	}
+	if !exist {
+		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.EmbeddingModelNotExist"))
+	}
+	embeddingCfg := &modelName{}
+	if err := json.Unmarshal([]byte(embeddingModel.Config), &embeddingCfg); err != nil {
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
+	}
+	if embeddingCfg.Embedding != opt.Embedding.Model {
+		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.EmbeddingModelNotExist"))
+	}
 
-		defaultModel = &sysconfig.Sysconfig{
-			Type:   "model",
-			Driver: opt.Embedding.Driver,
-		}
-		exist, err = defaultModel.Get(ctx)
-		if err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.ModelUpdateFailed"))
-		}
-		if !exist {
-			return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.EmbeddingModelNotExist"))
-		}
-		if err := json.Unmarshal([]byte(defaultModel.Config), &cfg); err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
-		}
-		if cfg.Embedding != opt.Embedding.Model {
-			return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("sysConfig.EmbeddingModelNotExist"))
-		}
+	embeddingModel.BeingUsed = true
+	embeddingModel.Extra = "embedding"
 
-		if err := sysconfig.ClearModelStatus(ctx); err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
-		}
+	if err := sysconfig.ClearModelStatus(ctx); err != nil {
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
+	}
 
-		defaultModel.BeingUsed = true
-		defaultModel.Extra = "embedding"
-		if err := defaultModel.Update(ctx); err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
-		}
-		if err := setModelCfg(defaultModel); err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
-		}
+	if err := embeddingModel.Update(ctx); err != nil {
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
+	}
+	if err := llmModel.Update(ctx); err != nil {
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
+	}
+	if err := setModelCfg(embeddingModel); err != nil {
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
+	}
+	if err := setModelCfg(llmModel); err != nil {
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("sysConfig.DefaultModelUpdateFailed"))
 	}
 	config.SetModel(modelCfg)
 	return nil, nil

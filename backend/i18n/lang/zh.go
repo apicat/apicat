@@ -216,8 +216,9 @@ var Zh = map[string]map[string]string{
 		"ReasoningModelNotExist":   "推理模型不存在。",
 		"EmbeddingModelNotExist":   "嵌入模型不存在。",
 		"ModelUpdateFailed":        "模型设置失败，请稍后重试。",
-		"OpenAIConfigInvalid":      "OpenAI 设置有误。",
-		"AzureOpenAIConfigInvalid": "Azure OpenAI 设置有误。",
+		"ModelNotSelect":           "请设置要使用的模型。",
+		"NotSupportModel":          "不支持的模型 %s。",
+		"DeployNameEmpty":          "请输入模型的部署名称。",
 		"DefaultModelUpdateFailed": "默认模型设置失败，请稍后重试。",
 	},
 	"jsonschema": {

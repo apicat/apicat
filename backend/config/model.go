@@ -23,10 +23,12 @@ type OpenAI struct {
 }
 
 type AzureOpenAI struct {
-	ApiKey    string `json:"apiKey"`
-	Endpoint  string `json:"endpoint"`
-	LLM       string `json:"llm"`
-	Embedding string `json:"embedding"`
+	ApiKey              string `json:"apiKey"`
+	Endpoint            string `json:"endpoint"`
+	LLM                 string `json:"llm"`
+	LLMDeployName       string `json:"llmDeployName"`
+	Embedding           string `json:"embedding"`
+	EmbeddingDeployName string `json:"embeddingDeployName"`
 }
 
 func LoadModelConfig() {
@@ -85,8 +87,14 @@ func loadAzureOpenAIConfig() {
 	if v, exists := os.LookupEnv("AZURE_OPENAI_LLM"); exists {
 		globalConf.Model.AzureOpenAI.LLM = v
 	}
+	if v, exists := os.LookupEnv("AZURE_OPENAI_LLM_DEPLOY_NAME"); exists {
+		globalConf.Model.AzureOpenAI.LLMDeployName = v
+	}
 	if v, exists := os.LookupEnv("AZURE_OPENAI_EMBEDDING"); exists {
 		globalConf.Model.AzureOpenAI.Embedding = v
+	}
+	if v, exists := os.LookupEnv("AZURE_OPENAI_EMBEDDING_DEPLOY_NAME"); exists {
+		globalConf.Model.AzureOpenAI.EmbeddingDeployName = v
 	}
 }
 
@@ -131,6 +139,12 @@ func checkOpenAI(modelType string) error {
 	if modelType == "embedding" && globalConf.Model.OpenAI.Embedding == "" {
 		return errors.New("openai embedding is empty")
 	}
+	if modelType == "llm" && !model.ModelAvailable(model.OPENAI, modelType, globalConf.Model.OpenAI.LLM) {
+		return errors.New("llm model not supported")
+	}
+	if modelType == "embedding" && !model.ModelAvailable(model.OPENAI, modelType, globalConf.Model.OpenAI.Embedding) {
+		return errors.New("embedding model not supported")
+	}
 	return nil
 }
 
@@ -147,8 +161,20 @@ func checkAzureOpenAI(modelType string) error {
 	if modelType == "llm" && globalConf.Model.AzureOpenAI.LLM == "" {
 		return errors.New("azure openai llm is empty")
 	}
+	if globalConf.Model.AzureOpenAI.LLM != "" && globalConf.Model.AzureOpenAI.LLMDeployName == "" {
+		return errors.New("azure openai llm deploy name is empty")
+	}
 	if modelType == "embedding" && globalConf.Model.AzureOpenAI.Embedding == "" {
 		return errors.New("azure openai embedding is empty")
+	}
+	if globalConf.Model.AzureOpenAI.Embedding != "" && globalConf.Model.AzureOpenAI.EmbeddingDeployName == "" {
+		return errors.New("azure openai embedding deploy name is empty")
+	}
+	if modelType == "llm" && !model.ModelAvailable(model.AZURE_OPENAI, modelType, globalConf.Model.AzureOpenAI.LLM) {
+		return errors.New("llm model not supported")
+	}
+	if modelType == "embedding" && !model.ModelAvailable(model.AZURE_OPENAI, modelType, globalConf.Model.AzureOpenAI.Embedding) {
+		return errors.New("embedding model not supported")
 	}
 	return nil
 }
@@ -223,10 +249,12 @@ func (m *Model) toAzureOpenAICfg() model.Model {
 	return model.Model{
 		Driver: model.AZURE_OPENAI,
 		AzureOpenAI: model.AzureOpenAI{
-			ApiKey:    m.AzureOpenAI.ApiKey,
-			Endpoint:  m.AzureOpenAI.Endpoint,
-			LLM:       m.AzureOpenAI.LLM,
-			Embedding: m.AzureOpenAI.Embedding,
+			ApiKey:              m.AzureOpenAI.ApiKey,
+			Endpoint:            m.AzureOpenAI.Endpoint,
+			LLM:                 m.AzureOpenAI.LLM,
+			LLMDeployName:       m.AzureOpenAI.LLMDeployName,
+			Embedding:           m.AzureOpenAI.Embedding,
+			EmbeddingDeployName: m.AzureOpenAI.EmbeddingDeployName,
 		},
 	}
 }

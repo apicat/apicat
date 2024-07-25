@@ -6,16 +6,18 @@ type ModelOption struct {
 }
 
 type AzureOpenAIOption struct {
-	ApiKey   string `json:"apiKey" binding:"required,gt=1"`
-	Endpoint string `json:"endpoint" binding:"required,url"`
 	ModelOption
+	LLMDeployName       string `json:"llmDeployName" binding:"omitempty,gt=1"`
+	EmbeddingDeployName string `json:"embeddingDeployName" binding:"omitempty,gt=1"`
+	ApiKey              string `json:"apiKey" binding:"required,gt=1"`
+	Endpoint            string `json:"endpoint" binding:"required,url"`
 }
 
 type OpenAIOption struct {
+	ModelOption
 	ApiKey         string `json:"apiKey" binding:"required,gt=1"`
 	OrganizationID string `json:"organizationID" binding:"omitempty"`
 	ApiBase        string `json:"apiBase" binding:"omitempty,url"`
-	ModelOption
 }
 
 type DefaultModelOption struct {

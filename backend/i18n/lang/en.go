@@ -216,8 +216,9 @@ var En = map[string]map[string]string{
 		"ReasoningModelNotExist":   "Reasoning model does not exist.",
 		"EmbeddingModelNotExist":   "Embedding model does not exist.",
 		"ModelUpdateFailed":        "Model setting failed, please try again later.",
-		"OpenAIConfigInvalid":      "Invalid OpenAI configuration.",
-		"AzureOpenAIConfigInvalid": "Invalid Azure OpenAI configuration.",
+		"ModelNotSelect":           "Please set the model to use.",
+		"NotSupportModel":          "Unsupported model %s.",
+		"DeployNameEmpty":          "Please enter the deployment name of the model.",
 		"DefaultModelUpdateFailed": "Default model setting failed, please try again later.",
 	},
 	"jsonschema": {
