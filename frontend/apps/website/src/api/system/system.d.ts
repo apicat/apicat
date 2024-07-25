@@ -49,7 +49,7 @@ declare namespace SystemAPI {
   interface EmailSendCloud {
     apiUser: string
     apiKey: string
-    fromEmail: string
+    fromAddress: string
     fromName: string
   }
   interface EmailItem {

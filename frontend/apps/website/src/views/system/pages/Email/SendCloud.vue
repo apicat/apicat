@@ -16,7 +16,7 @@ const rules: FormRules<typeof props.config> = {
   apiUser: notNullRule(t(`${tBase}.rules.apiUser`)),
   apiKey: notNullRule(t(`${tBase}.rules.apiKey`)),
   fromName: notNullRule(t(`${tBase}.rules.fromName`)),
-  fromEmail: notNullRule(t(`${tBase}.rules.fromEmail`)),
+  fromAddress: notNullRule(t(`${tBase}.rules.fromEmail`)),
 }
 const [submitting, update] = useApi(apiUpdateEmailSendCloud)
 function submit() {
@@ -51,8 +51,8 @@ function submit() {
       </ElFormItem>
 
       <!-- form email -->
-      <ElFormItem prop="fromEmail" :label="$t(`${tBase}.fromEmail`)">
-        <ElInput v-model="props.config.fromEmail" maxlength="255" />
+      <ElFormItem prop="fromAddress" :label="$t(`${tBase}.fromEmail`)">
+        <ElInput v-model="props.config.fromAddress" maxlength="255" />
       </ElFormItem>
 
       <!-- form name -->
