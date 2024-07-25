@@ -32,3 +32,25 @@ func NewModel(cfg Model) (Provider, error) {
 
 	return nil, errors.New("model driver not found")
 }
+
+func ModelAvailable(driver, modelType, modelName string) bool {
+	switch driver {
+	case OPENAI, AZURE_OPENAI:
+		switch modelType {
+		case "llm":
+			for _, v := range OPENAI_LLM_SUPPORTS {
+				if v == modelName {
+					return true
+				}
+			}
+		case "embedding":
+			for _, v := range OPENAI_EMBEDDING_SUPPORTS {
+				if v == modelName {
+					return true
+				}
+			}
+		}
+		return false
+	}
+	return false
+}
