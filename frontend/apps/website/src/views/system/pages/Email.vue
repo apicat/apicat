@@ -22,7 +22,7 @@ const data = ref<A>({
   [SysEmail.SendCloud]: {
     apiUser: '',
     apiKey: '',
-    fromEmail: '',
+    fromAddress: '',
     fromName: '',
   },
 })
