@@ -33,7 +33,7 @@ type openai struct {
 	ctx       context.Context
 }
 
-var LLM_SUPORTS = []string{
+var OPENAI_LLM_SUPPORTS = []string{
 	oai.GPT4,
 	oai.GPT4o,
 	oai.GPT4oMini,
@@ -41,7 +41,7 @@ var LLM_SUPORTS = []string{
 	oai.GPT3Dot5Turbo,
 }
 
-var EMBEDDING_SUPORTS = []string{
+var OPENAI_EMBEDDING_SUPPORTS = []string{
 	string(oai.SmallEmbedding3),
 	string(oai.LargeEmbedding3),
 	string(oai.AdaEmbeddingV2),
@@ -63,9 +63,12 @@ func NewAzureOpenAI(cfg AzureOpenAI) *openai {
 	clientConfig := oai.DefaultAzureConfig(cfg.ApiKey, cfg.Endpoint)
 	clientConfig.HTTPClient.Timeout = time.Second * 30
 	clientConfig.AzureModelMapperFunc = func(model string) string {
-		azureModelMapping := map[string]string{
-			cfg.LLM:       cfg.LLMDeployName,
-			cfg.Embedding: cfg.EmbeddingDeployName,
+		azureModelMapping := make(map[string]string)
+		if cfg.LLM != "" && cfg.LLMDeployName != "" {
+			azureModelMapping[cfg.LLM] = cfg.LLMDeployName
+		}
+		if cfg.Embedding != "" && cfg.EmbeddingDeployName != "" {
+			azureModelMapping[cfg.Embedding] = cfg.EmbeddingDeployName
 		}
 		return azureModelMapping[model]
 	}
@@ -81,12 +84,12 @@ func NewAzureOpenAI(cfg AzureOpenAI) *openai {
 func (o *openai) Check(modelType string) error {
 	switch modelType {
 	case "llm":
-		if !support(modelType, o.llm) {
+		if !ModelAvailable(OPENAI, modelType, o.llm) {
 			return fmt.Errorf("llm model %s not supported", o.llm)
 		}
 		return o.CheckLLM()
 	case "embedding":
-		if !support(modelType, o.embedding) {
+		if !ModelAvailable(OPENAI, modelType, o.embedding) {
 			return fmt.Errorf("embedding model %s not supported", o.embedding)
 		}
 		return o.CheckEmbedding()
@@ -129,7 +132,7 @@ func (o *openai) ChatCompletionRequest(r *ChatCompletionOption) (string, error) 
 		o.ctx,
 		oai.ChatCompletionRequest{
 			Model:    o.llm,
-			Messages: compileMessages(r.Messages),
+			Messages: o.compileMessages(r.Messages),
 		},
 	)
 
@@ -152,7 +155,7 @@ func (o *openai) ChatMessageRoleUser() string {
 	return oai.ChatMessageRoleUser
 }
 
-func compileMessages(m ChatCompletionMessages) []oai.ChatCompletionMessage {
+func (o *openai) compileMessages(m ChatCompletionMessages) []oai.ChatCompletionMessage {
 	messages := make([]oai.ChatCompletionMessage, len(m))
 	for k, v := range m {
 		messages[k] = oai.ChatCompletionMessage{
@@ -161,22 +164,4 @@ func compileMessages(m ChatCompletionMessages) []oai.ChatCompletionMessage {
 		}
 	}
 	return messages
-}
-
-func support(modelType string, model string) bool {
-	switch modelType {
-	case "llm":
-		for _, v := range LLM_SUPORTS {
-			if v == model {
-				return true
-			}
-		}
-	case "embedding":
-		for _, v := range EMBEDDING_SUPORTS {
-			if v == model {
-				return true
-			}
-		}
-	}
-	return false
 }
