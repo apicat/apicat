@@ -51,13 +51,13 @@ async function disconnect() {
 
         <div v-if="!userInfo.github" class="mt-3">
           <!-- connect -->
-          <el-button class="w-full" type="primary" @click="connect">
+          <el-button class="w-full" type="primary" size="large" @click="connect">
             {{ $t('app.user.github.conn') }}
           </el-button>
         </div>
         <div v-else class="mt-3">
           <!-- dis -->
-          <el-button class="w-full" type="info" :loading="disconnectLoading" @click="disconnect">
+          <el-button class="w-full" type="info" :loading="disconnectLoading" size="large" @click="disconnect">
             {{ $t('app.user.github.disconn') }}
           </el-button>
         </div>
@@ -67,14 +67,6 @@ async function disconnect() {
 </template>
 
 <style scoped>
-:deep(.el-select .el-input) {
-  height: 40px;
-}
-
-:deep(.el-button) {
-  height: 40px;
-}
-
 .row {
   margin-top: 1em;
   margin-bottom: 1em;

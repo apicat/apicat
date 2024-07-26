@@ -46,7 +46,7 @@ apiGetStorage().then((res) => {
   <div class="bg-white w-85%">
     <h1>{{ $t(`${tBase}.title`) }}</h1>
 
-    <div class="mt-40px flex flex-col">
+    <div class="flex flex-col mt-40px">
       <Local v-model:config="data[SysStorage.Disk]" class="collapse-box" :name="SysStorage.Disk" :collapse="collapse" />
       <Cloudflare
         v-model:config="data[SysStorage.CF]"
@@ -67,14 +67,6 @@ apiGetStorage().then((res) => {
 <style scoped>
 h1 {
   font-size: 30px;
-}
-
-:deep(.el-select .el-input) {
-  height: 40px;
-}
-
-:deep(.el-button) {
-  height: 40px;
 }
 
 .row {

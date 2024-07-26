@@ -2,13 +2,13 @@
 import type { FormInstance, FormRules } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import CollapseCardItem from '@/components/collapse/CollapseCardItem.vue'
-import { type UseCollapse } from '@/components/collapse/useCollapse'
+import type { UseCollapse } from '@/components/collapse/useCollapse'
 import IconSvg from '@/components/IconSvg.vue'
 import { apiUpdateEmailSendCloud } from '@/api/system'
 import { notNullRule } from '@/commons'
 import useApi from '@/hooks/useApi'
 
-const props = defineProps<{ collapse: UseCollapse; name: string; config: Partial<SystemAPI.EmailSendCloud> }>()
+const props = defineProps<{ collapse: UseCollapse, name: string, config: Partial<SystemAPI.EmailSendCloud> }>()
 const { t } = useI18n()
 const tBase = 'app.system.email.sendcloud'
 const formRef = ref<FormInstance>()
@@ -39,7 +39,7 @@ function submit() {
         </div>
       </div>
     </template>
-    <ElForm ref="formRef" label-position="top" :rules="rules" :model="props.config" @submit.prevent="submit">
+    <ElForm ref="formRef" label-position="top" :rules="rules" :model="props.config" size="large" @submit.prevent="submit">
       <!-- api user -->
       <ElFormItem prop="apiUser" :label="$t(`${tBase}.apiUser`)">
         <ElInput v-model="props.config.apiUser" maxlength="255" />

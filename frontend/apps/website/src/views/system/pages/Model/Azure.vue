@@ -2,13 +2,19 @@
 import type { FormInstance, FormRules } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import CollapseCardItem from '@/components/collapse/CollapseCardItem.vue'
-import { type UseCollapse } from '@/components/collapse/useCollapse'
+import type { UseCollapse } from '@/components/collapse/useCollapse'
 import IconSvg from '@/components/IconSvg.vue'
 import { apiUpdateModelAzure } from '@/api/system'
 import useApi from '@/hooks/useApi'
 import { notNullRule } from '@/commons'
 
-const props = defineProps<{ collapse: UseCollapse; name: string; config: Partial<SystemAPI.ModelAzure> }>()
+const props = defineProps<{
+  collapse: UseCollapse
+  name: string
+  config: Partial<SystemAPI.ModelAzure>
+  llmModels?: string[]
+  embeddingModels?: string[]
+}>()
 const { t } = useI18n()
 const tBase = 'app.system.model.azure'
 const formRef = ref<FormInstance>()
@@ -25,12 +31,14 @@ const config = ref({
   apiKey: '',
   endpoint: '',
   llm: '',
+  llmDeployName: '',
   embedding: '',
-  ...props.config
+  embeddingDeployName: '',
+  ...props.config,
 })
 
 // sync config
-watch(() => props.config, (val) => Object.assign(config.value, val))
+watch(() => props.config, val => Object.assign(config.value, val))
 
 function submit() {
   formRef.value!.validate((valid) => {
@@ -52,7 +60,7 @@ function submit() {
         </div>
       </div>
     </template>
-    <ElForm ref="formRef" label-position="top" :rules="rules" :model="config" @submit.prevent="submit">
+    <ElForm ref="formRef" label-position="top" :rules="rules" :model="config" size="large" @submit.prevent="submit">
       <!-- api key -->
       <ElFormItem prop="apiKey" :label="$t(`${tBase}.apiKey`)">
         <ElInput v-model="config.apiKey" maxlength="255" />
@@ -64,14 +72,42 @@ function submit() {
       </ElFormItem>
 
       <!-- llm name  -->
-      <ElFormItem prop="llm" :label="$t(`${tBase}.llmName`)">
-        <ElInput v-model="config.llm" maxlength="255" />
-      </ElFormItem>
+      <el-form-item label="LLM deployment name">
+        <el-col :span="11">
+          <el-form-item prop="llmDeployName">
+            <ElInput v-model="config.llmDeployName" maxlength="255" />
+          </el-form-item>
+        </el-col>
+        <el-col class="text-center" :span="2">
+          <span class="text-gray-500" />
+        </el-col>
+        <el-col :span="11">
+          <el-form-item prop="llm">
+            <ElSelect v-model="config.llm" class="w-full">
+              <ElOption v-for="i in llmModels" :key="i" :label="i" :value="i" />
+            </ElSelect>
+          </el-form-item>
+        </el-col>
+      </el-form-item>
 
       <!-- embedding  -->
-      <ElFormItem prop="embedding" :label="$t(`${tBase}.embedding`)">
-        <ElInput v-model="config.embedding" maxlength="255" />
-      </ElFormItem>
+      <el-form-item label="Embedding model deployment name">
+        <el-col :span="11">
+          <el-form-item prop="embeddingDeployName">
+            <ElInput v-model="config.embeddingDeployName" maxlength="255" />
+          </el-form-item>
+        </el-col>
+        <el-col class="text-center" :span="2">
+          <span class="text-gray-500" />
+        </el-col>
+        <el-col :span="11">
+          <el-form-item prop="llm">
+            <ElSelect v-model="config.embedding" class="w-full">
+              <ElOption v-for="i in embeddingModels" :key="i" :label="i" :value="i" />
+            </ElSelect>
+          </el-form-item>
+        </el-col>
+      </el-form-item>
     </ElForm>
 
     <el-button :loading="submitting" type="primary" @click="submit">

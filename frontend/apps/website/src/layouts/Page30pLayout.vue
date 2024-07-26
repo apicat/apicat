@@ -15,10 +15,6 @@
   @apply text-gray-title font-300;
 }
 
-:deep(.el-select .el-input) {
-  height: 40px;
-}
-
 :deep(.el-button.is-link) {
   padding: 0;
   vertical-align: unset;

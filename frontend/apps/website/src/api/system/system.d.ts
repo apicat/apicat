@@ -68,6 +68,8 @@ declare namespace SystemAPI {
   interface ModelAzure extends ModelCommonConfig {
     apiKey: string
     endpoint: string
+    llmDeployName: string
+    embeddingDeployName: string
   }
 
   interface ModelOpenAI extends ModelCommonConfig {

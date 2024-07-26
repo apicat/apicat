@@ -58,21 +58,21 @@ async function submit() {
     <div style="width: 40vw; align-items: start" class="text-start">
       <div style="width: 450px; background-color: white">
         <h1>{{ $t('app.user.password.title') }}</h1>
-        <ElForm ref="formRef" :rules="rules" :model="form" class="content" label-position="top">
+        <ElForm ref="formRef" :rules="rules" :model="form" class="content" label-position="top" size="large">
           <div style="margin-top: 40px">
             <!-- old pass -->
             <ElFormItem prop="password" :label="$t('app.user.password.old')">
-              <ElInput v-model="form.password" maxlength="255" class="h-40px" type="password" />
+              <ElInput v-model="form.password" maxlength="255" type="password" />
             </ElFormItem>
 
             <!-- new pass -->
             <ElFormItem prop="newPassword" :label="$t('app.user.password.new')">
-              <ElInput v-model="form.newPassword" maxlength="255" class="h-40px" type="password" />
+              <ElInput v-model="form.newPassword" maxlength="255" type="password" />
             </ElFormItem>
 
             <!-- confirm pass -->
             <ElFormItem prop="reNewPassword" :label="$t('app.user.password.confirm')">
-              <ElInput v-model="form.reNewPassword" maxlength="255" class="h-40px" type="password" />
+              <ElInput v-model="form.reNewPassword" maxlength="255" type="password" />
             </ElFormItem>
           </div>
 
@@ -96,14 +96,6 @@ async function submit() {
 <style scoped>
 h1 {
   font-size: 30px;
-}
-
-:deep(.el-select .el-input) {
-  height: 40px;
-}
-
-:deep(.el-button) {
-  height: 40px;
 }
 
 .row {

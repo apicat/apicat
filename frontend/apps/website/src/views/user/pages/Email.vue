@@ -56,12 +56,13 @@ async function submit() {
           label-position="top"
           :rules="rules"
           :model="form"
+          size="large"
           @submit.prevent="submit"
         >
           <div style="margin-top: 40px">
             <!-- username -->
             <ElFormItem prop="email" :label="$t('app.user.email.email')">
-              <ElInput v-model="form.email" maxlength="255" class="h-40px" />
+              <ElInput v-model="form.email" maxlength="255" />
             </ElFormItem>
           </div>
 
@@ -79,15 +80,6 @@ async function submit() {
 h1 {
   font-size: 30px;
 }
-
-:deep(.el-select .el-input) {
-  height: 40px;
-}
-
-:deep(.el-button) {
-  height: 40px;
-}
-
 .row {
   margin-top: 1em;
   margin-bottom: 1em;

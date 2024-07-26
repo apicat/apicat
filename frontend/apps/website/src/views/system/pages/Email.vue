@@ -12,6 +12,7 @@ interface A {
   [SysEmail.SMTP]: SystemAPI.EmailSMTP
   [SysEmail.SendCloud]: SystemAPI.EmailSendCloud
 }
+
 const data = ref<A>({
   [SysEmail.SMTP]: {
     host: '',
@@ -26,6 +27,7 @@ const data = ref<A>({
     fromName: '',
   },
 })
+
 apiGetEmail().then((res) => {
   for (let i = 0; i < res.length; i++) {
     const v = res[i]
@@ -53,11 +55,6 @@ apiGetEmail().then((res) => {
 </template>
 
 <style scoped>
-
-:deep(.el-select .el-input) {
-  height: 40px;
-}
-
 .row {
   margin-top: 1em;
   margin-bottom: 1em;

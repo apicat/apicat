@@ -2,20 +2,20 @@
 import { ElSelect, type FormInstance, type FormRules } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import CollapseCardItem from '@/components/collapse/CollapseCardItem.vue'
-import { type UseCollapse } from '@/components/collapse/useCollapse'
+import type { UseCollapse } from '@/components/collapse/useCollapse'
 import IconSvg from '@/components/IconSvg.vue'
 import { apiUpdateModelOpenAI } from '@/api/system'
 import useApi from '@/hooks/useApi'
 import { notNullRule } from '@/commons'
 
-const props = defineProps<{ 
-  collapse: UseCollapse; 
-  name: string; 
-  config: Partial<SystemAPI.ModelOpenAI> 
-  llmModels?:string[]
-  embeddingModels?:string[]
-  }>()
-  
+const props = defineProps<{
+  collapse: UseCollapse
+  name: string
+  config: Partial<SystemAPI.ModelOpenAI>
+  llmModels?: string[]
+  embeddingModels?: string[]
+}>()
+
 const { t } = useI18n()
 const tBase = 'app.system.model.openai'
 const formRef = ref<FormInstance>()
@@ -45,7 +45,7 @@ function submit() {
         </div>
       </div>
     </template>
-    <ElForm ref="formRef" label-position="top" :rules="rules" :model="props.config" @submit.prevent="submit">
+    <ElForm ref="formRef" label-position="top" :rules="rules" :model="props.config" size="large" @submit.prevent="submit">
       <!-- api key -->
       <ElFormItem prop="apiKey" :label="$t(`${tBase}.apiKey`)">
         <ElInput v-model="props.config.apiKey" maxlength="255" />
@@ -64,14 +64,14 @@ function submit() {
       <!-- llm name  -->
       <ElFormItem prop="llm" :label="$t(`${tBase}.llmName`)">
         <ElSelect v-model="props.config.llm" class="w-full">
-          <ElOption v-for="i in llmModels" :label="i" :value="i"></ElOption>
+          <ElOption v-for="i in llmModels" :key="i" :label="i" :value="i" />
         </ElSelect>
       </ElFormItem>
 
       <!-- embedding name  -->
       <ElFormItem prop="embedding" :label="$t(`${tBase}.embedding`)">
         <ElSelect v-model="props.config.embedding" class="w-full">
-          <ElOption v-for="i in embeddingModels" :label="i" :value="i"></ElOption>
+          <ElOption v-for="i in embeddingModels" :key="i" :label="i" :value="i" />
         </ElSelect>
       </ElFormItem>
     </ElForm>
@@ -81,5 +81,3 @@ function submit() {
     </el-button>
   </CollapseCardItem>
 </template>
-
-<style scoped></style>

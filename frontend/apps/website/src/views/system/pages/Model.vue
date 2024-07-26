@@ -1,13 +1,13 @@
 <script setup lang="tsx">
+import { useI18n } from 'vue-i18n'
+import type { FormInstance } from 'element-plus'
 import { apiGetDefaultModel, apiGetModel, apiUpdateDefaultModel } from '@/api/system'
-import { notNullRule, SysModel } from '@/commons'
+import { SysModel, notNullRule } from '@/commons'
 import { useCollapse } from '@/components/collapse/useCollapse'
 import useApi from '@/hooks/useApi'
 import Azure from '@/views/system/pages/Model/Azure.vue'
 import OpenAI from '@/views/system/pages/Model/OpenAI.vue'
 import IconSvg from '@/components/IconSvg.vue'
-import { useI18n } from 'vue-i18n'
-import { FormInstance } from 'element-plus'
 
 const tBase = 'app.system.model'
 const collapse = useCollapse({})
@@ -15,136 +15,119 @@ const { t } = useI18n()
 
 const [isLoading, updateDefaultModel] = useApi(apiUpdateDefaultModel)
 const localDefaultConfig = ref({
-  llm:'',
-  embedding:''
+  llm: '',
+  embedding: '',
 })
 
 const localDefaultConfigRules = {
-  // llm: [{message: t(`${tBase}.openai.rules.llmName`), required: true, trigger: 'change'}],
   llm: notNullRule(t(`${tBase}.openai.rules.llmName`)),
   embedding: notNullRule(t(`${tBase}.openai.rules.embedding`)),
 }
 
-const localDefaultRequestData = computed(()=>{
-  const [driver,model] = localDefaultConfig.value.llm.split('/')
-  const [driver2,model2] = localDefaultConfig.value.embedding.split('/')
+const localDefaultRequestData = computed(() => {
+  const [driver, model] = localDefaultConfig.value.llm.split('/')
+  const [driver2, model2] = localDefaultConfig.value.embedding.split('/')
   return {
-    llm:{driver,model},
-    embedding:{driver:driver2,model:model2}
+    llm: { driver, model },
+    embedding: { driver: driver2, model: model2 },
   }
 })
 
 const formRef = ref<FormInstance>()
 const data = ref<SystemAPI.ModelItem[]>([])
 const localDefaultConfigData = ref<SystemAPI.ModelDefaultConfig>()
-const llmModels = ref<string[]>([])
-const embeddingModels = ref<string[]>([])
-  
-const findDriver = (driver:SysModel) => data.value.find((item) => item.driver === driver)
 
-const openAIConfig = computed<SystemAPI.ModelOpenAI>(() => {
-  const config = findDriver(SysModel.OpenAI)
-  if(config){
-    llmModels.value = config.models?.llm || []
-    embeddingModels.value = config.models?.embedding || []
-  }
-  
-  return config ? config.config as SystemAPI.ModelOpenAI : {
-    apiKey:'',
-    llm:'',
-    embedding:''
-  }
-})
+const findDriver = (driver: SysModel) => data.value.find(item => item.driver === driver)
 
-const azureConfig = computed<SystemAPI.ModelAzure>(() =>{
-  const config = findDriver(SysModel.Azure)
-  return config ? config.config as SystemAPI.ModelAzure : {
-    apiKey:'',
-    endpoint:'',
-    llm:'',
-    embedding:''
-  }
-})
+const openAI = computed(() => findDriver(SysModel.OpenAI))
+const azure = computed(() => findDriver(SysModel.Azure))
 
-const defaultLLMOptions = computed(()=> {
+const defaultLLMOptions = computed(() => {
   return localDefaultConfigData.value?.llm.map((item) => {
     const value = `${item.driver}/${item.model}`
-    if(item.selected){
+    if (item.selected)
       localDefaultConfig.value.llm = value
-    }
 
     return {
-      icon:item.driver === SysModel.OpenAI ? <IconSvg name="ac-openai"/> : <IconSvg name="ac-azure" width="24" />,
-      value:value
+      icon: item.driver === SysModel.OpenAI ? <IconSvg name="ac-openai" /> : <IconSvg name="ac-azure" width="24" />,
+      value,
     }
   }) || []
 })
 
-const defaultEmbeddingOptions = computed(()=> {
+const defaultEmbeddingOptions = computed(() => {
   return localDefaultConfigData.value?.embedding.map((item) => {
     const value = `${item.driver}/${item.model}`
-    if(item.selected){
+    if (item.selected)
       localDefaultConfig.value.embedding = value
-    }
+
     return {
-      icon:item.driver === SysModel.OpenAI ? <IconSvg name="ac-openai"/> : <IconSvg name="ac-azure" width="24" />,
-      value:value
+      icon: item.driver === SysModel.OpenAI ? <IconSvg name="ac-openai" /> : <IconSvg name="ac-azure" width="24" />,
+      value,
     }
   }) || []
 })
+const openAIConfig = computed<SystemAPI.ModelOpenAI>(() => openAI.value?.config as SystemAPI.ModelOpenAI ?? { apiKey: '', llm: '', embedding: '' })
+const openAILLMModels = computed(() => openAI.value?.models?.llm ?? [])
+const openAIEmbeddingModels = computed(() => openAI.value?.models?.embedding ?? [])
 
-async function handleSubmit(formIns:FormInstance | undefined){
+const azureConfig = computed<SystemAPI.ModelAzure>(() => azure.value?.config as SystemAPI.ModelAzure ?? { apiKey: '', endpoint: '', llm: '', llmDeployName: '', embedding: '', embeddingDeployName: '' })
+const azureLLMModels = computed(() => azure.value?.models?.llm ?? [])
+const azureEmbeddingModels = computed(() => azure.value?.models?.embedding ?? [])
+
+async function handleSubmit(formIns: FormInstance | undefined) {
   try {
-    if (!formIns) return
+    if (!formIns)
+      return
     await formIns.validate()
     await updateDefaultModel(localDefaultRequestData.value)
-  } catch (error) {
+  }
+  catch (error) {
     //
   }
 }
 
 onBeforeMount(async () => {
   try {
-      const [config,defaultConfig] = await Promise.all([apiGetModel(),apiGetDefaultModel()])
-      data.value = config || []
-      localDefaultConfigData.value = defaultConfig || {}
-  } catch (error) {
+    const [config, defaultConfig] = await Promise.all([apiGetModel(), apiGetDefaultModel()])
+    data.value = config || []
+    localDefaultConfigData.value = defaultConfig || {}
+  }
+  catch (error) {
     //
   }
-  
 })
-
 </script>
 
 <template>
   <div class="bg-white w-85%">
     <h1>{{ $t(`${tBase}.title`) }}</h1>
-    <ElForm ref="formRef" label-position="top" :model="localDefaultConfig" :rules="localDefaultConfigRules" @submit.prevent="handleSubmit(formRef)">
+    <ElForm ref="formRef" label-position="top" :model="localDefaultConfig" :rules="localDefaultConfigRules" size="large" @submit.prevent="handleSubmit(formRef)">
       <ElFormItem label="Reasoning model" prop="llm">
         <ElSelect v-model="localDefaultConfig.llm" class="w-full" placeholder="Select model">
-          <ElOption v-for="item in defaultLLMOptions" :key="item.value" :label="item.value" :value="item.value" >
+          <ElOption v-for="item in defaultLLMOptions" :key="item.value" :label="item.value" :value="item.value">
             <div class="flex-y-center">
-            <component :is="item.icon" />
-            <span class="ml-4px">{{ item.value }}</span>
-          </div>
+              <component :is="item.icon" />
+              <span class="ml-4px">{{ item.value }}</span>
+            </div>
           </ElOption>
         </ElSelect>
       </ElFormItem>
 
       <ElFormItem label="Embedding model" prop="embedding">
         <ElSelect v-model="localDefaultConfig.embedding" class="w-full" placeholder="Select model">
-          <ElOption v-for="item in defaultEmbeddingOptions" :key="item.value" :label="item.value" :value="item.value" >
+          <ElOption v-for="item in defaultEmbeddingOptions" :key="item.value" :label="item.value" :value="item.value">
             <div class="flex-y-center">
-            <component :is="item.icon" />
-            <span class="ml-4px">{{ item.value }}</span>
-          </div>
+              <component :is="item.icon" />
+              <span class="ml-4px">{{ item.value }}</span>
+            </div>
           </ElOption>
         </ElSelect>
       </ElFormItem>
 
       <el-button :loading="isLoading" class="w-full" type="primary" @click="handleSubmit(formRef)">
-      {{ $t('app.common.save') }}
-    </el-button>
+        {{ $t('app.common.save') }}
+      </el-button>
     </ElForm>
 
     <div class="my-40px">
@@ -157,24 +140,22 @@ onBeforeMount(async () => {
         :name="SysModel.OpenAI"
         class="collapse-box"
         :collapse="collapse"
-        :embedding-models="embeddingModels"
-        :llm-models="llmModels"
+        :embedding-models="openAIEmbeddingModels"
+        :llm-models="openAILLMModels"
       />
       <Azure
         :config="azureConfig"
         class="collapse-box mt-30px"
         :name="SysModel.Azure"
         :collapse="collapse"
+        :embedding-models="azureEmbeddingModels"
+        :llm-models="azureLLMModels"
       />
     </div>
   </div>
 </template>
 
 <style scoped>
-:deep(.el-select .el-input) {
-  height: 40px;
-}
-
 .row {
   margin-top: 1em;
   margin-bottom: 1em;

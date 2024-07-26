@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { type FormInstance, type FormRules } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { apiGetService, apiUpdateService } from '@/api/system'
 import useApi from '@/hooks/useApi'
@@ -22,7 +22,8 @@ async function submit() {
   try {
     await formRef.value!.validate()
     await update(form.value)
-  } catch (e) {}
+  }
+  catch (e) {}
 }
 
 apiGetService().then((v) => {
@@ -33,8 +34,8 @@ apiGetService().then((v) => {
 <template>
   <div class="bg-white w-85%">
     <h1>{{ $t('app.system.service.title') }}</h1>
-    <ElForm ref="formRef" label-position="top" :rules="rules" :model="form" @submit.prevent="submit">
-      <div >
+    <ElForm ref="formRef" label-position="top" :rules="rules" :model="form" size="large" @submit.prevent="submit">
+      <div>
         <!-- appurl -->
         <ElFormItem prop="appUrl" :label="$t('app.system.service.appurl')">
           <ElInput v-model="form.appUrl" maxlength="255" />
@@ -55,11 +56,6 @@ apiGetService().then((v) => {
 </template>
 
 <style scoped>
-
-:deep(.el-select .el-input) {
-  height: 40px;
-}
-
 .row {
   margin-top: 1em;
   margin-bottom: 1em;

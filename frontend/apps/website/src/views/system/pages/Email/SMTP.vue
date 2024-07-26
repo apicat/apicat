@@ -8,7 +8,7 @@ import { isUrlRule, notNullRule } from '@/commons'
 import { apiUpdateEmailSMTP } from '@/api/system'
 import useApi from '@/hooks/useApi'
 
-const props = defineProps<{ collapse: UseCollapse; name: string; config: Partial<SystemAPI.EmailSMTP> }>()
+const props = defineProps<{ collapse: UseCollapse, name: string, config: Partial<SystemAPI.EmailSMTP> }>()
 const { t } = useI18n()
 const tBase = 'app.system.email.smtp'
 const formRef = ref<FormInstance>()
@@ -39,7 +39,7 @@ function submit() {
         </div>
       </div>
     </template>
-    <ElForm ref="formRef" label-position="top" :rules="rules" :model="props.config" @submit.prevent="submit">
+    <ElForm ref="formRef" label-position="top" :rules="rules" :model="props.config" size="large" @submit.prevent="submit">
       <!-- host -->
       <ElFormItem prop="host" :label="$t(`${tBase}.host`)">
         <ElInput v-model="props.config.host" maxlength="255" />

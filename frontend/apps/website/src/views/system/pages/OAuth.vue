@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Icon } from '@iconify/vue'
-import { type FormInstance, type FormRules } from 'element-plus'
+import type { FormInstance, FormRules } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import CollapseCardItem from '@/components/collapse/CollapseCardItem.vue'
 import { useCollapse } from '@/components/collapse/useCollapse'
@@ -45,7 +45,7 @@ apiGetOAuth().then((v) => {
 <template>
   <div class="bg-white w-85%">
     <h1>{{ $t('app.system.oauth.title') }}</h1>
-    <div >
+    <div>
       <CollapseCardItem name="github" :collapse-ctx="collapse">
         <template #title>
           <div class="row-lr">
@@ -62,6 +62,7 @@ apiGetOAuth().then((v) => {
           label-position="top"
           :rules="rules"
           :model="form"
+          size="large"
           @submit.prevent="handleSubmit"
           @keyup.enter="handleSubmit"
         >
