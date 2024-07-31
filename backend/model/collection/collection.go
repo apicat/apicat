@@ -33,6 +33,7 @@ type Collection struct {
 	ShareKey     string `gorm:"type:varchar(255);comment:share key"`
 	Content      string `gorm:"type:mediumtext;comment:doc content"`
 	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:display order"`
+	VectorID     string `gorm:"type:varchar(255);comment:vector db record id"`
 	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:created by member id"`
 	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:updated by member id"`
 	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:deleted by member id"`
