@@ -22,7 +22,7 @@ type weaviatedb struct {
 	client *weaviate.Client
 }
 
-func NewWeaviate(cfg WeaviateOpt) (*weaviatedb, error) {
+func newWeaviate(cfg WeaviateOpt) (*weaviatedb, error) {
 	c := weaviate.Config{
 		Host:   cfg.Host,
 		Scheme: "http",

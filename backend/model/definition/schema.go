@@ -28,6 +28,7 @@ type DefinitionSchema struct {
 	Type         string `gorm:"type:varchar(255);not null;comment:schema type:category,schema"`
 	Schema       string `gorm:"type:mediumtext;comment:schema content"`
 	DisplayOrder uint   `gorm:"type:int(11);not null;default:0;comment:display order"`
+	VectorID     string `gorm:"type:varchar(255);comment:vector db record id"`
 	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:created by member id"`
 	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:updated by member id"`
 	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:deleted by member id"`
