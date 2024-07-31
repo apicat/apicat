@@ -1,8 +1,11 @@
 package vector
 
-import "errors"
+import (
+	"errors"
+)
 
 const (
+	// Support vector database
 	WEAVIATE = "weaviate"
 )
 
