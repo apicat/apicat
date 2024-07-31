@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/apicat/apicat/v2/backend/config"
+	"github.com/apicat/apicat/v2/backend/core/rag/utils"
 	"github.com/apicat/apicat/v2/backend/model/definition"
 	"github.com/apicat/apicat/v2/backend/module/model"
 	"github.com/apicat/apicat/v2/backend/module/vector"
@@ -117,6 +118,7 @@ func (dm *definitionModel) Delete() error {
 func (dm *definitionModel) createEmbeddings() ([]float32, error) {
 	specSchema, err := dm.schema.ToSpec()
 	if err != nil {
+		slog.ErrorContext(dm.ctx, "dm.schema.ToSpec", "err", err)
 		return nil, err
 	}
 
@@ -132,7 +134,7 @@ func (dm *definitionModel) createEmbeddings() ([]float32, error) {
 			return nil, err
 		} else {
 			specSchema.DeepDeref(allModels)
-			textList = append(textList, SchemaToTextList("root", specSchema.Schema)...)
+			textList = append(textList, utils.SchemaToTextList("root", specSchema.Schema)...)
 		}
 	}
 

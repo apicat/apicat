@@ -1,4 +1,4 @@
-package rag
+package utils
 
 import (
 	"fmt"
@@ -31,7 +31,7 @@ func convert(k string, s *jsonschema.Schema, depth int) (result []string) {
 		return result
 	}
 
-	result = append(result, genStr(k, s.Description, depth))
+	result = append(result, genText(k, s.Description, depth))
 
 	if len(s.AllOf) > 0 {
 		for _, v := range s.AllOf {
@@ -64,6 +64,6 @@ func convert(k string, s *jsonschema.Schema, depth int) (result []string) {
 	return result
 }
 
-func genStr(name, description string, depth int) string {
+func genText(name, description string, depth int) string {
 	return fmt.Sprintf("%s%s: %s", strings.Repeat("  ", depth), name, description)
 }
