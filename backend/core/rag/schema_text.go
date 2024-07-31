@@ -18,6 +18,14 @@ func SchemaToText(k string, s *jsonschema.Schema) string {
 	return ""
 }
 
+func SchemaToTextList(k string, s *jsonschema.Schema) []string {
+	if k == "" || s == nil {
+		return nil
+	}
+
+	return convert(k, s, 0)
+}
+
 func convert(k string, s *jsonschema.Schema, depth int) (result []string) {
 	if k == "" || s == nil {
 		return result
