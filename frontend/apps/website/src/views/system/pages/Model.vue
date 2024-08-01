@@ -102,7 +102,13 @@ onBeforeMount(async () => {
 <template>
   <div class="bg-white w-85%">
     <h1>{{ $t(`${tBase}.title`) }}</h1>
-    <ElForm ref="formRef" label-position="top" :model="localDefaultConfig" :rules="localDefaultConfigRules" size="large" @submit.prevent="handleSubmit(formRef)">
+    <ElForm
+      ref="formRef" label-position="top"
+      :model="localDefaultConfig"
+      :rules="localDefaultConfigRules"
+      size="large"
+      @submit.prevent="handleSubmit(formRef)"
+    >
       <ElFormItem label="Reasoning model" prop="llm">
         <ElSelect v-model="localDefaultConfig.llm" class="w-full" placeholder="Select model">
           <ElOption v-for="item in defaultLLMOptions" :key="item.value" :label="item.value" :value="item.value">

@@ -18,15 +18,6 @@ const props = defineProps<{
 const { t } = useI18n()
 const tBase = 'app.system.model.azure'
 const formRef = ref<FormInstance>()
-const rules: FormRules<typeof props.config> = {
-  apiKey: notNullRule(t(`${tBase}.rules.apiKey`)),
-  endpoint: notNullRule(t(`${tBase}.rules.endpoint`)),
-  llm: notNullRule(t(`${tBase}.rules.llmName`)),
-  embedding: notNullRule(t(`${tBase}.rules.embedding`)),
-}
-
-const [submitting, update] = useApi(apiUpdateModelAzure)
-
 const config = ref({
   apiKey: '',
   endpoint: '',
@@ -37,13 +28,69 @@ const config = ref({
   ...props.config,
 })
 
+const rules: FormRules = {
+  apiKey: notNullRule(t(`${tBase}.rules.apiKey`)),
+  endpoint: notNullRule(t(`${tBase}.rules.endpoint`)),
+  llmDeployName: [
+    {
+      validator: (_rule, value, callback) => {
+        if (!value && !config.value.llm && !config.value.embedding && !config.value.embeddingDeployName)
+          callback(new Error(t(`${tBase}.rules.llmAndEmbedding`)))
+        else if (!value && config.value.llm)
+          callback(new Error(t(`${tBase}.rules.llmDevName`)))
+        else
+          callback()
+      },
+      trigger: 'blur',
+    },
+  ],
+  llm: [
+    {
+      validator: (_rule, value, callback) => {
+        if (!value && config.value.llmDeployName)
+          callback(new Error(t(`${tBase}.rules.llm`)))
+        else
+          callback()
+      },
+      trigger: 'blur',
+    },
+  ],
+  embeddingDeployName: [
+    {
+      validator: (_rule, value, callback) => {
+        if (!value && config.value.embedding)
+          callback(new Error(t(`${tBase}.rules.embeddingDevName`)))
+        else
+          callback()
+      },
+      trigger: 'blur',
+    },
+  ],
+  embedding: [
+    {
+      validator: (_rule, value, callback) => {
+        if (!value && config.value.embeddingDeployName)
+          callback(new Error(t(`${tBase}.rules.embedding`)))
+        else
+          callback()
+      },
+      trigger: 'blur',
+    },
+  ],
+}
+
+const [submitting, update] = useApi(apiUpdateModelAzure)
+
 // sync config
 watch(() => props.config, val => Object.assign(config.value, val))
 
 function submit() {
   formRef.value!.validate((valid) => {
-    if (valid)
-      update(config.value as SystemAPI.ModelAzure)
+    if (valid) {
+      const data = { ...config.value } as any
+      delete data.llmandembedding
+      update(data as SystemAPI.ModelAzure)
+    }
   })
 }
 </script>
@@ -71,7 +118,7 @@ function submit() {
         <ElInput v-model="config.endpoint" maxlength="255" />
       </ElFormItem>
 
-      <!-- llm name  -->
+      <!-- llm -->
       <el-form-item label="LLM deployment name">
         <el-col :span="11">
           <el-form-item prop="llmDeployName">
@@ -83,7 +130,7 @@ function submit() {
         </el-col>
         <el-col :span="11">
           <el-form-item prop="llm">
-            <ElSelect v-model="config.llm" class="w-full">
+            <ElSelect v-model="config.llm" class="w-full" clearable>
               <ElOption v-for="i in llmModels" :key="i" :label="i" :value="i" />
             </ElSelect>
           </el-form-item>
@@ -101,8 +148,8 @@ function submit() {
           <span class="text-gray-500" />
         </el-col>
         <el-col :span="11">
-          <el-form-item prop="llm">
-            <ElSelect v-model="config.embedding" class="w-full">
+          <el-form-item prop="embedding">
+            <ElSelect v-model="config.embedding" class="w-full" clearable>
               <ElOption v-for="i in embeddingModels" :key="i" :label="i" :value="i" />
             </ElSelect>
           </el-form-item>
