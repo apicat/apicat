@@ -16,6 +16,11 @@ export function getDefaultSchemaStructure() {
   }
 }
 
+interface AISuggestionSchema {
+  requestID: string
+  schema: string | JSONSchema
+}
+
 export function apiCreateSchema(projectID: string, data: Omit<Definition.Schema, 'id'>): Promise<Definition.Schema> {
   return DefaultAjax.post(`/projects/${projectID}/definition/schemas`, data)
 }
@@ -114,5 +119,28 @@ export async function apiParseSchema(jsonschema: JSONSchema): Promise<JSONSchema
   }
   catch (error) {
     return getDefaultSchemaStructure()
+  }
+}
+
+// ai for model data
+export function apiGetAIModel(data: { requestID: string, title: string, modelID: number }): Promise<AISuggestionSchema> {
+  // DefaultAjax.post('/suggestion/model', data)
+}
+
+// ai for schema data
+export async function apiGetAISchema(data: {
+  requestID: string
+  schema: JSONSchema
+  title: string
+  collectionID?: number
+  modelID?: number
+}): Promise<AISuggestionSchema> {
+  try {
+    const res = await DefaultAjax.post<AISuggestionSchema>('/suggestion/parameter', data)
+    res.schema = JSON.parse(res.schema as string)
+    return res
+  }
+  catch (error) {
+    return { requestID: '', schema: {} }
   }
 }

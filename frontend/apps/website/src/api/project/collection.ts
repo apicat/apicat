@@ -135,3 +135,8 @@ export function apiReGenTestCase(
 export function apiDeleteTestCase(projectID: string, collectionID: number, testCaseID: number): Promise<void> {
   return Ajax.delete(`/projects/${projectID}/collections/${collectionID}/testcases/${testCaseID}`)
 }
+
+// ai for collection
+export async function apiGetAICollection(data: any) {
+  return await Ajax.post('/collection/ai', data)
+}
