@@ -4,7 +4,7 @@ import type { SchemaTreeNode } from '@apicat/components'
 import { apiGetAISchema } from '@/api/project/definition/schema'
 
 // AI generated json schema
-export function useIntelligentSchema() {
+export function useIntelligentSchema(getParams?: () => any) {
   let isLoading = false
   let requestID
 
@@ -20,12 +20,13 @@ export function useIntelligentSchema() {
       const { requestID: resID, schema } = await apiGetAISchema({
         schema: jsonschema,
         requestID,
-        title: '------',
+        ...getParams?.(),
       })
-      isLoading = true
+      isLoading = false
 
       if (resID !== requestID)
         return
+
       const nid = resID.split(':')[1]
       return {
         nid,

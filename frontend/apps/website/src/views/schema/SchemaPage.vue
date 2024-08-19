@@ -31,7 +31,11 @@ const { schemas, schemaDetail: schema, isLoading: loading } = storeToRefs(defini
 const [isSaving, updateSchema, isSaveError] = useApi(definitionSchemaStore.updateSchema)
 const { inputRef: titleInputRef, focus } = useTitleInputFocus()
 const router = useRouter()
-const { handleIntelligentSchema } = useIntelligentSchema()
+const { handleIntelligentSchema } = useIntelligentSchema(() => {
+  return {
+    title: schema.value?.name,
+  }
+})
 
 let oldTitle = ''
 
@@ -103,10 +107,11 @@ watch(schemaIDRef, async (id, oID) => {
   await setDetail(id)
 })
 
-watchDebounced(() => schema.value?.name, async () => {
-  if (jsonSchemaTableIns.value?.isEmpty()) {
-  // fetch ai api
-    // await apiGetAIModel()
+watchDebounced(() => schema.value?.name, async (name, oldName) => {
+  // 内容为空时，请求AI接口，获取智能推荐的schema
+  if (name && oldName && jsonSchemaTableIns.value?.isEmpty()) {
+    const josnschema = await apiGetAIModel({ modelID: schema.value?.id, title: name })
+    josnschema && schema.value && (schema.value.schema = josnschema)
   }
 }, { debounce: 500 })
 

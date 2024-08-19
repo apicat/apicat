@@ -1,5 +1,5 @@
 import { dayjs } from 'element-plus'
-import { parseJSONWithDefault } from '@apicat/shared'
+import { guid, parseJSONWithDefault } from '@apicat/shared'
 import type { JSONSchema } from '@apicat/editor'
 import DefaultAjax from '@/api/Ajax'
 import { gatherSharedTokenWithParams } from '@/api/shareToken'
@@ -122,9 +122,41 @@ export async function apiParseSchema(jsonschema: JSONSchema): Promise<JSONSchema
   }
 }
 
-// ai for model data
-export function apiGetAIModel(data: { requestID: string, title: string, modelID: number }): Promise<AISuggestionSchema> {
-  // DefaultAjax.post('/suggestion/model', data)
+export async function apiGetAIModel(params: any): Promise<JSONSchema | undefined> {
+  const res = await wrapperRequestWithID<AISuggestionSchema>(async data => await DefaultAjax.post('/suggestion/model', data))(params)
+  if (!res)
+    return
+
+  try {
+    return JSON.parse(res.schema as string)
+  }
+  catch (error) {
+    return undefined
+  }
+}
+
+// wrapper reuqest for param with requestID
+export function wrapperRequestWithID<T>(fn: (data: any) => Promise<T>): (data: any) => Promise<T | undefined> {
+  let rid = ''
+  let isLoading = false
+  return async (data: any) => {
+    if (isLoading)
+      return
+
+    rid = data.requestID = (data.requestID || guid())
+    try {
+      isLoading = true
+      const res = await fn(data) as any
+      isLoading = false
+      if (rid !== res.requestID)
+        return
+
+      return res
+    }
+    catch (error) {
+      isLoading = false
+    }
+  }
 }
 
 // ai for schema data
