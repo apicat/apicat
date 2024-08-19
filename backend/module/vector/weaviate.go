@@ -3,12 +3,13 @@ package vector
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 
 	"github.com/weaviate/weaviate-go-client/v4/weaviate"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/auth"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/fault"
+	"github.com/weaviate/weaviate-go-client/v4/weaviate/graphql"
 	"github.com/weaviate/weaviate/entities/models"
 )
 
@@ -87,9 +88,6 @@ func (w *weaviatedb) CreateObject(collectionName string, object *ObjectData) (st
 	if err != nil {
 		return "", err
 	}
-	if b, err := json.MarshalIndent(resp.Object, "", "  "); err == nil {
-		fmt.Println(string(b))
-	}
 	return resp.Object.ID.String(), nil
 }
 
@@ -147,6 +145,55 @@ func (w *weaviatedb) DeleteObject(collectionName string, id string) error {
 	return w.client.Data().Deleter().WithClassName(w.getValidCollectionName(collectionName)).WithID(id).Do(w.ctx)
 }
 
+func (w *weaviatedb) SimilaritySearch(collectionName string, opt *SearchOption) (string, error) {
+	if len(opt.Vector) == 0 {
+		return "", errors.New("vector is required")
+	}
+
+	builder := w.client.GraphQL().Get().WithClassName(w.getValidCollectionName(collectionName))
+	if len(opt.Fields) > 0 || len(opt.AdditionalFields) > 0 {
+		if fields := w.getSearchFields(opt.Fields, opt.AdditionalFields); fields != nil {
+			builder.WithFields(fields...)
+		}
+	}
+
+	nearVector := w.client.GraphQL().NearVectorArgBuilder().WithVector(opt.Vector)
+	if opt.Distance > 0 {
+		nearVector.WithDistance(opt.Distance)
+	}
+	if opt.Certainty > 0 {
+		nearVector.WithCertainty(opt.Certainty)
+	}
+
+	builder.WithNearVector(nearVector)
+
+	if opt.Offset > 0 {
+		builder.WithOffset(opt.Offset)
+	}
+	if opt.Limit > 0 {
+		builder.WithLimit(opt.Limit)
+	}
+
+	result, err := builder.Do(w.ctx)
+	if err != nil {
+		return "", err
+	}
+	if len(result.Errors) > 0 {
+		return "", errors.New(result.Errors[0].Message)
+	}
+
+	if _, ok := result.Data["Get"]; ok {
+		if data, ok := result.Data["Get"].(map[string]interface{}); ok {
+			if _, ok := data[w.getValidCollectionName(collectionName)]; ok {
+				if b, err := json.Marshal(data[w.getValidCollectionName(collectionName)]); err == nil {
+					return string(b), nil
+				}
+			}
+		}
+	}
+	return "", nil
+}
+
 func (w *weaviatedb) covertProperties(properties models.PropertySchema) map[string]interface{} {
 	propertiesMap := make(map[string]interface{})
 	for k, v := range properties.(map[string]interface{}) {
@@ -160,4 +207,31 @@ func (w *weaviatedb) getValidCollectionName(name string) string {
 		return name
 	}
 	return "C" + name
+}
+
+func (w *weaviatedb) getSearchFields(fields, additionalFields []string) []graphql.Field {
+	if len(fields) == 0 && len(additionalFields) == 0 {
+		return nil
+	}
+
+	searchFields := make([]graphql.Field, 0)
+	for _, f := range fields {
+		searchFields = append(searchFields, graphql.Field{
+			Name: f,
+		})
+	}
+
+	if len(additionalFields) > 0 {
+		additional := make([]graphql.Field, 0)
+		for _, f := range additionalFields {
+			additional = append(additional, graphql.Field{
+				Name: f,
+			})
+		}
+		searchFields = append(searchFields, graphql.Field{
+			Name:   "_additional",
+			Fields: additional,
+		})
+	}
+	return searchFields
 }

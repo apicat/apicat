@@ -21,6 +21,16 @@ type ObjectData struct {
 
 type ObjectDataList []*ObjectData
 
+type SearchOption struct {
+	Vector           []float32
+	Fields           []string
+	AdditionalFields []string
+	Offset           int
+	Limit            int
+	Distance         float32
+	Certainty        float32
+}
+
 type T_TEXT string
 type T_TEXT_LIST []string
 type T_INT int

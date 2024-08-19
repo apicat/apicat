@@ -54,11 +54,13 @@ type Schema struct {
 	Format string `json:"format,omitempty" yaml:"format,omitempty"`
 
 	// Extension
-	ID       int64    `json:"id,omitempty" yaml:"id,omitempty"`
-	XOrder   []string `json:"x-apicat-orders,omitempty" yaml:"x-apicat-orders,omitempty"`
-	XMock    string   `json:"x-apicat-mock,omitempty" yaml:"x-apicat-mock,omitempty"`
-	XDiff    string   `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
-	Nullable *bool    `json:"nullable,omitempty" yaml:"nullable,omitempty"`
+	ID          int64    `json:"id,omitempty" yaml:"id,omitempty"`
+	XOrder      []string `json:"x-apicat-orders,omitempty" yaml:"x-apicat-orders,omitempty"`
+	XMock       string   `json:"x-apicat-mock,omitempty" yaml:"x-apicat-mock,omitempty"`
+	XDiff       string   `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
+	XFocus      bool     `json:"x-apicat-focus,omitempty" yaml:"x-apicat-focus,omitempty"`
+	XSuggestion bool     `json:"x-apicat-suggestion,omitempty" yaml:"x-apicat-suggestion,omitempty"`
+	Nullable    *bool    `json:"nullable,omitempty" yaml:"nullable,omitempty"`
 }
 
 var coreTypes = []string{

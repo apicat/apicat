@@ -20,12 +20,20 @@ func (acp *apiContentProperty) ToMapInterface() (result map[string]interface{}) 
 	return
 }
 
-func getAPIContentProperties() vector.Properties {
-	p := apiContentProperty{
-		CollectionID:      0,
-		DefinitionModelID: 0,
-		UpdatedAt:         "",
+func (acp *apiContentProperty) GetPropertyNames() []string {
+	t := reflect.TypeOf(*acp)
+	v := reflect.ValueOf(*acp)
+	names := make([]string, 0)
+	for i := 0; i < t.NumField(); i++ {
+		if !v.Field(i).IsZero() {
+			names = append(names, strings.Split(t.Field(i).Tag.Get("json"), ",")[0])
+		}
 	}
+	return names
+}
+
+func getAPIContentProperties() vector.Properties {
+	p := apiContentProperty{}
 	t := reflect.TypeOf(p)
 	v := reflect.ValueOf(p)
 	properties := make(vector.Properties, 0)
@@ -34,6 +42,7 @@ func getAPIContentProperties() vector.Properties {
 			Name:     strings.Split(t.Field(i).Tag.Get("json"), ",")[0],
 			DataType: v.Field(i).Interface().(vector.DataType),
 		})
+
 	}
 	return properties
 }
