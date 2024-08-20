@@ -19,6 +19,7 @@ type SimilaritySearch struct {
 	limit            int
 	distance         float32
 	certainty        float32
+	whereCondition   []*vector.WhereCondition
 	embeddingModel   model.Provider
 	vectorDB         vector.VectorApi
 }
@@ -84,6 +85,11 @@ func (s *SimilaritySearch) WithCertainty(certainty float32) *SimilaritySearch {
 	return s
 }
 
+func (s *SimilaritySearch) WithWhere(where []*vector.WhereCondition) *SimilaritySearch {
+	s.whereCondition = where
+	return s
+}
+
 func (s *SimilaritySearch) Do() (string, error) {
 	if s.text == "" {
 		return "", errors.New("text is required")
@@ -102,6 +108,7 @@ func (s *SimilaritySearch) Do() (string, error) {
 		Limit:            s.limit,
 		Distance:         s.distance,
 		Certainty:        s.certainty,
+		WhereCondition:   s.whereCondition,
 	}
 
 	return s.vectorDB.SimilaritySearch(s.collectionName, opt)

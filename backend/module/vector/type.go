@@ -29,6 +29,13 @@ type SearchOption struct {
 	Limit            int
 	Distance         float32
 	Certainty        float32
+	WhereCondition   []*WhereCondition
+}
+
+type WhereCondition struct {
+	PropertyName string
+	Operator     string
+	Value        DataType
 }
 
 type T_TEXT string

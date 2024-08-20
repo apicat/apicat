@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"errors"
 	"net/http"
+	"reflect"
 
 	"github.com/weaviate/weaviate-go-client/v4/weaviate"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/auth"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/fault"
+	"github.com/weaviate/weaviate-go-client/v4/weaviate/filters"
 	"github.com/weaviate/weaviate-go-client/v4/weaviate/graphql"
 	"github.com/weaviate/weaviate/entities/models"
 )
@@ -114,7 +116,7 @@ func (w *weaviatedb) BatchCreateObject(collectionName string, data ObjectDataLis
 	for _, r := range resp {
 		result = append(result, &ObjectData{
 			ID:         r.ID.String(),
-			Properties: w.covertProperties(r.Properties),
+			Properties: w.convertProperties(r.Properties),
 			Vector:     r.Vector,
 		})
 	}
@@ -128,7 +130,7 @@ func (w *weaviatedb) GetObjectByID(collectionName string, id string) (*ObjectDat
 	}
 	return &ObjectData{
 		ID:         resp[0].ID.String(),
-		Properties: w.covertProperties(resp[0].Properties),
+		Properties: w.convertProperties(resp[0].Properties),
 		Vector:     resp[0].Vector,
 	}, nil
 }
@@ -173,6 +175,13 @@ func (w *weaviatedb) SimilaritySearch(collectionName string, opt *SearchOption) 
 	if opt.Limit > 0 {
 		builder.WithLimit(opt.Limit)
 	}
+	if opt.WhereCondition != nil {
+		if where, err := w.buildWhere(opt.WhereCondition); err == nil {
+			builder.WithWhere(where)
+		} else {
+			return "", err
+		}
+	}
 
 	result, err := builder.Do(w.ctx)
 	if err != nil {
@@ -194,7 +203,7 @@ func (w *weaviatedb) SimilaritySearch(collectionName string, opt *SearchOption) 
 	return "", nil
 }
 
-func (w *weaviatedb) covertProperties(properties models.PropertySchema) map[string]interface{} {
+func (w *weaviatedb) convertProperties(properties models.PropertySchema) map[string]interface{} {
 	propertiesMap := make(map[string]interface{})
 	for k, v := range properties.(map[string]interface{}) {
 		propertiesMap[k] = v
@@ -234,4 +243,66 @@ func (w *weaviatedb) getSearchFields(fields, additionalFields []string) []graphq
 		})
 	}
 	return searchFields
+}
+
+func (w *weaviatedb) buildWhere(condition []*WhereCondition) (*filters.WhereBuilder, error) {
+	if len(condition) == 0 {
+		return nil, errors.New("condition is required")
+	}
+
+	if len(condition) == 1 {
+		return w.parseCondition(condition[0])
+	}
+
+	whereBuilder := filters.Where().WithOperator(filters.And)
+	operands := make([]*filters.WhereBuilder, 0)
+	for _, c := range condition {
+		if operand, err := w.parseCondition(c); err == nil {
+			operands = append(operands, operand)
+		} else {
+			return nil, err
+		}
+	}
+	whereBuilder.WithOperands(operands)
+	return whereBuilder, nil
+}
+
+func (w *weaviatedb) parseCondition(condition *WhereCondition) (*filters.WhereBuilder, error) {
+	if condition == nil {
+		return nil, errors.New("condition is required")
+	}
+	if condition.PropertyName == "" {
+		return nil, errors.New("property name is required")
+	}
+
+	whereBuilder := filters.Where().WithPath([]string{condition.PropertyName})
+
+	switch condition.Operator {
+	case "=", "==", "eq":
+		whereBuilder.WithOperator(filters.Equal)
+	case "!=", "<>", "neq":
+		whereBuilder.WithOperator(filters.NotEqual)
+	case ">", "gt":
+		whereBuilder.WithOperator(filters.GreaterThan)
+	case ">=", "gte":
+		whereBuilder.WithOperator(filters.GreaterThanEqual)
+	case "<", "lt":
+		whereBuilder.WithOperator(filters.LessThan)
+	case "<=", "lte":
+		whereBuilder.WithOperator(filters.LessThanEqual)
+	default:
+		return nil, errors.New("invalid operator")
+	}
+
+	switch condition.Value.TypeString() {
+	case "text":
+		whereBuilder.WithValueString(reflect.ValueOf(condition.Value).String())
+	case "int":
+		whereBuilder.WithValueInt(reflect.ValueOf(condition.Value).Int())
+	case "boolean":
+		whereBuilder.WithValueBoolean(reflect.ValueOf(condition.Value).Bool())
+	case "number":
+		whereBuilder.WithValueNumber(reflect.ValueOf(condition.Value).Float())
+	}
+	return whereBuilder, nil
 }

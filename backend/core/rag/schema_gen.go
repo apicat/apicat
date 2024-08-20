@@ -244,15 +244,14 @@ func (sg *SchemaGenerator) compareResult(ids []map[string]int) bool {
 	for _, v := range ids {
 		if collectionID, ok := v["collection_id"]; ok {
 			c := &collection.Collection{ID: uint(collectionID), ProjectID: sg.projectID}
-			exist, err := c.Get(sg.ctx)
-			if err != nil || !exist {
+			if exist, err := c.Get(sg.ctx); err != nil || !exist {
 				slog.ErrorContext(sg.ctx, "c.Get", "err", err)
 				continue
 			}
 			if specContent, err := c.ContentToSpec(); err != nil {
-				slog.ErrorContext(sg.ctx, "c.ToSpec", "err", err)
+				slog.ErrorContext(sg.ctx, "c.ContentToSpec", "err", err)
 			} else {
-				if specContent.DeepDerefAll(specGlobalParameters, specDefinitions) != nil {
+				if err := specContent.DeepDerefAll(specGlobalParameters, specDefinitions); err != nil {
 					slog.ErrorContext(sg.ctx, "specContent.DeepDerefAll", "err", err)
 				}
 				for _, node := range specContent {
