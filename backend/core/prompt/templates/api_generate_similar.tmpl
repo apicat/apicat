@@ -20,4 +20,5 @@ Please help me generate an OpenAPI document for an HTTP API. This API's summary 
 
 {{ .UserPrompt }}
 Please help me generate an OpenAPI document for an HTTP API. This API's summary is {{ .Context.title }}{{if ne .Context.path ""}}, and the path is {{ .Context.path }}.{{else}}.{{end}}
+If my description doesn't make it clear to you what API I need, you don't have to answer.
 {{ .PromptEnd }}
