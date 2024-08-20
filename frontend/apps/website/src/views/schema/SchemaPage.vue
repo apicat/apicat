@@ -33,6 +33,7 @@ const { inputRef: titleInputRef, focus } = useTitleInputFocus()
 const router = useRouter()
 const { handleIntelligentSchema } = useIntelligentSchema(() => {
   return {
+    schemaID: schema.value?.id,
     title: schema.value?.name,
   }
 })
@@ -107,6 +108,7 @@ watch(schemaIDRef, async (id, oID) => {
   await setDetail(id)
 })
 
+// trigger intelligent schema
 watchDebounced(() => schema.value?.name, async (name, oldName) => {
   // 内容为空时，请求AI接口，获取智能推荐的schema
   if (name && oldName && jsonSchemaTableIns.value?.isEmpty()) {

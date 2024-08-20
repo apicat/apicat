@@ -2,13 +2,14 @@
 import '@apicat/editor/dist/style.css'
 import { storeToRefs } from 'pinia'
 import { useNamespace } from '@apicat/hooks'
+import { useIntelligentSchema } from '../composables/useIntelligentSchema'
 import { useCollection } from './useCollection'
 import useProjectStore from '@/store/project'
 import { useCollectionContext } from '@/hooks/useCollectionContext'
 import CollectionTestPage from '@/views/collection/CollectionTestPage.vue'
 
 defineOptions({ inheritAttrs: false })
-const props = defineProps<{ project_id: string; collectionID?: string }>()
+const props = defineProps<{ project_id: string, collectionID?: string }>()
 const AcEditor = defineAsyncComponent(() => import('@apicat/editor'))
 
 const ns = useNamespace('document')
@@ -28,6 +29,15 @@ const {
   toggleMode,
   titleInputRef,
 } = useCollection(props as any)
+
+const { handleIntelligentSchema } = useIntelligentSchema(() => {
+  return {
+    collectionID: collection?.value?.id,
+    title: collection?.value?.title,
+  }
+})
+
+options.handleIntelligentSchema = handleIntelligentSchema
 
 const testPageRef = ref<InstanceType<typeof CollectionTestPage>>()
 function showTestPage() {

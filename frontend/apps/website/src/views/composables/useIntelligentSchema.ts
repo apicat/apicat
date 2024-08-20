@@ -8,7 +8,7 @@ export function useIntelligentSchema(getParams?: () => any) {
   let isLoading = false
   let requestID
 
-  const handleIntelligentSchema = async (jsonschema: JSONSchema, node: SchemaTreeNode) => {
+  async function handleIntelligentSchema(jsonschema: JSONSchema, node: SchemaTreeNode): Promise<{ nid: string, schema: JSONSchema } | void> {
     // 避免重复请求
     if (isLoading)
       return
@@ -28,10 +28,7 @@ export function useIntelligentSchema(getParams?: () => any) {
         return
 
       const nid = resID.split(':')[1]
-      return {
-        nid,
-        schema,
-      }
+      return { nid, schema } as { nid: string, schema: JSONSchema }
     }
     catch (error) {
       isLoading = false
