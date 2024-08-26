@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
@@ -41,6 +42,10 @@ func convert(k string, s *jsonschema.Schema, depth int) (result []string) {
 						result = append(result, convert(p, v.Properties[p], depth+1)...)
 					}
 				}
+			}
+			if refID, err := v.GetRefID(); err == nil && refID > 0 {
+				refk := "ref" + strconv.FormatInt(refID, 10)
+				result = append(result, convert(refk, v, depth+1)...)
 			}
 		}
 	} else if len(s.AnyOf) > 0 {
