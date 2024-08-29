@@ -312,6 +312,7 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 
 	new := &jsonschema.Schema{}
 	new.SetDefinitionModelRef(strconv.FormatUint(uint64(refID), 10))
+	new.XSuggestion = true
 
 	if len(a.AllOf) > 0 {
 		for _, v := range a.AllOf {
@@ -340,8 +341,10 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 							}
 							tmp := &jsonschema.Schema{}
 							tmp.SetDefinitionModelRef(strconv.FormatUint(uint64(refID), 10))
+							tmp.XSuggestion = true
 							new.AllOf = append(new.AllOf, tmp)
 							new.Reference = nil
+							new.XSuggestion = false
 						}
 					}
 				}
@@ -358,8 +361,10 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 					}
 					tmp := &jsonschema.Schema{}
 					tmp.SetDefinitionModelRef(strconv.FormatUint(uint64(refID), 10))
+					tmp.XSuggestion = true
 					new.AllOf = append(new.AllOf, tmp)
 					new.Reference = nil
+					new.XSuggestion = false
 				}
 			}
 		}
@@ -388,8 +393,10 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 					}
 					tmp := &jsonschema.Schema{}
 					tmp.SetDefinitionModelRef(strconv.FormatUint(uint64(refID), 10))
+					tmp.XSuggestion = true
 					new.AllOf = append(new.AllOf, tmp)
 					new.Reference = nil
+					new.XSuggestion = false
 				}
 			}
 		}
