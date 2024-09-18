@@ -126,15 +126,15 @@ func (cg *CollectionGenerator) getSimilarityContent(cid int) error {
 
 	specDefinitions := &spec.Definitions{}
 	var err error
-	specDefinitions.Schemas, err = definition.GetDefinitionSchemasWithSpec(cg.ctx, cg.collection.ProjectID)
+	specDefinitions.Schemas, err = definition.GetDefinitionSchemasWithSpec(cg.collection.ProjectID)
 	if err != nil {
 		return err
 	}
-	specDefinitions.Responses, err = definition.GetDefinitionResponsesWithSpec(cg.ctx, cg.collection.ProjectID)
+	specDefinitions.Responses, err = definition.GetDefinitionResponsesWithSpec(cg.collection.ProjectID)
 	if err != nil {
 		return err
 	}
-	specGlobalParameters, err := global.GetGlobalParametersWithSpec(cg.ctx, cg.collection.ProjectID)
+	specGlobalParameters, err := global.GetGlobalParametersWithSpec(cg.collection.ProjectID)
 	if err != nil {
 		return err
 	}

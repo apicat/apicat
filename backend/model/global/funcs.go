@@ -17,9 +17,9 @@ func GetGlobalParameters(ctx context.Context, pID string) ([]*GlobalParameter, e
 	return list, err
 }
 
-func GetGlobalParametersWithSpec(ctx context.Context, pID string) (*spec.GlobalParameters, error) {
+func GetGlobalParametersWithSpec(pID string) (*spec.GlobalParameters, error) {
 	var list []*GlobalParameter
-	err := model.DB(ctx).Where("project_id = ?", pID).Order("display_order asc").Find(&list).Error
+	err := model.DBWithoutCtx().Where("project_id = ?", pID).Order("display_order asc").Find(&list).Error
 	if err != nil {
 		return nil, err
 	}

@@ -1,7 +1,6 @@
 package content_suggestion
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -11,79 +10,114 @@ import (
 	"github.com/apicat/apicat/v2/backend/config"
 	"github.com/apicat/apicat/v2/backend/core/content_suggestion/utils"
 	"github.com/apicat/apicat/v2/backend/model/definition"
+	"github.com/apicat/apicat/v2/backend/module/cache"
 	"github.com/apicat/apicat/v2/backend/module/model"
 	"github.com/apicat/apicat/v2/backend/module/spec"
 	"github.com/apicat/apicat/v2/backend/module/vector"
 )
 
 type definitionModelVector struct {
-	ctx            context.Context
 	projectID      string
 	embeddingModel model.Provider
 	vectorDB       vector.VectorApi
 	allModels      spec.DefinitionModels
 }
 
-func NewDefinitionModelVector(ctx context.Context, projectID string) (*definitionModelVector, error) {
+func NewDefinitionModelVector(projectID string) (*definitionModelVector, error) {
 	embeddingModel, err := model.NewModel(config.GetModel().ToModuleStruct("embedding"))
 	if err != nil {
-		slog.ErrorContext(ctx, "model.NewModel", "err", err)
+		slog.Error("model.NewModel", "err", err)
 		return nil, err
 	}
 
 	vectorDB, err := vector.NewVector(config.GetVector().ToModuleStruct())
 	if err != nil {
-		slog.ErrorContext(ctx, "vector.NewVector", "err", err)
+		slog.Error("vector.NewVector", "err", err)
 		return nil, err
 	}
 
 	if ok, err := vectorDB.CheckCollectionExist(projectID); err != nil {
-		slog.ErrorContext(ctx, "vectorDB.CheckCollectionExist", "err", err)
+		slog.Error("vectorDB.CheckCollectionExist", "err", err)
 		return nil, err
 	} else if !ok {
 		err = fmt.Errorf("vector db collection not exist, projectID: %s", projectID)
-		slog.ErrorContext(ctx, "vectorDB.CheckCollectionExist", "err", err)
+		slog.Error("vectorDB.CheckCollectionExist", "err", err)
 		return nil, err
 	}
 
 	return &definitionModelVector{
-		ctx:            ctx,
 		projectID:      projectID,
 		embeddingModel: embeddingModel,
 		vectorDB:       vectorDB,
 	}, nil
 }
 
-func (dm *definitionModelVector) CreateLater(second int, mid uint) {
+func (dm *definitionModelVector) CreateLater(mid uint) {
 	initCache, err := newInitCache(dm.projectID)
 	if err != nil {
-		slog.ErrorContext(dm.ctx, "newInitCache", "err", err)
+		slog.Error("newInitCache", "err", err)
 		return
 	}
 
 	status, err := initCache.GetStatus()
 	if err != nil {
-		slog.ErrorContext(dm.ctx, "cacheWorker.GetStatus", "err", err)
+		slog.Error("cacheWorker.GetStatus", "err", err)
 		return
 	}
 	if status != "" {
 		if err := initCache.SetModelLater(mid); err != nil {
-			slog.ErrorContext(dm.ctx, "cacheWorker.SetModelLater", "err", err)
+			slog.Error("cacheWorker.SetModelLater", "err", err)
 			return
 		}
 	}
 
-	go time.AfterFunc(time.Duration(second)*time.Second, func() {
-		m := &definition.DefinitionSchema{ID: mid, ProjectID: dm.projectID, Type: definition.SchemaSchema}
-		if exist, err := m.Get(dm.ctx); err != nil {
-			slog.ErrorContext(dm.ctx, "m.Get", "err", err)
-			return
-		} else if !exist {
-			slog.ErrorContext(dm.ctx, "m.Get", "err", fmt.Errorf("definition schema id:%d not exist", mid))
+	ca, err := cache.NewCache(config.Get().Cache.ToModuleStruct())
+	if err != nil {
+		slog.Error("cache.NewCache", "err", err)
+		return
+	}
+	if err := ca.Check(); err != nil {
+		slog.Error("cache.Check", "err", err)
+		return
+	}
+	k := fmt.Sprintf("definition_model_vector_create_%s_%d", dm.projectID, mid)
+	if err := ca.LPush(k, mid); err != nil {
+		slog.Error("cache.LPush", "err", err)
+		return
+	}
+	ca.Expire(k, 10*time.Second)
+
+	go time.AfterFunc(5*time.Second, func() {
+		if _, ok, err := ca.RPop(k); err != nil || !ok {
+			if err != nil {
+				slog.Error("cache.RPop", "err", err)
+			} else {
+				slog.Debug("cache.RPop", "err", fmt.Errorf("cache.RPop %s not exist", k))
+			}
 			return
 		}
-		if _, err := dm.CreateNow(m); err != nil {
-			slog.ErrorContext(dm.ctx, "a.Create", "err", err)
+
+		if len, err := ca.LLen(k); err != nil || len > 0 {
+			if err != nil {
+				slog.Error("cache.LLen", "err", err)
+			} else {
+				slog.Debug("cache.LLen", "err", fmt.Errorf("cache.LLen %s(%d) > 0", k, len))
+			}
+			return
+		}
+
+		m := &definition.DefinitionSchema{ID: mid, ProjectID: dm.projectID, Type: definition.SchemaSchema}
+		if exist, err := m.GetWithoutCtx(); err != nil {
+			slog.Error("m.Get", "err", err)
+			return
+		} else if !exist {
+			slog.Error("m.Get", "err", fmt.Errorf("definition schema id:%d not exist", mid))
+			return
+		}
+		if vid, err := dm.CreateNow(m); err != nil {
+			slog.Error("a.Create", "err", err)
+		} else {
+			slog.Debug("definition model vector create success", "id", mid, "vid", vid)
 		}
 	})
 }
@@ -112,7 +146,7 @@ func (dm *definitionModelVector) CreateNow(ds *definition.DefinitionSchema) (str
 
 	embedding, err := dm.createEmbeddings(ds.ID)
 	if err != nil {
-		slog.ErrorContext(dm.ctx, "dm.createEmbeddings", "err", err)
+		slog.Error("dm.createEmbeddings", "err", err)
 		return "", err
 	}
 
@@ -128,7 +162,7 @@ func (dm *definitionModelVector) CreateNow(ds *definition.DefinitionSchema) (str
 	if vectorID, err := dm.vectorDB.CreateObject(dm.projectID, data); err != nil {
 		return "", err
 	} else {
-		ds.UpdateVectorID(dm.ctx, vectorID)
+		ds.UpdateVectorID(vectorID)
 		return vectorID, nil
 	}
 }
@@ -148,10 +182,14 @@ func (dm *definitionModelVector) Update(ds *definition.DefinitionSchema) error {
 	}
 
 	if ok, err := dm.vectorDB.CheckObjectExist(dm.projectID, ds.VectorID); err != nil {
-		slog.ErrorContext(dm.ctx, "dm.vectorDB.CheckObjectExist", "err", err)
+		slog.Error("dm.vectorDB.CheckObjectExist", "err", err)
 		return err
 	} else if !ok {
 		return errors.New("vector object not exist")
+	}
+
+	if err := dm.getAllModels(); err != nil {
+		return err
 	}
 
 	embedding, err := dm.createEmbeddings(ds.ID)
@@ -184,7 +222,7 @@ func (dm *definitionModelVector) Delete(ds *definition.DefinitionSchema) error {
 	}
 
 	if ok, err := dm.vectorDB.CheckObjectExist(dm.projectID, ds.VectorID); err != nil {
-		slog.ErrorContext(dm.ctx, "dm.vectorDB.CheckObjectExist", "err", err)
+		slog.Error("dm.vectorDB.CheckObjectExist", "err", err)
 		return err
 	} else if !ok {
 		return nil
@@ -216,9 +254,9 @@ func (dm *definitionModelVector) getAllModels() error {
 	}
 
 	var err error
-	dm.allModels, err = definition.GetDefinitionSchemasWithSpec(dm.ctx, dm.projectID)
+	dm.allModels, err = definition.GetDefinitionSchemasWithSpec(dm.projectID)
 	if err != nil {
-		slog.ErrorContext(dm.ctx, "definition.GetDefinitionSchemasWithSpec", "err", err)
+		slog.Error("definition.GetDefinitionSchemasWithSpec", "err", err)
 		return err
 	}
 	return nil

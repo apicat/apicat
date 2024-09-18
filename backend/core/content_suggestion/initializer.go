@@ -1,7 +1,6 @@
 package content_suggestion
 
 import (
-	"context"
 	"log/slog"
 
 	"github.com/apicat/apicat/v2/backend/config"
@@ -11,14 +10,13 @@ import (
 )
 
 type VectorInitializer struct {
-	ctx                   context.Context
 	projectID             string
 	initCache             *initCache
 	apiVector             *ApiVector
 	definitionModelVector *definitionModelVector
 }
 
-func NewVectorInitializer(ctx context.Context, projectID string) (*VectorInitializer, error) {
+func NewVectorInitializer(projectID string) (*VectorInitializer, error) {
 	initCache, err := newInitCache(projectID)
 	if err != nil {
 		return nil, err
@@ -27,45 +25,44 @@ func NewVectorInitializer(ctx context.Context, projectID string) (*VectorInitial
 	return &VectorInitializer{
 		projectID: projectID,
 		initCache: initCache,
-		ctx:       ctx,
 	}, nil
 }
 
 func (vi *VectorInitializer) Run() {
 	vectorDB, err := vector.NewVector(config.GetVector().ToModuleStruct())
 	if err != nil {
-		slog.ErrorContext(vi.ctx, "VectorInitializer.Run", "err", err)
+		slog.Error("VectorInitializer.Run", "err", err)
 		return
 	}
 	if exist, err := vectorDB.CheckCollectionExist(vi.projectID); err != nil {
-		slog.ErrorContext(vi.ctx, "VectorInitializer.Run", "err", err)
+		slog.Error("VectorInitializer.Run", "err", err)
 		return
 	} else {
 		if exist {
-			slog.DebugContext(vi.ctx, "VectorInitializer.Run", "The vector database already exists", vi.projectID)
+			slog.Debug("VectorInitializer.Run", "The vector database already exists", vi.projectID)
 			return
 		}
 	}
 	if err := vectorDB.CreateCollection(vi.projectID, getAPIContentProperties()); err != nil {
-		slog.ErrorContext(vi.ctx, "VectorInitializer.Run", "err", err)
+		slog.Error("VectorInitializer.Run", "err", err)
 		return
 	}
 
 	if status, err := vi.initCache.GetStatus(); err != nil {
-		slog.ErrorContext(vi.ctx, "VectorInitializer.Run", "err", err)
+		slog.Error("VectorInitializer.Run", "err", err)
 	} else if status != "" {
-		slog.DebugContext(vi.ctx, "VectorInitializer.Run", "The VectorInitializer is already running status:", status)
+		slog.Debug("VectorInitializer.Run", "The VectorInitializer is already running status:", status)
 	} else {
-		slog.DebugContext(vi.ctx, "VectorInitializer.Run", "The VectorInitializer starts running", vi.projectID)
+		slog.Debug("VectorInitializer.Run", "The VectorInitializer starts running", vi.projectID)
 		vi.createEmbeddings()
-		slog.DebugContext(vi.ctx, "VectorInitializer.Run", "The VectorInitializer finished", vi.projectID)
+		slog.Debug("VectorInitializer.Run", "The VectorInitializer finished", vi.projectID)
 	}
 }
 
 func (vi *VectorInitializer) createEmbeddings() {
-	collections, err := collection.GetCollections(vi.ctx, vi.projectID)
+	collections, err := collection.GetCollectionsWithoutCtx(vi.projectID)
 	if err != nil {
-		slog.ErrorContext(vi.ctx, "VectorInitializer.collection.GetCollections", "err", err)
+		slog.Error("VectorInitializer.collection.GetCollections", "err", err)
 		return
 	}
 	for _, c := range collections {
@@ -76,9 +73,9 @@ func (vi *VectorInitializer) createEmbeddings() {
 		vi.createCollectionEmbedding(c)
 	}
 
-	models, err := definition.GetDefinitionSchemas(vi.ctx, vi.projectID)
+	models, err := definition.GetDefinitionSchemasWithoutCtx(vi.projectID)
 	if err != nil {
-		slog.ErrorContext(vi.ctx, "VectorInitializer.definition.GetDefinitionSchemas", "err", err)
+		slog.Error("VectorInitializer.definition.GetDefinitionSchemas", "err", err)
 		return
 	}
 	for _, m := range models {
@@ -93,7 +90,7 @@ func (vi *VectorInitializer) createEmbeddings() {
 	vi.createModelLater()
 
 	if err := vi.initCache.Finished(); err != nil {
-		slog.ErrorContext(vi.ctx, "VectorInitializer.vi.initCache.Finished", "err", err)
+		slog.Error("VectorInitializer.vi.initCache.Finished", "err", err)
 		return
 	}
 }
@@ -101,42 +98,42 @@ func (vi *VectorInitializer) createEmbeddings() {
 func (vi *VectorInitializer) createCollectionEmbedding(c *collection.Collection) {
 	var err error
 	if vi.apiVector == nil {
-		if vi.apiVector, err = NewApiVector(vi.ctx, vi.projectID); err != nil {
-			slog.ErrorContext(vi.ctx, "VectorInitializer.NewApiVector", "err", err)
+		if vi.apiVector, err = NewApiVector(vi.projectID); err != nil {
+			slog.Error("VectorInitializer.NewApiVector", "err", err)
 			return
 		}
 	}
 
 	if _, err := vi.apiVector.CreateNow(c); err != nil {
-		slog.ErrorContext(vi.ctx, "VectorInitializer.vi.apiVector.CreateNow", "err", err)
+		slog.Error("VectorInitializer.vi.apiVector.CreateNow", "err", err)
 	}
 }
 
 func (vi *VectorInitializer) createModelEmbedding(m *definition.DefinitionSchema) {
 	var err error
 	if vi.definitionModelVector == nil {
-		if vi.definitionModelVector, err = NewDefinitionModelVector(vi.ctx, vi.projectID); err != nil {
-			slog.ErrorContext(vi.ctx, "VectorInitializer.NewDefinitionModelVector", "err", err)
+		if vi.definitionModelVector, err = NewDefinitionModelVector(vi.projectID); err != nil {
+			slog.Error("VectorInitializer.NewDefinitionModelVector", "err", err)
 			return
 		}
 	}
 
 	if _, err := vi.definitionModelVector.CreateNow(m); err != nil {
-		slog.ErrorContext(vi.ctx, "VectorInitializer.vi.definitionModelVector.CreateNow", "err", err)
+		slog.Error("VectorInitializer.vi.definitionModelVector.CreateNow", "err", err)
 	}
 }
 
 func (vi *VectorInitializer) createCollectionLater() {
-	apiVector, err := NewApiVector(vi.ctx, vi.projectID)
+	apiVector, err := NewApiVector(vi.projectID)
 	if err != nil {
-		slog.ErrorContext(vi.ctx, "VectorInitializer.NewApiVector", "err", err)
+		slog.Error("VectorInitializer.NewApiVector", "err", err)
 		return
 	}
 
 	for {
 		id, err := vi.initCache.GetCollectionLater()
 		if err != nil {
-			slog.ErrorContext(vi.ctx, "VectorInitializer.vi.initCache.GetCollectionLater", "err", err)
+			slog.Error("VectorInitializer.vi.initCache.GetCollectionLater", "err", err)
 			return
 		}
 		if id == 0 {
@@ -144,29 +141,29 @@ func (vi *VectorInitializer) createCollectionLater() {
 		}
 
 		c := &collection.Collection{ID: id, ProjectID: vi.projectID, Type: collection.HttpType}
-		if exist, err := c.Get(vi.ctx); err != nil || !exist {
+		if exist, err := c.GetWithoutCtx(); err != nil || !exist {
 			if err != nil {
-				slog.ErrorContext(vi.ctx, "VectorInitializer.c.Get", "err", err)
+				slog.Error("VectorInitializer.c.Get", "err", err)
 			}
 			continue
 		}
 		if _, err := apiVector.CreateNow(c); err != nil {
-			slog.ErrorContext(vi.ctx, "VectorInitializer.apiVector.CreateNow", "err", err)
+			slog.Error("VectorInitializer.apiVector.CreateNow", "err", err)
 		}
 	}
 }
 
 func (vi *VectorInitializer) createModelLater() {
-	definitionModelVector, err := NewDefinitionModelVector(vi.ctx, vi.projectID)
+	definitionModelVector, err := NewDefinitionModelVector(vi.projectID)
 	if err != nil {
-		slog.ErrorContext(vi.ctx, "VectorInitializer.NewDefinitionModelVector", "err", err)
+		slog.Error("VectorInitializer.NewDefinitionModelVector", "err", err)
 		return
 	}
 
 	for {
 		id, err := vi.initCache.GetModelLater()
 		if err != nil {
-			slog.ErrorContext(vi.ctx, "VectorInitializer.vi.initCache.GetModelLater", "err", err)
+			slog.Error("VectorInitializer.vi.initCache.GetModelLater", "err", err)
 			return
 		}
 		if id == 0 {
@@ -174,14 +171,14 @@ func (vi *VectorInitializer) createModelLater() {
 		}
 
 		m := &definition.DefinitionSchema{ID: id, ProjectID: vi.projectID, Type: definition.SchemaSchema}
-		if exist, err := m.Get(vi.ctx); err != nil || !exist {
+		if exist, err := m.GetWithoutCtx(); err != nil || !exist {
 			if err != nil {
-				slog.ErrorContext(vi.ctx, "VectorInitializer.m.Get", "err", err)
+				slog.Error("VectorInitializer.m.Get", "err", err)
 			}
 			continue
 		}
 		if _, err := definitionModelVector.CreateNow(m); err != nil {
-			slog.ErrorContext(vi.ctx, "VectorInitializer.definitionModelVector.CreateNow", "err", err)
+			slog.Error("VectorInitializer.definitionModelVector.CreateNow", "err", err)
 		}
 	}
 }

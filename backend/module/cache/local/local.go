@@ -62,6 +62,10 @@ func (l *localCache) RPop(k string) (string, bool, error) {
 	return "", false, nil
 }
 
+func (l *localCache) LLen(k string) (int64, error) {
+	return 0, nil
+}
+
 func (l *localCache) Expire(k string, du time.Duration) error {
 	return nil
 }

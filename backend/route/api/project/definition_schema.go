@@ -16,6 +16,7 @@ import (
 	projectrequest "github.com/apicat/apicat/v2/backend/route/proto/project/request"
 	projectresponse "github.com/apicat/apicat/v2/backend/route/proto/project/response"
 	"github.com/apicat/apicat/v2/backend/service/ai"
+	definitionservice "github.com/apicat/apicat/v2/backend/service/definition"
 	"github.com/apicat/apicat/v2/backend/service/reference"
 
 	"github.com/apicat/ginrpc"
@@ -153,17 +154,19 @@ func (dsai *definitionSchemaApiImpl) Update(ctx *gin.Context, opt *projectreques
 	ds.Description = opt.Description
 	ds.Schema = opt.Schema
 
+	if err := ds.Update(ctx, opt.Name, opt.Description, opt.Schema, selfTM.ID); err != nil {
+		slog.ErrorContext(ctx, "ds.Update", "err", err)
+		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+	}
+
 	// 编辑模型后更新模型的引用关系
 	if ds.Type != definition.SchemaCategory {
 		// 更新模型引用关系
 		if err := reference.UpdateSchemaRef(ctx, ds, oldRefSchemaIDs); err != nil {
 			slog.ErrorContext(ctx, "reference.UpdateSchemaRef", "err", err)
 		}
-	}
 
-	if err := ds.Update(ctx, opt.Name, opt.Description, opt.Schema, selfTM.ID); err != nil {
-		slog.ErrorContext(ctx, "ds.Update", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+		definitionservice.NewDefinitionModelService(ctx).UpdateVector(ds)
 	}
 
 	return &ginrpc.Empty{}, nil

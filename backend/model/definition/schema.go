@@ -37,6 +37,15 @@ type DefinitionSchema struct {
 
 func (ds *DefinitionSchema) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)
+	return ds.getRecord(tx)
+}
+
+func (ds *DefinitionSchema) GetWithoutCtx() (bool, error) {
+	tx := model.DBWithoutCtx()
+	return ds.getRecord(tx)
+}
+
+func (ds *DefinitionSchema) getRecord(tx *gorm.DB) (bool, error) {
 	if ds.ID != 0 && ds.ProjectID != "" {
 		tx = tx.Take(ds, "id = ? AND project_id = ?", ds.ID, ds.ProjectID)
 	} else if ds.ProjectID != "" && ds.Name != "" {
@@ -96,8 +105,8 @@ func (ds *DefinitionSchema) Update(ctx context.Context, name, description, schem
 	}).Error
 }
 
-func (ds *DefinitionSchema) UpdateVectorID(ctx context.Context, vectorID string) error {
-	return model.DB(ctx).Model(ds).Update("vector_id", vectorID).Error
+func (ds *DefinitionSchema) UpdateVectorID(vectorID string) error {
+	return model.DBWithoutCtx().Model(ds).Update("vector_id", vectorID).Error
 }
 
 func (ds *DefinitionSchema) Delete(ctx context.Context, tm *team.TeamMember) error {

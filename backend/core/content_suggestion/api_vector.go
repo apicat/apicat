@@ -1,7 +1,6 @@
 package content_suggestion
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"log/slog"
@@ -13,13 +12,13 @@ import (
 	"github.com/apicat/apicat/v2/backend/model/collection"
 	"github.com/apicat/apicat/v2/backend/model/definition"
 	"github.com/apicat/apicat/v2/backend/model/global"
+	"github.com/apicat/apicat/v2/backend/module/cache"
 	"github.com/apicat/apicat/v2/backend/module/model"
 	"github.com/apicat/apicat/v2/backend/module/spec"
 	"github.com/apicat/apicat/v2/backend/module/vector"
 )
 
 type ApiVector struct {
-	ctx                  context.Context
 	projectID            string
 	embeddingModel       model.Provider
 	vectorDB             vector.VectorApi
@@ -27,66 +26,101 @@ type ApiVector struct {
 	specGlobalParameters *spec.GlobalParameters
 }
 
-func NewApiVector(ctx context.Context, projectID string) (*ApiVector, error) {
+func NewApiVector(projectID string) (*ApiVector, error) {
 	embeddingModel, err := model.NewModel(config.GetModel().ToModuleStruct("embedding"))
 	if err != nil {
-		slog.ErrorContext(ctx, "model.NewModel", "err", err)
+		slog.Error("model.NewModel", "err", err)
 		return nil, err
 	}
 
 	vectorDB, err := vector.NewVector(config.GetVector().ToModuleStruct())
 	if err != nil {
-		slog.ErrorContext(ctx, "vector.NewVector", "err", err)
+		slog.Error("vector.NewVector", "err", err)
 		return nil, err
 	}
 
 	if ok, err := vectorDB.CheckCollectionExist(projectID); err != nil {
-		slog.ErrorContext(ctx, "vectorDB.CheckCollectionExist", "err", err)
+		slog.Error("vectorDB.CheckCollectionExist", "err", err)
 		return nil, err
 	} else if !ok {
 		err = fmt.Errorf("vector db collection not exist, projectID: %s", projectID)
-		slog.ErrorContext(ctx, "vectorDB.CheckCollectionExist", "err", err)
+		slog.Error("vectorDB.CheckCollectionExist", "err", err)
 		return nil, err
 	}
 
 	return &ApiVector{
-		ctx:            ctx,
 		projectID:      projectID,
 		embeddingModel: embeddingModel,
 		vectorDB:       vectorDB,
 	}, nil
 }
 
-func (a *ApiVector) CreateLater(second int, cid uint) {
+func (a *ApiVector) CreateLater(cid uint) {
 	initCache, err := newInitCache(a.projectID)
 	if err != nil {
-		slog.ErrorContext(a.ctx, "newInitCache", "err", err)
+		slog.Error("newInitCache", "err", err)
 		return
 	}
 
 	status, err := initCache.GetStatus()
 	if err != nil {
-		slog.ErrorContext(a.ctx, "cacheWorker.GetStatus", "err", err)
+		slog.Error("cacheWorker.GetStatus", "err", err)
 		return
 	}
 	if status != "" {
 		if err := initCache.SetCollectionLater(cid); err != nil {
-			slog.ErrorContext(a.ctx, "cacheWorker.SetCollectionLater", "err", err)
+			slog.Error("cacheWorker.SetCollectionLater", "err", err)
 			return
 		}
 	}
 
-	go time.AfterFunc(time.Duration(second)*time.Second, func() {
-		doc := &collection.Collection{ID: cid, ProjectID: a.projectID, Type: collection.HttpType}
-		if exist, err := doc.Get(a.ctx); err != nil {
-			slog.ErrorContext(a.ctx, "doc.Get", "err", err)
-			return
-		} else if !exist {
-			slog.ErrorContext(a.ctx, "doc.Get", "err", fmt.Errorf("doc id:%d not exist", cid))
+	ca, err := cache.NewCache(config.Get().Cache.ToModuleStruct())
+	if err != nil {
+		slog.Error("cache.NewCache", "err", err)
+		return
+	}
+	if err := ca.Check(); err != nil {
+		slog.Error("cache.Check", "err", err)
+		return
+	}
+	k := fmt.Sprintf("api_vector_create_%s_%d", a.projectID, cid)
+	if err := ca.LPush(k, cid); err != nil {
+		slog.Error("cache.LPush", "err", err)
+		return
+	}
+	ca.Expire(k, 10*time.Second)
+
+	go time.AfterFunc(5*time.Second, func() {
+		if _, ok, err := ca.RPop(k); err != nil || !ok {
+			if err != nil {
+				slog.Error("cache.RPop", "err", err)
+			} else {
+				slog.Debug("cache.RPop", "err", fmt.Errorf("cache.RPop %s not exist", k))
+			}
 			return
 		}
-		if _, err := a.CreateNow(doc); err != nil {
-			slog.ErrorContext(a.ctx, "a.Create", "err", err)
+
+		if len, err := ca.LLen(k); err != nil || len > 0 {
+			if err != nil {
+				slog.Error("cache.LLen", "err", err)
+			} else {
+				slog.Debug("cache.LLen", "err", fmt.Errorf("cache.LLen %s(%d) > 0", k, len))
+			}
+			return
+		}
+
+		doc := &collection.Collection{ID: cid, ProjectID: a.projectID, Type: collection.HttpType}
+		if exist, err := doc.GetWithoutCtx(); err != nil {
+			slog.Error("doc.Get", "err", err)
+			return
+		} else if !exist {
+			slog.Error("doc.Get", "err", fmt.Errorf("doc id:%d not exist", cid))
+			return
+		}
+		if vid, err := a.CreateNow(doc); err != nil {
+			slog.Error("a.Create", "err", err)
+		} else {
+			slog.Debug("api vector create success", "id", cid, "vid", vid)
 		}
 	})
 }
@@ -130,7 +164,7 @@ func (a *ApiVector) CreateNow(doc *collection.Collection) (string, error) {
 	if vectorID, err := a.vectorDB.CreateObject(a.projectID, data); err != nil {
 		return "", err
 	} else {
-		doc.UpdateVectorID(a.ctx, vectorID)
+		doc.UpdateVectorID(vectorID)
 		return vectorID, nil
 	}
 }
@@ -200,12 +234,12 @@ func (a *ApiVector) Delete(doc *collection.Collection) error {
 func (a *ApiVector) createEmbeddings(doc *collection.Collection) ([]float32, error) {
 	specContent, err := doc.ContentToSpec()
 	if err != nil {
-		slog.ErrorContext(a.ctx, "ad.doc.ContentToSpec", "err", err)
+		slog.Error("ad.doc.ContentToSpec", "err", err)
 		return nil, err
 	}
 
 	if err := specContent.DeepDerefAll(a.specGlobalParameters, a.specDefinitions); err != nil {
-		slog.ErrorContext(a.ctx, "specContent.DeepDerefAll", "err", err)
+		slog.Error("specContent.DeepDerefAll", "err", err)
 		return nil, err
 	}
 
@@ -253,16 +287,16 @@ func (a *ApiVector) getAllReferences() error {
 	var err error
 
 	a.specDefinitions = &spec.Definitions{}
-	a.specDefinitions.Schemas, err = definition.GetDefinitionSchemasWithSpec(a.ctx, a.projectID)
+	a.specDefinitions.Schemas, err = definition.GetDefinitionSchemasWithSpec(a.projectID)
 	if err != nil {
 		return err
 	}
-	a.specDefinitions.Responses, err = definition.GetDefinitionResponsesWithSpec(a.ctx, a.projectID)
+	a.specDefinitions.Responses, err = definition.GetDefinitionResponsesWithSpec(a.projectID)
 	if err != nil {
 		return err
 	}
 
-	a.specGlobalParameters, err = global.GetGlobalParametersWithSpec(a.ctx, a.projectID)
+	a.specGlobalParameters, err = global.GetGlobalParametersWithSpec(a.projectID)
 	if err != nil {
 		return err
 	}

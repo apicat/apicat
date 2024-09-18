@@ -21,6 +21,7 @@ import (
 	collectionrequest "github.com/apicat/apicat/v2/backend/route/proto/collection/request"
 	collectionresponse "github.com/apicat/apicat/v2/backend/route/proto/collection/response"
 	"github.com/apicat/apicat/v2/backend/service/ai"
+	collectionservice "github.com/apicat/apicat/v2/backend/service/collection"
 	"github.com/apicat/apicat/v2/backend/service/except"
 	"github.com/apicat/apicat/v2/backend/service/reference"
 	"github.com/apicat/apicat/v2/backend/service/relations"
@@ -239,6 +240,8 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 		if err := reference.UpdateCollectionRef(ctx, c, oldRefSchemaIDs, oldRefResponseIDs, oldExceptparamIDs); err != nil {
 			slog.ErrorContext(ctx, "collectionrelations.UpdateCollectionRef", "err", err)
 		}
+
+		collectionservice.NewCollectionService(ctx).CreateVector(c.ProjectID, c.ID)
 	}
 
 	return &ginrpc.Empty{}, nil

@@ -169,7 +169,7 @@ func (pai *projectApiImpl) Get(ctx *gin.Context, opt *projectrequest.GetProjectD
 		pm = &project.ProjectMember{ProjectID: p.ID, Permission: project.ProjectMemberNone}
 	}
 
-	if init, err := content_suggestion.NewVectorInitializer(ctx, p.ID); err != nil {
+	if init, err := content_suggestion.NewVectorInitializer(p.ID); err != nil {
 		slog.ErrorContext(ctx, "content_suggestion.NewVectorInitializer", "err", err)
 	} else {
 		init.Run()

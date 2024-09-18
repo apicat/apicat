@@ -294,7 +294,7 @@ func dsDerefWithSpec(ctx *gin.Context, ds *definition.DefinitionSchema) (*spec.D
 		return nil, err
 	}
 
-	schemas, err := definition.GetDefinitionSchemasWithSpec(ctx, ds.ProjectID)
+	schemas, err := definition.GetDefinitionSchemasWithSpec(ds.ProjectID)
 	if err != nil {
 		return nil, err
 	}

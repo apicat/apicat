@@ -217,17 +217,17 @@ func (sg *SchemaGenerator) similaritySearch() ([]map[string]int, error) {
 func (sg *SchemaGenerator) compareResult(ids []map[string]int) bool {
 	specDefinitions := &spec.Definitions{}
 	var err error
-	specDefinitions.Schemas, err = definition.GetDefinitionSchemasWithSpec(sg.ctx, sg.projectID)
+	specDefinitions.Schemas, err = definition.GetDefinitionSchemasWithSpec(sg.projectID)
 	if err != nil {
 		slog.ErrorContext(sg.ctx, "definition.GetDefinitionSchemasWithSpec", "err", err)
 		return false
 	}
-	specDefinitions.Responses, err = definition.GetDefinitionResponsesWithSpec(sg.ctx, sg.projectID)
+	specDefinitions.Responses, err = definition.GetDefinitionResponsesWithSpec(sg.projectID)
 	if err != nil {
 		slog.ErrorContext(sg.ctx, "definition.GetDefinitionResponsesWithSpec", "err", err)
 		return false
 	}
-	specGlobalParameters, err := global.GetGlobalParametersWithSpec(sg.ctx, sg.projectID)
+	specGlobalParameters, err := global.GetGlobalParametersWithSpec(sg.projectID)
 	if err != nil {
 		slog.ErrorContext(sg.ctx, "global.GetGlobalParametersWithSpec", "err", err)
 		return false

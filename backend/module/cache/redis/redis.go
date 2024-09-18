@@ -76,6 +76,17 @@ func (r *redisCache) RPop(k string) (string, bool, error) {
 	}
 }
 
+func (r *redisCache) LLen(k string) (int64, error) {
+	result, err := r.client.LLen(r.ctx, k).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return 0, nil
+		}
+		return 0, err
+	}
+	return result, nil
+}
+
 func (r *redisCache) Expire(k string, du time.Duration) error {
 	err := r.client.Expire(r.ctx, k, du).Err()
 	if err != nil {
