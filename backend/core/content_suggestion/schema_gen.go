@@ -1,4 +1,4 @@
-package rag
+package content_suggestion
 
 import (
 	"context"
@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 
-	"github.com/apicat/apicat/v2/backend/core/rag/utils"
+	"github.com/apicat/apicat/v2/backend/core/content_suggestion/utils"
 	"github.com/apicat/apicat/v2/backend/model/collection"
 	"github.com/apicat/apicat/v2/backend/model/definition"
 	"github.com/apicat/apicat/v2/backend/model/global"

@@ -1,4 +1,4 @@
-package rag
+package content_suggestion
 
 import (
 	"fmt"
