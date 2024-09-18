@@ -54,6 +54,18 @@ func (l *localCache) Del(k string) error {
 	return nil
 }
 
+func (l *localCache) LPush(k string, values ...interface{}) error {
+	return nil
+}
+
+func (l *localCache) RPop(k string) (string, bool, error) {
+	return "", false, nil
+}
+
+func (l *localCache) Expire(k string, du time.Duration) error {
+	return nil
+}
+
 // func NewLocalCache[T any]() cache.Cache[T] {
 // 	c := &localCache{}
 // 	go func() {

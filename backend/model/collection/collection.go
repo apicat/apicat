@@ -130,6 +130,10 @@ func (c *Collection) Update(ctx context.Context, title, content string, memberID
 	}).Error
 }
 
+func (c *Collection) UpdateVectorID(ctx context.Context, vectorID string) error {
+	return model.DB(ctx).Model(c).Update("vector_id", vectorID).Error
+}
+
 // UpdateShareKey 更新项目分享密码
 func (c *Collection) UpdateShareKey(ctx context.Context) error {
 	if c.ID == 0 {
