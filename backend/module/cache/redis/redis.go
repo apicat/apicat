@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -48,7 +47,8 @@ func (r *redisCache) Set(k string, data string, du time.Duration) error {
 func (r *redisCache) Get(k string) (string, bool, error) {
 	val, err := r.client.Get(r.ctx, k).Result()
 	if err == redis.Nil {
-		return "", false, fmt.Errorf("key does not exist")
+		// key does not exist
+		return "", false, nil
 	} else if err != nil {
 		return "", false, err
 	} else {
@@ -67,7 +67,8 @@ func (r *redisCache) LPush(k string, values ...interface{}) error {
 func (r *redisCache) RPop(k string) (string, bool, error) {
 	result, err := r.client.RPop(r.ctx, k).Result()
 	if err == redis.Nil {
-		return "", false, fmt.Errorf("key does not exist")
+		// key does not exist
+		return "", false, nil
 	} else if err != nil {
 		return "", false, err
 	} else {

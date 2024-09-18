@@ -71,6 +71,9 @@ func (w *weaviatedb) CreateCollection(name string, properties Properties) error 
 
 func (w *weaviatedb) CheckCollectionExist(name string) (bool, error) {
 	if _, err := w.client.Schema().ClassGetter().WithClassName(w.getValidCollectionName(name)).Do(w.ctx); err != nil {
+		if status, ok := err.(*fault.WeaviateClientError); ok && status.StatusCode == http.StatusNotFound {
+			return false, nil
+		}
 		return false, err
 	}
 	return true, nil
@@ -136,7 +139,13 @@ func (w *weaviatedb) GetObjectByID(collectionName string, id string) (*ObjectDat
 }
 
 func (w *weaviatedb) CheckObjectExist(collectionName string, id string) (bool, error) {
-	return w.client.Data().Checker().WithClassName(w.getValidCollectionName(collectionName)).WithID(id).Do(w.ctx)
+	if _, err := w.client.Data().Checker().WithClassName(w.getValidCollectionName(collectionName)).WithID(id).Do(w.ctx); err != nil {
+		if status, ok := err.(*fault.WeaviateClientError); ok && status.StatusCode == http.StatusNotFound {
+			return false, nil
+		}
+		return false, err
+	}
+	return true, nil
 }
 
 func (w *weaviatedb) UpdateObject(collectionName string, id string, object *ObjectData) error {

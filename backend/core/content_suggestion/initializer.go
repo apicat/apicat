@@ -42,6 +42,7 @@ func (vi *VectorInitializer) Run() {
 		return
 	} else {
 		if exist {
+			slog.DebugContext(vi.ctx, "VectorInitializer.Run", "The vector database already exists", vi.projectID)
 			return
 		}
 	}
@@ -55,7 +56,9 @@ func (vi *VectorInitializer) Run() {
 	} else if status != "" {
 		slog.DebugContext(vi.ctx, "VectorInitializer.Run", "The VectorInitializer is already running status:", status)
 	} else {
+		slog.DebugContext(vi.ctx, "VectorInitializer.Run", "The VectorInitializer starts running", vi.projectID)
 		vi.createEmbeddings()
+		slog.DebugContext(vi.ctx, "VectorInitializer.Run", "The VectorInitializer finished", vi.projectID)
 	}
 }
 

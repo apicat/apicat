@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/apicat/apicat/v2/backend/config"
+	"github.com/apicat/apicat/v2/backend/core/content_suggestion"
 	"github.com/apicat/apicat/v2/backend/i18n"
 	"github.com/apicat/apicat/v2/backend/model/collection"
 	"github.com/apicat/apicat/v2/backend/model/project"
@@ -166,6 +167,12 @@ func (pai *projectApiImpl) Get(ctx *gin.Context, opt *projectrequest.GetProjectD
 
 	if jwt.GetUser(ctx) == nil || pm == nil {
 		pm = &project.ProjectMember{ProjectID: p.ID, Permission: project.ProjectMemberNone}
+	}
+
+	if init, err := content_suggestion.NewVectorInitializer(ctx, p.ID); err != nil {
+		slog.ErrorContext(ctx, "content_suggestion.NewVectorInitializer", "err", err)
+	} else {
+		init.Run()
 	}
 
 	cfg := config.GetApp()
