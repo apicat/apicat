@@ -1,7 +1,8 @@
-package rag
+package utils
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/apicat/apicat/v2/backend/module/spec/jsonschema"
@@ -18,12 +19,20 @@ func SchemaToText(k string, s *jsonschema.Schema) string {
 	return ""
 }
 
+func SchemaToTextList(k string, s *jsonschema.Schema) []string {
+	if k == "" || s == nil {
+		return nil
+	}
+
+	return convert(k, s, 0)
+}
+
 func convert(k string, s *jsonschema.Schema, depth int) (result []string) {
 	if k == "" || s == nil {
 		return result
 	}
 
-	result = append(result, genStr(k, s.Description, depth))
+	result = append(result, genText(k, s.Description, depth))
 
 	if len(s.AllOf) > 0 {
 		for _, v := range s.AllOf {
@@ -33,6 +42,10 @@ func convert(k string, s *jsonschema.Schema, depth int) (result []string) {
 						result = append(result, convert(p, v.Properties[p], depth+1)...)
 					}
 				}
+			}
+			if refID, err := v.GetRefID(); err == nil && refID > 0 {
+				refk := "ref" + strconv.FormatInt(refID, 10)
+				result = append(result, convert(refk, v, depth+1)...)
 			}
 		}
 	} else if len(s.AnyOf) > 0 {
@@ -56,6 +69,6 @@ func convert(k string, s *jsonschema.Schema, depth int) (result []string) {
 	return result
 }
 
-func genStr(name, description string, depth int) string {
+func genText(name, description string, depth int) string {
 	return fmt.Sprintf("%s%s: %s", strings.Repeat("  ", depth), name, description)
 }

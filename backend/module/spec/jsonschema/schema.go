@@ -54,11 +54,13 @@ type Schema struct {
 	Format string `json:"format,omitempty" yaml:"format,omitempty"`
 
 	// Extension
-	ID       int64    `json:"id,omitempty" yaml:"id,omitempty"`
-	XOrder   []string `json:"x-apicat-orders,omitempty" yaml:"x-apicat-orders,omitempty"`
-	XMock    string   `json:"x-apicat-mock,omitempty" yaml:"x-apicat-mock,omitempty"`
-	XDiff    string   `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
-	Nullable *bool    `json:"nullable,omitempty" yaml:"nullable,omitempty"`
+	ID          int64    `json:"id,omitempty" yaml:"id,omitempty"`
+	XOrder      []string `json:"x-apicat-orders,omitempty" yaml:"x-apicat-orders,omitempty"`
+	XMock       string   `json:"x-apicat-mock,omitempty" yaml:"x-apicat-mock,omitempty"`
+	XDiff       string   `json:"x-apicat-diff,omitempty" yaml:"x-apicat-diff,omitempty"`
+	XFocus      bool     `json:"x-apicat-focus,omitempty" yaml:"x-apicat-focus,omitempty"`
+	XSuggestion bool     `json:"x-apicat-suggestion,omitempty" yaml:"x-apicat-suggestion,omitempty"`
+	Nullable    *bool    `json:"nullable,omitempty" yaml:"nullable,omitempty"`
 }
 
 var coreTypes = []string{
@@ -250,11 +252,11 @@ func (s *Schema) ReplaceRef(ref *Schema) error {
 		return errors.New("ref id does not match")
 	}
 
-	copyValue := &Schema{}
-	bytes, _ := json.Marshal(ref)
-	json.Unmarshal(bytes, copyValue)
-
-	*s = *copyValue
+	if copyValue, err := ref.Clone(); err != nil {
+		return err
+	} else {
+		*s = *copyValue
+	}
 	return nil
 }
 
@@ -550,11 +552,185 @@ func (s *Schema) SetXDiff(x string) {
 	s.XDiff = x
 }
 
-func (s *Schema) ToJson() string {
-	if s == nil {
-		return ""
-	}
+func (s *Schema) SetDefinitionModelRef(id string) {
+	ref := fmt.Sprintf("#/definitions/schemas/%s", id)
+	s.Reference = &ref
+}
 
+func (s *Schema) ToJson() string {
 	b, _ := json.Marshal(s)
 	return string(b)
+}
+
+func (s *Schema) Clone() (*Schema, error) {
+	if s == nil {
+		return nil, errors.New("schema is nil")
+	}
+	copyValue := &Schema{}
+	if bytes, err := json.Marshal(s); err != nil {
+		return nil, err
+	} else {
+		if err := json.Unmarshal(bytes, copyValue); err != nil {
+			return nil, err
+		}
+	}
+	return copyValue, nil
+}
+
+func (s *Schema) Equal(a *Schema) bool {
+	if s == nil || a == nil {
+		return false
+	}
+
+	if s.Reference != nil && a.Reference != nil {
+		return *s.Reference == *a.Reference
+	}
+
+	if s.Type != nil && a.Type != nil && !s.Type.Equal(a.Type) {
+		return false
+	}
+
+	if s.Title != a.Title {
+		return false
+	}
+
+	if s.Type != nil && s.Type.IsOneDimensional() {
+		return true
+	}
+
+	// array compare
+	if s.Items != nil && a.Items != nil {
+		if s.Items.IsBool() != a.Items.IsBool() {
+			return false
+		}
+		if !s.Items.IsBool() {
+			if !s.Items.Value().Equal(a.Items.Value()) {
+				return false
+			}
+		}
+		return true
+	} else {
+		if s.Items != nil || a.Items != nil {
+			return false
+		}
+	}
+
+	if len(s.AnyOf) > 0 && len(a.AnyOf) > 0 {
+		if len(s.AnyOf) != len(a.AnyOf) {
+			return false
+		}
+
+		stypes := make(map[string]*Schema, 0)
+		for i, sv := range s.AnyOf {
+			stypes[sv.Type.First()] = s.AnyOf[i]
+		}
+		atypes := make(map[string]*Schema, 0)
+		for i, sv := range s.AnyOf {
+			atypes[sv.Type.First()] = s.AnyOf[i]
+		}
+
+		if len(stypes) != len(atypes) {
+			return false
+		}
+		for k, sv := range stypes {
+			if av, ok := atypes[k]; !ok {
+				return false
+			} else {
+				if !sv.Equal(av) {
+					return false
+				}
+			}
+		}
+		return true
+	} else {
+		if len(s.AnyOf) > 0 || len(a.AnyOf) > 0 {
+			return false
+		}
+	}
+
+	if len(s.OneOf) > 0 && len(a.OneOf) > 0 {
+		if len(s.OneOf) != len(a.OneOf) {
+			return false
+		}
+
+		stypes := make(map[string]*Schema, 0)
+		for i, sv := range s.OneOf {
+			stypes[sv.Type.First()] = s.OneOf[i]
+		}
+		atypes := make(map[string]*Schema, 0)
+		for i, sv := range s.OneOf {
+			atypes[sv.Type.First()] = s.OneOf[i]
+		}
+
+		if len(stypes) != len(atypes) {
+			return false
+		}
+		for k, sv := range stypes {
+			if av, ok := atypes[k]; !ok {
+				return false
+			} else {
+				if !sv.Equal(av) {
+					return false
+				}
+			}
+		}
+		return true
+	} else {
+		if len(s.OneOf) > 0 || len(a.OneOf) > 0 {
+			return false
+		}
+	}
+
+	sProperties := make(map[string]*Schema, 0)
+	if len(s.Properties) > 0 {
+		for k, sv := range s.Properties {
+			sProperties[k] = sv
+		}
+	}
+	if len(s.AllOf) > 0 {
+		for _, sv := range s.AllOf {
+			if sv.Properties != nil {
+				for k, v := range sv.Properties {
+					sProperties[k] = v
+				}
+			}
+			if refID, err := sv.GetRefID(); err == nil && refID > 0 {
+				sProperties[strconv.FormatInt(refID, 10)] = sv
+			}
+		}
+	}
+
+	aProperties := make(map[string]*Schema, 0)
+	if len(a.Properties) > 0 {
+		for k, av := range a.Properties {
+			aProperties[k] = av
+		}
+	}
+	if len(a.AllOf) > 0 {
+		for _, av := range a.AllOf {
+			if av.Properties != nil {
+				for k, v := range av.Properties {
+					aProperties[k] = v
+				}
+			}
+			if refID, err := av.GetRefID(); err == nil && refID > 0 {
+				aProperties[strconv.FormatInt(refID, 10)] = av
+			}
+		}
+	}
+
+	if len(sProperties) != len(aProperties) {
+		return false
+	}
+	for k, sv := range sProperties {
+		if av, ok := aProperties[k]; !ok {
+			return false
+		} else {
+			if !sv.Equal(av) {
+				return false
+			}
+		}
+	}
+
+	return true
 }

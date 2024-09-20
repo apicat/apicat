@@ -22,7 +22,6 @@ import (
 	"github.com/apicat/apicat/v2/backend/module/spec/plugin/postman"
 
 	"github.com/apicat/ginrpc"
-	"github.com/gin-gonic/gin"
 )
 
 func convertModelGlobalparameter(gp *global.GlobalParameter) *projectresponse.GlobalParameter {
@@ -288,13 +287,13 @@ func postmanFileParse(fileContent string) (*spec.Spec, error) {
 	return postman.Import(rawContent)
 }
 
-func dsDerefWithSpec(ctx *gin.Context, ds *definition.DefinitionSchema) (*spec.DefinitionModel, error) {
+func dsDerefWithSpec(ds *definition.DefinitionSchema) (*spec.DefinitionModel, error) {
 	schemaSpec, err := ds.ToSpec()
 	if err != nil {
 		return nil, err
 	}
 
-	schemas, err := definition.GetDefinitionSchemasWithSpec(ctx, ds.ProjectID)
+	schemas, err := definition.GetDefinitionSchemasWithSpec(ds.ProjectID)
 	if err != nil {
 		return nil, err
 	}

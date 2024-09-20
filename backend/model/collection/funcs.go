@@ -43,8 +43,17 @@ func (m VirtualIDToIDMap) Merge(m2 VirtualIDToIDMap) {
 }
 
 func GetCollections(ctx context.Context, projectID string, cIDs ...uint) ([]*Collection, error) {
-	var collections []*Collection
 	tx := model.DB(ctx)
+	return getCollections(tx, projectID, cIDs...)
+}
+
+func GetCollectionsWithoutCtx(projectID string, cIDs ...uint) ([]*Collection, error) {
+	tx := model.DBWithoutCtx()
+	return getCollections(tx, projectID, cIDs...)
+}
+
+func getCollections(tx *gorm.DB, projectID string, cIDs ...uint) ([]*Collection, error) {
+	var collections []*Collection
 	if len(cIDs) > 0 {
 		tx = tx.Where("id in (?)", cIDs)
 	}

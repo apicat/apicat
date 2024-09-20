@@ -49,6 +49,35 @@ func (s *SchemaType) Set(v ...string) {
 	s.types = v
 }
 
+// Check if the type is one-dimensional
+// Such as int array string
+func (s *SchemaType) IsOneDimensional() bool {
+	switch s.First() {
+	case T_NULL, T_BOOL, T_NUM, T_INT, T_STR:
+		return true
+	}
+	return false
+}
+
+func (s *SchemaType) Equal(a *SchemaType) bool {
+	if a == nil {
+		return false
+	}
+	if len(s.types) != len(a.types) {
+		return false
+	}
+	stypes := make(map[string]bool, 0)
+	for _, t := range s.types {
+		stypes[t] = true
+	}
+	for _, t := range a.types {
+		if _, ok := stypes[t]; !ok {
+			return false
+		}
+	}
+	return true
+}
+
 func (s *SchemaType) UnmarshalJSON(raw []byte) error {
 	if len(raw) == 0 {
 		return nil

@@ -33,6 +33,7 @@ type Collection struct {
 	ShareKey     string `gorm:"type:varchar(255);comment:share key"`
 	Content      string `gorm:"type:mediumtext;comment:doc content"`
 	DisplayOrder int    `gorm:"type:int(11);not null;default:0;comment:display order"`
+	VectorID     string `gorm:"type:varchar(255);comment:vector db record id"`
 	CreatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:created by member id"`
 	UpdatedBy    uint   `gorm:"type:bigint;not null;default:0;comment:updated by member id"`
 	DeletedBy    uint   `gorm:"type:bigint;default:null;comment:deleted by member id"`
@@ -41,6 +42,15 @@ type Collection struct {
 
 func (c *Collection) Get(ctx context.Context) (bool, error) {
 	tx := model.DB(ctx)
+	return c.getRecord(tx)
+}
+
+func (c *Collection) GetWithoutCtx() (bool, error) {
+	tx := model.DBWithoutCtx()
+	return c.getRecord(tx)
+}
+
+func (c *Collection) getRecord(tx *gorm.DB) (bool, error) {
 	if c.ID != 0 {
 		tx = tx.Take(c, "id = ? AND project_id = ?", c.ID, c.ProjectID)
 	} else if c.PublicID != "" {
@@ -127,6 +137,10 @@ func (c *Collection) Update(ctx context.Context, title, content string, memberID
 		"content":    content,
 		"updated_by": memberID,
 	}).Error
+}
+
+func (c *Collection) UpdateVectorID(vectorID string) error {
+	return model.DBWithoutCtx().Model(c).Update("vector_id", vectorID).Error
 }
 
 // UpdateShareKey 更新项目分享密码

@@ -24,9 +24,9 @@ func GetDefinitionResponses(ctx context.Context, projectID string, drIDs ...uint
 	return list, err
 }
 
-func GetDefinitionResponsesWithSpec(ctx context.Context, projectID string) (spec.DefinitionResponses, error) {
+func GetDefinitionResponsesWithSpec(projectID string) (spec.DefinitionResponses, error) {
 	var list []*DefinitionResponse
-	err := model.DB(ctx).Where("project_id = ? AND type = ?", projectID, ResponseResponse).Find(&list).Error
+	err := model.DBWithoutCtx().Where("project_id = ? AND type = ?", projectID, ResponseResponse).Find(&list).Error
 	if err != nil {
 		return nil, err
 	}
@@ -76,8 +76,17 @@ func exportBuildDefinitionResponseTree(ctx context.Context, responses []*Definit
 }
 
 func GetDefinitionSchemas(ctx context.Context, projectID string, dsIDs ...uint) ([]*DefinitionSchema, error) {
-	var list []*DefinitionSchema
 	tx := model.DB(ctx)
+	return getDefinitionSchemas(tx, projectID, dsIDs...)
+}
+
+func GetDefinitionSchemasWithoutCtx(projectID string, dsIDs ...uint) ([]*DefinitionSchema, error) {
+	tx := model.DBWithoutCtx()
+	return getDefinitionSchemas(tx, projectID, dsIDs...)
+}
+
+func getDefinitionSchemas(tx *gorm.DB, projectID string, dsIDs ...uint) ([]*DefinitionSchema, error) {
+	var list []*DefinitionSchema
 	if len(dsIDs) > 0 {
 		tx = tx.Where("id IN ?", dsIDs)
 	}
@@ -85,9 +94,9 @@ func GetDefinitionSchemas(ctx context.Context, projectID string, dsIDs ...uint) 
 	return list, err
 }
 
-func GetDefinitionSchemasWithSpec(ctx context.Context, projectID string) (spec.DefinitionModels, error) {
+func GetDefinitionSchemasWithSpec(projectID string) (spec.DefinitionModels, error) {
 	var list []*DefinitionSchema
-	err := model.DB(ctx).Where("project_id = ? AND type = ?", projectID, SchemaSchema).Find(&list).Error
+	err := model.DBWithoutCtx().Where("project_id = ? AND type = ?", projectID, SchemaSchema).Find(&list).Error
 	if err != nil {
 		return nil, err
 	}

@@ -225,4 +225,10 @@ var Zh = map[string]map[string]string{
 		"JsonSchemaIncorrect": "解析失败，请检查 JSON Schema 是否正确。",
 		"FailedToParse":       "解析失败，请稍后重试。",
 	},
+	"suggestion": {
+		"CollectionGenerationFailed": "API 生成失败，请稍后重试。",
+		"ModelGenerationFailed":      "模型生成失败，请稍后重试。",
+		"SchemaGenerationFailed":     "Schema 生成失败，请稍后重试。",
+		"ReferenceGenerationFailed":  "引用生成失败，请稍后重试。",
+	},
 }

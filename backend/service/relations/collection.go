@@ -115,16 +115,16 @@ func CollectionDerefWithSpec(ctx context.Context, c *collection.Collection) (*sp
 	}
 
 	specDefinitions := &spec.Definitions{}
-	specDefinitions.Schemas, err = definition.GetDefinitionSchemasWithSpec(ctx, c.ProjectID)
+	specDefinitions.Schemas, err = definition.GetDefinitionSchemasWithSpec(c.ProjectID)
 	if err != nil {
 		return nil, err
 	}
-	specDefinitions.Responses, err = definition.GetDefinitionResponsesWithSpec(ctx, c.ProjectID)
+	specDefinitions.Responses, err = definition.GetDefinitionResponsesWithSpec(c.ProjectID)
 	if err != nil {
 		return nil, err
 	}
 
-	specGlobalParameters, err := global.GetGlobalParametersWithSpec(ctx, c.ProjectID)
+	specGlobalParameters, err := global.GetGlobalParametersWithSpec(c.ProjectID)
 	if err != nil {
 		return nil, err
 	}
