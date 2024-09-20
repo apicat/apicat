@@ -203,6 +203,7 @@ func (dsai *definitionSchemaApiImpl) Delete(ctx *gin.Context, opt *projectreques
 		}
 	}
 
+	definitionservice.NewDefinitionModelService(ctx).DelVector(ds)
 	if err := ds.Delete(ctx, selfTM); err != nil {
 		slog.ErrorContext(ctx, "ds.Delete", "err", err)
 		if ds.Type == definition.SchemaCategory {

@@ -270,6 +270,7 @@ func (cai *collectionApiImpl) Delete(ctx *gin.Context, opt *collectionrequest.De
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("collection.DoesNotExist"))
 	}
 
+	collectionservice.NewCollectionService(ctx).DelVector(c)
 	if err := relations.DeleteCollections(ctx, selfPM.ProjectID, c, selfTM); err != nil {
 		slog.ErrorContext(ctx, "relations.DeleteCollections", "err", err)
 		if c.Type == collection.CategoryType {

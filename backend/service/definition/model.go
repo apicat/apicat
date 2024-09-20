@@ -5,10 +5,12 @@ import (
 	"errors"
 	"log/slog"
 
+	"github.com/apicat/apicat/v2/backend/config"
 	"github.com/apicat/apicat/v2/backend/core/content_suggestion"
 	"github.com/apicat/apicat/v2/backend/model"
 	"github.com/apicat/apicat/v2/backend/model/definition"
 	referencerelation "github.com/apicat/apicat/v2/backend/model/reference_relation"
+	"github.com/apicat/apicat/v2/backend/module/vector"
 	"github.com/apicat/apicat/v2/backend/service/collection"
 )
 
@@ -66,6 +68,10 @@ func (dms *DefinitionModelService) UpdateVector(dm *definition.DefinitionSchema)
 		slog.ErrorContext(dms.ctx, "UpdateVector", "err", errors.New("definition schema is nil"))
 		return
 	}
+	if dm.ProjectID == "" {
+		slog.ErrorContext(dms.ctx, "UpdateVector", "err", errors.New("project id is empty"))
+		return
+	}
 
 	modelVector, err := content_suggestion.NewDefinitionModelVector(dm.ProjectID)
 	if err != nil {
@@ -81,6 +87,50 @@ func (dms *DefinitionModelService) UpdateVector(dm *definition.DefinitionSchema)
 
 	// 更新所有引用了该模型的模型的向量
 	if refModelIDs, err := dms.GetRefModelIDs(dm.ID); err == nil && len(refModelIDs) > 0 {
+		for _, v := range refModelIDs {
+			modelVector.CreateLater(v)
+			if refCollectionIDs, err := dms.GetRefCollectionIDs(v); err == nil && len(refCollectionIDs) > 0 {
+				collectionService.CreateVector(dm.ProjectID, refCollectionIDs...)
+			}
+		}
+	}
+}
+
+func (dms *DefinitionModelService) DelVector(dm *definition.DefinitionSchema) {
+	if dm == nil {
+		slog.ErrorContext(dms.ctx, "DelVector", "err", errors.New("definition schema is nil"))
+		return
+	}
+	if dm.ProjectID == "" {
+		slog.ErrorContext(dms.ctx, "DelVector", "err", errors.New("project id is empty"))
+		return
+	}
+	if dm.VectorID == "" {
+		return
+	}
+
+	if vectorDB, err := vector.NewVector(config.GetVector().ToModuleStruct()); err != nil {
+		slog.ErrorContext(dms.ctx, "vector.NewVector", "err", err)
+	} else {
+		if err := vectorDB.DeleteObject(dm.ProjectID, dm.VectorID); err != nil {
+			slog.ErrorContext(dms.ctx, "vectorDB.DeleteObject", "err", err)
+		}
+	}
+
+	// 更新所有引用了该模型的集合的向量
+	collectionService := collection.NewCollectionService(dms.ctx)
+	if refCollectionIDs, err := dms.GetRefCollectionIDs(dm.ID); err == nil && len(refCollectionIDs) > 0 {
+		collectionService.CreateVector(dm.ProjectID, refCollectionIDs...)
+	}
+
+	// 更新所有引用了该模型的模型的向量
+	if refModelIDs, err := dms.GetRefModelIDs(dm.ID); err == nil && len(refModelIDs) > 0 {
+		modelVector, err := content_suggestion.NewDefinitionModelVector(dm.ProjectID)
+		if err != nil {
+			slog.ErrorContext(dms.ctx, "content_suggestion.NewDefinitionModelVector", "err", err)
+			return
+		}
+
 		for _, v := range refModelIDs {
 			modelVector.CreateLater(v)
 			if refCollectionIDs, err := dms.GetRefCollectionIDs(v); err == nil && len(refCollectionIDs) > 0 {
