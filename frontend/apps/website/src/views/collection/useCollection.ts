@@ -9,6 +9,7 @@ import { getCollectionHistoryPath } from '@/router/history'
 import { injectPagesMode } from '@/layouts/ProjectDetailLayout/composables/usePagesMode'
 import { useTitleInputFocus } from '@/hooks/useTitleInputFocus'
 import { injectAsyncInitTask } from '@/hooks/useWaitAsyncTask'
+import { apiGetAICollection, isEmptyContent } from '@/api/project/collection'
 
 let oldTitle = ''
 
@@ -23,6 +24,9 @@ export function useCollection(props: { project_id: string, collectionID: string 
   const [isSaving, updateCollection, isSaveError] = useApi(collectionStore.updateCollection)
   const { inputRef, focus } = useTitleInputFocus()
 
+  // 是否是AI模式，避免AI推理数据被保存
+  const isAIMode = ref(false)
+
   function handleTitleBlur() {
     const title = collection.value?.title || ''
     if (!title || !title.trim()) {
@@ -32,8 +36,9 @@ export function useCollection(props: { project_id: string, collectionID: string 
   }
 
   function handleContentUpdate(content: Array<any>) {
-    if (collection.value)
-      collection.value.content = content
+    if (!collection.value)
+      return
+    collection.value.content = content
   }
 
   function onShareCollectionBtnClick() {
@@ -51,42 +56,43 @@ export function useCollection(props: { project_id: string, collectionID: string 
     })
   }
 
-  watchDebounced(
-    [() => collection.value?.id, () => collection.value?.title, () => collection.value?.content],
-    async ([nId], [oId]) => {
-      const n = collection.value
+  watchDebounced([() => collection.value?.id, () => collection.value?.title, () => collection.value?.content], async ([nId], [oId]) => {
+    const n = collection.value
 
-      if (readonly.value || !n)
-        return
+    if (readonly.value || !n)
+      return
 
-      // 还原旧的title时，不需要请求接口
-      if (!oldTitle) {
-        oldTitle = n?.title || ''
+    // 还原旧的title时，不需要请求接口
+    if (!oldTitle) {
+      oldTitle = n?.title || ''
+      return
+    }
+
+    if (nId === oId) {
+      // title is empty
+      if (!n.title || !n.title.trim()) {
+        ElMessage.error(t('app.project.collection.page.edit.titleNull'))
         return
       }
 
-      if (nId === oId) {
-        // title is empty
-        if (!n.title || !n.title.trim()) {
-          ElMessage.error(t('app.project.collection.page.edit.titleNull'))
-          return
-        }
+      // backup old title
+      oldTitle = n.title
 
-        // backup old title
-        oldTitle = n.title
-
-        try {
+      try {
+        if (!isAIMode.value) {
           await updateCollection(props.project_id, n)
         }
-        catch (error) {
-          //
+        else {
+          // TODO: 获取AI推理数据
+          // await apiGetAICollection()
+          collection.value!.content = [{ type: 'apicat-http-url', attrs: { path: '/duhan', method: 'get' } }, { type: 'apicat-http-request', attrs: { globalExcepts: { header: [], cookie: [], query: [] }, parameters: { query: [{ name: 'bb', required: true, schema: { 'type': 'string', 'x-apicat-mock': 'string' } }], path: [], cookie: [{ name: 'aa', required: true, schema: { 'type': 'string', 'x-apicat-mock': 'string' } }], header: [{ name: 'duhan', required: true, schema: { 'type': 'string', 'x-apicat-mock': 'string' } }] }, content: { 'application/json': { schema: { 'properties': { aa: { 'type': 'string', 'x-apicat-mock': 'string' }, bb: { 'type': 'string', 'x-apicat-mock': 'string' } }, 'type': 'object', 'required': ['aa', 'bb'], 'x-apicat-orders': ['aa', 'bb'], 'x-apicat-mock': 'object' } } } } }, { type: 'apicat-http-response', attrs: { list: [{ name: 'wahah', content: { 'application/json': { schema: { 'properties': { dddd: { 'type': 'string', 'x-apicat-mock': 'string' } }, 'type': 'object', 'required': ['dddd'], 'x-apicat-orders': ['dddd'], 'x-apicat-mock': 'object' } } }, code: 100 }] } }]
         }
       }
-    },
-    {
-      debounce: 200,
-    },
-  )
+      catch (error) {
+        //
+      }
+    }
+  }, { debounce: 200 })
 
   const asyncTaskCtx = injectAsyncInitTask()
   let isImmidiate = true
@@ -108,6 +114,8 @@ export function useCollection(props: { project_id: string, collectionID: string 
         oldTitle = collection.value?.title || ''
         if (!readonly.value)
           focus()
+        // 判断是否启用AI模式
+        isAIMode.value = isEmptyContent(collection.value?.content)
       }
     },
     {
@@ -117,6 +125,7 @@ export function useCollection(props: { project_id: string, collectionID: string 
 
   onBeforeUnmount(() => {
     collectionStore.collectionDetail = null
+    isAIMode.value = false
   })
 
   const keys = useMagicKeys({

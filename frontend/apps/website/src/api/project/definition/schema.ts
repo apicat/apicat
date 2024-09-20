@@ -155,6 +155,7 @@ export function wrapperRequestWithID<T>(fn: (data: any) => Promise<T>): (data: a
     }
     catch (error) {
       isLoading = false
+      rid = ''
     }
   }
 }
