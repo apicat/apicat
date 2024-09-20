@@ -19,7 +19,7 @@ import (
 
 type ReferenceMatcher struct {
 	projectID      string
-	matchs         map[uint]*jsonschema.Schema
+	matches        map[uint]*jsonschema.Schema
 	embeddingModel model.Provider
 	vectorDB       vector.VectorApi
 	ctx            context.Context
@@ -47,7 +47,7 @@ func NewReferenceMatcher(ctx context.Context, projectID string) (*ReferenceMatch
 
 	return &ReferenceMatcher{
 		projectID:      projectID,
-		matchs:         make(map[uint]*jsonschema.Schema),
+		matches:        make(map[uint]*jsonschema.Schema),
 		embeddingModel: embeddingModel,
 		vectorDB:       vectorDB,
 		ctx:            ctx,
@@ -85,7 +85,7 @@ func (rm *ReferenceMatcher) Match(title string, schema *jsonschema.Schema) (*jso
 	}
 
 	matched := false
-	for id := range rm.matchs {
+	for id := range rm.matches {
 		if rm.match(schema, id) {
 			matched = true
 		}
@@ -168,7 +168,7 @@ func (rm *ReferenceMatcher) getJsonSchema(ids []uint) error {
 		if specModel, err := dm.ToSpec(); err != nil {
 			slog.ErrorContext(rm.ctx, "dm.ToSpec", "err", err)
 		} else {
-			rm.matchs[id] = specModel.Schema
+			rm.matches[id] = specModel.Schema
 		}
 	}
 
@@ -176,7 +176,7 @@ func (rm *ReferenceMatcher) getJsonSchema(ids []uint) error {
 }
 
 func (rm *ReferenceMatcher) match(s *jsonschema.Schema, id uint) bool {
-	if rm.contains(s, rm.matchs[id]) {
+	if rm.contains(s, rm.matches[id]) {
 		if err := rm.replace(s, id); err != nil {
 			slog.ErrorContext(rm.ctx, "rm.replace", "err", err)
 			return false
@@ -287,18 +287,18 @@ func (rm *ReferenceMatcher) contains(a *jsonschema.Schema, b *jsonschema.Schema)
 }
 
 func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
-	if _, ok := rm.matchs[refID]; !ok {
+	if _, ok := rm.matches[refID]; !ok {
 		return errors.New("refID not exist")
 	}
 
 	refKeys := make([]string, 0)
-	if rm.matchs[refID].Properties != nil {
-		for k := range rm.matchs[refID].Properties {
+	if rm.matches[refID].Properties != nil {
+		for k := range rm.matches[refID].Properties {
 			refKeys = append(refKeys, k)
 		}
 	}
-	if len(rm.matchs[refID].AllOf) > 0 {
-		for _, v := range rm.matchs[refID].AllOf {
+	if len(rm.matches[refID].AllOf) > 0 {
+		for _, v := range rm.matches[refID].AllOf {
 			if v.Properties != nil {
 				for k := range v.Properties {
 					refKeys = append(refKeys, k)
@@ -387,6 +387,15 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 						tmp.Required = []string{k}
 					}
 					new.AllOf = append(new.AllOf, tmp)
+
+					if new.Reference != nil {
+						tmp := &jsonschema.Schema{}
+						tmp.SetDefinitionModelRef(strconv.FormatUint(uint64(refID), 10))
+						tmp.XSuggestion = true
+						new.AllOf = append(new.AllOf, tmp)
+						new.Reference = nil
+						new.XSuggestion = false
+					}
 				} else {
 					if new.Reference == nil || new.AllOf == nil {
 						continue

@@ -17,7 +17,7 @@ require (
 	github.com/qiniu/go-sdk/v7 v7.18.2
 	github.com/sashabaranov/go-openai v1.27.0
 	github.com/weaviate/weaviate v1.26.0-rc.1
-	github.com/weaviate/weaviate-go-client/v4 v4.14.3
+	github.com/weaviate/weaviate-go-client/v4 v4.15.1
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/gorm v1.25.8

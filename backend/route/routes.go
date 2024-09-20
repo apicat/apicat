@@ -5,6 +5,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/route/api/iteration"
 	"github.com/apicat/apicat/v2/backend/route/api/jsonschema"
 	"github.com/apicat/apicat/v2/backend/route/api/project"
+	"github.com/apicat/apicat/v2/backend/route/api/suggestion"
 	"github.com/apicat/apicat/v2/backend/route/api/sysconfig"
 	"github.com/apicat/apicat/v2/backend/route/api/team"
 	"github.com/apicat/apicat/v2/backend/route/api/user"
@@ -297,4 +298,12 @@ func registerModelSysconfig(g *gin.RouterGroup) {
 func registerJsonSchema(g *gin.RouterGroup) {
 	srv := jsonschema.NewJsonSchemaApi()
 	g.POST("/jsonschema/parse", ginrpc.Handle(srv.Parse))
+}
+
+func registerSuggestion(g *gin.RouterGroup) {
+	srv := suggestion.NewSuggestionApi()
+	g.POST("/projects/:projectID/suggestion/collection", access.BelongToTeam(), access.BelongToProject(), ginrpc.Handle(srv.GenCollection))
+	g.POST("/projects/:projectID/suggestion/model", access.BelongToTeam(), access.BelongToProject(), ginrpc.Handle(srv.GenModel))
+	g.POST("/projects/:projectID/suggestion/schema", access.BelongToTeam(), access.BelongToProject(), ginrpc.Handle(srv.GenSchema))
+	g.POST("/projects/:projectID/suggestion/reference", access.BelongToTeam(), access.BelongToProject(), ginrpc.Handle(srv.GenReference))
 }

@@ -33,7 +33,7 @@ func NewModelGenerator(m *definition.DefinitionSchema, lang string) (*ModelGener
 }
 
 func (mg *ModelGenerator) Generate() (*definition.DefinitionSchema, error) {
-	if len(mg.model.Name) < 5 {
+	if len(mg.model.Name) < 3 {
 		return nil, errors.New("name is too short")
 	}
 

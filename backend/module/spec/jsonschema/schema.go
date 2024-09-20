@@ -558,10 +558,6 @@ func (s *Schema) SetDefinitionModelRef(id string) {
 }
 
 func (s *Schema) ToJson() string {
-	if s == nil {
-		return ""
-	}
-
 	b, _ := json.Marshal(s)
 	return string(b)
 }
