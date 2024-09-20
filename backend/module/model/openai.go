@@ -47,7 +47,7 @@ var OPENAI_EMBEDDING_SUPPORTS = []string{
 	string(oai.AdaEmbeddingV2),
 }
 
-func NewOpenAI(cfg OpenAI) *openai {
+func newOpenAI(cfg OpenAI) *openai {
 	clientConfig := oai.DefaultConfig(cfg.ApiKey)
 	clientConfig.HTTPClient.Timeout = time.Second * 30
 
@@ -59,7 +59,7 @@ func NewOpenAI(cfg OpenAI) *openai {
 	}
 }
 
-func NewAzureOpenAI(cfg AzureOpenAI) *openai {
+func newAzureOpenAI(cfg AzureOpenAI) *openai {
 	clientConfig := oai.DefaultAzureConfig(cfg.ApiKey, cfg.Endpoint)
 	clientConfig.HTTPClient.Timeout = time.Second * 30
 	clientConfig.AzureModelMapperFunc = func(model string) string {

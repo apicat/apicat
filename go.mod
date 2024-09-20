@@ -16,7 +16,8 @@ require (
 	github.com/pb33f/libopenapi v0.16.5
 	github.com/qiniu/go-sdk/v7 v7.18.2
 	github.com/sashabaranov/go-openai v1.27.0
-	github.com/weaviate/weaviate-go-client/v4 v4.14.3
+	github.com/weaviate/weaviate v1.26.0-rc.1
+	github.com/weaviate/weaviate-go-client/v4 v4.15.1
 	golang.org/x/exp v0.0.0-20240506185415-9bf2ced13842
 	gopkg.in/yaml.v2 v2.4.0
 	gorm.io/gorm v1.25.8
@@ -68,7 +69,6 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/vmware-labs/yaml-jsonpath v0.3.2 // indirect
-	github.com/weaviate/weaviate v1.26.0-rc.1 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/xrash/smetrics v0.0.0-20240312152122-5f08fbb34913 // indirect
 	go.mongodb.org/mongo-driver v1.14.0 // indirect

@@ -232,14 +232,14 @@ func (impl *definitionSchemaHistoryApiImpl) Diff(ctx *gin.Context, opt *projectr
 
 	// 对模型进行解引用
 	ds.Schema = originalDSH.Schema
-	originalSchema, err := dsDerefWithSpec(ctx, ds)
+	originalSchema, err := dsDerefWithSpec(ds)
 	if err != nil {
 		slog.ErrorContext(ctx, "original.dsDerefWithSpec", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchemaHistory.DiffFailed"))
 	}
 
 	ds.Schema = targetDSH.Schema
-	targetSchema, err := dsDerefWithSpec(ctx, ds)
+	targetSchema, err := dsDerefWithSpec(ds)
 	if err != nil {
 		slog.ErrorContext(ctx, "target.dsDerefWithSpec", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchemaHistory.DiffFailed"))

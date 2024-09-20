@@ -76,3 +76,7 @@ func (v *Vector) ToModuleStruct() vector.Vector {
 		},
 	}
 }
+
+func GetVector() *Vector {
+	return globalConf.Vector
+}

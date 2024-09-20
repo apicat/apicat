@@ -17,13 +17,13 @@ type Model struct {
 
 func NewModel(cfg Model) (Provider, error) {
 	if cfg.Driver == OPENAI {
-		if o := NewOpenAI(cfg.OpenAI); o != nil {
+		if o := newOpenAI(cfg.OpenAI); o != nil {
 			return o, nil
 		} else {
 			return nil, errors.New("NewOpenAI failed")
 		}
 	} else if cfg.Driver == AZURE_OPENAI {
-		if o := NewAzureOpenAI(cfg.AzureOpenAI); o != nil {
+		if o := newAzureOpenAI(cfg.AzureOpenAI); o != nil {
 			return o, nil
 		} else {
 			return nil, errors.New("NewAzureOpenAI failed")

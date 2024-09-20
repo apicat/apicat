@@ -2,7 +2,6 @@ package redis
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	"github.com/go-redis/redis/v8"
@@ -15,29 +14,22 @@ type RedisOpt struct {
 }
 
 type redisCache struct {
-	cfg    RedisOpt
-	client *redis.Client
 	ctx    context.Context
+	client *redis.Client
 }
 
 func NewRedis(cfg RedisOpt) (*redisCache, error) {
 	return &redisCache{
-		cfg: cfg,
 		ctx: context.Background(),
+		client: redis.NewClient(&redis.Options{
+			Addr:     cfg.Host,
+			Password: cfg.Password,
+			DB:       cfg.DB,
+		}),
 	}, nil
 }
 
-func (r *redisCache) init() {
-	r.ctx = context.Background()
-	r.client = redis.NewClient(&redis.Options{
-		Addr:     r.cfg.Host,
-		Password: r.cfg.Password,
-		DB:       r.cfg.DB,
-	})
-}
-
 func (r *redisCache) Check() error {
-	r.init()
 	if _, err := r.client.Ping(r.ctx).Result(); err != nil {
 		return err
 	}
@@ -45,7 +37,6 @@ func (r *redisCache) Check() error {
 }
 
 func (r *redisCache) Set(k string, data string, du time.Duration) error {
-	r.init()
 	err := r.client.Set(r.ctx, k, data, du).Err()
 	if err != nil {
 		return err
@@ -53,11 +44,11 @@ func (r *redisCache) Set(k string, data string, du time.Duration) error {
 	return nil
 }
 
-func (r *redisCache) Get(key string) (string, bool, error) {
-	r.init()
-	val, err := r.client.Get(r.ctx, key).Result()
+func (r *redisCache) Get(k string) (string, bool, error) {
+	val, err := r.client.Get(r.ctx, k).Result()
 	if err == redis.Nil {
-		return "", false, fmt.Errorf("key does not exist")
+		// key does not exist
+		return "", false, nil
 	} else if err != nil {
 		return "", false, err
 	} else {
@@ -65,8 +56,46 @@ func (r *redisCache) Get(key string) (string, bool, error) {
 	}
 }
 
+func (r *redisCache) LPush(k string, values ...interface{}) error {
+	err := r.client.LPush(r.ctx, k, values).Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *redisCache) RPop(k string) (string, bool, error) {
+	result, err := r.client.RPop(r.ctx, k).Result()
+	if err == redis.Nil {
+		// key does not exist
+		return "", false, nil
+	} else if err != nil {
+		return "", false, err
+	} else {
+		return result, true, nil
+	}
+}
+
+func (r *redisCache) LLen(k string) (int64, error) {
+	result, err := r.client.LLen(r.ctx, k).Result()
+	if err != nil {
+		if err == redis.Nil {
+			return 0, nil
+		}
+		return 0, err
+	}
+	return result, nil
+}
+
+func (r *redisCache) Expire(k string, du time.Duration) error {
+	err := r.client.Expire(r.ctx, k, du).Err()
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (r *redisCache) Del(key string) error {
-	r.init()
 	err := r.client.Del(r.ctx, key).Err()
 	if err != nil {
 		return err

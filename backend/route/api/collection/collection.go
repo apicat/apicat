@@ -21,6 +21,7 @@ import (
 	collectionrequest "github.com/apicat/apicat/v2/backend/route/proto/collection/request"
 	collectionresponse "github.com/apicat/apicat/v2/backend/route/proto/collection/response"
 	"github.com/apicat/apicat/v2/backend/service/ai"
+	collectionservice "github.com/apicat/apicat/v2/backend/service/collection"
 	"github.com/apicat/apicat/v2/backend/service/except"
 	"github.com/apicat/apicat/v2/backend/service/reference"
 	"github.com/apicat/apicat/v2/backend/service/relations"
@@ -204,28 +205,31 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("collection.DoesNotExist"))
 	}
 
-	oldRefSchemaIDs, err := reference.ParseRefSchemasFromCollection(c)
-	if err != nil {
-		slog.ErrorContext(ctx, "reference.ParseRefSchemasFromCollection", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
-	}
+	var oldRefSchemaIDs, oldRefResponseIDs, oldExceptparamIDs []uint
+	if c.Type != collection.CategoryType {
+		oldRefSchemaIDs, err = reference.ParseRefSchemasFromCollection(c)
+		if err != nil {
+			slog.ErrorContext(ctx, "reference.ParseRefSchemasFromCollection", "err", err)
+			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+		}
 
-	oldRefResponseIDs, err := reference.ParseRefResponsesFromCollection(c)
-	if err != nil {
-		slog.ErrorContext(ctx, "reference.ParseRefResponsesFromCollection", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
-	}
+		oldRefResponseIDs, err = reference.ParseRefResponsesFromCollection(c)
+		if err != nil {
+			slog.ErrorContext(ctx, "reference.ParseRefResponsesFromCollection", "err", err)
+			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+		}
 
-	oldExceptparamIDs, err := except.ParseExceptParamsFromCollection(c)
-	if err != nil {
-		slog.ErrorContext(ctx, "reference.ParseExceptParamsFromCollection", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
-	}
+		oldExceptparamIDs, err = except.ParseExceptParamsFromCollection(c)
+		if err != nil {
+			slog.ErrorContext(ctx, "reference.ParseExceptParamsFromCollection", "err", err)
+			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
+		}
 
-	if cs, err := spec.NewCollectionNodesFromJson(opt.Content); err == nil {
-		cs.SortResponses()
-		if s, err := cs.ToJson(); err == nil {
-			opt.Content = s
+		if cs, err := spec.NewCollectionNodesFromJson(opt.Content); err == nil {
+			cs.SortResponses()
+			if s, err := cs.ToJson(); err == nil {
+				opt.Content = s
+			}
 		}
 	}
 
@@ -239,6 +243,8 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 		if err := reference.UpdateCollectionRef(ctx, c, oldRefSchemaIDs, oldRefResponseIDs, oldExceptparamIDs); err != nil {
 			slog.ErrorContext(ctx, "collectionrelations.UpdateCollectionRef", "err", err)
 		}
+
+		collectionservice.NewCollectionService(ctx).CreateVector(c.ProjectID, c.ID)
 	}
 
 	return &ginrpc.Empty{}, nil
@@ -264,6 +270,7 @@ func (cai *collectionApiImpl) Delete(ctx *gin.Context, opt *collectionrequest.De
 		return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("collection.DoesNotExist"))
 	}
 
+	collectionservice.NewCollectionService(ctx).DelVector(c)
 	if err := relations.DeleteCollections(ctx, selfPM.ProjectID, c, selfTM); err != nil {
 		slog.ErrorContext(ctx, "relations.DeleteCollections", "err", err)
 		if c.Type == collection.CategoryType {

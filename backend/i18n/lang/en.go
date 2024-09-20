@@ -225,4 +225,10 @@ var En = map[string]map[string]string{
 		"JsonSchemaIncorrect": "Parsing failed, please check if the JSON Schema is correct.",
 		"FailedToParse":       "Parsing failed, please try again later.",
 	},
+	"suggestion": {
+		"CollectionGenerationFailed": "API generation failed, please try again later.",
+		"ModelGenerationFailed":      "Model generation failed, please try again later.",
+		"SchemaGenerationFailed":     "Schema generation failed, please try again later.",
+		"ReferenceGenerationFailed":  "Reference generation failed, please try again later.",
+	},
 }
