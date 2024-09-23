@@ -30,7 +30,7 @@ const {
   titleInputRef,
 } = useCollection(props as any)
 
-const { handleIntelligentSchema } = useIntelligentSchema(() => {
+const { handleIntelligentSchema } = useIntelligentSchema(props.project_id, () => {
   return {
     collectionID: collection?.value?.id,
     title: collection?.value?.title,

@@ -33,7 +33,7 @@ const definitionResponseStore = useDefinitionResponseStore()
 const { loading, responseDetail: response } = storeToRefs(definitionResponseStore)
 const [isSaving, updateResponse, isSaveError] = useApi(definitionResponseStore.updateResponse)
 const { inputRef: titleInputRef, focus } = useTitleInputFocus()
-const { handleIntelligentSchema } = useIntelligentSchema(() => {
+const { handleIntelligentSchema } = useIntelligentSchema(props.project_id, () => {
   return {
     responseID: response.value?.id,
     title: response.value?.name,

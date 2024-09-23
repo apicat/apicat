@@ -122,8 +122,8 @@ export async function apiParseSchema(jsonschema: JSONSchema): Promise<JSONSchema
   }
 }
 
-export async function apiGetAIModel(params: any): Promise<JSONSchema | undefined> {
-  const res = await wrapperRequestWithID<AISuggestionSchema>(async data => await DefaultAjax.post('/suggestion/model', data))(params)
+export async function apiGetAIModel(projectID: string, params: any): Promise<JSONSchema | undefined> {
+  const res = await wrapperRequestWithID<AISuggestionSchema>(async data => await DefaultAjax.post(`/projects/${projectID}/suggestion/model`, data))(params)
   if (!res)
     return
 
@@ -131,7 +131,7 @@ export async function apiGetAIModel(params: any): Promise<JSONSchema | undefined
     return JSON.parse(res.schema as string)
   }
   catch (error) {
-    return undefined
+    //
   }
 }
 
@@ -161,15 +161,15 @@ export function wrapperRequestWithID<T>(fn: (data: any) => Promise<T>): (data: a
 }
 
 // ai for schema data
-export async function apiGetAISchema(data: {
+export async function apiGetAISchema(projectID: string, data: {
   requestID: string
-  schema: JSONSchema
+  schema: string
   title: string
   collectionID?: number
   modelID?: number
 }): Promise<AISuggestionSchema> {
   try {
-    const res = await DefaultAjax.post<AISuggestionSchema>('/suggestion/parameter', data)
+    const res = await DefaultAjax.post<AISuggestionSchema>(`/projects/${projectID}/suggestion/schema`, data)
     res.schema = JSON.parse(res.schema as string)
     return res
   }
