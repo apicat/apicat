@@ -11,6 +11,7 @@ export interface ResponseFormProps {
   response: Definition.ResponseDetail
   definitionSchemas: Definition.Schema[]
   handleIntelligentSchema?: (josnschema: JSONSchema, node: SchemaTreeNode) => Promise<{ nid: string, schema: JSONSchema } | void>
+  handleCheckReplaceModel?: (josnschema: JSONSchema) => Promise<{ nid: string, schema: JSONSchema } | void>
 }
 
 export interface ResponseFormEmits {
@@ -49,6 +50,7 @@ const { examples, headers, contentType, isJSONSchema, contentSchema } = useRespo
           :definition-schemas="definitionSchemas"
           :handle-parse-schema="apiParseSchema"
           :handle-intelligent-schema="handleIntelligentSchema"
+          :handle-check-replace-model="handleCheckReplaceModel"
         />
         <ResponseExamples v-model:examples="examples" :lang="(ResponseContentTypesMap as any)[contentType]" />
       </div>

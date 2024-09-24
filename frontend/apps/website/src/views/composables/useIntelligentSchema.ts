@@ -1,7 +1,7 @@
 import type { JSONSchema } from '@apicat/editor'
 import { guid } from '@apicat/shared'
 import type { SchemaTreeNode } from '@apicat/components'
-import { apiGetAISchema } from '@/api/project/definition/schema'
+import { apiCheckReplaceModel, apiGetAISchema } from '@/api/project/definition/schema'
 
 // AI generated json schema
 export function useIntelligentSchema(projectID: string, getParams?: () => any) {
@@ -35,7 +35,41 @@ export function useIntelligentSchema(projectID: string, getParams?: () => any) {
     }
   }
 
+  let isLoadingCheckReplaceModel = false
+  let requestIDCheckReplaceModel
+
+  async function handleCheckReplaceModel(jsonschema: JSONSchema): Promise<{ nid: string, schema: JSONSchema } | void> {
+    if (isLoadingCheckReplaceModel)
+      return
+
+    requestIDCheckReplaceModel = guid()
+
+    try {
+      isLoadingCheckReplaceModel = true
+      const { requestID, schema } = await apiCheckReplaceModel(projectID, {
+        schema: JSON.stringify(jsonschema),
+        requestID: requestIDCheckReplaceModel,
+        ...getParams?.(),
+      })
+
+      isLoadingCheckReplaceModel = false
+
+      // not match
+      if (requestIDCheckReplaceModel !== requestID)
+        return
+
+      return {
+        nid: requestIDCheckReplaceModel,
+        schema,
+      } as { nid: string, schema: JSONSchema }
+    }
+    catch (error) {
+      isLoadingCheckReplaceModel = false
+    }
+  }
+
   return {
     handleIntelligentSchema,
+    handleCheckReplaceModel,
   }
 }

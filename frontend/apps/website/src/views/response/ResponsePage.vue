@@ -33,7 +33,7 @@ const definitionResponseStore = useDefinitionResponseStore()
 const { loading, responseDetail: response } = storeToRefs(definitionResponseStore)
 const [isSaving, updateResponse, isSaveError] = useApi(definitionResponseStore.updateResponse)
 const { inputRef: titleInputRef, focus } = useTitleInputFocus()
-const { handleIntelligentSchema } = useIntelligentSchema(props.project_id, () => {
+const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchema(props.project_id, () => {
   return {
     responseID: response.value?.id,
     title: response.value?.name,
@@ -152,7 +152,7 @@ injectAsyncInitTask()!.addTask(setDetail(responseIDRef.value))
       </div>
     </div>
 
-    <ResponseForm v-if="!loading && !readonly" v-model:response="response" :definition-schemas="schemas" :handle-intelligent-schema="handleIntelligentSchema" />
+    <ResponseForm v-if="!loading && !readonly" v-model:response="response" :definition-schemas="schemas" :handle-intelligent-schema="handleIntelligentSchema" :handle-check-replace-model="handleCheckReplaceModel" />
     <ResponseRaw v-if="!loading && readonly" :response="response" :definition-schemas="schemas" />
   </div>
 </template>

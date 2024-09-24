@@ -177,3 +177,15 @@ export async function apiGetAISchema(projectID: string, data: {
     return { requestID: '', schema: {} }
   }
 }
+
+// check replace model
+export async function apiCheckReplaceModel(projectID: string, data: { requestID: string, schema: string, title: string }): Promise<AISuggestionSchema> {
+  try {
+    const res = await DefaultAjax.post<AISuggestionSchema>(`/projects/${projectID}/suggestion/reference`, data)
+    res.schema = JSON.parse(res.schema as string)
+    return res
+  }
+  catch (error) {
+    return { requestID: '', schema: {} }
+  }
+}

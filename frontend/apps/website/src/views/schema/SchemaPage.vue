@@ -31,7 +31,7 @@ const { schemas, schemaDetail: schema, isLoading: loading } = storeToRefs(defini
 const [isSaving, updateSchema, isSaveError] = useApi(definitionSchemaStore.updateSchema)
 const { inputRef: titleInputRef, focus } = useTitleInputFocus()
 const router = useRouter()
-const { handleIntelligentSchema } = useIntelligentSchema(props.project_id, () => {
+const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchema(props.project_id, () => {
   return {
     schemaID: schema.value?.id,
     title: schema.value?.name,
@@ -111,7 +111,7 @@ watch(schemaIDRef, async (id, oID) => {
 // trigger intelligent schema
 watchDebounced(() => schema.value?.name, async (name, oldName) => {
   // 内容为空时，请求AI接口，获取智能推荐的schema
-  if (name && oldName && jsonSchemaTableIns.value?.isEmpty()) {
+  if (!readonly.value && name && oldName && jsonSchemaTableIns.value?.isEmpty()) {
     const josnschema = await apiGetAIModel(props.project_id, { modelID: schema.value?.id, title: name })
     josnschema && schema.value && (schema.value.schema = josnschema)
   }
@@ -181,6 +181,7 @@ injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
       :definition-schemas="schemas"
       :handle-parse-schema="apiParseSchema"
       :handle-intelligent-schema="handleIntelligentSchema"
+      :handle-check-replace-model="handleCheckReplaceModel"
     />
     <GenerateCode v-if="readonly && schema" ref="generateCodeRef" :schema="schema" />
   </div>
