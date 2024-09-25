@@ -176,45 +176,12 @@ export function useMenus(
     }
   }
 
-  /**
-   * AI
-   */
-  function onAICreate(node?: Node) {
-    projectContext.handleAICreateSchema(async ({ prompt, showLoading, hideLoading }) => {
-      try {
-        showLoading()
-        const data = await schemaStore.createSchemaWithAI(projectID!, {
-          parentID: node?.key,
-          prompt,
-        })
-
-        toggleHeadingRef.value?.expand()
-        treeIns.value?.append(data, node!)
-        selectedNodeWithGoPage(data)
-        switchToWriteMode()
-
-        projectContext.aiPromptDialogRef.value?.hide()
-      }
-      catch (error) {
-        //
-      }
-      finally {
-        hideLoading()
-      }
-    })
-  }
-
   // 根目录添加菜单
   const ROOT_MENUS: Menu[] = [
     {
       text: t('app.schema.popoverMenus.newSchema'),
       icon: 'ac-model',
       onClick: () => handleCreate(activeNodeInfo.value),
-    },
-    {
-      text: t('app.schema.popoverMenus.aiGenerateSchema'),
-      icon: 'ac-zhinengyouhua',
-      onClick: () => onAICreate(activeNodeInfo.value),
     },
     {
       text: t('app.schema.popoverMenus.newGroup'),
