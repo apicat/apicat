@@ -39,6 +39,7 @@ const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchem
 })
 
 let oldTitle = ''
+let currentSchemaID = -1
 
 function handleBlurNameInput() {
   const title = schema.value?.name || ''
@@ -105,11 +106,16 @@ watch(schemaIDRef, async (id, oID) => {
   if (id === oID)
     return
   generateCodeRef.value?.dispose()
+  currentSchemaID = Number.parseInt(id)
   await setDetail(id)
 })
 
 // trigger intelligent schema
 watchDebounced(() => schema.value?.name, async (name, oldName) => {
+  // id 不一致时，不处理
+  if (schema.value?.id !== currentSchemaID)
+    return
+
   // 内容为空时，请求AI接口，获取智能推荐的schema
   if (!readonly.value && name && oldName && jsonSchemaTableIns.value?.isEmpty()) {
     const josnschema = await apiGetAIModel(props.project_id, { modelID: schema.value?.id, title: name })
