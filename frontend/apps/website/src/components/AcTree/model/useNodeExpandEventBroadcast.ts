@@ -2,7 +2,7 @@ import { inject, provide } from 'vue'
 import type Node from './node'
 
 interface NodeMap {
-  treeNodeExpand(node: Node): void
+  treeNodeExpand: (node: Node) => void
   children: NodeMap[]
 }
 

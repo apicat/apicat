@@ -4,6 +4,7 @@ import { useNamespace } from '@apicat/hooks'
 import { ElMessage, ClickOutside as vClickOutside } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import type { PageModeCtx } from '../composables/usePageMode'
+import { useIntelligentSchema } from '../composables/useIntelligentSchema'
 import ResponseForm from './components/ResponseForm.vue'
 import ResponseRaw from './components/ResponseRaw.vue'
 import useProjectStore from '@/store/project'
@@ -32,6 +33,12 @@ const definitionResponseStore = useDefinitionResponseStore()
 const { loading, responseDetail: response } = storeToRefs(definitionResponseStore)
 const [isSaving, updateResponse, isSaveError] = useApi(definitionResponseStore.updateResponse)
 const { inputRef: titleInputRef, focus } = useTitleInputFocus()
+const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchema(props.project_id, () => {
+  return {
+    responseID: response.value?.id,
+    title: response.value?.name,
+  }
+})
 
 let oldTitle = ''
 
@@ -145,7 +152,7 @@ injectAsyncInitTask()!.addTask(setDetail(responseIDRef.value))
       </div>
     </div>
 
-    <ResponseForm v-if="!loading && !readonly" v-model:response="response" :definition-schemas="schemas" />
+    <ResponseForm v-if="!loading && !readonly" v-model:response="response" :definition-schemas="schemas" :handle-intelligent-schema="handleIntelligentSchema" :handle-check-replace-model="handleCheckReplaceModel" />
     <ResponseRaw v-if="!loading && readonly" :response="response" :definition-schemas="schemas" />
   </div>
 </template>

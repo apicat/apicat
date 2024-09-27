@@ -35,7 +35,7 @@ const default_url_options = {
   validate_length: true,
 }
 
-const wrapped_ipv6 = /^\[([^\]]+)\](?::([0-9]+))?$/
+const wrapped_ipv6 = /^\[([^\]]+)\](?::(\d+))?$/
 
 function isRegExp(obj) {
   return Object.prototype.toString.call(obj) === '[object RegExp]'
@@ -138,7 +138,7 @@ export default function isURL(url, options) {
 
   if (port_str !== null && port_str.length > 0) {
     port = Number.parseInt(port_str, 10)
-    if (!/^[0-9]+$/.test(port_str) || port <= 0 || port > 65535)
+    if (!/^\d+$/.test(port_str) || port <= 0 || port > 65535)
       return false
   }
   else if (options.require_port) {

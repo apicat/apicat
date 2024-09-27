@@ -37,7 +37,7 @@ export function useCollectionProvider({ projectID }: CollectionProviderOptions, 
   return collectionContext
 }
 
-export function useCollectionContextWithoutMounted(): { context: CollectionContext;initContextData: (_projectID?: string, cb?: () => Promise<void> | void) => Promise<void> } {
+export function useCollectionContextWithoutMounted(): { context: CollectionContext, initContextData: (_projectID?: string, cb?: () => Promise<void> | void) => Promise<void> } {
   const { t } = useI18n()
   const definitionSchemaStore = useDefinitionSchemaStore()
   const definitionResponseStore = useDefinitionResponseStore()

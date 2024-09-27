@@ -110,7 +110,7 @@ class TestCaseState {
   }
 }
 
-export function useTestCaseList(props: { projectID: string; collectionID: string }) {
+export function useTestCaseList(props: { projectID: string, collectionID: string }) {
   const testCaseState = ref<{ t: TestCaseState | undefined }>({ t: undefined })
   // const testCaseState = reactive<{ value: TestCaseState | undefined }>({ value: undefined })
   // const testCases = computed(() => {

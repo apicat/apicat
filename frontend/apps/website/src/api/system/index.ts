@@ -45,6 +45,12 @@ export async function apiUpdateEmailSendCloud(data: SystemAPI.EmailSendCloud): P
 export async function apiGetModel(): Promise<SystemAPI.ModelItem[]> {
   return DefaultAjax.get('/sysconfigs/models')
 }
+export async function apiGetDefaultModel(): Promise<SystemAPI.ModelDefaultConfig> {
+  return DefaultAjax.get('/sysconfigs/models/default')
+}
+export async function apiUpdateDefaultModel(data: SystemAPI.ResquestModelDefaultConfig): Promise<SystemAPI.ModelDefault> {
+  return DefaultAjax.put('/sysconfigs/models/default', data)
+}
 export async function apiUpdateModelOpenAI(data: SystemAPI.ModelOpenAI): Promise<void> {
   return DefaultAjax.put('/sysconfigs/models/openai', data, { isShowSuccessMsg: true })
 }

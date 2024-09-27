@@ -13,7 +13,7 @@ interface AppState {
 }
 
 interface OAuthURLConfig {
-  github(redirectUrl?: string): string
+  github: (redirectUrl?: string) => string
 }
 
 export const useAppStore = defineStore('app', {

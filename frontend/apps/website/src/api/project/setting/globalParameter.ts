@@ -39,6 +39,6 @@ export function deleteGlobalParameter(projectID: string, parameterID: string, de
 }
 
 // 排序全局参数
-export function sortGlobalParameter(projectID: string, data: { parameterIDs: string[];in: ProjectAPI.GlobalParameterType }): Promise<void> {
+export function sortGlobalParameter(projectID: string, data: { parameterIDs: string[], in: ProjectAPI.GlobalParameterType }): Promise<void> {
   return Ajax.put(`/projects/${projectID}/global/parameters/sort`, data)
 }

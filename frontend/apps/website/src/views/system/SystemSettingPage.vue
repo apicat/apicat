@@ -27,11 +27,6 @@ const menus: Record<string, { icon: string; title: string; component: any }> = {
     component: defineAsyncComponent(() => import('./pages/OAuth.vue')),
     title: t('app.pageTitles.systemSetting.oauth'),
   },
-  storage: {
-    icon: 'ac-memory-one',
-    component: defineAsyncComponent(() => import('./pages/Storage.vue')),
-    title: t('app.pageTitles.systemSetting.storage'),
-  },
   email: {
     icon: 'ac-mail',
     component: defineAsyncComponent(() => import('./pages/Email.vue')),

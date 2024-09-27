@@ -18,8 +18,6 @@
     "dev:component": "nx run @apicat/components:dev",
     "dev:editor": "nx run @apicat/editor:dev",
     "build": "nx run @apicat/website:build",
-    "watch:packs": "pnpm --filter './packages/*' start",
-    "build:packs": "pnpm --filter './packages/*' build",
     "clean:packages": "rimraf -g './packages/*/{dist}'",
     "clear": "rimraf -g './packages/*/{dist,node_modules}' && rimraf -g './apps/*/{dist,node_modules}' && rimraf './.nx' && rimraf './node_modules'",
     "graph": "nx dep-graph",

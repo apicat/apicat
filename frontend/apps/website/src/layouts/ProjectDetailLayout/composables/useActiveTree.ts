@@ -15,7 +15,7 @@ export const NODE_TYPE_RESPONSE = 'response'
 
 export function useActiveTree() {
   const route = useRoute()
-  const currentNode = ref<{ id?: number; type: string }>({ id: undefined, type: 'none' })
+  const currentNode = ref<{ id?: number, type: string }>({ id: undefined, type: 'none' })
 
   const activeCollectionKey = computed(() => {
     if (currentNode.value.type !== NODE_TYPE_COLLECTION)

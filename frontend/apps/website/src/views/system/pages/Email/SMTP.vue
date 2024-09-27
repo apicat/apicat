@@ -8,7 +8,7 @@ import { isUrlRule, notNullRule } from '@/commons'
 import { apiUpdateEmailSMTP } from '@/api/system'
 import useApi from '@/hooks/useApi'
 
-const props = defineProps<{ collapse: UseCollapse; name: string; config: Partial<SystemAPI.EmailSMTP> }>()
+const props = defineProps<{ collapse: UseCollapse, name: string, config: Partial<SystemAPI.EmailSMTP> }>()
 const { t } = useI18n()
 const tBase = 'app.system.email.smtp'
 const formRef = ref<FormInstance>()
@@ -34,12 +34,12 @@ function submit() {
         <div class="left mr-8px">
           <IconSvg name="ac-mail" width="24" />
         </div>
-        <div class="right font-bold">
+        <div class="font-bold right">
           {{ $t(`${tBase}.title`) }}
         </div>
       </div>
     </template>
-    <ElForm ref="formRef" label-position="top" :rules="rules" :model="props.config" @submit.prevent="submit">
+    <ElForm ref="formRef" label-position="top" :rules="rules" :model="props.config" size="large" @submit.prevent="submit">
       <!-- host -->
       <ElFormItem prop="host" :label="$t(`${tBase}.host`)">
         <ElInput v-model="props.config.host" maxlength="255" />
@@ -62,7 +62,7 @@ function submit() {
     </ElForm>
 
     <el-button :loading="submitting" type="primary" @click="submit">
-      {{ $t('app.common.update') }}
+      {{ $t('app.common.save') }}
     </el-button>
   </CollapseCardItem>
 </template>

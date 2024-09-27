@@ -5,6 +5,7 @@ import { useNamespace } from '@apicat/hooks'
 import { ElMessage, ClickOutside as vClickOutside } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import type { PageModeCtx } from '../composables/usePageMode'
+import { useIntelligentSchema } from '../composables/useIntelligentSchema'
 import useProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'
 import useDefinitionSchemaStore from '@/store/definitionSchema'
@@ -12,16 +13,17 @@ import { getSchemaHistoryPath } from '@/router/history'
 import { injectPagesMode } from '@/layouts/ProjectDetailLayout/composables/usePagesMode'
 import { useTitleInputFocus } from '@/hooks/useTitleInputFocus'
 import { injectAsyncInitTask } from '@/hooks/useWaitAsyncTask'
-import { apiParseSchema } from '@/api/project/definition/schema'
+import { apiGetAIModel, apiParseSchema } from '@/api/project/definition/schema'
 
 defineOptions({ inheritAttrs: false })
-const props = defineProps<{ project_id: string; schemaID: string }>()
+const props = defineProps<{ project_id: string, schemaID: string }>()
 
 const GenerateCode = defineAsyncComponent(() => import('@/components/GenerateCode/GenerateCode.vue'))
 
 const { t } = useI18n()
 const ns = useNamespace('document')
 const schemaIDRef = toRef(props, 'schemaID')
+const jsonSchemaTableIns = ref<InstanceType<typeof JSONSchemaTable>>()
 const { toggleMode, readonly } = injectPagesMode('schema') as PageModeCtx
 const definitionSchemaStore = useDefinitionSchemaStore()
 const { isManager, isWriter } = storeToRefs(useProjectStore())
@@ -29,6 +31,12 @@ const { schemas, schemaDetail: schema, isLoading: loading } = storeToRefs(defini
 const [isSaving, updateSchema, isSaveError] = useApi(definitionSchemaStore.updateSchema)
 const { inputRef: titleInputRef, focus } = useTitleInputFocus()
 const router = useRouter()
+const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchema(props.project_id, () => {
+  return {
+    schemaID: schema.value?.id,
+    title: schema.value?.name,
+  }
+})
 
 let oldTitle = ''
 
@@ -100,6 +108,15 @@ watch(schemaIDRef, async (id, oID) => {
   await setDetail(id)
 })
 
+// trigger intelligent schema
+watchDebounced(() => schema.value?.name, async (name, oldName) => {
+  // 内容为空时，请求AI接口，获取智能推荐的schema
+  if (!readonly.value && name && oldName && jsonSchemaTableIns.value?.isEmpty()) {
+    const josnschema = await apiGetAIModel(props.project_id, { modelID: schema.value?.id, title: name })
+    josnschema && schema.value && (schema.value.schema = josnschema)
+  }
+}, { debounce: 500 })
+
 injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
 </script>
 
@@ -156,12 +173,15 @@ injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
 
     <JSONSchemaTable
       v-if="!loading && schema"
+      ref="jsonSchemaTableIns"
       :key="schema.id"
       v-model:schema="schema.schema"
       :readonly="readonly"
       :root-schema-key="schema.id"
       :definition-schemas="schemas"
       :handle-parse-schema="apiParseSchema"
+      :handle-intelligent-schema="handleIntelligentSchema"
+      :handle-check-replace-model="handleCheckReplaceModel"
     />
     <GenerateCode v-if="readonly && schema" ref="generateCodeRef" :schema="schema" />
   </div>

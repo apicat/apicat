@@ -71,3 +71,8 @@ export async function apiCopyResponse(projectID: string, responseID: number): Pr
   res.header = parseJSONWithDefault(res.header, [])
   return res
 }
+
+// ai for response
+export async function apiGetAIResponse(data: any) {
+  return await DefaultAjax.post('/response/ai', data)
+}

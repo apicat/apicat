@@ -6,7 +6,6 @@ declare namespace SystemAPI {
 
   // service
   interface ServiceData {
-    appName: string
     appUrl: string
     mockUrl: string
   }
@@ -50,7 +49,7 @@ declare namespace SystemAPI {
   interface EmailSendCloud {
     apiUser: string
     apiKey: string
-    fromEmail: string
+    fromAddress: string
     fromName: string
   }
   interface EmailItem {
@@ -60,20 +59,50 @@ declare namespace SystemAPI {
   }
 
   // model
-  interface ModelAzure {
+
+  interface ModelCommonConfig {
+    llm: string
+    embedding: string
+  }
+
+  interface ModelAzure extends ModelCommonConfig {
     apiKey: string
     endpoint: string
-    llmName: string
+    llmDeployName: string
+    embeddingDeployName: string
   }
-  interface ModelOpenAI {
+
+  interface ModelOpenAI extends ModelCommonConfig {
     apiKey: string
     organizationID?: string
     apiBase?: string
-    llmName: string
   }
+
   interface ModelItem {
     driver: ModelDrivers
-    use: boolean
     config: ModelAzure | ModelOpenAI
+    models?: {
+      llm: string[]
+      embedding: string[]
+    }
+  }
+
+  interface ModelDefault {
+    driver: string
+    model: string
+  }
+
+  interface ModelDefaultItem extends ModelDefault {
+    selected: boolean
+  }
+
+  interface ModelDefaultConfig {
+    llm: ModelDefaultItem[]
+    embedding: ModelDefaultItem[]
+  }
+
+  interface ResquestModelDefaultConfig {
+    llm: ModelDefault
+    embedding: ModelDefault
   }
 }

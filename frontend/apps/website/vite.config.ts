@@ -1,3 +1,5 @@
+/* eslint-disable regexp/no-dupe-disjunctions */
+/* eslint-disable regexp/no-unused-capturing-group */
 import { URL, fileURLToPath } from 'node:url'
 import path, { resolve } from 'node:path'
 import fs from 'node:fs'

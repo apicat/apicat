@@ -12,6 +12,7 @@ interface A {
   [SysEmail.SMTP]: SystemAPI.EmailSMTP
   [SysEmail.SendCloud]: SystemAPI.EmailSendCloud
 }
+
 const data = ref<A>({
   [SysEmail.SMTP]: {
     host: '',
@@ -22,10 +23,11 @@ const data = ref<A>({
   [SysEmail.SendCloud]: {
     apiUser: '',
     apiKey: '',
-    fromEmail: '',
+    fromAddress: '',
     fromName: '',
   },
 })
+
 apiGetEmail().then((res) => {
   for (let i = 0; i < res.length; i++) {
     const v = res[i]
@@ -40,7 +42,7 @@ apiGetEmail().then((res) => {
   <div class="bg-white w-85%">
     <h1>{{ $t(`${tBase}.title`) }}</h1>
 
-    <div class="mt-40px flex flex-col">
+    <div class="flex flex-col">
       <SMTP v-model:config="data[SysEmail.SMTP]" class="collapse-box" :name="SysEmail.SMTP" :collapse="collapse" />
       <SendCloud
         v-model:config="data[SysEmail.SendCloud]"
@@ -53,18 +55,6 @@ apiGetEmail().then((res) => {
 </template>
 
 <style scoped>
-h1 {
-  font-size: 30px;
-}
-
-:deep(.el-select .el-input) {
-  height: 40px;
-}
-
-:deep(.el-button) {
-  height: 40px;
-}
-
 .row {
   margin-top: 1em;
   margin-bottom: 1em;
@@ -87,9 +77,5 @@ h1 {
 .right {
   /* justify-content: flex-end; */
   flex-grow: 1;
-}
-
-.content {
-  margin-top: 40px;
 }
 </style>

@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { SchemaTreeNode } from '@apicat/components'
 import { JSONSchemaTable, SimpleParamTable, ToggleHeading } from '@apicat/components'
+import type { JSONSchema } from '@apicat/editor'
 import ResponseExamples from './ResponseExamples.vue'
 import { useResponse } from './useResponse'
 import { ResponseContentTypesMap } from '@/commons/constant'
@@ -8,6 +10,8 @@ import { apiParseSchema } from '@/api/project/definition/schema'
 export interface ResponseFormProps {
   response: Definition.ResponseDetail
   definitionSchemas: Definition.Schema[]
+  handleIntelligentSchema?: (josnschema: JSONSchema, node: SchemaTreeNode) => Promise<{ nid: string, schema: JSONSchema } | void>
+  handleCheckReplaceModel?: (josnschema: JSONSchema) => Promise<{ nid: string, schema: JSONSchema } | void>
 }
 
 export interface ResponseFormEmits {
@@ -40,7 +44,14 @@ const { examples, headers, contentType, isJSONSchema, contentSchema } = useRespo
       </template>
 
       <div class="">
-        <JSONSchemaTable v-if="isJSONSchema" v-model:schema="contentSchema" :definition-schemas="definitionSchemas" :handle-parse-schema="apiParseSchema" />
+        <JSONSchemaTable
+          v-if="isJSONSchema"
+          v-model:schema="contentSchema"
+          :definition-schemas="definitionSchemas"
+          :handle-parse-schema="apiParseSchema"
+          :handle-intelligent-schema="handleIntelligentSchema"
+          :handle-check-replace-model="handleCheckReplaceModel"
+        />
         <ResponseExamples v-model:examples="examples" :lang="(ResponseContentTypesMap as any)[contentType]" />
       </div>
     </ToggleHeading>

@@ -106,7 +106,7 @@ async function submitAvatar(data: UserAPI.RequestChangeAvatar) {
         <h1 class="font-500 text-24px text-gray-title">
           {{ $t('app.user.general.title') }}
         </h1>
-        <ElForm ref="formRef" :rules="rules" :model="form" class="content" label-position="top">
+        <ElForm ref="formRef" :rules="rules" :model="form" class="content" label-position="top" size="large">
           <!-- head img -->
           <ElFormItem prop="avatar">
             <div class="row">
@@ -127,7 +127,7 @@ async function submitAvatar(data: UserAPI.RequestChangeAvatar) {
           <div style="margin-top: 40px">
             <!-- username -->
             <ElFormItem prop="name" :label="$t('app.user.general.username')">
-              <ElInput v-model="userinfo.name" maxlength="64" class="h-40px" />
+              <ElInput v-model="userinfo.name" maxlength="64" />
             </ElFormItem>
 
             <!-- lang -->
@@ -154,14 +154,6 @@ async function submitAvatar(data: UserAPI.RequestChangeAvatar) {
 </template>
 
 <style scoped>
-:deep(.el-select .el-input) {
-  height: 40px;
-}
-
-:deep(.el-button) {
-  height: 40px;
-}
-
 .row {
   margin-top: 1em;
   margin-bottom: 1em;

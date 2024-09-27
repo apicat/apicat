@@ -2,8 +2,8 @@ const defaultKey = Symbol('asyncInitKey')
 
 interface Ctx {
   tasks: Promise<void>[]
-  addTask(a: (() => Promise<void>) | Promise<void>): void
-  done(): Promise<void>
+  addTask: (a: (() => Promise<void>) | Promise<void>) => void
+  done: () => Promise<void>
 }
 
 export function provideAsyncInitTask(key?: string) {

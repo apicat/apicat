@@ -4,7 +4,7 @@ export async function apiForgotSendEmail(email: string): Promise<ResponseAPI.Res
   return DefaultAjax.post('/account/retrieve-password', { email })
 }
 
-export async function apiResetPass(data: { password: string; re_password: string }, code: string): Promise<ResponseAPI.Response<void>> {
+export async function apiResetPass(data: { password: string, re_password: string }, code: string): Promise<ResponseAPI.Response<void>> {
   return DefaultAjax.put(`/account/reset-password/${code}`, data)
 }
 
