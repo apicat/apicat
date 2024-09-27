@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/apicat/apicat/v2/backend/i18n"
 	"github.com/apicat/apicat/v2/backend/model/definition"
@@ -149,6 +150,9 @@ func (dsai *definitionSchemaApiImpl) Update(ctx *gin.Context, opt *projectreques
 		slog.ErrorContext(ctx, "reference.ParseRefSchemasFromSchema", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
 	}
+
+	opt.Schema = strings.ReplaceAll(opt.Schema, ",\"x-apicat-focus\":true", "")
+	opt.Schema = strings.ReplaceAll(opt.Schema, ",\"x-apicat-suggestion\":true", "")
 
 	ds.Name = opt.Name
 	ds.Description = opt.Description

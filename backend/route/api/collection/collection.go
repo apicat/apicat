@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/apicat/apicat/v2/backend/config"
@@ -231,6 +232,9 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 				opt.Content = s
 			}
 		}
+
+		opt.Content = strings.ReplaceAll(opt.Content, ",\"x-apicat-focus\":true", "")
+		opt.Content = strings.ReplaceAll(opt.Content, ",\"x-apicat-suggestion\":true", "")
 	}
 
 	if err := c.Update(ctx, opt.Title, opt.Content, selfTM.ID); err != nil {
