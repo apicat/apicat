@@ -69,6 +69,13 @@
   padding-bottom: $document-padding;
   padding-top: $doc-header-height;
 
+  @include when(tips){
+    .ac-http-request,
+    .ac-http-response{
+      opacity: 0.6;
+    }
+  }
+
   @include e(title) {
     font-size: 28px;
     font-weight: 500;

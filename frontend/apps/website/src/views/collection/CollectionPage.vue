@@ -20,6 +20,8 @@ const {
   isLoading,
   isSaving,
   isSaveError,
+  isAIMode,
+
   handleTitleBlur,
   handleContentUpdate,
   onShareCollectionBtnClick,
@@ -115,7 +117,7 @@ function showTestPage() {
     </div>
 
     <!-- content -->
-    <div v-if="collection" v-loading="isLoading" :class="[ns.b()]">
+    <div v-if="collection" v-loading="isLoading" :class="[ns.b(), ns.is('tips', isAIMode)]">
       <div v-if="!readonly">
         <input
           ref="titleInputRef" v-model="collection.title" class="ac-document__title" type="text" maxlength="255"
