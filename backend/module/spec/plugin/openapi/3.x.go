@@ -145,6 +145,7 @@ func (o *openapiParser) parseDefinetions(comp *v3.Components) (*spec.Definitions
 			models = append(models, &spec.DefinitionModel{
 				ID:          stringToUnid(k),
 				Name:        k,
+				Type:        spec.TYPE_MODEL,
 				Description: js.Description,
 				Schema:      parentJS,
 			})
@@ -152,6 +153,7 @@ func (o *openapiParser) parseDefinetions(comp *v3.Components) (*spec.Definitions
 			models = append(models, &spec.DefinitionModel{
 				ID:          stringToUnid(k),
 				Name:        k,
+				Type:        spec.TYPE_MODEL,
 				Description: js.Description,
 				Schema:      js,
 			})
@@ -171,6 +173,7 @@ func (o *openapiParser) parseDefinetions(comp *v3.Components) (*spec.Definitions
 				ID:          id,
 				Description: response.Description,
 			},
+			Type: spec.TYPE_RESPONSE,
 		}
 
 		if response.Headers != nil {
