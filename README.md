@@ -11,7 +11,7 @@
     <a href="https://apicat.ai" target="_blank">
         <img alt="Static Badge" src="https://img.shields.io/badge/ai-apicat?logo=ai&logoColor=red&label=apicat&labelColor=4894FF&color=EAECF0">
     </a>
-    <a href="https://discord.gg/6UFBGhNu" target="_blank">
+    <a href="https://discord.gg/BdF8Cd3G" target="_blank">
         <img alt="Static Badge" src="https://img.shields.io/badge/chat-Discord-4E5AF0?logo=Discord">
     </a>
     <a href="https://github.com/apicat/apicat/blob/main/LICENSE">
@@ -42,7 +42,7 @@ If you need to customize the configuration, please refer to our [docker-compose.
 
 If you have anything you would like to discuss with us, please join our community.
 
-- [Discord](https://discord.gg/6UFBGhNu)
+- [Discord](https://discord.gg/BdF8Cd3G)
 
 ## License
 

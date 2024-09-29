@@ -11,7 +11,7 @@
     <a href="https://apicat.ai" target="_blank">
         <img alt="Static Badge" src="https://img.shields.io/badge/ai-apicat?logo=ai&logoColor=red&label=apicat&labelColor=4894FF&color=EAECF0">
     </a>
-    <a href="https://discord.gg/6UFBGhNu" target="_blank">
+    <a href="https://discord.gg/BdF8Cd3G" target="_blank">
         <img alt="Static Badge" src="https://img.shields.io/badge/chat-Discord-4E5AF0?logo=Discord">
     </a>
     <a href="https://github.com/apicat/apicat/blob/main/LICENSE">
@@ -42,7 +42,7 @@ docker compose up -d
 
 如果您有任何想和我们交流讨论的内容，欢迎加入我们的社区。
 
-- [Discord](https://discord.gg/6UFBGhNu)
+- [Discord](https://discord.gg/BdF8Cd3G)
 - 微信群
 
 ![Wechat Group](https://cdn.apicat.net/uploads/01bfb23802cdfad49f0d560ee80fc5e3.png)
