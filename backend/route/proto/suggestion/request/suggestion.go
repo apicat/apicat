@@ -22,4 +22,5 @@ type SchemaOption struct {
 	RequestID string `json:"requestID" binding:"required,gt=1"`
 	Title     string `json:"title" binding:"required"`
 	Schema    string `json:"schema" binding:"required"`
+	ModelID   int64  `json:"modelID" binding:"omitempty,gt=0"`
 }

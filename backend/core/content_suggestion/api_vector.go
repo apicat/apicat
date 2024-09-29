@@ -118,7 +118,7 @@ func (a *ApiVector) CreateLater(cid uint) {
 			return
 		}
 		if vid, err := a.CreateNow(doc); err != nil {
-			slog.Error("a.Create", "err", err)
+			slog.Error("a.CreateNow", "err", err)
 		} else {
 			slog.Debug("api vector create success", "id", cid, "vid", vid)
 		}

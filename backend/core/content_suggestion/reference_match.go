@@ -54,7 +54,7 @@ func NewReferenceMatcher(ctx context.Context, projectID string) (*ReferenceMatch
 	}, nil
 }
 
-func (rm *ReferenceMatcher) Match(title string, schema *jsonschema.Schema) (*jsonschema.Schema, error) {
+func (rm *ReferenceMatcher) Match(title string, schema *jsonschema.Schema, exceptModel int64) (*jsonschema.Schema, error) {
 	if schema == nil {
 		return nil, errors.New("schema is nil")
 	}
@@ -63,15 +63,17 @@ func (rm *ReferenceMatcher) Match(title string, schema *jsonschema.Schema) (*jso
 		slog.ErrorContext(rm.ctx, "rm.similaritySearch", "err", err)
 		return nil, err
 	} else {
+		if len(matchIDs) > 0 && exceptModel > 0 {
+			matchIDs = array_operation.Remove(uint(exceptModel), matchIDs)
+		}
+
 		if len(matchIDs) == 0 {
 			return nil, nil
 		}
 
 		if refIDs := schema.DeepGetRefID(); len(refIDs) > 0 {
 			for _, refID := range refIDs {
-				if array_operation.InArray(uint(refID), matchIDs) {
-					array_operation.Remove(uint(refID), matchIDs)
-				}
+				matchIDs = array_operation.Remove(uint(refID), matchIDs)
 			}
 			if len(matchIDs) == 0 {
 				return nil, nil

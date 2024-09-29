@@ -142,7 +142,7 @@ func (s *suggestionApiImpl) GenReference(ctx *gin.Context, opt *suggestionreq.Sc
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("suggestion.ReferenceGenerationFailed"))
 	}
 
-	newS, err := generator.Match(opt.Title, js)
+	newS, err := generator.Match(opt.Title, js, opt.ModelID)
 	if err != nil {
 		slog.ErrorContext(ctx, "generator.Match", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("suggestion.ReferenceGenerationFailed"))

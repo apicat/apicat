@@ -162,7 +162,6 @@ func registerProjectDefinitionSchema(g *gin.RouterGroup) {
 	noAuth.GET("", ginrpc.Handle(srv.List))
 	noAuth.GET("/:schemaID", ginrpc.Handle(srv.Get))
 
-	g.POST("/projects/:projectID/definition/ai/schemas", access.BelongToTeam(), access.BelongToProject(), ginrpc.Handle(srv.AIGenerate))
 	r := g.Group("/projects/:projectID/definition/schemas", access.BelongToTeam(), access.BelongToProject())
 	r.POST("", ginrpc.Handle(srv.Create))
 	r.PUT("/:schemaID", ginrpc.Handle(srv.Update))
@@ -204,7 +203,6 @@ func registerCollection(g *gin.RouterGroup) {
 	// 导出集合内容，需返回不同的 Content-Type，单独处理
 	noAuth.GET("/:collectionID/export/:code", collection.Export)
 
-	g.POST("/projects/:projectID/ai/collections", access.BelongToTeam(), access.BelongToProject(), ginrpc.Handle(srv.AIGenerate))
 	r := g.Group("/projects/:projectID/collections", access.BelongToTeam(), access.BelongToProject())
 	r.POST("", ginrpc.Handle(srv.Create))
 	r.PUT("/:collectionID", ginrpc.Handle(srv.Update))
