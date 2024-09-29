@@ -51,10 +51,6 @@ type CollectionApi interface {
 	// GetExportPath 获取导出path
 	// @route GET /projects/{projectID}/collections/{collectionID}/export
 	GetExportPath(*gin.Context, *request.GetExportPathOption) (*response.ExportCollection, error)
-
-	// AIGenerate AI 生成集合
-	// @route POST /projects/{projectID}/ai/collections
-	AIGenerate(*gin.Context, *request.AIGenerateCollectionOption) (*response.Collection, error)
 }
 
 type CollectionShareApi interface {

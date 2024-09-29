@@ -160,10 +160,6 @@ type DefinitionSchemaApi interface {
 	// Copy 复制定义模型
 	// @route POST /projects/{projectID}/definition/schemas/{schemaID}/copy
 	Copy(*gin.Context, *request.GetDefinitionSchemaOption) (*response.DefinitionSchema, error)
-
-	// AIGenerate AI 生成模型
-	// @route POST /projects/{projectID}/definition/ai/schemas
-	AIGenerate(*gin.Context, *request.AIGenerateSchemaOption) (*response.DefinitionSchema, error)
 }
 
 // GlobalParameterApi 全局参数相关
