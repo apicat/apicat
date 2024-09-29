@@ -1,6 +1,7 @@
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { storeToRefs } from 'pinia'
+import { delay } from '@apicat/shared'
 import type { PageModeCtx } from '../composables/usePageMode'
 import useApi from '@/hooks/useApi'
 import { useCollectionsStore } from '@/store/collections'
@@ -35,7 +36,7 @@ export function useCollection(props: { project_id: string, collectionID: string 
     }
   }
 
-  function handleContentUpdate(content: Array<any>) {
+  async function handleContentUpdate(content: Array<any>) {
     if (!collection.value)
       return
     collection.value.content = content
@@ -78,19 +79,10 @@ export function useCollection(props: { project_id: string, collectionID: string 
       // backup old title
       oldTitle = n.title
 
-      try {
-        if (!isAIMode.value) {
-          await updateCollection(props.project_id, n)
-        }
-        else {
-          // TODO: 获取AI推理数据
-          // await apiGetAICollection()
-          collection.value!.content = [{ type: 'apicat-http-url', attrs: { path: '/duhan', method: 'get' } }, { type: 'apicat-http-request', attrs: { globalExcepts: { header: [], cookie: [], query: [] }, parameters: { query: [{ name: 'bb', required: true, schema: { 'type': 'string', 'x-apicat-mock': 'string' } }], path: [], cookie: [{ name: 'aa', required: true, schema: { 'type': 'string', 'x-apicat-mock': 'string' } }], header: [{ name: 'duhan', required: true, schema: { 'type': 'string', 'x-apicat-mock': 'string' } }] }, content: { 'application/json': { schema: { 'properties': { aa: { 'type': 'string', 'x-apicat-mock': 'string' }, bb: { 'type': 'string', 'x-apicat-mock': 'string' } }, 'type': 'object', 'required': ['aa', 'bb'], 'x-apicat-orders': ['aa', 'bb'], 'x-apicat-mock': 'object' } } } } }, { type: 'apicat-http-response', attrs: { list: [{ name: 'wahah', content: { 'application/json': { schema: { 'properties': { dddd: { 'type': 'string', 'x-apicat-mock': 'string' } }, 'type': 'object', 'required': ['dddd'], 'x-apicat-orders': ['dddd'], 'x-apicat-mock': 'object' } } }, code: 100 }] } }]
-        }
-      }
-      catch (error) {
-        //
-      }
+      if (!isAIMode.value)
+        await updateCollection(props.project_id, n)
+      // else
+        // await apiGetAICollection(props.project_id, { requestID: `${Date.now()}`, title: n.title, path: '/api/login' })
     }
   }, { debounce: 200 })
 
@@ -114,8 +106,6 @@ export function useCollection(props: { project_id: string, collectionID: string 
         oldTitle = collection.value?.title || ''
         if (!readonly.value)
           focus()
-        // 判断是否启用AI模式
-        isAIMode.value = isEmptyContent(collection.value?.content)
       }
     },
     {
@@ -155,6 +145,7 @@ export function useCollection(props: { project_id: string, collectionID: string 
     isLoading,
     isSaving,
     isSaveError,
+    isAIMode,
 
     handleTitleBlur,
     handleContentUpdate,
