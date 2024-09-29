@@ -115,7 +115,7 @@ func (dm *definitionModelVector) CreateLater(mid uint) {
 			return
 		}
 		if vid, err := dm.CreateNow(m); err != nil {
-			slog.Error("a.Create", "err", err)
+			slog.Error("dm.CreateNow", "err", err)
 		} else {
 			slog.Debug("definition model vector create success", "id", mid, "vid", vid)
 		}
