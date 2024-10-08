@@ -19,13 +19,15 @@ import (
 type SchemaGenerator struct {
 	projectID         string
 	rootSchema        *jsonschema.Schema
+	exceptType        string
+	exceptID          int64
 	focusParentKey    string
 	focusParentSchema *jsonschema.Schema
 	similarSchema     *jsonschema.Schema
 	ctx               context.Context
 }
 
-func NewSchemaGenerator(projectID string, js *jsonschema.Schema) (*SchemaGenerator, error) {
+func NewSchemaGenerator(projectID string, js *jsonschema.Schema, exceptType string, exceptID int64) (*SchemaGenerator, error) {
 	if js == nil {
 		return nil, errors.New("jsonschema is nil")
 	}
@@ -33,6 +35,8 @@ func NewSchemaGenerator(projectID string, js *jsonschema.Schema) (*SchemaGenerat
 	return &SchemaGenerator{
 		projectID:  projectID,
 		rootSchema: js,
+		exceptType: exceptType,
+		exceptID:   exceptID,
 		ctx:        context.Background(),
 	}, nil
 }
@@ -202,10 +206,16 @@ func (sg *SchemaGenerator) similaritySearch() ([]map[string]int, error) {
 	ids := make([]map[string]int, 0)
 	for _, v := range searchResults {
 		if v.CollectionID > 0 {
+			if sg.exceptType == "collection" && int64(v.CollectionID) == sg.exceptID {
+				continue
+			}
 			ids = append(ids, map[string]int{
 				"collection_id": int(v.CollectionID),
 			})
 		} else if v.DefinitionModelID > 0 {
+			if sg.exceptType == "model" && int64(v.DefinitionModelID) == sg.exceptID {
+				continue
+			}
 			ids = append(ids, map[string]int{
 				"definition_model_id": int(v.DefinitionModelID),
 			})

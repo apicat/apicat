@@ -21,5 +21,5 @@ type SuggestionApi interface {
 
 	// Reference suggestion
 	// @route POST /projects/{projectID}/suggestion/reference
-	GenReference(*gin.Context, *suggestionreq.SchemaOption) (*suggestionres.ModelSuggestion, error)
+	GenReference(*gin.Context, *suggestionreq.RefOption) (*suggestionres.ModelSuggestion, error)
 }
