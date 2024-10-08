@@ -87,7 +87,7 @@ watchDebounced(
   },
   {
     deep: true,
-    debounce: 200,
+    debounce: 500,
   },
 )
 
@@ -111,6 +111,7 @@ watch(schemaIDRef, async (id, oID) => {
   await setDetail(id)
 })
 
+let isLoading = false
 // trigger intelligent schema
 watchDebounced(() => schema.value?.name, async (name, oldName) => {
   // id 不一致时，不处理
@@ -119,8 +120,18 @@ watchDebounced(() => schema.value?.name, async (name, oldName) => {
 
   // 内容为空时，请求AI接口，获取智能推荐的schema
   if (!readonly.value && name && oldName && jsonSchemaTableIns.value?.isEmpty()) {
-    const josnschema = await apiGetAIModel(props.project_id, { modelID: schema.value?.id, title: name })
-    josnschema && schema.value && (schema.value.schema = josnschema)
+    if (isLoading)
+      return
+
+    try {
+      isLoading = true
+      const josnschema = await apiGetAIModel(props.project_id, { modelID: schema.value?.id, title: name })
+      josnschema && schema.value && definitionSchemaStore.updateSchemaDetail({ schema: josnschema })
+      isLoading = false
+    }
+    catch (error) {
+      isLoading = false
+    }
   }
 }, { debounce: 500 })
 
@@ -159,7 +170,10 @@ injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
       </el-button>
 
       <div v-if="readonly">
-        <el-tooltip v-if="isManager || isWriter" effect="dark" placement="bottom" :content="$t('app.schema.history.title')" :show-arrow="false">
+        <el-tooltip
+          v-if="isManager || isWriter" effect="dark" placement="bottom"
+          :content="$t('app.schema.history.title')" :show-arrow="false"
+        >
           <Iconfont class="cursor-pointer ac-history" :size="24" @click="goSchemahistory" />
         </el-tooltip>
       </div>
@@ -173,21 +187,21 @@ injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
         {{ schema?.description }}
       </h4>
       <div v-if="!readonly && schema">
-        <input ref="titleInputRef" v-model="schema.name" v-click-outside="handleBlurNameInput" class="ac-document__title" type="text" maxlength="255" :placeholder="$t('app.schema.form.title')">
-        <input v-model="schema.description" class="w-full ac-document__desc" type="text" maxlength="255" :placeholder="$t('app.schema.form.desc')">
+        <input
+          ref="titleInputRef" v-model="schema.name" v-click-outside="handleBlurNameInput"
+          class="ac-document__title" type="text" maxlength="255" :placeholder="$t('app.schema.form.title')"
+        >
+        <input
+          v-model="schema.description" class="w-full ac-document__desc" type="text" maxlength="255"
+          :placeholder="$t('app.schema.form.desc')"
+        >
       </div>
     </div>
 
     <JSONSchemaTable
-      v-if="!loading && schema"
-      ref="jsonSchemaTableIns"
-      :key="schema.id"
-      v-model:schema="schema.schema"
-      :readonly="readonly"
-      :root-schema-key="schema.id"
-      :definition-schemas="schemas"
-      :handle-parse-schema="apiParseSchema"
-      :handle-intelligent-schema="handleIntelligentSchema"
+      v-if="!loading && schema" ref="jsonSchemaTableIns" :key="schema.id" v-model:schema="schema.schema"
+      :readonly="readonly" :root-schema-key="schema.id" :definition-schemas="schemas"
+      :handle-parse-schema="apiParseSchema" :handle-intelligent-schema="handleIntelligentSchema"
       :handle-check-replace-model="handleCheckReplaceModel"
     />
     <GenerateCode v-if="readonly && schema" ref="generateCodeRef" :schema="schema" />

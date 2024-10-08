@@ -44,14 +44,22 @@ export function useIntelligentSchema(projectID: string, getParams?: () => any) {
 
     requestIDCheckReplaceModel = guid()
 
+    // 额外携带参数,默认为空
+    const extraParams = getParams?.() || {}
+
     try {
       isLoadingCheckReplaceModel = true
-      const { requestID, schema } = await apiCheckReplaceModel(projectID, {
+      const params = {
         schema: JSON.stringify(jsonschema),
         requestID: requestIDCheckReplaceModel,
-        ...getParams?.(),
-      })
+        title: extraParams.title || '',
+      } as any
 
+      // 如果是model类型，则需要携带modelID
+      if (extraParams.type === 'model')
+        params.modelID = extraParams.id
+
+      const { requestID, schema } = await apiCheckReplaceModel(projectID, params)
       isLoadingCheckReplaceModel = false
 
       // not match

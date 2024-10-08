@@ -128,10 +128,12 @@ export async function apiGetAIModel(projectID: string, params: any): Promise<JSO
     return
 
   try {
-    return JSON.parse(res.schema as string)
+    const schema = JSON.parse(res.schema as string) as any
+    schema['x-apicat-suggestion'] = true
+    return schema
   }
   catch (error) {
-    //
+    console.error(error)
   }
 }
 

@@ -113,6 +113,14 @@ export const useDefinitionSchemaStore = defineStore('project.definitionSchema', 
         endLoading()
       }
     },
+
+    updateSchemaDetail(schema: Partial<Definition.SchemaNode>) {
+      this.schemaDetail = {
+        ...this.schemaDetail,
+        ...(schema || {}),
+      } as any
+    },
+
     async getSchemas(projectID: string) {
       this.schemas = await apiGetSchemaTree(projectID)
       return this.schemas
