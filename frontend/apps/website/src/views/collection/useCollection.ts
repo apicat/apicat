@@ -1,7 +1,6 @@
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { storeToRefs } from 'pinia'
-import { EDITOR_NODE_EVENT } from '@apicat/editor'
 import type { PageModeCtx } from '../composables/usePageMode'
 import { useAITips } from './useAITips'
 import useApi from '@/hooks/useApi'
@@ -25,15 +24,15 @@ export function useCollection(props: { project_id: string, collectionID: string 
   const { collectionDetail: collection, loading: isLoading } = storeToRefs(collectionStore)
   const [isSaving, updateCollection, isSaveError] = useApi(collectionStore.updateCollection)
   const { inputRef, focus } = useTitleInputFocus()
-  const { preCollection, docTitle, isAIMode, isShowAIStyle, isShowAIStyleForTitle, handleEditorEvent, handleTitleBlur: triggerTitleBlur } = useAITips(props.project_id, collection, readonly)
+  const { preCollection, docTitle, isAIMode, isShowAIStyle, isShowAIStyleForTitle, handleEditorEvent, handleTitleBlur: triggerTitleBlur } = useAITips(props.project_id, collection, readonly, updateCollection)
 
   function handleTitleBlur() {
     const title = collection.value?.title || ''
     if (!title || !title.trim()) {
       collection.value!.title = oldTitle
-      triggerTitleBlur()
       oldTitle = ''
     }
+    triggerTitleBlur()
   }
 
   async function handleContentUpdate(content: Array<any>) {
@@ -109,7 +108,7 @@ export function useCollection(props: { project_id: string, collectionID: string 
         // 如果内容为空，则可以开启AI推理模式,备份当前collection
         isAIMode.value = isEmptyContent(collection.value?.content)
         if (isAIMode.value)
-          preCollection.value = collection.value
+          preCollection.value = JSON.parse(JSON.stringify(collection.value))
       }
     },
     {
