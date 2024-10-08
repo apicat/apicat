@@ -1,8 +1,9 @@
 import { useI18n } from 'vue-i18n'
 import { ElMessage } from 'element-plus'
 import { storeToRefs } from 'pinia'
-import { delay } from '@apicat/shared'
+import { EDITOR_NODE_EVENT } from '@apicat/editor'
 import type { PageModeCtx } from '../composables/usePageMode'
+import { useAITips } from './useAITips'
 import useApi from '@/hooks/useApi'
 import { useCollectionsStore } from '@/store/collections'
 import { useProjectLayoutContext } from '@/layouts/ProjectDetailLayout'
@@ -10,7 +11,7 @@ import { getCollectionHistoryPath } from '@/router/history'
 import { injectPagesMode } from '@/layouts/ProjectDetailLayout/composables/usePagesMode'
 import { useTitleInputFocus } from '@/hooks/useTitleInputFocus'
 import { injectAsyncInitTask } from '@/hooks/useWaitAsyncTask'
-import { apiGetAICollection, isEmptyContent } from '@/api/project/collection'
+import { isEmptyContent } from '@/api/project/collection'
 
 let oldTitle = ''
 
@@ -24,14 +25,13 @@ export function useCollection(props: { project_id: string, collectionID: string 
   const { collectionDetail: collection, loading: isLoading } = storeToRefs(collectionStore)
   const [isSaving, updateCollection, isSaveError] = useApi(collectionStore.updateCollection)
   const { inputRef, focus } = useTitleInputFocus()
-
-  // 是否是AI模式，避免AI推理数据被保存
-  const isAIMode = ref(false)
+  const { preCollection, docTitle, isAIMode, isShowAIStyle, isShowAIStyleForTitle, handleEditorEvent, handleTitleBlur: triggerTitleBlur } = useAITips(props.project_id, collection, readonly)
 
   function handleTitleBlur() {
     const title = collection.value?.title || ''
     if (!title || !title.trim()) {
       collection.value!.title = oldTitle
+      triggerTitleBlur()
       oldTitle = ''
     }
   }
@@ -78,13 +78,12 @@ export function useCollection(props: { project_id: string, collectionID: string 
 
       // backup old title
       oldTitle = n.title
-
+      // sync docTitle
+      docTitle.value = n.title
       if (!isAIMode.value)
         await updateCollection(props.project_id, n)
-      // else
-        // await apiGetAICollection(props.project_id, { requestID: `${Date.now()}`, title: n.title, path: '/api/login' })
     }
-  }, { debounce: 200 })
+  }, { debounce: 500 })
 
   const asyncTaskCtx = injectAsyncInitTask()
   let isImmidiate = true
@@ -106,6 +105,11 @@ export function useCollection(props: { project_id: string, collectionID: string 
         oldTitle = collection.value?.title || ''
         if (!readonly.value)
           focus()
+
+        // 如果内容为空，则可以开启AI推理模式,备份当前collection
+        isAIMode.value = isEmptyContent(collection.value?.content)
+        if (isAIMode.value)
+          preCollection.value = collection.value
       }
     },
     {
@@ -145,8 +149,10 @@ export function useCollection(props: { project_id: string, collectionID: string 
     isLoading,
     isSaving,
     isSaveError,
-    isAIMode,
+    isShowAIStyle,
+    isShowAIStyleForTitle,
 
+    handleEditorEvent,
     handleTitleBlur,
     handleContentUpdate,
     onShareCollectionBtnClick,
