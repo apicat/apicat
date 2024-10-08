@@ -33,7 +33,8 @@ const { inputRef: titleInputRef, focus } = useTitleInputFocus()
 const router = useRouter()
 const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchema(props.project_id, () => {
   return {
-    schemaID: schema.value?.id,
+    id: schema.value?.id,
+    type: 'model',
     title: schema.value?.name,
   }
 })

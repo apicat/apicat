@@ -36,7 +36,8 @@ const {
 
 const { handleIntelligentSchema } = useIntelligentSchema(props.project_id, () => {
   return {
-    collectionID: collection?.value?.id,
+    id: collection?.value?.id,
+    type: 'collection',
     title: collection?.value?.title,
   }
 })
