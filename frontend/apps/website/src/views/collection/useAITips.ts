@@ -99,11 +99,14 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
     isShowAIStyle.value = false
     isShowAIStyleForTitle.value = false
     try {
+      const copyCollectionStr = JSON.stringify(collection.value)
+      const copyPreCollectionStr = JSON.stringify(preCollection.value)
+      if (copyCollectionStr === copyPreCollectionStr)
+        return
+
       updateCollection(project_id, collection.value!)
-      const copyCollection = JSON.parse(JSON.stringify(collection.value))
-      // collection.value = copyCollection
       // 保存历史文档
-      preCollection.value = copyCollection
+      preCollection.value = JSON.parse(copyCollectionStr)
     }
     catch (e) {
       console.error('confirmAITips error', e)
