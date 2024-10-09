@@ -107,6 +107,7 @@ func (s *swaggerParser) parseDefinitionModels(defs *v2.Definitions) (spec.Defini
 			models = append(models, &spec.DefinitionModel{
 				ID:          id,
 				Name:        k,
+				Type:        spec.TYPE_MODEL,
 				Description: k,
 				Schema:      parentJS,
 			})
@@ -114,6 +115,7 @@ func (s *swaggerParser) parseDefinitionModels(defs *v2.Definitions) (spec.Defini
 			models = append(models, &spec.DefinitionModel{
 				ID:          id,
 				Name:        k,
+				Type:        spec.TYPE_MODEL,
 				Description: k,
 				Schema:      js,
 			})
@@ -233,6 +235,7 @@ func (s *swaggerParser) parseDefinitionResponses(in *v2.Swagger) (spec.Definitio
 				Content:     content,
 				Description: response.Description,
 			},
+			Type: spec.TYPE_RESPONSE,
 		})
 	}
 	return list, nil

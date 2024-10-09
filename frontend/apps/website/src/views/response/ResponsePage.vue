@@ -35,7 +35,8 @@ const [isSaving, updateResponse, isSaveError] = useApi(definitionResponseStore.u
 const { inputRef: titleInputRef, focus } = useTitleInputFocus()
 const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchema(props.project_id, () => {
   return {
-    responseID: response.value?.id,
+    id: response.value?.id,
+    type: 'response',
     title: response.value?.name,
   }
 })

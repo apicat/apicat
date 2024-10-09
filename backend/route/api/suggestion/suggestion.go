@@ -101,7 +101,7 @@ func (s *suggestionApiImpl) GenSchema(ctx *gin.Context, opt *suggestionreq.Schem
 		return nil, ginrpc.NewError(http.StatusBadRequest, i18n.NewErr("suggestion.SchemaGenerationFailed"))
 	}
 
-	generator, err := content_suggestion.NewSchemaGenerator(selfPM.ProjectID, js)
+	generator, err := content_suggestion.NewSchemaGenerator(selfPM.ProjectID, js, opt.Type, opt.ID)
 	if err != nil {
 		slog.ErrorContext(ctx, "content_suggestion.NewSchemaGenerator", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("suggestion.SchemaGenerationFailed"))
@@ -124,7 +124,7 @@ func (s *suggestionApiImpl) GenSchema(ctx *gin.Context, opt *suggestionreq.Schem
 	}, nil
 }
 
-func (s *suggestionApiImpl) GenReference(ctx *gin.Context, opt *suggestionreq.SchemaOption) (*suggestionres.ModelSuggestion, error) {
+func (s *suggestionApiImpl) GenReference(ctx *gin.Context, opt *suggestionreq.RefOption) (*suggestionres.ModelSuggestion, error) {
 	selfPM := access.GetSelfProjectMember(ctx)
 	if selfPM.Permission.Lower(project.ProjectMemberWrite) {
 		return nil, ginrpc.NewError(http.StatusForbidden, i18n.NewErr("common.PermissionDenied"))
@@ -142,7 +142,7 @@ func (s *suggestionApiImpl) GenReference(ctx *gin.Context, opt *suggestionreq.Sc
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("suggestion.ReferenceGenerationFailed"))
 	}
 
-	newS, err := generator.Match(opt.Title, js)
+	newS, err := generator.Match(opt.Title, js, opt.ModelID)
 	if err != nil {
 		slog.ErrorContext(ctx, "generator.Match", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("suggestion.ReferenceGenerationFailed"))

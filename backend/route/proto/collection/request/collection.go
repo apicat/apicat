@@ -63,10 +63,3 @@ type ExportCodeOption struct {
 	base.ProjectCollectionIDOption
 	Code string `uri:"code" binding:"required,len=32"`
 }
-
-type AIGenerateCollectionOption struct {
-	protobase.ProjectIdOption
-	base.CollectionParentIDOption
-	Prompt string `json:"prompt" binding:"required"`
-	IterationIDNotRequiredOption
-}

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/apicat/apicat/v2/backend/i18n"
 	"github.com/apicat/apicat/v2/backend/model/definition"
@@ -15,7 +16,6 @@ import (
 	protoproject "github.com/apicat/apicat/v2/backend/route/proto/project"
 	projectrequest "github.com/apicat/apicat/v2/backend/route/proto/project/request"
 	projectresponse "github.com/apicat/apicat/v2/backend/route/proto/project/response"
-	"github.com/apicat/apicat/v2/backend/service/ai"
 	definitionservice "github.com/apicat/apicat/v2/backend/service/definition"
 	"github.com/apicat/apicat/v2/backend/service/reference"
 
@@ -149,6 +149,9 @@ func (dsai *definitionSchemaApiImpl) Update(ctx *gin.Context, opt *projectreques
 		slog.ErrorContext(ctx, "reference.ParseRefSchemasFromSchema", "err", err)
 		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("common.ModificationFailed"))
 	}
+
+	opt.Schema = strings.ReplaceAll(opt.Schema, ",\"x-apicat-focus\":true", "")
+	opt.Schema = strings.ReplaceAll(opt.Schema, ",\"x-apicat-suggestion\":true", "")
 
 	ds.Name = opt.Name
 	ds.Description = opt.Description
@@ -328,43 +331,4 @@ func (dsai *definitionSchemaApiImpl) Copy(ctx *gin.Context, opt *projectrequest.
 
 	userInfo := jwt.GetUser(ctx)
 	return convertModelDefinitionSchema(newDS, userInfo, userInfo), nil
-}
-
-func (dsai *definitionSchemaApiImpl) AIGenerate(ctx *gin.Context, opt *projectrequest.AIGenerateSchemaOption) (*projectresponse.DefinitionSchema, error) {
-	selfTM := access.GetSelfTeamMember(ctx)
-	selfPM := access.GetSelfProjectMember(ctx)
-	if selfPM.Permission.Lower(project.ProjectMemberWrite) {
-		return nil, ginrpc.NewError(http.StatusForbidden, i18n.NewErr("common.PermissionDenied"))
-	}
-
-	if opt.ParentID != 0 {
-		parentDS := &definition.DefinitionSchema{ID: opt.ParentID, ProjectID: selfPM.ProjectID}
-		exist, err := parentDS.Get(ctx)
-		if err != nil {
-			slog.ErrorContext(ctx, "parentDS.Get", "err", err)
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchema.GenerationFailed"))
-		}
-		if !exist {
-			return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("category.DoesNotExist"))
-		}
-	}
-
-	ds, err := ai.SchemaGenerate(ctx, opt.Prompt)
-	if err != nil {
-		slog.ErrorContext(ctx, "ai.SchemaGenerate", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchema.GenerationFailed"))
-	}
-
-	ds.ProjectID = selfPM.ProjectID
-	ds.ParentID = opt.ParentID
-	if err := ds.Create(ctx, selfTM); err != nil {
-		slog.ErrorContext(ctx, "ds.Create", "err", err)
-		if ds.Type == definition.SchemaCategory {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("category.CreationFailed"))
-		}
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("definitionSchema.GenerationFailed"))
-	}
-
-	userInfo := jwt.GetUser(ctx)
-	return convertModelDefinitionSchema(ds, userInfo, userInfo), nil
 }

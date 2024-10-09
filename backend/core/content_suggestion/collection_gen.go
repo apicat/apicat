@@ -215,7 +215,8 @@ func (cg *CollectionGenerator) gen() (*collection.Collection, error) {
 	}
 
 	return &collection.Collection{
-		Title:   apiSpec.Collections[0].Title,
+		Path:    cg.collection.Path,
+		Title:   cg.collection.Title,
 		Type:    string(apiSpec.Collections[0].Type),
 		Content: string(r),
 	}, nil

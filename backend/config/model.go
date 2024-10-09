@@ -12,6 +12,8 @@ type Model struct {
 	EmbeddingDriver string
 	OpenAI          *OpenAI
 	AzureOpenAI     *AzureOpenAI
+	Baichuan        *Baichuan
+	Moonshot        *Moonshot
 }
 
 type OpenAI struct {
@@ -31,6 +33,18 @@ type AzureOpenAI struct {
 	EmbeddingDeployName string `json:"embeddingDeployName"`
 }
 
+type Baichuan struct {
+	ApiKey    string `json:"apiKey"`
+	LLM       string `json:"llm"`
+	Embedding string `json:"embedding"`
+}
+
+type Moonshot struct {
+	ApiKey    string `json:"apiKey"`
+	LLM       string `json:"llm"`
+	Embedding string `json:"embedding"`
+}
+
 func LoadModelConfig() {
 	globalConf.Model = &Model{}
 
@@ -42,6 +56,12 @@ func LoadModelConfig() {
 		case model.AZURE_OPENAI:
 			globalConf.Model.LLMDriver = model.AZURE_OPENAI
 			loadAzureOpenAIConfig()
+		case model.BAICHUAN:
+			globalConf.Model.LLMDriver = model.BAICHUAN
+			loadBaichuanConfig()
+		case model.MOONSHOT:
+			globalConf.Model.LLMDriver = model.MOONSHOT
+			loadMoonshotConfig()
 		}
 	}
 
@@ -53,6 +73,12 @@ func LoadModelConfig() {
 		case model.AZURE_OPENAI:
 			globalConf.Model.EmbeddingDriver = model.AZURE_OPENAI
 			loadAzureOpenAIConfig()
+		case model.BAICHUAN:
+			globalConf.Model.EmbeddingDriver = model.BAICHUAN
+			loadBaichuanConfig()
+		case model.MOONSHOT:
+			globalConf.Model.EmbeddingDriver = model.MOONSHOT
+			loadMoonshotConfig()
 		}
 	}
 }
@@ -98,6 +124,32 @@ func loadAzureOpenAIConfig() {
 	}
 }
 
+func loadBaichuanConfig() {
+	globalConf.Model.Baichuan = &Baichuan{}
+	if v, exists := os.LookupEnv("BAICHUAN_API_KEY"); exists {
+		globalConf.Model.Baichuan.ApiKey = v
+	}
+	if v, exists := os.LookupEnv("BAICHUAN_LLM"); exists {
+		globalConf.Model.Baichuan.LLM = v
+	}
+	if v, exists := os.LookupEnv("BAICHUAN_EMBEDDING"); exists {
+		globalConf.Model.Baichuan.Embedding = v
+	}
+}
+
+func loadMoonshotConfig() {
+	globalConf.Model.Moonshot = &Moonshot{}
+	if v, exists := os.LookupEnv("MOONSHOT_API_KEY"); exists {
+		globalConf.Model.Moonshot.ApiKey = v
+	}
+	if v, exists := os.LookupEnv("MOONSHOT_LLM"); exists {
+		globalConf.Model.Moonshot.LLM = v
+	}
+	if v, exists := os.LookupEnv("MOONSHOT_EMBEDDING"); exists {
+		globalConf.Model.Moonshot.Embedding = v
+	}
+}
+
 func CheckModelConfig() error {
 	if globalConf.Model.LLMDriver != "" {
 		switch globalConf.Model.LLMDriver {
@@ -107,6 +159,14 @@ func CheckModelConfig() error {
 			}
 		case model.AZURE_OPENAI:
 			if err := checkAzureOpenAI("llm"); err != nil {
+				return err
+			}
+		case model.BAICHUAN:
+			if err := checkBaichuan("llm"); err != nil {
+				return err
+			}
+		case model.MOONSHOT:
+			if err := checkMoonshot("llm"); err != nil {
 				return err
 			}
 		}
@@ -119,6 +179,14 @@ func CheckModelConfig() error {
 			}
 		case model.AZURE_OPENAI:
 			if err := checkAzureOpenAI("embedding"); err != nil {
+				return err
+			}
+		case model.BAICHUAN:
+			if err := checkBaichuan("embedding"); err != nil {
+				return err
+			}
+		case model.MOONSHOT:
+			if err := checkMoonshot("embedding"); err != nil {
 				return err
 			}
 		}
@@ -179,6 +247,50 @@ func checkAzureOpenAI(modelType string) error {
 	return nil
 }
 
+func checkBaichuan(modelType string) error {
+	if globalConf.Model.Baichuan == nil {
+		return errors.New("baichuan config is empty")
+	}
+	if globalConf.Model.Baichuan.ApiKey == "" {
+		return errors.New("baichuan api key is empty")
+	}
+	if modelType == "llm" && globalConf.Model.Baichuan.LLM == "" {
+		return errors.New("baichuan llm is empty")
+	}
+	if modelType == "embedding" && globalConf.Model.Baichuan.Embedding == "" {
+		return errors.New("baichuan embedding is empty")
+	}
+	if modelType == "llm" && !model.ModelAvailable(model.BAICHUAN, modelType, globalConf.Model.Baichuan.LLM) {
+		return errors.New("llm model not supported")
+	}
+	if modelType == "embedding" && !model.ModelAvailable(model.BAICHUAN, modelType, globalConf.Model.Baichuan.Embedding) {
+		return errors.New("embedding model not supported")
+	}
+	return nil
+}
+
+func checkMoonshot(modelType string) error {
+	if globalConf.Model.Moonshot == nil {
+		return errors.New("moonshot config is empty")
+	}
+	if globalConf.Model.Moonshot.ApiKey == "" {
+		return errors.New("moonshot api key is empty")
+	}
+	if modelType == "llm" && globalConf.Model.Moonshot.LLM == "" {
+		return errors.New("moonshot llm is empty")
+	}
+	if modelType == "embedding" && globalConf.Model.Moonshot.Embedding == "" {
+		return errors.New("moonshot embedding is empty")
+	}
+	if modelType == "llm" && !model.ModelAvailable(model.MOONSHOT, modelType, globalConf.Model.Moonshot.LLM) {
+		return errors.New("llm model not supported")
+	}
+	if modelType == "embedding" && !model.ModelAvailable(model.MOONSHOT, modelType, globalConf.Model.Moonshot.Embedding) {
+		return errors.New("embedding model not supported")
+	}
+	return nil
+}
+
 func GetModel() *Model {
 	return globalConf.Model
 }
@@ -191,6 +303,10 @@ func SetModel(m *Model) {
 			globalConf.Model.OpenAI = m.OpenAI
 		case model.AZURE_OPENAI:
 			globalConf.Model.AzureOpenAI = m.AzureOpenAI
+		case model.BAICHUAN:
+			globalConf.Model.Baichuan = m.Baichuan
+		case model.MOONSHOT:
+			globalConf.Model.Moonshot = m.Moonshot
 		default:
 			globalConf.Model.LLMDriver = ""
 		}
@@ -202,6 +318,10 @@ func SetModel(m *Model) {
 			globalConf.Model.OpenAI = m.OpenAI
 		case model.AZURE_OPENAI:
 			globalConf.Model.AzureOpenAI = m.AzureOpenAI
+		case model.BAICHUAN:
+			globalConf.Model.Baichuan = m.Baichuan
+		case model.MOONSHOT:
+			globalConf.Model.Moonshot = m.Moonshot
 		default:
 			globalConf.Model.EmbeddingDriver = ""
 		}
@@ -227,6 +347,10 @@ func (m *Model) ToModuleStruct(modelType string) model.Model {
 		return m.toOpenAICfg()
 	case model.AZURE_OPENAI:
 		return m.toAzureOpenAICfg()
+	case model.BAICHUAN:
+		return m.toBaichuanCfg()
+	case model.MOONSHOT:
+		return m.toMoonshotCfg()
 	default:
 		return model.Model{}
 	}
@@ -255,6 +379,28 @@ func (m *Model) toAzureOpenAICfg() model.Model {
 			LLMDeployName:       m.AzureOpenAI.LLMDeployName,
 			Embedding:           m.AzureOpenAI.Embedding,
 			EmbeddingDeployName: m.AzureOpenAI.EmbeddingDeployName,
+		},
+	}
+}
+
+func (m *Model) toBaichuanCfg() model.Model {
+	return model.Model{
+		Driver: model.BAICHUAN,
+		Baichuan: model.Baichuan{
+			ApiKey:    m.Baichuan.ApiKey,
+			LLM:       m.Baichuan.LLM,
+			Embedding: m.Baichuan.Embedding,
+		},
+	}
+}
+
+func (m *Model) toMoonshotCfg() model.Model {
+	return model.Model{
+		Driver: model.MOONSHOT,
+		Moonshot: model.Moonshot{
+			ApiKey:    m.Moonshot.ApiKey,
+			LLM:       m.Moonshot.LLM,
+			Embedding: m.Moonshot.Embedding,
 		},
 	}
 }

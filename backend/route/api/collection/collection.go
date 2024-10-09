@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/apicat/apicat/v2/backend/config"
@@ -20,7 +21,6 @@ import (
 	collectionbase "github.com/apicat/apicat/v2/backend/route/proto/collection/base"
 	collectionrequest "github.com/apicat/apicat/v2/backend/route/proto/collection/request"
 	collectionresponse "github.com/apicat/apicat/v2/backend/route/proto/collection/response"
-	"github.com/apicat/apicat/v2/backend/service/ai"
 	collectionservice "github.com/apicat/apicat/v2/backend/service/collection"
 	"github.com/apicat/apicat/v2/backend/service/except"
 	"github.com/apicat/apicat/v2/backend/service/reference"
@@ -231,6 +231,9 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 				opt.Content = s
 			}
 		}
+
+		opt.Content = strings.ReplaceAll(opt.Content, ",\"x-apicat-focus\":true", "")
+		opt.Content = strings.ReplaceAll(opt.Content, ",\"x-apicat-suggestion\":true", "")
 	}
 
 	if err := c.Update(ctx, opt.Title, opt.Content, selfTM.ID); err != nil {
@@ -516,64 +519,6 @@ func (cai *collectionApiImpl) GetExportPath(ctx *gin.Context, opt *collectionreq
 	return &collectionresponse.ExportCollection{
 		Path: fmt.Sprintf("/api/projects/%s/collections/%d/export/%s", selfPM.ProjectID, c.ID, token),
 	}, nil
-}
-
-func (cai *collectionApiImpl) AIGenerate(ctx *gin.Context, opt *collectionrequest.AIGenerateCollectionOption) (*collectionresponse.Collection, error) {
-	selfTM := access.GetSelfTeamMember(ctx)
-	selfPM := access.GetSelfProjectMember(ctx)
-	if selfPM.Permission.Lower(project.ProjectMemberWrite) {
-		return nil, ginrpc.NewError(http.StatusForbidden, i18n.NewErr("common.PermissionDenied"))
-	}
-
-	if opt.ParentID != 0 {
-		parentC := &collection.Collection{ID: opt.ParentID, ProjectID: selfPM.ProjectID}
-		exist, err := parentC.Get(ctx)
-		if err != nil {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.GenerationFailed"))
-		}
-		if !exist {
-			return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("category.DoesNotExist"))
-		}
-	}
-
-	c, err := ai.DocGenerate(ctx, opt.Prompt)
-	if err != nil {
-		slog.ErrorContext(ctx, "ai.CreateAPI", "err", err)
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.GenerationFailed"))
-	}
-
-	c.ProjectID = selfPM.ProjectID
-	c.ParentID = opt.ParentID
-	if err := c.Create(ctx, selfTM); err != nil {
-		slog.ErrorContext(ctx, "c.Create", "err", err)
-		if c.Type == collection.CategoryType {
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.GenerationFailed"))
-		}
-		return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.CreationFailed"))
-	}
-
-	if opt.IterationID != "" {
-		i := &iteration.Iteration{ID: opt.IterationID}
-		exist, err := i.Get(ctx)
-		if err != nil {
-			slog.ErrorContext(ctx, "i.Get", "err", err)
-			if c.Type == collection.CategoryType {
-				return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("category.CreationFailed"))
-			}
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.CreationFailed"))
-		}
-		if !exist {
-			return nil, ginrpc.NewError(http.StatusNotFound, i18n.NewErr("iteration.DoesNotExist"))
-		}
-
-		if err := i.BatchCreateCollection(ctx, []*collection.Collection{c}); err != nil {
-			slog.ErrorContext(ctx, "i.BatchCreateCollection", "err", err)
-			return nil, ginrpc.NewError(http.StatusInternalServerError, i18n.NewErr("collection.CreationFailed"))
-		}
-	}
-
-	userInfo := jwt.GetUser(ctx)
-	return convertModelCollection(c, userInfo, userInfo), nil
 }
 
 func Export(ctx *gin.Context) {

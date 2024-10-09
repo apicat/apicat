@@ -30,9 +30,3 @@ type DeleteDefinitionSchemaOption struct {
 type SortDefinitionSchemaOption struct {
 	SortOption
 }
-
-type AIGenerateSchemaOption struct {
-	protobase.ProjectIdOption
-	projectbase.DefinitionSchemaParentIDOption
-	Prompt string `json:"prompt" binding:"required"`
-}

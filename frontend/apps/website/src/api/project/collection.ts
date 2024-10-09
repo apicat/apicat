@@ -137,8 +137,10 @@ export function apiDeleteTestCase(projectID: string, collectionID: number, testC
 }
 
 // ai for collection
-export async function apiGetAICollection(projectID: string, data: any) {
-  return await Ajax.post(`/api/projects/${projectID}/suggestion/collection`, data)
+export async function apiGetAICollection(projectID: string, data: any, config?: AxiosRequestConfig) {
+  const res = await Ajax.post(`/projects/${projectID}/suggestion/collection`, data, undefined, config)
+  res.content = parseJSONWithDefault(res.content, {})
+  return res
 }
 
 // BUG: 编辑器临时固定内容的常量

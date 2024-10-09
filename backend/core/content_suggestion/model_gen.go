@@ -68,7 +68,7 @@ func (mg *ModelGenerator) Generate() (*definition.DefinitionSchema, error) {
 	}
 
 	return &definition.DefinitionSchema{
-		Name:        jsonschema.Title,
+		Name:        mg.model.Name,
 		Description: jsonschema.Description,
 		Type:        definition.SchemaSchema,
 		Schema:      strings.TrimSpace(matches[0][1]),

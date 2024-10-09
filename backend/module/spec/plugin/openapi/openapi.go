@@ -109,7 +109,7 @@ func Generate(in *spec.Spec, version, typ string) ([]byte, error) {
 func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 	model, errors := document.BuildV2Model()
 	if len(errors) > 0 {
-		return nil, fmt.Errorf("swagger version:%s parse faild", document.GetVersion())
+		return nil, errors[0]
 	}
 	sw := &swaggerParser{}
 	definitionModels, err := sw.parseDefinitionModels(model.Model.Definitions)
@@ -136,7 +136,7 @@ func parseSwagger(document libopenapi.Document) (*spec.Spec, error) {
 func parseOpenAPI3(document libopenapi.Document) (*spec.Spec, error) {
 	model, errors := document.BuildV3Model()
 	if len(errors) > 0 {
-		return nil, fmt.Errorf("openapi version:%s parse faild", document.GetVersion())
+		return nil, errors[0]
 	}
 	o := &openapiParser{
 		parametersMapping: make(map[string]*spec.Parameter),

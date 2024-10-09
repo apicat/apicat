@@ -20,6 +20,10 @@ const {
   isLoading,
   isSaving,
   isSaveError,
+  isShowAIStyle,
+  isShowAIStyleForTitle,
+
+  handleEditorEvent,
   handleTitleBlur,
   handleContentUpdate,
   onShareCollectionBtnClick,
@@ -32,7 +36,8 @@ const {
 
 const { handleIntelligentSchema } = useIntelligentSchema(props.project_id, () => {
   return {
-    collectionID: collection?.value?.id,
+    id: collection?.value?.id,
+    type: 'collection',
     title: collection?.value?.title,
   }
 })
@@ -115,7 +120,7 @@ function showTestPage() {
     </div>
 
     <!-- content -->
-    <div v-if="collection" v-loading="isLoading" :class="[ns.b()]">
+    <div v-if="collection" v-loading="isLoading" :class="[ns.b(), ns.is('tips', isShowAIStyle), ns.is('all-tips', isShowAIStyleForTitle)]">
       <div v-if="!readonly">
         <input
           ref="titleInputRef" v-model="collection.title" class="ac-document__title" type="text" maxlength="255"
@@ -124,9 +129,18 @@ function showTestPage() {
       </div>
 
       <AcEditor
-        v-if="!isLoading" v-model:active-url="activeUrl" :mock-url="mockURL" :readonly="readonly"
-        :content="collection.content!" :urls="urls" :schemas="schemas" :responses="responses" :parameters="parameters"
-        :options="options" @update="handleContentUpdate"
+        v-if="!isLoading"
+        v-model:active-url="activeUrl"
+        :mock-url="mockURL"
+        :readonly="readonly"
+        :content="collection.content!"
+        :urls="urls"
+        :schemas="schemas"
+        :responses="responses"
+        :parameters="parameters"
+        :options="options"
+        @update="handleContentUpdate"
+        @handle-event="handleEditorEvent"
       />
     </div>
 
