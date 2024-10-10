@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { storeToRefs } from 'pinia'
-import { JSONSchemaTable } from '@apicat/components'
 import { useNamespace } from '@apicat/hooks'
 import { ElMessage, ClickOutside as vClickOutside } from 'element-plus'
 import { useI18n } from 'vue-i18n'
+import { JSONSchemaTable } from '@apicat/components'
 import type { PageModeCtx } from '../composables/usePageMode'
 import { useIntelligentSchema } from '../composables/useIntelligentSchema'
+import { useAITips } from './useAITips'
 import useProjectStore from '@/store/project'
 import useApi from '@/hooks/useApi'
 import useDefinitionSchemaStore from '@/store/definitionSchema'
@@ -13,7 +14,7 @@ import { getSchemaHistoryPath } from '@/router/history'
 import { injectPagesMode } from '@/layouts/ProjectDetailLayout/composables/usePagesMode'
 import { useTitleInputFocus } from '@/hooks/useTitleInputFocus'
 import { injectAsyncInitTask } from '@/hooks/useWaitAsyncTask'
-import { apiGetAIModel, apiParseSchema } from '@/api/project/definition/schema'
+import { apiParseSchema } from '@/api/project/definition/schema'
 
 defineOptions({ inheritAttrs: false })
 const props = defineProps<{ project_id: string, schemaID: string }>()
@@ -23,7 +24,7 @@ const GenerateCode = defineAsyncComponent(() => import('@/components/GenerateCod
 const { t } = useI18n()
 const ns = useNamespace('document')
 const schemaIDRef = toRef(props, 'schemaID')
-const jsonSchemaTableIns = ref<InstanceType<typeof JSONSchemaTable>>()
+
 const { toggleMode, readonly } = injectPagesMode('schema') as PageModeCtx
 const definitionSchemaStore = useDefinitionSchemaStore()
 const { isManager, isWriter } = storeToRefs(useProjectStore())
@@ -38,9 +39,9 @@ const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchem
     title: schema.value?.name,
   }
 })
+const { jsonSchemaTableIns, isAIMode, isShowAIStyle, preSchema, handleTitleBlur } = useAITips(props.project_id, schema, readonly, updateSchema)
 
 let oldTitle = ''
-let currentSchemaID = -1
 
 function handleBlurNameInput() {
   const title = schema.value?.name || ''
@@ -78,7 +79,7 @@ watchDebounced(
       oldTitle = n.name
 
       try {
-        await updateSchema(props.project_id, n)
+        !isAIMode.value && await updateSchema(props.project_id, n)
       }
       catch (error) {
         //
@@ -96,6 +97,9 @@ async function setDetail(id: string) {
   const schemaID = Number.parseInt(id)
   if (!Number.isNaN(schemaID)) {
     await definitionSchemaStore.getSchemaDetail(props.project_id, schemaID)
+    if (schema.value)
+      preSchema.value = JSON.parse(JSON.stringify(schema.value))
+
     oldTitle = schema.value?.name || ''
     if (!readonly.value)
       focus()
@@ -107,33 +111,8 @@ watch(schemaIDRef, async (id, oID) => {
   if (id === oID)
     return
   generateCodeRef.value?.dispose()
-  currentSchemaID = Number.parseInt(id)
   await setDetail(id)
 })
-
-let isLoading = false
-// trigger intelligent schema
-watchDebounced(() => schema.value?.name, async (name, oldName) => {
-  // id 不一致时，不处理
-  if (schema.value?.id !== currentSchemaID)
-    return
-
-  // 内容为空时，请求AI接口，获取智能推荐的schema
-  if (!readonly.value && name && oldName && jsonSchemaTableIns.value?.isEmpty()) {
-    if (isLoading)
-      return
-
-    try {
-      isLoading = true
-      const josnschema = await apiGetAIModel(props.project_id, { modelID: schema.value?.id, title: name })
-      josnschema && schema.value && definitionSchemaStore.updateSchemaDetail({ schema: josnschema })
-      isLoading = false
-    }
-    catch (error) {
-      isLoading = false
-    }
-  }
-}, { debounce: 500 })
 
 injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
 </script>
@@ -181,7 +160,7 @@ injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
   </div>
 
   <!-- content -->
-  <div v-loading="loading" :class="[ns.b()]">
+  <div v-loading="loading" :class="[ns.b(), ns.is('tips', isShowAIStyle)]">
     <div class="mb-10px">
       <h4 v-if="readonly && schema?.description" class="break-words">
         {{ schema?.description }}
@@ -189,7 +168,8 @@ injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
       <div v-if="!readonly && schema">
         <input
           ref="titleInputRef" v-model="schema.name" v-click-outside="handleBlurNameInput"
-          class="ac-document__title" type="text" maxlength="255" :placeholder="$t('app.schema.form.title')"
+          class="ac-document__title"
+          type="text" maxlength="255" :placeholder="$t('app.schema.form.title')" @blur="handleTitleBlur"
         >
         <input
           v-model="schema.description" class="w-full ac-document__desc" type="text" maxlength="255"

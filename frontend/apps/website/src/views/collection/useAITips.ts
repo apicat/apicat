@@ -1,5 +1,6 @@
 import { debounce } from 'lodash-es'
 import { EDITOR_NODE_EVENT } from '@apicat/editor'
+import { AxiosError } from 'axios'
 import { apiGetAICollection } from '@/api/project/collection'
 
 export function useAITips(project_id: string, collection: Ref<CollectionAPI.ResponseCollectionDetail | null>, readonly: Ref<boolean>, updateCollection: (projectID: string, collection: CollectionAPI.ResponseCollectionDetail) => Promise<void>) {
@@ -19,7 +20,7 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
   let abortController: AbortController | null = null
 
   // 不允许AI提示系列操作判断条件
-  const notAllowAITips = () => !isAIMode.value || !collection.value || isLoadingAICollection.value || readonly.value
+  const notAllowAITips = () => !isAIMode.value || !collection.value || readonly.value
 
   // 获取AI提示数据
   async function getAITips(callback?: () => void) {
@@ -28,9 +29,10 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
 
     if (!title || notAllowAITips())
       return
+    // 取消上次请求
+    abortController?.abort()
 
     requestID.value = `${Date.now()},${collection.value!.id}`
-
     try {
       abortController = new AbortController()
       isLoadingAICollection.value = true
@@ -46,10 +48,13 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
       isLoadingAICollection.value = false
       requestID.value = ''
     }
-    catch (error) {
+    catch (error: any) {
       console.error(error)
-      isLoadingAICollection.value = false
-      requestID.value = ''
+      // Cancelled Error 不需要重置
+      if (error && AxiosError.ERR_CANCELED !== error.code) {
+        isLoadingAICollection.value = false
+        requestID.value = ''
+      }
     }
   }
 

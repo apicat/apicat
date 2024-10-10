@@ -1,6 +1,7 @@
 import { dayjs } from 'element-plus'
 import { guid, parseJSONWithDefault } from '@apicat/shared'
 import type { JSONSchema } from '@apicat/editor'
+import type { AxiosRequestConfig } from 'axios'
 import DefaultAjax from '@/api/Ajax'
 import { gatherSharedTokenWithParams } from '@/api/shareToken'
 import { SchemaTypeEnum } from '@/commons'
@@ -122,43 +123,18 @@ export async function apiParseSchema(jsonschema: JSONSchema): Promise<JSONSchema
   }
 }
 
-export async function apiGetAIModel(projectID: string, params: any): Promise<JSONSchema | undefined> {
-  const res = await wrapperRequestWithID<AISuggestionSchema>(async data => await DefaultAjax.post(`/projects/${projectID}/suggestion/model`, data))(params)
+export async function apiGetAIModel(projectID: string, params: any, config?: AxiosRequestConfig): Promise<AISuggestionSchema | undefined> {
+  const res = await DefaultAjax.post(`/projects/${projectID}/suggestion/model`, params, undefined, config)
   if (!res)
     return
 
   try {
     const schema = JSON.parse(res.schema as string) as any
-    schema['x-apicat-suggestion'] = true
-    return schema
+    res.schema = schema
+    return res
   }
   catch (error) {
     console.error(error)
-  }
-}
-
-// wrapper reuqest for param with requestID
-export function wrapperRequestWithID<T>(fn: (data: any) => Promise<T>): (data: any) => Promise<T | undefined> {
-  let rid = ''
-  let isLoading = false
-  return async (data: any) => {
-    if (isLoading)
-      return
-
-    rid = data.requestID = (data.requestID || guid())
-    try {
-      isLoading = true
-      const res = await fn(data) as any
-      isLoading = false
-      if (rid !== res.requestID)
-        return
-
-      return res
-    }
-    catch (error) {
-      isLoading = false
-      rid = ''
-    }
   }
 }
 
@@ -169,9 +145,9 @@ export async function apiGetAISchema(projectID: string, data: {
   title: string
   collectionID?: number
   modelID?: number
-}): Promise<AISuggestionSchema> {
+}, config?: AxiosRequestConfig): Promise<AISuggestionSchema> {
   try {
-    const res = await DefaultAjax.post<AISuggestionSchema>(`/projects/${projectID}/suggestion/schema`, data)
+    const res = await DefaultAjax.post<AISuggestionSchema>(`/projects/${projectID}/suggestion/schema`, data, undefined, config)
     res.schema = JSON.parse(res.schema as string)
     return res
   }
@@ -181,9 +157,9 @@ export async function apiGetAISchema(projectID: string, data: {
 }
 
 // check replace model
-export async function apiCheckReplaceModel(projectID: string, data: { requestID: string, schema: string, title: string }): Promise<AISuggestionSchema> {
+export async function apiCheckReplaceModel(projectID: string, data: { requestID: string, schema: string, title: string }, config?: AxiosRequestConfig): Promise<AISuggestionSchema> {
   try {
-    const res = await DefaultAjax.post<AISuggestionSchema>(`/projects/${projectID}/suggestion/reference`, data)
+    const res = await DefaultAjax.post<AISuggestionSchema>(`/projects/${projectID}/suggestion/reference`, data, undefined, config)
     res.schema = JSON.parse(res.schema as string)
     return res
   }
