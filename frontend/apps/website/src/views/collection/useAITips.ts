@@ -38,7 +38,10 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
       isLoadingAICollection.value = true
       const { content: aiCollection, requestID: resRequestID } = await apiGetAICollection(project_id, { requestID: unref(requestID), title, path }, { signal: abortController.signal })
       if (requestID.value === resRequestID && isLoadingAICollection.value) {
-        collection.value!.content = aiCollection.content
+        const oldPath = collection.value?.content?.find(i => i.type === 'apicat-http-url').attrs?.path
+        if (!oldPath || oldPath === '/')
+          collection.value!.content = aiCollection.content
+
         callback && callback()
       }
 
@@ -89,8 +92,12 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
     isLoadingAICollection.value = false
     abortController?.abort()
     // 还原文档
-    if (preCollection.value && collection.value)
-      collection.value.content = JSON.parse(JSON.stringify(preCollection.value)).content
+    if (preCollection.value && collection.value) {
+      // 仅还原content中除了path之外的数据
+      const content = JSON.parse(JSON.stringify(preCollection.value)).content
+      const restoreContent = [...(collection.value.content?.filter(i => i.type === 'apicat-http-url') || []), ...(content.filter((i: any) => i.type !== 'apicat-http-url') || [])]
+      collection.value.content = restoreContent
+    }
   }
 
   // 确认AI提示
@@ -110,6 +117,8 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
       updateCollection(project_id, collection.value!)
       // 保存历史文档
       preCollection.value = JSON.parse(copyCollectionStr)
+      // 退出AI模式
+      isAIMode.value = false
     }
     catch (e) {
       console.error('confirmAITips error', e)
