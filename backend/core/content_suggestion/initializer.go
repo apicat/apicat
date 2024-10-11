@@ -28,7 +28,15 @@ func NewVectorInitializer(projectID string) (*VectorInitializer, error) {
 	}, nil
 }
 
+func (vi *VectorInitializer) ForceRun() {
+	vi.run(true)
+}
+
 func (vi *VectorInitializer) Run() {
+	vi.run(false)
+}
+
+func (vi *VectorInitializer) run(force bool) {
 	vectorDB, err := vector.NewVector(config.GetVector().ToModuleStruct())
 	if err != nil {
 		slog.Error("VectorInitializer.Run", "err", err)
@@ -39,8 +47,15 @@ func (vi *VectorInitializer) Run() {
 		return
 	} else {
 		if exist {
-			slog.Debug("VectorInitializer.Run", "The vector database already exists", vi.projectID)
-			return
+			if force {
+				if err := vectorDB.DeleteCollection(vi.projectID); err != nil {
+					slog.Error("VectorInitializer.Run", "err", err)
+					return
+				}
+			} else {
+				slog.Debug("VectorInitializer.Run", "The vector database already exists", vi.projectID)
+				return
+			}
 		}
 	}
 	if err := vectorDB.CreateCollection(vi.projectID, getAPIContentProperties()); err != nil {

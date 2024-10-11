@@ -172,7 +172,11 @@ func (pai *projectApiImpl) Get(ctx *gin.Context, opt *projectrequest.GetProjectD
 	if init, err := content_suggestion.NewVectorInitializer(p.ID); err != nil {
 		slog.ErrorContext(ctx, "content_suggestion.NewVectorInitializer", "err", err)
 	} else {
-		init.Run()
+		if p.EmbeddingModel == "" || p.EmbeddingModel != config.GetModel().EmbeddingDriver {
+			init.ForceRun()
+		} else {
+			init.Run()
+		}
 	}
 
 	cfg := config.GetApp()
