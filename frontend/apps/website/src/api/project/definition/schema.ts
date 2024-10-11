@@ -124,7 +124,7 @@ export async function apiParseSchema(jsonschema: JSONSchema): Promise<JSONSchema
 }
 
 export async function apiGetAIModel(projectID: string, params: any, config?: AxiosRequestConfig): Promise<AISuggestionSchema | undefined> {
-  const res = await DefaultAjax.post(`/projects/${projectID}/suggestion/model`, params, undefined, config)
+  const res = await DefaultAjax.post(`/projects/${projectID}/suggestion/model`, params, { isShowErrorMsg: false }, config)
   if (!res)
     return
 
@@ -147,7 +147,7 @@ export async function apiGetAISchema(projectID: string, data: {
   modelID?: number
 }, config?: AxiosRequestConfig): Promise<AISuggestionSchema> {
   try {
-    const res = await DefaultAjax.post<AISuggestionSchema>(`/projects/${projectID}/suggestion/schema`, data, undefined, config)
+    const res = await DefaultAjax.post<AISuggestionSchema>(`/projects/${projectID}/suggestion/schema`, data, { isShowErrorMsg: false }, config)
     res.schema = JSON.parse(res.schema as string)
     return res
   }
@@ -159,7 +159,7 @@ export async function apiGetAISchema(projectID: string, data: {
 // check replace model
 export async function apiCheckReplaceModel(projectID: string, data: { requestID: string, schema: string, title: string }, config?: AxiosRequestConfig): Promise<AISuggestionSchema> {
   try {
-    const res = await DefaultAjax.post<AISuggestionSchema>(`/projects/${projectID}/suggestion/reference`, data, undefined, config)
+    const res = await DefaultAjax.post<AISuggestionSchema>(`/projects/${projectID}/suggestion/reference`, data, { isShowErrorMsg: false }, config)
     res.schema = JSON.parse(res.schema as string)
     return res
   }

@@ -112,6 +112,8 @@ class AxiosWrapper {
           throw new NotFoundError(error.response.data)
         else if (status === 401)
           throw new UnauthorizedError(error.response.data)
+        else if (status === 500)
+          throw new Error('Server Error')
       }
 
       throw error

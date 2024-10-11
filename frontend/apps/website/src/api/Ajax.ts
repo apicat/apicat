@@ -67,7 +67,7 @@ function onErrorResponse(error: AxiosError | Error): Promise<AxiosError> {
         break
 
       case 429:
-      case 500:
+      // case 500:
         errorMsg = message || 'Server Error'
         break
     }

@@ -100,7 +100,7 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
   }
 
   watchDebounced(() => schema.value?.name, async () => {
-    if (jsonSchemaTableIns.value?.isEmpty()) {
+    if (isAIMode.value || jsonSchemaTableIns.value?.isEmpty()) {
       isAIMode.value = true
       await getAITips()
     }

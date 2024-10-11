@@ -138,7 +138,7 @@ export function apiDeleteTestCase(projectID: string, collectionID: number, testC
 
 // ai for collection
 export async function apiGetAICollection(projectID: string, data: any, config?: AxiosRequestConfig) {
-  const res = await Ajax.post(`/projects/${projectID}/suggestion/collection`, data, undefined, config)
+  const res = await Ajax.post(`/projects/${projectID}/suggestion/collection`, data, { isShowErrorMsg: false }, config)
   res.content = parseJSONWithDefault(res.content, {})
   return res
 }
