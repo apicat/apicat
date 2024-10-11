@@ -7,6 +7,7 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
   const { escape } = useMagicKeys()
   const jsonSchemaTableIns = ref<InstanceType<typeof JSONSchemaTable>>()
 
+  const schemaName = ref('')
   const isAIMode = ref(false)
   const isShowAIStyle = ref(false)
   const isLoadingAICollection = ref(false)
@@ -73,7 +74,7 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     abortController?.abort()
     // 还原文档
     if (preSchema.value && schema.value)
-      schema.value.schema = JSON.parse(JSON.stringify(preSchema.value))
+      schema.value.schema = JSON.parse(JSON.stringify(preSchema.value.schema))
   }
 
   // 确认AI提示
@@ -83,15 +84,16 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     // trigger watch name
     schema.value!.name = schema.value!.name
     isShowAIStyle.value = false
+    isAIMode.value = false
     try {
-      const copyCollectionStr = JSON.stringify(schema.value)
-      const copyPreCollectionStr = JSON.stringify(preSchema.value)
-      if (copyCollectionStr === copyPreCollectionStr)
+      const copySchemaStr = JSON.stringify(schema.value)
+      const copyPreSchemaStr = JSON.stringify(preSchema.value)
+      if (copySchemaStr === copyPreSchemaStr)
         return
 
       updateSchema(project_id, schema.value!)
       // 保存历史文档
-      preSchema.value = JSON.parse(copyCollectionStr)
+      preSchema.value = JSON.parse(copySchemaStr)
     }
     catch (e) {
       console.error('confirmAITips error', e)
@@ -99,15 +101,12 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     }
   }
 
-  watchDebounced(() => schema.value?.name, async () => {
+  watch(schemaName, async () => {
     if (isAIMode.value || jsonSchemaTableIns.value?.isEmpty()) {
       isAIMode.value = true
       await getAITips()
     }
-    else {
-      isAIMode.value = false
-    }
-  }, { debounce: 500 })
+  })
 
   whenever(escape, () => {
     if (readonly.value || !isAIMode.value || !schema.value)
@@ -119,7 +118,7 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     isAIMode,
     isShowAIStyle,
     jsonSchemaTableIns,
-
+    schemaName,
     preSchema,
 
     handleTitleBlur: handleTitleOrPathBlur,

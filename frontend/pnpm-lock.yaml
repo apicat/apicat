@@ -96,17 +96,17 @@ importers:
   apps/website:
     dependencies:
       '@apicat/components':
-        specifier: 0.0.11-beta.6
-        version: 0.0.11-beta.6(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)
+        specifier: 0.0.11-beta.7
+        version: 0.0.11-beta.7(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)
       '@apicat/editor':
-        specifier: 0.0.11-beta.6
-        version: 0.0.11-beta.6(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@tiptap/extension-text-style@2.8.0(@tiptap/core@2.8.0(@tiptap/pm@2.8.0)))(@tiptap/pm@2.8.0)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash@4.17.21)(prosemirror-commands@1.6.0)(prosemirror-history@1.4.1)(prosemirror-model@1.23.0)(prosemirror-state@1.4.3)(prosemirror-tables@1.5.0)(prosemirror-view@1.34.3)(tippy.js@6.3.7)(vue@3.3.4)
+        specifier: 0.0.11-beta.7
+        version: 0.0.11-beta.7(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@tiptap/extension-text-style@2.8.0(@tiptap/core@2.8.0(@tiptap/pm@2.8.0)))(@tiptap/pm@2.8.0)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash@4.17.21)(prosemirror-commands@1.6.0)(prosemirror-history@1.4.1)(prosemirror-model@1.23.0)(prosemirror-state@1.4.3)(prosemirror-tables@1.5.0)(prosemirror-view@1.34.3)(tippy.js@6.3.7)(vue@3.3.4)
       '@apicat/hooks':
         specifier: ^0.0.9
         version: 0.0.9(@types/lodash-es@4.17.12)(lodash-es@4.17.21)(lodash@4.17.21)(vue@3.3.4)
       '@apicat/shared':
-        specifier: 0.0.11-beta.6
-        version: 0.0.11-beta.6
+        specifier: 0.0.11-beta.7
+        version: 0.0.11-beta.7
       '@apicat/tsconfig':
         specifier: workspace:*
         version: link:../../packages/ac-tsconfig
@@ -418,8 +418,8 @@ packages:
   '@antfu/utils@0.7.8':
     resolution: {integrity: sha512-rWQkqXRESdjXtc+7NRfK9lASQjpXJu1ayp7qi1d23zZorY+wBHVLHHoVcMsEnkqEBWTFqbztO7/QdJFzyEcLTg==}
 
-  '@apicat/components@0.0.11-beta.6':
-    resolution: {integrity: sha512-BVgMUup8xi/H7uk0F+uzEwnRR94OkEYlBtYGHCFdurwBRCk7Lzqx1UBTQf0Efgw6o0GM3wL7EQaR9a6yKg6/jg==}
+  '@apicat/components@0.0.11-beta.7':
+    resolution: {integrity: sha512-9jwiL+jTO0jqaevzIwk0xS02R+9kmJ81vjg9Qs+6LfEc+W6wJbiBgYU4gJYMJ5Tu/HvUPZrhTmUKz5+ldXAILg==}
     peerDependencies:
       '@codemirror/commands': ^6.3.0
       '@codemirror/language': ^6.9.1
@@ -432,8 +432,8 @@ packages:
       smooth-scroll-into-view-if-needed: ^2.0.2
       vue: 3.3.4
 
-  '@apicat/editor@0.0.11-beta.6':
-    resolution: {integrity: sha512-N2hpUcoRXXUKTIWCd8mW/U2gqG5dvG4wjbtn9iR31Dk8fMJVQpSLMTZNnSSp2qEBpjBobS13QKLoD3ZbIB9tsA==}
+  '@apicat/editor@0.0.11-beta.7':
+    resolution: {integrity: sha512-bpqF00TStcFf7hThxFHA4p2XrATskr7A3ISKmbZTtb3YvQqfoZY9yDbSAmS8t0yL7M9qyn3MwiuD+0n4LV48hw==}
     peerDependencies:
       '@codemirror/commands': ^6.3.0
       '@codemirror/language': ^6.9.1
@@ -456,8 +456,8 @@ packages:
     peerDependencies:
       vue: 3.3.4
 
-  '@apicat/shared@0.0.11-beta.6':
-    resolution: {integrity: sha512-K31ENGMjoFWwUK1Xy/zPOhqcl5AQVyquohWVijjAJXZpTKHCwndKWyK9PA9xoKdWrD9wDnH4V92MIM+7qSlB9g==}
+  '@apicat/shared@0.0.11-beta.7':
+    resolution: {integrity: sha512-+p3xNETKUsJlU5EypzWC1FbS4VdwUdKzRrw9GENl1AK6FWWs0fVCeD8FbuRuwlqMQY2A+rIzzzGDPu8Ep2tzEA==}
 
   '@babel/code-frame@7.24.2':
     resolution: {integrity: sha512-y5+tLQyV8pg3fsiln67BVLD1P13Eg4lh5RW9mF0zUuvLrv9uIQ4MCL+CRT+FTsBlBjcIan6PGsLcBN0m3ClUyQ==}
@@ -3938,8 +3938,8 @@ packages:
       prosemirror-state: ^1.4.2
       prosemirror-view: ^1.33.8
 
-  prosemirror-transform@1.10.0:
-    resolution: {integrity: sha512-9UOgFSgN6Gj2ekQH5CTDJ8Rp/fnKR2IkYfGdzzp5zQMFsS4zDllLVx/+jGcX86YlACpG7UR5fwAXiWzxqWtBTg==}
+  prosemirror-transform@1.10.1:
+    resolution: {integrity: sha512-jANxn50pNsBT7042mM4pxKpGyzgJWen/GrfCEQOPtHa5gLrQ2+0OgDtuQu2noG1X0+2cQ5uPsWqCRy7w7J+obw==}
 
   prosemirror-view@1.34.3:
     resolution: {integrity: sha512-mKZ54PrX19sSaQye+sef+YjBbNu2voNwLS1ivb6aD2IRmxRGW64HU9B644+7OfJStGLyxvOreKqEgfvXa91WIA==}
@@ -4812,10 +4812,10 @@ snapshots:
 
   '@antfu/utils@0.7.8': {}
 
-  '@apicat/components@0.0.11-beta.6(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)':
+  '@apicat/components@0.0.11-beta.7(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)':
     dependencies:
       '@apicat/hooks': 0.0.9(@types/lodash-es@4.17.12)(lodash-es@4.17.21)(lodash@4.17.21)(vue@3.3.4)
-      '@apicat/shared': 0.0.11-beta.6
+      '@apicat/shared': 0.0.11-beta.7
       '@codemirror/commands': 6.5.0
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -4832,11 +4832,11 @@ snapshots:
       - '@vue/composition-api'
       - lodash
 
-  '@apicat/editor@0.0.11-beta.6(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@tiptap/extension-text-style@2.8.0(@tiptap/core@2.8.0(@tiptap/pm@2.8.0)))(@tiptap/pm@2.8.0)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash@4.17.21)(prosemirror-commands@1.6.0)(prosemirror-history@1.4.1)(prosemirror-model@1.23.0)(prosemirror-state@1.4.3)(prosemirror-tables@1.5.0)(prosemirror-view@1.34.3)(tippy.js@6.3.7)(vue@3.3.4)':
+  '@apicat/editor@0.0.11-beta.7(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@tiptap/extension-text-style@2.8.0(@tiptap/core@2.8.0(@tiptap/pm@2.8.0)))(@tiptap/pm@2.8.0)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash@4.17.21)(prosemirror-commands@1.6.0)(prosemirror-history@1.4.1)(prosemirror-model@1.23.0)(prosemirror-state@1.4.3)(prosemirror-tables@1.5.0)(prosemirror-view@1.34.3)(tippy.js@6.3.7)(vue@3.3.4)':
     dependencies:
-      '@apicat/components': 0.0.11-beta.6(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)
+      '@apicat/components': 0.0.11-beta.7(@codemirror/commands@6.5.0)(@codemirror/language@6.10.1)(@codemirror/state@6.4.1)(@codemirror/view@6.26.3)(@types/lodash-es@4.17.12)(@vueuse/components@10.9.0(vue@3.3.4))(@vueuse/core@10.9.0(vue@3.3.4))(element-plus@2.4.4(vue@3.3.4))(lodash-es@4.17.21)(lodash@4.17.21)(smooth-scroll-into-view-if-needed@2.0.2)(vue@3.3.4)
       '@apicat/hooks': 0.0.9(@types/lodash-es@4.17.12)(lodash-es@4.17.21)(lodash@4.17.21)(vue@3.3.4)
-      '@apicat/shared': 0.0.11-beta.6
+      '@apicat/shared': 0.0.11-beta.7
       '@codemirror/commands': 6.5.0
       '@codemirror/language': 6.10.1
       '@codemirror/state': 6.4.1
@@ -4891,7 +4891,7 @@ snapshots:
       - lodash
       - lodash-es
 
-  '@apicat/shared@0.0.11-beta.6':
+  '@apicat/shared@0.0.11-beta.7':
     dependencies:
       copy-to-clipboard: 3.3.3
 
@@ -6270,7 +6270,7 @@ snapshots:
       prosemirror-state: 1.4.3
       prosemirror-tables: 1.5.0
       prosemirror-trailing-node: 3.0.0(prosemirror-model@1.23.0)(prosemirror-state@1.4.3)(prosemirror-view@1.34.3)
-      prosemirror-transform: 1.10.0
+      prosemirror-transform: 1.10.1
       prosemirror-view: 1.34.3
 
   '@tiptap/starter-kit@2.8.0(@tiptap/extension-text-style@2.8.0(@tiptap/core@2.8.0(@tiptap/pm@2.8.0)))':
@@ -8803,7 +8803,7 @@ snapshots:
 
   prosemirror-changeset@2.2.1:
     dependencies:
-      prosemirror-transform: 1.10.0
+      prosemirror-transform: 1.10.1
 
   prosemirror-collab@1.3.1:
     dependencies:
@@ -8813,12 +8813,12 @@ snapshots:
     dependencies:
       prosemirror-model: 1.23.0
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.0
+      prosemirror-transform: 1.10.1
 
   prosemirror-dropcursor@1.8.1:
     dependencies:
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.0
+      prosemirror-transform: 1.10.1
       prosemirror-view: 1.34.3
 
   prosemirror-gapcursor@1.3.2:
@@ -8831,14 +8831,14 @@ snapshots:
   prosemirror-history@1.4.1:
     dependencies:
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.0
+      prosemirror-transform: 1.10.1
       prosemirror-view: 1.34.3
       rope-sequence: 1.3.4
 
   prosemirror-inputrules@1.4.0:
     dependencies:
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.0
+      prosemirror-transform: 1.10.1
 
   prosemirror-keymap@1.2.2:
     dependencies:
@@ -8870,12 +8870,12 @@ snapshots:
     dependencies:
       prosemirror-model: 1.23.0
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.0
+      prosemirror-transform: 1.10.1
 
   prosemirror-state@1.4.3:
     dependencies:
       prosemirror-model: 1.23.0
-      prosemirror-transform: 1.10.0
+      prosemirror-transform: 1.10.1
       prosemirror-view: 1.34.3
 
   prosemirror-tables@1.5.0:
@@ -8883,7 +8883,7 @@ snapshots:
       prosemirror-keymap: 1.2.2
       prosemirror-model: 1.23.0
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.0
+      prosemirror-transform: 1.10.1
       prosemirror-view: 1.34.3
 
   prosemirror-trailing-node@3.0.0(prosemirror-model@1.23.0)(prosemirror-state@1.4.3)(prosemirror-view@1.34.3):
@@ -8894,7 +8894,7 @@ snapshots:
       prosemirror-state: 1.4.3
       prosemirror-view: 1.34.3
 
-  prosemirror-transform@1.10.0:
+  prosemirror-transform@1.10.1:
     dependencies:
       prosemirror-model: 1.23.0
 
@@ -8902,7 +8902,7 @@ snapshots:
     dependencies:
       prosemirror-model: 1.23.0
       prosemirror-state: 1.4.3
-      prosemirror-transform: 1.10.0
+      prosemirror-transform: 1.10.1
 
   proxy-from-env@1.1.0: {}
 

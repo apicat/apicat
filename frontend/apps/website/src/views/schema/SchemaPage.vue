@@ -39,7 +39,7 @@ const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchem
     title: schema.value?.name,
   }
 })
-const { jsonSchemaTableIns, isAIMode, isShowAIStyle, preSchema, handleTitleBlur } = useAITips(props.project_id, schema, readonly, updateSchema)
+const { jsonSchemaTableIns, schemaName, isAIMode, isShowAIStyle, preSchema, handleTitleBlur } = useAITips(props.project_id, schema, readonly, updateSchema)
 
 let oldTitle = ''
 
@@ -77,9 +77,11 @@ watchDebounced(
 
       // backup old title
       oldTitle = n.name
+      schemaName.value = n.name
 
       try {
-        !isAIMode.value && await updateSchema(props.project_id, n)
+        if (!isAIMode.value && !jsonSchemaTableIns.value?.isEmpty())
+          await updateSchema(props.project_id, n)
       }
       catch (error) {
         //
