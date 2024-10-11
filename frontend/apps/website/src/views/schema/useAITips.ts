@@ -1,6 +1,6 @@
 import { debounce } from 'lodash-es'
 import type { JSONSchemaTable } from '@apicat/components'
-import { AxiosError } from 'axios'
+import axios, { AxiosError } from 'axios'
 import { apiGetAIModel } from '@/api/project/definition/schema'
 
 export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode | null>, readonly: Ref<boolean>, updateSchema: (projectID: string, schema: Definition.SchemaNode) => Promise<void | undefined>) {
@@ -47,7 +47,7 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     }
     catch (error: any) {
       // Cancelled Error 不需要重置
-      if (error && AxiosError.ERR_CANCELED !== error.code) {
+      if (axios.isCancel(error)) {
         isLoadingAICollection.value = false
         requestID.value = ''
       }

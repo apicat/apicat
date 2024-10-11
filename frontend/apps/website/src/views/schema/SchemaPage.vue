@@ -182,8 +182,11 @@ injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
 
     <JSONSchemaTable
       v-if="!loading && schema" ref="jsonSchemaTableIns" :key="schema.id" v-model:schema="schema.schema"
-      :readonly="readonly" :root-schema-key="schema.id" :definition-schemas="schemas"
-      :handle-parse-schema="apiParseSchema" :handle-intelligent-schema="handleIntelligentSchema"
+      :readonly="readonly"
+      :root-schema-key="schema.id"
+      :definition-schemas="schemas"
+      :handle-parse-schema="apiParseSchema"
+      :handle-intelligent-schema="handleIntelligentSchema"
       :handle-check-replace-model="handleCheckReplaceModel"
     />
     <GenerateCode v-if="readonly && schema" ref="generateCodeRef" :schema="schema" />

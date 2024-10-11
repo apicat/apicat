@@ -5,24 +5,21 @@ import { apiCheckReplaceModel, apiGetAISchema } from '@/api/project/definition/s
 
 // AI generated json schema
 export function useIntelligentSchema(projectID: string, getParams?: () => any) {
-  let isLoading = false
   let requestID
+  let abortController: AbortController | null = null
 
   async function handleIntelligentSchema(jsonschema: JSONSchema, node: SchemaTreeNode): Promise<{ nid: string, schema: JSONSchema } | void> {
     // 避免重复请求
-    if (isLoading)
-      return
+    abortController?.abort()
 
     requestID = `${guid()}:${node.id}`
-
+    abortController = new AbortController()
     try {
-      isLoading = true
       const { requestID: resID, schema } = await apiGetAISchema(projectID, {
         schema: JSON.stringify(jsonschema),
         requestID,
         ...getParams?.(),
-      })
-      isLoading = false
+      }, { signal: abortController.signal })
 
       if (resID !== requestID)
         return
@@ -31,16 +28,16 @@ export function useIntelligentSchema(projectID: string, getParams?: () => any) {
       return { nid, schema } as { nid: string, schema: JSONSchema }
     }
     catch (error) {
-      isLoading = false
+      //
     }
   }
 
-  let isLoadingCheckReplaceModel = false
   let requestIDCheckReplaceModel
+  let abortControllerCheckReplace: AbortController | null = null
 
   async function handleCheckReplaceModel(jsonschema: JSONSchema): Promise<{ nid: string, schema: JSONSchema } | void> {
-    if (isLoadingCheckReplaceModel)
-      return
+    // 避免重复请求
+    abortControllerCheckReplace?.abort()
 
     requestIDCheckReplaceModel = guid()
 
@@ -48,7 +45,7 @@ export function useIntelligentSchema(projectID: string, getParams?: () => any) {
     const extraParams = getParams?.() || {}
 
     try {
-      isLoadingCheckReplaceModel = true
+      abortControllerCheckReplace = new AbortController()
       const params = {
         schema: JSON.stringify(jsonschema),
         requestID: requestIDCheckReplaceModel,
@@ -59,8 +56,7 @@ export function useIntelligentSchema(projectID: string, getParams?: () => any) {
       if (extraParams.type === 'model')
         params.modelID = extraParams.id
 
-      const { requestID, schema } = await apiCheckReplaceModel(projectID, params)
-      isLoadingCheckReplaceModel = false
+      const { requestID, schema } = await apiCheckReplaceModel(projectID, params, { signal: abortControllerCheckReplace.signal })
 
       // not match
       if (requestIDCheckReplaceModel !== requestID)
@@ -72,7 +68,7 @@ export function useIntelligentSchema(projectID: string, getParams?: () => any) {
       } as { nid: string, schema: JSONSchema }
     }
     catch (error) {
-      isLoadingCheckReplaceModel = false
+      //
     }
   }
 

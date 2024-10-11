@@ -34,7 +34,7 @@ const {
   titleInputRef,
 } = useCollection(props as any)
 
-const { handleIntelligentSchema } = useIntelligentSchema(props.project_id, () => {
+const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchema(props.project_id, () => {
   return {
     id: collection?.value?.id,
     type: 'collection',
@@ -43,6 +43,7 @@ const { handleIntelligentSchema } = useIntelligentSchema(props.project_id, () =>
 })
 
 options.handleIntelligentSchema = handleIntelligentSchema
+options.handleCheckReplaceModel = handleCheckReplaceModel
 
 const testPageRef = ref<InstanceType<typeof CollectionTestPage>>()
 function showTestPage() {

@@ -1,6 +1,6 @@
 import { debounce } from 'lodash-es'
 import { EDITOR_NODE_EVENT } from '@apicat/editor'
-import { AxiosError } from 'axios'
+import axios, { AxiosError } from 'axios'
 import { apiGetAICollection } from '@/api/project/collection'
 
 export function useAITips(project_id: string, collection: Ref<CollectionAPI.ResponseCollectionDetail | null>, readonly: Ref<boolean>, updateCollection: (projectID: string, collection: CollectionAPI.ResponseCollectionDetail) => Promise<void>) {
@@ -39,7 +39,6 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
       const { content: aiCollection, requestID: resRequestID } = await apiGetAICollection(project_id, { requestID: unref(requestID), title, path }, { signal: abortController.signal })
       if (requestID.value === resRequestID && isLoadingAICollection.value) {
         collection.value!.content = aiCollection.content
-        collection.value!.title = aiCollection.title
         callback && callback()
       }
 
@@ -49,9 +48,8 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
       requestID.value = ''
     }
     catch (error: any) {
-      console.error(error)
       // Cancelled Error 不需要重置
-      if (error && AxiosError.ERR_CANCELED !== error.code) {
+      if (axios.isCancel(error)) {
         isLoadingAICollection.value = false
         requestID.value = ''
       }
