@@ -48,21 +48,21 @@ func newBaichuan(cfg Baichuan) *baichuan {
 func (b *baichuan) Check(modelType string) error {
 	switch modelType {
 	case "llm":
-		if !ModelAvailable(OPENAI, modelType, b.llm) {
+		if !ModelAvailable(BAICHUAN, modelType, b.llm) {
 			return fmt.Errorf("llm model %s not supported", b.llm)
 		}
-		return b.CheckLLM()
+		return b.checkLLM()
 	case "embedding":
-		if !ModelAvailable(OPENAI, modelType, b.embedding) {
+		if !ModelAvailable(BAICHUAN, modelType, b.embedding) {
 			return fmt.Errorf("embedding model %s not supported", b.embedding)
 		}
-		return b.CheckEmbedding()
+		return b.checkEmbedding()
 	default:
 		return fmt.Errorf("unknown model type: %s", modelType)
 	}
 }
 
-func (b *baichuan) CheckLLM() error {
+func (b *baichuan) checkLLM() error {
 	if b.llm == "" {
 		return errors.New("llm name not set")
 	}
@@ -72,7 +72,7 @@ func (b *baichuan) CheckLLM() error {
 	return err
 }
 
-func (b *baichuan) CheckEmbedding() error {
+func (b *baichuan) checkEmbedding() error {
 	if b.embedding == "" {
 		return errors.New("embedding name not set")
 	}

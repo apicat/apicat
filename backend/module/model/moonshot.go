@@ -45,21 +45,21 @@ func newMoonshot(cfg Moonshot) *moonshot {
 func (m *moonshot) Check(modelType string) error {
 	switch modelType {
 	case "llm":
-		if !ModelAvailable(OPENAI, modelType, m.llm) {
+		if !ModelAvailable(MOONSHOT, modelType, m.llm) {
 			return fmt.Errorf("llm model %s not supported", m.llm)
 		}
-		return m.CheckLLM()
+		return m.checkLLM()
 	case "embedding":
-		if !ModelAvailable(OPENAI, modelType, m.embedding) {
+		if !ModelAvailable(MOONSHOT, modelType, m.embedding) {
 			return fmt.Errorf("embedding model %s not supported", m.embedding)
 		}
-		return m.CheckEmbedding()
+		return m.checkEmbedding()
 	default:
 		return fmt.Errorf("unknown model type: %s", modelType)
 	}
 }
 
-func (m *moonshot) CheckLLM() error {
+func (m *moonshot) checkLLM() error {
 	if m.llm == "" {
 		return errors.New("llm name not set")
 	}
@@ -69,7 +69,7 @@ func (m *moonshot) CheckLLM() error {
 	return err
 }
 
-func (m *moonshot) CheckEmbedding() error {
+func (m *moonshot) checkEmbedding() error {
 	if m.embedding == "" {
 		return errors.New("embedding name not set")
 	}

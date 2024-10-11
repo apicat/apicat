@@ -14,6 +14,7 @@ type Model struct {
 	AzureOpenAI     *AzureOpenAI
 	Baichuan        *Baichuan
 	Moonshot        *Moonshot
+	DeepSeek        *DeepSeek
 }
 
 type OpenAI struct {
@@ -45,6 +46,12 @@ type Moonshot struct {
 	Embedding string `json:"embedding"`
 }
 
+type DeepSeek struct {
+	ApiKey    string `json:"apiKey"`
+	LLM       string `json:"llm"`
+	Embedding string `json:"embedding"`
+}
+
 func LoadModelConfig() {
 	globalConf.Model = &Model{}
 
@@ -62,6 +69,9 @@ func LoadModelConfig() {
 		case model.MOONSHOT:
 			globalConf.Model.LLMDriver = model.MOONSHOT
 			loadMoonshotConfig()
+		case model.DEEPSEEK:
+			globalConf.Model.LLMDriver = model.DEEPSEEK
+			loadDeepSeekConfig()
 		}
 	}
 
@@ -79,6 +89,9 @@ func LoadModelConfig() {
 		case model.MOONSHOT:
 			globalConf.Model.EmbeddingDriver = model.MOONSHOT
 			loadMoonshotConfig()
+		case model.DEEPSEEK:
+			globalConf.Model.EmbeddingDriver = model.DEEPSEEK
+			loadDeepSeekConfig()
 		}
 	}
 }
@@ -150,6 +163,19 @@ func loadMoonshotConfig() {
 	}
 }
 
+func loadDeepSeekConfig() {
+	globalConf.Model.DeepSeek = &DeepSeek{}
+	if v, exists := os.LookupEnv("DEEPSEEK_API_KEY"); exists {
+		globalConf.Model.DeepSeek.ApiKey = v
+	}
+	if v, exists := os.LookupEnv("DEEPSEEK_LLM"); exists {
+		globalConf.Model.DeepSeek.LLM = v
+	}
+	if v, exists := os.LookupEnv("DEEPSEEK_EMBEDDING"); exists {
+		globalConf.Model.DeepSeek.Embedding = v
+	}
+}
+
 func CheckModelConfig() error {
 	if globalConf.Model.LLMDriver != "" {
 		switch globalConf.Model.LLMDriver {
@@ -167,6 +193,10 @@ func CheckModelConfig() error {
 			}
 		case model.MOONSHOT:
 			if err := checkMoonshot("llm"); err != nil {
+				return err
+			}
+		case model.DEEPSEEK:
+			if err := checkDeepSeek("llm"); err != nil {
 				return err
 			}
 		}
@@ -187,6 +217,10 @@ func CheckModelConfig() error {
 			}
 		case model.MOONSHOT:
 			if err := checkMoonshot("embedding"); err != nil {
+				return err
+			}
+		case model.DEEPSEEK:
+			if err := checkDeepSeek("embedding"); err != nil {
 				return err
 			}
 		}
@@ -291,6 +325,28 @@ func checkMoonshot(modelType string) error {
 	return nil
 }
 
+func checkDeepSeek(modelType string) error {
+	if globalConf.Model.DeepSeek == nil {
+		return errors.New("deepseek config is empty")
+	}
+	if globalConf.Model.DeepSeek.ApiKey == "" {
+		return errors.New("deepseek api key is empty")
+	}
+	if modelType == "llm" && globalConf.Model.DeepSeek.LLM == "" {
+		return errors.New("deepseek llm is empty")
+	}
+	if modelType == "embedding" && globalConf.Model.DeepSeek.Embedding == "" {
+		return errors.New("deepseek embedding is empty")
+	}
+	if modelType == "llm" && !model.ModelAvailable(model.DEEPSEEK, modelType, globalConf.Model.DeepSeek.LLM) {
+		return errors.New("llm model not supported")
+	}
+	if modelType == "embedding" && !model.ModelAvailable(model.DEEPSEEK, modelType, globalConf.Model.DeepSeek.Embedding) {
+		return errors.New("embedding model not supported")
+	}
+	return nil
+}
+
 func GetModel() *Model {
 	return globalConf.Model
 }
@@ -307,6 +363,8 @@ func SetModel(m *Model) {
 			globalConf.Model.Baichuan = m.Baichuan
 		case model.MOONSHOT:
 			globalConf.Model.Moonshot = m.Moonshot
+		case model.DEEPSEEK:
+			globalConf.Model.DeepSeek = m.DeepSeek
 		default:
 			globalConf.Model.LLMDriver = ""
 		}
@@ -322,6 +380,8 @@ func SetModel(m *Model) {
 			globalConf.Model.Baichuan = m.Baichuan
 		case model.MOONSHOT:
 			globalConf.Model.Moonshot = m.Moonshot
+		case model.DEEPSEEK:
+			globalConf.Model.DeepSeek = m.DeepSeek
 		default:
 			globalConf.Model.EmbeddingDriver = ""
 		}
@@ -351,6 +411,8 @@ func (m *Model) ToModuleStruct(modelType string) model.Model {
 		return m.toBaichuanCfg()
 	case model.MOONSHOT:
 		return m.toMoonshotCfg()
+	case model.DEEPSEEK:
+		return m.toDeepSeekCfg()
 	default:
 		return model.Model{}
 	}
@@ -401,6 +463,17 @@ func (m *Model) toMoonshotCfg() model.Model {
 			ApiKey:    m.Moonshot.ApiKey,
 			LLM:       m.Moonshot.LLM,
 			Embedding: m.Moonshot.Embedding,
+		},
+	}
+}
+
+func (m *Model) toDeepSeekCfg() model.Model {
+	return model.Model{
+		Driver: model.DEEPSEEK,
+		DeepSeek: model.DeepSeek{
+			ApiKey:    m.DeepSeek.ApiKey,
+			LLM:       m.DeepSeek.LLM,
+			Embedding: m.DeepSeek.Embedding,
 		},
 	}
 }

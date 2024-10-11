@@ -9,6 +9,7 @@ const (
 	AZURE_OPENAI = "azure-openai"
 	BAICHUAN     = "baichuan"
 	MOONSHOT     = "moonshot"
+	DEEPSEEK     = "deepseek"
 )
 
 type Model struct {
@@ -17,6 +18,7 @@ type Model struct {
 	AzureOpenAI AzureOpenAI
 	Baichuan    Baichuan
 	Moonshot    Moonshot
+	DeepSeek    DeepSeek
 }
 
 func NewModel(cfg Model) (Provider, error) {
@@ -43,6 +45,12 @@ func NewModel(cfg Model) (Provider, error) {
 			return o, nil
 		} else {
 			return nil, errors.New("NewMoonshot failed")
+		}
+	} else if cfg.Driver == DEEPSEEK {
+		if o := newDeepSeek(cfg.DeepSeek); o != nil {
+			return o, nil
+		} else {
+			return nil, errors.New("NewDeepSeek failed")
 		}
 	}
 
@@ -99,6 +107,21 @@ func ModelAvailable(driver, modelType, modelName string) bool {
 			}
 		}
 		return false
+	case DEEPSEEK:
+		switch modelType {
+		case "llm":
+			for _, v := range DEEPSEEK_LLM_SUPPORTS {
+				if v == modelName {
+					return true
+				}
+			}
+		case "embedding":
+			for _, v := range DEEPSEEK_EMBEDDING_SUPPORTS {
+				if v == modelName {
+					return true
+				}
+			}
+		}
 	}
 	return false
 }

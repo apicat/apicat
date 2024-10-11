@@ -62,18 +62,18 @@ func (o *openai) Check(modelType string) error {
 		if !ModelAvailable(OPENAI, modelType, o.llm) {
 			return fmt.Errorf("llm model %s not supported", o.llm)
 		}
-		return o.CheckLLM()
+		return o.checkLLM()
 	case "embedding":
 		if !ModelAvailable(OPENAI, modelType, o.embedding) {
 			return fmt.Errorf("embedding model %s not supported", o.embedding)
 		}
-		return o.CheckEmbedding()
+		return o.checkEmbedding()
 	default:
 		return fmt.Errorf("unknown model type: %s", modelType)
 	}
 }
 
-func (o *openai) CheckLLM() error {
+func (o *openai) checkLLM() error {
 	if o.llm == "" {
 		return errors.New("llm name not set")
 	}
@@ -83,7 +83,7 @@ func (o *openai) CheckLLM() error {
 	return err
 }
 
-func (o *openai) CheckEmbedding() error {
+func (o *openai) checkEmbedding() error {
 	if o.embedding == "" {
 		return errors.New("embedding name not set")
 	}
