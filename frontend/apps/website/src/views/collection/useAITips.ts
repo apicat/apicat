@@ -49,7 +49,7 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
     }
     catch (error: any) {
       // Cancelled Error 不需要重置
-      if (axios.isCancel(error)) {
+      if (!axios.isCancel(error)) {
         isLoadingAICollection.value = false
         requestID.value = ''
       }

@@ -47,7 +47,7 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     }
     catch (error: any) {
       // Cancelled Error 不需要重置
-      if (axios.isCancel(error)) {
+      if (!axios.isCancel(error)) {
         isLoadingAICollection.value = false
         requestID.value = ''
       }
@@ -73,8 +73,8 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     isLoadingAICollection.value = false
     abortController?.abort()
     // 还原文档
-    if (preSchema.value && schema.value)
-      schema.value.schema = JSON.parse(JSON.stringify(preSchema.value.schema))
+    if (isAIMode.value && preSchema.value && schema.value)
+      schema.value.schema = { type: 'object' }
   }
 
   // 确认AI提示

@@ -58,6 +58,10 @@ function goSchemahistory() {
   })
 }
 
+watchDebounced(() => schema.value?.name, () => {
+  schemaName.value = schema.value!.name
+}, { debounce: 500 })
+
 watchDebounced(
   schema,
   async (n, o) => {
@@ -77,10 +81,9 @@ watchDebounced(
 
       // backup old title
       oldTitle = n.name
-      schemaName.value = n.name
 
       try {
-        if (!isAIMode.value && !jsonSchemaTableIns.value?.isEmpty())
+        if (!isAIMode.value)
           await updateSchema(props.project_id, n)
       }
       catch (error) {
