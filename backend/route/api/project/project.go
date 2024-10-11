@@ -174,6 +174,7 @@ func (pai *projectApiImpl) Get(ctx *gin.Context, opt *projectrequest.GetProjectD
 	} else {
 		if p.EmbeddingModel == "" || p.EmbeddingModel != config.GetModel().EmbeddingDriver {
 			init.ForceRun()
+			p.UpdateEmbeddingModel(ctx, config.GetModel().EmbeddingDriver)
 		} else {
 			init.Run()
 		}

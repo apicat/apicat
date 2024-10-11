@@ -84,6 +84,10 @@ func (p *Project) UpdateShareKey(ctx context.Context) error {
 	return model.DB(ctx).Model(p).Update("share_key", p.ShareKey).Error
 }
 
+func (p *Project) UpdateEmbeddingModel(ctx context.Context, embeddingModel string) error {
+	return model.DB(ctx).Model(p).Update("embedding_model", embeddingModel).Error
+}
+
 // Delete 删除项目
 func (p *Project) Delete(ctx context.Context) error {
 	if p.ID == "" {
