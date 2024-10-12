@@ -5,20 +5,22 @@ import (
 )
 
 const (
-	OPENAI       = "openai"
-	AZURE_OPENAI = "azure-openai"
-	BAICHUAN     = "baichuan"
-	MOONSHOT     = "moonshot"
-	DEEPSEEK     = "deepseek"
+	OPENAI        = "openai"
+	AZURE_OPENAI  = "azure-openai"
+	BAICHUAN      = "baichuan"
+	MOONSHOT      = "moonshot"
+	DEEPSEEK      = "deepseek"
+	VOLCANOENGINE = "volcanoengine"
 )
 
 type Model struct {
-	Driver      string
-	OpenAI      OpenAI
-	AzureOpenAI AzureOpenAI
-	Baichuan    Baichuan
-	Moonshot    Moonshot
-	DeepSeek    DeepSeek
+	Driver        string
+	OpenAI        OpenAI
+	AzureOpenAI   AzureOpenAI
+	Baichuan      Baichuan
+	Moonshot      Moonshot
+	DeepSeek      DeepSeek
+	VolcanoEngine VolcanoEngine
 }
 
 func NewModel(cfg Model) (Provider, error) {
@@ -51,6 +53,12 @@ func NewModel(cfg Model) (Provider, error) {
 			return o, nil
 		} else {
 			return nil, errors.New("NewDeepSeek failed")
+		}
+	} else if cfg.Driver == VOLCANOENGINE {
+		if o := newVolcanoEngine(cfg.VolcanoEngine); o != nil {
+			return o, nil
+		} else {
+			return nil, errors.New("NewVolcanoEngine failed")
 		}
 	}
 
@@ -117,6 +125,21 @@ func ModelAvailable(driver, modelType, modelName string) bool {
 			}
 		case "embedding":
 			for _, v := range DEEPSEEK_EMBEDDING_SUPPORTS {
+				if v == modelName {
+					return true
+				}
+			}
+		}
+	case VOLCANOENGINE:
+		switch modelType {
+		case "llm":
+			for _, v := range VOLCANOENGINE_LLM_SUPPORTS {
+				if v == modelName {
+					return true
+				}
+			}
+		case "embedding":
+			for _, v := range VOLCANOENGINE_EMBEDDING_SUPPORTS {
 				if v == modelName {
 					return true
 				}

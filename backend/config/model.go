@@ -15,6 +15,7 @@ type Model struct {
 	Baichuan        *Baichuan
 	Moonshot        *Moonshot
 	DeepSeek        *DeepSeek
+	VolcanoEngine   *VolcanoEngine
 }
 
 type OpenAI struct {
@@ -52,6 +53,16 @@ type DeepSeek struct {
 	Embedding string `json:"embedding"`
 }
 
+type VolcanoEngine struct {
+	ApiKey              string `json:"apiKey"`
+	Region              string `json:"region"`
+	BaseUrl             string `json:"baseUrl"`
+	LLM                 string `json:"llm"`
+	LLMEndpointID       string `json:"llmEndpointID"`
+	Embedding           string `json:"embedding"`
+	EmbeddingEndpointID string `json:"embeddingEndpointID"`
+}
+
 func LoadModelConfig() {
 	globalConf.Model = &Model{}
 
@@ -72,6 +83,9 @@ func LoadModelConfig() {
 		case model.DEEPSEEK:
 			globalConf.Model.LLMDriver = model.DEEPSEEK
 			loadDeepSeekConfig()
+		case model.VOLCANOENGINE:
+			globalConf.Model.LLMDriver = model.VOLCANOENGINE
+			loadVolcanoEngineConfig()
 		}
 	}
 
@@ -92,6 +106,9 @@ func LoadModelConfig() {
 		case model.DEEPSEEK:
 			globalConf.Model.EmbeddingDriver = model.DEEPSEEK
 			loadDeepSeekConfig()
+		case model.VOLCANOENGINE:
+			globalConf.Model.EmbeddingDriver = model.VOLCANOENGINE
+			loadVolcanoEngineConfig()
 		}
 	}
 }
@@ -176,6 +193,31 @@ func loadDeepSeekConfig() {
 	}
 }
 
+func loadVolcanoEngineConfig() {
+	globalConf.Model.VolcanoEngine = &VolcanoEngine{}
+	if v, exists := os.LookupEnv("VOLCANOENGINE_API_KEY"); exists {
+		globalConf.Model.VolcanoEngine.ApiKey = v
+	}
+	if v, exists := os.LookupEnv("VOLCANOENGINE_REGION"); exists {
+		globalConf.Model.VolcanoEngine.Region = v
+	}
+	if v, exists := os.LookupEnv("VOLCANOENGINE_BASE_URL"); exists {
+		globalConf.Model.VolcanoEngine.BaseUrl = v
+	}
+	if v, exists := os.LookupEnv("VOLCANOENGINE_LLM"); exists {
+		globalConf.Model.VolcanoEngine.LLM = v
+	}
+	if v, exists := os.LookupEnv("VOLCANOENGINE_LLM_ENDPOINT_ID"); exists {
+		globalConf.Model.VolcanoEngine.LLMEndpointID = v
+	}
+	if v, exists := os.LookupEnv("VOLCANOENGINE_EMBEDDING"); exists {
+		globalConf.Model.VolcanoEngine.Embedding = v
+	}
+	if v, exists := os.LookupEnv("VOLCANOENGINE_EMBEDDING_ENDPOINT_ID"); exists {
+		globalConf.Model.VolcanoEngine.EmbeddingEndpointID = v
+	}
+}
+
 func CheckModelConfig() error {
 	if globalConf.Model.LLMDriver != "" {
 		switch globalConf.Model.LLMDriver {
@@ -197,6 +239,10 @@ func CheckModelConfig() error {
 			}
 		case model.DEEPSEEK:
 			if err := checkDeepSeek("llm"); err != nil {
+				return err
+			}
+		case model.VOLCANOENGINE:
+			if err := checkVolcanoEngine("llm"); err != nil {
 				return err
 			}
 		}
@@ -221,6 +267,10 @@ func CheckModelConfig() error {
 			}
 		case model.DEEPSEEK:
 			if err := checkDeepSeek("embedding"); err != nil {
+				return err
+			}
+		case model.VOLCANOENGINE:
+			if err := checkVolcanoEngine("embedding"); err != nil {
 				return err
 			}
 		}
@@ -347,6 +397,40 @@ func checkDeepSeek(modelType string) error {
 	return nil
 }
 
+func checkVolcanoEngine(modelType string) error {
+	if globalConf.Model.VolcanoEngine == nil {
+		return errors.New("volcano engine config is empty")
+	}
+	if globalConf.Model.VolcanoEngine.ApiKey == "" {
+		return errors.New("volcano engine api key is empty")
+	}
+	if globalConf.Model.VolcanoEngine.Region == "" {
+		return errors.New("volcano engine region is empty")
+	}
+	if globalConf.Model.VolcanoEngine.BaseUrl == "" {
+		return errors.New("volcano engine base url is empty")
+	}
+	if modelType == "llm" && globalConf.Model.VolcanoEngine.LLM == "" {
+		return errors.New("volcano engine llm is empty")
+	}
+	if modelType == "llm" && globalConf.Model.VolcanoEngine.LLMEndpointID == "" {
+		return errors.New("volcano engine llm endpoint id is empty")
+	}
+	if modelType == "embedding" && globalConf.Model.VolcanoEngine.Embedding == "" {
+		return errors.New("volcano engine embedding is empty")
+	}
+	if modelType == "embedding" && globalConf.Model.VolcanoEngine.EmbeddingEndpointID == "" {
+		return errors.New("volcano engine embedding endpoint id is empty")
+	}
+	if modelType == "llm" && !model.ModelAvailable(model.VOLCANOENGINE, modelType, globalConf.Model.VolcanoEngine.LLM) {
+		return errors.New("llm model not supported")
+	}
+	if modelType == "embedding" && !model.ModelAvailable(model.VOLCANOENGINE, modelType, globalConf.Model.VolcanoEngine.Embedding) {
+		return errors.New("embedding model not supported")
+	}
+	return nil
+}
+
 func GetModel() *Model {
 	return globalConf.Model
 }
@@ -365,6 +449,8 @@ func SetModel(m *Model) {
 			globalConf.Model.Moonshot = m.Moonshot
 		case model.DEEPSEEK:
 			globalConf.Model.DeepSeek = m.DeepSeek
+		case model.VOLCANOENGINE:
+			globalConf.Model.VolcanoEngine = m.VolcanoEngine
 		default:
 			globalConf.Model.LLMDriver = ""
 		}
@@ -382,6 +468,8 @@ func SetModel(m *Model) {
 			globalConf.Model.Moonshot = m.Moonshot
 		case model.DEEPSEEK:
 			globalConf.Model.DeepSeek = m.DeepSeek
+		case model.VOLCANOENGINE:
+			globalConf.Model.VolcanoEngine = m.VolcanoEngine
 		default:
 			globalConf.Model.EmbeddingDriver = ""
 		}
@@ -413,6 +501,8 @@ func (m *Model) ToModuleStruct(modelType string) model.Model {
 		return m.toMoonshotCfg()
 	case model.DEEPSEEK:
 		return m.toDeepSeekCfg()
+	case model.VOLCANOENGINE:
+		return m.toVolcanoEngineCfg()
 	default:
 		return model.Model{}
 	}
@@ -474,6 +564,21 @@ func (m *Model) toDeepSeekCfg() model.Model {
 			ApiKey:    m.DeepSeek.ApiKey,
 			LLM:       m.DeepSeek.LLM,
 			Embedding: m.DeepSeek.Embedding,
+		},
+	}
+}
+
+func (m *Model) toVolcanoEngineCfg() model.Model {
+	return model.Model{
+		Driver: model.VOLCANOENGINE,
+		VolcanoEngine: model.VolcanoEngine{
+			ApiKey:              m.VolcanoEngine.ApiKey,
+			Region:              m.VolcanoEngine.Region,
+			BaseUrl:             m.VolcanoEngine.BaseUrl,
+			LLM:                 m.VolcanoEngine.LLM,
+			LLMEndpointID:       m.VolcanoEngine.LLMEndpointID,
+			Embedding:           m.VolcanoEngine.Embedding,
+			EmbeddingEndpointID: m.VolcanoEngine.EmbeddingEndpointID,
 		},
 	}
 }
