@@ -213,3 +213,7 @@ func UserInfo(ctx context.Context, memberID uint, unscoped bool) (*user.User, er
 		return tm.UserInfo(ctx, unscoped)
 	}
 }
+
+func ClearVectorID(ctx context.Context, projectID string) error {
+	return model.DB(ctx).Where("project_id = ?", projectID).Model(&DefinitionSchema{}).Update("vector_id", "").Error
+}

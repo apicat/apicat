@@ -7,6 +7,7 @@ import (
 	"github.com/apicat/apicat/v2/backend/core/content_suggestion"
 	"github.com/apicat/apicat/v2/backend/i18n"
 	"github.com/apicat/apicat/v2/backend/model/collection"
+	"github.com/apicat/apicat/v2/backend/model/definition"
 	"github.com/apicat/apicat/v2/backend/model/project"
 	"github.com/apicat/apicat/v2/backend/model/team"
 	"github.com/apicat/apicat/v2/backend/module/cache"
@@ -173,8 +174,10 @@ func (pai *projectApiImpl) Get(ctx *gin.Context, opt *projectrequest.GetProjectD
 		slog.ErrorContext(ctx, "content_suggestion.NewVectorInitializer", "err", err)
 	} else {
 		if p.EmbeddingModel == "" || p.EmbeddingModel != config.GetModel().EmbeddingDriver {
-			init.ForceRun()
 			p.UpdateEmbeddingModel(ctx, config.GetModel().EmbeddingDriver)
+			collection.ClearVectorID(ctx, p.ID)
+			definition.ClearVectorID(ctx, p.ID)
+			init.ForceRun()
 		} else {
 			init.Run()
 		}
