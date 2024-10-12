@@ -360,6 +360,9 @@ func (sg *SchemaGenerator) findSimilar(js *jsonschema.Schema) bool {
 			return false
 		}
 	}
+	if len(js.Properties) == len(sg.focusParentSchema.Properties) {
+		return false
+	}
 	sg.similarSchema = js
 	return true
 }
