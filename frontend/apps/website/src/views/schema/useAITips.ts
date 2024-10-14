@@ -73,8 +73,10 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     isLoadingAICollection.value = false
     abortController?.abort()
     // 还原文档
-    if (isAIMode.value && preSchema.value && schema.value)
+    if (isAIMode.value && preSchema.value && schema.value) {
       schema.value.schema = { type: 'object' }
+      isAIMode.value = false
+    }
   }
 
   // 确认AI提示
@@ -105,6 +107,9 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     if (isAIMode.value || jsonSchemaTableIns.value?.isEmpty()) {
       isAIMode.value = true
       await getAITips()
+    }
+    else {
+      isAIMode.value = false
     }
   })
 

@@ -4,6 +4,7 @@ import { useNamespace } from '@apicat/hooks'
 import { ElMessage, ClickOutside as vClickOutside } from 'element-plus'
 import { useI18n } from 'vue-i18n'
 import { JSONSchemaTable } from '@apicat/components'
+import { debounce } from 'lodash-es'
 import type { PageModeCtx } from '../composables/usePageMode'
 import { useIntelligentSchema } from '../composables/useIntelligentSchema'
 import { useAITips } from './useAITips'
@@ -58,9 +59,17 @@ function goSchemahistory() {
   })
 }
 
-watchDebounced(() => schema.value?.name, () => {
-  schemaName.value = schema.value!.name
-}, { debounce: 500 })
+const debounceSchemaNameFn = debounce((newName) => {
+  if (newName && newName.trim())
+    schemaName.value = newName
+}, 500)
+
+watch(() => schema.value?.name, (newName) => {
+  if (readonly.value || (preSchema.value && preSchema.value.id !== schema.value!.id))
+    return
+
+  debounceSchemaNameFn(newName)
+})
 
 watchDebounced(
   schema,
