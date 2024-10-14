@@ -295,11 +295,13 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 
 	refKeys := make([]string, 0)
 	if rm.matches[refID].Properties != nil {
+		// 这里将引用目标 Model 中的属性名放入 refKeys 中，用于后续判断要替换的 Schema a 中是否有引用属性之外的其他属性
 		for k := range rm.matches[refID].Properties {
 			refKeys = append(refKeys, k)
 		}
 	}
 	if len(rm.matches[refID].AllOf) > 0 {
+		// 同理，将引用目标 Model 中的 allOf 中的属性名也放入 refKeys 中
 		for _, v := range rm.matches[refID].AllOf {
 			if v.Properties != nil {
 				for k := range v.Properties {
@@ -307,6 +309,7 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 				}
 			}
 			if refID, err := v.GetRefID(); err == nil && refID > 0 {
+				// 如果 allOf 中的 Schema 有引用其他 Model，将引用的 Model ID 作为属性名也放入 refKeys 中
 				refKeys = append(refKeys, strconv.FormatInt(refID, 10))
 			}
 		}
@@ -317,11 +320,12 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 	new.XSuggestion = true
 
 	if len(a.AllOf) > 0 {
-		for _, v := range a.AllOf {
+		for i, v := range a.AllOf {
 			if v.Properties != nil {
 				for _, k := range v.XOrder {
 					if _, ok := v.Properties[k]; ok {
 						if !array_operation.InArray(k, refKeys) {
+							// 有属性不在引用 Model 中，说明要被替换的 Schema a 中的参数多于对应 ref model 中的参数，ref model 是 a 的子集
 							if new.AllOf == nil {
 								new.AllOf = make([]*jsonschema.Schema, 0)
 							}
@@ -335,9 +339,20 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 								tmp.Required = []string{k}
 							}
 							new.AllOf = append(new.AllOf, tmp)
+
+							if i+1 == len(a.AllOf) && new.Reference != nil {
+								// 需要把 ref 放在 allOf 的第一个位置
+								tmp := &jsonschema.Schema{}
+								tmp.SetDefinitionModelRef(strconv.FormatUint(uint64(refID), 10))
+								tmp.XSuggestion = true
+								newAllOf := append(jsonschema.Of{tmp}, new.AllOf...)
+								new.AllOf = newAllOf
+								new.Reference = nil
+								new.XSuggestion = false
+							}
 						} else {
 							// new.Reference 初始化的时候不为 nil，如果 new.Reference 为 nil，说明 Reference 被移动到了 allOf 中
-							// new.AllOf 默认是 nil，如果 new.AllOf 不为 nil，说明要被替换的 Schema a 中的参数多于对应 ref model 中的参数
+							// new.AllOf 默认是 nil，如果 new.AllOf 不为 nil，说明要被替换的 Schema a 中的参数有部分不在 ref model 中
 							if new.Reference == nil || new.AllOf == nil {
 								continue
 							}
@@ -351,12 +366,22 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 					}
 				}
 			}
-			if refID, err := v.GetRefID(); err == nil && refID > 0 {
-				if !array_operation.InArray(strconv.FormatInt(refID, 10), refKeys) {
+			if vRefID, err := v.GetRefID(); err == nil && vRefID > 0 {
+				if !array_operation.InArray(strconv.FormatInt(vRefID, 10), refKeys) {
 					if new.AllOf == nil {
 						new.AllOf = make([]*jsonschema.Schema, 0)
 					}
 					new.AllOf = append(new.AllOf, v)
+
+					if i+1 == len(a.AllOf) && new.Reference != nil {
+						tmp := &jsonschema.Schema{}
+						tmp.SetDefinitionModelRef(strconv.FormatUint(uint64(refID), 10))
+						tmp.XSuggestion = true
+						newAllOf := append(jsonschema.Of{tmp}, new.AllOf...)
+						new.AllOf = newAllOf
+						new.Reference = nil
+						new.XSuggestion = false
+					}
 				} else {
 					if new.Reference == nil || new.AllOf == nil {
 						continue
@@ -373,7 +398,7 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 	}
 
 	if a.Properties != nil {
-		for _, k := range a.XOrder {
+		for i, k := range a.XOrder {
 			if _, ok := a.Properties[k]; ok {
 				if !array_operation.InArray(k, refKeys) {
 					if new.Properties == nil {
@@ -390,11 +415,12 @@ func (rm *ReferenceMatcher) replace(a *jsonschema.Schema, refID uint) error {
 					}
 					new.AllOf = append(new.AllOf, tmp)
 
-					if new.Reference != nil {
+					if i+1 == len(a.XOrder) && new.Reference != nil {
 						tmp := &jsonschema.Schema{}
 						tmp.SetDefinitionModelRef(strconv.FormatUint(uint64(refID), 10))
 						tmp.XSuggestion = true
-						new.AllOf = append(new.AllOf, tmp)
+						newAllOf := append(jsonschema.Of{tmp}, new.AllOf...)
+						new.AllOf = newAllOf
 						new.Reference = nil
 						new.XSuggestion = false
 					}
