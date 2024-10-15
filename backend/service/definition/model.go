@@ -12,6 +12,7 @@ import (
 	referencerelation "github.com/apicat/apicat/v2/backend/model/reference_relation"
 	"github.com/apicat/apicat/v2/backend/module/vector"
 	"github.com/apicat/apicat/v2/backend/service/collection"
+	array_operation "github.com/apicat/apicat/v2/backend/utils/array"
 )
 
 type DefinitionModelService struct {
@@ -23,7 +24,7 @@ func NewDefinitionModelService(ctx context.Context) *DefinitionModelService {
 }
 
 // 获取所有直接或间接引用了模型 id 为入参的模型 ID
-func (dms *DefinitionModelService) GetRefModelIDs(id uint) ([]uint, error) {
+func (dms *DefinitionModelService) GetRefModelIDs(id uint, exceptIDs []uint) ([]uint, error) {
 	if id < 1 {
 		return nil, errors.New("invalid model id")
 	}
@@ -38,8 +39,13 @@ func (dms *DefinitionModelService) GetRefModelIDs(id uint) ([]uint, error) {
 
 	result := make([]uint, 0)
 	for _, v := range ids {
+		if array_operation.InArray(v, exceptIDs) {
+			continue
+		}
+
 		result = append(result, v)
-		if tmp, err := dms.GetRefModelIDs(v); err != nil {
+		exceptIDs = append(exceptIDs, v) // 已经查到的 ID 放入 exceptIDs，避免死循环
+		if tmp, err := dms.GetRefModelIDs(v, exceptIDs); err != nil {
 			return nil, err
 		} else {
 			if len(tmp) > 0 {
@@ -86,7 +92,7 @@ func (dms *DefinitionModelService) UpdateVector(dm *definition.DefinitionSchema)
 	}
 
 	// 更新所有引用了该模型的模型的向量
-	if refModelIDs, err := dms.GetRefModelIDs(dm.ID); err == nil && len(refModelIDs) > 0 {
+	if refModelIDs, err := dms.GetRefModelIDs(dm.ID, []uint{}); err == nil && len(refModelIDs) > 0 {
 		for _, v := range refModelIDs {
 			modelVector.CreateLater(v)
 			if refCollectionIDs, err := dms.GetRefCollectionIDs(v); err == nil && len(refCollectionIDs) > 0 {
@@ -124,7 +130,7 @@ func (dms *DefinitionModelService) DelVector(dm *definition.DefinitionSchema) {
 	}
 
 	// 更新所有引用了该模型的模型的向量
-	if refModelIDs, err := dms.GetRefModelIDs(dm.ID); err == nil && len(refModelIDs) > 0 {
+	if refModelIDs, err := dms.GetRefModelIDs(dm.ID, []uint{}); err == nil && len(refModelIDs) > 0 {
 		modelVector, err := content_suggestion.NewDefinitionModelVector(dm.ProjectID)
 		if err != nil {
 			slog.ErrorContext(dms.ctx, "content_suggestion.NewDefinitionModelVector", "err", err)
