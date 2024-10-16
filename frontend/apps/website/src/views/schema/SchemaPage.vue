@@ -40,7 +40,7 @@ const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchem
     title: schema.value?.name,
   }
 })
-const { jsonSchemaTableIns, schemaName, isAIMode, isShowAIStyle, preSchema, handleTitleBlur, onDocumentLayoutClick } = useAITips(props.project_id, schema, readonly, updateSchema)
+const { jsonSchemaTableIns, schemaName, isAIMode, isShowAIStyle, preSchema, handleTitleBlur, onDocumentLayoutClick, cancelAITips } = useAITips(props.project_id, schema, readonly, updateSchema, schemaIDRef)
 
 let oldTitle = ''
 
@@ -111,6 +111,8 @@ async function setDetail(id: string) {
   const schemaID = Number.parseInt(id)
   if (!Number.isNaN(schemaID)) {
     await definitionSchemaStore.getSchemaDetail(props.project_id, schemaID)
+    // 重置AI提示
+    cancelAITips()
     if (schema.value) {
       preSchema.value = JSON.parse(JSON.stringify(schema.value))
       schemaName.value = ''

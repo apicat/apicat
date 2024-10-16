@@ -1,6 +1,6 @@
 import { debounce } from 'lodash-es'
 import { EDITOR_NODE_EVENT } from '@apicat/editor'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
 import { apiGetAICollection } from '@/api/project/collection'
 
 export function useAITips(project_id: string, collection: Ref<CollectionAPI.ResponseCollectionDetail | null>, readonly: Ref<boolean>, updateCollection: (projectID: string, collection: CollectionAPI.ResponseCollectionDetail) => Promise<void>) {

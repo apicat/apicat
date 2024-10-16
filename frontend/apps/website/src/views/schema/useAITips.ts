@@ -3,7 +3,13 @@ import axios from 'axios'
 import { debounce } from 'lodash-es'
 import { apiGetAIModel } from '@/api/project/definition/schema'
 
-export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode | null>, readonly: Ref<boolean>, updateSchema: (projectID: string, schema: Definition.SchemaNode) => Promise<void | undefined>) {
+export function useAITips(
+  project_id: string,
+  schema: Ref<Definition.SchemaNode | null>,
+  readonly: Ref<boolean>,
+  updateSchema: (projectID: string, schema: Definition.SchemaNode) => Promise<void | undefined>,
+  currentSchemaIDRef: Ref<string>,
+) {
   const { escape, tab } = useMagicKeys()
   const jsonSchemaTableIns = ref<InstanceType<typeof JSONSchemaTable>>()
 
@@ -18,7 +24,7 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
   let abortController: AbortController | null = null
 
   // 不允许AI提示系列操作判断条件
-  const notAllowAITips = () => preSchema.value?.id !== schema.value?.id || !isAIMode.value || !schema.value || readonly.value
+  const notAllowAITips = () => preSchema.value?.id !== schema.value?.id || !schema.value || readonly.value
 
   // 获取AI提示数据
   async function getAITips() {
@@ -59,16 +65,21 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
   // 取消AI提示
   function cancelAITips() {
     abortController?.abort()
-    // 重置请求ID，避免请求后，文档不匹配问题
-    requestID.value = ''
-    isShowAIStyle.value = false
-    isLoadingAICollection.value = false
+    // 切换了新的内容，不需要还原
+    if (Number(currentSchemaIDRef.value) !== preSchema.value?.id)
+      isAIMode.value = false
 
     // 还原文档
-    if (isAIMode.value && preSchema.value && schema.value) {
+    if (isAIMode.value && preSchema.value && schema.value && Number(currentSchemaIDRef.value) !== preSchema.value?.id) {
       schema.value.schema = { type: 'object' }
       isAIMode.value = false
     }
+
+    // 重置
+    requestID.value = ''
+    isShowAIStyle.value = false
+    isLoadingAICollection.value = false
+    preSchema.value = null
   }
 
   // 确认AI提示
@@ -143,5 +154,6 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
 
     handleTitleBlur,
     onDocumentLayoutClick,
+    cancelAITips,
   }
 }
