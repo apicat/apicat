@@ -64,7 +64,9 @@ export function useAITips(
 
   // 取消AI提示
   function cancelAITips() {
+    // 取消上次请求
     abortController?.abort()
+
     // 切换了新的内容，不需要还原
     if (Number(currentSchemaIDRef.value) !== preSchema.value?.id)
       isAIMode.value = false

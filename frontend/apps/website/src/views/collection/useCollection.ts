@@ -10,7 +10,6 @@ import { getCollectionHistoryPath } from '@/router/history'
 import { injectPagesMode } from '@/layouts/ProjectDetailLayout/composables/usePagesMode'
 import { useTitleInputFocus } from '@/hooks/useTitleInputFocus'
 import { injectAsyncInitTask } from '@/hooks/useWaitAsyncTask'
-import { isEmptyContent } from '@/api/project/collection'
 
 let oldTitle = ''
 
@@ -24,7 +23,7 @@ export function useCollection(props: { project_id: string, collectionID: string 
   const { collectionDetail: collection, loading: isLoading } = storeToRefs(collectionStore)
   const [isSaving, updateCollection, isSaveError] = useApi(collectionStore.updateCollection)
   const { inputRef, focus } = useTitleInputFocus()
-  const { preCollection, docTitle, isAIMode, isShowAIStyle, isShowAIStyleForTitle, handleEditorEvent, handleTitleBlur: triggerTitleBlur } = useAITips(props.project_id, collection, readonly, updateCollection)
+  const { preCollection, docTitle, isAIMode, isShowAIStyle, isShowAIStyleForTitle, handleEditorEvent, handleTitleBlur: triggerTitleBlur, cancelAITips, onDocumentLayoutClick } = useAITips(props.project_id, collection, readonly, updateCollection, collectionIDRef)
 
   function handleTitleBlur() {
     const title = collection.value?.title || ''
@@ -100,15 +99,23 @@ export function useCollection(props: { project_id: string, collectionID: string 
           isImmidiate = false
           asyncTaskCtx!.addTask(task)
         }
+        // 等待数据加载完成，获取详情
         await task
+        // 重置AI提示
+        cancelAITips()
+        if (collection.value) {
+          preCollection.value = JSON.parse(JSON.stringify(collection.value))
+          docTitle.value = ''
+        }
+
         oldTitle = collection.value?.title || ''
         if (!readonly.value)
           focus()
 
-        // 如果内容为空，则可以开启AI推理模式,备份当前collection
-        isAIMode.value = isEmptyContent(collection.value?.content)
-        if (isAIMode.value)
-          preCollection.value = JSON.parse(JSON.stringify(collection.value))
+        // // 如果内容为空，则可以开启AI推理模式,备份当前collection
+        // isAIMode.value = isEmptyContent(collection.value?.content)
+        // if (isAIMode.value)
+        //   preCollection.value = JSON.parse(JSON.stringify(collection.value))
       }
     },
     {
@@ -162,5 +169,6 @@ export function useCollection(props: { project_id: string, collectionID: string 
     toggleMode,
     switchToWriteMode,
     titleInputRef: inputRef,
+    onDocumentLayoutClick,
   }
 }

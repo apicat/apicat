@@ -28,6 +28,7 @@ const {
   handleContentUpdate,
   onShareCollectionBtnClick,
   onExportCollectionBtnClick,
+  onDocumentLayoutClick,
   goCollectionhistory,
   readonly,
   toggleMode,
@@ -121,7 +122,7 @@ function showTestPage() {
     </div>
 
     <!-- content -->
-    <div v-if="collection" v-loading="isLoading" :class="[ns.b(), ns.is('tips', isShowAIStyle), ns.is('all-tips', isShowAIStyleForTitle)]">
+    <div v-if="collection" v-loading="isLoading" :class="[ns.b(), ns.is('tips', isShowAIStyle), ns.is('all-tips', isShowAIStyleForTitle)]" @click="onDocumentLayoutClick">
       <div v-if="!readonly">
         <input
           ref="titleInputRef" v-model="collection.title" class="ac-document__title" type="text" maxlength="255"

@@ -1,10 +1,16 @@
 import { debounce } from 'lodash-es'
 import { EDITOR_NODE_EVENT } from '@apicat/editor'
 import axios from 'axios'
-import { apiGetAICollection } from '@/api/project/collection'
+import { apiGetAICollection, isEmptyContent } from '@/api/project/collection'
 
-export function useAITips(project_id: string, collection: Ref<CollectionAPI.ResponseCollectionDetail | null>, readonly: Ref<boolean>, updateCollection: (projectID: string, collection: CollectionAPI.ResponseCollectionDetail) => Promise<void>) {
-  const { escape } = useMagicKeys()
+export function useAITips(
+  project_id: string,
+  collection: Ref<CollectionAPI.ResponseCollectionDetail | null>,
+  readonly: Ref<boolean>,
+  updateCollection: (projectID: string, collection: CollectionAPI.ResponseCollectionDetail) => Promise<void>,
+  currentCollectionIDRef: Ref<string>,
+) {
+  const { escape, tab } = useMagicKeys()
 
   const isAIMode = ref(false)
   const isShowAIStyle = ref(false)
@@ -42,6 +48,9 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
         if (!oldPath || oldPath === '/')
           collection.value!.content = aiCollection.content
 
+        else
+          collection.value!.content = [...(collection.value?.content?.filter(i => i.type === 'apicat-http-url') || []), ...(aiCollection.content?.filter((i: any) => i.type !== 'apicat-http-url') || [])]
+
         callback && callback()
       }
 
@@ -73,31 +82,31 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
   }
 
   // 标题失去焦点时,延迟600避免title&path的debounce冲突
-  const handleTitleOrPathBlur = debounce(() => {
-    // 获取AI数据中
-    if (isLoadingAICollection.value) {
-      cancelAITips()
-      return
-    }
-
-    confirmAITips()
-  }, 600)
+  const handleTitleOrPathBlur = debounce(() => cancelAITips(), 600)
 
   // 取消AI提示
   function cancelAITips() {
+    // 取消上次请求
+    abortController?.abort()
+
+    // 切换了新的内容，不需要还原
+    if (Number(currentCollectionIDRef.value) !== preCollection.value?.id)
+      isAIMode.value = false
+
+    // 还原文档
+    if (isAIMode.value && preCollection.value && collection.value && Number(currentCollectionIDRef.value) !== preCollection.value?.id) {
+      // 仅还原content中除了path之外的数据
+      const content = JSON.parse(JSON.stringify(preCollection.value)).content
+      collection.value.content = [...(collection.value.content?.filter(i => i.type === 'apicat-http-url') || []), ...(content.filter((i: any) => i.type !== 'apicat-http-url') || [])]
+      isAIMode.value = false
+    }
+
     // 重置请求ID，避免请求后，文档不匹配问题
     requestID.value = ''
     isShowAIStyle.value = false
     isShowAIStyleForTitle.value = false
     isLoadingAICollection.value = false
-    abortController?.abort()
-    // 还原文档
-    if (preCollection.value && collection.value) {
-      // 仅还原content中除了path之外的数据
-      const content = JSON.parse(JSON.stringify(preCollection.value)).content
-      const restoreContent = [...(collection.value.content?.filter(i => i.type === 'apicat-http-url') || []), ...(content.filter((i: any) => i.type !== 'apicat-http-url') || [])]
-      collection.value.content = restoreContent
-    }
+    preCollection.value = null
   }
 
   // 确认AI提示
@@ -108,6 +117,8 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
     collection.value!.title = collection.value!.title
     isShowAIStyle.value = false
     isShowAIStyleForTitle.value = false
+    isAIMode.value = false
+
     try {
       const copyCollectionStr = JSON.stringify(collection.value)
       const copyPreCollectionStr = JSON.stringify(preCollection.value)
@@ -117,8 +128,6 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
       updateCollection(project_id, collection.value!)
       // 保存历史文档
       preCollection.value = JSON.parse(copyCollectionStr)
-      // 退出AI模式
-      isAIMode.value = false
     }
     catch (e) {
       console.error('confirmAITips error', e)
@@ -127,17 +136,37 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
   }
 
   watch(docTitle, async () => {
-    await getAITips(() => {
-      isShowAIStyleForTitle.value = true
-      isShowAIStyle.value = false
-    })
+    if (isAIMode.value || isEmptyContent(collection.value?.content)) {
+      isAIMode.value = true
+      // save change
+      await updateCollection(project_id, collection.value!)
+      preCollection.value = JSON.parse(JSON.stringify(collection.value))
+
+      await getAITips(() => {
+        isShowAIStyleForTitle.value = true
+        isShowAIStyle.value = false
+      })
+    }
+    else {
+      isAIMode.value = false
+    }
   })
 
   watch(docPath, async () => {
-    await getAITips(() => {
-      isShowAIStyle.value = true
-      isShowAIStyleForTitle.value = false
-    })
+    if (isAIMode.value || isEmptyContent(collection.value?.content)) {
+      isAIMode.value = true
+      // save change
+      await updateCollection(project_id, collection.value!)
+      preCollection.value = JSON.parse(JSON.stringify(collection.value))
+
+      await getAITips(() => {
+        isShowAIStyle.value = true
+        isShowAIStyleForTitle.value = false
+      })
+    }
+    else {
+      isAIMode.value = false
+    }
   })
 
   whenever(escape, () => {
@@ -145,6 +174,26 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
       return
     cancelAITips()
   })
+
+  whenever(tab, () => {
+    // tab触发时，获取AI数据，直接取消请求
+    if (isLoadingAICollection.value)
+      handleTitleOrPathBlur()
+
+    if (readonly.value || !isAIMode.value || !collection.value)
+      return
+
+    confirmAITips()
+  })
+
+  // 点击文档区域,非编辑器内点击 -> 取消AI提示
+  function onDocumentLayoutClick(e: MouseEvent) {
+    // 允许点击的区域的dom path 路径含有.ac-schema-editor样式，有效点击
+    if (isAIMode.value && !isLoadingAICollection.value && e.composedPath().find((el: any) => el.className?.includes('ac-editor')))
+      confirmAITips()
+    else
+      handleTitleOrPathBlur()
+  }
 
   return {
     isAIMode,
@@ -158,5 +207,7 @@ export function useAITips(project_id: string, collection: Ref<CollectionAPI.Resp
 
     handleEditorEvent,
     handleTitleBlur: handleTitleOrPathBlur,
+    cancelAITips,
+    onDocumentLayoutClick,
   }
 }
