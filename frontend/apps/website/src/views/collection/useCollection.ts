@@ -111,11 +111,6 @@ export function useCollection(props: { project_id: string, collectionID: string 
         oldTitle = collection.value?.title || ''
         if (!readonly.value)
           focus()
-
-        // // 如果内容为空，则可以开启AI推理模式,备份当前collection
-        // isAIMode.value = isEmptyContent(collection.value?.content)
-        // if (isAIMode.value)
-        //   preCollection.value = JSON.parse(JSON.stringify(collection.value))
       }
     },
     {
@@ -125,7 +120,6 @@ export function useCollection(props: { project_id: string, collectionID: string 
 
   onBeforeUnmount(() => {
     collectionStore.collectionDetail = null
-    isAIMode.value = false
   })
 
   const keys = useMagicKeys({

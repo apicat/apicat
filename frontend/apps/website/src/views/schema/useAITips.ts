@@ -72,7 +72,7 @@ export function useAITips(
       isAIMode.value = false
 
     // 还原文档
-    if (isAIMode.value && preSchema.value && schema.value && Number(currentSchemaIDRef.value) !== preSchema.value?.id) {
+    if (isAIMode.value && preSchema.value && schema.value && Number(currentSchemaIDRef.value) === preSchema.value?.id) {
       schema.value.schema = { type: 'object' }
       isAIMode.value = false
     }
@@ -81,7 +81,6 @@ export function useAITips(
     requestID.value = ''
     isShowAIStyle.value = false
     isLoadingAICollection.value = false
-    preSchema.value = null
   }
 
   // 确认AI提示
@@ -93,27 +92,33 @@ export function useAITips(
     isShowAIStyle.value = false
     isAIMode.value = false
     try {
-      const copySchemaStr = JSON.stringify(schema.value)
+      const newSchemaStr = JSON.stringify(schema.value)
       const copyPreSchemaStr = JSON.stringify(preSchema.value)
-      if (copySchemaStr === copyPreSchemaStr)
+      if (newSchemaStr === copyPreSchemaStr)
         return
 
       updateSchema(project_id, schema.value!)
-      // 保存历史文档
-      preSchema.value = JSON.parse(copySchemaStr)
+      // 更新preSchema
+      preSchema.value = JSON.parse(newSchemaStr)
     }
     catch (e) {
       console.error('confirmAITips error', e)
-      preSchema.value = null
     }
   }
 
   watch(schemaName, async () => {
+    if (!schemaName.value)
+      return
+
     if (isAIMode.value || jsonSchemaTableIns.value?.isEmpty()) {
       isAIMode.value = true
-      // save change
-      await updateSchema(project_id, schema.value!)
-      preSchema.value = JSON.parse(JSON.stringify(schema.value))
+      // 保存之前确认的数据
+      if (preSchema.value) {
+        preSchema.value.name = schemaName.value
+        preSchema.value.description = schema.value?.description
+        await updateSchema(project_id, preSchema.value)
+      }
+
       await getAITips()
     }
     else {

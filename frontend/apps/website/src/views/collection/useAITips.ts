@@ -94,10 +94,9 @@ export function useAITips(
       isAIMode.value = false
 
     // 还原文档
-    if (isAIMode.value && preCollection.value && collection.value && Number(currentCollectionIDRef.value) !== preCollection.value?.id) {
-      // 仅还原content中除了path之外的数据
+    if (isAIMode.value && preCollection.value && collection.value && Number(currentCollectionIDRef.value) === preCollection.value?.id) {
       const content = JSON.parse(JSON.stringify(preCollection.value)).content
-      collection.value.content = [...(collection.value.content?.filter(i => i.type === 'apicat-http-url') || []), ...(content.filter((i: any) => i.type !== 'apicat-http-url') || [])]
+      collection.value.content = content
       isAIMode.value = false
     }
 
@@ -106,7 +105,6 @@ export function useAITips(
     isShowAIStyle.value = false
     isShowAIStyleForTitle.value = false
     isLoadingAICollection.value = false
-    preCollection.value = null
   }
 
   // 确认AI提示
@@ -136,11 +134,16 @@ export function useAITips(
   }
 
   watch(docTitle, async () => {
+    if (!docTitle.value)
+      return
+
     if (isAIMode.value || isEmptyContent(collection.value?.content)) {
       isAIMode.value = true
-      // save change
-      await updateCollection(project_id, collection.value!)
-      preCollection.value = JSON.parse(JSON.stringify(collection.value))
+      // 保存之前确认的数据,更新title
+      if (preCollection.value) {
+        preCollection.value.title = docTitle.value
+        await updateCollection(project_id, preCollection.value!)
+      }
 
       await getAITips(() => {
         isShowAIStyleForTitle.value = true
@@ -153,11 +156,16 @@ export function useAITips(
   })
 
   watch(docPath, async () => {
+    if (!docPath.value)
+      return
+
     if (isAIMode.value || isEmptyContent(collection.value?.content)) {
       isAIMode.value = true
-      // save change
-      await updateCollection(project_id, collection.value!)
-      preCollection.value = JSON.parse(JSON.stringify(collection.value))
+      // 保存之前确认的数据,更新path
+      if (preCollection.value && collection.value) {
+        preCollection.value.content = [...(collection.value.content?.filter(i => i.type === 'apicat-http-url') || []), ...(preCollection.value.content?.filter((i: any) => i.type !== 'apicat-http-url') || [])]
+        await updateCollection(project_id, preCollection.value)
+      }
 
       await getAITips(() => {
         isShowAIStyle.value = true

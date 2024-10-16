@@ -148,8 +148,18 @@ const EMPTY_CONTENT_FOR_COLLECTION_STR1 = '[{"type":"apicat-http-request","attrs
 const EMPTY_CONTENT_FOR_COLLECTION_STR2 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object"}}},"code":200}]}}]'
 const EMPTY_CONTENT_FOR_COLLECTION_STR3 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]},"content":{"none":{"schema":{}}}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object"}}},"code":200}]}}]'
 const EMPTY_CONTENT_FOR_COLLECTION_STR4 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]},"content":{"none":{"schema":{}}}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object","x-apicat-mock":"object","properties":{},"required":[],"x-apicat-orders":[]},"examples":{}}},"code":200}]}}]'
+const EMPTY_CONTENT_FOR_COLLECTION_STR5 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]},"content":{}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object","x-apicat-mock":"object"}}},"code":200}]}}]'
+const EMPTY_CONTENT_FOR_COLLECTION_STR6 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]},"content":{}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object","x-apicat-mock":"object","properties":{},"required":[],"x-apicat-orders":[]},"examples":{}}},"code":200}]}}]'
+const EMPTY_CONTENT_FOR_COLLECTION_STR7 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]},"content":{"none":{"schema":{}}}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object"},"examples":{}}},"code":200}]}}]'
 
 export function isEmptyContent(content: any) {
   const str = JSON.stringify(content.concat([]).splice(1))
-  return str === EMPTY_CONTENT_FOR_COLLECTION_STR1 || str === EMPTY_CONTENT_FOR_COLLECTION_STR2 || str === EMPTY_CONTENT_FOR_COLLECTION_STR3 || str === EMPTY_CONTENT_FOR_COLLECTION_STR4
+
+  return (str === EMPTY_CONTENT_FOR_COLLECTION_STR1
+    || str === EMPTY_CONTENT_FOR_COLLECTION_STR2
+    || str === EMPTY_CONTENT_FOR_COLLECTION_STR3
+    || str === EMPTY_CONTENT_FOR_COLLECTION_STR4
+    || str === EMPTY_CONTENT_FOR_COLLECTION_STR5
+    || str === EMPTY_CONTENT_FOR_COLLECTION_STR6
+    || str === EMPTY_CONTENT_FOR_COLLECTION_STR7)
 }
