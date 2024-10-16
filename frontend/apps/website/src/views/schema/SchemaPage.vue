@@ -40,7 +40,7 @@ const { handleIntelligentSchema, handleCheckReplaceModel } = useIntelligentSchem
     title: schema.value?.name,
   }
 })
-const { jsonSchemaTableIns, schemaName, isAIMode, isShowAIStyle, preSchema, handleTitleBlur } = useAITips(props.project_id, schema, readonly, updateSchema)
+const { jsonSchemaTableIns, schemaName, isAIMode, isShowAIStyle, preSchema, handleTitleBlur, onDocumentLayoutClick } = useAITips(props.project_id, schema, readonly, updateSchema)
 
 let oldTitle = ''
 
@@ -111,8 +111,10 @@ async function setDetail(id: string) {
   const schemaID = Number.parseInt(id)
   if (!Number.isNaN(schemaID)) {
     await definitionSchemaStore.getSchemaDetail(props.project_id, schemaID)
-    if (schema.value)
+    if (schema.value) {
       preSchema.value = JSON.parse(JSON.stringify(schema.value))
+      schemaName.value = ''
+    }
 
     oldTitle = schema.value?.name || ''
     if (!readonly.value)
@@ -174,7 +176,7 @@ injectAsyncInitTask()?.addTask(setDetail(schemaIDRef.value))
   </div>
 
   <!-- content -->
-  <div v-loading="loading" :class="[ns.b(), ns.is('tips', isShowAIStyle)]">
+  <div v-loading="loading" :class="[ns.b(), ns.is('tips', isShowAIStyle)]" @click="onDocumentLayoutClick">
     <div class="mb-10px">
       <h4 v-if="readonly && schema?.description" class="break-words">
         {{ schema?.description }}

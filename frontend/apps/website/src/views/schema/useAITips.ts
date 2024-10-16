@@ -1,10 +1,10 @@
-import { debounce } from 'lodash-es'
 import type { JSONSchemaTable } from '@apicat/components'
-import axios, { AxiosError } from 'axios'
+import axios from 'axios'
+import { debounce } from 'lodash-es'
 import { apiGetAIModel } from '@/api/project/definition/schema'
 
 export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode | null>, readonly: Ref<boolean>, updateSchema: (projectID: string, schema: Definition.SchemaNode) => Promise<void | undefined>) {
-  const { escape } = useMagicKeys()
+  const { escape, tab } = useMagicKeys()
   const jsonSchemaTableIns = ref<InstanceType<typeof JSONSchemaTable>>()
 
   const schemaName = ref('')
@@ -27,7 +27,6 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
 
     // 取消上次请求
     abortController?.abort()
-
     requestID.value = `${Date.now()},${schema.value!.id}`
 
     try {
@@ -54,24 +53,17 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     }
   }
 
-  // 标题失去焦点时,延迟600避免title&path的debounce冲突
-  function handleTitleOrPathBlur() {
-    // 获取AI数据中
-    if (isLoadingAICollection.value) {
-      cancelAITips()
-      return
-    }
-
-    confirmAITips()
-  }
+  // 标题失去焦点时,延迟600避免title的debounce冲突
+  const handleTitleBlur = debounce(() => cancelAITips(), 600)
 
   // 取消AI提示
   function cancelAITips() {
+    abortController?.abort()
     // 重置请求ID，避免请求后，文档不匹配问题
     requestID.value = ''
     isShowAIStyle.value = false
     isLoadingAICollection.value = false
-    abortController?.abort()
+
     // 还原文档
     if (isAIMode.value && preSchema.value && schema.value) {
       schema.value.schema = { type: 'object' }
@@ -106,6 +98,9 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
   watch(schemaName, async () => {
     if (isAIMode.value || jsonSchemaTableIns.value?.isEmpty()) {
       isAIMode.value = true
+      // save change
+      await updateSchema(project_id, schema.value!)
+      preSchema.value = JSON.parse(JSON.stringify(schema.value))
       await getAITips()
     }
     else {
@@ -119,6 +114,26 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     cancelAITips()
   })
 
+  whenever(tab, () => {
+    // tab触发时，获取AI数据，直接取消请求
+    if (isLoadingAICollection.value)
+      handleTitleBlur()
+
+    if (readonly.value || !isAIMode.value || !schema.value)
+      return
+
+    confirmAITips()
+  })
+
+  // 点击文档区域,非编辑器内点击 -> 取消AI提示
+  function onDocumentLayoutClick(e: MouseEvent) {
+    // 允许点击的区域的dom path 路径含有.ac-schema-editor样式，有效点击
+    if (isAIMode.value && !isLoadingAICollection.value && e.composedPath().find((el: any) => el.className?.includes('ac-schema-editor')))
+      confirmAITips()
+    else
+      handleTitleBlur()
+  }
+
   return {
     isAIMode,
     isShowAIStyle,
@@ -126,6 +141,7 @@ export function useAITips(project_id: string, schema: Ref<Definition.SchemaNode 
     schemaName,
     preSchema,
 
-    handleTitleBlur: handleTitleOrPathBlur,
+    handleTitleBlur,
+    onDocumentLayoutClick,
   }
 }
