@@ -52,6 +52,7 @@ func (sg *SchemaGenerator) Generate() (*jsonschema.Schema, error) {
 		return nil, err
 	}
 
+	slog.DebugContext(sg.ctx, "similaritySearch", "ids", ids)
 	if !sg.compareResult(ids) {
 		return nil, nil
 	}
