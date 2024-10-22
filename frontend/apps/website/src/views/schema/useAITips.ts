@@ -107,7 +107,7 @@ export function useAITips(
   }
 
   watch(schemaName, async () => {
-    if (!schemaName.value)
+    if (!schemaName.value || preSchema.value?.name === schemaName.value)
       return
 
     if (isAIMode.value || jsonSchemaTableIns.value?.isEmpty()) {
