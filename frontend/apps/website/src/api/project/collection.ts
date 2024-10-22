@@ -143,23 +143,93 @@ export async function apiGetAICollection(projectID: string, data: any, config?: 
   return res
 }
 
-// BUG: 编辑器临时固定内容的常量
-const EMPTY_CONTENT_FOR_COLLECTION_STR1 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]},"content":{}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object"}}},"code":200}]}}]'
-const EMPTY_CONTENT_FOR_COLLECTION_STR2 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object"}}},"code":200}]}}]'
-const EMPTY_CONTENT_FOR_COLLECTION_STR3 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]},"content":{"none":{"schema":{}}}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object"}}},"code":200}]}}]'
-const EMPTY_CONTENT_FOR_COLLECTION_STR4 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]},"content":{"none":{"schema":{}}}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object","x-apicat-mock":"object","properties":{},"required":[],"x-apicat-orders":[]},"examples":{}}},"code":200}]}}]'
-const EMPTY_CONTENT_FOR_COLLECTION_STR5 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]},"content":{}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object","x-apicat-mock":"object"}}},"code":200}]}}]'
-const EMPTY_CONTENT_FOR_COLLECTION_STR6 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]},"content":{}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object","x-apicat-mock":"object","properties":{},"required":[],"x-apicat-orders":[]},"examples":{}}},"code":200}]}}]'
-const EMPTY_CONTENT_FOR_COLLECTION_STR7 = '[{"type":"apicat-http-request","attrs":{"globalExcepts":{"header":[],"cookie":[],"query":[]},"parameters":{"query":[],"path":[],"cookie":[],"header":[]},"content":{"none":{"schema":{}}}}},{"type":"apicat-http-response","attrs":{"list":[{"name":"Response Name","content":{"application/json":{"schema":{"type":"object"},"examples":{}}},"code":200}]}}]'
-
 export function isEmptyContent(content: any) {
-  const str = JSON.stringify(content.concat([]).splice(1))
+  try {
+    const nodes = content.concat([]).splice(1)
+    if (nodes.length === 0)
+      return true
 
-  return (str === EMPTY_CONTENT_FOR_COLLECTION_STR1
-    || str === EMPTY_CONTENT_FOR_COLLECTION_STR2
-    || str === EMPTY_CONTENT_FOR_COLLECTION_STR3
-    || str === EMPTY_CONTENT_FOR_COLLECTION_STR4
-    || str === EMPTY_CONTENT_FOR_COLLECTION_STR5
-    || str === EMPTY_CONTENT_FOR_COLLECTION_STR6
-    || str === EMPTY_CONTENT_FOR_COLLECTION_STR7)
+    const httpRequest = nodes.find((node: any) => node.type === 'apicat-http-request')
+    const httpResponse = nodes.find((node: any) => node.type === 'apicat-http-response')
+    if (!httpRequest || !httpResponse)
+      return true
+
+    if (isHttpRequestEmpty(httpRequest.attrs) && isHttpResponseEmpty(httpResponse.attrs.list))
+      return true
+
+    return false
+  }
+  catch (error) {
+    console.error('isEmptyContent error:', error)
+    return false
+  }
+}
+
+function isHttpRequestEmpty(httpRequestAttrs: any) {
+  if (!httpRequestAttrs.globalExcepts || !httpRequestAttrs.content)
+    return true
+
+  // 判断globalExcepts
+  let keys = Object.keys(httpRequestAttrs.globalExcepts)
+  for (let i = 0; i < keys.length; i++) {
+    if (httpRequestAttrs.globalExcepts[keys[i]].length > 0)
+      return false
+  }
+
+  // 判断parameters
+  keys = Object.keys(httpRequestAttrs.parameters)
+  for (let i = 0; i < keys.length; i++) {
+    if (httpRequestAttrs.parameters[keys[i]].length > 0)
+      return false
+  }
+
+  // 判断content
+  if (!httpRequestAttrs.content.none)
+    return true
+
+  return true
+}
+
+function isHttpResponseEmpty(httpResponseList: any[]) {
+  // 非array
+  if (!Array.isArray(httpResponseList))
+    return true
+
+  // 判断response长度是否大于1
+  if (httpResponseList.length > 1)
+    return false
+
+  const response = httpResponseList[0]
+
+  if (!response)
+    return true
+
+  // 判断response name
+  if (response.name !== 'Response Name')
+    return false
+
+  // 判断response content
+  const responseContent = response.content
+
+  if (!responseContent)
+    return true
+
+  if (!responseContent['application/json'])
+    return false
+
+  // 判断code
+  if (response.code !== 200)
+    return false
+
+  // 判断schema
+  const schema = responseContent['application/json'].schema
+  if (!schema)
+    return true
+  if (schema.type !== 'object')
+    return false
+
+  if (schema.properties && Object.keys(schema.properties).length > 0)
+    return false
+
+  return true
 }

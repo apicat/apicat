@@ -125,7 +125,7 @@ export function useAITips(
 
       updateCollection(project_id, collection.value!)
       // 保存历史文档
-      preCollection.value = JSON.parse(copyCollectionStr)
+      // preCollection.value = JSON.parse(copyCollectionStr)
     }
     catch (e) {
       console.error('confirmAITips error', e)
