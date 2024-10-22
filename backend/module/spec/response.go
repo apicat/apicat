@@ -72,6 +72,35 @@ func (r *Response) SetXDiff(x string) {
 	r.Content.SetXDiff(x)
 }
 
+func (r *Response) IsEmpty() bool {
+	if len(r.Header) > 0 {
+		return false
+	}
+	if len(r.Content) > 0 {
+		for _, body := range r.Content {
+			if len(body.Schema.Properties) > 0 {
+				return false
+			}
+			if len(body.Schema.AllOf) > 0 {
+				return false
+			}
+			if len(body.Schema.OneOf) > 0 {
+				return false
+			}
+			if len(body.Schema.AnyOf) > 0 {
+				return false
+			}
+			if body.Schema.Reference != nil {
+				return false
+			}
+			if body.Schema.Items != nil {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (r *Responses) FindByCode(code int) *Response {
 	for _, v := range *r {
 		if v.Code == code {

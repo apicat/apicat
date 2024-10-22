@@ -309,3 +309,23 @@ func (ns *CollectionNodes) ToJson() (string, error) {
 	}
 	return string(res), nil
 }
+
+func (ns *CollectionNodes) IsEmpty() bool {
+	for _, node := range *ns {
+		switch node.NodeType() {
+		case NODE_HTTP_URL:
+			if !node.ToHttpUrl().IsEmpty() {
+				return false
+			}
+		case NODE_HTTP_REQUEST:
+			if !node.ToHttpRequest().IsEmpty() {
+				return false
+			}
+		case NODE_HTTP_RESPONSE:
+			if !node.ToHttpResponse().IsEmpty() {
+				return false
+			}
+		}
+	}
+	return true
+}

@@ -42,7 +42,12 @@ func (cs *CollectionService) DelVector(c *collection.Collection) error {
 			slog.ErrorContext(cs.ctx, "vector.NewVector", "err", err)
 			return err
 		}
-		return vectorDB.DeleteObject(c.ProjectID, c.VectorID)
+		if err := vectorDB.DeleteObject(c.ProjectID, c.VectorID); err == nil {
+			c.UpdateVectorID("")
+			slog.DebugContext(cs.ctx, "collection vector delete success", "collection_id", c.ID, "vector_id", c.VectorID)
+		} else {
+			return err
+		}
 	}
 	return nil
 }

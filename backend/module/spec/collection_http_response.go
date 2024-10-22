@@ -243,3 +243,15 @@ func (r *CollectionHttpResponse) ToCollectionNode() *CollectionNode {
 func (r *CollectionHttpResponse) Sort() {
 	r.Attrs.List.Sort()
 }
+
+func (r *CollectionHttpResponse) IsEmpty() bool {
+	if len(r.Attrs.List) == 0 {
+		return true
+	}
+	for _, res := range r.Attrs.List {
+		if !res.IsEmpty() {
+			return false
+		}
+	}
+	return true
+}

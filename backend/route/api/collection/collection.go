@@ -247,7 +247,15 @@ func (cai *collectionApiImpl) Update(ctx *gin.Context, opt *collectionrequest.Up
 			slog.ErrorContext(ctx, "collectionrelations.UpdateCollectionRef", "err", err)
 		}
 
-		collectionservice.NewCollectionService(ctx).CreateVector(c.ProjectID, c.ID)
+		if sepcC, err := c.ToSpec(); err == nil {
+			if sepcC.Content.IsEmpty() {
+				if c.VectorID != "" {
+					collectionservice.NewCollectionService(ctx).DelVector(c)
+				}
+			} else {
+				collectionservice.NewCollectionService(ctx).CreateVector(c.ProjectID, c.ID)
+			}
+		}
 	}
 
 	return &ginrpc.Empty{}, nil

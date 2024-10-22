@@ -297,6 +297,53 @@ func (r *CollectionHttpRequest) DelRefModel(ref *DefinitionModel) {
 	}
 }
 
+func (r *CollectionHttpRequest) IsEmpty() bool {
+	if len(r.Attrs.GlobalExcepts.Header) > 0 {
+		return false
+	}
+	if len(r.Attrs.GlobalExcepts.Cookie) > 0 {
+		return false
+	}
+	if len(r.Attrs.GlobalExcepts.Query) > 0 {
+		return false
+	}
+	if len(r.Attrs.Parameters.Header) > 0 {
+		return false
+	}
+	if len(r.Attrs.Parameters.Cookie) > 0 {
+		return false
+	}
+	if len(r.Attrs.Parameters.Query) > 0 {
+		return false
+	}
+	if len(r.Attrs.Parameters.Path) > 0 {
+		return false
+	}
+	if len(r.Attrs.Content) > 0 {
+		for _, body := range r.Attrs.Content {
+			if len(body.Schema.Properties) > 0 {
+				return false
+			}
+			if len(body.Schema.AllOf) > 0 {
+				return false
+			}
+			if len(body.Schema.OneOf) > 0 {
+				return false
+			}
+			if len(body.Schema.AnyOf) > 0 {
+				return false
+			}
+			if body.Schema.Reference != nil {
+				return false
+			}
+			if body.Schema.Items != nil {
+				return false
+			}
+		}
+	}
+	return true
+}
+
 func (g *HttpRequestGlobalExcepts) Exist(in string, id int64) bool {
 	if id == 0 {
 		return false

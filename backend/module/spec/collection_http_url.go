@@ -42,3 +42,7 @@ func (u *CollectionHttpUrl) ToCollectionNode() *CollectionNode {
 		Node: u,
 	}
 }
+
+func (u *CollectionHttpUrl) IsEmpty() bool {
+	return u.Attrs.Path == "" && u.Attrs.Method == "get"
+}
