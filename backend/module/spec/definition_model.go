@@ -119,6 +119,28 @@ func (s *DefinitionModel) ItemsTreeToList() DefinitionModels {
 	return list
 }
 
+func (s *DefinitionModel) IsEmpty() bool {
+	if len(s.Schema.Properties) > 0 {
+		return false
+	}
+	if len(s.Schema.AllOf) > 0 {
+		return false
+	}
+	if len(s.Schema.OneOf) > 0 {
+		return false
+	}
+	if len(s.Schema.AnyOf) > 0 {
+		return false
+	}
+	if s.Schema.Reference != nil {
+		return false
+	}
+	if s.Schema.Items != nil {
+		return false
+	}
+	return true
+}
+
 func (s *DefinitionModels) FindByName(name string) *DefinitionModel {
 	for _, v := range *s {
 		if v.Type == TYPE_CATEGORY {

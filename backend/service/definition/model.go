@@ -120,6 +120,9 @@ func (dms *DefinitionModelService) DelVector(dm *definition.DefinitionSchema) {
 	} else {
 		if err := vectorDB.DeleteObject(dm.ProjectID, dm.VectorID); err != nil {
 			slog.ErrorContext(dms.ctx, "vectorDB.DeleteObject", "err", err)
+		} else {
+			slog.DebugContext(dms.ctx, "definition model vector delete success", "model_id", dm.ID, "vector_id", dm.VectorID)
+			dm.UpdateVectorID("")
 		}
 	}
 

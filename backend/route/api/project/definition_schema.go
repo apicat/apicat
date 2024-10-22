@@ -169,7 +169,15 @@ func (dsai *definitionSchemaApiImpl) Update(ctx *gin.Context, opt *projectreques
 			slog.ErrorContext(ctx, "reference.UpdateSchemaRef", "err", err)
 		}
 
-		definitionservice.NewDefinitionModelService(ctx).UpdateVector(ds)
+		if specDM, err := ds.ToSpec(); err == nil {
+			if specDM.IsEmpty() {
+				if ds.VectorID != "" {
+					definitionservice.NewDefinitionModelService(ctx).DelVector(ds)
+				}
+			} else {
+				definitionservice.NewDefinitionModelService(ctx).UpdateVector(ds)
+			}
+		}
 	}
 
 	return &ginrpc.Empty{}, nil
