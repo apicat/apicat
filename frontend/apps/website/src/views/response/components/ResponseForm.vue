@@ -11,7 +11,7 @@ export interface ResponseFormProps {
   response: Definition.ResponseDetail
   definitionSchemas: Definition.Schema[]
   handleIntelligentSchema?: (josnschema: JSONSchema, node: SchemaTreeNode) => Promise<{ nid: string, schema: JSONSchema } | void>
-  handleCheckReplaceModel?: (josnschema: JSONSchema) => Promise<{ nid: string, schema: JSONSchema } | void>
+  handleCheckReplaceModel?: (josnschema: JSONSchema, uuid: string) => Promise<{ nid: string, schema: JSONSchema } | void>
 }
 
 export interface ResponseFormEmits {
