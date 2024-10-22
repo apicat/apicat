@@ -32,23 +32,31 @@ export function useIntelligentSchema(projectID: string, getParams?: () => any) {
     }
   }
 
-  let requestIDCheckReplaceModel
-  let abortControllerCheckReplace: AbortController | null = null
+  const requestMaps = new Map<string, {
+    guid: string
+    abortController: AbortController
+  }>()
 
-  async function handleCheckReplaceModel(jsonschema: JSONSchema): Promise<{ nid: string, schema: JSONSchema } | void> {
+  async function handleCheckReplaceModel(jsonschema: JSONSchema, uuid: string): Promise<{ nid: string, schema: JSONSchema } | void> {
     // 避免重复请求
-    abortControllerCheckReplace?.abort()
 
-    requestIDCheckReplaceModel = guid()
+    if (requestMaps.has(uuid))
+      requestMaps.get(uuid)?.abortController.abort()
+
+    const info = {
+      guid: guid(),
+      abortController: new AbortController(),
+    }
+
+    requestMaps.set(uuid, info)
 
     // 额外携带参数,默认为空
     const extraParams = getParams?.() || {}
 
     try {
-      abortControllerCheckReplace = new AbortController()
       const params = {
         schema: JSON.stringify(jsonschema),
-        requestID: requestIDCheckReplaceModel,
+        requestID: info.guid,
         title: extraParams.title || '',
       } as any
 
@@ -56,14 +64,14 @@ export function useIntelligentSchema(projectID: string, getParams?: () => any) {
       if (extraParams.type === 'model')
         params.modelID = extraParams.id
 
-      const { requestID, schema } = await apiCheckReplaceModel(projectID, params, { signal: abortControllerCheckReplace.signal })
+      const { requestID, schema } = await apiCheckReplaceModel(projectID, params, { signal: info.abortController.signal })
 
       // not match
-      if (requestIDCheckReplaceModel !== requestID)
+      if (info.guid !== requestID)
         return
 
       return {
-        nid: requestIDCheckReplaceModel,
+        nid: info.guid,
         schema,
       } as { nid: string, schema: JSONSchema }
     }
@@ -71,6 +79,8 @@ export function useIntelligentSchema(projectID: string, getParams?: () => any) {
       //
     }
   }
+
+  onBeforeUnmount(() => requestMaps.clear())
 
   return {
     handleIntelligentSchema,
