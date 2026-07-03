@@ -1,0 +1,33 @@
+{{define "parameter_table"}}
+<div class="sub-section-label">Parameters</div>
+<table class="param-table">
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>In</th>
+      <th>Type</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{range .}}
+    <tr>
+      <td>
+        <span class="param-name">{{.Name}}</span>
+        {{if .Required}}<span class="param-required">*</span>{{end}}
+      </td>
+      <td><span class="param-in">{{.In}}</span></td>
+      <td>
+        {{if .Schema}}
+        <span class="param-type">{{schemaTypeDisplay .Schema.Type .Schema.Format}}</span>
+        {{if .Schema.Enum}}
+        <div class="schema-enum">enum: {{joinEnum .Schema.Enum}}</div>
+        {{end}}
+        {{end}}
+      </td>
+      <td><span class="param-desc">{{.Description}}</span></td>
+    </tr>
+    {{end}}
+  </tbody>
+</table>
+{{end}}

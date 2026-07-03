@@ -1,0 +1,22 @@
+{{define "nav"}}
+<aside class="app-sidebar">
+  <div class="sidebar-title">{{.Title}}</div>
+  <div class="sidebar-version">v{{.Version}}</div>
+
+  <div class="sidebar-section">
+    <a href="/" class="sidebar-link" style="font-weight:600;">Overview</a>
+  </div>
+
+  {{range .TagGroups}}
+  <div class="sidebar-section">
+    <div class="sidebar-section-title">{{.Tag.Name}}</div>
+    {{range .Endpoints}}
+    <a href="/endpoints#{{.Anchor}}" class="sidebar-link" data-anchor="{{.Anchor}}">
+      <span class="sidebar-method {{methodLower .Method}}">{{.Method}}</span>
+      <span class="sidebar-path">{{if .Summary}}{{.Summary}}{{else if .OperationID}}{{.OperationID}}{{else}}{{.Path}}{{end}}</span>
+    </a>
+    {{end}}
+  </div>
+  {{end}}
+</aside>
+{{end}}

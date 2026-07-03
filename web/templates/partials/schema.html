@@ -1,0 +1,54 @@
+{{define "schema"}}
+<div class="schema-node {{depthClass .Depth}}">
+  <div class="schema-field">
+    {{if .IsRef}}<span class="schema-ref-name">{{.RefName}}</span>{{end}}
+    {{if .Name}}<span class="schema-name">{{.Name}}</span>{{end}}
+    {{if .Type}}<span class="schema-type">{{schemaTypeDisplay .Type .Format}}</span>{{end}}
+    {{if .Required}}<span class="schema-required-mark">required</span>{{end}}
+    {{if .Nullable}}<span class="schema-nullable-mark">nullable</span>{{end}}
+    {{if .Deprecated}}<span class="schema-deprecated-mark">deprecated</span>{{end}}
+    {{if .Enum}}<span class="schema-enum">enum: [{{joinEnum .Enum}}]</span>{{end}}
+    {{if .MinLength}}<span class="schema-constraint">minLength: {{.MinLength}}</span>{{end}}
+    {{if .MaxLength}}<span class="schema-constraint">maxLength: {{.MaxLength}}</span>{{end}}
+    {{if .Minimum}}<span class="schema-constraint">min: {{.Minimum}}</span>{{end}}
+    {{if .Maximum}}<span class="schema-constraint">max: {{.Maximum}}</span>{{end}}
+    {{if .MinItems}}<span class="schema-constraint">minItems: {{.MinItems}}</span>{{end}}
+    {{if .MaxItems}}<span class="schema-constraint">maxItems: {{.MaxItems}}</span>{{end}}
+    {{if .Pattern}}<span class="schema-constraint">pattern: {{.Pattern}}</span>{{end}}
+    {{if .Default}}<span class="schema-constraint">default: {{.Default}}</span>{{end}}
+  </div>
+  {{if .Description}}<span class="schema-desc">{{.Description}}</span>{{end}}
+
+  {{if .Properties}}
+    {{range .Properties}}
+      {{template "schema" .}}
+    {{end}}
+  {{end}}
+
+  {{if .Items}}
+    <div class="schema-composition-label">items:</div>
+    {{template "schema" .Items}}
+  {{end}}
+
+  {{if .AllOf}}
+    <div class="schema-composition-label">allOf</div>
+    {{range .AllOf}}
+      {{template "schema" .}}
+    {{end}}
+  {{end}}
+
+  {{if .OneOf}}
+    <div class="schema-composition-label">oneOf</div>
+    {{range .OneOf}}
+      {{template "schema" .}}
+    {{end}}
+  {{end}}
+
+  {{if .AnyOf}}
+    <div class="schema-composition-label">anyOf</div>
+    {{range .AnyOf}}
+      {{template "schema" .}}
+    {{end}}
+  {{end}}
+</div>
+{{end}}

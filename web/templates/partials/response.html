@@ -1,0 +1,14 @@
+{{define "response"}}
+<div class="response-block">
+  <span class="status-badge {{statusClass .StatusCode}}">{{.StatusCode}}</span>
+  <span class="response-desc">{{.Description}}</span>
+  {{range .Content}}
+  <div class="media-type-label">{{.MediaType}}</div>
+  {{if .Schema}}
+  <div class="schema-container">
+    {{template "schema" .Schema}}
+  </div>
+  {{end}}
+  {{end}}
+</div>
+{{end}}

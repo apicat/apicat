@@ -1,0 +1,15 @@
+{{define "request_body"}}
+<div class="sub-section-label">
+  Body
+  {{if .Required}}<span class="request-body-required">required</span>{{end}}
+</div>
+{{if .Description}}<p class="endpoint-description">{{.Description}}</p>{{end}}
+{{range .Content}}
+<div class="media-type-label">{{.MediaType}}</div>
+{{if .Schema}}
+<div class="schema-container">
+  {{template "schema" .Schema}}
+</div>
+{{end}}
+{{end}}
+{{end}}

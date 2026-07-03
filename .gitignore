@@ -1,0 +1,23 @@
+# Compiled binaries
+/apicat-cli
+/apicat-server
+*.exe
+
+# Go test & coverage artifacts
+*.test
+*.out
+coverage.html
+
+# macOS
+.DS_Store
+
+# Editor / IDE
+.idea/
+.vscode/
+
+# Internal working notes (not for the public repo)
+/CLAUDE.md
+/docs/
+
+# Local render-test specs (real-world data, not for the public repo)
+/testdata/

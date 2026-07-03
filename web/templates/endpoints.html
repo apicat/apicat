@@ -1,0 +1,53 @@
+{{define "endpoints_content"}}
+<div id="endpoints-welcome">
+  <h1 class="title is-3">Endpoints</h1>
+  <p style="color:#6b7280;">Select an endpoint from the sidebar to view details.</p>
+</div>
+
+{{range .TagGroups}}
+{{range .Endpoints}}
+<div class="endpoint-detail" id="detail-{{.Anchor}}" style="display:none;">
+  {{if .Summary}}<h1 class="endpoint-title">{{.Summary}}</h1>{{end}}
+  <div class="endpoint-detail-header {{methodLower .Method}}">
+    <span class="method-badge {{methodLower .Method}}">{{.Method}}</span>
+    <span class="endpoint-path">{{.Path}}</span>
+    {{if .Deprecated}}<span class="endpoint-deprecated">deprecated</span>{{end}}
+  </div>
+  {{if .Description}}
+  <div class="endpoint-description">{{markdown .Description}}</div>
+  {{end}}
+
+  {{if or .Parameters .RequestBody}}
+  <div class="detail-section request-section">
+    <div class="detail-section-header">
+      <span class="detail-section-icon">&#x2191;</span>
+      Request
+    </div>
+    <div class="detail-section-body">
+      {{if .Parameters}}
+      {{template "parameter_table" .Parameters}}
+      {{end}}
+      {{if .RequestBody}}
+      {{template "request_body" .RequestBody}}
+      {{end}}
+    </div>
+  </div>
+  {{end}}
+
+  {{if .Responses}}
+  <div class="detail-section response-section">
+    <div class="detail-section-header">
+      <span class="detail-section-icon">&#x2193;</span>
+      Response
+    </div>
+    <div class="detail-section-body">
+      {{range .Responses}}
+      {{template "response" .}}
+      {{end}}
+    </div>
+  </div>
+  {{end}}
+</div>
+{{end}}
+{{end}}
+{{end}}

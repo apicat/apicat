@@ -1,0 +1,24 @@
+{{define "layout"}}<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{.Title}} — API Documentation</title>
+  <link rel="stylesheet" href="/static/css/bulma.min.css">
+  <link rel="stylesheet" href="/static/css/apicat.css">
+</head>
+<body>
+  <button class="mobile-toggle" aria-label="Toggle navigation">&#9776;</button>
+  <div class="app-layout">
+    {{template "nav" .}}
+    <main class="app-content">
+      {{if eq .Page "overview"}}
+        {{template "overview_content" .}}
+      {{else if eq .Page "endpoints"}}
+        {{template "endpoints_content" .}}
+      {{end}}
+    </main>
+  </div>
+  <script src="/static/js/apicat.js"></script>
+</body>
+</html>{{end}}
