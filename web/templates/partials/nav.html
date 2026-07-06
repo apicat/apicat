@@ -3,6 +3,10 @@
   <div class="sidebar-title">{{.Title}}</div>
   <div class="sidebar-version">v{{.Version}}</div>
 
+  <div class="sidebar-search">
+    <input type="search" id="sidebar-search-input" placeholder="Search APIs…" autocomplete="off">
+  </div>
+
   <div class="sidebar-section">
     <a href="/" class="sidebar-link" style="font-weight:600;">Overview</a>
   </div>
@@ -10,8 +14,9 @@
   {{range .TagGroups}}
   <div class="sidebar-section">
     <div class="sidebar-section-title">{{.Tag.Name}}</div>
+    {{if .Tag.Description}}<div class="sidebar-section-desc">{{.Tag.Description}}</div>{{end}}
     {{range .Endpoints}}
-    <a href="/endpoints#{{.Anchor}}" class="sidebar-link" data-anchor="{{.Anchor}}">
+    <a href="/endpoints#{{.Anchor}}" class="sidebar-link" data-anchor="{{.Anchor}}" data-search="{{.Method}} {{.Path}} {{.Summary}} {{.OperationID}} {{.Description}}">
       <span class="sidebar-method {{methodLower .Method}}">{{.Method}}</span>
       <span class="sidebar-path">{{if .Summary}}{{.Summary}}{{else if .OperationID}}{{.OperationID}}{{else}}{{.Path}}{{end}}</span>
     </a>

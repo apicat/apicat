@@ -9,6 +9,26 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Sidebar search: filter endpoint links; hide a whole section when
+  // none of its links match.
+  var searchInput = document.getElementById("sidebar-search-input");
+  if (searchInput) {
+    searchInput.addEventListener("input", function () {
+      var query = this.value.trim().toLowerCase();
+      document.querySelectorAll(".sidebar-section").forEach(function (section) {
+        var links = section.querySelectorAll(".sidebar-link[data-search]");
+        if (links.length === 0) return; // e.g. the Overview section
+        var visible = 0;
+        links.forEach(function (link) {
+          var match = !query || link.getAttribute("data-search").toLowerCase().indexOf(query) !== -1;
+          link.style.display = match ? "" : "none";
+          if (match) visible++;
+        });
+        section.style.display = visible > 0 ? "" : "none";
+      });
+    });
+  }
+
   // Endpoint detail switching
   var endpointLinks = document.querySelectorAll('.sidebar-link[data-anchor]');
   if (endpointLinks.length === 0) return;

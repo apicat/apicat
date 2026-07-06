@@ -66,6 +66,29 @@ body {
   margin-bottom: 1.5rem;
 }
 
+.sidebar-search {
+  margin-bottom: 1rem;
+}
+
+.sidebar-search input {
+  width: 100%;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.82rem;
+  color: #374151;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  outline: none;
+}
+
+.sidebar-search input:focus {
+  border-color: #9ca3af;
+}
+
+.sidebar-search input::placeholder {
+  color: #9ca3af;
+}
+
 .sidebar-section {
   margin-bottom: 1.25rem;
 }
@@ -77,6 +100,13 @@ body {
   letter-spacing: 0.05em;
   color: #9ca3af;
   margin-bottom: 0.5rem;
+}
+
+.sidebar-section-desc {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  line-height: 1.4;
+  margin: -0.35rem 0 0.5rem;
 }
 
 .sidebar-link {
@@ -132,6 +162,7 @@ body {
 .api-description {
   color: #4b5563;
   margin-bottom: 2rem;
+  line-height: 1.7;
 }
 
 .api-description pre {
@@ -139,6 +170,7 @@ body {
   padding: 0.75rem 1rem;
   border-radius: 6px;
   overflow-x: auto;
+  margin: 1rem 0;
 }
 
 .api-description code {
@@ -151,6 +183,15 @@ body {
 .api-description pre code {
   background: none;
   padding: 0;
+}
+
+.api-description ul,
+.api-description ol {
+  margin: 1rem 0 1rem 1.5rem;
+}
+
+.api-description li + li {
+  margin-top: 0.35rem;
 }
 
 .server-item {
@@ -304,6 +345,13 @@ body {
 
 .sub-section-label:first-child {
   margin-top: 0;
+}
+
+/* Bulma table header — distinguish from body rows */
+.table thead th {
+  background: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
 }
 
 /* ── Parameter table ── */
