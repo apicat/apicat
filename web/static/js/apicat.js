@@ -9,6 +9,67 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  // Theme dropdown (top-right): light / dark are stored and set as
+  // data-theme on <html>; "system" clears both so prefers-color-scheme
+  // rules apply. Initial application happens in an inline <head> script
+  // to avoid a flash of the wrong theme; here we only sync the UI and
+  // handle clicks.
+  var themeControl = document.querySelector(".theme-control");
+  if (themeControl) {
+    var themeToggle = themeControl.querySelector(".theme-toggle");
+    var themeMenu = themeControl.querySelector(".theme-menu");
+    var themeOptions = themeMenu.querySelectorAll("button[data-theme-value]");
+    var themeIcons = { light: "☀", system: "◑", dark: "☽" };
+
+    function applyTheme(mode) {
+      if (mode === "light" || mode === "dark") {
+        document.documentElement.setAttribute("data-theme", mode);
+      } else {
+        document.documentElement.removeAttribute("data-theme");
+      }
+      themeToggle.textContent = themeIcons[mode];
+      themeOptions.forEach(function (btn) {
+        btn.classList.toggle("is-active", btn.getAttribute("data-theme-value") === mode);
+      });
+    }
+
+    function closeThemeMenu() {
+      themeMenu.hidden = true;
+      themeToggle.setAttribute("aria-expanded", "false");
+    }
+
+    var savedTheme;
+    try {
+      savedTheme = localStorage.getItem("apicat-theme");
+    } catch (e) {}
+    applyTheme(savedTheme === "light" || savedTheme === "dark" ? savedTheme : "system");
+
+    themeToggle.addEventListener("click", function () {
+      themeMenu.hidden = !themeMenu.hidden;
+      themeToggle.setAttribute("aria-expanded", String(!themeMenu.hidden));
+    });
+
+    themeOptions.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var mode = this.getAttribute("data-theme-value");
+        try {
+          if (mode === "system") localStorage.removeItem("apicat-theme");
+          else localStorage.setItem("apicat-theme", mode);
+        } catch (e) {}
+        applyTheme(mode);
+        closeThemeMenu();
+      });
+    });
+
+    document.addEventListener("click", function (e) {
+      if (!themeMenu.hidden && !themeControl.contains(e.target)) closeThemeMenu();
+    });
+
+    document.addEventListener("keydown", function (e) {
+      if (e.key === "Escape") closeThemeMenu();
+    });
+  }
+
   // Sidebar search: filter endpoint links; hide a whole section when
   // none of its links match.
   var searchInput = document.getElementById("sidebar-search-input");
