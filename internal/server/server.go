@@ -12,7 +12,9 @@ import (
 	"github.com/apicat/apicat/v3/web"
 )
 
-func Start(apiDoc *model.APIDoc, host string, port int) error {
+// Start serves the docs until the process exits. getDoc is called per
+// request so -watch can swap in a freshly loaded spec.
+func Start(getDoc func() *model.APIDoc, host string, port int) error {
 	mux := http.NewServeMux()
 
 	staticFS, err := fs.Sub(web.Content, "static")
@@ -26,11 +28,11 @@ func Start(apiDoc *model.APIDoc, host string, port int) error {
 			http.NotFound(w, r)
 			return
 		}
-		renderPage(w, &pageData{APIDoc: apiDoc, Page: "overview"})
+		renderPage(w, &pageData{APIDoc: getDoc(), Page: "overview"})
 	})
 
 	mux.HandleFunc("/endpoints", func(w http.ResponseWriter, r *http.Request) {
-		renderPage(w, &pageData{APIDoc: apiDoc, Page: "endpoints"})
+		renderPage(w, &pageData{APIDoc: getDoc(), Page: "endpoints"})
 	})
 
 	addr := fmt.Sprintf("%s:%d", host, port)

@@ -18,6 +18,9 @@ Agent 读原始 spec，人读同一份源渲染出的干净 HTML——因为源�
 - **多文件 spec** — 跨文件 `$ref` 开箱即用（OpenAPI 3.0 / 3.1）
 - **单个二进制** — Go 编译，模板与静态资源全部内嵌；无需 Node、Python 或任何运行时依赖
 - **服务端渲染** — 快速、干净、低阅读疲劳的 HTML；渲染页面同时是 spec 的质量检查器（缺失的 description、不全的 example 一眼可见）
+- **搜索** — 按 method、path、summary、operationId、description 过滤接口
+- **浅色 / 深色主题** — 默认跟随系统，可手动切换
+- **热重载** — `-watch` 在 spec 文件变更时自动重载；改坏了会保留上一个可用版本
 
 ## 安装
 
@@ -47,10 +50,11 @@ apicat-cli path/to/spec-dir
 |------|--------|------|
 | `-port` | `8080` | 监听端口 |
 | `-host` | `127.0.0.1` | 绑定地址 |
+| `-watch` | 关闭 | spec 文件变更时自动重载 |
 
 ## 路线图
 
-- **本地** — spec 质量检查与 lint 提示、搜索
+- **本地** — spec 质量检查与 lint 提示
 - **云端** — `apicat-cli publish` 发布到可自部署的服务端：文档共享、团队协作、spec 版本管理（`latest` + 固定 tag）
 - **Agent 原生访问** — 原始 spec 端点、API 发现与搜索、MCP Server（原生对接 Claude Code / Cursor 等）
 
