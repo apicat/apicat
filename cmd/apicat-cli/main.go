@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/apicat/apicat/v3/internal/converter"
+	"github.com/apicat/apicat/v3/internal/lint"
 	"github.com/apicat/apicat/v3/internal/loader"
 	"github.com/apicat/apicat/v3/internal/model"
 	"github.com/apicat/apicat/v3/internal/render"
@@ -35,7 +36,12 @@ func main() {
 		if err != nil {
 			return nil, err
 		}
-		return converter.Convert(docModel)
+		doc, err := converter.Convert(docModel)
+		if err != nil {
+			return nil, err
+		}
+		lint.Annotate(doc)
+		return doc, nil
 	}
 
 	apiDoc, err := loadDoc()

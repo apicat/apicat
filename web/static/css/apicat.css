@@ -399,6 +399,56 @@ body {
   font-size: 0.88rem;
 }
 
+/* ── Lint hints ── */
+
+.lint-missing {
+  color: var(--text-faint);
+  font-style: italic;
+  font-size: 0.8rem;
+}
+
+.lint-badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background: var(--status-4xx-bg);
+  color: var(--status-4xx-text);
+  cursor: help;
+}
+
+.lint-summary-intro {
+  color: var(--text-secondary);
+  margin-bottom: 0.75rem;
+}
+
+.lint-summary {
+  list-style: none;
+  margin: 0 0 1rem;
+}
+
+.lint-summary li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.25rem 0;
+  color: var(--text-secondary);
+}
+
+.lint-count {
+  min-width: 2rem;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 4px;
+  background: var(--status-4xx-bg);
+  color: var(--status-4xx-text);
+}
+
+.lint-clean {
+  color: var(--accent-enum);
+}
+
 /* ── Endpoint detail ── */
 
 .endpoint-detail {

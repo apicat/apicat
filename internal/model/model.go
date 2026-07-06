@@ -8,6 +8,16 @@ type APIDoc struct {
 	Tags        []Tag
 	TagGroups   []TagGroup
 	Security    []SecurityScheme
+
+	// Filled by lint.Annotate after conversion.
+	LintTotal  int
+	LintCounts []LintCount
+}
+
+type LintCount struct {
+	Rule    string
+	Message string
+	Count   int
 }
 
 type Server struct {
@@ -42,6 +52,9 @@ type Endpoint struct {
 	RequestBody *RequestBody
 	Responses   []Response
 	Anchor      string
+
+	// Filled by lint.Annotate after conversion.
+	LintHints []string
 }
 
 type Parameter struct {

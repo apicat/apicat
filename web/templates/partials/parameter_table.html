@@ -25,7 +25,7 @@
         {{end}}
         {{end}}
       </td>
-      <td><span class="param-desc">{{.Description}}</span></td>
+      <td>{{if .Description}}<span class="param-desc">{{.Description}}</span>{{else}}<span class="lint-missing">missing description</span>{{end}}</td>
     </tr>
     {{end}}
   </tbody>

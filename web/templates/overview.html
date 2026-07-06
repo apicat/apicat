@@ -29,6 +29,18 @@
 {{end}}
 {{end}}
 
+<h2 class="title is-5" style="margin-top:2rem;">Spec Quality</h2>
+{{if .LintTotal}}
+<p class="lint-summary-intro">{{.LintTotal}} hint{{if gt .LintTotal 1}}s{{end}} — details are marked inline on each endpoint page.</p>
+<ul class="lint-summary">
+  {{range .LintCounts}}
+  <li><span class="lint-count">{{.Count}}</span>{{.Message}}</li>
+  {{end}}
+</ul>
+{{else}}
+<p class="lint-clean">No hints — every endpoint, parameter, and field is documented.</p>
+{{end}}
+
 {{if .Tags}}
 <h2 class="title is-5" style="margin-top:2rem;">Tags</h2>
 <table class="table is-fullwidth is-striped is-bordered">

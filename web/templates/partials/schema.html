@@ -17,7 +17,7 @@
     {{if .Pattern}}<span class="schema-constraint">pattern: {{.Pattern}}</span>{{end}}
     {{if .Default}}<span class="schema-constraint">default: {{.Default}}</span>{{end}}
   </div>
-  {{if .Description}}<span class="schema-desc">{{.Description}}</span>{{end}}
+  {{if .Description}}<span class="schema-desc">{{.Description}}</span>{{else if .Name}}<span class="schema-desc lint-missing">missing description</span>{{end}}
 
   {{if .Properties}}
     {{range .Properties}}

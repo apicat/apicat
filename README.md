@@ -21,6 +21,7 @@ Agents read the raw spec. Humans read a clean, server-rendered HTML view of the 
 - **Search** — filter endpoints by method, path, summary, operationId, or description
 - **Light / dark theme** — follows your system by default, with a manual override
 - **Live reload** — `-watch` reloads the spec when files change; a broken edit keeps the last good version
+- **Lint hints** — missing summaries, descriptions, operationIds, and error responses are counted on the overview page and marked inline where they occur
 
 ## Install
 
@@ -54,7 +55,6 @@ Flags:
 
 ## Roadmap
 
-- **Local** — spec quality checks and lint hints
 - **Cloud** — `apicat-cli publish` to a self-hostable server: shared docs, teams, versioned specs (`latest` + pinned tags)
 - **Agent-native access** — raw spec endpoints, API discovery/search, MCP server for Claude Code / Cursor and friends
 

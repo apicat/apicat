@@ -26,6 +26,7 @@ func Init() error {
 		},
 		"statusClass": statusClass,
 		"joinEnum":    joinEnum,
+		"join":        strings.Join,
 		"add":         func(a, b int) int { return a + b },
 		"depthClass": func(d int) string {
 			return fmt.Sprintf("depth-%d", d)

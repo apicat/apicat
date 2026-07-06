@@ -21,6 +21,7 @@ Agent 读原始 spec，人读同一份源渲染出的干净 HTML——因为源�
 - **搜索** — 按 method、path、summary、operationId、description 过滤接口
 - **浅色 / 深色主题** — 默认跟随系统，可手动切换
 - **热重载** — `-watch` 在 spec 文件变更时自动重载；改坏了会保留上一个可用版本
+- **Lint 提示** — 缺失的 summary、description、operationId、错误响应会在总览页汇总计数，并在出现处以内联标记提示
 
 ## 安装
 
@@ -54,7 +55,6 @@ apicat-cli path/to/spec-dir
 
 ## 路线图
 
-- **本地** — spec 质量检查与 lint 提示
 - **云端** — `apicat-cli publish` 发布到可自部署的服务端：文档共享、团队协作、spec 版本管理（`latest` + 固定 tag）
 - **Agent 原生访问** — 原始 spec 端点、API 发现与搜索、MCP Server（原生对接 Claude Code / Cursor 等）
 

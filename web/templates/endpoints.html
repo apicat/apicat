@@ -12,6 +12,7 @@
     <span class="method-badge {{methodLower .Method}}">{{.Method}}</span>
     <span class="endpoint-path">{{.Path}}</span>
     {{if .Deprecated}}<span class="endpoint-deprecated">deprecated</span>{{end}}
+    {{if .LintHints}}<span class="lint-badge" title="{{join .LintHints "\n"}}">{{len .LintHints}} hint{{if gt (len .LintHints) 1}}s{{end}}</span>{{end}}
   </div>
   {{if .Description}}
   <div class="endpoint-description">{{markdown .Description}}</div>
