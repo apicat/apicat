@@ -20,7 +20,7 @@ type App struct{}
 
 func NewApp(conf string) *App {
 	if err := config.Load(conf); err != nil {
-		log.Printf("load config %s faild, use default config. err: %s", conf, err)
+		log.Printf("load config %s failed, use default config. err: %s", conf, err)
 	}
 	config.LoadFromEnv()
 	return &App{}
