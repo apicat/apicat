@@ -102,7 +102,7 @@ func (m *MockServer) renderMockResponse(c *gin.Context, res spec.Response) {
 			DatagenKey: "x-apicat-mock",
 		})
 		if err != nil {
-			slog.ErrorCtx(c, "datagen jsonschema gen faild", slog.String("err", err.Error()))
+			slog.ErrorCtx(c, "datagen jsonschema gen failed", slog.String("err", err.Error()))
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
 		}
