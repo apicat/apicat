@@ -21,7 +21,7 @@ func Send(subject string, content fmt.Stringer, to ...string) error {
 func AsyncSend(subject string, content fmt.Stringer, to ...string) {
 	go func() {
 		if err := Send(subject, content, to...); err != nil {
-			slog.Error("async send mail faild", "err", err)
+			slog.Error("async send mail failed", "err", err)
 		}
 	}()
 }
