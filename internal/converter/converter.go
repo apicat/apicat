@@ -217,8 +217,19 @@ func convertSchemaProxy(proxy *base.SchemaProxy, name string, required bool, dep
 		return sv
 	}
 
-	if len(schema.Type) > 0 {
-		sv.Type = schema.Type[0]
+	// OpenAPI 3.1 allows multiple types, including null, in a schema.
+	// Keep all non-null alternatives and use the existing nullable marker.
+	var types []string
+	for _, typ := range schema.Type {
+		if typ == "null" {
+			sv.Nullable = true
+		} else {
+			types = append(types, typ)
+		}
+	}
+	sv.Type = strings.Join(types, " | ")
+	if len(types) == 0 && sv.Nullable {
+		sv.Type = "null"
 	}
 	sv.Format = schema.Format
 	sv.Description = schema.Description

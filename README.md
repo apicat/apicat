@@ -39,11 +39,20 @@ go build -o apicat-cli ./cmd/apicat-cli
 
 ## Usage
 
+apicat is project-based: specs live centrally under `~/.apicat/projects/`, one directory per project, keyed by the project's absolute path with every character outside `[A-Za-z0-9_-]` replaced by `-` (e.g. `/Users/alice/dev/shop` → `-Users-alice-dev-shop`). Run from your project root and apicat finds its spec directory automatically:
+
+```bash
+cd path/to/your-project
+apicat-cli
+```
+
+Or point at any spec directory explicitly:
+
 ```bash
 apicat-cli path/to/spec-dir
 ```
 
-The directory must contain an `openapi.yaml`, `openapi.yml`, or `openapi.json` entry file; referenced files are resolved relative to it. Then open http://127.0.0.1:8080.
+Either way, the spec directory must contain an `openapi.yaml`, `openapi.yml`, or `openapi.json` entry file; referenced files are resolved relative to it. Then open http://127.0.0.1:8080.
 
 Flags:
 
@@ -52,6 +61,17 @@ Flags:
 | `-port` | `8080` | Port to listen on |
 | `-host` | `127.0.0.1` | Host to bind to |
 | `-watch` | off | Reload when spec files in the directory change |
+
+## Agent Skill
+
+[`skills/apicat-spec/`](skills/apicat-spec/SKILL.md) is an [Agent Skill](https://code.claude.com/docs/en/skills) that teaches a coding agent to write OpenAPI specs the way apicat expects them — stored in apicat's project directory and rendering with zero lint hints. To use it in your project:
+
+```bash
+mkdir -p .claude/skills
+cp -r skills/apicat-spec .claude/skills/
+```
+
+Then ask your agent to create or update your API spec; it picks up the conventions automatically: where the spec lives (`~/.apicat/projects/<encoded-path>/`), entry-file naming, multi-file `$ref` layout, required descriptions, error responses, and examples. The skill file is plain Markdown, so it also works with other tools that read skill/instruction files.
 
 ## Roadmap
 

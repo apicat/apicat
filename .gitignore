@@ -16,7 +16,6 @@ coverage.html
 .vscode/
 
 # Internal working notes (not for the public repo)
-/CLAUDE.md
 /docs/
 
 # Local render-test specs (real-world data, not for the public repo)

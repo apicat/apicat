@@ -12,6 +12,7 @@ import (
 	"github.com/apicat/apicat/v3/internal/lint"
 	"github.com/apicat/apicat/v3/internal/loader"
 	"github.com/apicat/apicat/v3/internal/model"
+	"github.com/apicat/apicat/v3/internal/project"
 	"github.com/apicat/apicat/v3/internal/render"
 	"github.com/apicat/apicat/v3/internal/server"
 	"github.com/apicat/apicat/v3/internal/watcher"
@@ -23,13 +24,30 @@ func main() {
 	watch := flag.Bool("watch", false, "reload when spec files in the directory change")
 	flag.Parse()
 
-	if flag.NArg() < 1 {
-		fmt.Fprintf(os.Stderr, "Usage: apicat-cli [flags] <spec-directory>\n")
-		flag.PrintDefaults()
-		os.Exit(1)
+	var dir string
+	if flag.NArg() >= 1 {
+		dir = flag.Arg(0)
+	} else {
+		// Project mode: resolve the apicat working directory for the
+		// current project from ~/.apicat/projects/<encoded-cwd>.
+		cwd, err := os.Getwd()
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: cannot determine working directory: %v\n", err)
+			os.Exit(1)
+		}
+		dir, err = project.DirFor(cwd)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			os.Exit(1)
+		}
+		if _, statErr := os.Stat(dir); statErr != nil {
+			fmt.Fprintf(os.Stderr, "Error: no apicat project for %s\n", cwd)
+			fmt.Fprintf(os.Stderr, "Expected a spec at %s/openapi.yaml (or .yml/.json).\n", dir)
+			fmt.Fprintf(os.Stderr, "Create it there, or pass a spec directory explicitly: apicat-cli [flags] <spec-directory>\n")
+			os.Exit(1)
+		}
+		fmt.Printf("Project %s\nSpec dir %s\n", cwd, dir)
 	}
-
-	dir := flag.Arg(0)
 
 	loadDoc := func() (*model.APIDoc, error) {
 		docModel, err := loader.Load(dir)

@@ -1,0 +1,113 @@
+---
+name: apicat-spec
+description: >-
+  Create and update API documentation as OpenAPI 3.x specs for use with apicat.
+  Use when users ask to create, generate, edit, or synchronize API/interface
+  documentation, including documenting existing endpoints or updating docs
+  after API changes, even if they do not mention OpenAPI or apicat.
+  Do not use for merely explaining or consuming an API, or when the user
+  explicitly requests a different documentation format or tool.
+---
+
+# Authoring OpenAPI specs for apicat
+
+Create accurate OpenAPI documentation for the requested API scope. apicat renders the spec as HTML and checks selected documentation quality rules. Aim for zero lint hints, but do not treat that as proof of completeness or correctness.
+
+## Establish the source and scope
+
+- For an implemented API, inspect relevant routes, handlers, request validation, data types, authentication, and tests before writing. Use existing documentation as context and check it against the implementation.
+- For a proposed API, follow the user's agreed design. If sources conflict or a missing detail affects the contract, ask a focused question rather than inventing behavior.
+- Document only supported methods, paths, parameters, request/response shapes, status codes, and authentication requirements. Do not invent error responses, constraints, or business descriptions to clear lint hints.
+- For updates, change only the requested endpoints and affected shared schemas. Preserve unrelated content, file organization, and existing `operationId` values unless the requested change requires otherwise. Check other consumers before editing a shared schema; do not modify application behavior to match the documentation.
+
+## Where the spec lives
+
+apicat is project-based: specs live centrally under `~/.apicat/projects/`, **not inside the user's repository**. Each project gets one directory there, named after the absolute path of the project root with every character outside `[A-Za-z0-9_-]` replaced by `-`:
+
+```
+/Users/alice/dev/shop  →  ~/.apicat/projects/-Users-alice-dev-shop/
+```
+
+This skill uses this fixed storage location; custom output locations are not supported. Do not offer a location choice or create a separate output copy elsewhere.
+
+Workflow:
+
+1. Determine the project root — the directory the user is working in (where `apicat-cli` will be run).
+2. Compute the spec directory from it as above.
+3. If that directory already contains an entry file (`openapi.yaml`, `openapi.yml`, `openapi.json`), **update it in place** — never create a second copy elsewhere.
+4. Otherwise create the directory and write the spec there.
+
+Running `apicat-cli` with no arguments from the project root resolves this directory automatically.
+
+## OpenAPI version and specification references
+
+- For a new spec, default to `openapi: 3.1.2`, unless the project's toolchain requires another supported version.
+- For an existing spec, preserve its exact `openapi` version, including 3.0.x. Upgrade only when the user requests a migration; do not silently change versions during documentation edits.
+- This workflow targets OpenAPI 3.0 and 3.1. Do not select a newer release just because it is the latest.
+- Use version-appropriate syntax: in 3.1, a nullable string can use `type: [string, "null"]`; in 3.0, use `type: string` with `nullable: true`. Quote `"null"` in YAML type declarations.
+
+Consult the official specification for the document's declared version when uncertain about `$ref`, schemas, nullability, or security. Read relevant sections as needed, not the entire specification on every task:
+
+- [OpenAPI 3.1.2](https://spec.openapis.org/oas/v3.1.2.html) — the default for new specs.
+- [OpenAPI 3.0.3](https://spec.openapis.org/oas/v3.0.3.html) — reference for existing 3.0.3 specs.
+- [Official specification index](https://spec.openapis.org/oas/) — locate other declared versions without changing the document's version.
+
+The specification defines valid syntax and semantics; apicat's lint checks and rendering support do not replace it.
+
+## File layout
+
+- The spec directory must contain an entry file named `openapi.yaml`, `openapi.yml`, or `openapi.json` — checked in that order, first match wins.
+- Splitting large specs into multiple files is encouraged. `$ref` file references are resolved relative to the spec directory:
+
+```
+~/.apicat/projects/-Users-alice-dev-shop/
+  openapi.yaml          # entry: info, servers, tags, paths
+  paths/users.yaml      # referenced via $ref: "paths/users.yaml#/..."
+  schemas/user.yaml     # referenced via $ref: "schemas/user.yaml#/User"
+```
+
+## Quality rules
+
+apicat aggregates these six checks in the "Spec Quality" panel and adds endpoint hints where applicable. These checks run on the converted view model, not every definition in the source spec:
+
+1. **API description** — `info.description` must be non-empty. Rendered as CommonMark markdown on the overview page; a few sentences on what the API is for, auth model, and conventions.
+2. **Operation summary** — every operation needs a `summary` (one line) or `description` (longer, markdown). Prefer both: summary for the sidebar, description for the detail page.
+3. **operationId** — every operation needs a non-empty `operationId`. Also ensure IDs are unique and follow the existing style (e.g. `listUsers`, `createUser`); apicat checks presence, not uniqueness. Its search matches this field.
+4. **Error responses** — every operation must document at least one error response: a `4xx`, a `5xx`, or `default`. Document the errors a caller must actually handle (e.g. `400`, `404`, `422`), not a token `default` added to silence the rule.
+5. **Parameter descriptions** — every parameter (path, query, header, cookie) needs a `description`.
+6. **Schema field descriptions** — every named property in request-body and response schemas needs a `description`. apicat checks the converted tree recursively, including `allOf` / `oneOf` / `anyOf` branches and array `items`, within its conversion depth limit.
+
+For new specs, target zero hints across the document. For scoped updates, resolve hints in the changed content without expanding into unrelated cleanup; report remaining pre-existing hints. If clearing a hint requires an unsupported assumption, preserve accuracy and report what needs clarification.
+
+## Useful metadata and rendering limits
+
+Include metadata when supported by the API contract, even when the current HTML view does not display it:
+
+- **`example`, `default`, and `enum`** — provide representative examples, actual defaults, and closed value sets. Schema examples are read by the converter but are not currently displayed by the templates; defaults and enums are displayed.
+- **Constraints** — encode actual formats, patterns, length/range/item limits, and nullability using syntax appropriate to the spec's OpenAPI version. The schema view displays the supported annotations; rendering is not a complete validation of those constraints.
+- **`required`** — the object-level `required` list, and `required: true` on parameters.
+- **`deprecated: true`** — record actual deprecations. Operations and schema fields display a badge; parameter deprecation is read but currently has no badge in the parameter table.
+- **Component names** — put reusable schemas in `components/schemas`; the component name (e.g. `User`) is displayed where the schema is referenced. Name them meaningfully.
+- **Tags** — give every operation a tag, and declare each tag at the root `tags:` list with a `description`. Untagged operations fall into a catch-all "default" group.
+- **`servers`** (with descriptions) and **`components/securitySchemes`** render on the overview page.
+
+Structural limit: conversion stops beyond depth 10, so deeper fields are neither rendered nor included in these lint counts. `$ref` is expanded during conversion; splitting files or extracting components does not reduce nesting depth. Preserve the real API structure rather than flattening it to fit the renderer, and report relevant display limitations.
+
+## Verify
+
+Compare the resulting spec against the requested scope and its sources: confirm endpoint coverage, methods/paths, parameters, required fields, request/response shapes, status codes, authentication, and unique `operationId` values. Check changed references, including consumers of shared schemas. Successful loading and zero hints do not replace this review.
+
+When `apicat-cli` is available, run a preview from the project root, reusing an existing preview for the same project when possible:
+
+```bash
+apicat-cli -watch # resolves ~/.apicat/projects/<encoded-path>/ from the cwd
+```
+
+- Overview `http://127.0.0.1:8080` — inspect the Spec Quality panel against the quality target above.
+- Endpoints `http://127.0.0.1:8080/endpoints` — inspect changed operations, field descriptions, and hint badges.
+- With `-watch`, a broken edit keeps the last good version. Confirm the latest edit loaded successfully in the terminal; an unchanged page is not evidence of success.
+- If the port is occupied, use an available one with `apicat-cli -watch -port 8081` and adjust the preview URLs; do not stop an unrelated server.
+
+If the CLI or page-inspection tools are unavailable, perform the source and reference checks possible in the environment and state which loading, lint, or visual checks remain unverified. Do not claim a clean preview or zero hints without checking them.
+
+Finish by reporting the spec location, changes made, checks performed, and any remaining hints or unresolved contract details. Completion requires documentation that covers the requested scope and matches the implementation or agreed design, with verification results and limitations stated accurately.

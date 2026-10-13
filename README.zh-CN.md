@@ -39,11 +39,20 @@ go build -o apicat-cli ./cmd/apicat-cli
 
 ## 使用
 
+apicat 是项目制的：spec 集中存放在 `~/.apicat/projects/` 下，每个项目一个目录，目录名由项目绝对路径编码而来——`[A-Za-z0-9_-]` 之外的字符全部替换为 `-`（如 `/Users/alice/dev/shop` → `-Users-alice-dev-shop`）。在项目根目录直接运行即可自动定位：
+
+```bash
+cd path/to/your-project
+apicat-cli
+```
+
+也可以显式指定任意 spec 目录：
+
 ```bash
 apicat-cli path/to/spec-dir
 ```
 
-目录中需包含 `openapi.yaml`、`openapi.yml` 或 `openapi.json` 入口文件，被引用的文件相对它解析。然后打开 http://127.0.0.1:8080。
+无论哪种方式，spec 目录中需包含 `openapi.yaml`、`openapi.yml` 或 `openapi.json` 入口文件，被引用的文件相对它解析。然后打开 http://127.0.0.1:8080。
 
 参数：
 
@@ -52,6 +61,17 @@ apicat-cli path/to/spec-dir
 | `-port` | `8080` | 监听端口 |
 | `-host` | `127.0.0.1` | 绑定地址 |
 | `-watch` | 关闭 | spec 文件变更时自动重载 |
+
+## Agent Skill
+
+[`skills/apicat-spec/`](skills/apicat-spec/SKILL.md) 是一个 [Agent Skill](https://code.claude.com/docs/en/skills)，教会 coding agent 按 apicat 的方式编写 OpenAPI spec——存放到 apicat 的项目目录、渲染出来零 lint 提示。在你的项目中使用：
+
+```bash
+mkdir -p .claude/skills
+cp -r skills/apicat-spec .claude/skills/
+```
+
+之后让 agent 创建或更新 API spec，它会自动遵循这些约定：spec 的存放位置（`~/.apicat/projects/<编码路径>/`）、入口文件命名、多文件 `$ref` 组织、必填的 description、错误响应、example 等。Skill 文件是纯 Markdown，其他支持技能/指令文件的工具同样可用。
 
 ## 路线图
 

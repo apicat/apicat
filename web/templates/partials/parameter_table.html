@@ -20,6 +20,7 @@
       <td>
         {{if .Schema}}
         <span class="param-type">{{schemaTypeDisplay .Schema.Type .Schema.Format}}</span>
+        {{if .Schema.Nullable}}<span class="schema-nullable-mark">nullable</span>{{end}}
         {{if .Schema.Enum}}
         <div class="schema-enum">enum: {{joinEnum .Schema.Enum}}</div>
         {{end}}

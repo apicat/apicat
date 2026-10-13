@@ -1,12 +1,16 @@
 package converter
 
 import (
+	"bytes"
+	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/pb33f/libopenapi"
 	v3high "github.com/pb33f/libopenapi/datamodel/high/v3"
 
 	"github.com/apicat/apicat/v3/internal/model"
+	"github.com/apicat/apicat/v3/internal/render"
 )
 
 func buildModel(t *testing.T, spec string) *libopenapi.DocumentModel[v3high.Document] {
@@ -275,6 +279,77 @@ func TestConvertSchemaExpansion(t *testing.T) {
 	}
 	if props["id"].Format != "int64" {
 		t.Errorf("id format = %q, want int64", props["id"].Format)
+	}
+}
+
+func TestConvertOpenAPI31Types(t *testing.T) {
+	if err := render.Init(); err != nil {
+		t.Fatal(err)
+	}
+	cases := []struct {
+		name, declaration, wantType string
+		wantNullable                bool
+	}{
+		{"string", "string", "string", false},
+		{"nullable", `[string, "null"]`, "string", true},
+		{"null first", `["null", string]`, "string", true},
+		{"union", "[string, integer]", "string | integer", false},
+		{"nullable union", `[string, "null", integer]`, "string | integer", true},
+		{"null only", `"null"`, "null", true},
+		{"null array", `["null"]`, "null", true},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			spec := fmt.Sprintf(`openapi: 3.1.2
+info: {title: Types, version: '1'}
+paths:
+  /values:
+    get:
+      parameters:
+        - name: value
+          in: query
+          schema:
+            $ref: '#/components/schemas/Value'
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Value'
+components:
+  schemas:
+    Value:
+      type: %s
+`, tc.declaration)
+			ep := mustConvert(t, spec).TagGroups[0].Endpoints[0]
+			for _, sv := range []*model.SchemaView{ep.Parameters[0].Schema, ep.Responses[0].Content[0].Schema} {
+				if sv == nil {
+					t.Fatal("missing schema")
+				}
+				if sv.Type != tc.wantType || sv.Nullable != tc.wantNullable {
+					t.Errorf("Type/Nullable = %q/%v, want %q/%v", sv.Type, sv.Nullable, tc.wantType, tc.wantNullable)
+				}
+			}
+			for _, view := range []struct {
+				name string
+				data any
+			}{
+				{"schema", ep.Responses[0].Content[0].Schema},
+				{"parameter_table", ep.Parameters},
+			} {
+				var html bytes.Buffer
+				if err := render.Execute(&html, view.name, view.data); err != nil {
+					t.Fatal(err)
+				}
+				if !strings.Contains(html.String(), ">"+tc.wantType+"</span>") {
+					t.Errorf("%s does not display type %q: %s", view.name, tc.wantType, html.String())
+				}
+				if got := strings.Contains(html.String(), `class="schema-nullable-mark"`); got != tc.wantNullable {
+					t.Errorf("%s nullable marker = %v, want %v", view.name, got, tc.wantNullable)
+				}
+			}
+		})
 	}
 }
 
