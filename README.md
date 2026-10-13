@@ -62,6 +62,25 @@ Flags:
 | `-host` | `127.0.0.1` | Host to bind to |
 | `-watch` | off | Reload when spec files in the directory change |
 
+## Check documentation
+
+Check a spec without starting the web server:
+
+```bash
+apicat-cli check                         # current project's spec directory
+apicat-cli check /path/to/spec-dir       # explicit directory
+apicat-cli check -json                   # structured output for agents and CI
+apicat-cli check -json /path/to/spec-dir
+```
+
+Put flags before the directory. A directory literally named `check` can still be served as `apicat-cli ./check`.
+
+The command loads the spec, resolves references, and runs the same six documentation-quality rules as the UI. Each operation is checked once even if it has multiple tags. Reports include API-level and endpoint-specific hints; field-description hints aggregate missing fields per operation.
+
+Exit codes: **0** = loaded with no quality hints; **1** = quality hints found; **2** = loading, argument, or output error. `-json` writes one JSON object to stdout with `status` (`ok`, `hints`, or `error`), `spec_dir`, `errors`, `lint_total`, and `hints` (`method`, `path`, `message`; API-level hints omit method/path). Usage errors and parser diagnostics go to stderr. On loading failure, zero lint counts mean lint was not run; inspect `status` and `errors` first.
+
+This is a loading and documentation-quality check, not complete OpenAPI specification validation. It does not verify unique operationIds, agreement with implementation, unused schemas, or schema fields beyond the rendering depth limit. AI authors should run it after writing or updating a spec, fix issues within scope, and rerun it before reporting completion.
+
 ## Agent Skill
 
 [`skills/apicat-spec/`](skills/apicat-spec/SKILL.md) is an [Agent Skill](https://code.claude.com/docs/en/skills) that teaches a coding agent to write OpenAPI specs the way apicat expects them — stored in apicat's project directory and rendering with zero lint hints. To use it in your project:

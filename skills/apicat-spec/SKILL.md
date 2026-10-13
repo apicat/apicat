@@ -19,6 +19,7 @@ Create accurate OpenAPI documentation for the requested API scope. apicat render
 - For a proposed API, follow the user's agreed design. If sources conflict or a missing detail affects the contract, ask a focused question rather than inventing behavior.
 - Document only supported methods, paths, parameters, request/response shapes, status codes, and authentication requirements. Do not invent error responses, constraints, or business descriptions to clear lint hints.
 - For updates, change only the requested endpoints and affected shared schemas. Preserve unrelated content, file organization, and existing `operationId` values unless the requested change requires otherwise. Check other consumers before editing a shared schema; do not modify application behavior to match the documentation.
+- When updating an existing spec, run `apicat-cli check -json` from the project root before editing when available, so pre-existing hints can be distinguished from new ones.
 
 ## Where the spec lives
 
@@ -97,7 +98,21 @@ Structural limit: conversion stops beyond depth 10, so deeper fields are neither
 
 Compare the resulting spec against the requested scope and its sources: confirm endpoint coverage, methods/paths, parameters, required fields, request/response shapes, status codes, authentication, and unique `operationId` values. Check changed references, including consumers of shared schemas. Successful loading and zero hints do not replace this review.
 
-When `apicat-cli` is available, run a preview from the project root, reusing an existing preview for the same project when possible:
+After creating or updating a spec, run the check command from the project root:
+
+```bash
+apicat-cli check -json
+```
+
+It resolves the fixed project directory automatically, reports loading/reference errors and documentation-quality hints, and exits without starting a server. Read stdout as JSON and also capture the exit code and stderr:
+
+- **0**: loaded successfully with no quality hints.
+- **1**: quality hints remain. Use `hints` entries (`method`, `path`, `message`) to locate affected operations; API-level hints omit method/path. Field-description hints give a count per operation, so inspect that operation's request/response schemas to locate the fields.
+- **2**: loading, argument, or output error. Read `errors` in the JSON report and stderr diagnostics. Usage errors may produce only stderr. Fix the cause before treating lint results as meaningful.
+
+Reports include `status`, `spec_dir`, `errors`, `lint_total`, and `hints`. Check `status` and `errors` first: a failed load has not run lint, even though its count is zero. Fix issues within the requested scope and rerun after each correction until the quality target is met. If blocked by missing contract information or unrelated existing hints, report them rather than inventing content or expanding the task. A successful check does not validate the entire OpenAPI specification, unused schemas, operationId uniqueness, or agreement with implementation.
+
+When visual verification is useful and tools are available, run a preview from the project root, reusing an existing preview for the same project when possible:
 
 ```bash
 apicat-cli -watch # resolves ~/.apicat/projects/<encoded-path>/ from the cwd
@@ -108,6 +123,6 @@ apicat-cli -watch # resolves ~/.apicat/projects/<encoded-path>/ from the cwd
 - With `-watch`, a broken edit keeps the last good version. Confirm the latest edit loaded successfully in the terminal; an unchanged page is not evidence of success.
 - If the port is occupied, use an available one with `apicat-cli -watch -port 8081` and adjust the preview URLs; do not stop an unrelated server.
 
-If the CLI or page-inspection tools are unavailable, perform the source and reference checks possible in the environment and state which loading, lint, or visual checks remain unverified. Do not claim a clean preview or zero hints without checking them.
+If the CLI is unavailable or does not support `check`, perform the source and reference checks possible in the environment and report the command check as unverified. Missing browser tools do not prevent running `check`; report visual verification separately. Do not claim a clean preview or zero hints without checking them.
 
 Finish by reporting the spec location, changes made, checks performed, and any remaining hints or unresolved contract details. Completion requires documentation that covers the requested scope and matches the implementation or agreed design, with verification results and limitations stated accurately.

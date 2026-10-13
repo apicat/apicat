@@ -19,6 +19,13 @@ import (
 )
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "check" {
+		os.Exit(runCheck(os.Args[2:], os.Stdout, os.Stderr))
+	}
+	flag.Usage = func() {
+		fmt.Fprintln(flag.CommandLine.Output(), "Usage: apicat-cli [flags] [spec-directory]\n       apicat-cli check [-json] [spec-directory]")
+		flag.PrintDefaults()
+	}
 	port := flag.Int("port", 8080, "port to listen on")
 	host := flag.String("host", "127.0.0.1", "host to bind to")
 	watch := flag.Bool("watch", false, "reload when spec files in the directory change")

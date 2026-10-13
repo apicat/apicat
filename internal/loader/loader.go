@@ -2,6 +2,7 @@ package loader
 
 import (
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -29,6 +30,8 @@ func Load(dir string) (*libopenapi.DocumentModel[v3high.Document], error) {
 	config := datamodel.NewDocumentConfiguration()
 	config.BasePath = absDir
 	config.AllowFileReferences = true
+	// Keep parser diagnostics separate from machine-readable CLI output.
+	config.Logger = slog.New(slog.NewTextHandler(os.Stderr, nil))
 
 	doc, err := libopenapi.NewDocumentWithConfiguration(specBytes, config)
 	if err != nil {
@@ -41,6 +44,9 @@ func Load(dir string) (*libopenapi.DocumentModel[v3high.Document], error) {
 	}
 	if model == nil {
 		return nil, fmt.Errorf("failed to build OpenAPI v3 model")
+	}
+	if model.Model.Info == nil {
+		return nil, fmt.Errorf("OpenAPI document is missing info")
 	}
 
 	return model, nil

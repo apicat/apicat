@@ -62,6 +62,25 @@ apicat-cli path/to/spec-dir
 | `-host` | `127.0.0.1` | 绑定地址 |
 | `-watch` | 关闭 | spec 文件变更时自动重载 |
 
+## 检查文档
+
+无需启动网页服务即可检查 spec：
+
+```bash
+apicat-cli check                         # 当前项目的 spec 目录
+apicat-cli check /path/to/spec-dir       # 显式指定目录
+apicat-cli check -json                   # 供 AI 和 CI 使用的结构化输出
+apicat-cli check -json /path/to/spec-dir
+```
+
+参数放在目录之前。若目录恰好名为 `check`，仍可用 `apicat-cli ./check` 启动预览。
+
+命令加载文档、解析引用，并执行与页面相同的六项文档质量检查。一个接口即使有多个 tag，也只检查一次。报告包含文档级和接口级提示；字段描述缺失按接口汇总数量。
+
+退出码：**0** = 加载成功且无质量提示；**1** = 存在质量提示；**2** = 加载、参数或输出错误。`-json` 在 stdout 输出一个 JSON 对象，包含 `status`（`ok`、`hints` 或 `error`）、`spec_dir`、`errors`、`lint_total` 和 `hints`（`method`、`path`、`message`，文档级提示省略 method/path）。参数错误和解析器诊断写入 stderr。加载失败时 lint 未执行，不能将零计数视为通过，应先检查 `status` 和 `errors`。
+
+这是加载和文档质量检查，不是完整的 OpenAPI 规范校验：不检查 operationId 唯一性、与实现的一致性、未使用的 schema 或超过渲染深度的字段。AI 创建或调整文档后应执行此命令，修复范围内的问题并再次检查，再报告完成情况。
+
 ## Agent Skill
 
 [`skills/apicat-spec/`](skills/apicat-spec/SKILL.md) 是一个 [Agent Skill](https://code.claude.com/docs/en/skills)，教会 coding agent 按 apicat 的方式编写 OpenAPI spec——存放到 apicat 的项目目录、渲染出来零 lint 提示。在你的项目中使用：
