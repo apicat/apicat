@@ -4,15 +4,20 @@
   <p style="color:var(--text-muted);">Select an endpoint from the sidebar to view details.</p>
 </div>
 
-{{range .TagGroups}}
-{{range .Endpoints}}
+{{range $groupIndex, $group := .TagGroups}}
+{{range $endpointIndex, $endpoint := .Endpoints}}
 <div class="endpoint-detail" id="detail-{{.Anchor}}" style="display:none;">
   {{if .Summary}}<h1 class="endpoint-title">{{.Summary}}</h1>{{end}}
   <div class="endpoint-detail-header {{methodLower .Method}}">
     <span class="method-badge {{methodLower .Method}}">{{.Method}}</span>
     <span class="endpoint-path">{{.Path}}</span>
     {{if .Deprecated}}<span class="endpoint-deprecated">deprecated</span>{{end}}
-    {{if .LintHints}}<span class="lint-badge" title="{{join .LintHints "\n"}}">{{len .LintHints}} hint{{if gt (len .LintHints) 1}}s{{end}}</span>{{end}}
+    {{if .LintHints}}
+    <span class="app-tooltip has-tooltip-bottom has-tooltip-arrow" data-tooltip="">
+      <button type="button" class="lint-badge" aria-describedby="hints-{{$groupIndex}}-{{$endpointIndex}}">{{len .LintHints}} hint{{if gt (len .LintHints) 1}}s{{end}}</button>
+      <span id="hints-{{$groupIndex}}-{{$endpointIndex}}" class="app-tooltip-content" role="tooltip">{{join .LintHints "\n"}}</span>
+    </span>
+    {{end}}
   </div>
   {{if .Description}}
   <div class="endpoint-description">{{markdown .Description}}</div>

@@ -1,54 +1,59 @@
 {{define "schema"}}
-<div class="schema-node {{depthClass .Depth}}">
-  <div class="schema-field">
-    {{if .IsRef}}<span class="schema-ref-name">{{.RefName}}</span>{{end}}
-    {{if .Name}}<span class="schema-name">{{.Name}}</span>{{end}}
-    {{if .Type}}<span class="schema-type">{{schemaTypeDisplay .Type .Format}}</span>{{end}}
-    {{if .Required}}<span class="schema-required-mark">required</span>{{end}}
-    {{if .Nullable}}<span class="schema-nullable-mark">nullable</span>{{end}}
-    {{if .Deprecated}}<span class="schema-deprecated-mark">deprecated</span>{{end}}
-    {{if .Enum}}<span class="schema-enum">enum: [{{joinEnum .Enum}}]</span>{{end}}
-    {{if .MinLength}}<span class="schema-constraint">minLength: {{.MinLength}}</span>{{end}}
-    {{if .MaxLength}}<span class="schema-constraint">maxLength: {{.MaxLength}}</span>{{end}}
-    {{if .Minimum}}<span class="schema-constraint">min: {{.Minimum}}</span>{{end}}
-    {{if .Maximum}}<span class="schema-constraint">max: {{.Maximum}}</span>{{end}}
-    {{if .MinItems}}<span class="schema-constraint">minItems: {{.MinItems}}</span>{{end}}
-    {{if .MaxItems}}<span class="schema-constraint">maxItems: {{.MaxItems}}</span>{{end}}
-    {{if .Pattern}}<span class="schema-constraint">pattern: {{.Pattern}}</span>{{end}}
-    {{if .Default}}<span class="schema-constraint">default: {{.Default}}</span>{{end}}
-  </div>
-  {{if .Description}}<span class="schema-desc">{{.Description}}</span>{{else if .Name}}<span class="schema-desc lint-missing">missing description</span>{{end}}
+{{template "schema_table" (schemaTable .)}}
+{{end}}
 
-  {{if .Properties}}
-    {{range .Properties}}
-      {{template "schema" .}}
-    {{end}}
-  {{end}}
-
-  {{if .Items}}
-    <div class="schema-composition-label">items:</div>
-    {{template "schema" .Items}}
-  {{end}}
-
-  {{if .AllOf}}
-    <div class="schema-composition-label">allOf</div>
-    {{range .AllOf}}
-      {{template "schema" .}}
-    {{end}}
-  {{end}}
-
-  {{if .OneOf}}
-    <div class="schema-composition-label">oneOf</div>
-    {{range .OneOf}}
-      {{template "schema" .}}
-    {{end}}
-  {{end}}
-
-  {{if .AnyOf}}
-    <div class="schema-composition-label">anyOf</div>
-    {{range .AnyOf}}
-      {{template "schema" .}}
-    {{end}}
-  {{end}}
+{{define "schema_table"}}
+<div class="schema-table-scroll" tabindex="0" role="region" aria-label="{{if .Parameters}}Parameters{{else}}Schema fields{{end}}">
+  <table class="schema-table{{if .Parameters}} parameter-table{{end}}">
+    <thead>
+      <tr>
+        <th scope="col" class="schema-name-column">Name</th>
+        {{if .Parameters}}<th scope="col" class="schema-in-column">In</th>{{end}}
+        <th scope="col" class="schema-type-column">Type</th>
+        <th scope="col" class="schema-required-column">Required</th>
+        <th scope="col" class="schema-value-column">Default</th>
+        <th scope="col" class="schema-description-column">Description</th>
+        <th scope="col" class="schema-value-column">Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{range .Rows}}
+      <tr data-depth="{{.Level}}"{{if .Synthetic}} class="schema-structure-row"{{end}}>
+        <th scope="row">
+          <div class="schema-field-name">
+            {{range .Guides}}<span class="schema-tree-guide" aria-hidden="true"></span>{{end}}
+            {{if .HasChildren}}<button type="button" class="schema-toggle" aria-expanded="true" aria-label="Toggle {{.Label}} fields"><span aria-hidden="true">›</span></button>{{else}}<span class="schema-toggle-spacer" aria-hidden="true"></span>{{end}}
+            <span class="schema-name{{if .Synthetic}} schema-structure-name{{end}}">{{.Label}}</span>
+          </div>
+        </th>
+        {{if $.Parameters}}<td>{{if .In}}<span class="param-in">{{.In}}</span>{{end}}</td>{{end}}
+        <td>
+          {{if .Type}}<span class="schema-type">{{schemaTypeDisplay .Type .Format}}</span>{{end}}
+          {{if .IsRef}}<div class="schema-ref-name">{{.RefName}}</div>{{end}}
+          {{if .Nullable}}<div class="schema-nullable-mark">nullable</div>{{end}}
+          {{if .Deprecated}}<div class="schema-deprecated-mark">deprecated</div>{{end}}
+        </td>
+        <td class="schema-required-cell">{{if .ShowRequired}}{{if .Required}}<span class="schema-required-mark">Yes</span>{{else}}<span class="schema-optional">No</span>{{end}}{{end}}</td>
+        <td>{{if .Default}}<code class="schema-value">{{.Default}}</code>{{end}}</td>
+        <td class="schema-description">
+          {{if .Description}}<div>{{.Description}}</div>{{end}}
+          {{if .Recursive}}<div class="schema-reference-note">Recursive reference{{if .RefName}} → {{.RefName}}{{end}}</div>{{end}}
+          {{if .Truncated}}<div class="schema-reference-note">Maximum display depth reached</div>{{end}}
+          {{if .Enum}}<div class="schema-enum">enum: [{{joinEnum .Enum}}]</div>{{end}}
+          <div class="schema-constraints">
+            {{if .MinLength}}<span>minLength: {{.MinLength}}</span>{{end}}
+            {{if .MaxLength}}<span>maxLength: {{.MaxLength}}</span>{{end}}
+            {{if .Minimum}}<span>min: {{.Minimum}}</span>{{end}}
+            {{if .Maximum}}<span>max: {{.Maximum}}</span>{{end}}
+            {{if .MinItems}}<span>minItems: {{.MinItems}}</span>{{end}}
+            {{if .MaxItems}}<span>maxItems: {{.MaxItems}}</span>{{end}}
+            {{if .Pattern}}<span>pattern: {{.Pattern}}</span>{{end}}
+          </div>
+        </td>
+        <td>{{if .Example}}<code class="schema-value">{{.Example}}</code>{{end}}</td>
+      </tr>
+      {{end}}
+    </tbody>
+  </table>
 </div>
 {{end}}

@@ -197,7 +197,11 @@ func convertResponse(code string, resp *v3high.Response) model.Response {
 }
 
 func convertSchemaProxy(proxy *base.SchemaProxy, name string, required bool, depth int) *model.SchemaView {
-	if proxy == nil || depth > maxSchemaDepth {
+	return convertSchemaPath(proxy, name, required, depth, make(map[any]bool))
+}
+
+func convertSchemaPath(proxy *base.SchemaProxy, name string, required bool, depth int, ancestors map[any]bool) *model.SchemaView {
+	if proxy == nil {
 		return nil
 	}
 
@@ -258,10 +262,28 @@ func convertSchemaProxy(proxy *base.SchemaProxy, name string, required bool, dep
 		sv.Example = yamlNodeValue(schema.Example)
 	}
 
+	// Track only the current path: sibling references must still expand.
+	// Resolved wrappers can differ while pointing at the same source node.
+	// Node identity also distinguishes identically named schemas in different files.
+	var identity any = schema
+	if low := schema.GoLow(); low != nil && low.RootNode != nil {
+		identity = low.RootNode
+	}
+	if ancestors[identity] {
+		sv.Recursive = true
+		return sv
+	}
+	if depth >= maxSchemaDepth {
+		sv.Truncated = (schema.Properties != nil && schema.Properties.Len() > 0) || schema.Items != nil || len(schema.AllOf)+len(schema.OneOf)+len(schema.AnyOf) > 0
+		return sv
+	}
+	ancestors[identity] = true
+	defer delete(ancestors, identity)
+
 	if schema.Properties != nil {
 		requiredSet := toSet(schema.Required)
 		for pair := schema.Properties.First(); pair != nil; pair = pair.Next() {
-			propView := convertSchemaProxy(pair.Value(), pair.Key(), requiredSet[pair.Key()], depth+1)
+			propView := convertSchemaPath(pair.Value(), pair.Key(), requiredSet[pair.Key()], depth+1, ancestors)
 			if propView != nil {
 				sv.Properties = append(sv.Properties, *propView)
 			}
@@ -269,23 +291,23 @@ func convertSchemaProxy(proxy *base.SchemaProxy, name string, required bool, dep
 	}
 
 	if schema.Items != nil && schema.Items.IsA() {
-		sv.Items = convertSchemaProxy(schema.Items.A, "", false, depth+1)
+		sv.Items = convertSchemaPath(schema.Items.A, "", false, depth+1, ancestors)
 	}
 
 	for _, ap := range schema.AllOf {
-		child := convertSchemaProxy(ap, "", false, depth+1)
+		child := convertSchemaPath(ap, "", false, depth+1, ancestors)
 		if child != nil {
 			sv.AllOf = append(sv.AllOf, *child)
 		}
 	}
 	for _, op := range schema.OneOf {
-		child := convertSchemaProxy(op, "", false, depth+1)
+		child := convertSchemaPath(op, "", false, depth+1, ancestors)
 		if child != nil {
 			sv.OneOf = append(sv.OneOf, *child)
 		}
 	}
 	for _, ap := range schema.AnyOf {
-		child := convertSchemaProxy(ap, "", false, depth+1)
+		child := convertSchemaPath(ap, "", false, depth+1, ancestors)
 		if child != nil {
 			sv.AnyOf = append(sv.AnyOf, *child)
 		}
@@ -316,7 +338,17 @@ func yamlNodeValue(n *yaml.Node) string {
 	if n == nil {
 		return ""
 	}
-	return n.Value
+	if n.Kind == yaml.ScalarNode {
+		if n.Tag == "!!str" && n.Value == "" {
+			return `""`
+		}
+		return n.Value
+	}
+	value, err := yaml.Marshal(n)
+	if err != nil {
+		return ""
+	}
+	return strings.TrimSpace(string(value))
 }
 
 func toSet(items []string) map[string]bool {

@@ -110,7 +110,9 @@ type SchemaView struct {
 	OneOf []SchemaView
 	AnyOf []SchemaView
 
-	RefName string
-	IsRef   bool
-	Depth   int
+	RefName   string
+	IsRef     bool
+	Depth     int
+	Recursive bool
+	Truncated bool
 }

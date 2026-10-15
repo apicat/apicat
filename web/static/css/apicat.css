@@ -161,7 +161,8 @@ body {
   margin-left: var(--sidebar-width);
   flex: 1;
   padding: 2.5rem 3rem;
-  max-width: 960px;
+  max-width: 1440px;
+  min-width: 0;
 }
 
 /* ── Sidebar ── */
@@ -408,6 +409,10 @@ body {
 }
 
 .lint-badge {
+  border: 0;
+  font-family: inherit;
+  line-height: inherit;
+  flex-shrink: 0;
   font-size: 0.72rem;
   font-weight: 600;
   padding: 0.15rem 0.5rem;
@@ -415,6 +420,99 @@ body {
   background: var(--status-4xx-bg);
   color: var(--status-4xx-text);
   cursor: help;
+}
+
+/* Shared bulma-tooltip integration. Real text replaces the generated bubble so
+   users can select/copy it. The wrapper contains a button and role=tooltip span. */
+.app-tooltip[data-tooltip] {
+  display: inline-flex;
+  flex-shrink: 0;
+  border-bottom: 0;
+}
+
+.app-tooltip[data-tooltip]:not(.is-loading)::before {
+  display: none;
+}
+
+.app-tooltip-content {
+  position: absolute;
+  z-index: 1020;
+  visibility: hidden;
+  top: 0;
+  margin-top: -8px;
+  transform: translate(-50%, -100%);
+  box-sizing: border-box;
+  cursor: text;
+  -webkit-user-select: text;
+  user-select: text;
+  width: 20rem;
+  max-width: calc(100vw - 24px);
+  left: calc(50% + var(--tooltip-shift, 0px));
+  padding: 0.7rem 0.9rem;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+  font-size: 0.8rem;
+  font-weight: 400;
+  line-height: 1.7;
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+  word-break: normal;
+  text-align: left;
+  pointer-events: auto;
+}
+
+.app-tooltip.has-tooltip-bottom > .app-tooltip-content {
+  top: auto;
+  bottom: 0;
+  margin-top: 0;
+  margin-bottom: -8px;
+  transform: translate(-50%, 100%);
+}
+
+/* Bridge the gap so moving from the badge into the text keeps it open. */
+.app-tooltip-content::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -8px;
+  height: 8px;
+}
+
+.has-tooltip-bottom > .app-tooltip-content::after {
+  top: -8px;
+  bottom: auto;
+}
+
+.app-tooltip[data-tooltip]:not(.is-loading).has-tooltip-arrow::after {
+  border-color: var(--border) transparent transparent;
+  pointer-events: auto;
+}
+
+.app-tooltip[data-tooltip].has-tooltip-arrow.has-tooltip-bottom::after {
+  border-color: transparent transparent var(--border);
+}
+
+.app-tooltip > button:focus-visible {
+  outline: 2px solid var(--accent-ref);
+  outline-offset: 3px;
+}
+
+.app-tooltip:hover > .app-tooltip-content,
+.app-tooltip:focus-within > .app-tooltip-content,
+.app-tooltip[data-tooltip]:focus-within::after {
+  visibility: visible;
+  opacity: 1;
+}
+
+.app-tooltip.is-tooltip-dismissed > .app-tooltip-content,
+.app-tooltip[data-tooltip].is-tooltip-dismissed::after {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none;
 }
 
 .lint-summary-intro {
@@ -462,6 +560,7 @@ body {
 
 .endpoint-detail-header {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 0;
@@ -501,6 +600,8 @@ body {
 .method-badge.patch { background: var(--patch-color); }
 
 .endpoint-path {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-family: "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 0.9rem;
   color: var(--text);
@@ -588,174 +689,154 @@ body {
   color: var(--text-mid);
 }
 
-/* ── Parameter table ── */
+/* ── Schema and parameter tables ── */
 
-.param-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.88rem;
+.schema-table-scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+  background: var(--surface);
 }
 
-.param-table th {
+.schema-table {
+  width: 100%;
+  min-width: 800px;
+  table-layout: fixed;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
+}
+
+.schema-table.parameter-table { min-width: 880px; }
+.schema-name-column { width: 27%; }
+.schema-type-column { width: 15%; }
+.schema-required-column { width: 80px; }
+.schema-value-column { width: 12%; }
+.schema-in-column { width: 80px; }
+
+.schema-table th,
+.schema-table td {
+  padding: 0.75rem;
+  vertical-align: top;
   text-align: left;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+  color: var(--text-secondary);
+}
+
+.schema-table th + th,
+.schema-table td { border-left: 1px solid var(--border); }
+.schema-table tbody tr:last-child > * { border-bottom: 0; }
+.schema-table tbody tr[hidden] { display: none; }
+.schema-table tbody tr:hover > * { background: var(--sidebar-bg); }
+
+.schema-table thead th {
+  background: var(--schema-bg);
+  font-size: 0.76rem;
   font-weight: 600;
   color: var(--text-muted);
-  font-size: 0.76rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 2px solid var(--border);
 }
 
-.param-table td {
-  padding: 0.55rem 0.75rem;
-  border-bottom: 1px solid var(--border-faint);
-  vertical-align: top;
+.schema-table .schema-required-column,
+.schema-table .schema-required-cell { text-align: center; }
+.schema-table tbody th { font-weight: 400; }
+.schema-table .schema-structure-row { background: var(--schema-bg); }
+
+.schema-field-name {
+  display: flex;
+  align-items: flex-start;
+  min-height: 1.5rem;
 }
 
-.param-name {
+.schema-tree-guide {
+  flex: 0 0 16px;
+  align-self: stretch;
+  border-left: 1px dashed var(--schema-line);
+  margin-top: -0.75rem;
+  margin-bottom: -0.75rem;
+  position: relative;
+  left: 10px;
+}
+
+.schema-toggle,
+.schema-toggle-spacer {
+  flex: 0 0 22px;
+  width: 22px;
+  height: 24px;
+  margin-right: 4px;
+}
+
+.schema-toggle {
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 0;
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+.schema-toggle span { display: inline-block; }
+.schema-toggle[aria-expanded="true"] span { transform: rotate(90deg); }
+.schema-toggle:hover { background: var(--hover-bg); color: var(--text-strong); }
+.schema-toggle:focus-visible,
+.schema-table-scroll:focus-visible { outline: 2px solid var(--accent-ref); outline-offset: -2px; }
+
+.schema-name {
   font-family: "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-  font-weight: 500;
   color: var(--text-strong);
+  padding-top: 2px;
+  min-width: 0;
 }
 
-.param-required {
-  color: var(--required-color);
-  font-size: 0.72rem;
-  font-weight: 600;
-  margin-left: 0.25rem;
+.schema-structure-name {
+  background: var(--active-bg);
+  color: var(--active-text);
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-family: inherit;
+  font-size: 0.78rem;
+}
+
+.schema-type { color: var(--accent-type); font-size: 0.8rem; }
+.schema-required-mark { color: var(--required-color); font-weight: 600; font-size: 0.78rem; }
+.schema-optional { color: var(--text-muted); font-size: 0.78rem; }
+.schema-nullable-mark { color: var(--nullable-color); font-size: 0.72rem; }
+.schema-deprecated-mark { color: var(--deprecated-color); text-decoration: line-through; font-size: 0.72rem; }
+.schema-ref-name { color: var(--accent-ref); font-size: 0.76rem; }
+.schema-reference-note { color: var(--accent-ref); font-size: 0.78rem; }
+.schema-enum { color: var(--accent-enum); font-size: 0.76rem; margin-top: 0.2rem; }
+
+.schema-constraints {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.15rem 0.65rem;
+  color: var(--text-muted);
+  font-size: 0.74rem;
+}
+
+.schema-constraints:not(:empty) { margin-top: 0.2rem; }
+.schema-description > div:first-child { white-space: pre-line; }
+.schema-description .schema-constraints { white-space: normal; }
+
+.schema-table .schema-value {
+  padding: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.78rem;
+  white-space: pre-wrap;
 }
 
 .param-in {
-  font-size: 0.76rem;
+  white-space: nowrap;
+  font-size: 0.72rem;
   color: var(--text-muted);
   background: var(--chip-bg);
   padding: 0.1rem 0.35rem;
   border-radius: 3px;
-}
-
-.param-type {
-  font-size: 0.82rem;
-  color: var(--accent-type);
-}
-
-.param-desc {
-  color: var(--text-secondary);
-}
-
-/* ── Schema tree ── */
-
-.schema-container {
-  background: var(--schema-bg);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
-  font-size: 0.86rem;
-}
-
-.schema-node {
-  position: relative;
-  padding: 0.25rem 0;
-  padding-left: 1.25rem;
-}
-
-.schema-node.depth-0 {
-  padding-left: 0;
-}
-
-.schema-node:not(.depth-0)::before {
-  content: "";
-  position: absolute;
-  left: 0.25rem;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  background: var(--schema-line);
-}
-
-.schema-node:not(.depth-0)::after {
-  content: "";
-  position: absolute;
-  left: 0.25rem;
-  top: 0.85rem;
-  width: 0.7rem;
-  height: 1px;
-  background: var(--schema-line);
-}
-
-.schema-node:last-child::before {
-  bottom: calc(100% - 0.85rem);
-}
-
-.schema-field {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35rem;
-}
-
-.schema-name {
-  font-family: "SF Mono", SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace;
-  font-weight: 500;
-  color: var(--text-strong);
-}
-
-.schema-type {
-  font-size: 0.78rem;
-  color: var(--accent-type);
-}
-
-.schema-format {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-.schema-required-mark {
-  color: var(--required-color);
-  font-size: 0.72rem;
-  font-weight: 600;
-}
-
-.schema-nullable-mark {
-  font-size: 0.72rem;
-  color: var(--nullable-color);
-  font-weight: 500;
-}
-
-.schema-deprecated-mark {
-  font-size: 0.72rem;
-  color: var(--deprecated-color);
-  text-decoration: line-through;
-}
-
-.schema-enum {
-  font-size: 0.76rem;
-  color: var(--accent-enum);
-}
-
-.schema-constraint {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-}
-
-.schema-desc {
-  color: var(--text-muted);
-  font-size: 0.82rem;
-  display: block;
-  margin-top: 0.1rem;
-}
-
-.schema-ref-name {
-  font-size: 0.76rem;
-  color: var(--accent-ref);
-  font-weight: 500;
-}
-
-.schema-composition-label {
-  font-size: 0.76rem;
-  font-weight: 600;
-  color: var(--accent-type);
-  margin: 0.35rem 0 0.15rem;
 }
 
 /* ── Response status ── */

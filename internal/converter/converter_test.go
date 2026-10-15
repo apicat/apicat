@@ -415,7 +415,7 @@ components:
 	}
 }
 
-func TestConvertRecursiveSchemaDepthLimit(t *testing.T) {
+func TestConvertRecursiveSchemaReference(t *testing.T) {
 	spec := `openapi: 3.0.3
 info: {title: T, version: '1'}
 paths:
@@ -436,7 +436,7 @@ components:
         child:
           $ref: '#/components/schemas/Node'
 `
-	// Must terminate; without the depth guard this would recurse forever.
+	// Stop at the first recursive reference while preserving the field.
 	apiDoc := mustConvert(t, spec)
 
 	sv := apiDoc.TagGroups[0].Endpoints[0].Responses[0].Content[0].Schema
@@ -448,7 +448,107 @@ components:
 	if depth > maxSchemaDepth {
 		t.Errorf("schema chain depth = %d, exceeds maxSchemaDepth %d", depth, maxSchemaDepth)
 	}
-	if depth < 3 {
-		t.Errorf("schema chain depth = %d, recursion cut off too early", depth)
+	if depth != 1 || !sv.Recursive || sv.RefName != "Node" || sv.Type != "object" {
+		t.Errorf("expected a recursive Node reference at depth 1; depth=%d, schema=%+v", depth, sv)
+	}
+}
+
+func TestSchemaReferenceBranches(t *testing.T) {
+	for _, tc := range []struct {
+		name  string
+		child string
+	}{
+		{"direct", "          $ref: '#/components/schemas/Node'"},
+		{"array", "          type: array\n          items:\n            $ref: '#/components/schemas/Node'"},
+		{"composition", "          oneOf:\n            - $ref: '#/components/schemas/Node'\n            - type: string"},
+		{"mutual", "          $ref: '#/components/schemas/Branch'"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			spec := `openapi: 3.0.3
+info: {title: Recursive, version: '1'}
+paths:
+  /nodes:
+    get:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  first: {$ref: '#/components/schemas/Node'}
+                  second: {$ref: '#/components/schemas/Node'}
+components:
+  schemas:
+    Node:
+      type: object
+      properties:
+        child:
+` + tc.child + `
+    Branch:
+      type: object
+      properties:
+        parent: {$ref: '#/components/schemas/Node'}
+`
+			root := mustConvert(t, spec).TagGroups[0].Endpoints[0].Responses[0].Content[0].Schema
+			for _, sibling := range root.Properties {
+				if sibling.Recursive || len(sibling.Properties) != 1 {
+					t.Fatalf("sibling reference must expand: %+v", sibling)
+				}
+				child := &sibling.Properties[0]
+				switch tc.name {
+				case "array":
+					child = child.Items
+				case "composition":
+					child = &child.OneOf[0]
+				case "mutual":
+					child = &child.Properties[0]
+				}
+				if !child.Recursive || child.RefName != "Node" || len(child.Properties) != 0 {
+					t.Fatalf("cycle must end in a Node reference: %+v", child)
+				}
+			}
+			if err := render.Init(); err != nil {
+				t.Fatal(err)
+			}
+			var html bytes.Buffer
+			if err := render.Execute(&html, "schema", root); err != nil {
+				t.Fatal(err)
+			}
+			if strings.Count(html.String(), "Recursive reference") != 2 {
+				t.Fatalf("expected two visible recursion markers: %s", html.String())
+			}
+		})
+	}
+}
+
+func TestSchemaDepthLimitIsVisible(t *testing.T) {
+	spec := `openapi: 3.0.3
+info: {title: Deep, version: '1'}
+paths:
+  /deep:
+    get:
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+`
+	for depth := 0; depth < maxSchemaDepth+2; depth++ {
+		indent := strings.Repeat(" ", 16+depth*4)
+		spec += indent + "type: object\n" + indent + "properties:\n" + indent + "  child:\n"
+	}
+	spec += strings.Repeat(" ", 16+(maxSchemaDepth+2)*4) + "type: string\n"
+	schema := mustConvert(t, spec).TagGroups[0].Endpoints[0].Responses[0].Content[0].Schema
+	for depth := 0; depth < maxSchemaDepth; depth++ {
+		if len(schema.Properties) != 1 {
+			t.Fatalf("missing field at depth %d", depth)
+		}
+		schema = &schema.Properties[0]
+	}
+	if !schema.Truncated || schema.Recursive || len(schema.Properties) != 0 {
+		t.Fatalf("expected explicit depth limit: %+v", schema)
 	}
 }

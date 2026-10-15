@@ -2,6 +2,45 @@ document.addEventListener("DOMContentLoaded", function () {
   var sidebar = document.querySelector(".app-sidebar");
   var toggle = document.querySelector(".mobile-toggle");
 
+  // Keep selectable tooltip content inside the viewport; bulma-tooltip supplies
+  // the trigger and arrow styling. Escape dismisses without moving focus.
+  var tooltips = document.querySelectorAll(".app-tooltip[data-tooltip]");
+  function positionTooltip(trigger) {
+    var rect = trigger.getBoundingClientRect();
+    var bubble = trigger.querySelector(".app-tooltip-content").getBoundingClientRect();
+    var width = bubble.width;
+    var height = bubble.height;
+    var left = rect.left + rect.width / 2 - width / 2;
+    var clampedLeft = Math.max(12, Math.min(left, document.documentElement.clientWidth - width - 12));
+    trigger.style.setProperty("--tooltip-shift", (clampedLeft - left) + "px");
+    trigger.classList.toggle("has-tooltip-bottom", rect.bottom + height + 12 <= window.innerHeight || rect.top < height + 12);
+  }
+
+  tooltips.forEach(function (trigger) {
+    function revealTooltip() {
+      trigger.classList.remove("is-tooltip-dismissed");
+      positionTooltip(trigger);
+    }
+    trigger.addEventListener("pointerenter", revealTooltip);
+    trigger.addEventListener("focusin", revealTooltip);
+    trigger.querySelector("button").addEventListener("click", revealTooltip);
+  });
+
+  document.addEventListener("keydown", function (event) {
+    if (event.key !== "Escape") return;
+    tooltips.forEach(function (trigger) {
+      trigger.classList.add("is-tooltip-dismissed");
+    });
+  });
+
+  function repositionTooltips() {
+    tooltips.forEach(function (trigger) {
+      if (trigger.matches(":hover, :focus-within")) positionTooltip(trigger);
+    });
+  }
+  window.addEventListener("resize", repositionTooltips);
+  window.addEventListener("scroll", repositionTooltips, { passive: true });
+
   // Mobile sidebar toggle
   if (toggle && sidebar) {
     toggle.addEventListener("click", function () {
@@ -89,6 +128,25 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   }
+
+  // Keep nested collapse states when an ancestor is closed and reopened.
+  document.querySelectorAll(".schema-table").forEach(function (table) {
+    table.addEventListener("click", function (event) {
+      var button = event.target.closest(".schema-toggle");
+      if (!button || !table.contains(button)) return;
+      button.setAttribute("aria-expanded", String(button.getAttribute("aria-expanded") !== "true"));
+      var collapsedDepth = null;
+      table.querySelectorAll("tbody tr").forEach(function (row) {
+        var depth = Number(row.getAttribute("data-depth"));
+        if (collapsedDepth !== null && depth <= collapsedDepth) collapsedDepth = null;
+        row.hidden = collapsedDepth !== null;
+        var toggle = row.querySelector(".schema-toggle");
+        if (!row.hidden && toggle && toggle.getAttribute("aria-expanded") === "false") {
+          collapsedDepth = depth;
+        }
+      });
+    });
+  });
 
   // Endpoint detail switching
   var endpointLinks = document.querySelectorAll('.sidebar-link[data-anchor]');

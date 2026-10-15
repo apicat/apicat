@@ -5,9 +5,7 @@
   {{range .Content}}
   <div class="media-type-label">{{.MediaType}}</div>
   {{if .Schema}}
-  <div class="schema-container">
-    {{template "schema" .Schema}}
-  </div>
+  {{template "schema" .Schema}}
   {{end}}
   {{end}}
 </div>

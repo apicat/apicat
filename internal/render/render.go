@@ -32,6 +32,8 @@ func Init() error {
 			return fmt.Sprintf("depth-%d", d)
 		},
 		"schemaTypeDisplay": schemaTypeDisplay,
+		"schemaTable":       schemaTable,
+		"parameterTable":    parameterTable,
 		"markdown": func(s string) template.HTML {
 			var buf bytes.Buffer
 			if err := md.Convert([]byte(s), &buf); err != nil {
