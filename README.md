@@ -18,7 +18,9 @@ Agents read the raw spec. Humans read a clean, server-rendered HTML view of the 
 - **Multi-file specs** — `$ref` across files resolved out of the box (OpenAPI 3.0 / 3.1)
 - **Single binary** — Go-compiled, all templates and assets embedded; no Node, no Python, no runtime dependencies
 - **Server-side rendered** — fast, clean HTML designed for low reading fatigue; the rendered page doubles as a quality check for your spec (missing descriptions, incomplete examples stand out)
-- **Search** — filter endpoints by method, path, summary, operationId, or description
+- **Shared definitions** — browse `components` from the sidebar or `/components`, including schemas, parameters, request bodies, responses, and other reusable definitions
+- **Search** — filter endpoints by method, path, summary, operationId, or description; find shared definitions by category, name, or description
+- **Collapsible navigation** — API tags and component categories start collapsed; search reveals matching groups and clearing it restores their state
 - **Light / dark theme** — follows your system by default, with a manual override
 - **Live reload** — `-watch` reloads the spec when files change; a broken edit keeps the last good version
 - **Lint hints** — missing summaries, descriptions, operationIds, and error responses are counted on the overview page and marked inline where they occur

@@ -35,6 +35,8 @@
         {{template "overview_content" .}}
       {{else if eq .Page "endpoints"}}
         {{template "endpoints_content" .}}
+      {{else if eq .Page "components"}}
+        {{template "components_content" .}}
       {{end}}
     </main>
   </div>

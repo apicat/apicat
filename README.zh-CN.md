@@ -18,7 +18,9 @@ Agent 读原始 spec，人读同一份源渲染出的干净 HTML——因为源�
 - **多文件 spec** — 跨文件 `$ref` 开箱即用（OpenAPI 3.0 / 3.1）
 - **单个二进制** — Go 编译，模板与静态资源全部内嵌；无需 Node、Python 或任何运行时依赖
 - **服务端渲染** — 快速、干净、低阅读疲劳的 HTML；渲染页面同时是 spec 的质量检查器（缺失的 description、不全的 example 一眼可见）
-- **搜索** — 按 method、path、summary、operationId、description 过滤接口
+- **公共定义** — 从侧栏或 `/components` 独立查看 Schema、参数、请求体、响应及其他 `components` 定义
+- **搜索** — 按 method、path、summary、operationId、description 过滤接口，也可按分类、名称、说明查找公共定义
+- **可折叠导航** — 接口 tag 和公共定义分类默认收起；搜索时展开匹配分类，清空搜索后恢复原状态
 - **浅色 / 深色主题** — 默认跟随系统，可手动切换
 - **热重载** — `-watch` 在 spec 文件变更时自动重载；改坏了会保留上一个可用版本
 - **Lint 提示** — 缺失的 summary、description、operationId、错误响应会在总览页汇总计数，并在出现处以内联标记提示

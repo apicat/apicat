@@ -40,6 +40,11 @@ func Convert(docModel *libopenapi.DocumentModel[v3high.Document]) (*model.APIDoc
 	}
 
 	apiDoc.Security = extractSecuritySchemes(doc)
+	var err error
+	apiDoc.ComponentGroups, err = convertComponents(doc.Components)
+	if err != nil {
+		return nil, err
+	}
 
 	endpointsByTag := make(map[string][]model.Endpoint)
 	if doc.Paths != nil && doc.Paths.PathItems != nil {

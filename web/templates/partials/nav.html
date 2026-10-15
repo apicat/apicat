@@ -4,16 +4,17 @@
   <div class="sidebar-version">v{{.Version}}</div>
 
   <div class="sidebar-search">
-    <input type="search" id="sidebar-search-input" placeholder="Search APIs…" autocomplete="off">
+    <input type="search" id="sidebar-search-input" placeholder="Search APIs & definitions…" aria-label="Search APIs and definitions" autocomplete="off">
   </div>
 
   <div class="sidebar-section">
     <a href="/" class="sidebar-link" style="font-weight:600;">Overview</a>
+    {{if .ComponentGroups}}<a href="/components" class="sidebar-link{{if and (eq .Page "components") (not .Component)}} is-active{{end}}">Components</a>{{end}}
   </div>
 
   {{range .TagGroups}}
-  <div class="sidebar-section">
-    <div class="sidebar-section-title">{{.Tag.Name}}</div>
+  <details class="sidebar-section sidebar-group" data-group-key="tag:{{.Tag.Name}}">
+    <summary class="sidebar-section-title sidebar-group-toggle"><span class="sidebar-chevron" aria-hidden="true">›</span><span class="sidebar-group-name">{{.Tag.Name}}</span><span class="sidebar-count">{{len .Endpoints}}</span></summary>
     {{if .Tag.Description}}<div class="sidebar-section-desc">{{.Tag.Description}}</div>{{end}}
     {{range .Endpoints}}
     <a href="/endpoints#{{.Anchor}}" class="sidebar-link" data-anchor="{{.Anchor}}" data-search="{{.Method}} {{.Path}} {{.Summary}} {{.OperationID}} {{.Description}}">
@@ -21,7 +22,23 @@
       <span class="sidebar-path">{{if .Summary}}{{.Summary}}{{else if .OperationID}}{{.OperationID}}{{else}}{{.Path}}{{end}}</span>
     </a>
     {{end}}
-  </div>
+  </details>
+  {{end}}
+  {{if .ComponentGroups}}
+  <details class="sidebar-component-groups" data-group-key="components">
+  <summary class="sidebar-nav-heading sidebar-group-toggle"><span class="sidebar-chevron" aria-hidden="true">›</span><span class="sidebar-group-name">Components</span></summary>
+  {{range .ComponentGroups}}
+  {{$group := .}}
+  <details class="sidebar-section sidebar-group" data-group-key="component:{{.Kind}}">
+    <summary class="sidebar-section-title sidebar-group-toggle"><span class="sidebar-chevron" aria-hidden="true">›</span><span class="sidebar-group-name">{{.Title}}</span><span class="sidebar-count">{{len .Definitions}}</span></summary>
+    {{range .Definitions}}
+    <a href="/components?type={{$group.Kind}}&amp;name={{.Name}}" class="sidebar-link sidebar-component-link{{if and (eq $.ComponentType $group.Kind) (eq $.ComponentName .Name)}} is-active{{end}}" data-search="{{$group.Title}} {{.Name}} {{.Description}}">
+      <span class="sidebar-definition-name">{{.Name}}</span>
+    </a>
+    {{end}}
+  </details>
+  {{end}}
+  </details>
   {{end}}
 </aside>
 {{end}}

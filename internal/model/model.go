@@ -1,17 +1,34 @@
 package model
 
 type APIDoc struct {
-	Title       string
-	Description string
-	Version     string
-	Servers     []Server
-	Tags        []Tag
-	TagGroups   []TagGroup
-	Security    []SecurityScheme
+	Title           string
+	Description     string
+	Version         string
+	Servers         []Server
+	Tags            []Tag
+	TagGroups       []TagGroup
+	Security        []SecurityScheme
+	ComponentGroups []ComponentGroup
 
 	// Filled by lint.Annotate after conversion.
 	LintTotal  int
 	LintCounts []LintCount
+}
+
+type ComponentGroup struct {
+	Kind        string
+	Title       string
+	Definitions []Component
+}
+
+type Component struct {
+	Name        string
+	Description string
+	Schema      *SchemaView
+	Parameters  []Parameter
+	RequestBody *RequestBody
+	Response    *Response
+	Definition  string
 }
 
 type LintCount struct {

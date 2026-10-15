@@ -1,6 +1,6 @@
 {{define "response"}}
 <div class="response-block">
-  <span class="status-badge {{statusClass .StatusCode}}">{{.StatusCode}}</span>
+  {{if .StatusCode}}<span class="status-badge {{statusClass .StatusCode}}">{{.StatusCode}}</span>{{end}}
   <span class="response-desc">{{.Description}}</span>
   {{range .Content}}
   <div class="media-type-label">{{.MediaType}}</div>

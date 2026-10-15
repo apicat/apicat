@@ -3,6 +3,7 @@ package loader
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/apicat/apicat/v3/internal/converter"
@@ -77,5 +78,53 @@ func TestLoadSpecFilePriority(t *testing.T) {
 func TestLoadMissingSpec(t *testing.T) {
 	if _, err := Load(t.TempDir()); err == nil {
 		t.Fatal("Load on empty dir should fail")
+	}
+}
+
+func TestLoadExternalUnusedComponents(t *testing.T) {
+	dir := t.TempDir()
+	writeFile(t, filepath.Join(dir, "openapi.yaml"), `openapi: 3.0.3
+info: {title: Components, version: '1'}
+paths: {}
+components:
+  schemas:
+    Node: {$ref: './shared.yaml#/Node'}
+  securitySchemes:
+    Auth: {$ref: './shared.yaml#/Auth'}
+`)
+	writeFile(t, filepath.Join(dir, "shared.yaml"), `Node:
+  type: object
+  properties:
+    child: {$ref: '#/Node'}
+Auth:
+  type: apiKey
+  name: X-API-Key
+  in: header
+`)
+	loaded, err := Load(dir)
+	if err != nil {
+		t.Fatal(err)
+	}
+	doc, err := converter.Convert(loaded)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(doc.ComponentGroups) != 2 {
+		t.Fatalf("groups = %+v", doc.ComponentGroups)
+	}
+	node := doc.ComponentGroups[0].Definitions[0].Schema
+	if node.Type != "object" || len(node.Properties) != 1 {
+		t.Fatalf("external recursive schema = %+v", node)
+	}
+	// External references can create a separate wrapper for the entry schema.
+	// The reference chain must still end in a recursion marker, not a depth cutoff.
+	for depth := 0; depth < 4 && len(node.Properties) == 1; depth++ {
+		node = &node.Properties[0]
+	}
+	if !node.Recursive || node.Truncated {
+		t.Fatalf("external cycle did not terminate as a reference: %+v", node)
+	}
+	if !strings.Contains(doc.ComponentGroups[1].Definitions[0].Definition, "X-API-Key") {
+		t.Fatal("external security definition was not resolved")
 	}
 }

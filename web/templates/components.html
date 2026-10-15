@@ -1,0 +1,45 @@
+{{define "components_content"}}
+{{if .Component}}
+<div class="component-detail">
+  <div class="component-breadcrumb"><a href="/components">Components</a> / {{.ComponentTitle}}</div>
+  {{with .Component}}
+  <h1 class="endpoint-title component-title">{{.Name}}</h1>
+  {{if .Schema}}
+    {{template "schema" .Schema}}
+  {{else if .Parameters}}
+    {{template "parameter_table" .Parameters}}
+  {{else if .RequestBody}}
+    {{template "request_body" .RequestBody}}
+  {{else if .Response}}
+    {{template "response" .Response}}
+  {{else}}
+    {{if .Description}}<div class="endpoint-description">{{markdown .Description}}</div>{{end}}
+  {{end}}
+  {{if or .Schema .Parameters .RequestBody .Response}}
+  <details class="component-source">
+    <summary>Definition (YAML)</summary>
+    <pre><code>{{.Definition}}</code></pre>
+  </details>
+  {{else}}
+  <div class="component-source"><pre><code>{{.Definition}}</code></pre></div>
+  {{end}}
+  {{end}}
+</div>
+{{else}}
+<h1 class="title is-3">Components</h1>
+<p class="endpoint-description">Reusable definitions shared across the API. Select a definition to view its details.</p>
+{{range .ComponentGroups}}
+{{$group := .}}
+<section class="component-group">
+  <h2 class="title is-5">{{.Title}} <span class="sidebar-count">{{len .Definitions}}</span></h2>
+  <ul class="component-list">
+    {{range .Definitions}}
+    <li><a href="/components?type={{$group.Kind}}&amp;name={{.Name}}">{{.Name}}</a>{{if .Description}}<span>{{.Description}}</span>{{end}}</li>
+    {{end}}
+  </ul>
+</section>
+{{else}}
+<p class="endpoint-description">No reusable definitions are declared in this document.</p>
+{{end}}
+{{end}}
+{{end}}

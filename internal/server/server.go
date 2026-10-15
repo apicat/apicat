@@ -15,11 +15,21 @@ import (
 // Start serves the docs until the process exits. getDoc is called per
 // request so -watch can swap in a freshly loaded spec.
 func Start(getDoc func() *model.APIDoc, host string, port int) error {
+	mux, err := newHandler(getDoc)
+	if err != nil {
+		return err
+	}
+	addr := fmt.Sprintf("%s:%d", host, port)
+	fmt.Printf("Serving API docs at http://%s\n", addr)
+	return http.ListenAndServe(addr, mux)
+}
+
+func newHandler(getDoc func() *model.APIDoc) (http.Handler, error) {
 	mux := http.NewServeMux()
 
 	staticFS, err := fs.Sub(web.Content, "static")
 	if err != nil {
-		return fmt.Errorf("cannot create static filesystem: %w", err)
+		return nil, fmt.Errorf("cannot create static filesystem: %w", err)
 	}
 	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(staticFS))))
 
@@ -35,9 +45,31 @@ func Start(getDoc func() *model.APIDoc, host string, port int) error {
 		renderPage(w, &pageData{APIDoc: getDoc(), Page: "endpoints"})
 	})
 
-	addr := fmt.Sprintf("%s:%d", host, port)
-	fmt.Printf("Serving API docs at http://%s\n", addr)
-	return http.ListenAndServe(addr, mux)
+	mux.HandleFunc("/components", func(w http.ResponseWriter, r *http.Request) {
+		data := &pageData{APIDoc: getDoc(), Page: "components"}
+		data.ComponentType = r.URL.Query().Get("type")
+		data.ComponentName = r.URL.Query().Get("name")
+		if data.ComponentType != "" || data.ComponentName != "" {
+			for _, group := range data.ComponentGroups {
+				if group.Kind != data.ComponentType {
+					continue
+				}
+				for i := range group.Definitions {
+					if group.Definitions[i].Name == data.ComponentName {
+						data.Component = &group.Definitions[i]
+						data.ComponentTitle = group.Title
+						break
+					}
+				}
+			}
+			if data.Component == nil {
+				http.NotFound(w, r)
+				return
+			}
+		}
+		renderPage(w, data)
+	})
+	return mux, nil
 }
 
 func renderPage(w http.ResponseWriter, data *pageData) {
@@ -53,5 +85,9 @@ func renderPage(w http.ResponseWriter, data *pageData) {
 
 type pageData struct {
 	*model.APIDoc
-	Page string
+	Page           string
+	ComponentType  string
+	ComponentName  string
+	ComponentTitle string
+	Component      *model.Component
 }

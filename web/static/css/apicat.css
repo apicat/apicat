@@ -223,6 +223,34 @@ body {
   margin: -0.35rem 0 0.5rem;
 }
 
+.sidebar-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.4rem;
+  border-radius: 4px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.sidebar-group-toggle::-webkit-details-marker { display: none; }
+.sidebar-group-toggle:hover { background: var(--hover-bg); color: var(--text-strong); }
+.sidebar-group-toggle:focus-visible { outline: 2px solid var(--accent-ref); outline-offset: 2px; }
+.sidebar-group-name { min-width: 0; overflow-wrap: anywhere; }
+.sidebar-group-toggle .sidebar-count { margin-left: auto; }
+.sidebar-chevron {
+  flex: 0 0 12px;
+  font-size: 1rem;
+  text-align: center;
+  line-height: 1;
+  transform: rotate(0deg);
+}
+details[open] > .sidebar-group-toggle .sidebar-chevron { transform: rotate(90deg); }
+.sidebar-group:not([open]) > summary { margin-bottom: 0; }
+.sidebar-group { margin-bottom: 0.75rem; }
+.sidebar-group[hidden], .sidebar-component-groups[hidden] { display: none; }
+
 .sidebar-link {
   display: flex;
   align-items: center;
@@ -922,3 +950,74 @@ body {
     display: block;
   }
 }
+
+/* ── Reusable definitions ── */
+
+.sidebar-nav-heading {
+  border-top: 1px solid var(--border);
+  padding-top: 1rem;
+  margin: 1.5rem 0 1rem;
+  color: var(--text-strong);
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.sidebar-count {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  font-weight: 400;
+  margin-left: 0.35rem;
+}
+
+.sidebar-definition-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.component-breadcrumb {
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  margin-bottom: 0.75rem;
+}
+
+.component-title {
+  overflow-wrap: anywhere;
+  margin-bottom: 1.5rem;
+}
+
+.component-group { margin-top: 2rem; }
+.component-list { list-style: none; }
+.component-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.component-list a { font-size: 0.88rem; }
+.component-list span { color: var(--text-muted); font-size: 0.82rem; }
+
+.component-source {
+  margin-top: 1.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+.component-source summary {
+  padding: 0.65rem 1rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  background: var(--schema-bg);
+}
+.component-source pre {
+  margin: 0;
+  padding: 1rem;
+  background: var(--schema-bg);
+  color: var(--text);
+  font-size: 0.82rem;
+  overflow-x: auto;
+}
+.component-source code { background: transparent; color: inherit; padding: 0; }

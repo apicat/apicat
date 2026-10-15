@@ -109,23 +109,64 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   }
 
-  // Sidebar search: filter endpoint links; hide a whole section when
-  // none of its links match.
+  // Native details provide keyboard controls and work without JavaScript.
+  // Remember explicit choices across pages in this tab; search expansion is temporary.
+  var sidebarGroups = document.querySelectorAll(".app-sidebar details[data-group-key]");
+  var sidebarStateKey = "apicat-sidebar:" + document.title;
+  var sidebarState = {};
+  var searchOpenState = null;
   var searchInput = document.getElementById("sidebar-search-input");
+  try {
+    var savedGroups = JSON.parse(sessionStorage.getItem(sidebarStateKey));
+    if (savedGroups && typeof savedGroups === "object" && !Array.isArray(savedGroups)) sidebarState = savedGroups;
+  } catch (e) {}
+
+  sidebarGroups.forEach(function (group) {
+    var key = group.getAttribute("data-group-key");
+    if (typeof sidebarState[key] === "boolean") group.open = sidebarState[key];
+    group.querySelector("summary").addEventListener("click", function () {
+      if (searchInput && searchInput.value.trim()) return;
+      // The native click action toggles open after this listener runs.
+      sidebarState[key] = !group.open;
+      try { sessionStorage.setItem(sidebarStateKey, JSON.stringify(sidebarState)); } catch (e) {}
+    });
+  });
+
+  function expandSidebarParents(link) {
+    var group = link.closest("details[data-group-key]");
+    while (group) {
+      group.open = true;
+      if (searchOpenState) searchOpenState.set(group, true);
+      group = group.parentElement.closest("details[data-group-key]");
+    }
+  }
+
   if (searchInput) {
     searchInput.addEventListener("input", function () {
       var query = this.value.trim().toLowerCase();
-      document.querySelectorAll(".sidebar-section").forEach(function (section) {
-        var links = section.querySelectorAll(".sidebar-link[data-search]");
-        if (links.length === 0) return; // e.g. the Overview section
+      if (query && !searchOpenState) {
+        searchOpenState = new Map();
+        sidebarGroups.forEach(function (group) { searchOpenState.set(group, group.open); });
+      }
+      document.querySelectorAll(".sidebar-group").forEach(function (group) {
         var visible = 0;
-        links.forEach(function (link) {
+        group.querySelectorAll(".sidebar-link[data-search]").forEach(function (link) {
           var match = !query || link.getAttribute("data-search").toLowerCase().indexOf(query) !== -1;
           link.style.display = match ? "" : "none";
           if (match) visible++;
         });
-        section.style.display = visible > 0 ? "" : "none";
+        group.hidden = visible === 0;
+        if (query && visible) group.open = true;
       });
+      var componentsGroup = document.querySelector(".sidebar-component-groups");
+      if (componentsGroup) {
+        componentsGroup.hidden = !componentsGroup.querySelector(".sidebar-group:not([hidden])");
+        if (query && !componentsGroup.hidden) componentsGroup.open = true;
+      }
+      if (!query && searchOpenState) {
+        searchOpenState.forEach(function (open, group) { group.open = open; });
+        searchOpenState = null;
+      }
     });
   }
 
@@ -147,6 +188,13 @@ document.addEventListener("DOMContentLoaded", function () {
       });
     });
   });
+
+  // Keep the selected definition visible even in long component lists.
+  var activeDefinition = document.querySelector(".sidebar-component-link.is-active");
+  if (activeDefinition) {
+    expandSidebarParents(activeDefinition);
+    activeDefinition.scrollIntoView({ block: "nearest" });
+  }
 
   // Endpoint detail switching
   var endpointLinks = document.querySelectorAll('.sidebar-link[data-anchor]');
@@ -175,6 +223,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var activeLink = document.querySelector('.sidebar-link[data-anchor="' + anchor + '"]');
     if (activeLink) {
       activeLink.classList.add("is-active");
+      expandSidebarParents(activeLink);
     }
 
     // Close mobile sidebar
@@ -205,7 +254,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
   // Handle back/forward
   window.addEventListener("popstate", function () {
-    if (window.location.hash) {
+    if (window.location.pathname === "/endpoints" && window.location.hash) {
       showEndpoint(window.location.hash.slice(1));
     }
   });
