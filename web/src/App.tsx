@@ -226,14 +226,16 @@ function Sidebar({ close }: { close: () => void }) {
                       key={e.Method + e.Path}
                       to={endpointURL(e)}
                       onClick={close}
-                      title={`${e.Method} ${e.Path} · ${e.Summary}`}
+                      title={`${e.Method} ${e.Path}${e.Summary?.trim() ? ` · ${e.Summary.trim()}` : ''}`}
                       className={cn(
                         'ml-2 flex items-center gap-2 rounded-md px-2 py-2 hover:bg-muted',
                         location.pathname + location.search === endpointURL(e) && 'bg-accent',
                       )}
                     >
                       <Method method={e.Method} />
-                      <span className="truncate font-mono text-[11px]">{e.Path}</span>
+                      <span className="min-w-0 truncate text-xs">
+                        {e.Summary?.trim() || e.Path}
+                      </span>
                     </Link>
                   ))}
                 </div>
