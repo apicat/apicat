@@ -33,23 +33,6 @@ func mustConvert(t *testing.T, spec string) *model.APIDoc {
 	return apiDoc
 }
 
-func TestMakeAnchor(t *testing.T) {
-	cases := []struct {
-		method, path, want string
-	}{
-		{"GET", "/users", "get-users"},
-		{"GET", "/users/{id}", "get-users-id"},
-		{"POST", "/users/{id}/pets", "post-users-id-pets"},
-		{"DELETE", "/a/b_c.d", "delete-a-b-c-d"},
-		{"GET", "/", "get"},
-	}
-	for _, c := range cases {
-		if got := makeAnchor(c.method, c.path); got != c.want {
-			t.Errorf("makeAnchor(%q, %q) = %q, want %q", c.method, c.path, got, c.want)
-		}
-	}
-}
-
 const petStoreSpec = `openapi: 3.0.3
 info:
   title: Pet Store
@@ -189,8 +172,8 @@ func TestConvertEndpointFields(t *testing.T) {
 	apiDoc := mustConvert(t, petStoreSpec)
 	listPets := apiDoc.TagGroups[0].Endpoints[0]
 
-	if listPets.Anchor != "get-pets" {
-		t.Errorf("Anchor = %q, want %q", listPets.Anchor, "get-pets")
+	if listPets.RouteID != "listPets" {
+		t.Errorf("RouteID = %q, want %q", listPets.RouteID, "listPets")
 	}
 	if listPets.Summary != "List pets" || listPets.OperationID != "listPets" {
 		t.Errorf("Summary/OperationID = %q / %q", listPets.Summary, listPets.OperationID)

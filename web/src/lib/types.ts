@@ -69,7 +69,7 @@ export interface Endpoint {
   Parameters: Parameter[] | null
   RequestBody: RequestBody | null
   Responses: APIResponse[] | null
-  Anchor: string
+  RouteID: string
   LintHints: string[] | null
   Servers: Server[] | null
 }

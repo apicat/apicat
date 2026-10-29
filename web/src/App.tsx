@@ -7,6 +7,7 @@ import {
   Routes,
   useLocation,
   useSearchParams,
+  useParams,
 } from 'react-router-dom'
 import {
   ArrowUpRight,
@@ -60,7 +61,7 @@ import { cn } from '@/lib/utils'
 import type { APIDoc, Endpoint, RequestDraft, Session, Workspace } from '@/lib/types'
 
 function endpointURL(e: Endpoint) {
-  return `/endpoints?operation=${encodeURIComponent(e.Method + ' ' + e.Path)}`
+  return `/endpoints/${encodeURIComponent(e.RouteID)}`
 }
 function uniqueEndpoints(doc: APIDoc) {
   return [
@@ -229,7 +230,7 @@ function Sidebar({ close }: { close: () => void }) {
                       title={`${e.Method} ${e.Path}${e.Summary?.trim() ? ` · ${e.Summary.trim()}` : ''}`}
                       className={cn(
                         'ml-2 flex items-center gap-2 rounded-md px-2 py-2 hover:bg-muted',
-                        location.pathname + location.search === endpointURL(e) && 'bg-accent',
+                        location.pathname === endpointURL(e) && 'bg-accent',
                       )}
                     >
                       <Method method={e.Method} />
@@ -418,13 +419,9 @@ function Overview() {
 }
 function Endpoints() {
   const { doc } = useWorkbench()
-  const [params] = useSearchParams()
-  const location = useLocation()
+  const { operationId: requested } = useParams()
   const endpoints = uniqueEndpoints(doc)
-  const requested = params.get('operation')
-  const endpoint = endpoints.find((e) =>
-    requested ? e.Method + ' ' + e.Path === requested : e.Anchor === location.hash.slice(1),
-  )
+  const endpoint = endpoints.find((e) => e.RouteID === requested)
   if (!endpoint)
     return (
       <div className="mx-auto max-w-6xl">
@@ -590,7 +587,7 @@ function Shell({ pollError }: { pollError: string }) {
         '/components': '公共组件',
         '/environments': '环境与变量',
       } as Record<string, string>
-    )[location.pathname] || '工作台'
+    )[location.pathname] || (location.pathname.startsWith('/endpoints/') ? '接口文档' : '工作台')
   useEffect(() => {
     document.title = `${title} · ${doc.Title} — apicat`
   }, [title, doc.Title])
@@ -674,6 +671,7 @@ function Shell({ pollError }: { pollError: string }) {
           <Routes>
             <Route path="/" element={<Overview />} />
             <Route path="/endpoints" element={<Endpoints />} />
+            <Route path="/endpoints/:operationId" element={<Endpoints />} />
             <Route path="/components" element={<Components />} />
             <Route path="/environments" element={<Environments />} />
             <Route path="*" element={<Empty title="页面不存在" />} />

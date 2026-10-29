@@ -19,6 +19,7 @@ Agents read the raw spec. Humans browse and debug the same source in a local Rea
 - **Single binary** — Go-compiled, the production React bundle is embedded; no Node or Python required at runtime
 - **React workbench** — React + TypeScript + Vite + shadcn/ui + Tailwind CSS, served by Echo v5; overview, endpoint documentation, reusable definitions, environments, and HTTP debugging
 - **Shared definitions** — browse `components` from the sidebar or `/components`, including schemas, parameters, request bodies, responses, and other reusable definitions
+- **Direct links** — endpoint pages use `/endpoints/{operationId}`. Missing, duplicate, or non-URL-safe IDs receive a stable generated ID; old query/hash links are not supported.
 - **Search** — filter endpoints by method, path, summary, operationId, or description; find shared definitions by category, name, or description
 - **Collapsible navigation** — API tags and component categories start collapsed; search reveals matching groups and clearing it restores their state
 - **Light / dark theme** — follows your system by default, with a manual override

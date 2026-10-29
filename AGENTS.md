@@ -28,7 +28,7 @@ Use `gofmt`, tabs in Go, lowercase package names, exported `PascalCase`, and une
 ## Architecture & Change Contracts
 
 - Load → convert → lint → render/serve. Watch reloads must atomically replace the document only on success, retaining the last good version on failure.
-- Endpoint navigation uses method + path in the `operation` query parameter. Keep legacy `converter.makeAnchor` hashes working. React Router owns UI navigation.
+- Endpoint navigation uses `/endpoints/:operationId` with the converter-assigned `RouteID`: unique URL-safe operationIds are preserved; missing, duplicate, or unsafe IDs use stable generated IDs. React Router owns UI navigation; do not restore legacy query/hash routes.
 - New pages require a React route and an explicit Echo SPA route. Keep `/api/*` and missing assets from falling back to HTML. Business logic must not depend on Echo contexts.
 - Workspace data lives in `<spec-dir>/.apicat/workspace.json`, independently from path settings. Preserve atomic writes, revision checks, same-origin/session protection, cancellation, and response limits.
 - New lint rules must update `ruleOrder` and the spec skill's Quality rules. Field-level missing-description markers are handled directly by React components.

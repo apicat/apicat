@@ -68,7 +68,7 @@ type Endpoint struct {
 	Parameters  []Parameter
 	RequestBody *RequestBody
 	Responses   []Response
-	Anchor      string
+	RouteID     string
 	Servers     []Server
 
 	// Filled by lint.Annotate after conversion.

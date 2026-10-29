@@ -19,6 +19,7 @@ Agent 读原始 spec，人读同一份源渲染出的干净 HTML——因为源�
 - **单个二进制** — Go 编译，React 构建产物全部内嵌；运行时无需 Node 或 Python
 - **React 工作台** — React + TypeScript + Vite + shadcn/ui + Tailwind CSS，后端使用 Echo v5；包含概览、接口文档、公共组件、环境管理和 HTTP 调试
 - **公共定义** — 从侧栏或 `/components` 独立查看 Schema、参数、请求体、响应及其他 `components` 定义
+- **接口直达链接** — 使用 `/endpoints/{operationId}`；缺失、重复或不适合 URL 路径的 ID 使用稳定生成的备用 ID，不兼容旧查询参数或锚点链接。
 - **搜索** — 按 method、path、summary、operationId、description 过滤接口，也可按分类、名称、说明查找公共定义
 - **可折叠导航** — 接口 tag 和公共定义分类默认收起；搜索时展开匹配分类，清空搜索后恢复原状态
 - **浅色 / 深色主题** — 默认跟随系统，可手动切换

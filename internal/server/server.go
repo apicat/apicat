@@ -153,7 +153,7 @@ func newHandler(getDoc func() *model.APIDoc, specDir, host string) (*echo.Echo, 
 	})
 	e.GET("/assets/*", echo.WrapHandler(http.FileServer(http.FS(assets))))
 	// Explicit SPA routes keep missing assets/API URLs from returning index.html.
-	for _, path := range []string{"/", "/endpoints", "/components", "/environments"} {
+	for _, path := range []string{"/", "/endpoints", "/endpoints/:operationId", "/components", "/environments"} {
 		e.GET(path, func(c *echo.Context) error {
 			c.Response().Header().Set("Cache-Control", "no-cache")
 			return c.HTMLBlob(200, index)

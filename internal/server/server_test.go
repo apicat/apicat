@@ -16,7 +16,7 @@ func TestWorkbenchRoutesAndDocumentReload(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/", "/endpoints", "/components?type=schemas&name=User", "/environments"} {
+	for _, path := range []string{"/", "/endpoints", "/endpoints/getArticleById", "/components?type=schemas&name=User", "/environments"} {
 		response := httptest.NewRecorder()
 		handler.ServeHTTP(response, httptest.NewRequest("GET", "http://localhost"+path, nil))
 		if response.Code != 200 || !strings.Contains(response.Body.String(), `id="root"`) {

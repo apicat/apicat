@@ -1,6 +1,7 @@
 package converter
 
 import (
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"regexp"
@@ -109,6 +110,7 @@ func Convert(docModel *libopenapi.DocumentModel[v3high.Document]) (*model.APIDoc
 		})
 	}
 
+	assignRouteIDs(apiDoc)
 	return apiDoc, nil
 }
 
@@ -138,7 +140,6 @@ func convertOperation(method, path string, op *v3high.Operation) model.Endpoint 
 		Summary:     op.Summary,
 		Description: op.Description,
 		OperationID: op.OperationId,
-		Anchor:      makeAnchor(method, path),
 	}
 	if op.Deprecated != nil && *op.Deprecated {
 		ep.Deprecated = true
@@ -406,15 +407,48 @@ func toSet(items []string) map[string]bool {
 	return m
 }
 
-var anchorReplacer = regexp.MustCompile(`[^a-z0-9]+`)
+// Route IDs use unique, URL-safe operationIds. Other operations get stable IDs
+// derived from method + path; repeated appearances in tag groups share one ID.
+var routeIDPattern = regexp.MustCompile(`^[A-Za-z0-9_-][A-Za-z0-9_.-]*$`)
 
-func makeAnchor(method, path string) string {
-	s := strings.ToLower(fmt.Sprintf("%s-%s", method, path))
-	s = strings.ReplaceAll(s, "{", "")
-	s = strings.ReplaceAll(s, "}", "")
-	s = anchorReplacer.ReplaceAllString(s, "-")
-	s = strings.Trim(s, "-")
-	return s
+func assignRouteIDs(doc *model.APIDoc) {
+	operations := map[string]string{}
+	for _, group := range doc.TagGroups {
+		for _, ep := range group.Endpoints {
+			operations[ep.Method+" "+ep.Path] = ep.OperationID
+		}
+	}
+	counts := map[string]int{}
+	keys := make([]string, 0, len(operations))
+	for key, id := range operations {
+		counts[id]++
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	routes := map[string]string{}
+	used := map[string]bool{}
+	for key, id := range operations {
+		if counts[id] == 1 && routeIDPattern.MatchString(id) {
+			routes[key], used[id] = id, true
+		}
+	}
+	for _, key := range keys {
+		if routes[key] != "" {
+			continue
+		}
+		hash := sha256.Sum256([]byte(key))
+		id := fmt.Sprintf("op-%x", hash[:8])
+		for used[id] {
+			id += "-"
+		}
+		routes[key], used[id] = id, true
+	}
+	for i := range doc.TagGroups {
+		for j := range doc.TagGroups[i].Endpoints {
+			ep := &doc.TagGroups[i].Endpoints[j]
+			ep.RouteID = routes[ep.Method+" "+ep.Path]
+		}
+	}
 }
 
 func convertServers(servers []*v3high.Server) []model.Server {
