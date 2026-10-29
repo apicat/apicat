@@ -27,6 +27,8 @@ Use `gofmt`, tabs in Go, lowercase package names, exported `PascalCase`, and une
 
 ## Architecture & Change Contracts
 
+- Use the official light/dark PNGs in `web/src/assets/brand/` without redrawing, recoloring, or cropping them. Theme tokens live in `web/src/index.css`; brand orange uses dark button text and must stay separate from status colors.
+
 - Load → convert → lint → render/serve. Watch reloads must atomically replace the document only on success, retaining the last good version on failure.
 - Endpoint navigation uses `/endpoints/:operationId` with the converter-assigned `RouteID`: unique URL-safe operationIds are preserved; missing, duplicate, or unsafe IDs use stable generated IDs. React Router owns UI navigation; do not restore legacy query/hash routes.
 - New pages require a React route and an explicit Echo SPA route. Keep `/api/*` and missing assets from falling back to HTML. Business logic must not depend on Echo contexts.

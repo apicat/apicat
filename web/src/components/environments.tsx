@@ -87,7 +87,7 @@ export function Environments() {
     <div className="mx-auto max-w-6xl space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[.18em] text-primary">
+          <p className="mb-2 text-xs font-medium uppercase tracking-[.12em] text-muted-foreground">
             WORKSPACE / ENVIRONMENTS
           </p>
           <h1 className="text-2xl font-semibold tracking-tight">环境与变量</h1>
@@ -112,7 +112,7 @@ export function Environments() {
         </div>
       )}
       {saved && (
-        <p role="status" className="flex items-center gap-2 text-primary">
+        <p role="status" className="flex items-center gap-2 text-success">
           <CheckCircle2 size={16} />
           配置已保存
         </p>
@@ -129,12 +129,12 @@ export function Environments() {
             <button
               key={e.id}
               onClick={() => setSelected(e.id)}
-              className={`flex w-full items-center gap-2 rounded-lg border p-3 text-left ${selected === e.id ? 'border-primary/40 bg-accent' : 'border-transparent hover:bg-muted'}`}
+              className={`flex w-full items-center gap-2 rounded-lg border p-3 text-left ${selected === e.id ? 'border-primary/40 bg-selected text-brand-text' : 'border-transparent hover:bg-muted'}`}
             >
-              <Globe2 size={15} className="shrink-0 text-primary" />
+              <Globe2 size={15} className="shrink-0" />
               <span className="flex-1 truncate text-sm">{e.name}</span>
               {draft.activeEnvironment === e.id && (
-                <span className="size-1.5 rounded-full bg-primary" />
+                <span className="size-1.5 rounded-full bg-success" />
               )}
             </button>
           ))}

@@ -4,8 +4,12 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/png" sizes="16x16" data-icon-theme="light" media="(prefers-color-scheme: light)" href="/src/assets/brand/apicat-icon-light-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" data-icon-theme="light" media="(prefers-color-scheme: light)" href="/src/assets/brand/apicat-icon-light-32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" data-icon-theme="dark" media="(prefers-color-scheme: dark)" href="/src/assets/brand/apicat-icon-dark-16.png" />
+    <link rel="icon" type="image/png" sizes="32x32" data-icon-theme="dark" media="(prefers-color-scheme: dark)" href="/src/assets/brand/apicat-icon-dark-32.png" />
     <title>apicat · API 工作台</title>
-    <script>try{const t=localStorage.getItem('apicat-theme');document.documentElement.classList.toggle('dark',t==='dark'||((!t||t==='system')&&matchMedia('(prefers-color-scheme: dark)').matches))}catch{}</script>
+    <script>try{const t=localStorage.getItem('apicat-theme');document.documentElement.classList.toggle('dark',t==='dark'||((!t||t==='system')&&matchMedia('(prefers-color-scheme: dark)').matches))}catch{}document.querySelectorAll('[data-icon-theme]').forEach(el=>{el.media=(el.dataset.iconTheme===(document.documentElement.classList.contains('dark')?'dark':'light'))?'all':'not all'})</script>
   </head>
   <body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body>
 </html>

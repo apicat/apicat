@@ -23,7 +23,7 @@ export function PairEditor<T extends Pair>({
         <table className="w-full min-w-[480px] text-left">
           <thead className="border-b bg-muted/50 text-xs text-muted-foreground">
             <tr>
-              <th className="w-10 p-3">启用</th>
+              <th className="w-14 whitespace-nowrap p-3">启用</th>
               <th className="p-3">名称</th>
               <th className="p-3">值</th>
               {secrets && <th className="w-14 p-3">隐藏</th>}
@@ -38,7 +38,7 @@ export function PairEditor<T extends Pair>({
                 <td className="p-3">
                   <input
                     type="checkbox"
-                    className="size-4 accent-[var(--primary)]"
+                    className="size-4 accent-[var(--accent-text)]"
                     checked={row.enabled}
                     onChange={(e) => update(i, { enabled: e.target.checked } as Partial<T>)}
                     aria-label={`启用${label} ${i + 1}`}
@@ -68,7 +68,7 @@ export function PairEditor<T extends Pair>({
                   <td className="p-3">
                     <input
                       type="checkbox"
-                      className="size-4 accent-[var(--primary)]"
+                      className="size-4 accent-[var(--accent-text)]"
                       checked={(row as unknown as Variable).secret || false}
                       onChange={(e) =>
                         update(i, { secret: e.target.checked } as unknown as Partial<T>)

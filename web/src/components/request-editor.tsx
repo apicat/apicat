@@ -79,15 +79,15 @@ export function RequestEditor({ endpoint }: { endpoint: Endpoint }) {
     }
   }
   return (
-    <div className="space-y-5">
-      <div className="rounded-xl border bg-card p-5">
+    <div className="grid items-start gap-5 min-[1440px]:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+      <div className="min-w-0 rounded-xl border bg-card p-5 shadow-panel">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span>
+          <span className="min-w-0 break-all">
             {environment
               ? `当前环境：${environment.name} · ${environment.baseUrl || '尚未设置地址'}`
               : '未选择环境，请输入完整地址或配置环境'}
           </span>
-          <Link to="/environments" className="text-primary hover:underline">
+          <Link to="/environments" className="text-brand-text hover:underline">
             管理环境 →
           </Link>
         </div>
@@ -120,7 +120,7 @@ export function RequestEditor({ endpoint }: { endpoint: Endpoint }) {
             {endpoint.Servers.map((s) => (
               <button
                 key={s.URL}
-                className="rounded border px-2 py-1 text-primary"
+                className="rounded border px-2 py-1 text-brand-text"
                 onClick={() => update({ url: s.URL.replace(/\/$/, '') + endpoint.Path })}
               >
                 {s.Description || s.URL}
@@ -129,7 +129,7 @@ export function RequestEditor({ endpoint }: { endpoint: Endpoint }) {
           </div>
         )}
         <Tabs defaultValue="query" className="mt-5">
-          <TabsList className="h-auto! max-w-full flex-wrap">
+          <TabsList variant="line" className="h-auto! max-w-full flex-wrap">
             <TabsTrigger value="query">
               查询参数 <span className="ml-1 text-[10px]">{draft.query.length}</span>
             </TabsTrigger>
@@ -234,62 +234,66 @@ export function RequestEditor({ endpoint }: { endpoint: Endpoint }) {
           </Button>
         </div>
       </div>
-      {error && (
-        <p
-          role="alert"
-          className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
-        >
-          {error}
-        </p>
-      )}
-      {response ? (
-        <div className="rounded-xl border bg-card">
-          <div className="flex flex-wrap items-center gap-5 border-b px-5 py-4 text-xs">
-            <span
-              className={`flex items-center gap-2 font-semibold ${response.status < 400 ? 'text-primary' : 'text-destructive'}`}
-            >
-              <CircleCheck size={15} />
-              {response.status} {response.statusText}
-            </span>
-            <span className="flex items-center gap-1.5 text-muted-foreground">
-              <Clock3 size={14} />
-              {response.durationMs} ms
-            </span>
-            <span className="flex items-center gap-1.5 text-muted-foreground">
-              <ArrowDown size={14} />
-              {(response.size / 1024).toFixed(2)} KiB
-            </span>
-            {response.truncated && <Badge variant="destructive">响应已截断</Badge>}
+      <div className="min-w-0 space-y-5">
+        {error && (
+          <p
+            role="alert"
+            className="rounded-lg border border-destructive/30 bg-destructive/5 p-4 text-sm text-destructive"
+          >
+            {error}
+          </p>
+        )}
+        {response ? (
+          <div className="min-w-0 rounded-xl border bg-card shadow-panel">
+            <div className="flex flex-wrap items-center gap-5 border-b px-5 py-4 text-xs">
+              <span
+                className={`flex items-center gap-2 font-semibold ${response.status < 300 ? 'text-success' : response.status < 400 ? 'text-info' : response.status < 500 ? 'text-warning' : 'text-danger'}`}
+              >
+                <CircleCheck size={15} />
+                {response.status} {response.statusText}
+              </span>
+              <span className="flex items-center gap-1.5 text-muted-foreground">
+                <Clock3 size={14} />
+                {response.durationMs} ms
+              </span>
+              <span className="flex items-center gap-1.5 text-muted-foreground">
+                <ArrowDown size={14} />
+                {(response.size / 1024).toFixed(2)} KiB
+              </span>
+              {response.truncated && <Badge variant="destructive">响应已截断</Badge>}
+            </div>
+            <Tabs defaultValue="body" className="p-5">
+              <TabsList>
+                <TabsTrigger value="body">响应体</TabsTrigger>
+                <TabsTrigger value="headers">响应头</TabsTrigger>
+              </TabsList>
+              <TabsContent value="body" className="pt-3">
+                <Code
+                  label={response.encoding === 'base64' ? '二进制响应 · Base64' : '响应正文'}
+                  value={response.encoding === 'base64' ? response.body : formatJSON(response.body)}
+                />
+              </TabsContent>
+              <TabsContent value="headers" className="pt-3">
+                <Code
+                  label="响应头"
+                  value={Object.entries(response.headers)
+                    .flatMap(([key, values]) => values.map((v) => `${key}: ${v}`))
+                    .join('\n')}
+                />
+              </TabsContent>
+            </Tabs>
           </div>
-          <Tabs defaultValue="body" className="p-5">
-            <TabsList>
-              <TabsTrigger value="body">响应体</TabsTrigger>
-              <TabsTrigger value="headers">响应头</TabsTrigger>
-            </TabsList>
-            <TabsContent value="body" className="pt-3">
-              <Code
-                label={response.encoding === 'base64' ? '二进制响应 · Base64' : '响应正文'}
-                value={response.encoding === 'base64' ? response.body : formatJSON(response.body)}
-              />
-            </TabsContent>
-            <TabsContent value="headers" className="pt-3">
-              <Code
-                label="响应头"
-                value={Object.entries(response.headers)
-                  .flatMap(([key, values]) => values.map((v) => `${key}: ${v}`))
-                  .join('\n')}
-              />
-            </TabsContent>
-          </Tabs>
-        </div>
-      ) : (
-        <Empty
-          title={busy ? '正在等待响应…' : '准备好后，发送第一个请求'}
-          description={
-            busy ? '请求由本地服务执行，可随时取消。' : '响应状态、耗时、请求头和正文会显示在这里。'
-          }
-        />
-      )}
+        ) : (
+          <Empty
+            title={busy ? '正在等待响应…' : '准备好后，发送第一个请求'}
+            description={
+              busy
+                ? '请求由本地服务执行，可随时取消。'
+                : '响应状态、耗时、请求头和正文会显示在这里。'
+            }
+          />
+        )}
+      </div>
     </div>
   )
 }

@@ -16,7 +16,6 @@ import {
   ChevronDown,
   ChevronRight,
   CircleDot,
-  Command,
   Globe2,
   Layers3,
   Menu,
@@ -30,6 +29,7 @@ import {
   X,
   RefreshCw,
 } from 'lucide-react'
+import { Brand } from '@/components/brand'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
@@ -70,7 +70,7 @@ function uniqueEndpoints(doc: APIDoc) {
     ).values(),
   ]
 }
-function Theme() {
+function useThemePreference() {
   const [theme, setTheme] = useState(() => {
     try {
       return localStorage.getItem('apicat-theme') || 'system'
@@ -80,11 +80,16 @@ function Theme() {
   })
   useEffect(() => {
     const system = matchMedia('(prefers-color-scheme: dark)')
-    const apply = () =>
+    const apply = () => {
       document.documentElement.classList.toggle(
         'dark',
         theme === 'dark' || (theme === 'system' && system.matches),
       )
+      const active = document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+      document.querySelectorAll<HTMLLinkElement>('[data-icon-theme]').forEach((icon) => {
+        icon.media = icon.dataset.iconTheme === active ? 'all' : 'not all'
+      })
+    }
     apply()
     system.addEventListener('change', apply)
     try {
@@ -94,6 +99,9 @@ function Theme() {
     }
     return () => system.removeEventListener('change', apply)
   }, [theme])
+  return { theme, setTheme }
+}
+function Theme({ theme, setTheme }: ReturnType<typeof useThemePreference>) {
   return (
     <div className="flex items-center gap-1 rounded-lg border bg-card p-1" aria-label="主题">
       {[
@@ -109,7 +117,7 @@ function Theme() {
           onClick={() => setTheme(id)}
           className={cn(
             'rounded p-1.5 text-muted-foreground hover:text-foreground',
-            theme === id && 'bg-accent text-primary',
+            theme === id && 'bg-selected text-brand-text',
           )}
         >
           <Icon size={14} />
@@ -118,7 +126,13 @@ function Theme() {
     </div>
   )
 }
-function Sidebar({ close }: { close: () => void }) {
+function Sidebar({
+  close,
+  theme,
+}: {
+  close: () => void
+  theme: ReturnType<typeof useThemePreference>
+}) {
   const { doc } = useWorkbench()
   const location = useLocation()
   const [search, setSearch] = useState('')
@@ -144,16 +158,13 @@ function Sidebar({ close }: { close: () => void }) {
   }
   return (
     <>
-      <div className="flex h-[72px] items-center gap-3 border-b px-6">
-        <div className="flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-          <Command size={21} />
-        </div>
-        <Link to="/" onClick={close} className="text-xl font-bold tracking-tight">
-          apicat
-          <span className="ml-2 text-[10px] font-medium uppercase tracking-widest text-muted-foreground">
-            local
-          </span>
+      <div className="flex h-16 shrink-0 items-center gap-3 border-b px-5">
+        <Link to="/" onClick={close} aria-label="apicat 首页" className="rounded-sm">
+          <Brand />
         </Link>
+        <span className="rounded border px-1.5 py-0.5 text-[10px] font-medium tracking-wider text-muted-foreground">
+          LOCAL
+        </span>
         <Button
           size="icon"
           variant="ghost"
@@ -166,7 +177,10 @@ function Sidebar({ close }: { close: () => void }) {
       </div>
       <div className="p-4">
         <div className="relative">
-          <Search className="absolute left-3 top-2.5 text-muted-foreground" size={15} />
+          <Search
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            size={15}
+          />
           <Input
             aria-label="搜索接口和组件"
             className="pl-9 text-xs"
@@ -187,12 +201,12 @@ function Sidebar({ close }: { close: () => void }) {
             <NavLink
               key={to}
               to={to}
-              end
+              end={to === '/'}
               onClick={close}
               className={({ isActive }) =>
                 cn(
-                  'flex items-center gap-3 rounded-lg px-3 py-2.5 text-[13px] text-muted-foreground transition-colors hover:bg-muted',
-                  isActive && 'bg-accent font-medium text-primary',
+                  'nav-item flex items-center gap-3 rounded-md px-3 py-2.5 text-[13px] text-secondary-text transition-colors hover:bg-hover',
+                  isActive && 'bg-selected font-medium text-brand-text',
                 )
               }
             >
@@ -201,7 +215,7 @@ function Sidebar({ close }: { close: () => void }) {
             </NavLink>
           ))}
         </div>
-        <div className="px-3 pb-3 text-[10px] font-semibold tracking-[.18em] text-muted-foreground">
+        <div className="px-3 pb-3 text-[11px] font-semibold tracking-[.12em] text-muted-foreground">
           API COLLECTION
         </div>
         {groups.map((g) => {
@@ -210,7 +224,7 @@ function Sidebar({ close }: { close: () => void }) {
           return (
             <div key={key} className="mb-1">
               <button
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs hover:bg-muted"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-[13px] text-secondary-text hover:bg-hover"
                 aria-expanded={!!open}
                 onClick={() => toggle(key)}
               >
@@ -226,11 +240,12 @@ function Sidebar({ close }: { close: () => void }) {
                     <Link
                       key={e.Method + e.Path}
                       to={endpointURL(e)}
+                      aria-current={location.pathname === endpointURL(e) ? 'page' : undefined}
                       onClick={close}
                       title={`${e.Method} ${e.Path}${e.Summary?.trim() ? ` · ${e.Summary.trim()}` : ''}`}
                       className={cn(
-                        'ml-2 flex items-center gap-2 rounded-md px-2 py-2 hover:bg-muted',
-                        location.pathname === endpointURL(e) && 'bg-accent',
+                        'nav-item ml-2 flex items-center gap-2 rounded-md px-2 py-2 text-secondary-text hover:bg-hover',
+                        location.pathname === endpointURL(e) && 'bg-selected',
                       )}
                     >
                       <Method method={e.Method} />
@@ -244,7 +259,7 @@ function Sidebar({ close }: { close: () => void }) {
             </div>
           )
         })}
-        <div className="px-3 pb-3 pt-6 text-[10px] font-semibold tracking-[.18em] text-muted-foreground">
+        <div className="px-3 pb-3 pt-6 text-[11px] font-semibold tracking-[.12em] text-muted-foreground">
           COMPONENTS
         </div>
         {components.map((g) => {
@@ -253,7 +268,7 @@ function Sidebar({ close }: { close: () => void }) {
           return (
             <div key={key}>
               <button
-                className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-xs hover:bg-muted"
+                className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-[13px] text-secondary-text hover:bg-hover"
                 aria-expanded={!!open}
                 onClick={() => toggle(key)}
               >
@@ -281,10 +296,10 @@ function Sidebar({ close }: { close: () => void }) {
       </nav>
       <div className="flex items-center justify-between border-t px-5 py-4">
         <span className="flex items-center gap-2 text-[11px] text-muted-foreground">
-          <span className="size-1.5 rounded-full bg-primary" />
+          <span className="size-1.5 rounded-full bg-success" />
           本地工作台
         </span>
-        <Theme />
+        <Theme {...theme} />
       </div>
     </>
   )
@@ -296,7 +311,7 @@ function Overview() {
     <div className="mx-auto max-w-6xl space-y-7">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="mb-3 text-xs font-medium tracking-[.18em] text-primary">
+          <p className="mb-3 text-xs font-medium tracking-[.12em] text-muted-foreground">
             YOUR API, AT A GLANCE
           </p>
           <h1 className="text-3xl font-semibold tracking-tight">{doc.Title}</h1>
@@ -334,13 +349,13 @@ function Overview() {
             sub: doc.LintTotal ? '查看需要完善的文档信息' : '已通过当前文档质量检查',
           },
         ].map(({ label, value, icon: Icon, sub }) => (
-          <div key={label} className="rounded-xl border bg-card p-5">
+          <div key={label} className="rounded-xl border bg-card p-5 shadow-panel">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               {label}
               <Icon size={17} />
             </div>
             <div className="mb-2 mt-4 text-3xl font-semibold tabular-nums">{value}</div>
-            <p className="text-[11px] text-muted-foreground">{sub}</p>
+            <p className="text-xs text-muted-foreground">{sub}</p>
           </div>
         ))}
       </div>
@@ -355,7 +370,7 @@ function Overview() {
             <div className="space-y-4">
               {doc.Servers.map((s, i) => (
                 <div key={i} className="rounded-lg border bg-muted/30 p-3">
-                  <code className="break-all text-xs text-primary">{s.URL}</code>
+                  <code className="break-all text-xs text-secondary-text">{s.URL}</code>
                   {s.Description && (
                     <p className="mt-1 text-xs text-muted-foreground">{s.Description}</p>
                   )}
@@ -386,7 +401,7 @@ function Overview() {
           </div>
         </Panel>
       </div>
-      <Panel title="文档质量" action={<Sparkles size={15} className="text-primary" />}>
+      <Panel title="文档质量" action={<Sparkles size={15} className="text-muted-foreground" />}>
         {doc.LintTotal ? (
           <ul className="divide-y">
             {doc.LintCounts?.map((c) => (
@@ -397,7 +412,7 @@ function Overview() {
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-primary">没有质量提示。接口语义与实际行为仍需通过调试验证。</p>
+          <p className="text-sm text-success">没有质量提示。接口语义与实际行为仍需通过调试验证。</p>
         )}
       </Panel>
       {doc.Tags?.length ? (
@@ -425,7 +440,7 @@ function Endpoints() {
   if (!endpoint)
     return (
       <div className="mx-auto max-w-6xl">
-        <p className="mb-2 text-xs tracking-[.18em] text-primary">API COLLECTION</p>
+        <p className="mb-2 text-xs tracking-[.12em] text-muted-foreground">API COLLECTION</p>
         <h1 className="mb-2 text-2xl font-semibold">接口文档</h1>
         <p className="mb-6 text-sm text-muted-foreground">
           选择接口查看定义、编辑参数并发起调试请求。
@@ -501,7 +516,7 @@ function Components() {
   if (component)
     return (
       <div className="mx-auto max-w-6xl space-y-5">
-        <p className="text-xs uppercase tracking-widest text-primary">
+        <p className="text-xs uppercase tracking-widest text-muted-foreground">
           COMPONENTS / {group?.Title}
         </p>
         <h1 className="break-all text-2xl font-semibold">{component.Name}</h1>
@@ -533,7 +548,7 @@ function Components() {
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div>
-        <p className="mb-2 text-xs tracking-[.18em] text-primary">REUSABLE DEFINITIONS</p>
+        <p className="mb-2 text-xs tracking-[.12em] text-muted-foreground">REUSABLE DEFINITIONS</p>
         <h1 className="text-2xl font-semibold">公共组件</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           浏览共享的 Schema、参数、响应以及其他可复用定义。
@@ -554,7 +569,7 @@ function Components() {
                   className="flex items-start justify-between gap-4 rounded px-2 py-3 hover:bg-muted"
                 >
                   <div>
-                    <code className="text-sm font-medium text-primary">{d.Name}</code>
+                    <code className="text-sm font-medium text-foreground">{d.Name}</code>
                     {d.Description && (
                       <p className="mt-1 line-clamp-2 text-xs text-muted-foreground">
                         {d.Description}
@@ -574,6 +589,7 @@ function Components() {
   )
 }
 function Shell({ pollError }: { pollError: string }) {
+  const theme = useThemePreference()
   const { doc, workspace, saveWorkspace } = useWorkbench()
   const location = useLocation()
   const [mobile, setMobile] = useState(false)
@@ -604,21 +620,21 @@ function Shell({ pollError }: { pollError: string }) {
   }
   return (
     <div className="min-h-screen">
-      <aside className="fixed inset-y-0 left-0 z-20 hidden w-[272px] flex-col border-r bg-card lg:flex">
-        <Sidebar close={() => setMobile(false)} />
+      <aside className="fixed inset-y-0 left-0 z-20 hidden w-[240px] flex-col border-r bg-app lg:flex">
+        <Sidebar close={() => setMobile(false)} theme={theme} />
       </aside>
       {mobile && (
         <div className="fixed inset-0 z-50 bg-black/40 lg:hidden" onClick={() => setMobile(false)}>
           <aside
-            className="flex h-full w-[min(88vw,300px)] flex-col bg-card"
+            className="flex h-full w-[min(88vw,300px)] flex-col bg-app"
             onClick={(e) => e.stopPropagation()}
           >
-            <Sidebar close={() => setMobile(false)} />
+            <Sidebar close={() => setMobile(false)} theme={theme} />
           </aside>
         </div>
       )}
-      <div className="lg:pl-[272px]">
-        <header className="sticky top-0 z-10 flex h-[72px] items-center justify-between gap-4 border-b bg-background/95 px-5 backdrop-blur sm:px-8">
+      <div className="lg:pl-[240px]">
+        <header className="sticky top-0 z-10 flex h-16 items-center justify-between gap-4 border-b bg-app px-5 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <Button
               variant="ghost"
@@ -657,10 +673,7 @@ function Shell({ pollError }: { pollError: string }) {
           )}
         </header>
         {(error || pollError) && (
-          <div
-            role="alert"
-            className="border-b bg-amber-100/30 px-8 py-3 text-xs text-amber-700 dark:text-amber-300"
-          >
+          <div role="alert" className="border-b bg-warning/10 px-8 py-3 text-xs text-warning">
             {error || pollError}
             <button className="ml-3 underline" onClick={() => window.location.reload()}>
               重新加载
@@ -765,7 +778,7 @@ export default function App() {
   if (!data)
     return (
       <div className="flex min-h-screen items-center justify-center gap-3 text-muted-foreground">
-        <Command className="animate-pulse text-primary" />
+        <Brand compact />
         正在加载工作台…
       </div>
     )

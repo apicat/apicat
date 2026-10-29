@@ -27,10 +27,10 @@ export function Panel({
   className?: string
 }) {
   return (
-    <section className={cn('rounded-xl border bg-card shadow-xs', className)}>
+    <section className={cn('rounded-xl border bg-card shadow-panel', className)}>
       {title && (
         <div className="flex items-center justify-between border-b px-5 py-3.5">
-          <h2 className="font-semibold">{title}</h2>
+          <h2 className="text-base font-semibold">{title}</h2>
           {action}
         </div>
       )}
@@ -41,20 +41,8 @@ export function Panel({
 export function Method({ method }: { method: string }) {
   return (
     <span
-      className={cn(
-        'inline-flex min-w-12 justify-center rounded px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-wide',
-        {
-          'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300':
-            method === 'GET',
-          'bg-blue-100 text-blue-800 dark:bg-blue-950 dark:text-blue-300': method === 'POST',
-          'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300':
-            method === 'PUT' || method === 'PATCH',
-          'bg-red-100 text-red-800 dark:bg-red-950 dark:text-red-300': method === 'DELETE',
-          'bg-secondary text-muted-foreground': !['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(
-            method,
-          ),
-        },
-      )}
+      data-method={method}
+      className="http-method inline-flex min-w-12 shrink-0 justify-center rounded-md px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wide"
     >
       {method}
     </span>
@@ -111,7 +99,7 @@ export function Empty({
   return (
     <div className="flex flex-col items-center justify-center rounded-xl border border-dashed px-8 py-16 text-center">
       <FileCode2 className="mb-4 text-muted-foreground" size={30} />
-      <h2 className="font-semibold">{title}</h2>
+      <h2 className="text-base font-semibold">{title}</h2>
       <p className="mt-2 max-w-md text-sm text-muted-foreground">{description}</p>
       {children}
     </div>
@@ -120,7 +108,7 @@ export function Empty({
 function TypeLabel({ schema }: { schema: Schema }) {
   return (
     <div className="space-y-1">
-      <code className="text-xs text-primary">
+      <code className="text-xs text-info">
         {schema.Type || (schema.Properties?.length ? 'object' : '—')}
         {schema.Format && `<${schema.Format}>`}
       </code>
@@ -128,7 +116,7 @@ function TypeLabel({ schema }: { schema: Schema }) {
       {schema.Deprecated && <Badge variant="outline">已弃用</Badge>}
       {schema.IsRef && (
         <Link
-          className="block max-w-44 truncate text-xs text-primary underline"
+          className="block max-w-44 truncate text-xs text-info underline"
           to={`/components?type=schemas&name=${encodeURIComponent(schema.RefName)}`}
         >
           {schema.RefName}
@@ -192,13 +180,11 @@ export function SchemaTree({ schema }: { schema: Schema | null }) {
             <TypeLabel schema={s} />
           </td>
           <td className="p-3 align-top text-xs">
-            {s.Required ? <span className="text-amber-600 dark:text-amber-400">必填</span> : '—'}
+            {s.Required ? <span className="text-secondary-text">必填</span> : '—'}
           </td>
           <td className="min-w-52 p-3 align-top text-xs">
             <Markdown>{s.Description}</Markdown>
-            {s.Name && !s.Description && (
-              <span className="text-amber-600 dark:text-amber-400">缺少字段描述</span>
-            )}
+            {s.Name && !s.Description && <span className="text-warning">缺少字段描述</span>}
             {s.Recursive && <p className="text-muted-foreground">递归引用</p>}
             {s.Truncated && <p className="text-muted-foreground">已达到展示深度上限</p>}
             {s.Enum?.length ? (
@@ -252,7 +238,7 @@ export function Parameters({ parameters }: { parameters: Parameter[] | null }) {
           </div>
           <div className="mb-3 text-sm text-muted-foreground">
             <Markdown>{p.Description}</Markdown>
-            {!p.Description && <span className="text-amber-600">缺少参数描述</span>}
+            {!p.Description && <span className="text-warning">缺少参数描述</span>}
           </div>
           <SchemaTree schema={p.Schema} />
         </div>
@@ -294,7 +280,7 @@ export function EndpointDoc({ endpoint }: { endpoint: Endpoint }) {
   return (
     <div className="space-y-5">
       {endpoint.LintHints?.length ? (
-        <div className="rounded-lg border border-amber-300/50 bg-amber-100/30 px-4 py-3 text-xs dark:bg-amber-950/30">
+        <div className="rounded-lg border border-warning/25 bg-warning/5 px-4 py-3 text-xs text-warning">
           <strong>文档质量提示</strong>
           <ul className="mt-2 list-inside list-disc space-y-1">
             {endpoint.LintHints.map((h) => (
