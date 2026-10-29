@@ -13,7 +13,6 @@ import (
 	"github.com/apicat/apicat/v3/internal/loader"
 	"github.com/apicat/apicat/v3/internal/model"
 	"github.com/apicat/apicat/v3/internal/project"
-	"github.com/apicat/apicat/v3/internal/render"
 	"github.com/apicat/apicat/v3/internal/server"
 	"github.com/apicat/apicat/v3/internal/watcher"
 )
@@ -95,12 +94,7 @@ func main() {
 		fmt.Printf("Watching %s for changes\n", dir)
 	}
 
-	if err := render.Init(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error loading templates: %v\n", err)
-		os.Exit(1)
-	}
-
-	if err := server.Start(current.Load, *host, *port); err != nil {
+	if err := server.Start(current.Load, dir, *host, *port); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}

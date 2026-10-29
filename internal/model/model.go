@@ -69,12 +69,16 @@ type Endpoint struct {
 	RequestBody *RequestBody
 	Responses   []Response
 	Anchor      string
+	Servers     []Server
 
 	// Filled by lint.Annotate after conversion.
 	LintHints []string
 }
 
 type Parameter struct {
+	Example     string
+	Style       string
+	Explode     *bool
 	Name        string
 	In          string
 	Description string
@@ -90,6 +94,7 @@ type RequestBody struct {
 }
 
 type MediaTypeContent struct {
+	Example   string
 	MediaType string
 	Schema    *SchemaView
 }
@@ -111,6 +116,8 @@ type SchemaView struct {
 	Enum        []string
 	Default     string
 	Example     string
+	JSONExample string
+	JSONDefault string
 
 	MinLength *int64
 	MaxLength *int64

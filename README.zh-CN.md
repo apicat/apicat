@@ -16,8 +16,8 @@ Agent 读原始 spec，人读同一份源渲染出的干净 HTML——因为源�
 
 - **一条命令，零配置** — 指向包含 OpenAPI spec 的目录，即刻获得可浏览的文档
 - **多文件 spec** — 跨文件 `$ref` 开箱即用（OpenAPI 3.0 / 3.1）
-- **单个二进制** — Go 编译，模板与静态资源全部内嵌；无需 Node、Python 或任何运行时依赖
-- **服务端渲染** — 快速、干净、低阅读疲劳的 HTML；渲染页面同时是 spec 的质量检查器（缺失的 description、不全的 example 一眼可见）
+- **单个二进制** — Go 编译，React 构建产物全部内嵌；运行时无需 Node 或 Python
+- **React 工作台** — React + TypeScript + Vite + shadcn/ui + Tailwind CSS，后端使用 Echo v5；包含概览、接口文档、公共组件、环境管理和 HTTP 调试
 - **公共定义** — 从侧栏或 `/components` 独立查看 Schema、参数、请求体、响应及其他 `components` 定义
 - **搜索** — 按 method、path、summary、operationId、description 过滤接口，也可按分类、名称、说明查找公共定义
 - **可折叠导航** — 接口 tag 和公共定义分类默认收起；搜索时展开匹配分类，清空搜索后恢复原状态
@@ -31,11 +31,13 @@ Agent 读原始 spec，人读同一份源渲染出的干净 HTML——因为源�
 go install github.com/apicat/apicat/v3/cmd/apicat-cli@latest
 ```
 
-或从源码构建：
+或从源码构建（Go 1.25+、Node 24+ / npm）：
 
 ```bash
 git clone https://github.com/apicat/apicat.git
 cd apicat
+npm --prefix web ci
+npm --prefix web run build
 go build -o apicat-cli ./cmd/apicat-cli
 ```
 
@@ -75,6 +77,20 @@ apicat-cli path/to/spec-dir
 | `-port` | `8080` | 监听端口 |
 | `-host` | `127.0.0.1` | 绑定地址 |
 | `-watch` | 关闭 | spec 文件变更时自动重载 |
+
+## 本地工作台
+
+- **环境管理**（`/environments`）：创建开发、测试、生产环境，配置基础地址及变量。公共变量适用于所有环境，同名且启用的环境变量覆盖公共变量。在地址、参数值、请求头或请求体中使用 `{{变量名}}`。变量按字面值替换，不执行脚本。
+- **HTTP 调试**：选择接口并打开“接口调试”，修改路径参数、查询参数、请求头、认证和原始请求体后发送。请求由 Go 发出，目标 API 无需为浏览器配置 CORS。支持 HTTP(S)、Bearer 请求头、JSON/文本/URL 编码表单、取消请求、超时设置以及响应头和正文查看，二进制响应以 Base64 展示。不自动重定向或主动重试，不共享 Cookie jar；响应上限为 2 MiB，超限时明确标记截断。
+- **参数处理**：继承路径级参数及接口/路径级服务器地址。常用查询数组和对象支持 form、spaceDelimited、pipeDelimited 和浅层 deepObject。复杂路径编码和 multipart 文件上传暂不自动处理，遇到不支持的情况会提示；可将已编码参数直接填写到地址中。目前提供交互调试，不是带断言的自动化测试运行器。
+- **数据保存**：环境数据保存在 `<spec目录>/.apicat/workspace.json`，使用仅当前用户可读写的文件权限、原子替换，并检测同一个运行中工作台的保存版本冲突。“隐藏值”仅遮罩界面，不加密文件；含密钥时应排除在版本控制之外。请求草稿和响应仅保留在页面内存中，不持久化为历史记录。
+- **本地访问**：API 校验 Host/Origin，配置写入和请求执行要求会话令牌。默认仍监听 `127.0.0.1`；当前是本地工作台，不是带多用户认证的服务端。
+
+### 前端开发
+
+先运行 `go run ./cmd/apicat-cli -watch /path/to/spec-dir`，再运行 `npm --prefix web run dev`。Vite 提供开发界面，并将 `/api` 代理到 `127.0.0.1:8080`；后端使用其他端口时修改 `web/vite.config.ts` 的代理配置。
+
+`npm --prefix web run build` 执行 TypeScript 检查并生成 `web/dist`，随后重新编译 Go 才会嵌入新资源。构建产物提交到仓库，因此 `go install` 和仅使用 Go 的构建方式仍然可用；修改前端源码时必须同步生成构建产物。`make build` 会安装锁定的前端依赖、构建资源并编译 CLI。使用 `npm --prefix web test` 和 `go test ./...` 运行回归测试。Spec watch 会更新浏览器中的文档并保留请求草稿；加载失败时保留上一份正常文档。
 
 ## 检查文档
 

@@ -11,7 +11,7 @@ description: >-
 
 # Authoring OpenAPI specs for apicat
 
-Create accurate OpenAPI documentation for the requested API scope. apicat renders the spec as HTML and checks selected documentation quality rules. Aim for zero lint hints, but do not treat that as proof of completeness or correctness.
+Create accurate OpenAPI documentation for the requested API scope. apicat displays the spec in a React workbench and checks selected documentation quality rules. Aim for zero lint hints, but do not treat that as proof of completeness or correctness.
 
 ## Establish the source and scope
 
@@ -95,7 +95,7 @@ For new specs, target zero hints across the document. For scoped updates, resolv
 
 Include metadata when supported by the API contract, even when the current HTML view does not display it:
 
-- **`example`, `default`, and `enum`** — provide representative examples, actual defaults, and closed value sets. Schema examples are read by the converter but are not currently displayed by the templates; defaults and enums are displayed.
+- **`example`, `default`, and `enum`** — provide representative examples, actual defaults, and closed value sets. Examples, defaults, and enums are displayed in the workbench. Media-type examples and schema examples also seed the request editor; use realistic values.
 - **Constraints** — encode actual formats, patterns, length/range/item limits, and nullability using syntax appropriate to the spec's OpenAPI version. The schema view displays the supported annotations; rendering is not a complete validation of those constraints.
 - **`required`** — the object-level `required` list, and `required: true` on parameters.
 - **`deprecated: true`** — record actual deprecations. Operations and schema fields display a badge; parameter deprecation is read but currently has no badge in the parameter table.

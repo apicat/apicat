@@ -48,6 +48,10 @@ func Watch(dir string, debounce time.Duration, onChange func()) error {
 			}
 			if ev.Op.Has(fsnotify.Create) {
 				if fi, err := os.Stat(ev.Name); err == nil && fi.IsDir() {
+					// Workspace files are not specs, including when .apicat is created after startup.
+					if strings.HasPrefix(fi.Name(), ".") {
+						continue
+					}
 					addDirs(ev.Name)
 					continue
 				}

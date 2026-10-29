@@ -1,8 +1,10 @@
 package converter
 
 import (
+	"encoding/json"
 	"fmt"
 	"regexp"
+	"sort"
 	"strings"
 
 	"github.com/apicat/apicat/v3/internal/model"
@@ -25,12 +27,7 @@ func Convert(docModel *libopenapi.DocumentModel[v3high.Document]) (*model.APIDoc
 		apiDoc.Description = doc.Info.Description
 	}
 
-	for _, s := range doc.Servers {
-		apiDoc.Servers = append(apiDoc.Servers, model.Server{
-			URL:         s.URL,
-			Description: s.Description,
-		})
-	}
+	apiDoc.Servers = convertServers(doc.Servers)
 
 	tagDescMap := make(map[string]string)
 	for _, t := range doc.Tags {
@@ -59,6 +56,26 @@ func Convert(docModel *libopenapi.DocumentModel[v3high.Document]) (*model.APIDoc
 				method := strings.ToUpper(opPair.Key())
 				op := opPair.Value()
 				endpoint := convertOperation(method, pathStr, op)
+				// Path-level parameters are inherited; operation values override by name + in.
+				inherited := make([]model.Parameter, 0, len(pathItem.Parameters)+len(endpoint.Parameters))
+				overridden := map[string]bool{}
+				for _, p := range endpoint.Parameters {
+					overridden[p.In+"\x00"+p.Name] = true
+				}
+				for _, p := range pathItem.Parameters {
+					if !overridden[p.In+"\x00"+p.Name] {
+						inherited = append(inherited, convertParameter(p))
+					}
+				}
+				endpoint.Parameters = append(inherited, endpoint.Parameters...)
+				servers := op.Servers
+				if len(servers) == 0 {
+					servers = pathItem.Servers
+				}
+				if len(servers) == 0 {
+					servers = doc.Servers
+				}
+				endpoint.Servers = convertServers(servers)
 				tags := op.Tags
 				if len(tags) == 0 {
 					tags = []string{"default"}
@@ -79,7 +96,13 @@ func Convert(docModel *libopenapi.DocumentModel[v3high.Document]) (*model.APIDoc
 			delete(endpointsByTag, t.Name)
 		}
 	}
-	for tagName, eps := range endpointsByTag {
+	remainingTags := make([]string, 0, len(endpointsByTag))
+	for tagName := range endpointsByTag {
+		remainingTags = append(remainingTags, tagName)
+	}
+	sort.Strings(remainingTags)
+	for _, tagName := range remainingTags {
+		eps := endpointsByTag[tagName]
 		apiDoc.TagGroups = append(apiDoc.TagGroups, model.TagGroup{
 			Tag:       model.Tag{Name: tagName, Description: tagDescMap[tagName]},
 			Endpoints: eps,
@@ -142,6 +165,7 @@ func convertParameter(p *v3high.Parameter) model.Parameter {
 		In:          p.In,
 		Description: p.Description,
 		Deprecated:  p.Deprecated,
+		Example:     jsonNodeValue(p.Example), Style: p.Style, Explode: p.Explode,
 	}
 	if p.Required != nil && *p.Required {
 		param.Required = true
@@ -161,7 +185,15 @@ func convertRequestBody(rb *v3high.RequestBody) *model.RequestBody {
 	}
 	if rb.Content != nil {
 		for pair := rb.Content.First(); pair != nil; pair = pair.Next() {
-			mt := model.MediaTypeContent{MediaType: pair.Key()}
+			mt := model.MediaTypeContent{MediaType: pair.Key(), Example: jsonNodeValue(pair.Value().Example)}
+			if mt.Example == "" && pair.Value().Examples != nil {
+				for item := pair.Value().Examples.First(); item != nil; item = item.Next() {
+					if item.Value().Value != nil {
+						mt.Example = jsonNodeValue(item.Value().Value)
+						break
+					}
+				}
+			}
 			if pair.Value().Schema != nil {
 				mt.Schema = convertSchemaProxy(pair.Value().Schema, "", false, 0)
 			}
@@ -191,7 +223,15 @@ func convertResponse(code string, resp *v3high.Response) model.Response {
 	}
 	if resp.Content != nil {
 		for pair := resp.Content.First(); pair != nil; pair = pair.Next() {
-			mt := model.MediaTypeContent{MediaType: pair.Key()}
+			mt := model.MediaTypeContent{MediaType: pair.Key(), Example: jsonNodeValue(pair.Value().Example)}
+			if mt.Example == "" && pair.Value().Examples != nil {
+				for item := pair.Value().Examples.First(); item != nil; item = item.Next() {
+					if item.Value().Value != nil {
+						mt.Example = jsonNodeValue(item.Value().Value)
+						break
+					}
+				}
+			}
 			if pair.Value().Schema != nil {
 				mt.Schema = convertSchemaProxy(pair.Value().Schema, "", false, 0)
 			}
@@ -262,9 +302,11 @@ func convertSchemaPath(proxy *base.SchemaProxy, name string, required bool, dept
 
 	if schema.Default != nil {
 		sv.Default = yamlNodeValue(schema.Default)
+		sv.JSONDefault = jsonNodeValue(schema.Default)
 	}
 	if schema.Example != nil {
 		sv.Example = yamlNodeValue(schema.Example)
+		sv.JSONExample = jsonNodeValue(schema.Example)
 	}
 
 	// Track only the current path: sibling references must still expand.
@@ -373,4 +415,32 @@ func makeAnchor(method, path string) string {
 	s = anchorReplacer.ReplaceAllString(s, "-")
 	s = strings.Trim(s, "-")
 	return s
+}
+
+func convertServers(servers []*v3high.Server) []model.Server {
+	var result []model.Server
+	for _, server := range servers {
+		address := server.URL
+		if server.Variables != nil {
+			for item := server.Variables.First(); item != nil; item = item.Next() {
+				address = strings.ReplaceAll(address, "{"+item.Key()+"}", item.Value().Default)
+			}
+		}
+		result = append(result, model.Server{URL: address, Description: server.Description})
+	}
+	return result
+}
+func jsonNodeValue(node *yaml.Node) string {
+	if node == nil {
+		return ""
+	}
+	var value any
+	if err := node.Decode(&value); err != nil {
+		return ""
+	}
+	encoded, err := json.Marshal(value)
+	if err != nil {
+		return ""
+	}
+	return string(encoded)
 }

@@ -10,14 +10,14 @@ apicat inverts that:
 
 > **The OpenAPI spec is the first-class citizen. HTML rendering is just one view of it.**
 
-Agents read the raw spec. Humans read a clean, server-rendered HTML view of the same source. Both stay in sync because there is only one source.
+Agents read the raw spec. Humans browse and debug the same source in a local React workbench. Both stay in sync because there is only one source.
 
 ## Features
 
 - **One command, zero setup** — point it at a directory containing an OpenAPI spec and get browsable docs
 - **Multi-file specs** — `$ref` across files resolved out of the box (OpenAPI 3.0 / 3.1)
-- **Single binary** — Go-compiled, all templates and assets embedded; no Node, no Python, no runtime dependencies
-- **Server-side rendered** — fast, clean HTML designed for low reading fatigue; the rendered page doubles as a quality check for your spec (missing descriptions, incomplete examples stand out)
+- **Single binary** — Go-compiled, the production React bundle is embedded; no Node or Python required at runtime
+- **React workbench** — React + TypeScript + Vite + shadcn/ui + Tailwind CSS, served by Echo v5; overview, endpoint documentation, reusable definitions, environments, and HTTP debugging
 - **Shared definitions** — browse `components` from the sidebar or `/components`, including schemas, parameters, request bodies, responses, and other reusable definitions
 - **Search** — filter endpoints by method, path, summary, operationId, or description; find shared definitions by category, name, or description
 - **Collapsible navigation** — API tags and component categories start collapsed; search reveals matching groups and clearing it restores their state
@@ -31,11 +31,13 @@ Agents read the raw spec. Humans read a clean, server-rendered HTML view of the 
 go install github.com/apicat/apicat/v3/cmd/apicat-cli@latest
 ```
 
-Or build from source:
+Or build from source (Go 1.25+ and Node 24+ / npm):
 
 ```bash
 git clone https://github.com/apicat/apicat.git
 cd apicat
+npm --prefix web ci
+npm --prefix web run build
 go build -o apicat-cli ./cmd/apicat-cli
 ```
 
@@ -75,6 +77,20 @@ Flags:
 | `-port` | `8080` | Port to listen on |
 | `-host` | `127.0.0.1` | Host to bind to |
 | `-watch` | off | Reload when spec files in the directory change |
+
+## Local workbench
+
+- **Environments** (`/environments`): create development, test, and production environments with a base URL and variables. Global variables apply to every environment; enabled environment variables override matching global names. Use `{{name}}` in request URLs, parameter values, headers, and bodies. Values are substituted literally, not evaluated as scripts.
+- **HTTP debugging**: open an endpoint, select **接口调试**, edit path/query parameters, headers, authentication and raw body, then send. Requests execute in Go, so target APIs do not need browser CORS configuration. Supports HTTP(S), Bearer headers, JSON/text/URL-encoded bodies, cancellation, configurable timeouts, response headers/body, and binary responses shown as Base64. No automatic redirects, application-level retries, or shared cookie jar. Responses are capped at 2 MiB and marked when truncated.
+- **Parameter handling**: inherits path-level parameters and operation/path-level servers. Common query arrays/objects support form, spaceDelimited, pipeDelimited and shallow deepObject. Complex path serialization and multipart uploads are not automated; unsupported cases are reported. You can edit already-serialized values directly in the URL. This is interactive debugging, not an assertion-based automated test runner.
+- **Storage**: environments are saved to `<spec-directory>/.apicat/workspace.json` with owner-only file permissions, atomic replacement, and revision conflict detection within one running workbench. UI “hide” masks values; it does not encrypt the file. Keep this file out of version control if it contains credentials. Request drafts and responses stay in page memory and are not persisted as history.
+- **Local access**: the API validates Host/Origin and requires a session token for mutations and request execution. The default listener remains `127.0.0.1`; this local workbench is not a multi-user authenticated server.
+
+### Frontend development
+
+Start Go with `go run ./cmd/apicat-cli -watch /path/to/spec-dir`, then run `npm --prefix web run dev`. Vite serves the development UI and proxies `/api` to `127.0.0.1:8080`. Change the proxy in `web/vite.config.ts` if using another backend port.
+
+`npm --prefix web run build` performs TypeScript checking and builds `web/dist`; rebuild the Go binary to embed those assets. The generated bundle is committed so `go install` and Go-only builds continue to work. Frontend source changes must include the regenerated bundle. `make build` installs locked frontend dependencies, builds assets, and builds the CLI. Run `npm --prefix web test` and `go test ./...` for regression checks. Spec watch reloads the document in the browser without discarding request drafts; failed spec loads keep the last good document.
 
 ## Check documentation
 

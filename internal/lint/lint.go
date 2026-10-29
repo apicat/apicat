@@ -2,7 +2,7 @@
 // quality hints: endpoints get per-endpoint messages (rendered as a badge
 // on the detail page), the document gets per-rule counts (rendered as a
 // summary on the overview page). Field-level "missing description" marks
-// are rendered directly by the templates from emptiness checks; this
+// are rendered directly by the React components from emptiness checks; this
 // package only aggregates.
 package lint
 

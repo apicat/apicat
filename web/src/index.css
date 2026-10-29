@@ -1,0 +1,154 @@
+@import 'tailwindcss';
+@custom-variant dark (&:is(.dark *));
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--foreground);
+  --color-popover: var(--card);
+  --color-popover-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--border);
+  --color-ring: var(--primary);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.625rem;
+  --radius-xl: 0.875rem;
+}
+:root {
+  font-family:
+    Inter,
+    ui-sans-serif,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    'PingFang SC',
+    sans-serif;
+  --background: #fafbf9;
+  --foreground: #202822;
+  --card: #ffffff;
+  --primary: #267451;
+  --primary-foreground: #ffffff;
+  --secondary: #eff2ee;
+  --muted: #f3f5f1;
+  --muted-foreground: #68746b;
+  --accent: #e8f1e9;
+  --destructive: #c24143;
+  --border: #e1e6df;
+  --radius: 0.625rem;
+}
+.dark {
+  --background: #141916;
+  --foreground: #e4ece5;
+  --card: #1b221d;
+  --primary: #7cc69c;
+  --primary-foreground: #112d1e;
+  --secondary: #28312a;
+  --muted: #212a24;
+  --muted-foreground: #9daa9f;
+  --accent: #283c30;
+  --destructive: #f58d8d;
+  --border: #333e35;
+  color-scheme: dark;
+}
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    margin: 0;
+    font-size: 14px;
+  }
+  button,
+  a,
+  input,
+  select,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+  button:not(:disabled),
+  select {
+    cursor: pointer;
+  }
+  :focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 3px;
+  }
+  code,
+  pre,
+  .font-mono {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+  }
+}
+.markdown {
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.markdown > * + * {
+  margin-top: 0.75rem;
+}
+.markdown h1,
+.markdown h2,
+.markdown h3 {
+  font-weight: 650;
+  margin-top: 1.3rem;
+}
+.markdown h1 {
+  font-size: 1.5rem;
+}
+.markdown h2 {
+  font-size: 1.2rem;
+}
+.markdown a {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.markdown ul,
+.markdown ol {
+  padding-left: 1.4rem;
+  list-style: revert;
+}
+.markdown pre {
+  background: var(--muted);
+  padding: 1rem;
+  overflow: auto;
+  border-radius: 0.5rem;
+  font-size: 12px;
+}
+.markdown :not(pre) > code {
+  background: var(--muted);
+  border-radius: 0.25rem;
+  padding: 0.15em 0.35em;
+  font-size: 0.9em;
+}
+.markdown table {
+  display: block;
+  overflow: auto;
+  border-collapse: collapse;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid var(--border);
+  padding: 0.5rem;
+}
+.markdown blockquote {
+  border-left: 3px solid var(--border);
+  padding-left: 1rem;
+  color: var(--muted-foreground);
+}

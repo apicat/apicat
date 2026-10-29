@@ -2,15 +2,18 @@
 
 ## Project Structure & Module Organization
 
-`cmd/apicat-cli/main.go` wires the OpenAPI documentation CLI together. `internal/` contains project resolution, loading, conversion, models, linting, rendering, serving, and watching. Templates depend only on `internal/model`, not libopenapi types.
+`cmd/apicat-cli/main.go` wires the OpenAPI documentation CLI together. `internal/` contains project resolution, loading, conversion, models, linting, workspace storage, HTTP execution, Echo serving, and watching. The React API depends on `internal/model`, not libopenapi types.
 
-`web/templates/` holds Go HTML templates; `web/static/` holds Bulma, custom CSS, and vanilla JavaScript, embedded by `web/embed.go`. Tests sit beside their packages. `skills/apicat-spec/` documents spec-authoring conventions. Local `testdata/` and `docs/` are gitignored.
+`web/src/` holds the React + TypeScript workbench, shadcn/ui components and Tailwind CSS. Vite builds `web/dist/`, embedded by `web/embed.go`. Commit regenerated dist assets with frontend changes so Go-only builds work. Tests sit beside their packages. `skills/apicat-spec/` documents spec-authoring conventions. Local `testdata/` and `docs/` are gitignored.
 
 ## Build, Test, and Development Commands
 
-Use Go 1.25.0 or newer; no Node/npm build is required.
+Use Go 1.25.0 or newer. Frontend development/builds require Node 24+ and npm; end users only need the CLI binary.
 
-- `go build -o apicat-cli ./cmd/apicat-cli`: build the standalone CLI.
+- `make build`: install locked frontend dependencies, build the UI, and build the standalone CLI.
+- `npm --prefix web run dev`: Vite development server, proxying API calls to port 8080.
+- `npm --prefix web test`: frontend regression tests.
+- `go build -o apicat-cli ./cmd/apicat-cli`: build using the committed frontend bundle.
 - `go build ./...`: compile all packages.
 - `go test ./...`: run all unit tests.
 - `go run ./cmd/apicat-cli check -json /path/to/spec-dir`: check loading and documentation quality without serving HTML.
@@ -25,9 +28,10 @@ Use `gofmt`, tabs in Go, lowercase package names, exported `PascalCase`, and une
 ## Architecture & Change Contracts
 
 - Load → convert → lint → render/serve. Watch reloads must atomically replace the document only on success, retaining the last good version on failure.
-- Keep `converter.makeAnchor`, navigation `data-anchor`, endpoint `detail-<anchor>` IDs, and JavaScript `showEndpoint()` synchronized. Intercept navigation clicks only on `/endpoints`.
-- Register template helpers in `internal/render/render.go`. New pages require a server route, `pageData.Page`, and a content block dispatched by `layout.html`.
-- New lint rules must update `ruleOrder` and the spec skill's Quality rules. Field-level missing-description markers are handled directly by templates.
+- Endpoint navigation uses method + path in the `operation` query parameter. Keep legacy `converter.makeAnchor` hashes working. React Router owns UI navigation.
+- New pages require a React route and an explicit Echo SPA route. Keep `/api/*` and missing assets from falling back to HTML. Business logic must not depend on Echo contexts.
+- Workspace data lives in `<spec-dir>/.apicat/workspace.json`, independently from path settings. Preserve atomic writes, revision checks, same-origin/session protection, cancellation, and response limits.
+- New lint rules must update `ruleOrder` and the spec skill's Quality rules. Field-level missing-description markers are handled directly by React components.
 - Encoding changes require synchronized updates to `internal/project`, the spec skill, and READMEs.
 - Before cloud-server work, consult the server design decisions in local `docs/PRODUCT_DESIGN.md`, when available.
 

@@ -2,5 +2,6 @@ package web
 
 import "embed"
 
-//go:embed templates templates/partials static/css static/js
+// Content contains the production React bundle. Rebuild it before Go releases.
+//go:embed all:dist
 var Content embed.FS

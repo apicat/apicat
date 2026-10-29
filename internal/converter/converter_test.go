@@ -1,7 +1,6 @@
 package converter
 
 import (
-	"bytes"
 	"fmt"
 	"strings"
 	"testing"
@@ -10,7 +9,6 @@ import (
 	v3high "github.com/pb33f/libopenapi/datamodel/high/v3"
 
 	"github.com/apicat/apicat/v3/internal/model"
-	"github.com/apicat/apicat/v3/internal/render"
 )
 
 func buildModel(t *testing.T, spec string) *libopenapi.DocumentModel[v3high.Document] {
@@ -283,9 +281,6 @@ func TestConvertSchemaExpansion(t *testing.T) {
 }
 
 func TestConvertOpenAPI31Types(t *testing.T) {
-	if err := render.Init(); err != nil {
-		t.Fatal(err)
-	}
 	cases := []struct {
 		name, declaration, wantType string
 		wantNullable                bool
@@ -329,24 +324,6 @@ components:
 				}
 				if sv.Type != tc.wantType || sv.Nullable != tc.wantNullable {
 					t.Errorf("Type/Nullable = %q/%v, want %q/%v", sv.Type, sv.Nullable, tc.wantType, tc.wantNullable)
-				}
-			}
-			for _, view := range []struct {
-				name string
-				data any
-			}{
-				{"schema", ep.Responses[0].Content[0].Schema},
-				{"parameter_table", ep.Parameters},
-			} {
-				var html bytes.Buffer
-				if err := render.Execute(&html, view.name, view.data); err != nil {
-					t.Fatal(err)
-				}
-				if !strings.Contains(html.String(), ">"+tc.wantType+"</span>") {
-					t.Errorf("%s does not display type %q: %s", view.name, tc.wantType, html.String())
-				}
-				if got := strings.Contains(html.String(), `class="schema-nullable-mark"`); got != tc.wantNullable {
-					t.Errorf("%s nullable marker = %v, want %v", view.name, got, tc.wantNullable)
 				}
 			}
 		})
@@ -508,16 +485,6 @@ components:
 				if !child.Recursive || child.RefName != "Node" || len(child.Properties) != 0 {
 					t.Fatalf("cycle must end in a Node reference: %+v", child)
 				}
-			}
-			if err := render.Init(); err != nil {
-				t.Fatal(err)
-			}
-			var html bytes.Buffer
-			if err := render.Execute(&html, "schema", root); err != nil {
-				t.Fatal(err)
-			}
-			if strings.Count(html.String(), "Recursive reference") != 2 {
-				t.Fatalf("expected two visible recursion markers: %s", html.String())
 			}
 		})
 	}

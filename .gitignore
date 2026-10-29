@@ -20,3 +20,10 @@ coverage.html
 
 # Local render-test specs (real-world data, not for the public repo)
 /testdata/
+
+# Frontend dependencies and local tooling output (dist is committed for go install)
+/web/node_modules/
+/web/*.tsbuildinfo
+/web/.vite/
+/playwright-report/
+/test-results/
