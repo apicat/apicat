@@ -16,7 +16,7 @@ Use Go 1.25.0 or newer; no Node/npm build is required.
 - `go run ./cmd/apicat-cli check -json /path/to/spec-dir`: check loading and documentation quality without serving HTML.
 - `go run ./cmd/apicat-cli -watch /path/to/spec-dir`: serve docs at `http://127.0.0.1:8080` and reload spec changes.
 
-Provide `openapi.yaml`, `openapi.yml`, or `openapi.json`. Without a directory argument, specs resolve under `~/.apicat/projects/<encoded-cwd>/`; encoding replaces characters outside `[A-Za-z0-9_-]` with `-`. Restart/rebuild after editing `web/`; `-watch` only reloads specs.
+Provide `openapi.yaml`, `openapi.yml`, or `openapi.json`. Without a directory argument, read `spec_dir` from `<cwd>/.apicat/setting.json`, or only if absent from `~/.apicat/projects/<encoded-cwd>/setting.json` (both relative to cwd); if unset, specs resolve under `~/.apicat/projects/<encoded-cwd>/`; encoding replaces characters outside `[A-Za-z0-9_-]` with `-`. Restart/rebuild after editing `web/`; `-watch` only reloads specs.
 
 ## Coding Style & Naming Conventions
 

@@ -124,6 +124,85 @@ func TestCheckMissingSpec(t *testing.T) {
 	}
 }
 
+func TestCheckConfiguredDirectory(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Chdir(t.TempDir())
+	if err := os.Mkdir(".apicat", 0o755); err != nil {
+		t.Fatal(err)
+	}
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	configuredDir := filepath.Join(cwd, "docs", "api")
+	writeCheckSpec(t, configuredDir, cleanCheckSpec)
+	explicitDir := t.TempDir()
+	writeCheckSpec(t, explicitDir, cleanCheckSpec)
+	for _, tc := range []struct {
+		name, config, wantDir string
+		args                  []string
+		code                  int
+	}{
+		{"configured", `{"spec_dir":"docs/api"}`, configuredDir, []string{"-json"}, 0},
+		{"explicit override", `{"spec_dir":"docs/api"}`, explicitDir, []string{"-json", explicitDir}, 0},
+		{"invalid config", `{`, "", []string{"-json"}, 2},
+		{"explicit bypasses invalid config", `{`, explicitDir, []string{"-json", explicitDir}, 0},
+		{"missing configured spec", `{"spec_dir":"missing"}`, filepath.Join(cwd, "missing"), []string{"-json"}, 2},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			if err := os.WriteFile(".apicat/setting.json", []byte(tc.config), 0o644); err != nil {
+				t.Fatal(err)
+			}
+			var stdout, stderr bytes.Buffer
+			if code := runCheck(tc.args, &stdout, &stderr); code != tc.code {
+				t.Fatalf("exit = %d, want %d; stdout=%s stderr=%s", code, tc.code, &stdout, &stderr)
+			}
+			var report checkReport
+			if err := json.Unmarshal(stdout.Bytes(), &report); err != nil {
+				t.Fatal(err)
+			}
+			if report.SpecDir != tc.wantDir || (len(report.Errors) > 0) != (tc.code == 2) {
+				t.Fatalf("unexpected report: %+v", report)
+			}
+			if tc.name == "invalid config" && !strings.Contains(report.Errors[0], ".apicat/setting.json") {
+				t.Fatalf("error does not identify config: %v", report.Errors)
+			}
+		})
+	}
+}
+
+func TestCheckFallbackConfiguration(t *testing.T) {
+	t.Setenv("HOME", t.TempDir())
+	t.Chdir(t.TempDir())
+	cwd, err := os.Getwd()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defaultDir, err := project.DirFor(cwd)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.MkdirAll(defaultDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(defaultDir, "setting.json"), []byte(`{"spec_dir":"docs/api"}`), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	wantDir := filepath.Join(cwd, "docs", "api")
+	writeCheckSpec(t, wantDir, cleanCheckSpec)
+	var stdout, stderr bytes.Buffer
+	if code := runCheck([]string{"-json"}, &stdout, &stderr); code != 0 {
+		t.Fatalf("exit = %d; stdout=%s stderr=%s", code, &stdout, &stderr)
+	}
+	var report checkReport
+	if err := json.Unmarshal(stdout.Bytes(), &report); err != nil {
+		t.Fatal(err)
+	}
+	if report.SpecDir != wantDir || report.Status != "ok" {
+		t.Fatalf("unexpected report: %+v", report)
+	}
+}
+
 func TestCheckUsage(t *testing.T) {
 	for _, tc := range []struct {
 		args []string

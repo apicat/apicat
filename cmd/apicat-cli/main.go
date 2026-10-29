@@ -35,8 +35,7 @@ func main() {
 	if flag.NArg() >= 1 {
 		dir = flag.Arg(0)
 	} else {
-		// Project mode: resolve the apicat working directory for the
-		// current project from ~/.apicat/projects/<encoded-cwd>.
+		// Project mode: resolve local or fallback settings, then the default directory.
 		cwd, err := os.Getwd()
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "Error: cannot determine working directory: %v\n", err)

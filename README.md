@@ -41,14 +41,26 @@ go build -o apicat-cli ./cmd/apicat-cli
 
 ## Usage
 
-apicat is project-based: specs live centrally under `~/.apicat/projects/`, one directory per project, keyed by the project's absolute path with every character outside `[A-Za-z0-9_-]` replaced by `-` (e.g. `/Users/alice/dev/shop` → `-Users-alice-dev-shop`). Run from your project root and apicat finds its spec directory automatically:
+apicat is project-based: by default, specs live centrally under `~/.apicat/projects/`, one directory per project, keyed by the project's absolute path with every character outside `[A-Za-z0-9_-]` replaced by `-` (e.g. `/Users/alice/dev/shop` → `-Users-alice-dev-shop`). Run from your project root and apicat finds its spec directory automatically:
 
 ```bash
 cd path/to/your-project
 apicat-cli
 ```
 
-Or point at any spec directory explicitly:
+To configure a project's spec directory, create `.apicat/setting.json` in the project root:
+
+```json
+{
+  "spec_dir": "docs/api"
+}
+```
+
+Relative paths resolve against the project root; absolute paths are also supported. Run `apicat-cli`, `apicat-cli -watch`, or `apicat-cli check` from that root to use the setting. Read `<project>/.apicat/setting.json` first. Only when that file is absent, read `~/.apicat/projects/<encoded-path>/setting.json`. Both configs resolve relative paths against the project root; parent directories are not searched. Paths are used literally, without `~` or environment-variable expansion.
+
+If neither config exists, or the selected config has an unset, empty, or whitespace-only `spec_dir`, the existing `~/.apicat/projects/<encoded-path>/` default is used. An existing local config replaces the fallback config entirely. Invalid JSON, unknown fields, invalid field types, and unreadable configs report an error without trying another config. Configuration selects the directory; it does not create it or move existing specs. Restart the CLI after changing the config; `-watch` only reloads specs.
+
+An explicit spec directory overrides the config (and skips reading it):
 
 ```bash
 apicat-cli path/to/spec-dir
@@ -92,7 +104,7 @@ mkdir -p .claude/skills
 cp -r skills/apicat-spec .claude/skills/
 ```
 
-Then ask your agent to create or update your API spec; it picks up the conventions automatically: where the spec lives (`~/.apicat/projects/<encoded-path>/`), entry-file naming, multi-file `$ref` layout, required descriptions, error responses, and examples. The skill file is plain Markdown, so it also works with other tools that read skill/instruction files.
+Then ask your agent to create or update your API spec; it picks up the conventions automatically: where the spec lives (local or fallback `setting.json` → `spec_dir`, defaulting to `~/.apicat/projects/<encoded-path>/`), entry-file naming, multi-file `$ref` layout, required descriptions, error responses, and examples. The skill file is plain Markdown, so it also works with other tools that read skill/instruction files.
 
 ## Roadmap
 

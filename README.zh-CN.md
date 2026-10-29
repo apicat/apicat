@@ -41,14 +41,26 @@ go build -o apicat-cli ./cmd/apicat-cli
 
 ## 使用
 
-apicat 是项目制的：spec 集中存放在 `~/.apicat/projects/` 下，每个项目一个目录，目录名由项目绝对路径编码而来——`[A-Za-z0-9_-]` 之外的字符全部替换为 `-`（如 `/Users/alice/dev/shop` → `-Users-alice-dev-shop`）。在项目根目录直接运行即可自动定位：
+apicat 是项目制的：默认情况下，spec 集中存放在 `~/.apicat/projects/` 下，每个项目一个目录，目录名由项目绝对路径编码而来——`[A-Za-z0-9_-]` 之外的字符全部替换为 `-`（如 `/Users/alice/dev/shop` → `-Users-alice-dev-shop`）。在项目根目录直接运行即可自动定位：
 
 ```bash
 cd path/to/your-project
 apicat-cli
 ```
 
-也可以显式指定任意 spec 目录：
+要配置项目的 spec 目录，在项目根目录创建 `.apicat/setting.json`：
+
+```json
+{
+  "spec_dir": "docs/api"
+}
+```
+
+支持相对路径和绝对路径，相对路径以项目根目录为基准。在该根目录运行 `apicat-cli`、`apicat-cli -watch` 或 `apicat-cli check` 即可使用配置。优先读取 `<当前项目>/.apicat/setting.json`，只有该文件不存在时，才读取 `~/.apicat/projects/<项目路径编码>/setting.json`。两处配置中的相对路径都以当前项目根目录为基准，不会向上查找。路径按字面值解析，不展开 `~` 或环境变量。
+
+两处配置文件都不存在，或选中配置中的 `spec_dir` 未设置、为空字符串、仅含空白时，仍使用原来的 `~/.apicat/projects/<编码路径>/` 默认目录。本地配置一旦存在就完整覆盖兜底配置。JSON 格式错误、未知字段、字段类型错误或无法读取配置时会报错，不会继续尝试其他配置。配置只选择目录，不会创建目录或迁移已有文档。修改配置后需重启 CLI；`-watch` 只重载 spec。
+
+显式指定目录的优先级最高，会跳过配置读取：
 
 ```bash
 apicat-cli path/to/spec-dir
@@ -92,7 +104,7 @@ mkdir -p .claude/skills
 cp -r skills/apicat-spec .claude/skills/
 ```
 
-之后让 agent 创建或更新 API spec，它会自动遵循这些约定：spec 的存放位置（`~/.apicat/projects/<编码路径>/`）、入口文件命名、多文件 `$ref` 组织、必填的 description、错误响应、example 等。Skill 文件是纯 Markdown，其他支持技能/指令文件的工具同样可用。
+之后让 agent 创建或更新 API spec，它会自动遵循这些约定：spec 的存放位置（从本地或兜底 `setting.json` 读取 `spec_dir`，未设置时使用 `~/.apicat/projects/<编码路径>/`）、入口文件命名、多文件 `$ref` 组织、必填的 description、错误响应、example 等。Skill 文件是纯 Markdown，其他支持技能/指令文件的工具同样可用。
 
 ## 路线图
 

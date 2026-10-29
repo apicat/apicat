@@ -23,22 +23,33 @@ Create accurate OpenAPI documentation for the requested API scope. apicat render
 
 ## Where the spec lives
 
-apicat is project-based: specs live centrally under `~/.apicat/projects/`, **not inside the user's repository**. Each project gets one directory there, named after the absolute path of the project root with every character outside `[A-Za-z0-9_-]` replaced by `-`:
+apicat resolves the spec directory in this order:
+
+1. An explicit spec directory supplied by the user or to the CLI.
+2. `spec_dir` in `.apicat/setting.json` in the project root (the directory where `apicat-cli` will run). Relative paths resolve against that root; absolute paths are also supported. Do not search parent directories or expand `~` or environment variables.
+3. Only if the local config file is absent, read `~/.apicat/projects/<encoded-path>/setting.json`. Relative paths in this fallback config also resolve against the project root. An existing local config replaces the fallback entirely; do not merge fields.
+4. If neither config exists, or the selected config has an unset, empty, or whitespace-only `spec_dir`, use `~/.apicat/projects/<encoded-path>/`. Encode the project's absolute path by replacing every character outside `[A-Za-z0-9_-]` with `-`:
 
 ```
 /Users/alice/dev/shop  →  ~/.apicat/projects/-Users-alice-dev-shop/
 ```
 
-This skill uses this fixed storage location; custom output locations are not supported. Do not offer a location choice or create a separate output copy elsewhere.
+Example project-root `.apicat/setting.json`:
+
+```json
+{
+  "spec_dir": "docs/api"
+}
+```
 
 Workflow:
 
-1. Determine the project root — the directory the user is working in (where `apicat-cli` will be run).
-2. Compute the spec directory from it as above.
-3. If that directory already contains an entry file (`openapi.yaml`, `openapi.yml`, `openapi.json`), **update it in place** — never create a second copy elsewhere.
-4. Otherwise create the directory and write the spec there.
+1. Determine the project root and resolve the spec directory using the precedence above. Invalid JSON, unknown fields, invalid field types, or unreadable configuration must be reported rather than trying a lower-priority config or silently using the default. An explicit CLI directory skips reading the config.
+2. If that directory already contains an entry file (`openapi.yaml`, `openapi.yml`, `openapi.json`), **update it in place** — never create a second copy elsewhere.
+3. Otherwise create the directory and write the spec there. Changing configuration does not move existing specs; only migrate existing documentation when requested.
+4. Run checks and previews from the project root. If using an explicit directory, pass it to both commands, with flags before the directory.
 
-Running `apicat-cli` with no arguments from the project root resolves this directory automatically.
+Running `apicat-cli` with no directory argument from the project root resolves the configured or default directory automatically. Restart the CLI after changing either `setting.json`; `-watch` only reloads specs.
 
 ## OpenAPI version and specification references
 
@@ -104,7 +115,7 @@ After creating or updating a spec, run the check command from the project root:
 apicat-cli check -json
 ```
 
-It resolves the fixed project directory automatically, reports loading/reference errors and documentation-quality hints, and exits without starting a server. Read stdout as JSON and also capture the exit code and stderr:
+It resolves the configured or default project directory automatically, reports loading/reference errors and documentation-quality hints, and exits without starting a server. Read stdout as JSON and also capture the exit code and stderr:
 
 - **0**: loaded successfully with no quality hints.
 - **1**: quality hints remain. Use `hints` entries (`method`, `path`, `message`) to locate affected operations; API-level hints omit method/path. Field-description hints give a count per operation, so inspect that operation's request/response schemas to locate the fields.
@@ -115,7 +126,7 @@ Reports include `status`, `spec_dir`, `errors`, `lint_total`, and `hints`. Check
 When visual verification is useful and tools are available, run a preview from the project root, reusing an existing preview for the same project when possible:
 
 ```bash
-apicat-cli -watch # resolves ~/.apicat/projects/<encoded-path>/ from the cwd
+apicat-cli -watch # resolves local/fallback setting.json spec_dir or the default from the cwd
 ```
 
 - Overview `http://127.0.0.1:8080` — inspect the Spec Quality panel against the quality target above.
