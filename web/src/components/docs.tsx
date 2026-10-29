@@ -1,3 +1,5 @@
+import { lintDetail } from '@/lib/lint-messages'
+import { useI18n } from '@/lib/i18n'
 import { Fragment, useState, type ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import ReactMarkdown from 'react-markdown'
@@ -48,7 +50,9 @@ export function Method({ method }: { method: string }) {
     </span>
   )
 }
-export function Code({ value, label = '代码' }: { value: string; label?: string }) {
+export function Code({ value, label }: { value: string; label?: string }) {
+  const { t } = useI18n()
+  label ??= t('代码')
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState(false)
   async function copy() {
@@ -69,11 +73,11 @@ export function Code({ value, label = '代码' }: { value: string; label?: strin
           size="sm"
           variant="ghost"
           onClick={copy}
-          aria-label={`复制${label}`}
+          aria-label={t('复制 {label}', { label })}
           className="h-7"
         >
           {copied ? <Check size={13} /> : <Copy size={13} />}
-          {copied ? '已复制' : '复制'}
+          {copied ? t('已复制') : t('复制')}
         </Button>
       </div>
       <pre className="max-h-[520px] overflow-auto p-4 text-xs leading-6">
@@ -81,7 +85,7 @@ export function Code({ value, label = '代码' }: { value: string; label?: strin
       </pre>
       {error && (
         <p role="status" className="p-2 text-xs text-destructive">
-          无法访问剪贴板，请手动选择文本复制。
+          {t('无法访问剪贴板，请手动选择文本复制。')}
         </p>
       )}
     </div>
@@ -106,6 +110,7 @@ export function Empty({
   )
 }
 function TypeLabel({ schema }: { schema: Schema }) {
+  const { t } = useI18n()
   return (
     <div className="space-y-1">
       <code className="text-xs text-info">
@@ -113,7 +118,7 @@ function TypeLabel({ schema }: { schema: Schema }) {
         {schema.Format && `<${schema.Format}>`}
       </code>
       {schema.Nullable && <div className="text-[10px] text-muted-foreground">nullable</div>}
-      {schema.Deprecated && <Badge variant="outline">已弃用</Badge>}
+      {schema.Deprecated && <Badge variant="outline">{t('已弃用')}</Badge>}
       {schema.IsRef && (
         <Link
           className="block max-w-44 truncate text-xs text-info underline"
@@ -126,6 +131,7 @@ function TypeLabel({ schema }: { schema: Schema }) {
   )
 }
 export function SchemaTree({ schema }: { schema: Schema | null }) {
+  const { t } = useI18n()
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set())
   if (!schema) return null
   function rows(s: Schema, name: string, key: string, depth: number): ReactNode {
@@ -157,7 +163,7 @@ export function SchemaTree({ schema }: { schema: Schema | null }) {
             <div className="flex items-start gap-1.5" style={{ paddingLeft: depth * 16 }}>
               {children.length > 0 ? (
                 <button
-                  aria-label={`展开或折叠 ${name}`}
+                  aria-label={t('展开或折叠 {name}', { name })}
                   aria-expanded={open}
                   className="mt-0.5 shrink-0 rounded hover:bg-accent"
                   onClick={() =>
@@ -180,15 +186,15 @@ export function SchemaTree({ schema }: { schema: Schema | null }) {
             <TypeLabel schema={s} />
           </td>
           <td className="p-3 align-top text-xs">
-            {s.Required ? <span className="text-secondary-text">必填</span> : '—'}
+            {s.Required ? <span className="text-secondary-text">{t('必填')}</span> : '—'}
           </td>
           <td className="min-w-52 p-3 align-top text-xs">
             <Markdown>{s.Description}</Markdown>
-            {s.Name && !s.Description && <span className="text-warning">缺少字段描述</span>}
-            {s.Recursive && <p className="text-muted-foreground">递归引用</p>}
-            {s.Truncated && <p className="text-muted-foreground">已达到展示深度上限</p>}
+            {s.Name && !s.Description && <span className="text-warning">{t('缺少字段描述')}</span>}
+            {s.Recursive && <p className="text-muted-foreground">{t('递归引用')}</p>}
+            {s.Truncated && <p className="text-muted-foreground">{t('已达到展示深度上限')}</p>}
             {s.Enum?.length ? (
-              <p className="mt-1 break-all text-muted-foreground">枚举：{s.Enum.join(' · ')}</p>
+              <p className="mt-1 break-all text-muted-foreground">enum: {s.Enum.join(' · ')}</p>
             ) : null}
             {constraints.map(([k, v]) => (
               <span key={String(k)} className="mr-2 text-muted-foreground">
@@ -199,7 +205,7 @@ export function SchemaTree({ schema }: { schema: Schema | null }) {
           <td className="max-w-52 p-3 align-top">
             <pre className="whitespace-pre-wrap break-all text-xs">{s.Example || '—'}</pre>
             {s.Default !== '' && (
-              <p className="mt-2 text-xs text-muted-foreground">默认：{s.Default}</p>
+              <p className="mt-2 text-xs text-muted-foreground">default: {s.Default}</p>
             )}
           </td>
         </tr>
@@ -212,11 +218,11 @@ export function SchemaTree({ schema }: { schema: Schema | null }) {
       <table className="w-full min-w-[650px] text-left">
         <thead className="border-b text-[11px] text-muted-foreground">
           <tr>
-            <th className="pb-3 font-medium">字段</th>
-            <th className="px-3 pb-3 font-medium">类型</th>
-            <th className="px-3 pb-3 font-medium">必填</th>
-            <th className="px-3 pb-3 font-medium">说明 / 约束</th>
-            <th className="px-3 pb-3 font-medium">示例 / 默认值</th>
+            <th className="pb-3 font-medium">{t('字段')}</th>
+            <th className="px-3 pb-3 font-medium">{t('类型')}</th>
+            <th className="px-3 pb-3 font-medium">{t('必填')}</th>
+            <th className="px-3 pb-3 font-medium">{t('说明 / 约束')}</th>
+            <th className="px-3 pb-3 font-medium">{t('示例 / 默认值')}</th>
           </tr>
         </thead>
         <tbody>{rows(schema, schema.Name || 'root', 'root', 0)}</tbody>
@@ -225,6 +231,7 @@ export function SchemaTree({ schema }: { schema: Schema | null }) {
   )
 }
 export function Parameters({ parameters }: { parameters: Parameter[] | null }) {
+  const { t } = useI18n()
   if (!parameters?.length) return null
   return (
     <div className="space-y-5">
@@ -233,12 +240,12 @@ export function Parameters({ parameters }: { parameters: Parameter[] | null }) {
           <div className="mb-2 flex items-center gap-2">
             <code className="font-semibold">{p.Name}</code>
             <Badge variant="secondary">{p.In}</Badge>
-            {p.Required && <Badge variant="outline">必填</Badge>}
-            {p.Deprecated && <Badge variant="outline">已弃用</Badge>}
+            {p.Required && <Badge variant="outline">{t('必填')}</Badge>}
+            {p.Deprecated && <Badge variant="outline">{t('已弃用')}</Badge>}
           </div>
           <div className="mb-3 text-sm text-muted-foreground">
             <Markdown>{p.Description}</Markdown>
-            {!p.Description && <span className="text-warning">缺少参数描述</span>}
+            {!p.Description && <span className="text-warning">{t('缺少参数描述')}</span>}
           </div>
           <SchemaTree schema={p.Schema} />
         </div>
@@ -247,6 +254,7 @@ export function Parameters({ parameters }: { parameters: Parameter[] | null }) {
   )
 }
 export function MediaContent({ content }: { content: Media[] | null }) {
+  const { t } = useI18n()
   return (
     <div className="space-y-4">
       {content?.map((mt) => (
@@ -257,7 +265,7 @@ export function MediaContent({ content }: { content: Media[] | null }) {
           <SchemaTree schema={mt.Schema} />
           {mt.Example && (
             <div className="mt-3">
-              <Code value={formatJSON(mt.Example)} label="示例" />
+              <Code value={formatJSON(mt.Example)} label={t('示例')} />
             </div>
           )}
         </div>
@@ -266,10 +274,11 @@ export function MediaContent({ content }: { content: Media[] | null }) {
   )
 }
 export function BodyDoc({ body }: { body: RequestBody | null }) {
+  const { t } = useI18n()
   return body ? (
     <div className="space-y-3">
       <div className="flex gap-2">
-        {body.Required && <Badge variant="outline">必填</Badge>}
+        {body.Required && <Badge variant="outline">{t('必填')}</Badge>}
         <Markdown>{body.Description}</Markdown>
       </div>
       <MediaContent content={body.Content} />
@@ -277,31 +286,32 @@ export function BodyDoc({ body }: { body: RequestBody | null }) {
   ) : null
 }
 export function EndpointDoc({ endpoint }: { endpoint: Endpoint }) {
+  const { t, locale } = useI18n()
   return (
     <div className="space-y-5">
       {endpoint.LintHints?.length ? (
         <div className="rounded-lg border border-warning/25 bg-warning/5 px-4 py-3 text-xs text-warning">
-          <strong>文档质量提示</strong>
+          <strong>{t('文档质量提示')}</strong>
           <ul className="mt-2 list-inside list-disc space-y-1">
-            {endpoint.LintHints.map((h) => (
-              <li key={h}>{h}</li>
+            {endpoint.LintDetails?.map((h, i) => (
+              <li key={i}>{lintDetail(locale, h)}</li>
             ))}
           </ul>
         </div>
       ) : null}
       <Markdown>{endpoint.Description}</Markdown>
       {endpoint.Parameters?.length ? (
-        <Panel title="请求参数">
+        <Panel title={t('请求参数')}>
           <Parameters parameters={endpoint.Parameters} />
         </Panel>
       ) : null}
       {endpoint.RequestBody && (
-        <Panel title="请求体">
+        <Panel title={t('请求体')}>
           <BodyDoc body={endpoint.RequestBody} />
         </Panel>
       )}
       {endpoint.Responses?.map((r) => (
-        <Panel key={r.StatusCode} title={`响应 ${r.StatusCode}`}>
+        <Panel key={r.StatusCode} title={t('响应 {status}', { status: r.StatusCode })}>
           <div className="mb-4 text-muted-foreground">
             <Markdown>{r.Description}</Markdown>
           </div>

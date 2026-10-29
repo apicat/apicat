@@ -119,3 +119,17 @@ func TestAnnotateIsIdempotent(t *testing.T) {
 		t.Errorf("LintHints accumulated on re-annotate: %d", n)
 	}
 }
+
+func TestLocalizedHintMetadataPreservesNamesOnReload(t *testing.T) {
+	doc := &model.APIDoc{TagGroups: []model.TagGroup{{Endpoints: []model.Endpoint{{
+		Summary: "Existing", OperationID: "getRoot", Parameters: []model.Parameter{{Name: "中文_root{value}", In: "query"}},
+		Responses: []model.Response{{StatusCode: "400"}},
+	}}}}}
+	for range 2 {
+		Annotate(doc)
+		ep := doc.TagGroups[0].Endpoints[0]
+		if len(ep.LintDetails) != 1 || len(ep.LintHints) != 1 || ep.LintDetails[0].Rule != ruleParamNoDescription || ep.LintDetails[0].Name != "中文_root{value}" {
+			t.Fatalf("localization metadata changed on reload: %+v", ep.LintDetails)
+		}
+	}
+}

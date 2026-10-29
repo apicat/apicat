@@ -1,3 +1,6 @@
+import { lintSummary } from '@/lib/lint-messages'
+import { LanguageSwitcher } from '@/components/language-switcher'
+import { useI18n, asError } from '@/lib/i18n'
 import { useEffect, useState } from 'react'
 import {
   BrowserRouter,
@@ -102,12 +105,13 @@ function useThemePreference() {
   return { theme, setTheme }
 }
 function Theme({ theme, setTheme }: ReturnType<typeof useThemePreference>) {
+  const { t } = useI18n()
   return (
-    <div className="flex items-center gap-1 rounded-lg border bg-card p-1" aria-label="主题">
+    <div className="flex items-center gap-1 rounded-lg border bg-card p-1" aria-label={t('主题')}>
       {[
-        { id: 'light', icon: Sun, label: '浅色主题' },
-        { id: 'system', icon: Monitor, label: '跟随系统' },
-        { id: 'dark', icon: Moon, label: '深色主题' },
+        { id: 'light', icon: Sun, label: t('浅色主题') },
+        { id: 'system', icon: Monitor, label: t('跟随系统') },
+        { id: 'dark', icon: Moon, label: t('深色主题') },
       ].map(({ id, icon: Icon, label }) => (
         <button
           key={id}
@@ -133,6 +137,7 @@ function Sidebar({
   close: () => void
   theme: ReturnType<typeof useThemePreference>
 }) {
+  const { t, number } = useI18n()
   const { doc } = useWorkbench()
   const location = useLocation()
   const [search, setSearch] = useState('')
@@ -159,7 +164,7 @@ function Sidebar({
   return (
     <>
       <div className="flex h-16 shrink-0 items-center gap-3 border-b px-5">
-        <Link to="/" onClick={close} aria-label="apicat 首页" className="rounded-sm">
+        <Link to="/" onClick={close} aria-label={t('apicat 首页')} className="rounded-sm">
           <Brand />
         </Link>
         <span className="rounded border px-1.5 py-0.5 text-[10px] font-medium tracking-wider text-muted-foreground">
@@ -169,7 +174,7 @@ function Sidebar({
           size="icon"
           variant="ghost"
           className="ml-auto lg:hidden"
-          aria-label="关闭导航"
+          aria-label={t('关闭导航')}
           onClick={close}
         >
           <X size={17} />
@@ -182,9 +187,9 @@ function Sidebar({
             size={15}
           />
           <Input
-            aria-label="搜索接口和组件"
+            aria-label={t('搜索接口和组件')}
             className="pl-9 text-xs"
-            placeholder="搜索接口、路径或组件…"
+            placeholder={t('搜索接口、路径或组件…')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
@@ -193,10 +198,10 @@ function Sidebar({
       <nav className="min-h-0 flex-1 overflow-y-auto px-3 pb-5">
         <div className="space-y-1 pb-5">
           {[
-            { to: '/', icon: BookOpen, text: '项目概览' },
-            { to: '/endpoints', icon: Layers3, text: '接口文档' },
-            { to: '/components', icon: Boxes, text: '公共组件' },
-            { to: '/environments', icon: Settings2, text: '环境与变量' },
+            { to: '/', icon: BookOpen, text: t('项目概览') },
+            { to: '/endpoints', icon: Layers3, text: t('接口文档') },
+            { to: '/components', icon: Boxes, text: t('公共组件') },
+            { to: '/environments', icon: Settings2, text: t('环境与变量') },
           ].map(({ to, icon: Icon, text }) => (
             <NavLink
               key={to}
@@ -216,7 +221,7 @@ function Sidebar({
           ))}
         </div>
         <div className="px-3 pb-3 text-[11px] font-semibold tracking-[.12em] text-muted-foreground">
-          API COLLECTION
+          {t('接口集合')}
         </div>
         {groups.map((g) => {
           const key = `tag:${g.Tag.Name}`
@@ -231,7 +236,7 @@ function Sidebar({
                 {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                 <span className="truncate">{g.Tag.Name}</span>
                 <span className="ml-auto text-[10px] text-muted-foreground">
-                  {g.Endpoints.length}
+                  {number(g.Endpoints.length)}
                 </span>
               </button>
               {open && (
@@ -260,7 +265,7 @@ function Sidebar({
           )
         })}
         <div className="px-3 pb-3 pt-6 text-[11px] font-semibold tracking-[.12em] text-muted-foreground">
-          COMPONENTS
+          {t('组件')}
         </div>
         {components.map((g) => {
           const key = `component:${g.Kind}`
@@ -274,7 +279,9 @@ function Sidebar({
               >
                 {open ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                 <span>{g.Title}</span>
-                <span className="ml-auto text-muted-foreground">{g.Definitions.length}</span>
+                <span className="ml-auto text-muted-foreground">
+                  {number(g.Definitions.length)}
+                </span>
               </button>
               {open &&
                 g.Definitions.map((d) => (
@@ -291,20 +298,24 @@ function Sidebar({
           )
         })}
         {q && !groups.length && !components.length && (
-          <p className="p-3 text-xs text-muted-foreground">未找到匹配的接口或组件</p>
+          <p className="p-3 text-xs text-muted-foreground">{t('未找到匹配的接口或组件')}</p>
         )}
       </nav>
-      <div className="flex items-center justify-between border-t px-5 py-4">
-        <span className="flex items-center gap-2 text-[11px] text-muted-foreground">
-          <span className="size-1.5 rounded-full bg-success" />
-          本地工作台
-        </span>
-        <Theme {...theme} />
+      <div className="space-y-3 border-t px-4 py-3">
+        <LanguageSwitcher />
+        <div className="flex items-center justify-between">
+          <span className="flex items-center gap-2 text-[11px] text-muted-foreground">
+            <span className="size-1.5 rounded-full bg-success" />
+            {t('本地工作台')}
+          </span>
+          <Theme {...theme} />
+        </div>
       </div>
     </>
   )
 }
 function Overview() {
+  const { t, number, locale } = useI18n()
   const { doc, workspace } = useWorkbench()
   const endpoints = uniqueEndpoints(doc)
   return (
@@ -312,41 +323,44 @@ function Overview() {
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <p className="mb-3 text-xs font-medium tracking-[.12em] text-muted-foreground">
-            YOUR API, AT A GLANCE
+            {t('API 概览')}
           </p>
           <h1 className="text-3xl font-semibold tracking-tight">{doc.Title}</h1>
           <div className="mt-3 flex items-center gap-3">
             <Badge variant="outline" className="font-mono">
               v{doc.Version}
             </Badge>
-            <span className="text-xs text-muted-foreground">文档、环境与调试，一个工作台。</span>
+            <span className="text-xs text-muted-foreground">
+              {t('文档、环境与调试，一个工作台。')}
+            </span>
           </div>
         </div>
         <Button asChild>
           <Link to="/endpoints">
-            浏览接口 <ArrowUpRight size={15} />
+            {t('浏览接口')}
+            <ArrowUpRight size={15} />
           </Link>
         </Button>
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
         {[
           {
-            label: '接口数量',
+            label: t('接口数量'),
             value: endpoints.length,
             icon: Layers3,
-            sub: '来自当前 OpenAPI 文档',
+            sub: t('来自当前 OpenAPI 文档'),
           },
           {
-            label: '运行环境',
+            label: t('运行环境'),
             value: workspace.environments.length,
             icon: Globe2,
-            sub: '在环境设置中管理地址与变量',
+            sub: t('在环境设置中管理地址与变量'),
           },
           {
-            label: '文档质量提示',
+            label: t('文档质量提示'),
             value: doc.LintTotal,
             icon: ShieldCheck,
-            sub: doc.LintTotal ? '查看需要完善的文档信息' : '已通过当前文档质量检查',
+            sub: doc.LintTotal ? t('查看需要完善的文档信息') : t('已通过当前文档质量检查'),
           },
         ].map(({ label, value, icon: Icon, sub }) => (
           <div key={label} className="rounded-xl border bg-card p-5 shadow-panel">
@@ -354,18 +368,21 @@ function Overview() {
               {label}
               <Icon size={17} />
             </div>
-            <div className="mb-2 mt-4 text-3xl font-semibold tabular-nums">{value}</div>
+            <div className="mb-2 mt-4 text-3xl font-semibold tabular-nums">{number(value)}</div>
             <p className="text-xs text-muted-foreground">{sub}</p>
           </div>
         ))}
       </div>
       {doc.Description && (
-        <Panel title="关于此 API">
+        <Panel title={t('关于此 API')}>
           <Markdown>{doc.Description}</Markdown>
         </Panel>
       )}
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <Panel title="文档服务器" action={<Globe2 size={15} className="text-muted-foreground" />}>
+        <Panel
+          title={t('文档服务器')}
+          action={<Globe2 size={15} className="text-muted-foreground" />}
+        >
           {doc.Servers?.length ? (
             <div className="space-y-4">
               {doc.Servers.map((s, i) => (
@@ -379,11 +396,11 @@ function Overview() {
             </div>
           ) : (
             <p className="text-sm text-muted-foreground">
-              文档未声明服务器地址。可在环境设置中添加。
+              {t('文档未声明服务器地址。可在环境设置中添加。')}
             </p>
           )}
         </Panel>
-        <Panel title="认证方案">
+        <Panel title={t('认证方案')}>
           <div className="space-y-4">
             {doc.Security?.length ? (
               doc.Security.map((s) => (
@@ -396,27 +413,32 @@ function Overview() {
                 </div>
               ))
             ) : (
-              <p className="text-sm text-muted-foreground">文档未声明认证方案</p>
+              <p className="text-sm text-muted-foreground">{t('文档未声明认证方案')}</p>
             )}
           </div>
         </Panel>
       </div>
-      <Panel title="文档质量" action={<Sparkles size={15} className="text-muted-foreground" />}>
+      <Panel
+        title={t('文档质量')}
+        action={<Sparkles size={15} className="text-muted-foreground" />}
+      >
         {doc.LintTotal ? (
           <ul className="divide-y">
             {doc.LintCounts?.map((c) => (
               <li key={c.Rule} className="flex items-center justify-between py-3 text-sm">
-                <span>{c.Message}</span>
-                <Badge variant="outline">{c.Count}</Badge>
+                <span>{lintSummary(locale, c.Rule, c.Message)}</span>
+                <Badge variant="outline">{number(c.Count)}</Badge>
               </li>
             ))}
           </ul>
         ) : (
-          <p className="text-sm text-success">没有质量提示。接口语义与实际行为仍需通过调试验证。</p>
+          <p className="text-sm text-success">
+            {t('没有质量提示。接口语义与实际行为仍需通过调试验证。')}
+          </p>
         )}
       </Panel>
       {doc.Tags?.length ? (
-        <Panel title="接口分组">
+        <Panel title={t('接口分组')}>
           <div className="divide-y">
             {doc.Tags.map((t) => (
               <div key={t.Name} className="grid gap-2 py-3 sm:grid-cols-[150px_1fr]">
@@ -433,6 +455,7 @@ function Overview() {
   )
 }
 function Endpoints() {
+  const { t } = useI18n()
   const { doc } = useWorkbench()
   const { operationId: requested } = useParams()
   const endpoints = uniqueEndpoints(doc)
@@ -440,13 +463,16 @@ function Endpoints() {
   if (!endpoint)
     return (
       <div className="mx-auto max-w-6xl">
-        <p className="mb-2 text-xs tracking-[.12em] text-muted-foreground">API COLLECTION</p>
-        <h1 className="mb-2 text-2xl font-semibold">接口文档</h1>
+        <p className="mb-2 text-xs tracking-[.12em] text-muted-foreground">{t('接口集合')}</p>
+        <h1 className="mb-2 text-2xl font-semibold">{t('接口文档')}</h1>
         <p className="mb-6 text-sm text-muted-foreground">
-          选择接口查看定义、编辑参数并发起调试请求。
+          {t('选择接口查看定义、编辑参数并发起调试请求。')}
         </p>
         {requested ? (
-          <Empty title="接口不存在" description="文档可能已更新，请从列表中重新选择接口。" />
+          <Empty
+            title={t('接口不存在')}
+            description={t('文档可能已更新，请从列表中重新选择接口。')}
+          />
         ) : null}
         <div className="mt-4 divide-y rounded-xl border bg-card">
           {endpoints.map((e) => (
@@ -460,12 +486,16 @@ function Endpoints() {
               <span className="flex-1 text-sm text-muted-foreground">
                 {e.Summary || e.OperationID}
               </span>
-              {!!e.LintHints?.length && <Badge variant="outline">{e.LintHints.length} 提示</Badge>}
+              {!!e.LintHints?.length && (
+                <Badge variant="outline">
+                  {t('{count} 条提示', { count: e.LintHints.length })}
+                </Badge>
+              )}
               <ChevronRight size={15} />
             </Link>
           ))}
         </div>
-        {!endpoints.length && <Empty title="文档中没有接口" />}
+        {!endpoints.length && <Empty title={t('文档中没有接口')} />}
       </div>
     )
   return (
@@ -474,7 +504,7 @@ function Endpoints() {
         <div className="mb-3 flex flex-wrap items-center gap-3">
           <Method method={endpoint.Method} />
           <code className="break-all text-sm text-muted-foreground">{endpoint.Path}</code>
-          {endpoint.Deprecated && <Badge variant="destructive">已弃用</Badge>}
+          {endpoint.Deprecated && <Badge variant="destructive">{t('已弃用')}</Badge>}
         </div>
         <h1 className="text-2xl font-semibold tracking-tight">
           {endpoint.Summary || endpoint.OperationID || endpoint.Path}
@@ -487,11 +517,11 @@ function Endpoints() {
         <TabsList className="mb-5">
           <TabsTrigger value="documentation">
             <BookOpen size={14} />
-            文档
+            {t('文档')}
           </TabsTrigger>
           <TabsTrigger value="debug">
             <CircleDot size={14} />
-            接口调试
+            {t('接口调试')}
           </TabsTrigger>
         </TabsList>
         <TabsContent value="documentation">
@@ -505,6 +535,7 @@ function Endpoints() {
   )
 }
 function Components() {
+  const { t, number } = useI18n()
   const { doc } = useWorkbench()
   const [params] = useSearchParams()
   const kind = params.get('type'),
@@ -512,12 +543,17 @@ function Components() {
   const group = doc.ComponentGroups?.find((g) => g.Kind === kind)
   const component = group?.Definitions.find((d) => d.Name === name)
   if (kind && name && !component)
-    return <Empty title="公共组件不存在" description="此定义可能已被移除，请从侧边栏重新选择。" />
+    return (
+      <Empty
+        title={t('公共组件不存在')}
+        description={t('此定义可能已被移除，请从侧边栏重新选择。')}
+      />
+    )
   if (component)
     return (
       <div className="mx-auto max-w-6xl space-y-5">
         <p className="text-xs uppercase tracking-widest text-muted-foreground">
-          COMPONENTS / {group?.Title}
+          {t('组件')} / {group?.Title}
         </p>
         <h1 className="break-all text-2xl font-semibold">{component.Name}</h1>
         <Markdown>{component.Description}</Markdown>
@@ -527,31 +563,31 @@ function Components() {
           </Panel>
         )}
         {component.Parameters && (
-          <Panel title="参数">
+          <Panel title={t('参数')}>
             <Parameters parameters={component.Parameters} />
           </Panel>
         )}
         {component.RequestBody && (
-          <Panel title="请求体">
+          <Panel title={t('请求体')}>
             <BodyDoc body={component.RequestBody} />
           </Panel>
         )}
         {component.Response && (
-          <Panel title="响应">
+          <Panel title={t('响应')}>
             <Markdown>{component.Response.Description}</Markdown>
             <MediaContent content={component.Response.Content} />
           </Panel>
         )}
-        <Code label="完整定义 · YAML" value={component.Definition} />
+        <Code label={t('完整定义 · YAML')} value={component.Definition} />
       </div>
     )
   return (
     <div className="mx-auto max-w-6xl space-y-6">
       <div>
-        <p className="mb-2 text-xs tracking-[.12em] text-muted-foreground">REUSABLE DEFINITIONS</p>
-        <h1 className="text-2xl font-semibold">公共组件</h1>
+        <p className="mb-2 text-xs tracking-[.12em] text-muted-foreground">{t('可复用定义')}</p>
+        <h1 className="text-2xl font-semibold">{t('公共组件')}</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          浏览共享的 Schema、参数、响应以及其他可复用定义。
+          {t('浏览共享的 Schema、参数、响应以及其他可复用定义。')}
         </p>
       </div>
       {doc.ComponentGroups?.length ? (
@@ -559,7 +595,7 @@ function Components() {
           <Panel
             key={g.Kind}
             title={g.Title}
-            action={<Badge variant="secondary">{g.Definitions.length}</Badge>}
+            action={<Badge variant="secondary">{number(g.Definitions.length)}</Badge>}
           >
             <div className="divide-y">
               {g.Definitions.map((d) => (
@@ -583,37 +619,39 @@ function Components() {
           </Panel>
         ))
       ) : (
-        <Empty title="文档中没有公共组件" />
+        <Empty title={t('文档中没有公共组件')} />
       )}
     </div>
   )
 }
 function Shell({ pollError }: { pollError: string }) {
+  const { t, errorText } = useI18n()
   const theme = useThemePreference()
   const { doc, workspace, saveWorkspace } = useWorkbench()
   const location = useLocation()
   const [mobile, setMobile] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError] = useState<Error | null>(null)
   const [switching, setSwitching] = useState(false)
   const title =
     (
       {
-        '/': '项目概览',
-        '/endpoints': '接口文档',
-        '/components': '公共组件',
-        '/environments': '环境与变量',
+        '/': t('项目概览'),
+        '/endpoints': t('接口文档'),
+        '/components': t('公共组件'),
+        '/environments': t('环境与变量'),
       } as Record<string, string>
-    )[location.pathname] || (location.pathname.startsWith('/endpoints/') ? '接口文档' : '工作台')
+    )[location.pathname] ||
+    (location.pathname.startsWith('/endpoints/') ? t('接口文档') : t('工作台'))
   useEffect(() => {
     document.title = `${title} · ${doc.Title} — apicat`
   }, [title, doc.Title])
   async function choose(value: string) {
     setSwitching(true)
-    setError('')
+    setError(null)
     try {
       await saveWorkspace({ ...workspace, activeEnvironment: value === 'none' ? '' : value })
     } catch (e) {
-      setError((e as Error).message)
+      setError(asError(e))
     } finally {
       setSwitching(false)
     }
@@ -640,7 +678,7 @@ function Shell({ pollError }: { pollError: string }) {
               variant="ghost"
               size="icon"
               className="lg:hidden"
-              aria-label="打开导航"
+              aria-label={t('打开导航')}
               onClick={() => setMobile(true)}
             >
               <Menu size={18} />
@@ -657,12 +695,12 @@ function Shell({ pollError }: { pollError: string }) {
               value={workspace.activeEnvironment || 'none'}
               onValueChange={choose}
             >
-              <SelectTrigger aria-label="当前运行环境" className="w-44 bg-card text-xs">
+              <SelectTrigger aria-label={t('当前运行环境')} className="w-44 bg-card text-xs">
                 <Globe2 size={14} />
-                <SelectValue placeholder="选择环境" />
+                <SelectValue placeholder={t('选择环境')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="none">不使用环境</SelectItem>
+                <SelectItem value="none">{t('不使用环境')}</SelectItem>
                 {workspace.environments.map((e) => (
                   <SelectItem key={e.id} value={e.id}>
                     {e.name}
@@ -674,9 +712,9 @@ function Shell({ pollError }: { pollError: string }) {
         </header>
         {(error || pollError) && (
           <div role="alert" className="border-b bg-warning/10 px-8 py-3 text-xs text-warning">
-            {error || pollError}
+            {error ? errorText(error) : t('与本地服务的连接已中断，当前显示上次成功加载的文档。')}
             <button className="ml-3 underline" onClick={() => window.location.reload()}>
-              重新加载
+              {t('重新加载')}
             </button>
           </div>
         )}
@@ -687,7 +725,7 @@ function Shell({ pollError }: { pollError: string }) {
             <Route path="/endpoints/:operationId" element={<Endpoints />} />
             <Route path="/components" element={<Components />} />
             <Route path="/environments" element={<Environments />} />
-            <Route path="*" element={<Empty title="页面不存在" />} />
+            <Route path="*" element={<Empty title={t('页面不存在')} />} />
           </Routes>
         </main>
       </div>
@@ -695,10 +733,11 @@ function Shell({ pollError }: { pollError: string }) {
   )
 }
 export default function App() {
+  const { t, errorText } = useI18n()
   const [data, setData] = useState<{ doc: APIDoc; workspace: Workspace; session: Session } | null>(
     null,
   )
-  const [error, setError] = useState('')
+  const [error, setError] = useState<Error | null>(null)
   const [pollError, setPollError] = useState('')
   const [drafts, setDrafts] = useState<Record<string, RequestDraft>>({})
   useEffect(() => {
@@ -723,7 +762,7 @@ export default function App() {
         })
       })
       .catch((e) => {
-        if (e.name !== 'AbortError') setError(e.message)
+        if (e.name !== 'AbortError') setError(asError(e))
       })
     return () => {
       disposed = true
@@ -746,8 +785,7 @@ export default function App() {
         )
         setPollError('')
       } catch (e) {
-        if ((e as Error).name !== 'AbortError')
-          setPollError('与本地服务的连接已中断，当前显示上次成功加载的文档。')
+        if ((e as Error).name !== 'AbortError') setPollError('disconnected')
       } finally {
         pending = false
       }
@@ -767,10 +805,11 @@ export default function App() {
   if (error)
     return (
       <div className="mx-auto max-w-lg p-10">
-        <Empty title="无法加载工作台" description={error}>
+        <LanguageSwitcher />
+        <Empty title={t('无法加载工作台')} description={errorText(error)}>
           <Button className="mt-5" onClick={() => window.location.reload()}>
             <RefreshCw size={15} />
-            重试
+            {t('重试')}
           </Button>
         </Empty>
       </div>
@@ -779,7 +818,7 @@ export default function App() {
     return (
       <div className="flex min-h-screen items-center justify-center gap-3 text-muted-foreground">
         <Brand compact />
-        正在加载工作台…
+        {t('正在加载工作台…')}
       </div>
     )
   return (

@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/apicat/apicat/v3/internal/model"
+	"github.com/apicat/apicat/v3/internal/problem"
 	"github.com/apicat/apicat/v3/internal/runner"
 	"github.com/apicat/apicat/v3/internal/workspace"
 	"github.com/apicat/apicat/v3/web"
@@ -63,7 +64,13 @@ func newHandler(getDoc func() *model.APIDoc, specDir, host string) (*echo.Echo, 
 			code = he.Code
 			message = fmt.Sprint(he.Message)
 		}
-		_ = c.JSON(code, map[string]string{"error": message})
+		payload := map[string]any{"error": message}
+		var localized *problem.Error
+		if errors.As(err, &localized) {
+			payload["messageKey"] = localized.Key
+			payload["values"] = localized.Values
+		}
+		_ = c.JSON(code, payload)
 	}
 	// Every API is same-origin, including the session bootstrap. Host validation
 	// prevents a rebinding website from obtaining the local execution capability.
@@ -84,23 +91,23 @@ func newHandler(getDoc func() *model.APIDoc, specDir, host string) (*echo.Echo, 
 					allowed = allowed || ip.IsLoopback() || host == "0.0.0.0" || host == "::"
 				}
 				if !allowed {
-					return echo.NewHTTPError(403, "不允许的主机名")
+					return httpProblem(403, "不允许的主机名")
 				}
 				if r.Header.Get("Sec-Fetch-Site") == "cross-site" {
-					return echo.NewHTTPError(403, "不允许跨站访问本地工作台")
+					return httpProblem(403, "不允许跨站访问本地工作台")
 				}
 				if origin := r.Header.Get("Origin"); origin != "" {
 					u, err := url.Parse(origin)
 					if err != nil || u.Host != r.Host || (u.Scheme != "http" && u.Scheme != "https") {
-						return echo.NewHTTPError(403, "不允许跨域访问本地工作台")
+						return httpProblem(403, "不允许跨域访问本地工作台")
 					}
 				}
 				if r.Method != "GET" && r.Method != "HEAD" {
 					if subtle.ConstantTimeCompare([]byte(r.Header.Get("X-Apicat-Token")), []byte(token)) != 1 {
-						return echo.NewHTTPError(403, "会话已过期，请刷新页面")
+						return httpProblem(403, "会话已过期，请刷新页面")
 					}
 					if !strings.HasPrefix(r.Header.Get("Content-Type"), "application/json") {
-						return echo.NewHTTPError(415, "请使用 JSON 请求")
+						return httpProblem(415, "请使用 JSON 请求")
 					}
 					r.Body = http.MaxBytesReader(c.Response(), r.Body, 4<<20)
 				}
@@ -115,7 +122,7 @@ func newHandler(getDoc func() *model.APIDoc, specDir, host string) (*echo.Echo, 
 	e.GET("/api/workspace", func(c *echo.Context) error {
 		state, err := store.Load()
 		if err != nil {
-			return echo.NewHTTPError(500, "无法读取环境配置，请检查 workspace.json")
+			return httpProblem(500, "无法读取环境配置，请检查 workspace.json")
 		}
 		return c.JSON(200, state)
 	})
@@ -125,14 +132,14 @@ func newHandler(getDoc func() *model.APIDoc, specDir, host string) (*echo.Echo, 
 			return err
 		}
 		if err := workspace.Validate(state); err != nil {
-			return echo.NewHTTPError(400, err.Error())
+			return echo.NewHTTPError(400, err.Error()).Wrap(err)
 		}
 		saved, err := store.Save(state)
 		if errors.Is(err, workspace.ErrConflict) {
-			return echo.NewHTTPError(409, err.Error())
+			return echo.NewHTTPError(409, err.Error()).Wrap(err)
 		}
 		if err != nil {
-			return echo.NewHTTPError(500, "环境配置保存失败，请检查文件权限和可用空间")
+			return httpProblem(500, "环境配置保存失败，请检查文件权限和可用空间")
 		}
 		return c.JSON(200, saved)
 	})
@@ -143,11 +150,11 @@ func newHandler(getDoc func() *model.APIDoc, specDir, host string) (*echo.Echo, 
 		}
 		state, err := store.Load()
 		if err != nil {
-			return echo.NewHTTPError(500, "无法读取环境配置")
+			return httpProblem(500, "无法读取环境配置")
 		}
 		response, err := runner.Execute(c.Request().Context(), request, state)
 		if err != nil {
-			return echo.NewHTTPError(400, err.Error())
+			return echo.NewHTTPError(400, err.Error()).Wrap(err)
 		}
 		return c.JSON(200, response)
 	})
@@ -165,10 +172,14 @@ func decode(c *echo.Context, value any) error {
 	decoder := json.NewDecoder(c.Request().Body)
 	decoder.DisallowUnknownFields()
 	if err := decoder.Decode(value); err != nil {
-		return echo.NewHTTPError(400, "请求 JSON 格式或字段无效")
+		return httpProblem(400, "请求 JSON 格式或字段无效")
 	}
 	if err := decoder.Decode(new(any)); err != io.EOF {
-		return echo.NewHTTPError(400, "请求只能包含一个 JSON 对象")
+		return httpProblem(400, "请求只能包含一个 JSON 对象")
 	}
 	return nil
+}
+
+func httpProblem(status int, key string) error {
+	return echo.NewHTTPError(status, key).Wrap(problem.New(key, nil))
 }

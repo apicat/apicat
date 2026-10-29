@@ -1,3 +1,4 @@
+import { useI18n, asError } from '@/lib/i18n'
 import { useEffect, useState } from 'react'
 import { Globe2, Plus, Save, Trash2, FolderOpen, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -17,12 +18,13 @@ import { useWorkbench } from '@/lib/workbench'
 import type { Environment } from '@/lib/types'
 
 export function Environments() {
+  const { t, number, locale, errorText } = useI18n()
   const { workspace, saveWorkspace, session } = useWorkbench()
   const [draft, setDraft] = useState(() => structuredClone(workspace))
   const [selected, setSelected] = useState(
     workspace.activeEnvironment || workspace.environments?.[0]?.id || '',
   )
-  const [error, setError] = useState('')
+  const [error, setError] = useState<Error | null>(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
   const [remove, setRemove] = useState(false)
@@ -33,7 +35,7 @@ export function Environments() {
     }
     window.addEventListener('beforeunload', handler)
     return () => window.removeEventListener('beforeunload', handler)
-  }, [dirty])
+  }, [dirty, locale])
   // Native navigation and SPA links both ask before abandoning unsaved settings.
   useEffect(() => {
     const guard = (e: MouseEvent) => {
@@ -42,7 +44,7 @@ export function Environments() {
         dirty &&
         link &&
         new URL(link.href).pathname !== '/environments' &&
-        !window.confirm('环境配置尚未保存，确定离开？')
+        !window.confirm(t('环境配置尚未保存，确定离开？'))
       ) {
         e.preventDefault()
         e.stopPropagation()
@@ -50,8 +52,8 @@ export function Environments() {
     }
     document.addEventListener('click', guard, true)
     return () => document.removeEventListener('click', guard, true)
-  }, [dirty])
-  function add(name = '新环境', baseUrl = '') {
+  }, [dirty, locale])
+  function add(name = t('新环境'), baseUrl = '') {
     const env: Environment = { id: crypto.randomUUID(), name, baseUrl, variables: [] }
     setDraft((d) => ({
       ...d,
@@ -71,14 +73,14 @@ export function Environments() {
   }
   async function save() {
     setSaving(true)
-    setError('')
+    setError(null)
     setSaved(false)
     try {
       await saveWorkspace(draft)
       setDraft((d) => ({ ...d, revision: d.revision + 1 }))
       setSaved(true)
     } catch (e) {
-      setError((e as Error).message)
+      setError(asError(e))
     } finally {
       setSaving(false)
     }
@@ -88,16 +90,16 @@ export function Environments() {
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
           <p className="mb-2 text-xs font-medium uppercase tracking-[.12em] text-muted-foreground">
-            WORKSPACE / ENVIRONMENTS
+            {t('工作台 / 环境')}
           </p>
-          <h1 className="text-2xl font-semibold tracking-tight">环境与变量</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">{t('环境与变量')}</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            切换部署地址，在请求中使用 {'{{变量名}}'} 引用变量。
+            {t('切换部署地址，在请求中使用 {{variable}} 引用变量。')}
           </p>
         </div>
         <Button onClick={save} disabled={saving || !dirty}>
           <Save size={15} />
-          {saving ? '保存中…' : '保存配置'}
+          {saving ? t('保存中…') : t('保存配置')}
         </Button>
       </div>
       {error && (
@@ -105,23 +107,23 @@ export function Environments() {
           role="alert"
           className="rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-destructive"
         >
-          {error}
+          {errorText(error)}
           <Button variant="link" onClick={() => window.location.reload()}>
-            重新加载
+            {t('重新加载')}
           </Button>
         </div>
       )}
       {saved && (
         <p role="status" className="flex items-center gap-2 text-success">
           <CheckCircle2 size={16} />
-          配置已保存
+          {t('配置已保存')}
         </p>
       )}
       <div className="grid gap-5 lg:grid-cols-[220px_minmax(0,1fr)]">
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-semibold text-muted-foreground">部署环境</h2>
-            <Button size="icon" variant="ghost" aria-label="添加环境" onClick={() => add()}>
+            <h2 className="text-xs font-semibold text-muted-foreground">{t('部署环境')}</h2>
+            <Button size="icon" variant="ghost" aria-label={t('添加环境')} onClick={() => add()}>
               <Plus size={16} />
             </Button>
           </div>
@@ -140,8 +142,8 @@ export function Environments() {
           ))}
           {draft.environments.length === 0 && (
             <div className="space-y-2">
-              <p className="text-xs text-muted-foreground">快速创建常用环境</p>
-              {['开发环境', '测试环境', '生产环境'].map((name) => (
+              <p className="text-xs text-muted-foreground">{t('快速创建常用环境')}</p>
+              {[t('开发环境'), t('测试环境'), t('生产环境')].map((name) => (
                 <Button
                   key={name}
                   variant="outline"
@@ -163,7 +165,7 @@ export function Environments() {
                 <Button
                   size="icon"
                   variant="ghost"
-                  aria-label="删除环境"
+                  aria-label={t('删除环境')}
                   onClick={() => setRemove(true)}
                 >
                   <Trash2 size={15} />
@@ -173,18 +175,18 @@ export function Environments() {
               <div className="space-y-6">
                 <div className="grid gap-4 sm:grid-cols-2">
                   <label className="space-y-2 text-xs font-medium">
-                    环境名称
+                    {t('环境名称')}
                     <Input
-                      aria-label="环境名称"
+                      aria-label={t('环境名称')}
                       className="mt-2"
                       value={env.name}
                       onChange={(e) => update({ name: e.target.value })}
                     />
                   </label>
                   <label className="space-y-2 text-xs font-medium">
-                    基础地址
+                    {t('基础地址')}
                     <Input
-                      aria-label="环境基础地址"
+                      aria-label={t('环境基础地址')}
                       className="mt-2 font-mono"
                       placeholder="https://api.example.com/v1"
                       value={env.baseUrl}
@@ -198,35 +200,35 @@ export function Environments() {
                   disabled={draft.activeEnvironment === env.id}
                   onClick={() => setDraft((d) => ({ ...d, activeEnvironment: env.id }))}
                 >
-                  {draft.activeEnvironment === env.id ? '当前默认环境' : '设为默认环境'}
+                  {draft.activeEnvironment === env.id ? t('当前默认环境') : t('设为默认环境')}
                 </Button>
                 <div>
                   <h3 className="mb-3 font-medium">
-                    环境变量{' '}
+                    {t('环境变量')}{' '}
                     <Badge variant="secondary" className="ml-2">
-                      {env.variables.length}
+                      {number(env.variables.length)}
                     </Badge>
                   </h3>
                   <PairEditor
                     rows={env.variables}
                     onChange={(variables) => update({ variables })}
                     secrets
-                    label="环境变量"
+                    label={t('环境变量')}
                   />
                 </div>
               </div>
             </Panel>
           ) : (
             <Empty
-              title="为接口配置运行环境"
-              description="创建开发、测试或生产环境，设置基础地址和对应变量。"
+              title={t('为接口配置运行环境')}
+              description={t('创建开发、测试或生产环境，设置基础地址和对应变量。')}
             />
           )}
         </div>
       </div>
-      <Panel title="公共变量">
+      <Panel title={t('公共变量')}>
         <p className="mb-4 text-xs text-muted-foreground">
-          所有环境共享；同名的环境变量会覆盖公共变量。变量替换为单层替换，不递归求值。
+          {t('所有环境共享；同名的环境变量会覆盖公共变量。变量替换为单层替换，不递归求值。')}
         </p>
         <PairEditor
           rows={draft.variables}
@@ -235,27 +237,27 @@ export function Environments() {
             setSaved(false)
           }}
           secrets
-          label="公共变量"
+          label={t('公共变量')}
         />
       </Panel>
       <div className="flex items-start gap-3 rounded-lg bg-muted/60 p-4 text-xs text-muted-foreground">
         <FolderOpen size={17} className="shrink-0" />
         <div>
-          <p className="break-all">配置保存在 {session.workspacePath}</p>
+          <p className="break-all">{t('配置保存在 {path}', { path: session.workspacePath })}</p>
           <p className="mt-1">
-            隐藏值仅在界面遮罩，文件仍以明文保存在本机。不要将含密钥的环境文件加入版本控制。
+            {t('隐藏值仅在界面遮罩，文件仍以明文保存在本机。不要将含密钥的环境文件加入版本控制。')}
           </p>
         </div>
       </div>
       <Dialog open={remove} onOpenChange={setRemove}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>删除环境「{env?.name}」？</DialogTitle>
-            <DialogDescription>删除后点击“保存配置”才会写入磁盘。</DialogDescription>
+            <DialogTitle>{t('删除环境「{name}」？', { name: env?.name || '' })}</DialogTitle>
+            <DialogDescription>{t('删除后点击“保存配置”才会写入磁盘。')}</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setRemove(false)}>
-              取消
+              {t('取消')}
             </Button>
             <Button
               variant="destructive"
@@ -269,7 +271,7 @@ export function Environments() {
                 setRemove(false)
               }}
             >
-              删除
+              {t('删除')}
             </Button>
           </DialogFooter>
         </DialogContent>

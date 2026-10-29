@@ -66,23 +66,28 @@ func Annotate(doc *model.APIDoc) {
 
 func annotateEndpoint(ep *model.Endpoint, counts map[string]int) {
 	ep.LintHints = nil
+	ep.LintDetails = nil
 
 	if ep.Summary == "" && ep.Description == "" {
 		ep.LintHints = append(ep.LintHints, "no summary or description")
+		ep.LintDetails = append(ep.LintDetails, model.LintHint{Rule: ruleEndpointNoSummary})
 		counts[ruleEndpointNoSummary]++
 	}
 	if ep.OperationID == "" {
 		ep.LintHints = append(ep.LintHints, "no operationId")
+		ep.LintDetails = append(ep.LintDetails, model.LintHint{Rule: ruleEndpointNoOperationID})
 		counts[ruleEndpointNoOperationID]++
 	}
 	if !hasErrorResponse(ep.Responses) {
 		ep.LintHints = append(ep.LintHints, "no error responses (4xx/5xx/default)")
+		ep.LintDetails = append(ep.LintDetails, model.LintHint{Rule: ruleEndpointNoErrors})
 		counts[ruleEndpointNoErrors]++
 	}
 
 	for _, p := range ep.Parameters {
 		if p.Description == "" {
 			ep.LintHints = append(ep.LintHints, fmt.Sprintf("parameter %q has no description", p.Name))
+			ep.LintDetails = append(ep.LintDetails, model.LintHint{Rule: ruleParamNoDescription, Name: p.Name})
 			counts[ruleParamNoDescription]++
 		}
 	}
@@ -104,6 +109,7 @@ func annotateEndpoint(ep *model.Endpoint, counts map[string]int) {
 			noun = "field"
 		}
 		ep.LintHints = append(ep.LintHints, fmt.Sprintf("%d schema %s without description", fields, noun))
+		ep.LintDetails = append(ep.LintDetails, model.LintHint{Rule: ruleFieldNoDescription, Count: fields})
 		counts[ruleFieldNoDescription] += fields
 	}
 }

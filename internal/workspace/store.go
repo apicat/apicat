@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/apicat/apicat/v3/internal/problem"
 )
 
 type Variable struct {
@@ -30,7 +32,7 @@ type State struct {
 	Environments      []Environment `json:"environments"`
 }
 
-var ErrConflict = errors.New("配置已被其他窗口更新，请重新加载后再保存")
+var ErrConflict = problem.New("配置已被其他窗口更新，请重新加载后再保存", nil)
 
 type Store struct {
 	mu   sync.Mutex
@@ -59,15 +61,15 @@ func (s *Store) load() (State, error) {
 }
 func Validate(state State) error {
 	if len(state.Environments) > 100 {
-		return errors.New("最多支持 100 个环境")
+		return problem.New("最多支持 100 个环境", nil)
 	}
 	ids := map[string]bool{}
 	for _, env := range state.Environments {
 		if strings.TrimSpace(env.ID) == "" || strings.TrimSpace(env.Name) == "" {
-			return errors.New("环境 ID 和名称不能为空")
+			return problem.New("环境 ID 和名称不能为空", nil)
 		}
 		if ids[env.ID] {
-			return errors.New("环境 ID 不能重复")
+			return problem.New("环境 ID 不能重复", nil)
 		}
 		ids[env.ID] = true
 		if err := validateVariables(env.Variables); err != nil {
@@ -75,13 +77,13 @@ func Validate(state State) error {
 		}
 	}
 	if state.ActiveEnvironment != "" && !ids[state.ActiveEnvironment] {
-		return errors.New("当前环境不存在")
+		return problem.New("当前环境不存在", nil)
 	}
 	return validateVariables(state.Variables)
 }
 func validateVariables(variables []Variable) error {
 	if len(variables) > 500 {
-		return errors.New("最多支持 500 个变量")
+		return problem.New("最多支持 500 个变量", nil)
 	}
 	seen := map[string]bool{}
 	for _, v := range variables {
@@ -89,10 +91,10 @@ func validateVariables(variables []Variable) error {
 			continue
 		}
 		if strings.TrimSpace(v.Key) == "" || strings.ContainsAny(v.Key, "{}\r\n") {
-			return errors.New("变量名不能为空或包含花括号、换行")
+			return problem.New("变量名不能为空或包含花括号、换行", nil)
 		}
 		if seen[v.Key] {
-			return fmt.Errorf("变量 %q 重复", v.Key)
+			return problem.New("变量 {name} 重复", map[string]any{"name": v.Key})
 		}
 		seen[v.Key] = true
 	}

@@ -86,3 +86,31 @@ func TestLocalAPIProtectionAndSettings(t *testing.T) {
 		}
 	}
 }
+
+func TestErrorMessagesCarryLocalizationValues(t *testing.T) {
+	handler, err := newHandler(func() *model.APIDoc { return &model.APIDoc{} }, t.TempDir(), "127.0.0.1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	sessionResponse := httptest.NewRecorder()
+	handler.ServeHTTP(sessionResponse, httptest.NewRequest("GET", "http://localhost/api/session", nil))
+	var session map[string]string
+	if err := json.Unmarshal(sessionResponse.Body.Bytes(), &session); err != nil {
+		t.Fatal(err)
+	}
+	request := httptest.NewRequest("POST", "http://localhost/api/requests/execute", strings.NewReader(`{"method":"GET","url":"http://example.test/{{中文_token}}"}`))
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("X-Apicat-Token", session["token"])
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, request)
+	var payload struct {
+		MessageKey string            `json:"messageKey"`
+		Values     map[string]string `json:"values"`
+	}
+	if err := json.Unmarshal(response.Body.Bytes(), &payload); err != nil {
+		t.Fatal(err)
+	}
+	if response.Code != 400 || payload.MessageKey != "变量 {name} 未定义或未启用" || payload.Values["name"] != "中文_token" {
+		t.Fatalf("unexpected localized error: %d %s", response.Code, response.Body.String())
+	}
+}

@@ -4,8 +4,6 @@ package runner
 import (
 	"context"
 	"encoding/base64"
-	"errors"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -15,6 +13,8 @@ import (
 	"unicode/utf8"
 
 	"github.com/apicat/apicat/v3/internal/workspace"
+
+	"github.com/apicat/apicat/v3/internal/problem"
 )
 
 const MaxResponseBytes = 2 << 20
@@ -60,7 +60,7 @@ func expand(value string, variables map[string]string) (string, error) {
 		return v
 	})
 	if missing != "" {
-		return "", fmt.Errorf("变量 %q 未定义或未启用", missing)
+		return "", problem.New("变量 {name} 未定义或未启用", map[string]any{"name": missing})
 	}
 	return result, nil
 }
@@ -88,7 +88,7 @@ func Build(ctx context.Context, input Request, state workspace.State) (*http.Req
 			}
 		}
 		if !found {
-			return nil, errors.New("所选环境不存在，请刷新环境配置")
+			return nil, problem.New("所选环境不存在，请刷新环境配置", nil)
 		}
 	}
 	target, err := expand(input.URL, variables)
@@ -102,17 +102,17 @@ func Build(ctx context.Context, input Request, state workspace.State) (*http.Req
 				return nil, err
 			}
 			if value == "" && strings.Contains(target, "{"+p.Key+"}") {
-				return nil, fmt.Errorf("路径参数 %q 不能为空", p.Key)
+				return nil, problem.New("路径参数 {name} 不能为空", map[string]any{"name": p.Key})
 			}
 			target = strings.ReplaceAll(target, "{"+p.Key+"}", url.PathEscape(value))
 		}
 	}
 	if strings.ContainsAny(target, "{}") {
-		return nil, errors.New("请填写所有路径参数或环境变量")
+		return nil, problem.New("请填写所有路径参数或环境变量", nil)
 	}
 	u, err := url.Parse(target)
 	if err != nil {
-		return nil, errors.New("请求地址格式无效")
+		return nil, problem.New("请求地址格式无效", nil)
 	}
 	if !u.IsAbs() {
 		base, err = expand(base, variables)
@@ -120,11 +120,11 @@ func Build(ctx context.Context, input Request, state workspace.State) (*http.Req
 			return nil, err
 		}
 		if base == "" {
-			return nil, errors.New("请选择并配置环境地址，或输入完整的 HTTP(S) 地址")
+			return nil, problem.New("请选择并配置环境地址，或输入完整的 HTTP(S) 地址", nil)
 		}
 		b, err := url.Parse(base)
 		if err != nil || b.Host == "" || b.RawQuery != "" || b.Fragment != "" {
-			return nil, errors.New("环境地址格式无效（不支持 query 或 fragment）")
+			return nil, problem.New("环境地址格式无效（不支持 query 或 fragment）", nil)
 		}
 		u, err = url.Parse(strings.TrimRight(base, "/") + "/" + strings.TrimLeft(target, "/"))
 		if err != nil {
@@ -132,7 +132,7 @@ func Build(ctx context.Context, input Request, state workspace.State) (*http.Req
 		}
 	}
 	if (u.Scheme != "http" && u.Scheme != "https") || u.Host == "" || u.User != nil {
-		return nil, errors.New("仅支持不含用户名密码的 HTTP(S) 地址")
+		return nil, problem.New("仅支持不含用户名密码的 HTTP(S) 地址", nil)
 	}
 	q := u.Query()
 	for _, p := range input.Query {
@@ -157,7 +157,7 @@ func Build(ctx context.Context, input Request, state workspace.State) (*http.Req
 	switch method {
 	case "GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS", "TRACE":
 	default:
-		return nil, errors.New("不支持的 HTTP 方法")
+		return nil, problem.New("不支持的 HTTP 方法", nil)
 	}
 	body, err := expand(input.Body, variables)
 	if err != nil {
@@ -178,13 +178,13 @@ func Build(ctx context.Context, input Request, state workspace.State) (*http.Req
 				return nil, err
 			}
 			if strings.ContainsAny(key+value, "\r\n") {
-				return nil, errors.New("请求头不能包含换行")
+				return nil, problem.New("请求头不能包含换行", nil)
 			}
 			switch strings.ToLower(key) {
 			case "host":
 				req.Host = value
 			case "content-length", "transfer-encoding", "connection":
-				return nil, fmt.Errorf("请求头 %s 由 HTTP 客户端管理", key)
+				return nil, problem.New("请求头 {name} 由 HTTP 客户端管理", map[string]any{"name": key})
 			default:
 				req.Header.Add(key, value)
 			}
@@ -198,7 +198,7 @@ func Execute(ctx context.Context, input Request, state workspace.State) (*Respon
 		timeout = 30000
 	}
 	if timeout < 100 || timeout > 120000 {
-		return nil, errors.New("超时必须在 100–120000 毫秒之间")
+		return nil, problem.New("超时必须在 100–120000 毫秒之间", nil)
 	}
 	ctx, cancel := context.WithTimeout(ctx, time.Duration(timeout)*time.Millisecond)
 	defer cancel()
@@ -212,15 +212,15 @@ func Execute(ctx context.Context, input Request, state workspace.State) (*Respon
 	resp, err := client.Do(req)
 	if err != nil {
 		if ctx.Err() != nil {
-			return nil, errors.New("请求已取消或超时")
+			return nil, problem.New("请求已取消或超时", nil)
 		}
 		// Do not expose resolved credentials or query secrets in transport errors.
-		return nil, errors.New("请求失败，请检查目标地址、网络连接和 TLS 证书")
+		return nil, problem.New("请求失败，请检查目标地址、网络连接和 TLS 证书", nil)
 	}
 	defer resp.Body.Close()
 	data, err := io.ReadAll(io.LimitReader(resp.Body, MaxResponseBytes+1))
 	if err != nil {
-		return nil, errors.New("读取响应失败或请求超时")
+		return nil, problem.New("读取响应失败或请求超时", nil)
 	}
 	result := &Response{Status: resp.StatusCode, StatusText: http.StatusText(resp.StatusCode), Headers: resp.Header, DurationMS: time.Since(started).Milliseconds(), URL: req.URL.String(), Encoding: "text"}
 	if len(data) > MaxResponseBytes {

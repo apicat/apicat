@@ -27,6 +27,8 @@ Use `gofmt`, tabs in Go, lowercase package names, exported `PascalCase`, and une
 
 ## Architecture & Change Contracts
 
+- Localize application-owned UI messages through `web/src/lib/i18n.ts` and `locales/en.ts`. Preserve API/root/Schema types/HTTP methods, identifiers, spec text and request/response data. Backend validation uses `internal/problem` message keys and separate values; do not translate raw API payloads or persist translated user data on locale changes.
+
 - Use the official light/dark PNGs in `web/src/assets/brand/` without redrawing, recoloring, or cropping them. Theme tokens live in `web/src/index.css`; brand orange uses dark button text and must stay separate from status colors.
 
 - Load → convert → lint → render/serve. Watch reloads must atomically replace the document only on success, retaining the last good version on failure.

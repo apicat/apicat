@@ -14,6 +14,7 @@ Agents read the raw spec. Humans browse and debug the same source in a local Rea
 
 ## Features
 
+- **Languages** — Simplified Chinese and English, with browser-language detection and a persistent manual choice in the sidebar. UI messages are translated; API terminology, schema types, document content and request/response data stay unchanged.
 - **One command, zero setup** — point it at a directory containing an OpenAPI spec and get browsable docs
 - **Multi-file specs** — `$ref` across files resolved out of the box (OpenAPI 3.0 / 3.1)
 - **Single binary** — Go-compiled, the production React bundle is embedded; no Node or Python required at runtime

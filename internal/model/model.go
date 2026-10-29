@@ -31,6 +31,12 @@ type Component struct {
 	Definition  string
 }
 
+type LintHint struct {
+	Rule  string
+	Name  string
+	Count int
+}
+
 type LintCount struct {
 	Rule    string
 	Message string
@@ -72,7 +78,8 @@ type Endpoint struct {
 	Servers     []Server
 
 	// Filled by lint.Annotate after conversion.
-	LintHints []string
+	LintHints   []string
+	LintDetails []LintHint
 }
 
 type Parameter struct {

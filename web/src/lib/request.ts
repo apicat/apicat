@@ -1,3 +1,4 @@
+import { MessageError } from './i18n'
 import type { Endpoint, Parameter, Pair, RequestDraft, Schema } from './types'
 
 export function sample(schema: Schema | null, depth = 0): unknown {
@@ -116,16 +117,17 @@ export function serializeQuery(row: Pair, parameter?: Parameter): Pair[] {
   try {
     value = JSON.parse(row.value)
   } catch {
-    throw new Error(
-      `参数 ${row.key} 需要 JSON ${parameter.Schema?.Type === 'array' ? '数组' : '对象'}；原始查询也可直接填写到地址中。`,
-    )
+    throw new MessageError('参数 {name} 需要 JSON {type}；原始查询也可直接填写到地址中。', {
+      name: row.key,
+      type: parameter.Schema?.Type || 'object',
+    })
   }
   const style = parameter.Style || 'form'
   const explode = parameter.Explode ?? style === 'form'
   const pair = (key: string, value: unknown): Pair => ({ key, value: String(value), enabled: true })
   if (Array.isArray(value)) {
     if (value.some((v) => v !== null && typeof v === 'object'))
-      throw new Error(`参数 ${row.key} 不支持嵌套数组或对象`)
+      throw new MessageError('参数 {name} 不支持嵌套数组或对象', { name: row.key })
     if (style === 'form' && explode) return value.map((v) => pair(row.key, v))
     if (['form', 'spaceDelimited', 'pipeDelimited'].includes(style))
       return [
@@ -137,14 +139,17 @@ export function serializeQuery(row: Pair, parameter?: Parameter): Pair[] {
   } else if (value && typeof value === 'object') {
     const entries = Object.entries(value)
     if (entries.some(([, v]) => v !== null && typeof v === 'object'))
-      throw new Error(`参数 ${row.key} 不支持嵌套对象`)
+      throw new MessageError('参数 {name} 不支持嵌套对象', { name: row.key })
     if (style === 'deepObject') return entries.map(([k, v]) => pair(`${row.key}[${k}]`, v))
     if (style === 'form')
       return explode
         ? entries.map(([k, v]) => pair(k, v))
         : [pair(row.key, entries.flat().join(','))]
   }
-  throw new Error(`参数 ${row.key} 的值或序列化方式 ${style} 不受支持，请直接编辑请求地址`)
+  throw new MessageError('参数 {name} 的值或序列化方式 {style} 不受支持，请直接编辑请求地址', {
+    name: row.key,
+    style,
+  })
 }
 export function executionDraft(
   draft: RequestDraft,
@@ -154,7 +159,8 @@ export function executionDraft(
   const resolve = (value: string) =>
     value.replace(/\{\{\s*([^{}]+?)\s*\}\}/g, (_token, key: string) => {
       const value = variables[key.trim()]
-      if (value === undefined) throw new Error(`变量 ${key.trim()} 未定义或未启用`)
+      if (value === undefined)
+        throw new MessageError('变量 {name} 未定义或未启用', { name: key.trim() })
       return value
     })
   for (const p of endpoint.Parameters || []) {
@@ -164,7 +170,7 @@ export function executionDraft(
       draft.url.includes(`{${p.Name}}`) &&
       (complex || (p.Style && p.Style !== 'simple'))
     )
-      throw new Error(`路径参数 ${p.Name} 的复杂序列化请直接填写到请求地址中`)
+      throw new MessageError('路径参数 {name} 的复杂序列化请直接填写到请求地址中', { name: p.Name })
   }
   return {
     ...draft,

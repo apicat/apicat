@@ -59,6 +59,11 @@ export interface Server {
   URL: string
   Description: string
 }
+export interface LintHint {
+  Rule: string
+  Name: string
+  Count: number
+}
 export interface Endpoint {
   Method: string
   Path: string
@@ -71,6 +76,7 @@ export interface Endpoint {
   Responses: APIResponse[] | null
   RouteID: string
   LintHints: string[] | null
+  LintDetails: LintHint[] | null
   Servers: Server[] | null
 }
 export interface Component {
