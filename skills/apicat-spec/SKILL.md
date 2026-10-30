@@ -19,6 +19,7 @@ Create accurate OpenAPI documentation for the requested API scope. apicat displa
 - For a proposed API, follow the user's agreed design. If sources conflict or a missing detail affects the contract, ask a focused question rather than inventing behavior.
 - Document only supported methods, paths, parameters, request/response shapes, status codes, and authentication requirements. Do not invent error responses, constraints, or business descriptions to clear lint hints.
 - For updates, change only the requested endpoints and affected shared schemas. Preserve unrelated content, file organization, and existing `operationId` values unless the requested change requires otherwise. Check other consumers before editing a shared schema; do not modify application behavior to match the documentation.
+- Before generating a new spec, identify the business areas, approximate endpoint count, shared models, and large examples; choose the file layout below before writing the full document.
 - When updating an existing spec, run `apicat-cli check -json` from the project root before editing when available, so pre-existing hints can be distinguished from new ones.
 
 ## Where the spec lives
@@ -69,14 +70,27 @@ The specification defines valid syntax and semantics; apicat's lint checks and r
 ## File layout
 
 - The spec directory must contain an entry file named `openapi.yaml`, `openapi.yml`, or `openapi.json` — checked in that order, first match wins.
-- Splitting large specs into multiple files is encouraged. `$ref` file references are resolved relative to the spec directory:
+- Keep small, cohesive APIs in one file. For a new, substantial API spanning multiple business areas, default to multiple files grouped by business area unless the user or consuming tool requires a single file. Do not first generate thousands of lines in one file and leave organization for later. Line count is a review signal, not a fixed splitting threshold; consider endpoint complexity and example size as well.
+- Keep global metadata, servers, authentication, tags, and the path index in the entry file. Reference Path Item Objects in business files such as `paths/users.yaml` and `paths/orders.yaml`; keep related operations together. Use stable, descriptive fragment keys so the entry file makes each endpoint's definition easy to locate.
+- Extract genuinely shared domain models into named schemas, exposed through `components/schemas` in the entry file. Keep simple, endpoint-specific request/response shapes near their operations. Matching fields alone do not make two business concepts the same model.
+- Avoid one file per field or trivial parameter, arbitrary numbered chunks, and chains of references that only forward to another reference. Split a business file further only when it becomes difficult to navigate. Prefer a small set of related files that provides enough context to understand an endpoint.
+- Keep examples representative and concise; do not copy large datasets merely to illustrate an array. Preserve user-required examples and meaningful variants. If examples dominate file size, address their organization before fragmenting otherwise cohesive operations. Never omit contract details or minify the document to meet a size target.
+- For scoped updates, use the existing layout, including an existing large single file. If organization obstructs the task, report a focused restructuring recommendation instead of silently rewriting unrelated content. When restructuring is requested, preserve API semantics and operationIds and update all affected references.
+
+Example layout for a larger API (YAML shown; JSON can use the same organization). Entry-file `$ref` paths start from the spec directory:
 
 ```
 ~/.apicat/projects/-Users-alice-dev-shop/
-  openapi.yaml          # entry: info, servers, tags, paths
-  paths/users.yaml      # referenced via $ref: "paths/users.yaml#/..."
-  schemas/user.yaml     # referenced via $ref: "schemas/user.yaml#/User"
+  openapi.yaml          # global settings, path index, named shared components
+  paths/users.yaml      # e.g. paths/users.yaml#/collection and #/byId
+  paths/orders.yaml     # related order operations
+  schemas/user.yaml     # e.g. schemas/user.yaml#/User
+  schemas/order.yaml    # shared order models
 ```
+
+Use `$ref` only where the declared OpenAPI version permits it: each entry under `paths` may reference a Path Item Object; the entire `paths` map is not a generic include. Check fragment targets and reference bases, especially after moving definitions. A fragment-only reference in an external file refers to that file, not automatically to the entry document.
+
+For existing docs, inspect the entry file and search for relevant paths or operationIds first. Read the affected operations, their referenced schemas, and applicable global settings; check consumers before changing shared definitions. Avoid repeatedly loading unrelated files or the entire large document. Splitting saves context only when reads are selective; full-document verification still needs to cover all relevant references.
 
 ## Quality rules
 
@@ -109,6 +123,8 @@ Structural limit: conversion stops beyond depth 10, so deeper fields are neither
 
 Compare the resulting spec against the requested scope and its sources: confirm endpoint coverage, methods/paths, parameters, required fields, request/response shapes, status codes, authentication, and unique `operationId` values. Check changed references, including consumers of shared schemas. Successful loading and zero hints do not replace this review.
 
+For new or explicitly restructured specs, review the layout before finishing: large unrelated business areas should not remain in one monolithic file without a concrete reason, and ordinary endpoint edits should not require traversing many tiny files. Confirm every intended operation is reachable from the entry file and shared definitions remain consistent. Run checks against the entry document's directory, not just individual fragments; apicat's lint rules do not assess file organization.
+
 After creating or updating a spec, run the check command from the project root:
 
 ```bash
@@ -136,4 +152,4 @@ apicat-cli -watch # resolves local/fallback setting.json spec_dir or the default
 
 If the CLI is unavailable or does not support `check`, perform the source and reference checks possible in the environment and report the command check as unverified. Missing browser tools do not prevent running `check`; report visual verification separately. Do not claim a clean preview or zero hints without checking them.
 
-Finish by reporting the spec location, changes made, checks performed, and any remaining hints or unresolved contract details. Completion requires documentation that covers the requested scope and matches the implementation or agreed design, with verification results and limitations stated accurately.
+Finish by reporting the spec location, changes made, checks performed, and any remaining hints or unresolved contract details. For new or restructured specs, briefly explain the chosen file layout and any reason for keeping a large single file. Completion requires documentation that covers the requested scope and matches the implementation or agreed design, with verification results and limitations stated accurately.
