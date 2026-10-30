@@ -124,6 +124,8 @@ cp -r skills/apicat-spec .claude/skills/
 
 之后让 agent 创建或更新 API spec，它会自动遵循这些约定：spec 的存放位置（从本地或兜底 `setting.json` 读取 `spec_dir`，未设置时使用 `~/.apicat/projects/<编码路径>/`）、入口文件命名、多文件 `$ref` 组织、必填的 description、错误响应、example 等。Skill 文件是纯 Markdown，其他支持技能/指令文件的工具同样可用。
 
+如果你明确指定文档存放在当前项目内的某个目录，skill 会配套创建或更新 `.apicat/setting.json`，让它指向该目录，除非你明确要求不保存这项配置。未指定目录时优先遵循已有配置；使用 apicat 默认目录时，无需为了补全配置而创建 setting 文件。
+
 ## 路线图
 
 - **云端** — `apicat-cli publish` 发布到可自部署的服务端：文档共享、团队协作、spec 版本管理（`latest` + 固定 tag）

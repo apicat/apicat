@@ -124,6 +124,8 @@ cp -r skills/apicat-spec .claude/skills/
 
 Then ask your agent to create or update your API spec; it picks up the conventions automatically: where the spec lives (local or fallback `setting.json` → `spec_dir`, defaulting to `~/.apicat/projects/<encoded-path>/`), entry-file naming, multi-file `$ref` layout, required descriptions, error responses, and examples. The skill file is plain Markdown, so it also works with other tools that read skill/instruction files.
 
+If you explicitly choose a spec directory inside your project, the skill also creates or updates `.apicat/setting.json` to point to it, unless you ask not to persist the choice. If you leave the directory unspecified, existing configuration takes precedence; using apicat's default directory does not require creating a settings file.
+
 ## Roadmap
 
 - **Cloud** — `apicat-cli publish` to a self-hostable server: shared docs, teams, versioned specs (`latest` + pinned tags)
