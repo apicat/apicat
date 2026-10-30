@@ -25,7 +25,7 @@ func main() {
 		fmt.Fprintln(flag.CommandLine.Output(), "Usage: apicat-cli [flags] [spec-directory]\n       apicat-cli check [-json] [spec-directory]")
 		flag.PrintDefaults()
 	}
-	port := flag.Int("port", 8080, "port to listen on")
+	port := flag.Int("port", 20317, "port to listen on")
 	host := flag.String("host", "127.0.0.1", "host to bind to")
 	watch := flag.Bool("watch", false, "reload when spec files in the directory change")
 	flag.Parse()

@@ -145,10 +145,10 @@ When visual verification is useful and tools are available, run a preview from t
 apicat-cli -watch # resolves local/fallback setting.json spec_dir or the default from the cwd
 ```
 
-- Overview `http://127.0.0.1:8080` — inspect the Spec Quality panel against the quality target above.
-- Endpoints `http://127.0.0.1:8080/endpoints` — inspect changed operations, field descriptions, and hint badges.
+- Overview `http://127.0.0.1:20317` — inspect the Spec Quality panel against the quality target above.
+- Endpoints `http://127.0.0.1:20317/endpoints` — inspect changed operations, field descriptions, and hint badges.
 - With `-watch`, a broken edit keeps the last good version. Confirm the latest edit loaded successfully in the terminal; an unchanged page is not evidence of success.
-- If the port is occupied, use an available one with `apicat-cli -watch -port 8081` and adjust the preview URLs; do not stop an unrelated server.
+- If the port is occupied, use an available one with `apicat-cli -watch -port 20318` and adjust the preview URLs; do not stop an unrelated server.
 
 If the CLI is unavailable or does not support `check`, perform the source and reference checks possible in the environment and report the command check as unverified. Missing browser tools do not prevent running `check`; report visual verification separately. Do not claim a clean preview or zero hints without checking them.
 

@@ -70,13 +70,13 @@ apicat-cli
 apicat-cli path/to/spec-dir
 ```
 
-无论哪种方式，spec 目录中需包含 `openapi.yaml`、`openapi.yml` 或 `openapi.json` 入口文件，被引用的文件相对它解析。然后打开 http://127.0.0.1:8080。
+无论哪种方式，spec 目录中需包含 `openapi.yaml`、`openapi.yml` 或 `openapi.json` 入口文件，被引用的文件相对它解析。然后打开 http://127.0.0.1:20317。
 
 参数：
 
 | 参数 | 默认值 | 说明 |
 |------|--------|------|
-| `-port` | `8080` | 监听端口 |
+| `-port` | `20317` | 监听端口 |
 | `-host` | `127.0.0.1` | 绑定地址 |
 | `-watch` | 关闭 | spec 文件变更时自动重载 |
 
@@ -90,7 +90,7 @@ apicat-cli path/to/spec-dir
 
 ### 前端开发
 
-先运行 `go run ./cmd/apicat-cli -watch /path/to/spec-dir`，再运行 `npm --prefix web run dev`。Vite 提供开发界面，并将 `/api` 代理到 `127.0.0.1:8080`；后端使用其他端口时修改 `web/vite.config.ts` 的代理配置。
+先运行 `go run ./cmd/apicat-cli -watch /path/to/spec-dir`，再运行 `npm --prefix web run dev`。Vite 提供开发界面，并将 `/api` 代理到 `127.0.0.1:20317`；后端使用其他端口时修改 `web/vite.config.ts` 的代理配置。
 
 `npm --prefix web run build` 执行 TypeScript 检查并生成 `web/dist`，随后重新编译 Go 才会嵌入新资源。构建产物提交到仓库，因此 `go install` 和仅使用 Go 的构建方式仍然可用；修改前端源码时必须同步生成构建产物。`make build` 会安装锁定的前端依赖、构建资源并编译 CLI。使用 `npm --prefix web test` 和 `go test ./...` 运行回归测试。Spec watch 会更新浏览器中的文档并保留请求草稿；加载失败时保留上一份正常文档。
 

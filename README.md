@@ -70,13 +70,13 @@ An explicit spec directory overrides the config (and skips reading it):
 apicat-cli path/to/spec-dir
 ```
 
-Either way, the spec directory must contain an `openapi.yaml`, `openapi.yml`, or `openapi.json` entry file; referenced files are resolved relative to it. Then open http://127.0.0.1:8080.
+Either way, the spec directory must contain an `openapi.yaml`, `openapi.yml`, or `openapi.json` entry file; referenced files are resolved relative to it. Then open http://127.0.0.1:20317.
 
 Flags:
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `-port` | `8080` | Port to listen on |
+| `-port` | `20317` | Port to listen on |
 | `-host` | `127.0.0.1` | Host to bind to |
 | `-watch` | off | Reload when spec files in the directory change |
 
@@ -90,7 +90,7 @@ Flags:
 
 ### Frontend development
 
-Start Go with `go run ./cmd/apicat-cli -watch /path/to/spec-dir`, then run `npm --prefix web run dev`. Vite serves the development UI and proxies `/api` to `127.0.0.1:8080`. Change the proxy in `web/vite.config.ts` if using another backend port.
+Start Go with `go run ./cmd/apicat-cli -watch /path/to/spec-dir`, then run `npm --prefix web run dev`. Vite serves the development UI and proxies `/api` to `127.0.0.1:20317`. Change the proxy in `web/vite.config.ts` if using another backend port.
 
 `npm --prefix web run build` performs TypeScript checking and builds `web/dist`; rebuild the Go binary to embed those assets. The generated bundle is committed so `go install` and Go-only builds continue to work. Frontend source changes must include the regenerated bundle. `make build` installs locked frontend dependencies, builds assets, and builds the CLI. Run `npm --prefix web test` and `go test ./...` for regression checks. Spec watch reloads the document in the browser without discarding request drafts; failed spec loads keep the last good document.
 
